@@ -61,6 +61,29 @@ jobs:
 
       # The probe binary comes from nubjs/nub at an explicit SHA, never from a floating branch: every
       # record's provenance names the nub it measured, and an old corpus must stay reproducible.
+      # ⛔ STAMP THE JOB'S START BEFORE THE BUILD — the measure deadline is relative to THE JOB, and
+      # the build is the largest and most variable slice of it (~20 min warm, ~90 min cold on
+      # Windows). This step sat AFTER the build at first, which made the deadline measure-relative
+      # again and the guard inert: it would have granted the full remaining budget on top of whatever
+      # the build had already spent, overrunning the very cap it exists to respect.
+      - name: Stamp the job start
+        shell: bash
+        run: echo "JOB_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
+
+      # ⛔ CACHE THE RUST BUILD. It is paid ONCE PER SLICE and the corpus needs many slices: at the
+      # Windows slice size of 20 that is ~60 min of rebuilding for ~264 min of measuring, i.e. ~19%
+      # of every Windows run spent recompiling a binary that did not change. Over the 113 Windows
+      # slices needed to drain 2,250 rows it is ~113 hours of pure rebuild.
+      #
+      # Keyed on the nub commit, which is what actually determines the artifact — a cache hit is only
+      # correct for the exact source the slice was asked to measure.
+      - name: Cache the probe build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: /tmp/nub
+          key: nub-${{ inputs.nub_sha }}
+          shared-key: corpus-probe-${{ inputs.os }}
+
       - name: Build the probe binary
         shell: bash
         run: |
@@ -69,15 +92,6 @@ jobs:
           cd /tmp/nub && git fetch --depth 1 origin "${{ inputs.nub_sha }}" && git checkout FETCH_HEAD
           cargo build --release -p nub-cli --features nub-cli/build-jail-catalog-override
           echo "NUB_BIN=/tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
-
-      # ⛔ STAMP THE JOB'S START, because the measure deadline must be relative to THE JOB, not to the
-      # measure step. The build runs first and its cost varies from ~20 min (warm cache) to ~90 min
-      # (cold Windows release build); a deadline computed when measuring begins would grant the full
-      # remaining budget on top of whatever the build already spent, and overrun the cap it exists to
-      # respect.
-      - name: Stamp the job start
-        shell: bash
-        run: echo "JOB_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
 
       # ⛔ RECLAIM BEFORE CLAIMING. A previous run that was cancelled or timed out leaves rows
       # `claimed` forever; without this the queue drains to a floor of permanently-stuck rows and
