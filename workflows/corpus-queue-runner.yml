@@ -131,6 +131,11 @@ jobs:
           key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
 
       - name: Cache the probe build
+        # Skipped on a binary hit: there is nothing left to compile, so restoring a dependency cache
+        # and saving it again at job end is pure cost. It also removes any chance of rust-cache's
+        # archive extracting over the binary restored above — same target/ dir, and ordering that
+        # depends on what another action happens to put in its tarball is not a thing to rely on.
+        if: steps.nubbin.outputs.cache-hit != 'true'
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: /tmp/nub
