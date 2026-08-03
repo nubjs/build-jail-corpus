@@ -90,6 +90,16 @@ jobs:
       - name: Measure the slice
         if: env.DRAINED != '1'
         shell: bash
+        env:
+          # ⛔ TELL THE HARNESS WHERE THIS REPO KEEPS RECORDS. Without it, run-batch.sh writes to its
+          # local-sweep default `harness/results/runs` while every later step here reads `records/` —
+          # so collect-verdicts finds 0, claim-slice completes 0 rows, and the slice commits nothing.
+          #
+          # MEASURED on a 3-package local slice: 3 records written and all MINIMUM, while
+          # `collect-verdicts --runs records` reported "collected 0 verdict(s) from 0 record file(s)".
+          # This sat BEHIND the missing-`timeout` defect and produces the identical symptom — a green
+          # slice that measured nothing — so fixing that one alone changed nothing observable.
+          NUB_CORPUS_RUNS: ${{ github.workspace }}/records/runs
         run: |
           # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
           # cost the other 99 measurements in this slice.
@@ -97,6 +107,7 @@ jobs:
           # Collect this run's verdicts for the completion step. A row whose record is missing stays
           # claimed and is reclaimed later — never silently marked done.
           node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
+          echo "records on disk after the batch: $(find records -name results.json | wc -l)"
 
       - name: Mark completed rows
         if: env.DRAINED != '1'
