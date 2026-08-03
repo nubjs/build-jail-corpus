@@ -61,7 +61,7 @@ incomplete with nothing pending.
 |---|---|
 | `MINIMUM` | measured — the grant recorded is the minimum that reproduces the control |
 | `BROKEN-IN-ENVIRONMENT` | fails here AND a reference PM fails identically — the environment, not nub |
-| `BROKEN-WITHOUT-JAIL-TOO` | fails identically with the jail off — a nub PM/linker bug, **never** a jail defect |
+| `BROKEN-WITHOUT-JAIL-TOO` | fails identically with the jail off, so confinement is **not** implicated — either a nub PM/linker problem *or* a package that cannot run on this host at all |
 | `BROKEN-EVEN-WITH-EVERYTHING` | the jail IS implicated: fails jailed, succeeds unjailed, reference PMs succeed |
 | `HARNESS-FLAKE` | npm 6's cacache race under contention — re-run serially; not a measurement |
 | `REFUSED-MALICIOUS` | the OSV screen refused something in the tree; `maliciousAdvisories` names what |
@@ -71,6 +71,15 @@ incomplete with nothing pending.
 node harness/collate.mjs --runs records --out catalog-v2.json   # records -> catalog
 node harness/verify-corpus.mjs --records records                # does it carry what it measured?
 ```
+
+⛔ **`BROKEN-WITHOUT-JAIL-TOO` is not a failure rate for nub.** The classifier asks the jail-off cell
+first and short-circuits, so the bucket collects everything that fails with confinement off — and in
+practice that is dominated by packages no tool can install on the host. Measured on a 100-package
+Linux slice: 19 landed there, and at least 15 were environmental — old C++ against a modern V8, dead
+download CDNs, a Windows-only package on Linux, `primordials is not defined` on too-new Node, and
+packages whose own `postinstall` invokes a binary they never depend on (npm exits 127 on those too).
+Reading the per-cell log per package is the only way to split them, which is why the artifact matters
+more than the verdict.
 
 ## Keeping the corpus honest
 
