@@ -92,8 +92,36 @@ if (argv.includes('--self-test')) {
   const quiet = !got.has(clean);
   console.log(`  ${known.padEnd(26)} -> ${alarmed ? `FLAGGED ${got.get(known).join(',')}` : 'NOT FLAGGED'}`);
   console.log(`  ${clean.padEnd(26)} -> ${quiet ? 'clean' : `FLAGGED ${got.get(clean).join(',')}`}`);
-  if (alarmed && quiet) { console.log('SELF-TEST: ok — the screen alarms on a known-malicious version and stays quiet on a clean one'); process.exit(0); }
+
+  // ⛔ SECOND CONTROL: THE KNOWN POSITIVE, BURIED MID-BATCH AT FULL CHUNK SIZE.
+  //
+  // The small-batch test above proves the screen can alarm. It does NOT prove the screen still
+  // alarms at the size it actually runs at, nor that a hit is attributed to the RIGHT package.
+  // Results come back as a positional array, so a chunk boundary or a silent truncation misaligns
+  // every index after it — and a misaligned hit does not look like an error, it looks like a
+  // DIFFERENT package being flagged. That is worse than a miss: it would pull an innocent package
+  // out of the corpus while leaving the malicious one in.
+  //
+  // The per-chunk length check already refuses a SHORT batch. This covers the other half: right
+  // length, wrong order.
+  const CHUNK_SIZE = 500;
+  const padded = Array.from({ length: CHUNK_SIZE }, (_, i) => `nub-osv-control-filler-${i}@1.0.0`);
+  const at = Math.floor(CHUNK_SIZE / 2);
+  padded[at] = known;
+  const bulk = osvMalicious(padded);
+  const foundInBulk = bulk.has(known);
+  const noFalsePositives = [...bulk.keys()].every((k) => k === known);
+  console.log(`  ${known} at index ${at} of a ${CHUNK_SIZE}-query batch -> ${foundInBulk ? 'FOUND' : 'LOST'}`);
+  console.log(`  filler packages flagged: ${[...bulk.keys()].filter((k) => k !== known).length} (want 0)`);
+
+  if (alarmed && quiet && foundInBulk && noFalsePositives) {
+    console.log('SELF-TEST: ok — the screen alarms on a known-malicious version, stays quiet on a clean one, '
+      + 'and still finds the positive at the correct index in a full-size batch');
+    process.exit(0);
+  }
   console.error('SELF-TEST FAILED: the screen cannot be trusted to alarm, so its all-clears are worthless.');
+  if (!foundInBulk) console.error('  the positive was LOST in a full-size batch — results are truncated or misaligned.');
+  if (!noFalsePositives) console.error('  a filler package was flagged — results are misaligned, so hits name the WRONG package.');
   process.exit(1);
 }
 
