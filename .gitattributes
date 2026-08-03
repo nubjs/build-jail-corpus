@@ -1,0 +1,27 @@
+# ⛔ PIN LINE ENDINGS, BECAUSE THE HARNESS HASHES ITS OWN SOURCE AND GIT REWRITES IT ON CHECKOUT.
+#
+# Every record carries `provenance.harnessSha256`, a sha256 of `search.mjs` + `states.mjs`, so a
+# reader can tell which methodology produced it. Without this file that hash is NOT a property of the
+# harness — it is a property of the harness AS CHECKED OUT, and Git converts LF to CRLF on Windows.
+#
+# MEASURED: identical committed source hashed 0de2d34e463a748a on the Linux and macOS runners and
+# 6fa2b6be501b4b5d on the Windows runner. Re-hashing the committed bytes with \n -> \r\n reproduces
+# the Windows value exactly, which is the proof rather than the theory.
+#
+# Two things that breaks, both silent:
+#   - `--stale-harness` purges records "measured under an older harness". Run on Windows it would
+#     discard every Linux and macOS record, and vice versa — the whole corpus, every time.
+#   - Any claim of the form "these records share a harness revision" is false across platforms. The
+#     determination of which records have a trustworthy jail-off control was keyed on the LF value
+#     and would have wrongly excluded every Windows record.
+#
+# `eol=lf` makes the working-tree bytes identical everywhere, so the hash means what it says.
+* text=auto eol=lf
+
+# Shell scripts additionally MUST be LF: bash on Windows fails a CRLF script with the famously
+# unhelpful `$'\r': command not found`, pointing at whichever line happens to be first.
+*.sh text eol=lf
+
+# Records are generated JSON; keep them byte-stable so a re-commit is a no-op rather than a diff.
+records/** -text
+queue.ndjson -text
