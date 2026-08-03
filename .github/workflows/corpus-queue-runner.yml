@@ -364,6 +364,54 @@ jobs:
         shell: bash
         run: node harness/verify-corpus.mjs --records records --expect "$(wc -l < /tmp/slice.txt)"
 
+      # ⛔ ASK THE REAL PARSER WHETHER THE ACCUMULATING CATALOG STILL LOADS. Everything upstream of
+      # this is JavaScript checking JavaScript: collate.mjs writes a catalog and verify-corpus.mjs
+      # reads it back. Neither has ever asked NUB. The unit gate in-tree
+      # (crates/nub-sandbox/tests/generated_catalog_round_trip.rs) asserts a SYNTHETIC document, so
+      # the catalog this corpus actually produces has never been through the parser that consumes it.
+      #
+      # ⛔ AND A REJECTED CATALOG DOES NOT FAIL — Decision::FellBack keeps nub running on the
+      # compiled-in catalog and merely prints "REJECTED". So the failure this guards against is
+      # silent by construction: records keep landing, slices keep going green, and the catalog they
+      # produce quietly stops being the one in force. That is the same shape as the six defects this
+      # harness already shipped.
+      #
+      # ⛔ THE GATE CHECKS ITSELF FIRST. A deliberately malformed catalog must be REJECTED before the
+      # real one is allowed to prove anything. Without that control an absent banner — a nub that
+      # never read the variable at all — would read as success, which is precisely how a vacuous
+      # check passes forever.
+      - name: Ask nub to parse the catalog this corpus produces
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          set -uo pipefail
+          node harness/collate.mjs --runs records --out /tmp/catalog-gate.json >/dev/null 2>&1
+
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/catalog-bad.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/catalog-bad.json "$NUB_BIN" --version 2>&1 || true)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused" ;;
+            *) echo "⛔ GATE IS INERT: a deliberately malformed catalog produced no REJECTED banner." >&2
+               echo "   Saw: ${BAD:-<no output>}" >&2
+               echo "   Refusing to read anything into the real catalog's result." >&2
+               exit 1 ;;
+          esac
+
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/catalog-gate.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *REJECTED*)
+              echo "⛔ THE GENERATED CATALOG WAS REJECTED BY NUB — it is silently not in force." >&2
+              echo "   $GOOD" >&2
+              exit 1 ;;
+            *OVERRIDDEN*)
+              echo "the catalog this corpus produces loads in nub:"
+              echo "  $GOOD" ;;
+            *)
+              echo "⛔ no catalog banner at all — nub did not read the override." >&2
+              echo "   Saw: ${GOOD:-<no output>}" >&2
+              exit 1 ;;
+          esac
+
       # ONE COMMIT: results and queue together, so the claim and its evidence can never diverge.
       - name: Commit results and queue
         if: env.DRAINED != '1'
