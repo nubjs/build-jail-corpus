@@ -72,6 +72,17 @@ for attempt in 1 2 3; do
   git fetch -q origin "$BRANCH" 2>/dev/null || { sleep $((attempt * 3)); continue; }
   git reset -q --soft "origin/$BRANCH" 2>/dev/null || { sleep $((attempt * 3)); continue; }
 
+  # ⛔ TAKE ORIGIN'S QUEUE VERBATIM — the working copy goes stale the moment any other runner
+  # publishes a claim. --soft leaves the working tree alone, which is right for records and wrong for
+  # the queue: reconciling and committing MY stale copy would write it over a newer origin and
+  # silently release the rows another runner had just claimed, handing its packages to a third
+  # runner while it was still measuring them.
+  #
+  # Nothing of ours is lost by taking theirs: this run's own claim was published atomically before
+  # measuring, so it is already IN origin's queue. --reconcile then re-marks done from the records on
+  # disk, which is the only thing this script needs the queue for.
+  git checkout -q "origin/$BRANCH" -- queue.ndjson 2>/dev/null || true
+
   mkdir -p "$REL"
   cp -R "$STASH/rec/." "$REL/" 2>/dev/null
 

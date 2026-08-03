@@ -38,9 +38,19 @@ on:
         default: true
 
 concurrency:
-  # Serialise same-OS runners so two slices never write the queue at once. Cancelling would strand a
-  # claim, so an in-flight run always finishes.
-  group: corpus-queue-${{ inputs.os }}
+  # ⛔ SAME-OS RUNNERS NOW RUN IN PARALLEL. They used to be serialised because a claim lived only in
+  # the claiming runner's working tree until the end of its slice, so a second runner read the same
+  # pending rows and measured the same packages — measured on a local rig: three concurrent runners
+  # claiming 4 rows each from a 10-row queue took the IDENTICAL 4, i.e. 4 distinct of 12. Parallelism
+  # bought nothing at all. With the claim published before measuring, the same rig gives 10 distinct
+  # of 10.
+  #
+  # This is the only lever that moves Windows: 2,250 rows at the measured 13.2 min/package is ~23 days
+  # serialised, and divides directly by the number of concurrent runners.
+  #
+  # The group is keyed on the RUN so nothing is ever cancelled — an interrupted job would strand its
+  # claim until --reclaim-stale ages it out six hours later.
+  group: corpus-queue-${{ inputs.os }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -189,12 +199,54 @@ jobs:
             echo "windows: clamping slice $SLICE -> 20 (13.2 min/package measured; 350-min job cap)"
             SLICE=20
           fi
-          node harness/claim-slice.mjs \
-            --claim "$SLICE" --os "${{ inputs.os }}" --run "${{ github.run_id }}" \
-            > /tmp/slice.txt
-          echo "claimed $(wc -l < /tmp/slice.txt) rows"
-          # An empty slice means this OS is finished. Exit cleanly rather than running a no-op batch.
-          if [ ! -s /tmp/slice.txt ]; then echo "DRAINED=1" >> "$GITHUB_ENV"; fi
+          # ⛔ PUBLISH THE CLAIM BEFORE MEASURING ANYTHING. The claim used to live only in this
+          # runner's working tree until the end-of-slice commit, so a second runner on the same OS
+          # read the same pending rows and measured the same packages. That is the reason same-OS
+          # runs have to be serialised, and serialisation is what puts Windows at roughly 23 days for
+          # its 2,250 rows at the measured 13.2 min/package.
+          #
+          # Pushing the claim first makes it exclusive, which is what lets runners be parallel. Each
+          # retry RE-CLAIMS against the queue it just fetched rather than re-pushing the same rows:
+          # --claim only ever takes `pending` rows, so a loser automatically picks up rows the winner
+          # did not take and the two converge on disjoint slices with no coordination.
+          #
+          # Taking origin's queue.ndjson VERBATIM each round is what keeps that safe. Carrying a
+          # locally-modified copy across the retry would replay my claim over a queue that has since
+          # gained other runners' claims, and writing that back would silently release their rows.
+          git config user.name corpus-runner
+          git config user.email corpus-runner@users.noreply.github.com
+          CLAIMED=0
+          for attempt in 1 2 3 4 5 6; do
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git reset -q --soft "origin/$GITHUB_REF_NAME"
+            git checkout -q "origin/$GITHUB_REF_NAME" -- queue.ndjson
+            node harness/claim-slice.mjs \
+              --claim "$SLICE" --os "${{ inputs.os }}" --run "${{ github.run_id }}" \
+              > /tmp/slice.txt
+            # An empty slice means this OS is finished. Nothing to publish, so do not push.
+            if [ ! -s /tmp/slice.txt ]; then
+              echo "DRAINED=1" >> "$GITHUB_ENV"
+              CLAIMED=1
+              break
+            fi
+            N=$(wc -l < /tmp/slice.txt | tr -d ' ')
+            git add queue.ndjson
+            git commit -q -m "corpus(${{ inputs.os }}): claim $N rows [run ${{ github.run_id }}]"
+            if git push -q origin "HEAD:$GITHUB_REF_NAME"; then
+              CLAIMED=1
+              echo "claimed $N rows"
+              break
+            fi
+            echo "claim push $attempt rejected — re-claiming against the new head" >&2
+            sleep $((attempt * 4))
+          done
+          # ⛔ FAIL rather than measure on an unpublished claim. Carrying on would duplicate whatever
+          # another runner is already measuring: a whole job spent producing records that already
+          # exist, and no progress on the queue.
+          if [ "$CLAIMED" != "1" ]; then
+            echo "could not publish a claim after 6 attempts — refusing to measure" >&2
+            exit 1
+          fi
 
       - name: Measure the slice
         if: env.DRAINED != '1'
