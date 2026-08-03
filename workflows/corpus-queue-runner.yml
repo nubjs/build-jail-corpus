@@ -114,6 +114,26 @@ jobs:
         shell: bash
         run: node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
 
+      # ⛔ A SLICE'S MEASUREMENTS MUST SURVIVE A FAILED COMMIT. Measuring 100 packages costs ~2 hours
+      # of runner time; the commit that publishes them is the very last step and any earlier failure
+      # takes the whole slice down with the ephemeral runner.
+      #
+      # MEASURED: a Linux slice measured its full 100 packages successfully, wrote them to a path the
+      # commit step did not stage, and the runner was torn down — 100 real measurements gone. The
+      # rows stayed `claimed` so nothing was permanently lost, but the compute was.
+      #
+      # `if: always()` is the whole point: this must run precisely when a later step FAILS. Uploading
+      # before the gate is deliberate too — records that fail verification are exactly the ones worth
+      # keeping for diagnosis.
+      - name: Preserve this slice's records as an artifact
+        if: always() && env.DRAINED != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: records-${{ inputs.os }}-${{ github.run_id }}
+          path: records/
+          if-no-files-found: warn
+          retention-days: 30
+
       # ⛔ VERIFY BEFORE COMMITTING, and FAIL the run if the corpus lost substance. A slice that
       # produces records which collate to nothing is the failure this project already shipped once;
       # committing it would bury the evidence under thousands of later rows.
