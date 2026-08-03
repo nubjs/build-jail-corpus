@@ -207,13 +207,44 @@ jobs:
         run: |
           git config user.name  "corpus-runner"
           git config user.email "corpus-runner@users.noreply.github.com"
+          # ⛔ DO NOT REBASE OR MERGE. REBUILD OUR CONTENT ON TOP OF ORIGIN INSTEAD.
+          #
+          # MEASURED, and it killed a slice that had already passed the gate: run 30798824023
+          # measured 100 packages, collected 100 verdicts and printed `CORPUS VERIFY: ok`, then died
+          # on `CONFLICT (add/add)` under records/runs/linux-x64/ — its checkout predated a commit
+          # that had already added some of those records, so both sides ADDED the same paths.
+          #
+          # The retry loop then could not possibly succeed. `git pull --rebase` leaves unmerged files
+          # behind, so every later attempt failed identically with "Pulling is not possible because
+          # you have unmerged files". Five attempts, one guaranteed outcome.
+          #
+          # Rebasing is the wrong tool because this step's output is not a patch — it is a set of
+          # FILES whose identity is (platform, package, version). Two runs producing the same path is
+          # not a conflict to resolve; it is two valid measurements of one cell. So: copy our records
+          # aside, hard-reset onto origin, put them back, and RE-DERIVE the queue from the records
+          # that now exist. Conflict-free by construction rather than by luck.
+          SLICE_N=$(wc -l < /tmp/slice.txt)
           git add records queue.ndjson
           git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
-          git commit -m "corpus(${{ inputs.os }}): slice of $(wc -l < /tmp/slice.txt) [run ${{ github.run_id }}]"
-          # Another OS's runner may have pushed while this slice ran; rebase rather than fail, since
-          # their rows and ours are disjoint by construction.
+          STASH=$(mktemp -d)
+          cp -R records "$STASH/records"
           for i in 1 2 3 4 5; do
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git reset -q --hard HEAD
+            git fetch -q origin "${GITHUB_REF_NAME}"
+            git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            # Ours win where they overlap: a freshly measured record is at least as good as the one
+            # already there, and both describe the same cell.
+            cp -R "$STASH/records/." records/
+            # ⛔ RE-DERIVE the queue rather than carrying our copy across. Origin's queue may hold
+            # another platform's claims made while this slice ran, and overwriting it would silently
+            # release their rows. Reconcile only ever marks a row done, and only when a record for
+            # that exact cell exists.
+            node harness/claim-slice.mjs --reconcile --records records
+            git add records queue.ndjson
+            git diff --cached --quiet && { echo "already up to date after reconcile"; exit 0; }
+            git commit -q -m "corpus(${{ inputs.os }}): slice of $SLICE_N [run ${{ github.run_id }}]"
+            git push -q && exit 0
+            echo "push $i rejected — another runner landed first; rebuilding on the new head" >&2
             sleep $((i * 5))
           done
           echo "could not push after 5 attempts" >&2; exit 1
