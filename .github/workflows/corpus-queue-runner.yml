@@ -112,7 +112,16 @@ jobs:
       - name: Mark completed rows
         if: env.DRAINED != '1'
         shell: bash
-        run: node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+        run: |
+          node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+          # ⛔ THEN RECONCILE AGAINST THE RECORDS ON DISK. `--complete` only marks rows THIS run
+          # claimed, which leaves every other route to a record unaccounted for: one salvaged from a
+          # lost run's log, one committed by a run whose queue update never landed, one carried in
+          # from an earlier corpus. MEASURED: the queue read `0/6750 done (0%)` while 158 records sat
+          # committed beside it — an index that is internally consistent and says the opposite of the
+          # truth. Safe by construction: it only ever marks a row DONE, and only when a record for
+          # that exact (pkg, version, platform) exists.
+          node harness/claim-slice.mjs --reconcile --records records
 
       # ⛔ A SLICE'S MEASUREMENTS MUST SURVIVE A FAILED COMMIT. Measuring 100 packages costs ~2 hours
       # of runner time; the commit that publishes them is the very last step and any earlier failure

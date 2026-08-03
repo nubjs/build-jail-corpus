@@ -47,6 +47,61 @@ if (argv.includes('--status')) {
   process.exit(0);
 }
 
+// ⛔ THE RECORDS ARE THE TRUTH; THE QUEUE IS AN INDEX OF THEM, AND AN INDEX CAN FALL BEHIND.
+//
+// `--complete` only marks rows THIS RUN claimed, which is right for a live slice and leaves a gap
+// everywhere else: records recovered from a lost run's log, records committed by a run whose queue
+// update never landed, records carried in from an earlier corpus. Those packages are measured and the
+// queue still calls them pending.
+//
+// MEASURED: the queue read `0/6750 done (0%)` while 158 records sat committed beside it. That is the
+// same shape as every other defect here — an artifact that is internally consistent, easy to read,
+// and says the opposite of the truth. A later reader concludes nothing has been measured.
+//
+// Reconciling is safe in the direction that matters: it only ever marks a row DONE, and only when a
+// record for that exact (pkg, version, platform) exists on disk. It never invents a verdict, never
+// un-does one, and never returns a row to pending — `--reclaim-stale` owns that direction.
+if (argv.includes('--reconcile')) {
+  const recordsDir = opt('--records', path.join(here, '..', 'records'));
+  // platform dir (`darwin-arm64`) -> queue `os` (`macos`). The queue speaks in OS names because a
+  // human writes it; records speak in `${process.platform}-${process.arch}` because the harness does.
+  const osOf = (plat) => (plat.startsWith('darwin') ? 'macos'
+    : plat.startsWith('linux') ? 'linux'
+      : plat.startsWith('win') ? 'windows' : null);
+
+  const have = new Map();
+  (function walk(d) {
+    let e; try { e = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    for (const x of e) {
+      const f = path.join(d, x.name);
+      if (x.isDirectory()) { walk(f); continue; }
+      if (x.name !== 'results.json') continue;
+      let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
+      const os = osOf(r.provenance?.platform ?? '');
+      if (!os || !r.pkg || !r.version || !r.verdict) continue;
+      have.set(`${r.pkg}@${r.version}\t${os}`, r.verdict);
+    }
+  })(recordsDir);
+
+  const rows = read();
+  let marked = 0; let already = 0; let noRecord = 0;
+  for (const r of rows) {
+    const v = have.get(key(r));
+    if (!v) { noRecord++; continue; }
+    if (r.status === 'done') { already++; continue; }
+    r.status = 'done';
+    r.verdict = v;
+    r.reconciled = true;
+    delete r.run;
+    delete r.claimedAt;
+    marked++;
+  }
+  if (marked) write(rows);
+  console.error(`reconciled against ${have.size} record(s): marked ${marked} row(s) done, `
+    + `${already} already done, ${noRecord} row(s) have no record yet`);
+  process.exit(0);
+}
+
 if (argv.includes('--reclaim-stale')) {
   const minutes = Number(opt('--reclaim-stale', '120'));
   const cutoff = Date.now() - minutes * 60_000;
