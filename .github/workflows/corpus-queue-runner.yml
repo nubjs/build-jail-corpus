@@ -10,9 +10,11 @@
 # that a failure costs ~100 runs, the queue file shows coverage at a glance, and the records land in
 # git as they are produced.
 #
-# ⛔ CONCURRENCY IS PER-OS, NOT GLOBAL. Two runners on different operating systems never contend —
-# they claim disjoint rows. Two on the SAME OS would race on the queue commit, so the group serialises
-# them; the loser retries against a queue that already reflects the winner's claim.
+# ⛔ RUNNERS ARE FULLY PARALLEL, ACROSS AND WITHIN AN OS. What makes that safe is that a claim is
+# PUSHED before any measuring starts, so two runners can never hold the same row: a loser re-claims
+# against the queue that already carries the winner's claim and takes different rows. Records are
+# add-only and unique per (platform, package, version), so the only shared file is the queue, and
+# every writer re-derives it from origin rather than merging its own copy in.
 
 name: corpus-queue-runner
 
