@@ -338,11 +338,14 @@ jobs:
       - name: Take the debug package list instead of a claim
         if: inputs.packages != ''
         shell: bash
+        env:
+          PKGS: ${{ inputs.packages }}   # via env, never raw ${{ }} in the script body — safer, and it does not depend on dispatch-time expansion
         run: |
-          printf '%s\n' ${{ inputs.packages }} > /tmp/slice.txt
+          printf '%s' "$PKGS" | tr ' ' '\n' | grep . > /tmp/slice.txt || true
           echo "DEBUG_MODE=1" >> "$GITHUB_ENV"
           echo "measuring these, bypassing the queue:"
           cat /tmp/slice.txt
+          test -s /tmp/slice.txt || { echo "⛔ empty package list — the input did not arrive"; exit 1; }
 
       - name: Measure the slice
         if: env.DRAINED != '1'
