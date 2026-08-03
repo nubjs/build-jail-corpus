@@ -21,6 +21,30 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
+
+// ⛔ AN UNKNOWN FLAG IS A HARD ERROR, BECAUSE THIS GATE FAILS OPEN WITHOUT IT. `opt` reads only the
+// flags it is asked for and ignores the rest, so a misspelled `--record` silently leaves RECORDS at
+// its DEFAULT — and the gate then verifies a directory the caller never meant, and passes.
+//
+// MEASURED on this very script: `verify-corpus.mjs --catalog <file>` (a flag that does not exist)
+// printed "no records yet — nothing to verify" and exited 0. That is the failure this file was
+// written to catch, occurring inside the file itself.
+//
+// Silently-ignored input is the whole failure class here: a switch that stopped being read
+// (`dependenciesMeta.sandbox`), a grant that stopped being serialised, a canary whose refusal was
+// swallowed. A gate that tolerates unrecognised input cannot be trusted to report on anything.
+const KNOWN = new Set(['--records', '--expect']);
+const unknown = argv.filter((a, i) => a.startsWith('--') && !KNOWN.has(a)
+  // a VALUE that merely looks like a flag belongs to the preceding known flag, not to this check
+  && !(i > 0 && KNOWN.has(argv[i - 1])));
+if (unknown.length) {
+  console.error(`CORPUS VERIFY REFUSED: unknown flag(s): ${unknown.join(', ')}`);
+  console.error(`  known flags: ${[...KNOWN].join(', ')}`);
+  console.error('  Refusing rather than ignoring them: an ignored flag leaves --records at its');
+  console.error('  default, so the gate would check the wrong directory and report success.');
+  process.exit(2);
+}
+
 const RECORDS = opt('--records', path.join(here, '..', 'records'));
 
 const failures = [];
@@ -57,8 +81,14 @@ if (files.length === 0) {
   process.exit(0);
 }
 
+// The state vocabulary, read from the single definition rather than re-spelled here — a second
+// spelling would let this gate and the collator disagree about what is recoverable.
+const { STATES } = await import('./states.mjs');
+const STATE_LABELS = new Set(STATES.map((s) => s.label));
+
 let measured = 0;
 let missingGrant = 0;
+let recoverableGrant = 0;
 const junkNames = [];
 const JUNK = /^(\.|node_modules$)/;
 
@@ -67,16 +97,37 @@ for (const f of files) {
   if (JUNK.test(r.pkg ?? '')) junkNames.push(r.pkg);
   if (r.verdict !== 'MINIMUM') continue;
   measured++;
-  // A MINIMUM whose state is not "(nothing)" MUST carry a structured grant. This is exactly the
-  // `grantFor` returning `undefined` bug — records looked complete and were unusable.
-  if (r.state && r.state !== '(nothing)' && !r.grant) missingGrant++;
+  // A MINIMUM whose state is not "(nothing)" MUST carry a grant that is either SERIALISED or
+  // RECOVERABLE. Recoverable means the state label names a real state, which is what lets
+  // `collate.mjs` backfill it exactly — `STATES` is an exhaustive product and each label is built
+  // deterministically from its cost atoms, so a label identifies exactly one state.
+  //
+  // ⛔ THIS USED TO FAIL ON ANY MISSING `grant`, WHICH FALSE-ALARMS ON THE WHOLE LEGACY CORPUS.
+  // 2,443 records were written while `grantFor` returned `undefined`; every one of them carries a
+  // state label, so collation recovers all of them (measured: 261 of 261 on the macOS corpus, 0
+  // genuinely lost, and the resulting catalog carries 132 packages with capabilities). Failing on
+  // those would block the gate on data that is completely fine.
+  //
+  // What is a REAL defect is a record whose grant is neither present NOR reconstructable — that one
+  // is genuinely unusable, and it is what this now reports.
+  if (r.state && r.state !== '(nothing)' && !r.grant) {
+    if (STATE_LABELS.has(r.state)) recoverableGrant++;
+    else missingGrant++;
+  }
 }
 
 if (missingGrant > 0) {
   failures.push(
-    `${missingGrant} of ${measured} MINIMUM records carry a non-empty state but NO \`grant\` object. ` +
-    `The collator keys on \`grant\`, so these collate into an empty catalog. This is the ` +
-    `\`grantFor\` regression — check that it returns \`g?.default\`, not \`g[0]\`.`
+    `${missingGrant} of ${measured} MINIMUM records carry a non-empty state, NO \`grant\` object, and ` +
+    `a state label that matches no known state — so the grant can be neither read nor reconstructed. ` +
+    `These records are unusable. This is the \`grantFor\` regression (check it returns \`g?.default\`, ` +
+    `not \`g[0]\`) combined with a state vocabulary that has drifted from \`states.mjs\`.`
+  );
+}
+if (recoverableGrant > 0) {
+  notes.push(
+    `${recoverableGrant} record(s) predate the grant fix and carry no \`grant\` field, but their state ` +
+    `labels all resolve, so collation reconstructs them exactly — not a defect`
   );
 }
 if (junkNames.length) {
@@ -104,8 +155,23 @@ if (col.status !== 0) {
   if (cat) {
     const pkgs = Object.entries(cat.packages ?? {});
     const hasCaps = (b) => b && typeof b === 'object' && (b.write || b.read || b.network);
-    const withCaps = pkgs.filter(([, e]) => Object.values(e).some(hasCaps));
-    const withNet = pkgs.filter(([, e]) => Object.values(e).some((b) => b && b.network === true));
+
+    // ⛔ AN ENTRY IS `{default, versions}` AND `versions` IS A MAP OF BANDS, NOT A GRANT. This walked
+    // `Object.values(entry)`, so it inspected `default` (a grant — correct) and `versions` (a map,
+    // whose `.network`/`.write` are undefined). A package whose capability lives ONLY in a version
+    // band was therefore counted as having NONE.
+    //
+    // MEASURED on the legacy macOS corpus: @sentry/cli, bcrypt and better-sqlite3 each carry egress
+    // solely in a band (`<3.6.0`, `<6.0.0`, `<13.0.1`) because latest no longer needs it — exactly
+    // the shape the band rule PRODUCES, since a band is written only when an older version needs
+    // MORE than latest. The gate reported all nine such packages as "measured as needing egress but
+    // carry no network grant after collation", which is false; the full catalog grants every one.
+    //
+    // Both symptoms were false ALARMS rather than false passes, which is the safe direction — but a
+    // gate that cries wolf gets ignored, and that is how the real signal eventually gets missed.
+    const grantsOf = (e) => [e?.default, ...Object.values(e?.versions ?? {})].filter(Boolean);
+    const withCaps = pkgs.filter(([, e]) => grantsOf(e).some(hasCaps));
+    const withNet = pkgs.filter(([, e]) => grantsOf(e).some((b) => b.network === true));
 
     notes.push(`catalog: ${pkgs.length} packages, ${withCaps.length} with capabilities, ${withNet.length} with egress`);
 
