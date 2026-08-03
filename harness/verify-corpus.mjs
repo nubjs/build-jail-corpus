@@ -201,6 +201,52 @@ if (col.status !== 0) {
   try { fs.unlinkSync(tmp); } catch { /* best effort */ }
 }
 
+// ── every DONE row must still have its record ─────────────────────────────────
+//
+// ⛔ THE CHECK THAT WOULD HAVE CAUGHT RECORDS BEING DELETED. `git add <dir>` is `git add -A <dir>`,
+// so a publish that keeps its own records/ dir rather than resetting to origin stages a DELETION for
+// every record another runner pushed since its checkout. One publish commit was measured removing 14
+// other runners' records while adding one of its own; 146 record paths were gone from the tree by the
+// time anyone looked, 107 of them MINIMUM measurements.
+//
+// Nothing was permanently lost — git keeps every blob, and harness/restore-deleted-records.mjs brings
+// them back — but the corpus is what the TREE says, so a deleted record is a measurement the catalog
+// no longer has. The queue is the tell: a row marked `done` asserts a measurement exists. If the
+// record is gone, the queue is claiming coverage the corpus cannot show.
+//
+// This is deliberately a check on the QUEUE against the RECORDS rather than a count of either. Both
+// numbers looked healthy the whole time this was happening.
+{
+  const queuePath = path.join(here, '..', 'queue.ndjson');
+  if (fs.existsSync(queuePath)) {
+    const osOf = (p) => (p.startsWith('darwin') ? 'macos'
+      : p.startsWith('linux') ? 'linux' : p.startsWith('win') ? 'windows' : null);
+    const have = new Set();
+    for (const f of files) {
+      let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
+      const os = osOf(r.provenance?.platform ?? '');
+      if (os && r.pkg && r.version) have.add(`${r.pkg}@${r.version}\t${os}`);
+    }
+    const rows = fs.readFileSync(queuePath, 'utf8').split('\n').filter(Boolean).map((l) => {
+      try { return JSON.parse(l); } catch { return null; }
+    }).filter(Boolean);
+    // A row closed on an instrument failure carries no provenance-bearing record by design, so it
+    // cannot be expected here.
+    const orphans = rows.filter((r) => r.status === 'done'
+      && !String(r.verdict ?? '').startsWith('HARNESS-')
+      && !have.has(`${r.pkg}@${r.version}\t${r.os}`));
+    if (orphans.length) {
+      failures.push(
+        `${orphans.length} queue row(s) are marked done but have NO record in the corpus `
+        + `(e.g. ${orphans.slice(0, 3).map((r) => `${r.pkg}@${r.version} [${r.os}]`).join(', ')}). `
+        + 'Records have been deleted from the tree — run harness/restore-deleted-records.mjs.'
+      );
+    } else {
+      notes.push(`every done row has its record (${rows.filter((r) => r.status === 'done').length} checked)`);
+    }
+  }
+}
+
 // ── report ────────────────────────────────────────────────────────────────────
 console.log(`records: ${files.length} (${measured} MINIMUM)`);
 for (const n of notes) console.log(n);
