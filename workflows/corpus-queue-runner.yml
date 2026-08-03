@@ -133,9 +133,22 @@ jobs:
       #
       # Over the ~60 slices still needed to drain the corpus that is roughly 12 hours of runner time
       # that produces nothing.
+      # ⛔ RESTORE AND SAVE ARE SEPARATE STEPS, AND THAT IS NOT A STYLE CHOICE. With a single
+      # `actions/cache`, the save runs as a POST step — and post steps run in REVERSE registration
+      # order, so `Post Cache the probe build` (rust-cache) runs BEFORE this one. rust-cache's post
+      # step PRUNES WORKSPACE CRATE ARTIFACTS, which deletes `target/release/nub`, so by the time the
+      # binary cache tried to save there was nothing there:
+      #
+      #     Path Validation Error: Path(s) specified in the action for caching do(es) not exist,
+      #     hence no cache is saved.
+      #
+      # The cache could therefore never populate, and every run rebuilt while looking like it had a
+      # cache configured. MEASURED on two consecutive probes: the second restored in 0.0 min and
+      # rebuilt from scratch. Saving explicitly in the MAIN phase, immediately after the build, puts
+      # it beyond the reach of any post-step cleanup.
       - name: Restore a previously built nub for this exact commit
         id: nubbin
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: /tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
           # `v1` is a manual epoch: bump it if the build FLAGS change, since the flags are not in the
@@ -163,6 +176,15 @@ jobs:
           cd /tmp/nub
           cargo build --release -p nub-cli --features nub-cli/build-jail-catalog-override
           echo "NUB_BIN=/tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+
+      # Save NOW, in the main phase, while the binary still exists — see the restore step above for
+      # why a post-phase save silently never happened.
+      - name: Save the built nub for the next slice
+        if: steps.nubbin.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
+          key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
 
       # ⛔ SET NUB_BIN ON THE CACHE-HIT PATH TOO. The build step above is skipped on a hit, and it is
       # the step that exports NUB_BIN — so without this the whole slice would run with an empty
