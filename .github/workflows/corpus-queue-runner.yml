@@ -391,7 +391,7 @@ jobs:
           echo "measure deadline: $(date -u -d "@$NUB_CORPUS_DEADLINE" 2>/dev/null || date -u -r "$NUB_CORPUS_DEADLINE" 2>/dev/null || echo "$NUB_CORPUS_DEADLINE")"
           # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
           # cost the other 99 measurements in this slice.
-          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt ${{ inputs.packages != '' && '--force' || '' }} || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
+          bash harness/run-batch.sh "$NUB_BIN" ${{ inputs.packages != '' && '--force' || '' }} --file /tmp/slice.txt || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
           # Collect this run's verdicts for the completion step. A row whose record is missing stays
           # claimed and is reclaimed later — never silently marked done.
           node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
