@@ -31,6 +31,32 @@ const write = (rows) => fs.writeFileSync(QUEUE, `${rows.map((r) => JSON.stringif
 
 const key = (r) => `${r.pkg}@${r.version}\t${r.os}`;
 
+// ⛔ A `HARNESS-*` VERDICT IS AN INSTRUMENT FAILURE, NOT A MEASUREMENT — so it must not close a row.
+// search.mjs already refuses to let one satisfy its resume check (a crashed package is exactly the
+// one a later fix needs to reach), but the QUEUE overrode that by marking the row `done`, so it was
+// never claimed again and the harness never got the chance. The two halves disagreed and the queue
+// won: instrument failures were being baked into the corpus as results while the queue reported full
+// coverage — the precise failure this project exists to prevent.
+//
+// The row goes back to `pending` instead, carrying an attempt count. The bound matters: a package
+// that crashes the harness every single time would otherwise be re-claimed by every slice forever,
+// and the queue could never drain. After RETRY_LIMIT attempts the verdict is recorded as-is, which
+// says the honest thing — this package could not be measured here — rather than hiding it.
+const RETRY_LIMIT = 3;
+const isInstrumentFailure = (v) => String(v ?? '').startsWith('HARNESS-');
+const returnForRetry = (r, v) => {
+  if (!isInstrumentFailure(v)) return false;
+  const attempts = (r.attempts ?? 0) + 1;
+  r.attempts = attempts;
+  if (attempts >= RETRY_LIMIT) return false;   // out of retries: let the caller close it honestly
+  r.status = 'pending';
+  r.lastInstrumentFailure = v;
+  delete r.run;
+  delete r.at;
+  delete r.verdict;
+  return true;
+};
+
 if (argv.includes('--status')) {
   const rows = read();
   const by = {};
@@ -84,10 +110,15 @@ if (argv.includes('--reconcile')) {
   })(recordsDir);
 
   const rows = read();
-  let marked = 0; let already = 0; let noRecord = 0;
+  let marked = 0; let already = 0; let noRecord = 0; let instrument = 0;
   for (const r of rows) {
     const v = have.get(key(r));
     if (!v) { noRecord++; continue; }
+    // ⛔ NEVER CLOSE A ROW ON AN INSTRUMENT FAILURE. Leave it untouched: `--complete` owns the retry
+    // accounting because it knows which run produced the failure. Doing it here as well would
+    // double-count attempts, and returning a row to `pending` from here could hand it to a second
+    // runner while the one that claimed it is still measuring.
+    if (isInstrumentFailure(v)) { instrument++; continue; }
     if (r.status === 'done') { already++; continue; }
     r.status = 'done';
     r.verdict = v;
@@ -98,7 +129,8 @@ if (argv.includes('--reconcile')) {
   }
   if (marked) write(rows);
   console.error(`reconciled against ${have.size} record(s): marked ${marked} row(s) done, `
-    + `${already} already done, ${noRecord} row(s) have no record yet`);
+    + `${already} already done, ${instrument} instrument failure(s) left open, `
+    + `${noRecord} row(s) have no record yet`);
   process.exit(0);
 }
 
@@ -139,11 +171,12 @@ if (argv.includes('--complete')) {
     }
   }
   const rows = read();
-  let done = 0; let stranded = 0;
+  let done = 0; let stranded = 0; let retry = 0;
   for (const r of rows) {
     if (r.status !== 'claimed' || r.run !== runId) continue;
     const v = verdicts.get(`${r.pkg}@${r.version}`);
     if (v === undefined) { stranded++; continue; }
+    if (returnForRetry(r, v)) { retry++; continue; }
     r.status = 'done';
     r.verdict = v;
     delete r.run;
@@ -151,7 +184,8 @@ if (argv.includes('--complete')) {
     done++;
   }
   write(rows);
-  console.error(`completed ${done} row(s); ${stranded} claimed-but-unreported left for reclaim`);
+  console.error(`completed ${done} row(s); ${retry} instrument failure(s) returned to pending; `
+    + `${stranded} claimed-but-unreported left for reclaim`);
   process.exit(0);
 }
 
