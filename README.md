@@ -72,6 +72,33 @@ node harness/collate.mjs --runs records --out catalog-v2.json   # records -> cat
 node harness/verify-corpus.mjs --records records                # does it carry what it measured?
 ```
 
+## Keeping the corpus honest
+
+Three things go stale in different ways, and each has its own tool. None of them runs automatically —
+they are deliberate operations, because each one throws work away.
+
+```sh
+# After landing a nub fix: drop failure verdicts that fix may already have cured, so they re-run.
+# Takes the BINARY, not a version string — the binary is the comparison.
+node harness/purge-stale-verdicts.mjs --nub /path/to/nub --dry-run
+
+# Before a sweep, and periodically while one drains: refuse to hand a runner a known-malicious
+# package at all. Prove the screen can alarm before believing its all-clear.
+node harness/prescreen-queue.mjs --self-test
+node harness/prescreen-queue.mjs --dry-run
+
+# When a run measured a slice and then lost it: the Actions log holds the complete records.
+gh run view <id> -R nubjs/build-jail-corpus --log > /tmp/run.log
+node harness/salvage-from-log.mjs --log /tmp/run.log --dry-run
+```
+
+**Why a failure verdict goes stale but a `MINIMUM` does not.** `search.mjs` skips any package that
+already has a record, which is what makes the corpus resumable. A measured floor does not move
+because an unrelated nub bug was fixed — but a *failure* often IS that bug, so leaving it in place
+re-reports a defect that no longer exists. Nothing else catches this: `--stale-harness` keys on a hash
+of the harness, so a nub-side fix invalidates nothing at all. Measured: 19 `BROKEN-WITHOUT-JAIL-TOO`
+verdicts were committed hours after the fix for them had already landed.
+
 ---
 
 ## ⛔ The failure mode this system is built against
