@@ -79,7 +79,7 @@ incomplete with nothing pending.
 | `BROKEN-EVEN-WITH-EVERYTHING` | the jail IS implicated: fails jailed, succeeds unjailed, reference PMs succeed |
 | `HARNESS-FLAKE` | npm 6's cacache race under contention — re-run serially; not a measurement |
 | `REFUSED-MALICIOUS` | the OSV screen refused something in the tree; `maliciousAdvisories` names what |
-| `HARNESS-*` | instrument failure — **not** a measurement, and re-run automatically |
+| `HARNESS-*` | instrument failure — **not** a measurement; the row goes back to `pending` and is re-measured, up to 3 attempts |
 
 ```sh
 node harness/collate.mjs --runs records --out catalog-v2.json   # records -> catalog
@@ -94,6 +94,14 @@ download CDNs, a Windows-only package on Linux, `primordials is not defined` on 
 packages whose own `postinstall` invokes a binary they never depend on (npm exits 127 on those too).
 Reading the per-cell log per package is the only way to split them, which is why the artifact matters
 more than the verdict.
+
+⛔ **An instrument failure must never close a row, and for a while it did.** `search.mjs` has always
+refused to let a `HARNESS-*` record satisfy its resume check — the package that crashed the harness is
+exactly the one a later fix needs to reach — but the queue overrode that by marking the row `done`, so
+it was never claimed again and the harness never got its chance. Instrument failures were being
+recorded as results while the queue reported full coverage. The row now returns to `pending` with an
+attempt count, and after 3 attempts the verdict is recorded as-is, which says the honest thing: this
+package could not be measured here.
 
 ## Keeping the corpus honest
 
