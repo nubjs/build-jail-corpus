@@ -330,9 +330,40 @@ fi
 #   2. TIMEOUT and CRASH are distinguished (`timeout` exits 124), because they need opposite fixes.
 #   3. The failure is written as a results.json, so it is visible to the collator and the watcher
 #      instead of living only in a stdout stream a restart loses.
-ATTEMPTED=0; RECORDED=0; FAILED=0
+ATTEMPTED=0; RECORDED=0; FAILED=0; SKIPPED_PAST_DEADLINE=0
 PLAT="$(node -p 'process.platform + "-" + process.arch')"
+
+# ⛔ STOP BEFORE THE JOB IS KILLED, SO THE WORK ALREADY DONE CAN BE COMMITTED.
+#
+# A CI job that hits its wall-clock cap is TERMINATED — no commit, no queue update, rows left
+# claimed, chain dead. Everything measured up to that instant is lost with the runner. The failure is
+# silent in the sense that matters: the run just stops, and the slice looks like it never happened.
+#
+# MEASURED, and this is not a hypothetical: the one Windows run that completed measured 15 packages
+# in 198 minutes -- 13.2 min/package. A 100-package slice therefore needs ~1,320 minutes of measuring
+# against a 350-minute job cap, so EVERY Windows slice would die at the cap having measured ~20 and
+# committed none of them. Windows could never finish a slice at all.
+#
+# A deadline fixes it for every platform at once, and better than tuning a per-OS slice size would:
+# the batch stops STARTING packages once the remaining budget cannot hold another one, returns
+# normally, and the caller commits what exists. Unmeasured rows simply stay pending for the next
+# slice, which is exactly the queue's designed behaviour.
+#
+# Deliberately measured per package rather than assumed: `_pkg_budget` tracks the slowest package
+# seen so far, because the cost varies by an order of magnitude between a pure-JS postinstall and a
+# native build, and stopping on the AVERAGE would still let one heavy package overrun the cap.
+DEADLINE="${NUB_CORPUS_DEADLINE:-0}"          # epoch seconds; 0 disables
+_pkg_budget=0
+_now() { date +%s; }
 for spec in "$@"; do
+  if [ "$DEADLINE" -gt 0 ]; then
+    _left=$(( DEADLINE - $(_now) ))
+    if [ "$_left" -le "$_pkg_budget" ]; then
+      SKIPPED_PAST_DEADLINE=$((SKIPPED_PAST_DEADLINE + 1))
+      continue
+    fi
+  fi
+  _started=$(_now)
   ATTEMPTED=$((ATTEMPTED + 1))
   pkg="${spec%@*}"; ver="${spec##*@}"
   d="$RUNS_ROOT/$PLAT/$(printf '%s' "$pkg" | tr '/' '+')/$ver"
@@ -363,6 +394,12 @@ for spec in "$@"; do
     echo "  ✗ $spec — $verdict ($why)" >&2
     tail -3 "$d/harness-stderr.log" 2>/dev/null | sed 's/^/      /' >&2
   fi
+  # Track the SLOWEST package seen, not the average: cost varies by an order of magnitude between a
+  # pure-JS postinstall and a native build, so stopping on the mean would still let one heavy package
+  # start late and overrun the cap.
+  _elapsed=$(( $(_now) - _started ))
+  [ "$_elapsed" -gt "$_pkg_budget" ] && _pkg_budget="$_elapsed"
+  true
 done
 
 # ⛔ RE-VERIFY EVERY NUB-DEFECT VERDICT SERIALLY, ONCE THE BATCH HAS DRAINED.
@@ -424,4 +461,10 @@ fi
 # that says so belongs at the end where it cannot be missed.
 echo "" >&2
 echo "attempted $ATTEMPTED   recorded $RECORDED   FAILED $FAILED" >&2
+# ⛔ NEVER LET A DEADLINE STOP LOOK LIKE A COMPLETE SLICE. If packages were skipped the caller must
+# know, or a partial slice reads as full coverage and those rows are silently never re-run.
+if [ "$SKIPPED_PAST_DEADLINE" -gt 0 ]; then
+  echo "DEADLINE: stopped before $SKIPPED_PAST_DEADLINE package(s) — the job cap would have killed the run" >&2
+  echo "  slowest package took ${_pkg_budget}s; those rows stay pending for the next slice" >&2
+fi
 [ "$FAILED" -eq 0 ] || echo "⛔ $FAILED of $ATTEMPTED PRODUCED NO MEASUREMENT — the recorded set is a BIASED SAMPLE, not the corpus" >&2
