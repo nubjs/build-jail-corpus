@@ -122,8 +122,22 @@ for attempt in 1 2 3; do
   # It is `git add` doing exactly what it documents. And it was DORMANT until same-OS runners went
   # parallel: with one runner per OS there was never another runner's record to delete.
   #
-  # Staging the explicit path can only ever add or modify this one record, whatever else has landed.
-  git add -- "$REL" queue.ndjson 2>/dev/null
+  # ⛔ --ignore-removal, NOT a bare `git add records` AND NOT just this record's path. All three stage
+  # different things and the two obvious choices are both wrong:
+  #
+  #   git add records        stages DELETIONS (see above) — the data-loss bug.
+  #   git add -- "$REL"      stages ONLY this record. Was my first fix, and it broke a different
+  #                          invariant: --reconcile above marks a row done for EVERY record on disk,
+  #                          so rows were closed against records that were never staged and never
+  #                          reached origin. MEASURED: saucectl@0.112.0 [macos] came back `done,
+  #                          reconciled: true` with no record anywhere, minutes after being reopened.
+  #                          Trading silent deletion for silent omission is not a fix.
+  #   git add --ignore-removal records
+  #                          stages every on-disk record as an add or modify and IGNORES removals.
+  #                          That is both properties at once: the queue stays honest because
+  #                          everything --reconcile saw is committed, and nothing another runner
+  #                          pushed can be removed.
+  git add --ignore-removal -- records queue.ndjson 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then exit 0; fi   # already published by someone
 
   PKG="$(node -e 'try{const r=require(process.argv[1]+"/results.json");console.log(r.pkg+"@"+r.version+" "+r.verdict)}catch{console.log("record")}' "$REC_DIR" 2>/dev/null)"
