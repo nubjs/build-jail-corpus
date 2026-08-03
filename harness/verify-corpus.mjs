@@ -37,7 +37,22 @@ const files = [];
   }
 })(RECORDS);
 
+// ⛔ "NO RECORDS" IS ONLY OK IF NOTHING WAS CLAIMED. This exited 0 unconditionally, which is right
+// for a fresh repo and WRONG after a slice claimed work — and that is exactly how the first live
+// macOS slice went green having measured nothing: `timeout` is absent on macOS, the fixture canary
+// refused, `|| true` swallowed it, and this gate waved through 100 claimed rows and 0 records.
+//
+// So the question is not "are there records" but "does the corpus have records for the work that was
+// claimed". `--expect <n>` is how the runner states what it just claimed.
+const EXPECT = Number(opt('--expect', '0'));
 if (files.length === 0) {
+  if (EXPECT > 0) {
+    console.error('CORPUS VERIFY FAILED:');
+    console.error(`  - ${EXPECT} row(s) were claimed but the corpus has NO records at all. The slice`);
+    console.error('    produced nothing. Check the measure step: a refusal there is swallowed by');
+    console.error('    `|| true`, so the job goes green while measuring nothing.');
+    process.exit(1);
+  }
   console.log('no records yet — nothing to verify');
   process.exit(0);
 }

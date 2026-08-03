@@ -86,6 +86,19 @@ done
 
 here="$(cd "$(dirname "$0")" && pwd)"
 
+# ⛔ `timeout` IS NOT ON macOS. It is GNU coreutils; the BSD userland does not ship it and GitHub's
+# macOS image does not add it. MEASURED on the first live macOS corpus slice: the fixture canary hit
+# `timeout: command not found`, this script refused to run, and the JOB STILL WENT GREEN because the
+# caller wraps it in `|| true` — 100 queue rows claimed, zero measured, a commit that looked like
+# progress. Resolve it once here instead of assuming a Linux userland.
+if command -v timeout >/dev/null 2>&1; then
+  TIMEOUT=timeout
+elif command -v gtimeout >/dev/null 2>&1; then   # what Homebrew's coreutils installs
+  TIMEOUT=gtimeout
+else
+  TIMEOUT="$here/portable-timeout.sh"            # Perl shim; exits 124 like GNU, verified against it
+fi
+
 # And PROVE the override engages before spending hours on it, rather than discovering per-cell.
 #
 # ⛔ THE PROBE CATALOG COMES FROM `catalogFor`, NEVER FROM A LITERAL HERE. This check used to write
@@ -143,7 +156,7 @@ if [ "${NUB_PROBE_SKIP_CANARY:-0}" != "1" ]; then
   # control alone answers. Running the full 54-state walk here was ~50x the work and timed out at
   # 900s on a windows-latest runner, blocking every Windows shard behind a check that never
   # finished — and `timeout` killed it before it could write a reason.
-  if ! timeout 900 node "$here/search.mjs" puppeteer@25.4.0 --nub "$NUB" --force --control-only \
+  if ! "$TIMEOUT" 900 node "$here/search.mjs" puppeteer@25.4.0 --nub "$NUB" --force --control-only \
         --runs "$_can/results/runs" > /dev/null 2>"$_can.err"; then
     # ⛔ PRINT THE REASON, do not point at a file. On a CI runner that path is never uploaded and
     # the workspace is destroyed with the job, so "see $_can.err" is a dead end — MEASURED on a
@@ -305,7 +318,7 @@ for spec in "$@"; do
   pkg="${spec%@*}"; ver="${spec##*@}"
   d="$here/results/runs/$PLAT/$(printf '%s' "$pkg" | tr '/' '+')/$ver"
   mkdir -p "$d"
-  if timeout 2400 node "$here/search.mjs" "$spec" --nub "$NUB" $FORCE 2>"$d/harness-stderr.log"; then
+  if "$TIMEOUT" 2400 node "$here/search.mjs" "$spec" --nub "$NUB" $FORCE 2>"$d/harness-stderr.log"; then
     RECORDED=$((RECORDED + 1))
     [ -s "$d/harness-stderr.log" ] || rm -f "$d/harness-stderr.log"
   else
@@ -371,7 +384,7 @@ if [ "$RECORDED" -gt 0 ]; then
     for spec in $_defects; do
       pkg="${spec%@*}"; ver="${spec##*@}"
       d="$here/results/runs/$PLAT/$(printf '%s' "$pkg" | tr '/' '+')/$ver"
-      timeout 2400 node "$here/search.mjs" "$spec" --nub "$NUB" --force \
+      "$TIMEOUT" 2400 node "$here/search.mjs" "$spec" --nub "$NUB" --force \
         2>"$d/harness-stderr-reverify.log" >/dev/null || true
       v="$(node -e 'try{console.log(require(process.argv[1]).verdict)}catch{console.log("?")}' \
            "$d/results.json" 2>/dev/null)"

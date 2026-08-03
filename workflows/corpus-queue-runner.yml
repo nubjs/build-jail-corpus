@@ -93,7 +93,7 @@ jobs:
         run: |
           # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
           # cost the other 99 measurements in this slice.
-          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt || true
+          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
           # Collect this run's verdicts for the completion step. A row whose record is missing stays
           # claimed and is reclaimed later — never silently marked done.
           node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
@@ -109,7 +109,7 @@ jobs:
       - name: Verify the corpus carries what it measured
         if: env.DRAINED != '1'
         shell: bash
-        run: node harness/verify-corpus.mjs --records records
+        run: node harness/verify-corpus.mjs --records records --expect "$(wc -l < /tmp/slice.txt)"
 
       # ONE COMMIT: results and queue together, so the claim and its evidence can never diverge.
       - name: Commit results and queue
