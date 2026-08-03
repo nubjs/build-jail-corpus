@@ -103,6 +103,14 @@ jobs:
         shell: bash
         run: node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
 
+      # ⛔ VERIFY BEFORE COMMITTING, and FAIL the run if the corpus lost substance. A slice that
+      # produces records which collate to nothing is the failure this project already shipped once;
+      # committing it would bury the evidence under thousands of later rows.
+      - name: Verify the corpus carries what it measured
+        if: env.DRAINED != '1'
+        shell: bash
+        run: node harness/verify-corpus.mjs --records records
+
       # ONE COMMIT: results and queue together, so the claim and its evidence can never diverge.
       - name: Commit results and queue
         if: env.DRAINED != '1'
