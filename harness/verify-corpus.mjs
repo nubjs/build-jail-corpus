@@ -216,6 +216,14 @@ if (col.status !== 0) {
 //
 // This is deliberately a check on the QUEUE against the RECORDS rather than a count of either. Both
 // numbers looked healthy the whole time this was happening.
+//
+// ⛔ RUN IT WHERE THE RECORDS ARE COMPLETE. In the workflow this runs on the runner's own `records/`
+// after its batch, so it sees every record that batch produced and the answer is authoritative.
+// Pointed at a freshly-cloned origin WHILE SLICES ARE IN FLIGHT it will report orphans that are
+// merely early: `--reconcile` marks a row done the moment its record exists on the measuring runner's
+// disk, and that record reaches origin on the next publish or at the end-of-slice commit. A handful
+// of orphans against a live origin is that window; the same rows persisting across several slices is
+// the real defect.
 {
   const queuePath = path.join(here, '..', 'queue.ndjson');
   if (fs.existsSync(queuePath)) {
