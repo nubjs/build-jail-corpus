@@ -15,13 +15,27 @@ as close to zero real packages as possible.
 
 ## Operating it
 
-The corpus advances in **slices**. A run claims ~100 rows from the queue, measures them, commits the
-records and the updated queue in one commit, then dispatches itself again.
+The corpus advances in **slices**. A run claims ~100 rows from the queue and **pushes that claim
+before measuring anything**, then measures the slice, publishing each record to `main` as it lands.
+When the slice finishes it dispatches itself again.
+
+Publishing the claim up front is what makes runners exclusive, so **you can run as many chains per OS
+as you have runners for**. Start N of them and they divide the queue between themselves with no
+coordination: each re-claims against the latest queue if it loses a push, so two runners never hold
+the same row.
 
 ```sh
 # start (or restart) a platform. It self-chains until that OS's rows are drained.
 gh workflow run corpus-queue-runner.yml \
   -f os=linux -f slice=100 -f nub_sha=<nubjs/nub commit> -f chain=true
+
+# run ten Windows chains in parallel — Windows measures ~13x slower per package than Linux, so it is
+# the platform that needs this. Serialised it is ~23 days; the figure divides by the chain count.
+for i in $(seq 1 10); do
+  gh workflow run corpus-queue-runner.yml \
+    -f os=windows -f slice=20 -f nub_sha=<sha> -f chain=true
+  sleep 5   # stagger, so ten runners do not all claim against the same queue head at once
+done
 
 # a small non-chaining probe — use this after any harness change, before letting it chain
 gh workflow run corpus-queue-runner.yml \
