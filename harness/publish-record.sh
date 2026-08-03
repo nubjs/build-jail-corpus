@@ -105,7 +105,25 @@ for attempt in 1 2 3; do
   # release their rows. --reconcile only ever marks a row done, and only when a record exists.
   node harness/claim-slice.mjs --reconcile --records records >/dev/null 2>&1 || true
 
-  git add records queue.ndjson 2>/dev/null
+  # ⛔⛔ STAGE ONLY THIS RECORD'S OWN PATH. NEVER `git add records`.
+  #
+  # In modern git, `git add <dir>` is `git add -A <dir>`: it stages DELETIONS of tracked files that
+  # are absent from the working tree. This script deliberately does NOT reset the working tree to
+  # origin — it keeps the runner's own records — so every record another runner pushed AFTER this
+  # runner's checkout is tracked on origin and missing here. `git add records` staged all of those as
+  # deletions, and the commit removed them.
+  #
+  # MEASURED IN PRODUCTION, and it was live: commit 561db3a ("corpus: husky@1.3.1 MINIMUM") deleted 14
+  # records belonging to other runners in the act of publishing one of its own. 56 queue rows ended up
+  # marked done, reconciled from a record that had since been deleted from origin.
+  #
+  # ⛔ THIS IS THE "we would lose a lot of results" FAILURE, arriving through a door nobody was
+  # watching. It is not a merge conflict and not a force-push — both of those were designed against.
+  # It is `git add` doing exactly what it documents. And it was DORMANT until same-OS runners went
+  # parallel: with one runner per OS there was never another runner's record to delete.
+  #
+  # Staging the explicit path can only ever add or modify this one record, whatever else has landed.
+  git add -- "$REL" queue.ndjson 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then exit 0; fi   # already published by someone
 
   PKG="$(node -e 'try{const r=require(process.argv[1]+"/results.json");console.log(r.pkg+"@"+r.version+" "+r.verdict)}catch{console.log("record")}' "$REC_DIR" 2>/dev/null)"
