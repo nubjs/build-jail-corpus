@@ -82,6 +82,43 @@ jobs:
         shell: bash
         run: echo "JOB_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
 
+      # ⛔ WINDOWS SPENDS ALMOST ALL ITS TIME IN DEFENDER, NOT IN MEASUREMENT.
+      #
+      # MEASURED from one completed Windows slice's artifact: 6,187,953 file operations across 669
+      # cells, a mean of 9,250 files per cell — and every cell does that work TWICE, once to walk the
+      # tree for `digestOf(seen)` and once to delete it. The heaviest packages are far worse:
+      # pngquant-bin@9.0.0 walked 568,932 files across its 55 cells, so a single package costs over a
+      # million file operations.
+      #
+      # The install itself is not the cost. The same artifact shows `nub 0.6.0 · ✓ installed 1 package
+      # in 947ms` — sub-second. Roughly 99% of the ~9 min/package on Windows is filesystem overhead,
+      # and Defender real-time protection scans every one of those operations. This is the standard
+      # cause of exactly this profile on Windows CI, and nothing here had ever excluded anything.
+      #
+      # ⛔ THIS IS A DELIBERATE POSTURE CHANGE, SCOPED AS NARROWLY AS IT CAN BE. The excluded paths are
+      # the throwaway fixture root and nub's cache — not the drive, not the workspace. It is worth
+      # naming what it does and does not cost:
+      #   - these lifecycle scripts are ALREADY EXECUTING by design; Defender scanning the files they
+      #     write afterwards is not what contains them. The build jail is, and it stays on.
+      #   - harness/prescreen-queue.mjs refuses every OSV-known-malicious version before a runner ever
+      #     fetches it, so known-bad code does not reach this machine at all.
+      #   - the runner is ephemeral and holds no secret beyond GITHUB_TOKEN, scoped to this repo.
+      # If that trade is ever judged wrong, deleting this step restores the previous behaviour exactly.
+      - name: Stand Defender down for the fixture tree (Windows only)
+        if: inputs.os == 'windows'
+        shell: pwsh
+        continue-on-error: true    # a runner image without Defender must not fail the slice
+        run: |
+          $paths = @("$env:USERPROFILE\.cache", "$env:LOCALAPPDATA\nub", "$env:TEMP")
+          foreach ($p in $paths) {
+            try { Add-MpPreference -ExclusionPath $p -ErrorAction Stop; Write-Host "excluded $p" }
+            catch { Write-Host "could not exclude $p : $_" }
+          }
+          try {
+            $prefs = Get-MpPreference
+            Write-Host "exclusions now: $($prefs.ExclusionPath -join ', ')"
+          } catch { Write-Host "Get-MpPreference unavailable" }
+
       # ⛔ CLONE BEFORE THE CACHE RESTORE. `git clone` refuses a non-empty destination, and
       # rust-cache restores `target/` INTO the workspace path — so with the clone second, the very
       # first cache HIT would fail the build. That ordering survived only because the cache never
