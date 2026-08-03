@@ -241,8 +241,21 @@ jobs:
           git config user.email corpus-runner@users.noreply.github.com
           CLAIMED=0
           for attempt in 1 2 3 4 5 6; do
+            # ⛔ A MIXED RESET (the default), NOT --soft. --soft leaves the INDEX as it was at
+            # checkout, so the commit carries that whole stale tree — including a copy of
+            # .github/workflows/ from before any workflow edit that landed while this job was
+            # building. GITHUB_TOKEN may not modify workflow files, so every push is rejected:
+            #
+            #     ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or
+            #       update workflow .github/workflows/corpus-queue-runner.yml without `workflows`
+            #       permission)
+            #
+            # All six attempts then fail identically and the job refuses to measure. MEASURED: run
+            # 30846653540 burned a full 12-minute build and died here. A mixed reset points HEAD at
+            # origin AND clears the index, leaving the working tree alone, so only the queue this
+            # step explicitly stages reaches the commit.
             git fetch -q origin "$GITHUB_REF_NAME"
-            git reset -q --soft "origin/$GITHUB_REF_NAME"
+            git reset -q "origin/$GITHUB_REF_NAME"
             git checkout -q "origin/$GITHUB_REF_NAME" -- queue.ndjson
             node harness/claim-slice.mjs \
               --claim "$SLICE" --os "${{ inputs.os }}" --run "${{ github.run_id }}" \

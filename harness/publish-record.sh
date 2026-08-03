@@ -59,18 +59,32 @@ git config user.name  "corpus-runner"  2>/dev/null || true
 git config user.email "corpus-runner@users.noreply.github.com" 2>/dev/null || true
 
 for attempt in 1 2 3; do
-  # ⛔ --soft, NEVER --hard. `reset --hard origin/BRANCH` discards local commits AND the files they
-  # carry: a record that was committed here but failed to push exists only in that commit, so a hard
-  # reset deletes it from the working tree — and then it is gone from the end-of-slice commit and the
-  # CI artifact too, because both read `records/` on disk. That is a silent loss of a measured result,
-  # which is the exact failure this whole per-record scheme exists to prevent.
+  # ⛔ MIXED, NOT --hard AND NOT --soft. All three keep HEAD correct; the difference is what else they
+  # touch, and both of the obvious choices are wrong here.
   #
-  # --soft moves HEAD onto the new origin while leaving the index and working tree intact, so every
-  # record still on disk — the new one, and any stranded by an earlier failed push — gets re-added and
-  # re-committed onto the fresh head. Records are add-only and path-unique, so replaying them onto a
-  # newer origin can never clobber another runner's work.
+  # --hard would discard local commits AND the files they carry: a record committed here but not yet
+  # pushed exists only in that commit, so a hard reset deletes it from the working tree — and then it
+  # is gone from the end-of-slice commit and the CI artifact too, because both read `records/` on
+  # disk. A silent loss of a measured result, inside the mechanism built to prevent exactly that.
+  #
+  # --soft was the first fix and it introduced a DIFFERENT silent failure. It leaves the INDEX as it
+  # was at checkout, so the commit carries that entire stale tree — including a copy of
+  # `.github/workflows/` from before any workflow edit. GITHUB_TOKEN may not modify workflow files, so
+  # the push is rejected outright:
+  #
+  #     ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update
+  #       workflow .github/workflows/corpus-queue-runner.yml without `workflows` permission)
+  #
+  # and because publishing is best-effort, that surfaced only as "publish deferred (branch busy)".
+  # MEASURED on one live slice: 56 records deferred against 44 published, for the whole period after a
+  # workflow edit landed mid-run. Nothing was lost — the end-of-slice commit still sweeps them up —
+  # but per-record publishing had quietly stopped doing its job.
+  #
+  # A mixed reset (the default) moves HEAD and resets the INDEX to match it, while leaving the WORKING
+  # TREE untouched. That is what was wanted all along: stranded records survive on disk and get
+  # re-added, and only the paths this script explicitly stages end up in the commit.
   git fetch -q origin "$BRANCH" 2>/dev/null || { sleep $((attempt * 3)); continue; }
-  git reset -q --soft "origin/$BRANCH" 2>/dev/null || { sleep $((attempt * 3)); continue; }
+  git reset -q "origin/$BRANCH" 2>/dev/null || { sleep $((attempt * 3)); continue; }
 
   # ⛔ TAKE ORIGIN'S QUEUE VERBATIM — the working copy goes stale the moment any other runner
   # publishes a claim. --soft leaves the working tree alone, which is right for records and wrong for
