@@ -1,0 +1,137 @@
+# Pop a slice off the queue, measure it, commit the results AND the queue update together.
+#
+# THE SHAPE: one job = one OS = one slice. It claims N pending rows for its OS, runs them, then
+# commits `records/` and `queue.ndjson` in ONE commit. That single commit is what makes a claim
+# durable: a run that dies mid-slice leaves its rows `claimed` with its run id — attributable and
+# reclaimable — rather than silently lost or double-run.
+#
+# ⛔ WHY SLICES AND NOT ONE BIG FAN-OUT. A 6,750-row corpus dispatched as one matrix is
+# unobservable, unresumable, and loses everything an expiring artifact held. Slices are small enough
+# that a failure costs ~100 runs, the queue file shows coverage at a glance, and the records land in
+# git as they are produced.
+#
+# ⛔ CONCURRENCY IS PER-OS, NOT GLOBAL. Two runners on different operating systems never contend —
+# they claim disjoint rows. Two on the SAME OS would race on the queue commit, so the group serialises
+# them; the loser retries against a queue that already reflects the winner's claim.
+
+name: corpus-queue-runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: which operating system to measure
+        type: choice
+        options: [linux, macos, windows]
+        required: true
+      slice:
+        description: how many queue rows to claim
+        type: string
+        default: "100"
+      nub_sha:
+        description: nubjs/nub commit to build the probe binary from
+        type: string
+        required: true
+      chain:
+        description: re-dispatch itself while the queue still has pending rows
+        type: boolean
+        default: true
+
+concurrency:
+  # Serialise same-OS runners so two slices never write the queue at once. Cancelling would strand a
+  # claim, so an in-flight run always finishes.
+  group: corpus-queue-${{ inputs.os }}
+  cancel-in-progress: false
+
+jobs:
+  slice:
+    runs-on: >-
+      ${{ inputs.os == 'linux' && 'ubuntu-latest'
+       || inputs.os == 'macos' && 'macos-latest'
+       || 'windows-latest' }}
+    timeout-minutes: 350
+    permissions:
+      contents: write        # commits results + queue back
+      actions: write         # re-dispatches itself when chaining
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # The probe binary comes from nubjs/nub at an explicit SHA, never from a floating branch: every
+      # record's provenance names the nub it measured, and an old corpus must stay reproducible.
+      - name: Build the probe binary
+        shell: bash
+        run: |
+          set -eux
+          git clone --depth 1 https://github.com/nubjs/nub.git /tmp/nub
+          cd /tmp/nub && git fetch --depth 1 origin "${{ inputs.nub_sha }}" && git checkout FETCH_HEAD
+          cargo build --release -p nub-cli --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+
+      # ⛔ RECLAIM BEFORE CLAIMING. A previous run that was cancelled or timed out leaves rows
+      # `claimed` forever; without this the queue drains to a floor of permanently-stuck rows and
+      # reports itself incomplete with nothing pending.
+      - name: Reclaim rows stranded by a dead run
+        shell: bash
+        run: node harness/claim-slice.mjs --reclaim-stale 360
+
+      - name: Claim a slice
+        shell: bash
+        run: |
+          node harness/claim-slice.mjs \
+            --claim "${{ inputs.slice }}" --os "${{ inputs.os }}" --run "${{ github.run_id }}" \
+            > /tmp/slice.txt
+          echo "claimed $(wc -l < /tmp/slice.txt) rows"
+          # An empty slice means this OS is finished. Exit cleanly rather than running a no-op batch.
+          if [ ! -s /tmp/slice.txt ]; then echo "DRAINED=1" >> "$GITHUB_ENV"; fi
+
+      - name: Measure the slice
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
+          # cost the other 99 measurements in this slice.
+          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt || true
+          # Collect this run's verdicts for the completion step. A row whose record is missing stays
+          # claimed and is reclaimed later — never silently marked done.
+          node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
+
+      - name: Mark completed rows
+        if: env.DRAINED != '1'
+        shell: bash
+        run: node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+
+      # ONE COMMIT: results and queue together, so the claim and its evidence can never diverge.
+      - name: Commit results and queue
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          git config user.name  "corpus-runner"
+          git config user.email "corpus-runner@users.noreply.github.com"
+          git add records queue.ndjson
+          git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
+          git commit -m "corpus(${{ inputs.os }}): slice of $(wc -l < /tmp/slice.txt) [run ${{ github.run_id }}]"
+          # Another OS's runner may have pushed while this slice ran; rebase rather than fail, since
+          # their rows and ours are disjoint by construction.
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep $((i * 5))
+          done
+          echo "could not push after 5 attempts" >&2; exit 1
+
+      - name: Report queue status
+        shell: bash
+        run: node harness/claim-slice.mjs --status
+
+      # Chain the next slice. Self-dispatch rather than a cron so the corpus advances as fast as the
+      # runners allow, and stops the moment its OS is drained.
+      - name: Dispatch the next slice
+        if: inputs.chain && env.DRAINED != '1'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        shell: bash
+        run: |
+          gh workflow run corpus-queue-runner.yml \
+            -f os="${{ inputs.os }}" -f slice="${{ inputs.slice }}" \
+            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true
