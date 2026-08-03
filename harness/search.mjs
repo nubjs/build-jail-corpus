@@ -426,11 +426,37 @@ function runCell(nub, { proj, home }, { catalogFile, label, ignoreScripts, pkg, 
   //   $home/…   the package's HOME — throwaway under the jail, the REAL home in production,
   //             which is exactly what a `writePaths` entry names
   const root = path.dirname(proj);
+  // ⛔ THE NUB CACHE ROOT IS PLATFORM-DEPENDENT, AND HARDCODING THE POSIX ONE SILENTLY DISABLED
+  // BOTH TOKENS ON WINDOWS.
+  //
+  // These patterns matched only `home/.cache/nub/…`. Windows puts the cache under `%LOCALAPPDATA%`,
+  // so every path arrives as `home/AppData/Local/nub/…` and neither regex could ever fire. One path
+  // segment, and it produced no error — just tokens that were never emitted.
+  //
+  // MEASURED across the Windows corpus: 643 blocked paths, 17 of them containing `jail-home` and 11
+  // containing `nub/pm/store`, and ZERO tokenised — against 133 of 466 on macOS. A real example that
+  // should have become `$home/.electron/…`:
+  //   home/AppData/Local/nub/jail-home/electron-prebuilt-427b4d4f98ab52b3/.electron/electron-v0.26.1-win32
+  // `.electron` is exactly the `writePaths` entry Linux derives for that same package, so the data
+  // was present all along and only the classifier missed it.
+  //
+  // WHAT IT BROKE, none of it visibly: `pathsLandingInThrowawayHome` counts `$home/` tokens, so it
+  // read 0 on every Windows record; `writePaths` derives from that, so Windows produced 0 entries
+  // against 6 on macOS and 8 on Linux — meaning a package caching into the redirected home has that
+  // cache discarded on every Windows install and the catalog can never learn to move it back. The
+  // `$store/` miss also left content hashes unstripped, which is why the Windows blocked-path
+  // vocabulary collapsed to 3 prefixes where macOS has ten.
+  //
+  // Written as an alternation rather than by consulting the platform, because a record may be
+  // re-tokenised on a different OS than it was measured on.
+  const CACHE_ROOT = String.raw`home\/(?:\.cache|AppData\/Local)\/nub`;
+  const STORE_RE = new RegExp(`^${CACHE_ROOT}\\/pm\\/store\\/(.+)$`);
+  const JAIL_HOME_RE = new RegExp(`^${CACHE_ROOT}\\/jail-home\\/[^/]+\\/(.+)$`);
   const tokenise = (p) => {
     if (p.startsWith('proj/')) return `$proj/${p.slice(5)}`;
-    let m = p.match(/^home\/\.cache\/nub\/pm\/store\/(.+)$/);
+    let m = p.match(STORE_RE);
     if (m) return `$store/${m[1].replace(/^([^/]+@[^/-]+(?:\.[^/-]+)*)-[0-9a-f]{8,}\//, '$1/')}`;
-    m = p.match(/^home\/\.cache\/nub\/jail-home\/[^/]+\/(.+)$/);
+    m = p.match(JAIL_HOME_RE);
     if (m) return `$home/${m[1]}`;
     return p;
   };
@@ -835,8 +861,15 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
     for (const f of ['search.mjs', 'states.mjs']) h.update(fs.readFileSync(path.join(here, f)));
     harnessSha = h.digest('hex').slice(0, 16);
   } catch {}
+  // ⛔ THE NUB COMMIT, NOT JUST THE BINARY HASH — a binary hash cannot be compared ACROSS PLATFORMS.
+  // A macOS and a Linux build of the same commit have different sha256s, so "was this measured
+  // before fix X?" is unanswerable for a multi-platform corpus from `nubSha256` alone, and a purge
+  // keyed on it either over-purges every foreign-platform record or skips them silently. The commit
+  // is what identifies a fix; the runner already knows it as its required `nub_sha` input. Null for
+  // a local sweep against a working tree, which is honest — there is no commit to name.
+  const nubGitSha = process.env.NUB_GIT_SHA || null;
   return {
-    nubPath: nub, nubSha256: sha, nubVersion, harnessSha256: harnessSha,
+    nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, harnessSha256: harnessSha,
     platform: `${process.platform}-${process.arch}`,
     // THE MEASUREMENT NODE IS PART OF THE RESULT. A grant measured on a Node the package was never
     // built against is not that package's grant, so the record carries what was DECLARED, what the

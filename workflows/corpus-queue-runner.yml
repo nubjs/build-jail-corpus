@@ -165,6 +165,9 @@ jobs:
           # This sat BEHIND the missing-`timeout` defect and produces the identical symptom — a green
           # slice that measured nothing — so fixing that one alone changed nothing observable.
           NUB_CORPUS_RUNS: ${{ github.workspace }}/records/runs
+          # Recorded in every record's provenance. A binary hash is not comparable across platforms,
+          # so this is what answers "was this measured before fix X?" for a multi-platform corpus.
+          NUB_GIT_SHA: ${{ inputs.nub_sha }}
         run: |
           # ⛔ STOP MEASURING BEFORE THE JOB CAP KILLS US, so the slice can still be committed.
           # A terminated job commits nothing: every measurement taken dies with the runner and the
