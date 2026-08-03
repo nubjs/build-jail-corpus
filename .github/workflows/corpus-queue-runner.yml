@@ -168,6 +168,21 @@ jobs:
           # Recorded in every record's provenance. A binary hash is not comparable across platforms,
           # so this is what answers "was this measured before fix X?" for a multi-platform corpus.
           NUB_GIT_SHA: ${{ inputs.nub_sha }}
+          # ⛔ PUBLISH EACH RECORD AS IT LANDS, not once at the end of the slice. A slice runs for
+          # hours; committing only at the end meant a runner dying at minute 115 lost 100
+          # measurements and nothing was visible until it finished. Per-record publishing caps the
+          # loss at one package and makes progress observable while the run is still going.
+          #
+          # NEVER force-pushes. Record paths are unique per (platform, package, version) and add-only,
+          # so concurrent runners cannot collide on one; only queue.ndjson is shared, and it is
+          # RE-DERIVED from the records rather than merged. A force-push would be the one thing that
+          # actually loses results — it would erase whatever another platform had just landed.
+          #
+          # Best effort by design: the hook always exits 0. A record that does not publish stays on
+          # disk for the end-of-slice commit and the artifact.
+          NUB_CORPUS_ON_RECORD: ${{ github.workspace }}/harness/publish-record.sh
+          NUB_CORPUS_REPO: ${{ github.workspace }}
+          NUB_CORPUS_BRANCH: ${{ github.ref_name }}
         run: |
           # ⛔ STOP MEASURING BEFORE THE JOB CAP KILLS US, so the slice can still be committed.
           # A terminated job commits nothing: every measurement taken dies with the runner and the

@@ -394,6 +394,19 @@ for spec in "$@"; do
     echo "  ✗ $spec — $verdict ($why)" >&2
     tail -3 "$d/harness-stderr.log" 2>/dev/null | sed 's/^/      /' >&2
   fi
+  # ⛔ PUBLISH THIS RECORD NOW, not at the end of the slice. A slice runs for hours and used to commit
+  # once at the end, so a runner that died at minute 115 lost 100 measurements and nothing was visible
+  # until it finished. Publishing per package caps the loss at one and makes progress observable while
+  # the run is still going.
+  #
+  # Deliberately NOT allowed to fail the batch: `|| true` plus a hook that always exits 0. A record
+  # that does not publish is not lost — it stays on disk, the end-of-slice commit sweeps it up, and
+  # the CI artifact carries it regardless. Killing a two-hour measurement because a push was rejected
+  # would trade the thing being protected for the protection.
+  if [ -n "${NUB_CORPUS_ON_RECORD:-}" ] && [ -f "$d/results.json" ]; then
+    "$NUB_CORPUS_ON_RECORD" "$d" || true
+  fi
+
   # Track the SLOWEST package seen, not the average: cost varies by an order of magnitude between a
   # pure-JS postinstall and a native build, so stopping on the mean would still let one heavy package
   # start late and overrun the cap.
