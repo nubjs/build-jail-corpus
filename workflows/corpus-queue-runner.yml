@@ -38,6 +38,16 @@ on:
         description: re-dispatch itself while the queue still has pending rows
         type: boolean
         default: true
+      packages:
+        # ⛔ DEBUG ESCAPE HATCH. Space-separated pkg@version specs. When set, the runner SKIPS the
+        # queue entirely — no claim, no completion, no commit of results — and measures exactly these
+        # with --force, publishing only the ARTIFACT. That keeps a debugging run from writing anything
+        # into the corpus, which matters because --force re-measures packages that already have
+        # records and a debug run is not a measurement anyone should collate.
+        description: "debug only: measure these specs instead of claiming from the queue"
+        type: string
+        default: ""
+
 
 concurrency:
   # ⛔ SAME-OS RUNNERS NOW RUN IN PARALLEL. They used to be serialised because a claim lived only in
@@ -238,10 +248,12 @@ jobs:
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
 
       - name: Reclaim rows stranded by a dead run
+        if: inputs.packages == ''
         shell: bash
         run: node harness/claim-slice.mjs --reclaim-stale 360
 
       - name: Claim a slice
+        if: inputs.packages == ''
         shell: bash
         run: |
           # ⛔ WINDOWS MEASURES ~13x SLOWER PER PACKAGE, SO IT CANNOT TAKE THE SAME SLICE.
@@ -322,6 +334,16 @@ jobs:
             exit 1
           fi
 
+      # ⛔ DEBUG PATH. Writes the worklist straight from the input, so nothing touches the queue.
+      - name: Take the debug package list instead of a claim
+        if: inputs.packages != ''
+        shell: bash
+        run: |
+          printf '%s\n' ${{ inputs.packages }} > /tmp/slice.txt
+          echo "DEBUG_MODE=1" >> "$GITHUB_ENV"
+          echo "measuring these, bypassing the queue:"
+          cat /tmp/slice.txt
+
       - name: Measure the slice
         if: env.DRAINED != '1'
         shell: bash
@@ -366,14 +388,14 @@ jobs:
           echo "measure deadline: $(date -u -d "@$NUB_CORPUS_DEADLINE" 2>/dev/null || date -u -r "$NUB_CORPUS_DEADLINE" 2>/dev/null || echo "$NUB_CORPUS_DEADLINE")"
           # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
           # cost the other 99 measurements in this slice.
-          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
+          bash harness/run-batch.sh "$NUB_BIN" --file /tmp/slice.txt ${{ inputs.packages != '' && '--force' || '' }} || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
           # Collect this run's verdicts for the completion step. A row whose record is missing stays
           # claimed and is reclaimed later — never silently marked done.
           node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
           echo "records on disk after the batch: $(find records -name results.json | wc -l)"
 
       - name: Mark completed rows
-        if: env.DRAINED != '1'
+        if: inputs.packages == '' && env.DRAINED != '1'
         shell: bash
         run: |
           node harness/claim-slice.mjs --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
@@ -410,7 +432,7 @@ jobs:
       # produces records which collate to nothing is the failure this project already shipped once;
       # committing it would bury the evidence under thousands of later rows.
       - name: Verify the corpus carries what it measured
-        if: env.DRAINED != '1'
+        if: inputs.packages == '' && env.DRAINED != '1'
         shell: bash
         run: node harness/verify-corpus.mjs --records records --expect "$(wc -l < /tmp/slice.txt)"
 
@@ -431,7 +453,7 @@ jobs:
       # never read the variable at all — would read as success, which is precisely how a vacuous
       # check passes forever.
       - name: Ask nub to parse the catalog this corpus produces
-        if: env.DRAINED != '1'
+        if: inputs.packages == '' && env.DRAINED != '1'
         shell: bash
         run: |
           set -uo pipefail
@@ -464,7 +486,7 @@ jobs:
 
       # ONE COMMIT: results and queue together, so the claim and its evidence can never diverge.
       - name: Commit results and queue
-        if: env.DRAINED != '1'
+        if: inputs.packages == '' && env.DRAINED != '1'
         shell: bash
         run: |
           git config user.name  "corpus-runner"
@@ -512,13 +534,14 @@ jobs:
           echo "could not push after 5 attempts" >&2; exit 1
 
       - name: Report queue status
+        if: inputs.packages == ''
         shell: bash
         run: node harness/claim-slice.mjs --status
 
       # Chain the next slice. Self-dispatch rather than a cron so the corpus advances as fast as the
       # runners allow, and stops the moment its OS is drained.
       - name: Dispatch the next slice
-        if: inputs.chain && env.DRAINED != '1'
+        if: inputs.packages == '' && inputs.chain && env.DRAINED != '1'
         env: { GH_TOKEN: "${{ github.token }}" }
         shell: bash
         run: |
