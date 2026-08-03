@@ -107,6 +107,29 @@ jobs:
       # were failing at the COMMIT step — after a perfectly good build — so the cache was discarded
       # every time. A slice that measured 100 packages and lost the push should not also throw away
       # its compilation.
+      # ⛔ CACHE THE BUILT BINARY, KEYED ON THE NUB COMMIT — and note this is the exact INVERSE of
+      # the rule for the compile cache below. A commit sha is the WRONG key for a compile cache,
+      # because cargo already decides what to rebuild from content and keying on the sha guarantees a
+      # miss on every new commit. It is the RIGHT key for an ARTIFACT cache, because a binary really
+      # is a pure function of (commit, platform, features) — the same inputs can only produce the
+      # same nub.
+      #
+      # MEASURED, and this is why it is worth a second cache: rust-cache alone took a Linux build
+      # from 12.4 min cold to 11.2 min warm — about 10%. That is rust-cache working as designed, not
+      # a defect: it caches DEPENDENCY artifacts and deliberately prunes workspace crates, and nub's
+      # own workspace is the bulk of the compile. Restoring the finished binary skips all of it.
+      #
+      # Over the ~60 slices still needed to drain the corpus that is roughly 12 hours of runner time
+      # that produces nothing.
+      - name: Restore a previously built nub for this exact commit
+        id: nubbin
+        uses: actions/cache@v4
+        with:
+          path: /tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
+          # `v1` is a manual epoch: bump it if the build FLAGS change, since the flags are not in the
+          # key and a stale binary built with different features would be silently wrong.
+          key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
+
       - name: Cache the probe build
         uses: Swatinem/rust-cache@v2
         with:
@@ -115,12 +138,28 @@ jobs:
           cache-on-failure: true
 
       - name: Build the probe binary
+        # Skipped entirely when the binary for this exact commit was restored above.
+        if: steps.nubbin.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -eux
           cd /tmp/nub
           cargo build --release -p nub-cli --features nub-cli/build-jail-catalog-override
           echo "NUB_BIN=/tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+
+      # ⛔ SET NUB_BIN ON THE CACHE-HIT PATH TOO. The build step above is skipped on a hit, and it is
+      # the step that exports NUB_BIN — so without this the whole slice would run with an empty
+      # binary path. A cache hit making the job fail would be a memorable way to learn this.
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          BIN=/tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
+          chmod +x "$BIN" 2>/dev/null || true
+          # Prove it RUNS before trusting it. A restored file of the right size that cannot execute
+          # would otherwise surface as a confusing failure much later, inside the first measurement.
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
 
       - name: Reclaim rows stranded by a dead run
         shell: bash
