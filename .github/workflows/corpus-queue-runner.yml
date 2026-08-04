@@ -412,6 +412,31 @@ jobs:
           "$BIN" --version
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
 
+      # ⛔ THE ONLY WAY TO GET A CI-BUILT nub.exe ONTO A DEV BOX, AND IT UNBLOCKS ALL WINDOWS
+      # REPRODUCTION. Two stock Windows Server 2022 VMs cannot run a JAILED `node` at all -- every
+      # invocation dies 0xC0000142 STATUS_DLL_INIT_FAILED while `cmd.exe` runs fine -- yet the corpus
+      # records the same package (@bazel/jasmine@4.6.2) as grant:null PASSING here. Until a CI-built
+      # binary is tested in that environment, "the VM's locally-built nub.exe differs from CI's"
+      # cannot be separated from "a stock Windows box genuinely breaks the jail", and the second
+      # would be severe: the jail is ON BY DEFAULT and that package needs ZERO grants.
+      #
+      # The nub-bin CACHE cannot serve this — GitHub's cache API is not reachable from outside a run.
+      # Windows only, so no other leg pays for it; additive, so no measurement semantics change.
+      #
+      # ⛔ USES `NUB_BIN_CACHE_PATH`, NOT `/tmp/nub/...`, FOR THE REASON DOCUMENTED ABOVE: this action
+      # runs in NODE, and Node on Windows resolves `/tmp/...` against the Windows filesystem where it
+      # does not exist. That is exactly how the cache save silently stored nothing while reporting
+      # success. `if-no-files-found: error` rather than `warn` so a future path regression FAILS here
+      # instead of producing an empty artifact that reads as a working escape hatch.
+      - name: Publish the Windows probe binary for off-CI reproduction
+        if: inputs.os == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nub-exe-${{ github.run_id }}
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          retention-days: 5
+          if-no-files-found: error
+
       - name: Reclaim rows stranded by a dead run
         if: inputs.packages == ''
         shell: bash
