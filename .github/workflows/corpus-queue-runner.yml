@@ -531,11 +531,30 @@ jobs:
         env:
           PKGS: ${{ inputs.packages }}   # via env, never raw ${{ }} in the script body — safer, and it does not depend on dispatch-time expansion
         run: |
-          printf '%s' "$PKGS" | tr ' ' '\n' | grep . > /tmp/slice.txt || true
+          # ⛔ SPLIT ON COMMAS AND NEWLINES TOO, NOT JUST SPACES. A comma list is what a human
+          # actually types, and space-only splitting turns one into a SINGLE spec that measures a
+          # package which does not exist. MEASURED, run 30953140798: a 5-package comma list parsed as
+          #   pkg="@ffprobe-installer/linux-arm64@5.2.0,…,@ffmpeg-installer/linux-x64" version="4.1.0"
+          # — the LAST `@` decided the split — producing a well-formed HARNESS-ERROR record while the
+          # run reported SUCCESS. Nothing said the re-measure had not happened. That is worse than a
+          # crash here, because targeted `packages` re-measurement is the ONLY way to replace an
+          # already-recorded spec (the queue skips anything holding a record), so the silent no-op
+          # blocks the whole fix -> re-measure loop while looking like a completed run.
+          printf '%s' "$PKGS" | tr ' ,\n' '\n\n\n' | grep . > /tmp/slice.txt || true
           echo "DEBUG_MODE=1" >> "$GITHUB_ENV"
           echo "measuring these, bypassing the queue:"
           cat /tmp/slice.txt
           test -s /tmp/slice.txt || { echo "⛔ empty package list — the input did not arrive"; exit 1; }
+          # ⛔ EVERY SPEC MUST LOOK LIKE name@version, or it is not a spec. The parse above cannot
+          # tell a malformed entry from a real one, and the harness will dutifully "measure" it —
+          # which is exactly how the failure above stayed invisible. Fail the run instead.
+          while read -r spec; do
+            case "$spec" in
+              *,*) echo "⛔ '$spec' still contains a comma — the separator split did not work"; exit 1 ;;
+            esac
+            printf '%s' "$spec" | grep -qE '^@?[^@]+@[^@]+$' \
+              || { echo "⛔ '$spec' is not a name@version spec"; exit 1; }
+          done < /tmp/slice.txt
 
       - name: Measure the slice
         if: env.DRAINED != '1'
