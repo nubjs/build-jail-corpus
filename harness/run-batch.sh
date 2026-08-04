@@ -168,6 +168,26 @@ NUB="$SNAP_NATIVE"
 # still install a large tree and still be materialized. `is-odd` would not catch this — it needs
 # nothing legitimately. Skip with NUB_PROBE_SKIP_CANARY=1 when deliberately testing the fixture.
 
+# PER-PACKAGE WALL-CLOCK BUDGET, overridable so a SLOW LANE can exist without touching the fleet.
+#
+# ⛔ THE DEFAULT IS UNCHANGED AT 2400s AND MUST STAY THAT WAY. Raising it globally is not safe: the
+# job cap is 350 min, and a slice only fits because most packages finish in a fraction of the budget.
+#
+# Why the knob: 47 of 79 HARNESS-* records are HARNESS-TIMEOUT, and they cluster on exactly the
+# packages a user is most likely to install — @aws-amplify/cli x8, appium-uiautomator2-driver x6,
+# postman-code-generators x5, purescript x5, hugo-extended x4, plus gatsby and netlify-cli. Those
+# are not measurements; they are absences, so the catalog silently omits its most important entries.
+#
+# ⛔ IT IS A BUDGET, NOT A LIVELOCK — the distinction that decides whether a bigger number is a fix
+# or a cover-up. These packages walk the full 55-cell ladder and every cell is a COMPLETE install of
+# a large tree, so ~55 x ~40s lands on the cap by arithmetic. A livelock would fail at every value;
+# this fails at one value and the work genuinely takes that long.
+#
+# Raising the budget for a targeted re-measure changes NO measurement semantics — same ladder, same
+# order, same predicate — so records produced under a longer budget stay comparable with the fleet's.
+PKG_BUDGET="${NUB_CORPUS_PKG_BUDGET:-2400}"
+case "$PKG_BUDGET" in ''|*[!0-9]*) echo "NUB_CORPUS_PKG_BUDGET must be an integer number of seconds, got '$PKG_BUDGET'" >&2; exit 2 ;; esac
+
 # ⛔ TOOLCHAIN CENSUS — WHERE THE RUNNER'S TOOLS ACTUALLY LIVE.
 #
 # A package that shells out to a toolchain binary the jail does not grant READ on cannot exec it
@@ -402,7 +422,7 @@ for spec in "$@"; do
   # `<harness dir>/results/runs`; without this flag, RUNS_ROOT above governs only the directories
   # this script creates and the record still lands beside the harness code. MEASURED: with
   # NUB_CORPUS_RUNS set, `records under records/runs: 0` and `records under harness/: 10`.
-  if "$TIMEOUT" 2400 node "$here/search.mjs" "$spec" --nub "$NUB" --runs "$RUNS_ROOT" $FORCE 2>"$d/harness-stderr.log"; then
+  if "$TIMEOUT" "$PKG_BUDGET" node "$here/search.mjs" "$spec" --nub "$NUB" --runs "$RUNS_ROOT" $FORCE 2>"$d/harness-stderr.log"; then
     RECORDED=$((RECORDED + 1))
     [ -s "$d/harness-stderr.log" ] || rm -f "$d/harness-stderr.log"
   else
@@ -487,7 +507,7 @@ if [ "$RECORDED" -gt 0 ]; then
     for spec in $_defects; do
       pkg="${spec%@*}"; ver="${spec##*@}"
       d="$RUNS_ROOT/$PLAT/$(printf '%s' "$pkg" | tr '/' '+')/$ver"
-      "$TIMEOUT" 2400 node "$here/search.mjs" "$spec" --nub "$NUB" --runs "$RUNS_ROOT" --force \
+      "$TIMEOUT" "$PKG_BUDGET" node "$here/search.mjs" "$spec" --nub "$NUB" --runs "$RUNS_ROOT" --force \
         2>"$d/harness-stderr-reverify.log" >/dev/null || true
       v="$(node -e 'try{console.log(require(process.argv[1]).verdict)}catch{console.log("?")}' \
            "$d/results.json" 2>/dev/null)"
