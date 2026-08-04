@@ -152,6 +152,36 @@ jobs:
           git checkout --detach "${{ inputs.nub_sha }}"
           git log --oneline -1
 
+      # ⛔ THE BINARY-CACHE PATH MUST BE NATIVE, AND ON WINDOWS `/tmp/...` IS NOT.
+      #
+      # `actions/cache` runs in NODE. Every bash step here sees `/tmp/nub/target/release/nub.exe`
+      # correctly because Git-bash maps `/tmp`, but Node on Windows resolves that same string against
+      # the Windows filesystem, where it does not exist. The save therefore found nothing — and said
+      # so as a WARNING, so the step still reported SUCCESS:
+      #
+      #     path: /tmp/nub/target/release/nub.exe
+      #     [warning]Path Validation Error: Path(s) specified in the action for caching do(es) not
+      #              exist, hence no cache is being saved.
+      #     ##[warning]Cache save failed.
+      #
+      # MEASURED CONSEQUENCE: `gh cache list` carried nub-bin entries for linux and macos and NONE for
+      # windows, so every Windows slice paid a full cold Rust build (~20-25 min) — on the one platform
+      # that bounds the whole corpus ETA. A green step that silently does nothing is exactly the class
+      # this workflow keeps getting caught by, and it is why the check below prints the resolved path.
+      #
+      # Resolved HERE rather than in the build step because `cache/restore` runs BEFORE the build and
+      # must name the same path. The file need not exist yet — restore only needs the string.
+      - name: Resolve the native path of the built binary
+        shell: bash
+        run: |
+          set -eu
+          P=/tmp/nub/target/release/nub
+          [ "${{ inputs.os }}" = "windows" ] && P="$P.exe"
+          # cygpath ships with Git-bash on the Windows runners; elsewhere the POSIX path IS native.
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+          echo "binary cache path (native): $P"
+
       # ⛔ THE KEY MUST NOT INCLUDE THE NUB SHA. It did, and that made every new nub commit a
       # guaranteed MISS — which is precisely backwards for a build cache. My original reasoning was
       # "a cache hit is only correct for the exact source", and that conflates the CACHE with the
@@ -197,7 +227,7 @@ jobs:
         id: nubbin
         uses: actions/cache/restore@v4
         with:
-          path: /tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
           # `v1` is a manual epoch: bump it if the build FLAGS change, since the flags are not in the
           # key and a stale binary built with different features would be silently wrong.
           key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
@@ -230,7 +260,7 @@ jobs:
         if: steps.nubbin.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: /tmp/nub/target/release/nub${{ inputs.os == 'windows' && '.exe' || '' }}
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
 
       # ⛔ SET NUB_BIN ON THE CACHE-HIT PATH TOO. The build step above is skipped on a hit, and it is
