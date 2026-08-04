@@ -489,6 +489,11 @@ jobs:
           NUB_CORPUS_ON_RECORD: ${{ github.workspace }}/harness/publish-record.sh
           NUB_CORPUS_REPO: ${{ github.workspace }}
           NUB_CORPUS_BRANCH: ${{ github.ref_name }}
+          # Pinned so the publisher and the debug sweep agree on ONE path instead of each resolving
+          # TMPDIR independently. ⛔ A BASH PATH, NOT `runner.temp`: on Windows that expands to
+          # `D:\\a\\_temp`, which every consumer here (publish-record.sh, the sweep step) would fail to
+          # open because they all run under Git-bash, where `/tmp` is mapped and a drive path is not.
+          NUB_CORPUS_MANIFEST: /tmp/nub-corpus-published.txt
         run: |
           # ⛔ STOP MEASURING BEFORE THE JOB CAP KILLS US, so the slice can still be committed.
           # A terminated job commits nothing: every measurement taken dies with the runner and the
@@ -646,6 +651,46 @@ jobs:
             sleep $((i * 5))
           done
           echo "could not push after 5 attempts" >&2; exit 1
+
+      # ⛔ A DEBUG RUN HAS NO SAFETY NET, AND THAT SILENTLY LOSES MEASUREMENTS.
+      #
+      # Per-record publishing is BEST EFFORT — publish-record.sh gives up after three rejections and
+      # says "publish deferred (branch busy)". For a QUEUE slice that is harmless: the end-of-slice
+      # commit above sweeps up whatever deferred. A DEBUG run skips that step entirely, so a deferred
+      # record exists only in the artifact and never reaches the corpus.
+      #
+      # MEASURED: a debug run re-measured five detox versions and all five produced `2 cells,
+      # (nothing)`. FOUR landed on main and are still correct 9-16 record-commits later.
+      # detox@22.0.0-rc.0 did not — and the regression detector showed ZERO records rewritten in that
+      # window, so it was not reverted, it was never published. The verification read as a partial
+      # failure when the measurement had actually succeeded.
+      #
+      # Stages ONLY the paths in this run's manifest — the same list publish-record.sh maintains — so
+      # it cannot re-stage a stale copy of somebody else's record, which is the bug that manifest
+      # exists to prevent. Never touches queue.ndjson: a debug run claims nothing and must complete
+      # nothing.
+      - name: Sweep up any debug record whose per-record publish deferred
+        if: inputs.packages != ''
+        shell: bash
+        run: |
+          MANIFEST="/tmp/nub-corpus-published.txt"
+          [ -s "$MANIFEST" ] || { echo "no manifest — nothing was published, nothing to sweep"; exit 0; }
+          git config user.name  "corpus-runner"
+          git config user.email "corpus-runner@users.noreply.github.com"
+          STASH=$(mktemp -d); cp -R records "$STASH/records"
+          for i in 1 2 3 4 5; do
+            git reset -q --hard HEAD
+            git fetch -q origin "${GITHUB_REF_NAME}"
+            git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            cp -R "$STASH/records/." records/
+            xargs -I{} git add --ignore-removal -- "{}" < "$MANIFEST" 2>/dev/null
+            git diff --cached --quiet && { echo "every debug record already on origin"; exit 0; }
+            git commit -q -m "corpus(debug): sweep records deferred by the per-record publish [run ${{ github.run_id }}]"
+            git push -q && { echo "swept $(wc -l < "$MANIFEST") manifest path(s)"; exit 0; }
+            echo "sweep push $i rejected — rebuilding on the new head" >&2
+            sleep $((i * 5))
+          done
+          echo "could not sweep after 5 attempts — records remain in the artifact" >&2
 
       - name: Report queue status
         if: inputs.packages == ''
