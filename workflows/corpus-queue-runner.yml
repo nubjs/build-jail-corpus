@@ -704,6 +704,35 @@ jobs:
         env: { GH_TOKEN: "${{ github.token }}" }
         shell: bash
         run: |
+          # ⛔⛔ ADOPT THE CURRENT TIP RATHER THAN FORWARDING OUR OWN SHA FOREVER.
+          #
+          # This line used to pass `${{ inputs.nub_sha }}` verbatim, so a chain launched at some
+          # commit re-dispatched itself on that commit INDEFINITELY and could never pick up a fix.
+          # That froze whole platforms on fixless binaries TWICE, and both times the records produced
+          # in between had to be thrown away and re-measured:
+          #   - windows sat 18h on 666a4aadfe, which contained NONE of the five then-current fixes;
+          #   - macos then did the same — 22 of its 24 write:"disk" records were on 666a4aadfe,
+          #     including appium-uiautomator2-driver at FIVE versions, which 40241eabcd was measured
+          #     to move from 55 cells write:"disk" to 18 cells read:"disk".
+          #
+          # ⛔ THE PINNING WAS DELIBERATE AND ITS TWO REASONS ARE REAL — this trades them knowingly:
+          #  1. "keeps a chain's records comparable" — but every record already carries
+          #     `provenance.nubGitSha`, so a chain spanning two binaries is RECORDED, not silent, and
+          #     the collator reads per-record provenance rather than assuming a chain is uniform.
+          #  2. "re-resolving each hop pays a cold rebuild (~26 min on Windows)" — but that is paid
+          #     ONCE PER NEW TIP PER PLATFORM, after which the sha-keyed cache hits on every later
+          #     hop. The staleness it prevented cost far more: hours of measurement re-run wholesale,
+          #     twice.
+          # The direction of error also favours rolling forward: a NEWER binary carries MORE fixes and
+          # therefore grants NARROWER. Staying stale over-grants — safe, but it wastes the measurement.
+          #
+          # Falls back to our own sha when the remote is unreachable: a chain must never die on a
+          # network blip, and measuring the old commit for one more hop is exactly the status quo.
+          TIP=$(git ls-remote https://github.com/nubjs/nub.git sandbox/integration 2>/dev/null | cut -f1 || true)
+          NEXT="${TIP:-${{ inputs.nub_sha }}}"
+          if [ "$NEXT" != "${{ inputs.nub_sha }}" ]; then
+            echo "chain rolling forward: ${{ inputs.nub_sha }} -> ${NEXT:0:10}"
+          fi
           gh workflow run corpus-queue-runner.yml \
             -f os="${{ inputs.os }}" -f slice="${{ inputs.slice }}" \
-            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}
+            -f nub_sha="$NEXT" -f chain=true -f force=${{ inputs.force }}
