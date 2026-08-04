@@ -940,6 +940,31 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
     for (const f of ['search.mjs', 'states.mjs']) h.update(fs.readFileSync(path.join(here, f)));
     harnessSha = h.digest('hex').slice(0, 16);
   } catch {}
+  // ⛔ AND THE CORPUS COMMIT, BECAUSE `harnessSha256` CANNOT IDENTIFY A HARNESS ACROSS PLATFORMS.
+  //
+  // It is a content hash of the harness sources, and git rewrites line endings on Windows checkout,
+  // so the SAME commit hashes differently on windows-latest than on ubuntu/macos. That is already in
+  // the architecture changelog as having inverted staleness purging — and it kept biting: it made an
+  // A/B unreadable three separate times in one session. "Which harness measured this record" has no
+  // answer from `harnessSha256` alone, and that is precisely the question every before/after
+  // comparison asks. The one paired Windows record available (impit@0.14.0, measured under two
+  // hashes) could not be interpreted at all, because neither hash could be mapped to a commit.
+  //
+  // The corpus repo's own commit answers it exactly, is identical across platforms, and orders by git
+  // ancestry rather than by an opaque digest. `GITHUB_SHA` is what Actions checked out; the
+  // `rev-parse` fallback covers a local run, and a dirty tree gets a `-dirty` suffix so a
+  // working-copy measurement is never mistaken for a committed one.
+  let corpusGitSha = process.env.GITHUB_SHA || null;
+  if (!corpusGitSha) {
+    try {
+      const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: HERE, encoding: 'utf8' });
+      if (r.status === 0) corpusGitSha = r.stdout.trim() || null;
+      if (corpusGitSha) {
+        const d = spawnSync('git', ['status', '--porcelain', '--', '.'], { cwd: HERE, encoding: 'utf8' });
+        if (d.status === 0 && d.stdout.trim()) corpusGitSha += '-dirty';
+      }
+    } catch {}
+  }
   // ⛔ THE NUB COMMIT, NOT JUST THE BINARY HASH — a binary hash cannot be compared ACROSS PLATFORMS.
   // A macOS and a Linux build of the same commit have different sha256s, so "was this measured
   // before fix X?" is unanswerable for a multi-platform corpus from `nubSha256` alone, and a purge
@@ -948,7 +973,7 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
   // a local sweep against a working tree, which is honest — there is no commit to name.
   const nubGitSha = process.env.NUB_GIT_SHA || null;
   return {
-    nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, harnessSha256: harnessSha,
+    nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, harnessSha256: harnessSha, corpusGitSha,
     platform: `${process.platform}-${process.arch}`,
     // THE MEASUREMENT NODE IS PART OF THE RESULT. A grant measured on a Node the package was never
     // built against is not that package's grant, so the record carries what was DECLARED, what the
