@@ -119,8 +119,17 @@ jobs:
       # naming what it does and does not cost:
       #   - these lifecycle scripts are ALREADY EXECUTING by design; Defender scanning the files they
       #     write afterwards is not what contains them. The build jail is, and it stays on.
-      #   - harness/prescreen-queue.mjs refuses every OSV-known-malicious version before a runner ever
-      #     fetches it, so known-bad code does not reach this machine at all.
+      #   - an OSV malicious-package screen runs in `search.mjs` (`screenForMalicious`) over the WHOLE
+      #     RESOLVED TREE, unconditionally, immediately before any lifecycle script is executed, and
+      #     it FAILS CLOSED — a curl failure, a parse failure, or a result count that does not match
+      #     the query count all THROW rather than proceed. Proven able to fire: 8 corpus rows carry
+      #     `REFUSED-MALICIOUS` / `MALICIOUS-PACKAGE-DETECTED` (apollo-server@0.1.5, webdev-toolkit,
+      #     @azure-devops/mcp).
+      #     ⛔ BE PRECISE ABOUT WHAT THAT BUYS, because this line previously overclaimed it. The
+      #     screen runs on the RESOLVED tree, so a known-malicious tarball IS fetched to this
+      #     machine; what never happens is its lifecycle scripts RUNNING. "Known-bad code never
+      #     reaches this machine" was false. (`harness/prescreen-queue.mjs` exists and screens the
+      #     queue up front, but it is NOT invoked by this workflow, so it is not part of this trade.)
       #   - the runner is ephemeral and holds no secret beyond GITHUB_TOKEN, scoped to this repo.
       # If that trade is ever judged wrong, deleting this step restores the previous behaviour exactly.
       - name: Stand Defender down for the fixture tree (Windows only)
@@ -160,6 +169,37 @@ jobs:
           cd /tmp/nub
           git checkout --detach "${{ inputs.nub_sha }}"
           git log --oneline -1
+
+          # ⛔ SAY OUT LOUD WHEN THIS CHAIN IS MEASURING A STALE BINARY.
+          #
+          # The chain self-dispatch forwards `nub_sha` VERBATIM, so a chain launched hours ago
+          # re-dispatches itself on that same commit indefinitely and NEVER picks up a fix. Pinning
+          # is deliberate — it keeps a chain's records comparable, and re-resolving each hop would
+          # pay a cold rebuild (~26 min on Windows) every time the branch moved — but nothing
+          # surfaced the staleness, so it was only discoverable by counting `provenance.nubGitSha`
+          # across committed records well after the fact.
+          #
+          # MEASURED, and this warning exists because of it: over one 3-hour window, windows was
+          # 81/81 records (100%) on a commit predating every then-current fix, linux 504/548 (92%),
+          # macos 123/224 (55%). Both Windows-targeted fixes were invisible to the production fleet
+          # and that platform's disk-grant rate sat frozen while looking merely slow.
+          #
+          # ⛔ A WARNING, NOT A FAILURE. A stale chain still produces VALID records — it measures an
+          # older binary, which OVER-grants relative to a fixed one, and over-granting is the safe
+          # direction. Failing here would throw away good work and strand claimed rows. The cost is
+          # runner time and a frozen metric, so the right response is to notice and roll forward,
+          # which is a judgement call about timing that belongs to the operator, not to this step.
+          # Every command here is `|| true`-guarded: this block is DIAGNOSTIC, and `set -e` is on, so
+          # an unguarded network blip in `ls-remote` would abort a measuring run over a status line.
+          TIP=$(git ls-remote https://github.com/nubjs/nub.git sandbox/integration 2>/dev/null | cut -f1 || true)
+          CUR=$(git rev-parse HEAD || true)
+          if [ -n "$TIP" ] && [ -n "$CUR" ] && [ "$TIP" != "$CUR" ]; then
+            echo "::warning::measuring nub ${CUR:0:10}, which is NOT the sandbox/integration tip ${TIP:0:10}. A chain never advances its own nub_sha — dispatch a fresh chain at the tip to measure recent fixes."
+          elif [ -n "$TIP" ]; then
+            echo "nub_sha is at the sandbox/integration tip"
+          else
+            echo "could not reach the nub remote to check tip freshness — skipping the staleness check"
+          fi
 
       # ⛔ THE BINARY-CACHE PATH MUST BE NATIVE, AND ON WINDOWS `/tmp/...` IS NOT.
       #
