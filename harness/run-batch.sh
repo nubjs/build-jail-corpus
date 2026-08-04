@@ -167,6 +167,36 @@ NUB="$SNAP_NATIVE"
 # So the canary asserts the CONTROL'S SHAPE, not a verdict: a package whose answer we know must
 # still install a large tree and still be materialized. `is-odd` would not catch this — it needs
 # nothing legitimately. Skip with NUB_PROBE_SKIP_CANARY=1 when deliberately testing the fixture.
+
+# ⛔ TOOLCHAIN CENSUS — WHERE THE RUNNER'S TOOLS ACTUALLY LIVE.
+#
+# A package that shells out to a toolchain binary the jail does not grant READ on cannot exec it
+# (exec of a binary requires read on the binary; `(allow process-exec)` is necessary and not
+# sufficient), fails — often SILENTLY, exit 0 having done nothing — and walks the ladder to
+# `write:"disk"`, which is no confinement at all. Diagnosing that needs one fact the cell logs do
+# not carry: the ABSOLUTE PATH of the tool on THIS runner.
+#
+# Measured cost of not having it: appium-uiautomator2-driver logs only `Could not find JAVA`, and
+# `PATH` appears in 0 of its 56 cell logs. Three hypotheses were raised and refuted on a dev Mac —
+# missing read, a needed write, and libuv's PATH-lookup spawn — none of which reproduced, because
+# the dev box's JDK sits in an already-granted prefix and the runner's does not. This line is what
+# would have answered it in one run instead.
+#
+# ⛔ EMITTED ONCE PER BATCH, BEFORE THE CANARY, AND IT MUST STAY OUTSIDE EVERY MEASUREMENT. Running
+# it inside a cell would touch files and perturb `seen`, i.e. corrupt the very digest the walk
+# compares against the control. It only reads env and resolves names; it executes nothing.
+{
+  echo "toolchain census (runner environment, not a measurement):"
+  echo "  PATH=${PATH}"
+  for _v in JAVA_HOME ANDROID_HOME ANDROID_SDK_ROOT AGENT_TOOLSDIRECTORY npm_config_prefix NPM_CONFIG_PREFIX; do
+    eval "_val=\${$_v-}"
+    [ -n "${_val}" ] && echo "  ${_v}=${_val}"
+  done
+  for _t in java git python3 make cc brew pkg-config node npm; do
+    echo "  which ${_t}: $(command -v "${_t}" 2>/dev/null || echo '(not found)')"
+  done
+} >&2
+
 if [ "${NUB_PROBE_SKIP_CANARY:-0}" != "1" ]; then
   _can="${TMPDIR:-/tmp}/nub-canary-$$"; rm -rf "$_can"
   _canjson="$_can/results/runs/$(node -p 'process.platform+"-"+process.arch')/puppeteer/25.4.0/results.json"
