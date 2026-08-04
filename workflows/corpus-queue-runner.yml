@@ -47,6 +47,27 @@ on:
         description: "re-measure even when a record already exists (use after reopening rows)"
         type: boolean
         default: false
+      fail_closed_read_grants:
+        # ⛔ DIAGNOSTIC ONLY, and it can only make the jail STRICTER — never a widening lever.
+        #
+        # Sets NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS for the measured nub. The Windows backend
+        # normally SKIPS a read-grant ACE it cannot install; this restores the old fail-closed
+        # behaviour, so an uninstallable read grant ABORTS the launch with the path in the error.
+        #
+        # THE QUESTION IT ANSWERS, and windows.rs asks for exactly this arm: two witnesses fail with
+        # `spawnSync C:\Windows\system32\cmd.exe EPERM` (bs-platform@9.0.2, 51 of 54 logs) and
+        # `Command failed: C:\Windows\system32\cmd.exe /s /c "touch ..."` (jpegtran-bin@5.0.2),
+        # while optipng-bin@8.1.0 succeeds at the `network` rung with ZERO fs grants. windows.rs
+        # names the fail-closed path as "the prime suspect for a sibling lane's finding that
+        # `cmd.exe` cannot run confined at all de-elevated" and says plainly: "Without an arm that
+        # restores the old behaviour on the same fixture, neither reading can be told from the other."
+        #
+        # READ THE RESULT AS: launch ABORTS naming a System32 path => the ACE genuinely cannot be
+        # installed de-elevated, cause CONFIRMED. Launch proceeds and still EPERMs at the spawn =>
+        # the ACE installs fine and the refusal is elsewhere.
+        description: "DIAGNOSTIC: fail closed on uninstallable read-grant ACEs (names the path)"
+        type: boolean
+        default: false
       packages:
         # ⛔ DEBUG ESCAPE HATCH. Space-separated pkg@version specs. When set, the runner SKIPS the
         # QUEUE — no claim, no completion, no end-of-slice commit, and none of the verify/parse gates
@@ -111,6 +132,7 @@ jobs:
       # silently to the whole-tree stash it exists to replace — on macOS, the very platform whose
       # slice commit caused the reversion.
       NUB_CORPUS_MANIFEST: /tmp/nub-corpus-published.txt
+      NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS: ${{ inputs.fail_closed_read_grants && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
 
