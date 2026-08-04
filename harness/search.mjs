@@ -1942,6 +1942,19 @@ function search(nub, pkg, version, root, keep, runDir) {
       index: i, state: STATES[i].label, cost: STATES[i].cost,
       pass: matches(r), rc: r.rc, digest: r.digest, files: r.files,
       overrideEngaged: r.overrideOk, materialized: r.materialized,
+      // ⛔ WITHOUT THIS A PASS IS AMBIGUOUS. `runCell` already measures whether confinement degraded
+      // -- it parses nub's own "running in reduced mode ... not enforced" line -- and until now the
+      // answer was DISCARDED here, before the record was written. So no published record could
+      // separate "passed while CONFINED" from "passed because confinement was NOT IN EFFECT", which
+      // are opposite results wearing the same verdict.
+      //
+      // It turned load-bearing while chasing why a package the corpus records as grant:null-PASSING
+      // on win32 CI fails jailed on two stock Windows boxes. The hypothesis that CI degrades further
+      // than a stock box -- which, if true, would mean the win32 corpus has been measuring a
+      // partly-disabled jail -- was UNANSWERABLE across all 3,798 published records, purely because
+      // these two fields were dropped on this line.
+      confinementReduced: r.confinementReduced,
+      confinementLost: r.confinementLost,
     });
     if (!r.overrideOk) return { pkg, version, cells, verdict: 'HARNESS-ERROR', why: `override did not engage at state ${i}`, log: r.log.slice(-400) };
     // The runner-up delta, computed BEFORE `prev` advances. Null at i=0 (nothing narrower failed)
