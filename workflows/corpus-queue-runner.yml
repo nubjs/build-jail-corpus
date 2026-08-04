@@ -68,6 +68,24 @@ on:
         description: "DIAGNOSTIC: fail closed on uninstallable read-grant ACEs (names the path)"
         type: boolean
         default: false
+      pkg_budget_seconds:
+        # ⛔ THE #133 BUCKET IS AN ABSENCE, NOT A MEASUREMENT: 112 records carry a HARNESS-* verdict
+        # (67 TIMEOUT / 39 ERROR / 6 CRASH), and they cluster on exactly what users install --
+        # @aws-amplify/cli, hugo-extended, postman-code-generators, purescript, appium. The catalog
+        # silently omits those entries; nothing downstream says a package was never answered.
+        #
+        # run-batch.sh reads NUB_CORPUS_PKG_BUDGET (default 2400s) and the workflow never set it, so
+        # the knob that f79a65b9 added was unreachable from CI. This exposes it.
+        #
+        # ⛔ RAISING IT CHANGES NO MEASUREMENT SEMANTICS. The budget is a wall-clock cap on the whole
+        # per-package walk; the cell that passes is unchanged, the walk just gets to finish. So a
+        # slow-lane record stays comparable with every other record.
+        # ⛔ DO NOT RAISE IT FOR A FULL QUEUE SLICE. The 350-minute job cap only fits a 20-row windows
+        # slice because most packages finish well inside 2400s; a raised budget on a full slice risks
+        # the job cap and loses the WHOLE slice. Use it with `packages`, on a handful at a time.
+        description: "per-package wall-clock budget in seconds (default 2400; raise only with `packages`)"
+        type: string
+        default: ""
       packages:
         # ⛔ DEBUG ESCAPE HATCH. Space-separated pkg@version specs. When set, the runner SKIPS the
         # QUEUE — no claim, no completion, no end-of-slice commit, and none of the verify/parse gates
@@ -133,6 +151,7 @@ jobs:
       # slice commit caused the reversion.
       NUB_CORPUS_MANIFEST: /tmp/nub-corpus-published.txt
       NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS: ${{ inputs.fail_closed_read_grants && '1' || '' }}
+      NUB_CORPUS_PKG_BUDGET: ${{ inputs.pkg_budget_seconds }}
     steps:
       - uses: actions/checkout@v4
 
