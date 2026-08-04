@@ -252,6 +252,23 @@ function makeFixture(dir, pkg, version, { jailOff }) {
   if (process.platform === 'win32') {
     fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Local'), { recursive: true });
     fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Roaming'), { recursive: true });
+    // ⛔ `Packages` EXISTS SO THE APPCONTAINER PROFILE CAN BE CREATED INSIDE THE FIXTURE.
+    //
+    // `LOCALAPPDATA` is redirected here and MUST stay redirected — the store resolves through it
+    // (see homeEnv). So the confined CHILD resolves its per-container profile to
+    // `%LOCALAPPDATA%\Packages\<name>` inside this throwaway home. Windows creates that profile from
+    // the PARENT, nub, which is unsandboxed and can write here — but only if `Packages` itself
+    // exists, because the child has no ACE to create it. The observed failure was exactly
+    //     EPERM: operation not permitted, mkdir '<throwaway>\home\AppData\Local\Packages'
+    // repeated at every rung until a grant opened the whole throwaway home, which inflated Windows
+    // grants across the corpus (110 of one artifact's cell logs, 54 of another's) and produced
+    // records granting `write.userHome` with ZERO blocked paths — nothing DIFFERED, the run simply
+    // could not START.
+    //
+    // This is the minimal intervention: it changes nothing about where the store lands. Removing the
+    // `LOCALAPPDATA` redirect instead was tried and REVERTED — it put 3,924 store files in the
+    // runner's real profile and the fixture canary refused the batch.
+    fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Local', 'Packages'), { recursive: true });
   }
   // Config keys a real consumer would carry. Same reason as the fixture files below: a script
   // that bails for a missing key measures as "needs nothing", which is the verdict that ships a
