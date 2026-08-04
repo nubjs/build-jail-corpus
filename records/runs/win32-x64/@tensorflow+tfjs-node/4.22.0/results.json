@@ -1,0 +1,107 @@
+{
+  "pkg": "@tensorflow/tfjs-node",
+  "version": "4.22.0",
+  "verdict": "BROKEN-IN-ENVIRONMENT",
+  "jailOffControl": {
+    "rc": 0,
+    "digest": "73a8bae21cc8a010",
+    "files": 29321,
+    "note": "succeeds with the jail off, so the jail IS implicated (checked before the oracles)"
+  },
+  "grant": null,
+  "declaresInstallScript": true,
+  "npmReference": {
+    "rc": 1,
+    "signature": "node-pre-gyp install failed with error: Error: Command failed: node-pre-gyp install --fallback-to-build",
+    "ranScripts": true,
+    "files": 2750,
+    "digest": "5f2b635c354bcb6c"
+  },
+  "pnpmReference": {
+    "rc": 1,
+    "signature": null,
+    "ranScripts": false,
+    "files": 22,
+    "digest": "a3cfd1be1b247b86",
+    "lifecycle": []
+  },
+  "artifactComparison": {
+    "nubControlFiles": null,
+    "npmFiles": 2750,
+    "pnpmFiles": 22,
+    "armsThatRanScripts": [
+      "npm"
+    ]
+  },
+  "failureSignature": null,
+  "signaturesMatched": false,
+  "standing": {
+    "published": "2024-10-21T18:51:53.407Z",
+    "ageDays": 651,
+    "weeklyDownloads": 115826,
+    "latestVersion": null
+  },
+  "needsInvestigation": true,
+  "investigationReason": "npm ALSO fails, but this is 651d old with 115826 weekly downloads — people install it successfully every week, so suspect a missing toolchain on the measuring host before accepting the dismissal",
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": true,
+      "rc": 0,
+      "digest": "7c0590e600641340",
+      "files": 31334,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 0,
+    "fileCount": 31334,
+    "digest": "7c0590e600641340",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 3
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 31307,
+    "digest": "b160575562596b1f",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlLogTail": "█████████████░░  111/122 pkgs · 2.2 MB / ~4.9 MB · 951 kB/s · ETA 1.3s\n██████████████░  117/122 pkgs · 43.7 MB / ~45.8 MB · 10.1 MB/s · ETA 833ms\n██████████████░  118/122 pkgs · 43.9 MB / ~45.6 MB · 6.9 MB/s · ETA 938ms\n██████████████░  120/122 pkgs · 49.5 MB / ~50.3 MB · 5.9 MB/s · ETA 575ms\n██████████████░  120/122 pkgs · 49.5 MB / ~50.3 MB · 4.8 MB/s · ETA 713ms\n██████████████░  121/122 pkgs · 56.4 MB / ~56.9 MB · 4.6 MB/s · ETA 412ms\n██████████████░  122/122 pkgs · 56.7 MB · 3.9 MB/s\n██████████████░  122/122 pkgs · 56.7 MB · 3.5 MB/s\n██████████████░  122/122 pkgs · 56.7 MB · 3.1 MB/s\n██████████████░  122/122 pkgs · 56.7 MB · 2.8 MB/s\n██████████████░ 1621 files · linking\n██████████████░ 3563 files · linking\n███████████████  122/122 pkgs\n✓ resolved 122 · reused 0 · downloaded 122 (56.7 MB) in 27.0s\nWARN defaultTrust: running build scripts for @tensorflow/tfjs-node@4.22.0\n* Downloading libtensorflow\n\n* Building TensorFlow Node.js bindings\n8 transitive packages have deprecation warnings. Run `nub deprecations --transitive` to see them.\ndependencies:\n+ @tensorflow/tfjs-node@4.22.0\n\nWARN ignored build scripts for 1 package(s): core-js@3.29.1. Run `nub approve-builds` to review and enable them, or set `strictDepBuilds=true` to fail installs that have unreviewed builds. code=WARN_NUB_IGNORED_BUILD_SCRIPTS count=1 packages=[\"core-js@3.29.1\"]\nApproved 2 package(s) in package.json:\n  @tensorflow/tfjs-node@4.22.0\n  core-js@3.29.1\nThank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!\n\nThe project needs your help! Please consider supporting of core-js:\n> https://opencollective.com/core-js \n> https://patreon.com/zloirock \n> https://boosty.to/zloirock \n> bitcoin: bc1qlea7544qtsmj2rayg0lthvza9fau63ux0fstcz \n\nI highly recommend reading this: https://github.com/zloirock/core-js/blob/master/docs/2023-02-14-so-whats-next.md \n\nCPU-windows-4.22.0.zip\nwarning: build-jail catalog OVERRIDDEN from C:\\Users\\runneradmin\\.cache\\nub-search-25AOnp\\cat-23-writedisknetwork.json (v2: 115 packages, 115 grants, 0 baseline paths, 3 env) — development-only, not a shipped configuration\n* Building TensorFlow Node.js bindings\n",
+  "logDir": "D:\\a\\build-jail-corpus\\build-jail-corpus\\records\\runs\\win32-x64\\@tensorflow+tfjs-node\\4.22.0",
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\efc091581884c8d9.exe",
+    "nubSha256": "efc091581884c8d9174879cff0e906a6bf2ecf5b7e297f7117420a0eadbc568f",
+    "nubGitSha": "db9e4367c2b95570a3b53f4074ef7343a5715b3d",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "5d5cc26ad64f4d9f",
+    "corpusGitSha": "78112f176de1a860784e9d93d2b17d3a0d52048e",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": ">=8.11.0",
+      "publishedAt": "2024-10-21T18:51:53.407Z",
+      "chosenMajor": "20",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T15:28:06.016Z"
+  }
+}
