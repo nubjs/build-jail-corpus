@@ -1,0 +1,107 @@
+{
+  "pkg": "libxmljs",
+  "version": "1.0.11",
+  "verdict": "BROKEN-IN-ENVIRONMENT",
+  "jailOffControl": {
+    "rc": 0,
+    "digest": "abaf537c15987fd2",
+    "files": 7424,
+    "note": "succeeds with the jail off, so the jail IS implicated (checked before the oracles)"
+  },
+  "grant": null,
+  "declaresInstallScript": true,
+  "npmReference": {
+    "rc": 1,
+    "signature": "Failed to execute 'C:\\hostedtoolcache\\windows\\node\\<ver>\\x64\\node.exe C:\\hostedtoolcache\\windows\\node\\<ver>\\x64\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-",
+    "ranScripts": true,
+    "files": 2750,
+    "digest": "5f2b635c354bcb6c"
+  },
+  "pnpmReference": {
+    "rc": 1,
+    "signature": null,
+    "ranScripts": false,
+    "files": 22,
+    "digest": "a3cfd1be1b247b86",
+    "lifecycle": []
+  },
+  "artifactComparison": {
+    "nubControlFiles": null,
+    "npmFiles": 2750,
+    "pnpmFiles": 22,
+    "armsThatRanScripts": [
+      "npm"
+    ]
+  },
+  "failureSignature": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Microsoft\\VC\\v180\\Microsoft.CppCommon.targets(790,5): error MSB4018: The \"CL\" task failed unexpec",
+  "signaturesMatched": false,
+  "standing": {
+    "published": "2023-10-18T14:43:16.230Z",
+    "ageDays": 1020,
+    "weeklyDownloads": 80329,
+    "latestVersion": null
+  },
+  "needsInvestigation": false,
+  "investigationReason": null,
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "6b0eaaf8b769be73",
+      "files": 9381,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 9381,
+    "digest": "6b0eaaf8b769be73",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 9380,
+    "digest": "c6f9b7a4b24aed56",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlLogTail": "███████████████   59/59 pkgs\n✓ resolved 59 · reused 0 · downloaded 59 (2.9 MB) in 3.8s\nWARN defaultTrust: running build scripts for libxmljs@1.0.11\nnode-pre-gyp http GET https://github.com/libxmljs/libxmljs/releases/download/v1.0.11/node-v127-win32-x64.tar.gz\nnode-pre-gyp ERR! install response status 404 Not Found on https://github.com/libxmljs/libxmljs/releases/download/v1.0.11/node-v127-win32-x64.tar.gz \nnode-pre-gyp WARN Pre-built binaries not installable for libxmljs@1.0.11 and node@22.23.1 (node-v127 ABI, unknown) (falling back to source compile with node-gyp) \nnode-pre-gyp WARN Hit error response status 404 Not Found on https://github.com/libxmljs/libxmljs/releases/download/v1.0.11/node-v127-win32-x64.tar.gz \ngyp info it worked if it ends with ok\ngyp info using node-gyp@12.4.0\ngyp info using node@22.23.1 | win32 | x64\ngyp info ok \ngyp ERR! build error \ngyp ERR! stack Error: `C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe` failed with exit code: 1\ngyp ERR! stack at ChildProcess.<anonymous> (C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\home\\AppData\\Local\\nub\\pm\\store\\node-gyp@12.4.0-6386ab3e4584a36d\\node_modules\\node-gyp\\lib\\build.js:219:23)\ngyp ERR! stack at ChildProcess.emit (node:events:519:28)\ngyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:293:12)\ngyp ERR! System Windows_NT 10.0.26100\ngyp ERR! command \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\jail-bin\\\\22.23.1-x64\\\\node.exe\" \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\tools\\\\node-gyp\\\\v12\\\\node_modules\\\\.store\\\\node-gyp@12.4.0\\\\node_modules\\\\node-gyp\\\\bin\\\\node-gyp.js\" \"build\" \"--fallback-to-build\" \"--loglevel=http\" \"--jobs=max\" \"--module=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\proj\\\\node_modules\\\\.store\\\\libxmljs@1.0.11\\\\node_modules\\\\libxmljs\\\\build\\\\Release\\\\xmljs.node\" \"--module_name=xmljs\" \"--module_path=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\proj\\\\node_modules\\\\.store\\\\libxmljs@1.0.11\\\\node_modules\\\\libxmljs\\\\build\\\\Release\" \"--napi_version=10\" \"--node_abi_napi=napi\" \"--napi_build_version=0\" \"--node_napi_label=node-v127\"\ngyp ERR! cwd C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\proj\\node_modules\\.store\\libxmljs@1.0.11\\node_modules\\libxmljs\ngyp ERR! node -v v22.23.1\ngyp ERR! node-gyp -v v12.4.0\ngyp ERR! $npm_package_name libxmljs\ngyp ERR! $npm_package_version 1.0.11\ngyp ERR! not ok \nnode-pre-gyp ERR! build error \nnode-pre-gyp ERR! stack Error: Failed to execute 'C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\home\\AppData\\Local\\nub\\pm\\jail-bin\\22.23.1-x64\\node.exe C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\home\\AppData\\Local\\nub/pm\\tools\\node-gyp\\lazy-bin\\node-gyp.js build --fallback-to-build --loglevel=http --jobs=max --module=C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\proj\\node_modules\\.store\\libxmljs@1.0.11\\node_modules\\libxmljs\\build\\Release\\xmljs.node --module_name=xmljs --module_path=C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\proj\\node_modules\\.store\\libxmljs@1.0.11\\node_modules\\libxmljs\\build\\Release --napi_version=10 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v127' (1)\nnode-pre-gyp ERR! stack     at ChildProcess.<anonymous> (C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\proj\\node_modules\\.store\\@mapbox+node-pre-gyp@1.0.11\\node_modules\\@mapbox\\node-pre-gyp\\lib\\util\\compile.js:89:23)\nnode-pre-gyp ERR! stack     at ChildProcess.emit (node:events:519:28)\nnode-pre-gyp ERR! stack     at maybeClose (node:internal/child_process:1101:16)\nnode-pre-gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:304:5)\nnode-pre-gyp ERR! System Windows_NT 10.0.26100\nnode-pre-gyp ERR! command \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\jail-bin\\\\22.23.1-x64\\\\node.exe\" \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-HQPCBU\\\\control\\\\proj\\\\node_modules\\\\.store\\\\libxmljs@1.0.11\\\\node_modules\\\\@mapbox\\\\node-pre-gyp\\\\bin\\\\node-pre-gyp\" \"install\" \"--fallback-to-build\" \"--loglevel\" \"http\" \"-j\" \"max\"\nnode-pre-gyp ERR! cwd C:\\Users\\runneradmin\\.cache\\nub-search-HQPCBU\\control\\proj\\node_modules\\.store\\libxmljs@1.0.11\\node_modules\\libxmljs\nnode-pre-gyp ERR! node -v v22.23.1\nnode-pre-gyp ERR! node-pre-gyp -v v1.0.11\nnode-pre-gyp ERR! not ok \n  × lifecycle script install failed for libxmljs@1.0.11: script `install`\n  │ exited with code 1\n\n",
+  "logDir": "D:\\a\\build-jail-corpus\\build-jail-corpus\\records\\runs\\win32-x64\\libxmljs\\1.0.11",
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\347414e5f5d66f2f.exe",
+    "nubSha256": "347414e5f5d66f2f49415df0eb0687ee77e1274affa2738a78370129479c2e7f",
+    "nubGitSha": "666a4aadfe8c851b48108a152fac55e7e3f6e16f",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "b996b398d8e2c873",
+    "corpusGitSha": "410a086d5d9c47e015318561bb662e0965e95fc7",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": ">=0.8.0",
+      "publishedAt": "2023-10-18T14:43:16.230Z",
+      "chosenMajor": "18",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T06:04:08.629Z"
+  }
+}
