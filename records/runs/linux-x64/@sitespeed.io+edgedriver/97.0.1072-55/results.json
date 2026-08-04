@@ -1,13 +1,13 @@
 {
-  "pkg": "@bahmutov/add-typescript-to-cypress",
-  "version": "1.1.1",
+  "pkg": "@sitespeed.io/edgedriver",
+  "version": "97.0.1072-55",
   "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "why": "fails IDENTICALLY with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict.",
+  "why": "BOTH control runs failed, and it fails identically with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict. Compare `control` and `controlB` in this record.",
   "declaresInstallScript": true,
   "jailOffControl": {
     "rc": 1,
-    "digest": "2de65753df5545a8",
-    "files": 25434,
+    "digest": "6007be6078b8f580",
+    "files": 1723,
     "note": "ran BEFORE the oracles and short-circuited them"
   },
   "cells": [
@@ -17,16 +17,23 @@
       "cost": null,
       "pass": false,
       "rc": 1,
-      "digest": "a86d4852fd3c32be",
-      "files": 25433,
+      "digest": "d1bef39650fe4fee",
+      "files": 1722,
       "overrideEngaged": null,
       "materialized": true
     }
   ],
   "control": {
     "rc": 1,
-    "fileCount": 25433,
-    "digest": "a86d4852fd3c32be",
+    "fileCount": 1722,
+    "digest": "d1bef39650fe4fee",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 1722,
+    "digest": "d1bef39650fe4fee",
     "materialized": true,
     "pathsUnderThrowawayHome": 0
   },
@@ -35,12 +42,13 @@
     "nubSha256": "693fec4e09444b3121bd1734c945268cef69a4a0f5d72cb4a753422c35afd70c",
     "nubGitSha": "666a4aadfe8c851b48108a152fac55e7e3f6e16f",
     "nubVersion": "v0.6.0",
-    "harnessSha256": "81d34faf44f6e376",
+    "harnessSha256": "e47cf28328c8502d",
+    "corpusGitSha": "0a6560a275bb1a49df050aaffa0dcb1bdd32497e",
     "platform": "linux-x64",
     "nodeSelection": {
-      "enginesNode": ">=6",
-      "publishedAt": "2017-12-19T20:15:34.034Z",
-      "chosenMajor": "10",
+      "enginesNode": null,
+      "publishedAt": "2022-01-11T14:40:14.992Z",
+      "chosenMajor": "16",
       "pinnedTo": null,
       "hostNode": "v22.23.1",
       "hostArch": "x64",
@@ -59,6 +67,6 @@
       "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
       "pathPrefix": "/opt/hostedtoolcache/node/22.23.1/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin"
     },
-    "at": "2026-08-04T02:16:33.428Z"
+    "at": "2026-08-04T03:50:33.077Z"
   }
 }
