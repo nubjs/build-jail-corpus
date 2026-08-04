@@ -98,6 +98,19 @@ jobs:
     permissions:
       contents: write        # commits results + queue back
       actions: write         # re-dispatches itself when chaining
+    env:
+      # ⛔⛔ JOB-SCOPED ON PURPOSE — TWO STEPS MUST RESOLVE THE SAME PATH.
+      # `harness/publish-record.sh` WRITES this manifest during the measure step; the end-of-slice
+      # commit READS it to decide which records are genuinely this run's (see the stash block, which
+      # otherwise reverts other runners' work — that is what commit f749ade8 did to a win32 record).
+      #
+      # It used to be set only on the MEASURE step. A step-level `env:` does not reach other steps,
+      # so the commit step fell through to the shared default `${TMPDIR:-/tmp}/…` — and on a macOS
+      # runner TMPDIR is `/var/folders/…/T/`, NOT `/tmp`. Writer and reader would have resolved
+      # DIFFERENT paths, the manifest would have read as missing, and the fix would have degraded
+      # silently to the whole-tree stash it exists to replace — on macOS, the very platform whose
+      # slice commit caused the reversion.
+      NUB_CORPUS_MANIFEST: /tmp/nub-corpus-published.txt
     steps:
       - uses: actions/checkout@v4
 
