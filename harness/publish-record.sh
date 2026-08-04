@@ -134,10 +134,47 @@ for attempt in 1 2 3; do
   #                          Trading silent deletion for silent omission is not a fix.
   #   git add --ignore-removal records
   #                          stages every on-disk record as an add or modify and IGNORES removals.
-  #                          That is both properties at once: the queue stays honest because
-  #                          everything --reconcile saw is committed, and nothing another runner
-  #                          pushed can be removed.
-  git add --ignore-removal -- records queue.ndjson 2>/dev/null
+  #                          Stops the deletions AND keeps the queue honest — but see below: it
+  #                          silently admitted a fourth failure, stale MODIFICATIONS.
+  #
+  # ⛔⛔ FOURTH FAILURE, AND THE ONLY ONE THAT CORRUPTS IN THE UNSAFE DIRECTION: `--ignore-removal
+  # records` stages EVERY record on disk, and this script deliberately does NOT reset the working
+  # tree, so a slice carries its own hours-old copy of every record that existed at its checkout.
+  # Each publish therefore re-stages those stale copies OVER whatever newer content origin now
+  # holds. Last writer wins, and the last writer is frequently the staler one.
+  #
+  # MEASURED on records/runs/darwin-arm64/detox/20.9.1/results.json, oscillating commit by commit:
+  #   a2761842  cells=2  grant=null              nub=8a49b39413   (fresh re-measure)
+  #   bb7c0f35  cells=53 grant={"write":"disk"}  nub=666a4aadfe   REVERTED
+  #   c32ca9b7  cells=2  grant=null              nub=8a49b39413   fresh again
+  #   4f338c9b  cells=53 grant={"write":"disk"}  nub=666a4aadfe   REVERTED again
+  # One reverting commit was a WINDOWS run ("corpus(windows): claim 20 rows") rewriting DARWIN
+  # records it never measured. Reverting a new NARROW grant to an old DISK grant over-grants and is
+  # merely wasteful; reverting a new DISK grant to an old NARROW one UNDER-grants and breaks real
+  # installs — so this is not on the safe side of the ledger. It also silently undoes exactly the
+  # re-measurements the whole fix loop depends on.
+  #
+  # ⛔ SO: STAGE ONLY WHAT THIS RUN ACTUALLY MEASURED. The manifest accumulates each record dir this
+  # run has published, and only those paths are staged. It is not the same as the rejected
+  # `git add -- "$REL"`: that staged ONE record, so --reconcile closed rows against records that
+  # never reached origin. The manifest carries EVERY record this run produced, including ones whose
+  # earlier publish attempt was deferred, so the reconcile invariant holds. Records on disk but
+  # absent from the manifest came from the checkout or another runner and are already on origin, so
+  # marking their rows done stays honest.
+  # ⛔ NO `$$` IN THIS PATH. This script is invoked ONCE PER RECORD as a separate process, so a
+  # PID-scoped manifest would be freshly empty every time and stage only the current record — which
+  # is precisely the `git add -- "$REL"` variant already rejected above for breaking reconcile. The
+  # manifest must be RUN-scoped, and a fixed name is exactly that: each CI job is a fresh machine.
+  MANIFEST="${NUB_CORPUS_MANIFEST:-${TMPDIR:-/tmp}/nub-corpus-published.txt}"
+  printf '%s\n' "$REL" >> "$MANIFEST" 2>/dev/null
+  sort -u -o "$MANIFEST" "$MANIFEST" 2>/dev/null
+
+  # `xargs` rather than an unquoted expansion: a record path contains an npm scope and a version, so
+  # it can carry characters a bare word-split would mangle. `-I{}` keeps one path per invocation.
+  # queue.ndjson is staged separately and unconditionally — it is re-derived above and is the one
+  # file every runner legitimately rewrites.
+  xargs -I{} git add --ignore-removal -- "{}" < "$MANIFEST" 2>/dev/null
+  git add -- queue.ndjson 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then exit 0; fi   # already published by someone
 
   PKG="$(node -e 'try{const r=require(process.argv[1]+"/results.json");console.log(r.pkg+"@"+r.version+" "+r.verdict)}catch{console.log("record")}' "$REC_DIR" 2>/dev/null)"
