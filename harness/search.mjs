@@ -1423,7 +1423,7 @@ function search(nub, pkg, version, root, keep, runDir) {
       pkg, version, verdict: 'HARNESS-ERROR',
       why: 'the catalog override did not engage in the control — is the binary built with '
          + '`--features nub-cli/build-jail-catalog-override`, and did anything rebuild it mid-run?',
-      cells, control: baseCase(control), provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
+      cells, control: baseCase(control), controlB: baseCase(controlB), provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
     };
   }
   // ⛔ A MALICIOUS-PACKAGE REFUSAL IS THE SCREEN WORKING, NOT A DEFECT AND NOT A GRANT GAP.
@@ -1461,7 +1461,7 @@ function search(nub, pkg, version, root, keep, runDir) {
           .map((s) => s.replace(/^malicious package\s+/, ''));
         return { ids, specs, note: ids.length ? 'ids scraped from the cell log' : 'NONE FOUND — the refusal fired but named no advisory, which is itself worth investigating' };
       })(),
-      cells, control: baseCase(control),
+      cells, control: baseCase(control), controlB: baseCase(controlB),
       provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
     };
   }
@@ -1484,7 +1484,7 @@ function search(nub, pkg, version, root, keep, runDir) {
       pkg, version,
       verdict: 'CONTROL-ONLY',
       why: 'ran the widest-grant control and stopped — fixture health check, not a measurement.',
-      cells, control: baseCase(control),
+      cells, control: baseCase(control), controlB: baseCase(controlB),
       provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
     };
   }
@@ -1552,7 +1552,7 @@ function search(nub, pkg, version, root, keep, runDir) {
          + 'called more than once`) — contention on this host, not a statement about the jail. '
          + 'Re-run SERIALLY on a quiet box for a real measurement.',
       declaresInstallScript: hasScript,
-      cells, control: baseCase(control),
+      cells, control: baseCase(control), controlB: baseCase(controlB),
       provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
     };
   }
@@ -1621,7 +1621,7 @@ function search(nub, pkg, version, root, keep, runDir) {
            + 'jail. Check that the fixture writes nub.jsonc {"install":{"buildJail":false}} and that '
            + 'the binary honours it.',
         jailOffControl: { rc: jailOffFirst.rc, digest: jailOffFirst.digest, files: jailOffFirst.files },
-        cells, control: baseCase(control),
+        cells, control: baseCase(control), controlB: baseCase(controlB),
         provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
       };
     }
@@ -1630,15 +1630,26 @@ function search(nub, pkg, version, root, keep, runDir) {
       return {
         pkg, version,
         verdict: 'BROKEN-WITHOUT-JAIL-TOO',
-        why: 'fails IDENTICALLY with the jail off, so confinement is not implicated. A nub PM/linker '
-           + 'or packaging problem, or a package that cannot run on this host at all. Oracles were '
-           + 'SKIPPED: they could not change this verdict.',
+        // ⛔ SAY WHICH CONTROL ARM FAILED. The gate that reaches here fires when EITHER control run
+        // fails, so this verdict is reachable with `control.rc === 0` — and the record then read
+        // "fails IDENTICALLY with the jail off" beside a CONTROL cell showing `pass: true, rc: 0`,
+        // with the arm that actually failed (`controlB`) serialised nowhere. MEASURED on
+        // spectron@19.0.0 and @17.0.0 [darwin]: both excluded from the catalog on evidence no
+        // reader could check. Both arms are serialised now, and this sentence no longer claims
+        // more than they support.
+        why: (control.rc !== 0 && controlB.rc !== 0
+          ? 'BOTH control runs failed, and it fails identically with the jail off, so confinement '
+          : `only the ${control.rc !== 0 ? 'FIRST' : 'REPEAT'} control run failed; that arm also `
+            + 'fails with the jail off, so confinement ')
+           + 'is not implicated. A nub PM/linker or packaging problem, or a package that cannot run '
+           + 'on this host at all. Oracles were SKIPPED: they could not change this verdict. '
+           + 'Compare `control` and `controlB` in this record.',
         declaresInstallScript: hasScript,
         jailOffControl: {
           rc: jailOffFirst.rc, digest: jailOffFirst.digest, files: jailOffFirst.files,
           note: 'ran BEFORE the oracles and short-circuited them',
         },
-        cells, control: baseCase(control),
+        cells, control: baseCase(control), controlB: baseCase(controlB),
         provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
       };
     }
@@ -1757,7 +1768,7 @@ function search(nub, pkg, version, root, keep, runDir) {
           + 'toolchain on the measuring host before accepting the dismissal'
         : null,
       cells,
-      control: baseCase(control),
+      control: baseCase(control), controlB: baseCase(controlB),
       controlLogTail: (control.log || '').split('\n').slice(-40).join('\n'),
       logDir: runDirFor(runDir, pkg, version),
       provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
