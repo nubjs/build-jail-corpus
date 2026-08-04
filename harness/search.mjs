@@ -254,20 +254,27 @@ function makeFixture(dir, pkg, version, { jailOff }) {
     fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Roaming'), { recursive: true });
     // ⛔ `Packages` EXISTS SO THE APPCONTAINER PROFILE CAN BE CREATED INSIDE THE FIXTURE.
     //
+    // ⛔ THIS `Packages` DIRECTORY DOES NOT FIX ANYTHING — IT IS KEPT ONLY BECAUSE IT IS HARMLESS
+    // AND BECAUSE DELETING IT WOULD INVITE SOMEONE TO TRY IT AGAIN.
+    //
     // `LOCALAPPDATA` is redirected here and MUST stay redirected — the store resolves through it
     // (see homeEnv). So the confined CHILD resolves its per-container profile to
-    // `%LOCALAPPDATA%\Packages\<name>` inside this throwaway home. Windows creates that profile from
-    // the PARENT, nub, which is unsandboxed and can write here — but only if `Packages` itself
-    // exists, because the child has no ACE to create it. The observed failure was exactly
-    //     EPERM: operation not permitted, mkdir '<throwaway>\home\AppData\Local\Packages'
-    // repeated at every rung until a grant opened the whole throwaway home, which inflated Windows
-    // grants across the corpus (110 of one artifact's cell logs, 54 of another's) and produced
-    // records granting `write.userHome` with ZERO blocked paths — nothing DIFFERED, the run simply
-    // could not START.
+    // `%LOCALAPPDATA%\Packages\<name>` inside this throwaway home, while nub, the unsandboxed
+    // PARENT, creates the real profile at its OWN known-folder location. The two disagree and the
+    // child has no ACE to create what it is looking for.
     //
-    // This is the minimal intervention: it changes nothing about where the store lands. Removing the
-    // `LOCALAPPDATA` redirect instead was tried and REVERTED — it put 3,924 store files in the
-    // runner's real profile and the fixture canary refused the batch.
+    // I read that as "`Packages` is missing" and pre-created it. MEASURED, corpus run 30869760855:
+    // grants byte-identical to baseline, canary green, fix ineffective. The log says why, and it is
+    // one path segment:
+    //     mkdir '<throwaway>\home\AppData\Local\Packages\nub_sbx_4412_18c8788d58963f90_0'
+    // The leaf is the PROFILE, not `Packages` — and its name is `unique_profile_name()`,
+    // `nub_sbx_<pid>_<nonce>_<ctr>`, generated per LAUNCH. No fixture can pre-create it.
+    //
+    // THE FIX LIVES IN NUB (`backend/windows.rs`, `AppContainerLaunch::run` step 1a): nub both
+    // generates the profile name and passes the child's `%LOCALAPPDATA%`, so only nub can create
+    // that directory with the container's ACE. Removing the `LOCALAPPDATA` redirect instead was
+    // also tried and REVERTED — it put 3,924 store files in the runner's real profile and the
+    // fixture canary refused the batch.
     fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Local', 'Packages'), { recursive: true });
   }
   // Config keys a real consumer would carry. Same reason as the fixture files below: a script
