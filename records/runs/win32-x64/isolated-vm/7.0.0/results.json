@@ -1,0 +1,107 @@
+{
+  "pkg": "isolated-vm",
+  "version": "7.0.0",
+  "verdict": "BROKEN-IN-ENVIRONMENT",
+  "jailOffControl": {
+    "rc": 0,
+    "digest": "25e8213e11f688e1",
+    "files": 4864,
+    "note": "succeeds with the jail off, so the jail IS implicated (checked before the oracles)"
+  },
+  "grant": null,
+  "declaresInstallScript": true,
+  "npmReference": {
+    "rc": 1,
+    "signature": "gyp ERR! configure error",
+    "ranScripts": true,
+    "files": 2750,
+    "digest": "5f2b635c354bcb6c"
+  },
+  "pnpmReference": {
+    "rc": 1,
+    "signature": null,
+    "ranScripts": false,
+    "files": 22,
+    "digest": "a3cfd1be1b247b86",
+    "lifecycle": []
+  },
+  "artifactComparison": {
+    "nubControlFiles": null,
+    "npmFiles": 2750,
+    "pnpmFiles": 22,
+    "armsThatRanScripts": [
+      "npm"
+    ]
+  },
+  "failureSignature": null,
+  "signaturesMatched": false,
+  "standing": {
+    "published": "2026-05-31T06:59:02.635Z",
+    "ageDays": 65,
+    "weeklyDownloads": 1096189,
+    "latestVersion": null
+  },
+  "needsInvestigation": true,
+  "investigationReason": "npm ALSO fails, but this is 65d old with 1096189 weekly downloads — people install it successfully every week, so suspect a missing toolchain on the measuring host before accepting the dismissal",
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": true,
+      "rc": 0,
+      "digest": "6b0a15410513b1c0",
+      "files": 6877,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 0,
+    "fileCount": 6877,
+    "digest": "6b0a15410513b1c0",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 3
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 6816,
+    "digest": "928e6d8a1d2b7ae4",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlLogTail": "gyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\store\\\\node-gyp@12.4.0-6386ab3e4584a36d\\\\node_modules\\\\node-gyp\\\\gyp\\\\gyp_main.py',\ngyp info spawn args 'binding.gyp',\ngyp info spawn args '-f',\ngyp info spawn args 'msvs',\ngyp info spawn args '-I',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\proj\\\\node_modules\\\\.store\\\\isolated-vm@7.0.0\\\\node_modules\\\\isolated-vm\\\\build\\\\config.gypi',\ngyp info spawn args '-I',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\store\\\\node-gyp@12.4.0-6386ab3e4584a36d\\\\node_modules\\\\node-gyp\\\\addon.gypi',\ngyp info spawn args '-I',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\node-headers\\\\22.23.1\\\\include\\\\node\\\\common.gypi',\ngyp info spawn args '-Dlibrary=shared_library',\ngyp info spawn args '-Dvisibility=default',\ngyp info spawn args '-Dnode_root_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\home\\\\AppData\\\\Local\\\\nub/pm\\\\node-headers\\\\22.23.1',\ngyp info spawn args '-Dnode_gyp_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\store\\\\node-gyp@12.4.0-6386ab3e4584a36d\\\\node_modules\\\\node-gyp',\ngyp info spawn args '-Dnode_lib_file=C:\\\\\\\\Users\\\\\\\\runneradmin\\\\\\\\.cache\\\\\\\\nub-search-lR5J8w\\\\\\\\control\\\\\\\\home\\\\\\\\AppData\\\\\\\\Local\\\\\\\\nub\\\\\\\\pm\\\\\\\\node-headers\\\\\\\\22.23.1\\\\\\\\$(Configuration)\\\\\\\\node.lib',\ngyp info spawn args '-Dmodule_root_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\proj\\\\node_modules\\\\.store\\\\isolated-vm@7.0.0\\\\node_modules\\\\isolated-vm',\ngyp info spawn args '-Dnode_engine=v8',\ngyp info spawn args '--depth=.',\ngyp info spawn args '--no-parallel',\ngyp info spawn args '--generator-output',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-lR5J8w\\\\control\\\\proj\\\\node_modules\\\\.store\\\\isolated-vm@7.0.0\\\\node_modules\\\\isolated-vm\\\\build',\ngyp info spawn args '-Goutput_dir=.'\ngyp info spawn args ]\ngyp info spawn C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe\ngyp info spawn args [\ngyp info spawn args 'build/binding.sln',\ngyp info spawn args '/clp:Verbosity=minimal',\ngyp info spawn args '/nologo',\ngyp info spawn args '/nodeReuse:false',\ngyp info spawn args '/p:Configuration=Release;Platform=x64'\ngyp info spawn args ]\ngyp info ok \ndependencies:\n+ isolated-vm@7.0.0\n\nnub 0.6.0 · ✓ installed 1 package in 2m17s\nApproved 1 package(s) in package.json:\n  isolated-vm@7.0.0\nwarning: build-jail catalog OVERRIDDEN from C:\\Users\\runneradmin\\.cache\\nub-search-lR5J8w\\cat-23-writedisknetwork.json (v2: 2 packages, 2 grants, 0 baseline paths, 3 env) — development-only, not a shipped configuration\n",
+  "logDir": "D:\\a\\build-jail-corpus\\build-jail-corpus\\records\\runs\\win32-x64\\isolated-vm\\7.0.0",
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\6f0916849144730a.exe",
+    "nubSha256": "6f0916849144730a570aa2567202dea6886c5d02c37a8bddf5d3e9c851696351",
+    "nubGitSha": "b1148412affe57a4bdcfd1b00207e852bafc1d20",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "2abf8f2aaa9a8eee",
+    "corpusGitSha": "abb2bcc7655769c9361330bb83cdbe20645ab26d",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": ">=26.0.0",
+      "publishedAt": "2026-05-31T06:59:02.635Z",
+      "chosenMajor": "22",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T20:14:35.774Z"
+  }
+}
