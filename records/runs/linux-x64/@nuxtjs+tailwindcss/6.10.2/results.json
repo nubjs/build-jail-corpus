@@ -1,13 +1,13 @@
 {
-  "pkg": "@bahmutov/add-typescript-to-cypress",
-  "version": "1.1.1",
+  "pkg": "@nuxtjs/tailwindcss",
+  "version": "6.10.2",
   "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "why": "fails IDENTICALLY with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict.",
+  "why": "BOTH control runs failed, and it fails identically with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict. Compare `control` and `controlB` in this record.",
   "declaresInstallScript": true,
   "jailOffControl": {
     "rc": 1,
-    "digest": "2de65753df5545a8",
-    "files": 25434,
+    "digest": "0f7d2575abd8b004",
+    "files": 11285,
     "note": "ran BEFORE the oracles and short-circuited them"
   },
   "cells": [
@@ -17,30 +17,38 @@
       "cost": null,
       "pass": false,
       "rc": 1,
-      "digest": "a86d4852fd3c32be",
-      "files": 25433,
+      "digest": "9f093a2a249217b8",
+      "files": 11284,
       "overrideEngaged": null,
       "materialized": true
     }
   ],
   "control": {
     "rc": 1,
-    "fileCount": 25433,
-    "digest": "a86d4852fd3c32be",
+    "fileCount": 11284,
+    "digest": "9f093a2a249217b8",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 11284,
+    "digest": "9f093a2a249217b8",
     "materialized": true,
     "pathsUnderThrowawayHome": 0
   },
   "provenance": {
-    "nubPath": "/home/runner/.cache/nub/probe-bin/693fec4e09444b31",
-    "nubSha256": "693fec4e09444b3121bd1734c945268cef69a4a0f5d72cb4a753422c35afd70c",
-    "nubGitSha": "666a4aadfe8c851b48108a152fac55e7e3f6e16f",
+    "nubPath": "/home/runner/.cache/nub/probe-bin/ed82c5720aaa6784",
+    "nubSha256": "ed82c5720aaa6784085b348005817adbfa6c1d15817b8b29c7969700e0df62a6",
+    "nubGitSha": "8a49b39413d0562817b9c0b327a40cc68acc0358",
     "nubVersion": "v0.6.0",
-    "harnessSha256": "81d34faf44f6e376",
+    "harnessSha256": "10a6c52a570fbf11",
+    "corpusGitSha": "bd18ca897f91f7a8d8740bce57496c4dbd86194c",
     "platform": "linux-x64",
     "nodeSelection": {
-      "enginesNode": ">=6",
-      "publishedAt": "2017-12-19T20:15:34.034Z",
-      "chosenMajor": "10",
+      "enginesNode": null,
+      "publishedAt": "2023-12-27T16:46:10.787Z",
+      "chosenMajor": "20",
       "pinnedTo": null,
       "hostNode": "v22.23.1",
       "hostArch": "x64",
@@ -59,6 +67,6 @@
       "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
       "pathPrefix": "/opt/hostedtoolcache/node/22.23.1/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin"
     },
-    "at": "2026-08-04T02:16:33.428Z"
+    "at": "2026-08-04T07:44:12.679Z"
   }
 }
