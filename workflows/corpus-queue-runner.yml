@@ -170,6 +170,24 @@ jobs:
           git checkout --detach "${{ inputs.nub_sha }}"
           git log --oneline -1
 
+          # ⛔ NORMALIZE THE COMMIT BEFORE ANYTHING KEYS ON IT.
+          #
+          # `inputs.nub_sha` is free text and git accepts every spelling of a commit — full sha,
+          # abbreviated sha, branch, tag. The binary cache key is built by STRING INTERPOLATION of
+          # that input and matches EXACTLY (no restore-keys), so two dispatches of the SAME commit
+          # spelled differently key differently: one restores, the other silently cold-builds and
+          # then saves a duplicate entry that the first spelling will never hit again.
+          #
+          # MEASURED: dispatching four Windows chains with a 10-char sha, while a full-40-char entry
+          # for the identical commit sat in the cache, missed all four and cold-built all four
+          # (~26 min each). The tell was `Build the probe binary` RUNNING at all — it is guarded by
+          # `cache-hit != 'true'`, so its mere presence in the step list proves the restore missed.
+          #
+          # Resolving to the canonical full sha here makes every spelling converge on one key, and
+          # it also makes `provenance.nubGitSha` in the records independent of how a run was
+          # dispatched — previously a record's sha length told you the operator's typing habits.
+          echo "NUB_FULL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
           # ⛔ SAY OUT LOUD WHEN THIS CHAIN IS MEASURING A STALE BINARY.
           #
           # The chain self-dispatch forwards `nub_sha` VERBATIM, so a chain launched hours ago
@@ -279,7 +297,7 @@ jobs:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           # `v1` is a manual epoch: bump it if the build FLAGS change, since the flags are not in the
           # key and a stale binary built with different features would be silently wrong.
-          key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
+          key: nub-bin-v1-${{ inputs.os }}-${{ env.NUB_FULL_SHA }}
 
       - name: Cache the probe build
         # Skipped on a binary hit: there is nothing left to compile, so restoring a dependency cache
@@ -310,7 +328,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-${{ inputs.os }}-${{ inputs.nub_sha }}
+          key: nub-bin-v1-${{ inputs.os }}-${{ env.NUB_FULL_SHA }}
 
       # ⛔ SET NUB_BIN ON THE CACHE-HIT PATH TOO. The build step above is skipped on a hit, and it is
       # the step that exports NUB_BIN — so without this the whole slice would run with an empty
@@ -441,7 +459,7 @@ jobs:
           NUB_CORPUS_RUNS: ${{ github.workspace }}/records/runs
           # Recorded in every record's provenance. A binary hash is not comparable across platforms,
           # so this is what answers "was this measured before fix X?" for a multi-platform corpus.
-          NUB_GIT_SHA: ${{ inputs.nub_sha }}
+          NUB_GIT_SHA: ${{ env.NUB_FULL_SHA }}
           # ⛔ PUBLISH EACH RECORD AS IT LANDS, not once at the end of the slice. A slice runs for
           # hours; committing only at the end meant a runner dying at minute 115 lost 100
           # measurements and nothing was visible until it finished. Per-record publishing caps the
