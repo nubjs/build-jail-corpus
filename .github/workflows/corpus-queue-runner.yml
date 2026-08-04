@@ -38,6 +38,15 @@ on:
         description: re-dispatch itself while the queue still has pending rows
         type: boolean
         default: true
+      force:
+        # ⛔ RE-MEASURE ROWS THAT ALREADY HAVE A RECORD. search.mjs is RESUMABLE BY DEFAULT and
+        # skips a spec whose prior record is a measurement, so REOPENING A QUEUE ROW IS NOT ENOUGH
+        # on its own — the runner would find the stale record, skip, and mark the row done again,
+        # a re-measure that silently measures nothing. Set this when reopening rows after a jail or
+        # harness fix. Costs nothing on rows that have no record yet.
+        description: "re-measure even when a record already exists (use after reopening rows)"
+        type: boolean
+        default: false
       packages:
         # ⛔ DEBUG ESCAPE HATCH. Space-separated pkg@version specs. When set, the runner SKIPS the
         # queue entirely — no claim, no completion, no commit of results — and measures exactly these
@@ -421,7 +430,7 @@ jobs:
           echo "measure deadline: $(date -u -d "@$NUB_CORPUS_DEADLINE" 2>/dev/null || date -u -r "$NUB_CORPUS_DEADLINE" 2>/dev/null || echo "$NUB_CORPUS_DEADLINE")"
           # continue-on-error semantics INSIDE the batch: one package that breaks the harness must not
           # cost the other 99 measurements in this slice.
-          bash harness/run-batch.sh "$NUB_BIN" ${{ inputs.packages != '' && '--force' || '' }} --file /tmp/slice.txt || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
+          bash harness/run-batch.sh "$NUB_BIN" ${{ (inputs.packages != '' || inputs.force) && '--force' || '' }} --file /tmp/slice.txt || echo "run-batch exited non-zero — verify-corpus decides whether that lost the slice"
           # Collect this run's verdicts for the completion step. A row whose record is missing stays
           # claimed and is reclaimed later — never silently marked done.
           node harness/collect-verdicts.mjs --runs records --out /tmp/verdicts.ndjson
