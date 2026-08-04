@@ -629,15 +629,57 @@ jobs:
           SLICE_N=$(wc -l < /tmp/slice.txt)
           git add records queue.ndjson
           git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
+          # ⛔⛔ STASH ONLY THE RECORDS THIS RUN MEASURED — NOT THE WHOLE TREE.
+          #
+          # This block used to `cp -R records "$STASH/records"` and restore ALL of it over origin,
+          # justified by "ours win where they overlap: a freshly measured record is at least as good
+          # as the one already there". THAT PREMISE IS FALSE for the thousands of records this run
+          # never touched: the checkout is hours old by the time a slice ends, so restoring the whole
+          # tree REVERTS every record any other runner landed in the meantime, to a stale copy.
+          #
+          # MEASURED, and it destroyed a verified result: commit f749ade8
+          # "corpus(macos): slice of 40 [run 30902081851]" rewrote
+          # records/runs/WIN32-x64/gifsicle/5.3.0/results.json — a platform that run never measured —
+          # back to a 2026-08-03 copy at 55 cells write:"disk" with `nub: undefined`, discarding the
+          # 6-cell {network} measurement on 8f7d5adb67 that PROVED the AC\Temp fix.
+          #
+          # Same defect class as the one already fixed in harness/publish-record.sh, which is why the
+          # manifest exists — but that fix only covered the PER-RECORD publish path, and this
+          # END-OF-SLICE path re-introduced it at greater scope (whole tree, not just staged files).
+          #
+          # The manifest lists exactly the records this run wrote (publish-record.sh appends one line
+          # per record, sorted-unique). Restoring only those keeps the "ours win" rule TRUE, because
+          # now "ours" really is ours. Falls back to the whole tree only if the manifest is missing —
+          # publishing something beats losing this slice, and that path is the old behaviour.
+          MANIFEST="${NUB_CORPUS_MANIFEST:-${TMPDIR:-/tmp}/nub-corpus-published.txt}"
           STASH=$(mktemp -d)
-          cp -R records "$STASH/records"
+          if [ -s "$MANIFEST" ]; then
+            while IFS= read -r rel; do
+              [ -f "$rel" ] || continue
+              mkdir -p "$STASH/$(dirname "$rel")"
+              cp "$rel" "$STASH/$rel"
+            done < "$MANIFEST"
+            echo "stashing $(wc -l < "$MANIFEST" | tr -d ' ') record(s) this run measured"
+          else
+            echo "::warning::no publish manifest — falling back to stashing the whole records tree, which can revert other runners' records"
+            mkdir -p "$STASH/records"
+            cp -R records/. "$STASH/records/"
+          fi
           for i in 1 2 3 4 5; do
             git reset -q --hard HEAD
             git fetch -q origin "${GITHUB_REF_NAME}"
             git reset -q --hard "origin/${GITHUB_REF_NAME}"
-            # Ours win where they overlap: a freshly measured record is at least as good as the one
-            # already there, and both describe the same cell.
-            cp -R "$STASH/records/." records/
+            # Ours win where they overlap — and after the change above, "ours" means only the records
+            # this run actually produced.
+            if [ -s "$MANIFEST" ]; then
+              while IFS= read -r rel; do
+                [ -f "$STASH/$rel" ] || continue
+                mkdir -p "$(dirname "$rel")"
+                cp "$STASH/$rel" "$rel"
+              done < "$MANIFEST"
+            else
+              cp -R "$STASH/records/." records/
+            fi
             # ⛔ RE-DERIVE the queue rather than carrying our copy across. Origin's queue may hold
             # another platform's claims made while this slice ran, and overwriting it would silently
             # release their rows. Reconcile only ever marks a row done, and only when a record for
