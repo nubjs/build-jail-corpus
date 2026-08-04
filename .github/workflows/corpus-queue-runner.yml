@@ -589,4 +589,4 @@ jobs:
         run: |
           gh workflow run corpus-queue-runner.yml \
             -f os="${{ inputs.os }}" -f slice="${{ inputs.slice }}" \
-            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true
+            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}
