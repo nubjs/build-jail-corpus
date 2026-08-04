@@ -463,6 +463,29 @@ jobs:
           # directory, which is exactly how an earlier cache save silently stored nothing.
           WINPATH=$(cygpath -w "$SRC")
           echo "__NUB_BUSYBOX_EXE=$WINPATH" >> "$GITHUB_ENV"
+
+      # ⛔ THE SAME ASSERTION FOR THE OTHER ARM, WHICH HAD NONE. `fail_closed_read_grants` only sets
+      # a job-level env var, so an arm that failed to propagate would produce results IDENTICAL to
+      # an arm that was never requested — and "unchanged" is exactly the reading the experiment is
+      # trying to distinguish. That is the #110 ambiguity (a jail-off control that could not be shown
+      # to have run unjailed) in a new place, and #82's rule applies: a step whose value is a SIDE
+      # EFFECT must assert the side effect, and FAIL rather than warn.
+      #
+      # The plumbing IS sound as of 2026-08-04 — verified by reading it end to end: the job `env:`
+      # sets the variable, and `harness/search.mjs:344` spawns the measured nub with
+      # `env: { ...process.env, … }`, spreading the ambient environment rather than curating a fresh
+      # one. This step exists so a future change to EITHER end fails loudly here instead of silently
+      # producing an inert arm whose null result reads as a finding.
+      - name: Assert the fail-closed arm engaged (ARM)
+        if: inputs.fail_closed_read_grants && inputs.os == 'windows'
+        shell: bash
+        run: |
+          set -eu
+          test "${NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS:-}" = "1" || {
+            echo "⛔ fail_closed_read_grants was requested but NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS is '${NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS:-<unset>}' — the arm would be INERT and its results indistinguishable from a normal run"
+            exit 1
+          }
+          echo "ARM ENGAGED: NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS=1 (read-grant ACEs now fail closed)"
           echo "ARM ENGAGED: lifecycle shell = $WINPATH (sha $GOT)"
 
       # ⛔ THE ONLY WAY TO GET A CI-BUILT nub.exe ONTO A DEV BOX, AND IT UNBLOCKS ALL WINDOWS
