@@ -534,6 +534,28 @@ function runCell(nub, { proj, home }, { catalogFile, label, ignoreScripts, pkg, 
     return null;   // could not read it — the CALLER decides, rather than a false reading as "no"
   })();
 
+  // ⛔ DID THIS CELL ACTUALLY RUN CONFINED? A CELL THAT PASSED WITHOUT A SANDBOX IS NOT A
+  // MEASUREMENT OF WHAT THE PACKAGE NEEDS, and until now nothing in the record said so.
+  //
+  // The case that forced this: on Windows a full-disk build-jail grant is not rendered as an ACE at
+  // all — `backend/windows.rs` returns `launch: None` and runs the child WITHOUT a LowBox token,
+  // because a LowBox reaches an object only where that object's ACL names its AppContainer SID and
+  // there is no spelling for "the whole filesystem". Declining the token also declines the NET axis,
+  // since egress is an AppContainer capability (`internetClient`). So the terminal rung of the walk
+  // passes trivially — it is not a sandbox — and the record called it `MINIMUM` with a straight face.
+  //
+  // nub is honest about it at RUNTIME (`Degradation::warning()` in `backend/mod.rs` prints
+  // "sandbox running in reduced mode — <axes> not enforced (<reason>)"), so the fact was in every
+  // cell log all along and simply never reached the record. Reading it here means a collator, or a
+  // human, can tell a grant that was MEASURED under confinement from one that was not.
+  //
+  // Matched on "reduced mode" rather than the axis list: the axes and the reason both vary by
+  // backend and by which axis was lost, and the em-dash is a formatting detail worth not depending on.
+  const reducedLine = /sandbox running in reduced mode[^\n]*/.exec(log)?.[0] ?? null;
+  const lostAxes = reducedLine
+    ? (/reduced mode\s*[^\w]*\s*(.+?)\s+not enforced/.exec(reducedLine)?.[1] ?? null)
+    : null;
+
   return {
     label, rc, log, seen,
     declaresScript,
@@ -541,6 +563,9 @@ function runCell(nub, { proj, home }, { catalogFile, label, ignoreScripts, pkg, 
     files: seen.length,
     overrideOk: !catalogFile || (log.includes(BANNER_OK) && !log.includes(BANNER_BAD)),
     materialized: isMaterialized(proj, pkg),
+    confinementReduced: reducedLine !== null,
+    confinementLost: lostAxes,
+    confinementNote: reducedLine,
   };
 }
 
@@ -1358,6 +1383,13 @@ const baseCase = (r, root) => ({
   digest: r.digest,
   materialized: r.materialized,
   pathsUnderThrowawayHome: r.seen.filter((p) => p.startsWith('$home/')).length,
+  // ⛔ WHETHER THIS CELL WAS CONFINED AT ALL. A cell that passed with an axis unenforced says
+  // nothing about what the package NEEDS — it says the sandbox stood down. Carried on EVERY cell,
+  // not just the winner, so a reader can see the rung at which confinement stopped being real.
+  // Omitted entirely when enforcement was full, so it never adds noise to the common record.
+  ...(r.confinementReduced
+    ? { confinementReduced: true, confinementLost: r.confinementLost, confinementNote: r.confinementNote }
+    : {}),
 });
 
 function search(nub, pkg, version, root, keep, runDir) {
