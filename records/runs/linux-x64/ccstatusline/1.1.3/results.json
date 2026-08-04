@@ -1,12 +1,14 @@
 {
-  "pkg": "node-libcurl",
-  "version": "4.1.0",
-  "verdict": "HARNESS-ERROR",
-  "why": "the jail-off control could not be shown to have run UNJAILED: nub never announced \"build scripts are running without the build sandbox\". The off-switch did not engage, so this cell is a duplicate of the control and cannot exonerate (or implicate) the jail. Check that the fixture writes nub.jsonc {\"install\":{\"buildJail\":false}} and that the binary honours it.",
+  "pkg": "ccstatusline",
+  "version": "1.1.3",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "why": "fails IDENTICALLY with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict.",
+  "declaresInstallScript": true,
   "jailOffControl": {
     "rc": 1,
-    "digest": "a794c47da5c8b58f",
-    "files": 28
+    "digest": "921020acc74b4a7a",
+    "files": 10737,
+    "note": "ran BEFORE the oracles and short-circuited them"
   },
   "cells": [
     {
@@ -15,17 +17,17 @@
       "cost": null,
       "pass": false,
       "rc": 1,
-      "digest": "f9c0b6057f0b42d6",
-      "files": 26,
+      "digest": "2d82e201364cb694",
+      "files": 10736,
       "overrideEngaged": null,
-      "materialized": false
+      "materialized": true
     }
   ],
   "control": {
     "rc": 1,
-    "fileCount": 26,
-    "digest": "f9c0b6057f0b42d6",
-    "materialized": false,
+    "fileCount": 10736,
+    "digest": "2d82e201364cb694",
+    "materialized": true,
     "pathsUnderThrowawayHome": 0
   },
   "provenance": {
@@ -36,8 +38,8 @@
     "harnessSha256": "81d34faf44f6e376",
     "platform": "linux-x64",
     "nodeSelection": {
-      "enginesNode": ">=16.14",
-      "publishedAt": "2024-12-26T17:18:40.091Z",
+      "enginesNode": ">=14.0.0",
+      "publishedAt": "2025-08-12T06:53:28.232Z",
       "chosenMajor": "22",
       "pinnedTo": null,
       "hostNode": "v22.23.1",
@@ -57,6 +59,6 @@
       "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
       "pathPrefix": "/opt/hostedtoolcache/node/22.23.1/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin"
     },
-    "at": "2026-08-03T20:12:49.442Z"
+    "at": "2026-08-04T02:02:11.730Z"
   }
 }
