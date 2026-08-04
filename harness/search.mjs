@@ -1943,6 +1943,41 @@ function search(nub, pkg, version, root, keep, runDir) {
         // floor. Capped, with the true count kept, so one pathological package cannot make
         // the results file unreadable — a silent truncation would be worse than a number.
         pathsBlockedWithoutGrantCount: floor ? controlOnly(controlU, floor).length : null,
+        // ⛔ DOES THE WINNING GRANT HAVE ANY FILE EVIDENCE BEHIND IT?
+        //
+        // The walk scores a cell on exit code AND digest. When a package writes somewhere the
+        // fixture scan cannot see — outside the project, outside the throwaway home, an absolute
+        // path, a location the tokeniser does not cover — the digest is IDENTICAL at every rung
+        // and only `rc` moves. The walk then escalates on exit code alone, and because no narrow
+        // grant can restore an invisible path, the ONLY rung that ever passes is `write:"disk"`.
+        //
+        // MEASURED on mathlive@0.66.1 [linux-x64]: digest `ff11ee5355e9adb2` and fileCount 1825 on
+        // the control, on `(nothing)`, and on the winning `write.disk` at cell 51 — 53 cells walked,
+        // ZERO blocked paths, empty writePaths. The grant is real in the sense that the script does
+        // fail without it, but the corpus has no evidence for its SCOPE, and `disk` is simply the
+        // widest thing the ladder has left. Same package lands on `write:{project}` on macOS, so the
+        // over-grant is not even stable across platforms.
+        //
+        // ⛔ SCALE, MEASURED RATHER THAN ASSUMED — 8 of 1,552 MINIMUM records, and 3 of 66
+        // `write:"disk"` grants (4.5%). This is a NARROW class, not the mechanism behind the
+        // full-disk tail; an earlier draft of this comment claimed it was, and the count refuted
+        // that. It is still worth flagging: an evidence-free grant is the one a collator should
+        // refuse to widen on, and it matters most on Windows where `write:"disk"` is not a wide
+        // sandbox but NO sandbox (the LowBox token is declined outright).
+        //
+        // A COUNT IS NOT ENOUGH on its own — `pathsBlockedWithoutGrantCount === 0` is also the
+        // normal reading for a pure-egress grant, since network is not a path. The digest equality
+        // is what separates "nothing was blocked" from "nothing was ever observable".
+        // ⛔ RECOMPUTED FROM `STATES[i]`, NOT FROM A `grant` VARIABLE — there is none in scope here.
+        // The record's own `grant` field is built inline above from `grantFor(STATES[i])`, and the
+        // only `grant` binding in this file is a local inside `catalogFor`. Referencing that would
+        // have compiled fine and silently answered a different question.
+        grantHasNoFileEvidence: (() => {
+          if (!floor) return false;
+          const g = grantFor(STATES[i]);
+          if (!g || !(g.read || g.write)) return false;
+          return controlOnly(controlU, floor).length === 0 && controlU.digest === floor.digest;
+        })(),
         // HOW MANY blocked paths land in the THROWAWAY home — a count, not a verdict.
         //
         // The jail redirects `$HOME` to a per-package directory that is discarded, so a
