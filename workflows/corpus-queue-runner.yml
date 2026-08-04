@@ -47,6 +47,35 @@ on:
         description: "re-measure even when a record already exists (use after reopening rows)"
         type: boolean
         default: false
+      busybox_shell:
+        # ⛔⛔ THE WIN32 CORPUS MEASURES A SHELL NUB DOES NOT SHIP. `release.yml:746-753` bundles
+        # `vendor/busybox-w32/busybox64.exe` beside `nub.exe`, and `resolve_bundled_busybox()` makes
+        # it the lifecycle shell for EVERY script nub runs on Windows. This workflow builds with a
+        # bare `cargo build`, whose output dir has no busybox.exe beside it — so every Windows record
+        # in this corpus was measured through the `cmd.exe` FALLBACK instead.
+        #
+        # It stayed invisible because the fallback is silent and both shells "work". It surfaced only
+        # when busybox was staged on a real Windows box and the jail then refused EVERY dependency
+        # lifecycle script ("a verbatim command line is only accepted for the Windows command
+        # interpreter, not ...\busybox.exe") — nub `1b4a5488c1` fixes that, so staging is now safe.
+        #
+        # ⛔ OPT-IN, DEFAULT OFF, AND DELIBERATELY SO: turning it on for the whole fleet would change
+        # the measurement basis MID-CORPUS, mixing two shells in one dataset. Run it as an A/B ARM on
+        # a handful of specs against an otherwise identical binary, exactly like the appdata arm.
+        #
+        # READ THE RESULT AS: grants IDENTICAL under both shells => the existing win32 corpus is valid
+        # despite measuring the wrong shell, and this becomes a cheap standing check. Grants DIFFER =>
+        # the win32 corpus measures a configuration users never get, and the scope of the re-measure
+        # is decided by how many specs differ. ⛔ Neither reading is available without running it.
+        #
+        # Uses `__NUB_BUSYBOX_EXE` — cli.rs documents it as exactly this seam ("lets the Rust suite
+        # and the branch-scoped Windows probe supply a busybox without the release-packaging step").
+        # That survives the binary cache, where copying a file beside the exe would not: the cache
+        # restores ONLY nub.exe, so a cache hit would silently drop a copied sidecar and measure the
+        # fallback again while reporting the arm as engaged.
+        description: "ARM: use the BUNDLED busybox lifecycle shell (what release.yml ships) instead of the cmd.exe fallback — windows only"
+        type: boolean
+        default: false
       fail_closed_read_grants:
         # ⛔ DIAGNOSTIC ONLY, and it can only make the jail STRICTER — never a widening lever.
         #
@@ -411,6 +440,30 @@ jobs:
           # would otherwise surface as a confusing failure much later, inside the first measurement.
           "$BIN" --version
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ THE ARM THAT MAKES WINDOWS MEASURE THE SHELL IT ACTUALLY SHIPS. See the `busybox_shell`
+      # input for why this is opt-in and what each outcome means. Placed AFTER both binary paths
+      # (build and cache-hit) so it engages either way.
+      - name: Use the bundled busybox lifecycle shell (ARM)
+        if: inputs.busybox_shell && inputs.os == 'windows'
+        shell: bash
+        run: |
+          set -eu
+          SRC=/tmp/nub/vendor/busybox-w32/busybox64.exe
+          # ⛔ VERIFY THE ARM ENGAGED RATHER THAN ASSUMING IT. A silently-absent sidecar would make
+          # this arm measure the cmd.exe fallback while REPORTING that it measured busybox — the
+          # single most expensive failure shape this corpus keeps hitting.
+          test -f "$SRC" || { echo "⛔ busybox sidecar missing at $SRC — the arm cannot engage"; exit 1; }
+          # Pin it to the exact binary release.yml ships, so the arm cannot drift from production.
+          WANT=07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075
+          GOT=$(sha256sum "$SRC" | cut -d' ' -f1)
+          test "$GOT" = "$WANT" || { echo "⛔ busybox sha mismatch: $GOT != $WANT (release.yml pins this)"; exit 1; }
+          # nub reads a WINDOWS path; this step runs in Git Bash, so translate rather than passing
+          # the /tmp spelling — Node and nub both resolve `/tmp/...` against a drive that has no such
+          # directory, which is exactly how an earlier cache save silently stored nothing.
+          WINPATH=$(cygpath -w "$SRC")
+          echo "__NUB_BUSYBOX_EXE=$WINPATH" >> "$GITHUB_ENV"
+          echo "ARM ENGAGED: lifecycle shell = $WINPATH (sha $GOT)"
 
       # ⛔ THE ONLY WAY TO GET A CI-BUILT nub.exe ONTO A DEV BOX, AND IT UNBLOCKS ALL WINDOWS
       # REPRODUCTION. Two stock Windows Server 2022 VMs cannot run a JAILED `node` at all -- every
