@@ -49,10 +49,24 @@ on:
         default: false
       packages:
         # ⛔ DEBUG ESCAPE HATCH. Space-separated pkg@version specs. When set, the runner SKIPS the
-        # queue entirely — no claim, no completion, no commit of results — and measures exactly these
-        # with --force, publishing only the ARTIFACT. That keeps a debugging run from writing anything
-        # into the corpus, which matters because --force re-measures packages that already have
-        # records and a debug run is not a measurement anyone should collate.
+        # QUEUE — no claim, no completion, no end-of-slice commit, and none of the verify/parse gates
+        # — and measures exactly these with --force.
+        #
+        # ⛔⛔ IT DOES **NOT** LEAVE THE CORPUS UNTOUCHED. This comment previously claimed the run
+        # published "only the ARTIFACT" and wrote "nothing into the corpus". That was FALSE, and it is
+        # the kind of false guarantee you plan around: `NUB_CORPUS_ON_RECORD` is set unconditionally
+        # below, and `run-batch.sh` fires it after EVERY record regardless of whether the spec came
+        # from a queue claim or from this list. So each measured record is committed and pushed to
+        # main, one commit per record, exactly as a queue-driven slice would.
+        #
+        # MEASURED: a debug run over three lefthook packages produced commits d2155fdd and c3e42870
+        # ("corpus: @arkweid/lefthook@0.7.7 MINIMUM"), with record timestamps identical to the run's.
+        #
+        # ⛔ THE PUBLISHING IS USUALLY WHAT YOU WANT — a measurement on a real nub commit is a real
+        # measurement, and `provenance.nubGitSha` records which binary produced it — so this is
+        # documented rather than disabled. THE HAZARD TO KEEP IN MIND: combined with --force, a debug
+        # run built from an OLDER commit will overwrite a record that a NEWER binary produced. When
+        # probing a non-tip commit for comparison, expect to re-measure afterwards.
         description: "debug only: measure these specs instead of claiming from the queue"
         type: string
         default: ""
