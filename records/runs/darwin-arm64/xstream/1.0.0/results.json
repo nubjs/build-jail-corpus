@@ -1,0 +1,72 @@
+{
+  "pkg": "xstream",
+  "version": "1.0.0",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "why": "BOTH control runs failed, and it fails identically with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict. Compare `control` and `controlB` in this record.",
+  "declaresInstallScript": true,
+  "jailOffControl": {
+    "rc": 1,
+    "digest": "a386d7be6d4623fe",
+    "files": 2758,
+    "note": "ran BEFORE the oracles and short-circuited them"
+  },
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "324b92f779261fb5",
+      "files": 2757,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 2757,
+    "digest": "324b92f779261fb5",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 2757,
+    "digest": "324b92f779261fb5",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "provenance": {
+    "nubPath": "/Users/runner/.cache/nub/probe-bin/d302ef959db6cc0a",
+    "nubSha256": "d302ef959db6cc0a5cf6faa31c354070e8100e784c7d6e968bd75929a73e0dff",
+    "nubGitSha": "8a49b39413d0562817b9c0b327a40cc68acc0358",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "10a6c52a570fbf11",
+    "corpusGitSha": "f1d9e8773d2b40d9c4c8690815fda85b5fe72102",
+    "platform": "darwin-arm64",
+    "nodeSelection": {
+      "enginesNode": null,
+      "publishedAt": "2016-04-22T19:30:21.748Z",
+      "chosenMajor": "10",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "arm64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "/opt/homebrew/bin/pkg-config",
+      "pkgConfigVersion": "3.0.4",
+      "python": "/opt/homebrew/bin/python3",
+      "pythonVersion": "Python 3.14.6",
+      "make": "/usr/bin/make",
+      "cc": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "pathPrefix": "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin"
+    },
+    "at": "2026-08-04T09:23:14.834Z"
+  }
+}
