@@ -1,0 +1,72 @@
+{
+  "pkg": "libxmljs2",
+  "version": "0.20.3",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "why": "BOTH control runs failed, and it fails identically with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict. Compare `control` and `controlB` in this record.",
+  "declaresInstallScript": true,
+  "jailOffControl": {
+    "rc": 1,
+    "digest": "86fb86378de09ba7",
+    "files": 6504,
+    "note": "ran BEFORE the oracles and short-circuited them"
+  },
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "b9c0aae5345b4e84",
+      "files": 3767,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 3767,
+    "digest": "b9c0aae5345b4e84",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 3767,
+    "digest": "b9c0aae5345b4e84",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "provenance": {
+    "nubPath": "/home/runner/.cache/nub/probe-bin/ed82c5720aaa6784",
+    "nubSha256": "ed82c5720aaa6784085b348005817adbfa6c1d15817b8b29c7969700e0df62a6",
+    "nubGitSha": "8a49b39413d0562817b9c0b327a40cc68acc0358",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "10a6c52a570fbf11",
+    "corpusGitSha": "f1d9e8773d2b40d9c4c8690815fda85b5fe72102",
+    "platform": "linux-x64",
+    "nodeSelection": {
+      "enginesNode": ">=8",
+      "publishedAt": "2019-05-21T17:04:30.260Z",
+      "chosenMajor": "10",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": "glibc"
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "/usr/bin/pkg-config",
+      "pkgConfigVersion": "1.8.1",
+      "python": "/usr/bin/python3",
+      "pythonVersion": "Python 3.12.3",
+      "make": "/usr/bin/make",
+      "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "pathPrefix": "/opt/hostedtoolcache/node/22.23.1/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin"
+    },
+    "at": "2026-08-04T09:29:38.415Z"
+  }
+}
