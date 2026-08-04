@@ -244,10 +244,22 @@ if (col.status !== 0) {
       && !String(r.verdict ?? '').startsWith('HARNESS-')
       && !have.has(`${r.pkg}@${r.version}\t${r.os}`));
     if (orphans.length) {
-      failures.push(
-        `${orphans.length} queue row(s) are marked done but have NO record in the corpus `
+      // ⛔ A NOTE, NOT A FAILURE — and making it a failure STOPPED THE WHOLE CORPUS FOR 3.5 HOURS.
+      //
+      // A runner's `records/` is its checkout plus its OWN new records. Under a parallel fleet it
+      // structurally CANNOT see the records other runners are still holding, so every runner sees
+      // hundreds of rows that look done-without-a-record and none of them is real. Measured: 529
+      // false orphans on a macOS runner, which failed this step, which meant `Dispatch the next
+      // slice` never ran, which killed every chain on every platform at once.
+      //
+      // The check is still worth making — it is what caught the record-deletion bug — but its
+      // authoritative home is a reader with the WHOLE corpus (a local clone), not a runner holding
+      // one slice of it. A gate may only fail a run on something that run can actually observe.
+      notes.push(
+        `note: ${orphans.length} queue row(s) look done-without-a-record from HERE `
         + `(e.g. ${orphans.slice(0, 3).map((r) => `${r.pkg}@${r.version} [${r.os}]`).join(', ')}). `
-        + 'Records have been deleted from the tree — run harness/restore-deleted-records.mjs.'
+        + 'Expected under a parallel fleet — this runner cannot see other runners\' in-flight records. '
+        + 'Check it against a full clone; if it persists there, run harness/restore-deleted-records.mjs.'
       );
     } else {
       notes.push(`every done row has its record (${rows.filter((r) => r.status === 'done').length} checked)`);
