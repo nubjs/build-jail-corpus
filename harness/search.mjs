@@ -145,13 +145,51 @@ function catalogFor(pkg, state, others = []) {
  *
  *  `LOCALAPPDATA`/`APPDATA` go too: `cache_dir` falls back to `%LOCALAPPDATA%` when the profile
  *  looks like a system directory, and npm keeps its cache under `%APPDATA%\npm-cache`. */
+/*  ⛔⛔ `LOCALAPPDATA` MUST NOT BE REDIRECTED, AND THAT REVERSES WHAT THIS FUNCTION USED TO DO.
+ *  Redirecting it manufactured a failure that CANNOT HAPPEN ON A USER'S MACHINE, and the Windows
+ *  corpus measured that artifact instead of the packages.
+ *
+ *  The chain, verified in nub's own source rather than inferred:
+ *    - `compiler/defaults.rs` puts `LOCALAPPDATA` on `OS_ESSENTIAL_ENV`, and says why: "the
+ *      ENFORCING path (fs/net confined -> a LowBox AppContainer) resolves the per-container profile
+ *      dir (`%LOCALAPPDATA%\Packages\...`) FROM THE ENV". Without it `CreateProcessW` fails 203.
+ *      So whatever we put here is what the CHILD uses to find its own AppContainer profile.
+ *    - `backend/windows.rs` calls `CreateAppContainerProfile` from NUB — the unsandboxed parent —
+ *      which lands the real, correctly-ACLed profile in the parent's own known-folder location.
+ *    - Redirect `LOCALAPPDATA` and those two disagree: the profile exists where the parent put it,
+ *      the child looks somewhere else, and every rung fails with
+ *      `EPERM: operation not permitted, mkdir '<throwaway>\home\AppData\Local\Packages'`
+ *      until a grant hands the container write access to the throwaway home.
+ *
+ *  MEASURED, over the downloaded Windows artifacts: 110 of one artifact's logs and 54 of another's
+ *  carry that signature — broader than the `C:\npm\prefix` cause, and in one artifact the ONLY one.
+ *  It also explains the anomaly nothing else did: `impit@0.14.0` and `postcss-rtlcss@5.1.1` grant
+ *  `write.userHome` while reporting ZERO blocked paths. Nothing is blocked because no file DIFFERS
+ *  — the run cannot START until the container can create its profile dir, and `write.userHome` is
+ *  the narrowest rung that allows it.
+ *
+ *  A real user's `%LOCALAPPDATA%` exists and already holds a Windows-managed, correctly-ACLed
+ *  `Packages`, so none of this is reachable in production. Every Windows grant measured under the
+ *  redirect is inflated by our own isolation mechanism.
+ *
+ *  ISOLATION IS PRESERVED BY THE PURPOSE-BUILT KNOB INSTEAD. `NUB_CACHE_DIR` is one of the three
+ *  sanctioned user-facing PM env knobs, so it is a supported surface rather than a trick, and
+ *  pointing it at `<home>/.cache/nub` makes Windows use the SAME relative layout as POSIX — which
+ *  the path tokeniser's `home/(?:\.cache|AppData/Local)/nub` pattern already matches on its
+ *  `.cache` arm. `npm_config_cache` does the same job for npm that moving `APPDATA` did.
+ *
+ *  `USERPROFILE` still moves: it is what `dirs_next::home_dir()` reads on Windows, it is not
+ *  consulted for the AppContainer profile, and it is the isolation this whole fixture depends on.
+ *  ⛔ THE CONTROL when re-measuring: confirm `materialized: true` and a file count comparable to
+ *  macOS. A store landing outside the fixture is the exact regression the redirect once fixed. */
 function homeEnv(home) {
   if (process.platform !== 'win32') return { HOME: home };
   return {
     HOME: home,
     USERPROFILE: home,
-    LOCALAPPDATA: path.join(home, 'AppData', 'Local'),
     APPDATA: path.join(home, 'AppData', 'Roaming'),
+    NUB_CACHE_DIR: path.join(home, '.cache', 'nub'),
+    npm_config_cache: path.join(home, '.cache', 'npm'),
   };
 }
 
@@ -209,12 +247,15 @@ function makeFixture(dir, pkg, version, { jailOff }) {
   const proj = path.join(dir, 'proj');
   fs.mkdirSync(proj, { recursive: true });
   fs.mkdirSync(path.join(dir, 'home'), { recursive: true });
-  // The Windows redirect (see homeEnv) points LOCALAPPDATA/APPDATA inside this home, so the
-  // directories have to exist — a tool that finds its cache root missing may fall back to the real
-  // profile rather than create it, which would silently restore the leak this exists to close.
+  // The Windows redirect (see homeEnv) points APPDATA and the two cache knobs inside this home, so
+  // the directories have to exist — a tool that finds its cache root missing may fall back to the
+  // real profile rather than create it, which would silently restore the leak this exists to close.
+  // ⛔ `AppData\Local` is deliberately NOT created here any more: nothing of ours resolves through
+  // it now, and creating it invited the belief that %LOCALAPPDATA% still points inside the fixture.
   if (process.platform === 'win32') {
-    fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Local'), { recursive: true });
     fs.mkdirSync(path.join(dir, 'home', 'AppData', 'Roaming'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'home', '.cache', 'nub'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'home', '.cache', 'npm'), { recursive: true });
   }
   // Config keys a real consumer would carry. Same reason as the fixture files below: a script
   // that bails for a missing key measures as "needs nothing", which is the verdict that ships a
