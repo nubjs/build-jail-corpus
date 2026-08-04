@@ -169,11 +169,50 @@ for attempt in 1 2 3; do
   printf '%s\n' "$REL" >> "$MANIFEST" 2>/dev/null
   sort -u -o "$MANIFEST" "$MANIFEST" 2>/dev/null
 
-  # `xargs` rather than an unquoted expansion: a record path contains an npm scope and a version, so
-  # it can carry characters a bare word-split would mangle. `-I{}` keeps one path per invocation.
-  # queue.ndjson is staged separately and unconditionally — it is re-derived above and is the one
-  # file every runner legitimately rewrites.
-  xargs -I{} git add --ignore-removal -- "{}" < "$MANIFEST" 2>/dev/null
+  # ⛔⛔ FIFTH FAILURE, MEASURED IN PRODUCTION, AND THE MANIFEST DOES NOT PREVENT IT.
+  #
+  # The manifest narrowed staging from "every record on disk" to "every record THIS RUN measured",
+  # which fixed the fourth failure. But a run's own earlier record is ALSO stale the moment another
+  # run re-measures the SAME spec: this run's copy is frozen at ITS publish time while origin moves
+  # on. Every subsequent per-record publish re-stages that frozen copy and REVERTS origin.
+  #
+  # MEASURED, and it destroyed the single most important measurement of the day: commit 9510184a,
+  # titled `corpus: hugo-extended@0.149.1 HARNESS-TIMEOUT`, also rewrote
+  # records/runs/win32-x64/electron-chromedriver/43.2.0/results.json from
+  #     nubGitSha 9c73c07337 / at 13:18 / write {userHome}      (the env-allowlist fix, CONFIRMED)
+  # back to
+  #     nubGitSha 00daf3b67a / at 12:48 / write "disk"          (a pre-fix binary)
+  # because the publishing run had measured that spec itself at 12:48 and a DIFFERENT run published
+  # a newer one at 13:18.
+  #
+  # ⛔ THE TRIGGER IS TWO RUNS MEASURING ONE SPEC, which is exactly what a targeted `force=true`
+  # re-measure creates while the queue fleet is live. It was dormant while every spec had one owner.
+  #
+  # THE GUARD: never stage a manifest entry whose ON-DISK record is OLDER than origin's. `provenance.at`
+  # is the measurement instant and is written by the harness, so it orders two measurements of one spec
+  # correctly regardless of which runner's clock or push landed first. When origin is newer, take
+  # ORIGIN'S copy into the working tree — that both prevents the revert and keeps --reconcile honest,
+  # since the row is then closed against a record that genuinely is on origin.
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    mine="$rel/results.json"
+    theirs="$(git show "origin/$BRANCH:$mine" 2>/dev/null)"
+    if [ -n "$theirs" ] && [ -f "$mine" ]; then
+      newer="$(MINE="$(cat "$mine")" THEIRS="$theirs" node -e '
+        const at = (s) => { try { return Date.parse(JSON.parse(s)?.provenance?.at) || 0 } catch { return 0 } };
+        // Strictly greater: an equal timestamp is the same measurement, so staging ours is a no-op.
+        process.stdout.write(at(process.env.THEIRS) > at(process.env.MINE) ? "theirs" : "mine");
+      ' 2>/dev/null)"
+      if [ "$newer" = "theirs" ]; then
+        git checkout "origin/$BRANCH" -- "$rel" 2>/dev/null || true
+        echo "  kept origin's newer record for $rel" >&2
+        continue
+      fi
+    fi
+    # `git add` per path rather than an unquoted expansion: a record path carries an npm scope and a
+    # version, so a bare word-split would mangle it.
+    git add --ignore-removal -- "$rel" 2>/dev/null
+  done < "$MANIFEST"
   git add -- queue.ndjson 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then exit 0; fi   # already published by someone
 
