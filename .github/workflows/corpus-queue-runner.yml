@@ -667,12 +667,20 @@ jobs:
           MANIFEST="${NUB_CORPUS_MANIFEST:-${TMPDIR:-/tmp}/nub-corpus-published.txt}"
           STASH=$(mktemp -d)
           if [ -s "$MANIFEST" ]; then
+            # ⛔ MANIFEST ENTRIES ARE DIRECTORIES, NOT FILES. publish-record.sh writes
+            # `REL="${REC_DIR#"$REPO"/}"` — a RECORD DIR like `records/runs/win32-x64/gifsicle/5.3.0`,
+            # which holds results.json plus that cell's logs. An earlier version of this block tested
+            # `[ -f "$rel" ]`, which is FALSE for a directory, so it would have skipped every entry,
+            # stashed nothing, and restored nothing — LOSING this run's records instead of merely
+            # reverting other runners'. Strictly worse than the bug it replaced.
+            # Nothing else caught it because the other consumer, `git add -- <path>`, takes a
+            # directory perfectly happily.
             while IFS= read -r rel; do
-              [ -f "$rel" ] || continue
-              mkdir -p "$STASH/$(dirname "$rel")"
-              cp "$rel" "$STASH/$rel"
+              [ -e "$rel" ] || continue
+              mkdir -p "$STASH/$rel"
+              cp -R "$rel/." "$STASH/$rel/" 2>/dev/null || true
             done < "$MANIFEST"
-            echo "stashing $(wc -l < "$MANIFEST" | tr -d ' ') record(s) this run measured"
+            echo "stashing $(wc -l < "$MANIFEST" | tr -d ' ') record dir(s) this run measured"
           else
             echo "::warning::no publish manifest — falling back to stashing the whole records tree, which can revert other runners' records"
             mkdir -p "$STASH/records"
@@ -685,10 +693,11 @@ jobs:
             # Ours win where they overlap — and after the change above, "ours" means only the records
             # this run actually produced.
             if [ -s "$MANIFEST" ]; then
+              # Directories, matching the stash above — see the note there.
               while IFS= read -r rel; do
-                [ -f "$STASH/$rel" ] || continue
-                mkdir -p "$(dirname "$rel")"
-                cp "$STASH/$rel" "$rel"
+                [ -d "$STASH/$rel" ] || continue
+                mkdir -p "$rel"
+                cp -R "$STASH/$rel/." "$rel/" 2>/dev/null || true
               done < "$MANIFEST"
             else
               cp -R "$STASH/records/." records/
