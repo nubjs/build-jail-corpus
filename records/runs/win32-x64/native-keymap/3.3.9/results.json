@@ -1,0 +1,107 @@
+{
+  "pkg": "native-keymap",
+  "version": "3.3.9",
+  "verdict": "BROKEN-IN-ENVIRONMENT",
+  "jailOffControl": {
+    "rc": 0,
+    "digest": "48fc6a9b06dc03dd",
+    "files": 4491,
+    "note": "succeeds with the jail off, so the jail IS implicated (checked before the oracles)"
+  },
+  "grant": null,
+  "declaresInstallScript": false,
+  "npmReference": {
+    "rc": 1,
+    "signature": "gyp ERR! configure error",
+    "ranScripts": true,
+    "files": 2750,
+    "digest": "5f2b635c354bcb6c"
+  },
+  "pnpmReference": {
+    "rc": 1,
+    "signature": null,
+    "ranScripts": false,
+    "files": 22,
+    "digest": "a3cfd1be1b247b86",
+    "lifecycle": []
+  },
+  "artifactComparison": {
+    "nubControlFiles": null,
+    "npmFiles": 2750,
+    "pnpmFiles": 22,
+    "armsThatRanScripts": [
+      "npm"
+    ]
+  },
+  "failureSignature": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Microsoft\\VC\\v180\\Microsoft.CppCommon.targets(790,5): error MSB4018: The \"CL\" task failed unexpec",
+  "signaturesMatched": false,
+  "standing": {
+    "published": "2026-01-13T17:11:09.811Z",
+    "ageDays": 203,
+    "weeklyDownloads": 126684,
+    "latestVersion": null
+  },
+  "needsInvestigation": true,
+  "investigationReason": "npm ALSO fails, but this is 203d old with 126684 weekly downloads — people install it successfully every week, so suspect a missing toolchain on the measuring host before accepting the dismissal",
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "e37c729d454cbdc9",
+      "files": 6487,
+      "overrideEngaged": null,
+      "materialized": false
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 6487,
+    "digest": "e37c729d454cbdc9",
+    "materialized": false,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 6487,
+    "digest": "e37c729d454cbdc9",
+    "materialized": false,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlLogTail": "gyp info spawn args '-I',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\node-headers\\\\22.23.1\\\\include\\\\node\\\\common.gypi',\ngyp info spawn args '-Dlibrary=shared_library',\ngyp info spawn args '-Dvisibility=default',\ngyp info spawn args '-Dnode_root_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\home\\\\AppData\\\\Local\\\\nub/pm\\\\node-headers\\\\22.23.1',\ngyp info spawn args '-Dnode_gyp_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\store\\\\node-gyp@12.4.0-6386ab3e4584a36d\\\\node_modules\\\\node-gyp',\ngyp info spawn args '-Dnode_lib_file=C:\\\\\\\\Users\\\\\\\\runneradmin\\\\\\\\.cache\\\\\\\\nub-search-B52enr\\\\\\\\control\\\\\\\\home\\\\\\\\AppData\\\\\\\\Local\\\\\\\\nub\\\\\\\\pm\\\\\\\\node-headers\\\\\\\\22.23.1\\\\\\\\$(Configuration)\\\\\\\\node.lib',\ngyp info spawn args '-Dmodule_root_dir=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\proj\\\\node_modules\\\\.store\\\\native-keymap@3.3.9\\\\node_modules\\\\native-keymap',\ngyp info spawn args '-Dnode_engine=v8',\ngyp info spawn args '--depth=.',\ngyp info spawn args '--no-parallel',\ngyp info spawn args '--generator-output',\ngyp info spawn args 'C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\proj\\\\node_modules\\\\.store\\\\native-keymap@3.3.9\\\\node_modules\\\\native-keymap\\\\build',\ngyp info spawn args '-Goutput_dir=.'\ngyp info spawn args ]\ngyp info spawn C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe\ngyp info spawn args [\ngyp info spawn args 'build/binding.sln',\ngyp info spawn args '/clp:Verbosity=minimal',\ngyp info spawn args '/nologo',\ngyp info spawn args '/nodeReuse:false',\ngyp info spawn args '/p:Configuration=Release;Platform=x64'\ngyp info spawn args ]\ngyp ERR! build error \ngyp ERR! stack Error: `C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe` failed with exit code: 1\ngyp ERR! stack at ChildProcess.<anonymous> (C:\\Users\\runneradmin\\.cache\\nub-search-B52enr\\control\\home\\AppData\\Local\\nub\\pm\\store\\node-gyp@12.4.0-6386ab3e4584a36d\\node_modules\\node-gyp\\lib\\build.js:219:23)\ngyp ERR! stack at ChildProcess.emit (node:events:519:28)\ngyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:293:12)\ngyp ERR! System Windows_NT 10.0.26100\ngyp ERR! command \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\jail-bin\\\\22.23.1-x64\\\\node.exe\" \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-B52enr\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\tools\\\\node-gyp\\\\v12\\\\node_modules\\\\.store\\\\node-gyp@12.4.0\\\\node_modules\\\\node-gyp\\\\bin\\\\node-gyp.js\" \"rebuild\"\ngyp ERR! cwd C:\\Users\\runneradmin\\.cache\\nub-search-B52enr\\control\\proj\\node_modules\\.store\\native-keymap@3.3.9\\node_modules\\native-keymap\ngyp ERR! node -v v22.23.1\ngyp ERR! node-gyp -v v12.4.0\ngyp ERR! $npm_package_name native-keymap\ngyp ERR! $npm_package_version 3.3.9\ngyp ERR! not ok \n  × lifecycle script install failed for native-keymap@3.3.9: script `install`\n  │ exited with code 1\n\n",
+  "logDir": "D:\\a\\build-jail-corpus\\build-jail-corpus\\records\\runs\\win32-x64\\native-keymap\\3.3.9",
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\6f0916849144730a.exe",
+    "nubSha256": "6f0916849144730a570aa2567202dea6886c5d02c37a8bddf5d3e9c851696351",
+    "nubGitSha": "b1148412affe57a4bdcfd1b00207e852bafc1d20",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "2abf8f2aaa9a8eee",
+    "corpusGitSha": "48c599cb333bdf9f1f82526ba6e1a59220a69d80",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": null,
+      "publishedAt": "2026-01-13T17:11:09.811Z",
+      "chosenMajor": "22",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T19:25:25.240Z"
+  }
+}
