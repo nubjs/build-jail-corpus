@@ -1912,6 +1912,19 @@ function search(nub, pkg, version, root, keep, runDir) {
   //    detour that found the __pycache__ artefact, which the harness already had in memory
   //    and discarded.
   let floor = null;
+  // ⛔ THE RUNNER-UP, BECAUSE THE FLOOR DELTA DOES NOT ANSWER "WHY THIS RUNG?".
+  //
+  // `pathsBlockedWithoutGrant` is `controlOnly(control, floor)` — everything the jail blocks at
+  // the ZERO-grant cell. It is useful, and it is NOT the discriminator: it enumerates the whole
+  // blocked surface rather than the part that forced the WINNING rung specifically. Grouping
+  // packages by that histogram mixes causes together, which is exactly how a "baseline carve-out
+  // shortlist" got built here on paths that had nothing to do with why the top rung was needed.
+  //
+  // The walk is ASCENDING-COST and stops at the first pass, so the cell immediately before the
+  // winner IS the widest failing state. The paths the winner restores that the runner-up did not
+  // are the ones that state alone could not reach — the actual answer to "why did this escalate?".
+  // Cheap: both `seen` lists are already in memory and are discarded a line later.
+  let prev = null;
   for (let i = 0; i < STATES.length; i++) {
     const r = cell(`s${i}`, { catalogFile: write(STATES[i]), label: STATES[i].label });
     if (i === 0) floor = r;
@@ -1921,6 +1934,11 @@ function search(nub, pkg, version, root, keep, runDir) {
       overrideEngaged: r.overrideOk, materialized: r.materialized,
     });
     if (!r.overrideOk) return { pkg, version, cells, verdict: 'HARNESS-ERROR', why: `override did not engage at state ${i}`, log: r.log.slice(-400) };
+    // The runner-up delta, computed BEFORE `prev` advances. Null at i=0 (nothing narrower failed)
+    // and when the state set is exhausted without a pass.
+    const restoredOverRunnerUp = prev ? controlOnly(r, prev) : null;
+    const runnerUpLabel = prev ? STATES[i - 1].label : null;
+    prev = r;
     if (matches(r)) {
       const wp = floor ? homeWritePaths(controlOnly(controlU, floor)) : null;
       const verifyWritePaths = () => {
@@ -1975,6 +1993,21 @@ function search(nub, pkg, version, root, keep, runDir) {
         // floor. Capped, with the true count kept, so one pathological package cannot make
         // the results file unreadable — a silent truncation would be worse than a number.
         pathsBlockedWithoutGrantCount: floor ? controlOnly(controlU, floor).length : null,
+        // ⛔ WHY THIS RUNG, AND NOT THE ONE BELOW IT — the discriminator the floor delta is not.
+        //
+        // `pathsBlockedWithoutGrant*` above is the delta against the ZERO-grant cell: the whole
+        // blocked surface. These two fields are the delta against the WIDEST FAILING cell, which
+        // is the state immediately below the winner because the walk ascends by cost. They name
+        // the paths that ONLY the winning grant could reach.
+        //
+        // ⛔ AN EMPTY LIST HERE IS A LOUD SIGNAL, NOT A BORING ONE: the winner restored no PATH
+        // the runner-up lacked, so it won on something the fs vocabulary cannot express — an exec
+        // or metadata failure, or (at the top rung) the fact that `write:"disk"` disables
+        // confinement outright rather than widening it. Those are exactly the packages whose
+        // grant is not really a filesystem answer.
+        escalatedOverRunnerUp: runnerUpLabel,
+        pathsRestoredOverRunnerUp: restoredOverRunnerUp ? restoredOverRunnerUp.slice(0, 60) : null,
+        pathsRestoredOverRunnerUpCount: restoredOverRunnerUp ? restoredOverRunnerUp.length : null,
         // ⛔ DOES THE WINNING GRANT HAVE ANY FILE EVIDENCE BEHIND IT?
         //
         // The walk scores a cell on exit code AND digest. When a package writes somewhere the
