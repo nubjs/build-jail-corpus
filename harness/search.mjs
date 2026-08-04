@@ -1134,9 +1134,19 @@ function homeWritePaths(paths) {
  *  that have cost this harness repeatedly. So it gets one cell of its own at the end. */
 function catalogWithWritePaths(pkg, state, others, writePaths) {
   const cat = catalogFor(pkg, state, others);
-  const g = cat.packages[pkg]?.[0] ?? { notes: 'writePaths verification' };
-  g.writePaths = writePaths;
-  cat.packages[pkg] = [g];
+  // ⛔ ENTRY SHAPE `{default}`, NOT the retired `[grant]` ARRAY — the same rule catalogFor states
+  // three lines into its own body, and this function broke it. Reading `cat.packages[pkg]?.[0]`
+  // indexes an OBJECT with `[0]`, which is always undefined, so the grant was discarded and the
+  // result written back as a bare array. nub then REJECTED the override:
+  //     build-jail catalog override at .../cat-verify-N.json was REJECTED (packages[<pkg>]: must
+  //     be an OBJECT of the form {default, versions?} — a bare ARRAY is the retired
+  //     first-match-wins shape); using the compiled-in catalog
+  // and fell back to the compiled-in catalog. So the verification cell never granted the
+  // writePaths it exists to test: NOTHING could be promoted, `promotedIntoRealHome` was 0 and
+  // `leftInThrowaway` large FOR EVERY PACKAGE, purely as an artefact. 193 corpus records carry
+  // those numbers and none of them measured the mover.
+  const prev = cat.packages[pkg]?.default ?? {};
+  cat.packages[pkg] = { default: { ...prev, writePaths, notes: 'writePaths verification' } };
   return cat;
 }
 
@@ -1956,7 +1966,18 @@ function search(nub, pkg, version, root, keep, runDir) {
         // `$home/<entry>/...`. So the two are distinguishable in one scan.
         const real = v.seen.filter((q) => wp.some((e) => q.startsWith(`home/${e}/`) || q === `home/${e}`)).length;
         const kept = v.seen.filter((q) => wp.some((e) => q.startsWith(`$home/${e}/`) || q === `$home/${e}`)).length;
-        return { rc: v.rc, promotedIntoRealHome: real, leftInThrowaway: kept, entries: wp };
+        // ⛔ RECORD WHETHER THIS CELL'S OVERRIDE ACTUALLY ENGAGED. The walk cells bail to
+        // HARNESS-ERROR on `!r.overrideOk`; this one never checked, so when the generated catalog
+        // was REJECTED the cell silently scored the compiled-in grant instead — producing
+        // promoted=0 / left=large for every package and no signal that anything was wrong.
+        // A verification cell that cannot say whether it verified anything is not a verification.
+        return {
+          rc: v.rc,
+          overrideEngaged: v.overrideOk === true,
+          promotedIntoRealHome: real,
+          leftInThrowaway: kept,
+          entries: wp,
+        };
       };
       return {
         pkg, version,
