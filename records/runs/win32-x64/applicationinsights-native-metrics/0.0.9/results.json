@@ -1,0 +1,107 @@
+{
+  "pkg": "applicationinsights-native-metrics",
+  "version": "0.0.9",
+  "verdict": "BROKEN-IN-ENVIRONMENT",
+  "jailOffControl": {
+    "rc": 0,
+    "digest": "e657444660f4d906",
+    "files": 5763,
+    "note": "succeeds with the jail off, so the jail IS implicated (checked before the oracles)"
+  },
+  "grant": null,
+  "declaresInstallScript": true,
+  "npmReference": {
+    "rc": 1,
+    "signature": "Failed to execute 'C:\\hostedtoolcache\\windows\\node\\<ver>\\x64\\node.exe C:\\hostedtoolcache\\windows\\node\\<ver>\\x64\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-",
+    "ranScripts": true,
+    "files": 2750,
+    "digest": "5f2b635c354bcb6c"
+  },
+  "pnpmReference": {
+    "rc": 1,
+    "signature": null,
+    "ranScripts": false,
+    "files": 22,
+    "digest": "a3cfd1be1b247b86",
+    "lifecycle": []
+  },
+  "artifactComparison": {
+    "nubControlFiles": null,
+    "npmFiles": 2750,
+    "pnpmFiles": 22,
+    "armsThatRanScripts": [
+      "npm"
+    ]
+  },
+  "failureSignature": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Microsoft\\VC\\v180\\Microsoft.CppCommon.targets(790,5): error MSB4018: The \"CL\" task failed unexpec",
+  "signaturesMatched": false,
+  "standing": {
+    "published": "2023-03-03T20:32:26.377Z",
+    "ageDays": 1249,
+    "weeklyDownloads": 7961,
+    "latestVersion": null
+  },
+  "needsInvestigation": false,
+  "investigationReason": null,
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "ed0fe64b6dd7b581",
+      "files": 7757,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 7757,
+    "digest": "ed0fe64b6dd7b581",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 7757,
+    "digest": "ed0fe64b6dd7b581",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "controlLogTail": "gyp info it worked if it ends with ok\ngyp info using node-gyp@12.4.0\ngyp info using node@22.23.1 | win32 | x64\ngyp info spawn C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe\ngyp info spawn args [\ngyp info spawn args 'build/binding.sln',\ngyp info spawn args '/clp:Verbosity=minimal',\ngyp info spawn args '/nologo',\ngyp info spawn args '/nodeReuse:false',\ngyp info spawn args '/p:Configuration=Release;Platform=x64'\ngyp info spawn args ]\ngyp ERR! build error \ngyp ERR! stack Error: `C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe` failed with exit code: 1\ngyp ERR! stack at ChildProcess.<anonymous> (C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\home\\AppData\\Local\\nub\\pm\\store\\node-gyp@12.4.0-6386ab3e4584a36d\\node_modules\\node-gyp\\lib\\build.js:219:23)\ngyp ERR! stack at ChildProcess.emit (node:events:519:28)\ngyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:293:12)\ngyp ERR! System Windows_NT 10.0.26100\ngyp ERR! command \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\jail-bin\\\\22.23.1-x64\\\\node.exe\" \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\tools\\\\node-gyp\\\\v12\\\\node_modules\\\\.store\\\\node-gyp@12.4.0\\\\node_modules\\\\node-gyp\\\\bin\\\\node-gyp.js\" \"build\" \"--fallback-to-build\" \"--module=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\proj\\\\node_modules\\\\.store\\\\applicationinsights-native-metrics@0.0.9\\\\node_modules\\\\applicationinsights-native-metrics\\\\build\\\\Release\\\\native_metrics.node\" \"--module_name=native_metrics\" \"--module_path=C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\proj\\\\node_modules\\\\.store\\\\applicationinsights-native-metrics@0.0.9\\\\node_modules\\\\applicationinsights-native-metrics\\\\build\\\\Release\" \"--napi_version=10\" \"--node_abi_napi=napi\" \"--napi_build_version=0\" \"--node_napi_label=node-v127\"\ngyp ERR! cwd C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\proj\\node_modules\\.store\\applicationinsights-native-metrics@0.0.9\\node_modules\\applicationinsights-native-metrics\ngyp ERR! node -v v22.23.1\ngyp ERR! node-gyp -v v12.4.0\ngyp ERR! $npm_package_name applicationinsights-native-metrics\ngyp ERR! $npm_package_version 0.0.9\ngyp ERR! not ok \nnode-pre-gyp ERR! build error \nnode-pre-gyp ERR! stack Error: Failed to execute 'C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\home\\AppData\\Local\\nub\\pm\\jail-bin\\22.23.1-x64\\node.exe C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\home\\AppData\\Local\\nub/pm\\tools\\node-gyp\\lazy-bin\\node-gyp.js build --fallback-to-build --module=C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\proj\\node_modules\\.store\\applicationinsights-native-metrics@0.0.9\\node_modules\\applicationinsights-native-metrics\\build\\Release\\native_metrics.node --module_name=native_metrics --module_path=C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\proj\\node_modules\\.store\\applicationinsights-native-metrics@0.0.9\\node_modules\\applicationinsights-native-metrics\\build\\Release --napi_version=10 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v127' (1)\nnode-pre-gyp ERR! stack     at ChildProcess.<anonymous> (C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\proj\\node_modules\\.store\\@mapbox+node-pre-gyp@1.0.11\\node_modules\\@mapbox\\node-pre-gyp\\lib\\util\\compile.js:89:23)\nnode-pre-gyp ERR! stack     at ChildProcess.emit (node:events:519:28)\nnode-pre-gyp ERR! stack     at maybeClose (node:internal/child_process:1101:16)\nnode-pre-gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:304:5)\nnode-pre-gyp ERR! System Windows_NT 10.0.26100\nnode-pre-gyp ERR! command \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\home\\\\AppData\\\\Local\\\\nub\\\\pm\\\\jail-bin\\\\22.23.1-x64\\\\node.exe\" \"C:\\\\Users\\\\runneradmin\\\\.cache\\\\nub-search-4pQU44\\\\control\\\\proj\\\\node_modules\\\\.store\\\\applicationinsights-native-metrics@0.0.9\\\\node_modules\\\\@mapbox\\\\node-pre-gyp\\\\bin\\\\node-pre-gyp\" \"install\" \"--fallback-to-build\"\nnode-pre-gyp ERR! cwd C:\\Users\\runneradmin\\.cache\\nub-search-4pQU44\\control\\proj\\node_modules\\.store\\applicationinsights-native-metrics@0.0.9\\node_modules\\applicationinsights-native-metrics\nnode-pre-gyp ERR! node -v v22.23.1\nnode-pre-gyp ERR! node-pre-gyp -v v1.0.11\nnode-pre-gyp ERR! not ok \n  × lifecycle script install failed for applicationinsights-native-\n  │ metrics@0.0.9: script `install` exited with code 1\n\n",
+  "logDir": "D:\\a\\build-jail-corpus\\build-jail-corpus\\records\\runs\\win32-x64\\applicationinsights-native-metrics\\0.0.9",
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\70b9927e774ef651.exe",
+    "nubSha256": "70b9927e774ef6517e181482ab304ef90251f40820aaccf3ae91e33e7dfe45da",
+    "nubGitSha": "ec15074bc2c306f05ae50277ba00c0b21ae92e11",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "5d5cc26ad64f4d9f",
+    "corpusGitSha": "ace826738cc41b0eedb6888a40306f821dc5ebe5",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": ">=6.0.0",
+      "publishedAt": "2023-03-03T20:32:26.377Z",
+      "chosenMajor": "18",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T13:41:35.513Z"
+  }
+}
