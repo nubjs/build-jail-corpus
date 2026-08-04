@@ -1,0 +1,72 @@
+{
+  "pkg": "@pulumi/kubernetes",
+  "version": "0.20.4",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "why": "BOTH control runs failed, and it fails identically with the jail off, so confinement is not implicated. A nub PM/linker or packaging problem, or a package that cannot run on this host at all. Oracles were SKIPPED: they could not change this verdict. Compare `control` and `controlB` in this record.",
+  "declaresInstallScript": true,
+  "jailOffControl": {
+    "rc": 1,
+    "digest": "6bd9e3522b3c86e1",
+    "files": 28979,
+    "note": "ran BEFORE the oracles and short-circuited them"
+  },
+  "cells": [
+    {
+      "index": null,
+      "state": "CONTROL (tested pkg: everything; all others: everything)",
+      "cost": null,
+      "pass": false,
+      "rc": 1,
+      "digest": "e38e66d5e8e7f300",
+      "files": 30992,
+      "overrideEngaged": null,
+      "materialized": true
+    }
+  ],
+  "control": {
+    "rc": 1,
+    "fileCount": 30992,
+    "digest": "e38e66d5e8e7f300",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 3
+  },
+  "controlB": {
+    "rc": 1,
+    "fileCount": 30887,
+    "digest": "dcebec34890475da",
+    "materialized": true,
+    "pathsUnderThrowawayHome": 0
+  },
+  "provenance": {
+    "nubPath": "C:\\Users\\runneradmin\\.cache\\nub\\probe-bin\\ff2c9319371ffd6c.exe",
+    "nubSha256": "ff2c9319371ffd6c48c5d8d44a1945975fcfa7f3d7652b24c2a28511f6bdced2",
+    "nubGitSha": "ec0559408239713d84952fe670360ec3b4632009",
+    "nubVersion": "v0.6.0",
+    "harnessSha256": "5d5cc26ad64f4d9f",
+    "corpusGitSha": "4a38d773773a43e7ae9ca98c1132dc72207a3f10",
+    "platform": "win32-x64",
+    "nodeSelection": {
+      "enginesNode": null,
+      "publishedAt": "2019-03-02T00:04:22.082Z",
+      "chosenMajor": "10",
+      "pinnedTo": null,
+      "hostNode": "v22.23.1",
+      "hostArch": "x64",
+      "pinnedArch": null,
+      "libc": null
+    },
+    "pythonPinned": null,
+    "node": "v22.23.1",
+    "toolchain": {
+      "node": "v22.23.1",
+      "pkgConfig": "C:\\Strawberry\\perl\\bin\\pkg-config",
+      "pkgConfigVersion": null,
+      "python": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+      "pythonVersion": "Python 3.12.10",
+      "make": "C:\\mingw64\\bin\\make.exe",
+      "cc": "cc (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 15.2.0",
+      "pathPrefix": "C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\runneradmin\\bin;C"
+    },
+    "at": "2026-08-04T18:20:58.003Z"
+  }
+}
