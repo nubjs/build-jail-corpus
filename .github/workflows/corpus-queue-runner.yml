@@ -701,8 +701,14 @@ jobs:
       # ⛔ VERIFY BEFORE COMMITTING, and FAIL the run if the corpus lost substance. A slice that
       # produces records which collate to nothing is the failure this project already shipped once;
       # committing it would bury the evidence under thousands of later rows.
+      # ⛔ RUNS ON DEBUG (`packages`) RUNS TOO, AND THAT EXEMPTION WAS THE BUG. This step was gated on
+      # `inputs.packages == ''`, so the one check that exists to catch a measurement that did not
+      # happen was SKIPPED on exactly the runs used to re-measure — and a targeted re-measure is the
+      # only way to replace an already-recorded spec, so it is the path where a silent no-op does the
+      # most damage. It is also cheap: `/tmp/slice.txt` is written by BOTH the claim step and the
+      # debug step, so `--expect` is well-defined either way.
       - name: Verify the corpus carries what it measured
-        if: inputs.packages == '' && env.DRAINED != '1'
+        if: env.DRAINED != '1'
         shell: bash
         run: node harness/verify-corpus.mjs --records records --expect "$(wc -l < /tmp/slice.txt)"
 

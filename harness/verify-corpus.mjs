@@ -90,7 +90,13 @@ let measured = 0;
 let missingGrant = 0;
 let recoverableGrant = 0;
 const junkNames = [];
-const JUNK = /^(\.|node_modules$)/;
+// ⛔ A COMMA OR WHITESPACE IS STRUCTURALLY IMPOSSIBLE IN AN NPM PACKAGE NAME, and catching it here
+// is what would have caught the `packages` comma bug on the day it shipped. The old pattern matched
+// only `.`-prefixed and `node_modules` — leaking `.store` bookkeeping dirs — so a record naming
+// "@a/b@1.0.0,@c/d@2.0.0" passed every check and read as a real measurement. See the corpus commit
+// that split that input on commas; this is the OTHER half, because a parser fix protects the input
+// it knows about while this refuses the impossible name however it got there.
+const JUNK = /^(\.|node_modules$)|[,\s]/;
 
 for (const f of files) {
   let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
