@@ -121,12 +121,43 @@ jobs:
           printf '[user]\n\tname = decoy\n' > "$HOME/.gitconfig"
           echo "seeded 4 decoys under $HOME"
 
+          # ⛔ TRANSLATE $HOME TO A NATIVE PATH BEFORE THE PROBE EVER SEES IT. These steps run in
+          # Git Bash on Windows, where $HOME is `/c/Users/runneradmin` — a POSIX spelling. The probe
+          # generator appends WINDOWS separators, so passing that through produced
+          # `/c/Users/runneradmin\.npmrc`, which Node cannot resolve. Every read then failed for a
+          # PATH reason rather than a policy one, the control stole nothing, and the run aborted.
+          # MEASURED, run 30965381343: that is the whole of the Windows failure, and it was my
+          # harness rather than the jail. Same cygpath translation the corpus workflow already uses.
+          if [ "${{ matrix.os }}" = "windows" ]; then PH=$(cygpath -w "$HOME"); else PH="$HOME"; fi
+          echo "PROBE_HOME=$PH" >> "$GITHUB_ENV"
+          echo "probe will address the home as: $PH"
+
+          # ⛔ ASSERT THE SEED LANDED WHERE THE PROBE WILL LOOK, rather than assuming the
+          # translation was right. A decoy written to one spelling and read from another is
+          # indistinguishable from a working jail — which is exactly the trap this whole workflow
+          # is built to avoid, and it would fail SILENTLY one step later.
+          node -e '
+            const fs=require("fs"),p=process.argv[1],path=require("path");
+            const want=[".npmrc",".gitconfig",".aws/credentials",".ssh/id_rsa"];
+            const missing=want.filter(f=>{try{return !fs.readFileSync(path.join(p,f),"utf8").length}catch{return true}});
+            if(missing.length){console.log("⛔ decoys unreadable at the probe path "+p+": "+missing.join(", ")+" — the control could not steal them and a clean jailed result would be meaningless");process.exit(1)}
+            console.log("VERIFIED: all 4 decoys readable at "+p);
+          ' "$PH"
+
       # ── POSITIVE CONTROL: jail OFF. Every action MUST succeed, or the jailed run proves nothing.
       - name: 'CONTROL — jail OFF (all actions must SUCCEED)'
         shell: bash
         run: |
           set -eu
-          node security/make-probe.mjs /tmp/ctl "$HOME" jail-off
+          # ⛔ THE OUTPUT DIR CROSSES THE SAME BASH/NODE BOUNDARY AS $HOME DID, and gets the same
+          # treatment. Native Windows Node resolves `/tmp/ctl` against the CURRENT DRIVE (`C:\tmp\ctl`)
+          # while Git Bash's `cd /tmp/ctl` goes to `…\AppData\Local\Temp\ctl` — two different
+          # directories, so the fixture would be written where the install never looks. Create it in
+          # bash, hand Node the native spelling.
+          mkdir -p /tmp/ctl
+          if [ "${{ matrix.os }}" = "windows" ]; then OUT=$(cygpath -w /tmp/ctl); else OUT=/tmp/ctl; fi
+          node security/make-probe.mjs "$OUT" "$PROBE_HOME" jail-off
+          test -f /tmp/ctl/proj/package.json || { echo "⛔ the fixture is not where bash will run it — the path translation is wrong"; exit 1; }
           cd /tmp/ctl/proj
           "$NUB_BIN" install 2>&1 | tee /tmp/ctl.log || true
           "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/ctl.log || true
@@ -143,7 +174,10 @@ jobs:
         shell: bash
         run: |
           set -eu
-          node security/make-probe.mjs /tmp/jail "$HOME"
+          mkdir -p /tmp/jail
+          if [ "${{ matrix.os }}" = "windows" ]; then OUT=$(cygpath -w /tmp/jail); else OUT=/tmp/jail; fi
+          node security/make-probe.mjs "$OUT" "$PROBE_HOME"
+          test -f /tmp/jail/proj/package.json || { echo "⛔ the fixture is not where bash will run it — the path translation is wrong"; exit 1; }
           cd /tmp/jail/proj
           "$NUB_BIN" install 2>&1 | tee /tmp/jail.log || true
           "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/jail.log || true
