@@ -107,7 +107,29 @@ for (const p of Object.keys(byPlat).sort()) {
   // 0/84 the same day -- 84 naturally-drained records, ZERO at disk -- which is real evidence that
   // the darwin tail was stale rather than residual. A large unbiased zero means something; a small
   // targeted non-zero does not.
-  const FIXED = new Set(['8f7d5adb67', '0d9c2c575b', '00daf3b67a', '9c73c07337', 'ec15074bc2', 'b9a5201217', 'db9e4367c2']);
+  // ⛔ REBUILT 2026-08-05 BY ANCESTRY, NOT BY HAND — the previous 7-sha list covered ~441 of the
+  // ~2540 fix-carrying records in the corpus (17%), and OMITTED the four largest post-fix cohorts:
+  // c6aa9d7a5d (541 records, the branch tip every targeted re-measure lands on), 8a49b39413 (491),
+  // b1148412af (484) and 6cd6000d1c (257). Two of its entries (8f7d5adb67, 0d9c2c575b) appear on no
+  // record at all. Because an unlisted sha counts as PRE-FIX, the ON-FIXES line was not merely
+  // pessimistic — its denominator was an arbitrary sliver, so the rate it printed described a
+  // handful of records rather than the fixed population.
+  //
+  // METHOD, reproducible: enumerate every distinct `provenance.nubGitSha` in the corpus, then for
+  // each ask the nub repo `git merge-base --is-ancestor <fix> <sha>` for BOTH disk-tail fixes —
+  // a5d2b1b718 (the AppContainer child-profile dir) and a36de744e5 (the npm_config_prefix redirect).
+  // Every sha below answered YES to both. `666a4aadfe` (3163 records, HALF the corpus) answers NO to
+  // both and is correctly excluded; `40241eabcd` (2 records) has the profile fix but not the prefix
+  // one, so it stays out too.
+  //
+  // Re-run that enumeration when new shas appear. The list is still hand-maintained because the
+  // corpus repo has no clone of nub to ask — but it is now derived rather than guessed, and an
+  // unlisted sha remains PESSIMISTIC (under-claims, never over-claims), which is the safe direction.
+  const FIXED = new Set([
+    'c6aa9d7a5d', '8a49b39413', 'b1148412af', '6cd6000d1c', 'db9e4367c2', 'ec05594082',
+    '4298b29c02', 'ec15074bc2', '00daf3b67a', 'f60565f8fd', '1b4a5488c1', '1645810e4b',
+    'f94b9f6687', 'a36de744e5', 'e86785e9b5', 'b9a5201217', '9c73c07337',
+  ]);
   const onFix = (r) => FIXED.has(String(r.provenance?.nubGitSha || '').slice(0, 10));
   const fr = rs.filter(onFix);
   const ft = tv.filter(onFix);
