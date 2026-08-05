@@ -435,11 +435,34 @@ for spec in "$@"; do
     # Same trap that cost five wrong diagnoses on one package: read the first error, not the last.
     tail="$(grep -m1 -E '^[A-Za-z]*(Error|Exception)[:( ]|^error[: ]' "$d/harness-stderr.log" 2>/dev/null || true)"
     [ -n "$tail" ] || tail="$(head -c 400 "$d/harness-stderr.log" 2>/dev/null | tr -d '\000')"
+    # ⛔⛔ STAMP PROVENANCE ON THE FAILURE RECORD TOO — WITHOUT IT A RE-MEASURE IS UNFALSIFIABLE.
+    # `search.mjs` builds provenance only after a walk completes, and a timeout kills it long before
+    # that, so every HARNESS-TIMEOUT/CRASH record used to land with `provenance` ABSENT ENTIRELY
+    # (measured: `keys=0` on all 7 probe specs). The consequence is not cosmetic: a spec that WAS
+    # re-measured and timed out AGAIN wrote a record byte-indistinguishable from one never touched.
+    # So the timeout-recovery probe could only ever detect a RECOVERY — "still HARNESS-TIMEOUT" was
+    # no evidence at all, and I misread a 1-of-4 result as 1-of-4 when it may have been 1-of-1.
+    # That matters because the decision it feeds is whether to re-dispatch ~170 timed-out specs, the
+    # largest single runner commitment left; authorising it on an unreadable negative would burn
+    # hours to learn nothing.
+    #
+    # `at` alone settles it — a fresh timestamp proves the spec ran. `nubGitSha` comes from the same
+    # NUB_GIT_SHA the workflow already exports to this step, so a failure record can be sha-cut
+    # exactly like a measurement, which is what every "is this stale?" query in the corpus keys on.
+    # Deliberately NOT the full provenance block: no sha256 of the binary (a needless hash per
+    # failure) and nothing that implies a measurement happened. This attests WHEN AND WITH WHAT the
+    # instrument ran, never what it found.
+    # ⛔ `$NUB`/`$PLAT` ARE SHELL LOCALS, NOT EXPORTED — they must ride argv. Reading them as
+    # `process.env.*` yields null silently and the record looks well-formed while attesting nothing.
+    # `NUB_GIT_SHA` is the exception: the workflow exports it to this step, so env is correct there.
     node -e '
-      const [f,pkg,ver,verdict,why,rc,tail] = process.argv.slice(1);
+      const [f,pkg,ver,verdict,why,rc,tail,nubPath,plat] = process.argv.slice(1);
       require("fs").writeFileSync(f, JSON.stringify(
-        { pkg, version: ver, verdict, why, exitCode: Number(rc), stderrTail: tail }, null, 2));
-    ' "$d/results.json" "$pkg" "$ver" "$verdict" "$why" "$rc" "$tail"
+        { pkg, version: ver, verdict, why, exitCode: Number(rc), stderrTail: tail,
+          provenance: { at: new Date().toISOString(), nubGitSha: process.env.NUB_GIT_SHA || null,
+                        nubPath: nubPath || null, platform: plat || null } },
+        null, 2));
+    ' "$d/results.json" "$pkg" "$ver" "$verdict" "$why" "$rc" "$tail" "$NUB" "$PLAT"
     echo "{\"pkg\":\"$pkg\",\"version\":\"$ver\",\"verdict\":\"$verdict\",\"exitCode\":$rc}"
     echo "  ✗ $spec — $verdict ($why)" >&2
     tail -3 "$d/harness-stderr.log" 2>/dev/null | sed 's/^/      /' >&2
