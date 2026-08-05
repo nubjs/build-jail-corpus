@@ -33,7 +33,7 @@ const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
 // Silently-ignored input is the whole failure class here: a switch that stopped being read
 // (`dependenciesMeta.sandbox`), a grant that stopped being serialised, a canary whose refusal was
 // swallowed. A gate that tolerates unrecognised input cannot be trusted to report on anything.
-const KNOWN = new Set(['--records', '--expect']);
+const KNOWN = new Set(['--records', '--expect', '--expect-specs', '--since']);
 const unknown = argv.filter((a, i) => a.startsWith('--') && !KNOWN.has(a)
   // a VALUE that merely looks like a flag belongs to the preceding known flag, not to this check
   && !(i > 0 && KNOWN.has(argv[i - 1])));
@@ -69,6 +69,59 @@ const files = [];
 // So the question is not "are there records" but "does the corpus have records for the work that was
 // claimed". `--expect <n>` is how the runner states what it just claimed.
 const EXPECT = Number(opt('--expect', '0'));
+
+// ⛔⛔ `--expect <n>` ONLY FIRES WHEN THE CORPUS IS COMPLETELY EMPTY, so it cannot see the failure it
+// most needs to: a run asked for 15 specs, wrote 3, and went green because the other 6,000 records
+// were already there. That gap is the whole point of a TARGETED re-measure, whose purpose is to
+// REPLACE named records — the queue skips anything already holding one, so a spec that silently
+// produced nothing keeps its stale value forever and no one is told.
+//
+// `--expect-specs <file>` names exactly what was claimed (one `name@version` per line, the same
+// slice file the runner already writes) and `--since <iso>` says when the run began. A spec passes
+// only if it holds a record STAMPED AFTER THAT INSTANT.
+//
+// ⛔ THE `--since` GATE IS THE LOAD-BEARING HALF, not presence. Presence alone is satisfied by the
+// PRE-EXISTING record the re-measure was supposed to overwrite, which reads as success while
+// measuring nothing. MEASURED 2026-08-05: comparing 49 busybox-arm specs against a captured baseline
+// BEFORE the runs had published reported "49 of 49 identical, zero escalations" — indistinguishable
+// from a genuine refutation of a divergence that grants installs LESS than they need. A comparison
+// that cannot tell a fresh record from an old one is not a comparison.
+const EXPECT_SPECS = opt('--expect-specs', '');
+const SINCE = opt('--since', '');
+if (EXPECT_SPECS) {
+  let want = [];
+  try {
+    want = fs.readFileSync(EXPECT_SPECS, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
+  } catch (e) {
+    console.error(`CORPUS VERIFY REFUSED: --expect-specs ${EXPECT_SPECS} is unreadable: ${e.message}`);
+    console.error('  Refusing rather than skipping: an unreadable list would silently verify nothing.');
+    process.exit(2);
+  }
+  if (!want.length) {
+    console.error(`CORPUS VERIFY REFUSED: --expect-specs ${EXPECT_SPECS} is empty`);
+    process.exit(2);
+  }
+  const seen = new Map();
+  for (const f of files) {
+    let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
+    if (r && r.pkg) seen.set(`${r.pkg}@${r.version}`, String((r.provenance || {}).at || ''));
+  }
+  const missing = want.filter((s) => !seen.has(s));
+  const stale = SINCE ? want.filter((s) => seen.has(s) && !(seen.get(s) > SINCE)) : [];
+  if (missing.length) {
+    failures.push(
+      `${missing.length} of ${want.length} claimed spec(s) produced NO record at all: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ' …' : ''}`,
+    );
+  }
+  if (stale.length) {
+    failures.push(
+      `${stale.length} of ${want.length} claimed spec(s) still carry a record OLDER than the run (${SINCE}) — the re-measure did not replace them, so any before/after read on these is comparing a record to ITSELF: ${stale.slice(0, 8).join(', ')}${stale.length > 8 ? ' …' : ''}`,
+    );
+  }
+  if (!missing.length && !stale.length) {
+    notes.push(`all ${want.length} claimed spec(s) hold a record${SINCE ? ` newer than ${SINCE}` : ''}`);
+  }
+}
 if (files.length === 0) {
   if (EXPECT > 0) {
     console.error('CORPUS VERIFY FAILED:');

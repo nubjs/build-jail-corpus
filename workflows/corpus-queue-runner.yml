@@ -632,6 +632,20 @@ jobs:
               || { echo "⛔ '$spec' is not a name@version spec"; exit 1; }
           done < /tmp/slice.txt
 
+      # ⛔ STAMPED IMMEDIATELY BEFORE MEASURING, AND NOWHERE ELSE. The verify step uses this to assert
+      # each claimed spec produced a record NEWER than this instant — the only way to tell a real
+      # re-measure from a spec that silently kept its pre-existing record. Stamping it earlier (at
+      # checkout, or at claim time) would widen the window enough for a record written by a CONCURRENT
+      # run to read as ours; both paths that write the slice converge here, so one stamp covers both.
+      - name: Stamp when measurement began
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          set -eu
+          S=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "RUN_STARTED_AT=$S" >> "$GITHUB_ENV"
+          echo "measurement begins at $S — every claimed spec must hold a record newer than this"
+
       - name: Measure the slice
         if: env.DRAINED != '1'
         shell: bash
@@ -733,7 +747,28 @@ jobs:
       - name: Verify the corpus carries what it measured
         if: env.DRAINED != '1'
         shell: bash
-        run: node harness/verify-corpus.mjs --records records --expect "$(wc -l < /tmp/slice.txt)"
+        run: |
+          set -eu
+          # ⛔ COPY THE SLICE TO A RELATIVE PATH BEFORE HANDING IT TO NODE. `/tmp/slice.txt` is fine
+          # for the `wc` below because BASH reads that one — but `--expect-specs` makes NODE read it,
+          # and on Windows Git Bash's `/tmp/x` is `…\AppData\Local\Temp\x` while native Node resolves
+          # it against the current drive (`C:\tmp\x`). That exact mismatch cost the security probe
+          # three runs before I stopped patching crossings and removed them; a relative path needs no
+          # translation on any platform.
+          cp /tmp/slice.txt claimed-specs.txt
+          # ⛔ `--expect <n>` ALONE ONLY FIRES ON A COMPLETELY EMPTY CORPUS, so it cannot see the
+          # failure that actually recurs here: a run claimed N specs, wrote fewer, and went green
+          # because thousands of OTHER records already existed. `--expect-specs` names them.
+          #
+          # `--since` is the LOAD-BEARING half for a targeted re-measure, which is the only way to
+          # replace a spec the queue would otherwise skip forever: a spec that kept its PRE-EXISTING
+          # record looks present but was never measured, and a before/after read on it compares a
+          # record to ITSELF. Measured 2026-08-05 on the busybox arm — 49 of 49 "identical", which is
+          # exactly what a refutation would look like.
+          node harness/verify-corpus.mjs --records records \
+            --expect "$(wc -l < /tmp/slice.txt)" \
+            --expect-specs claimed-specs.txt \
+            --since "$RUN_STARTED_AT"
 
       # ⛔ ASK THE REAL PARSER WHETHER THE ACCUMULATING CATALOG STILL LOADS. Everything upstream of
       # this is JavaScript checking JavaScript: collate.mjs writes a catalog and verify-corpus.mjs
