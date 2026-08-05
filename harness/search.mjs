@@ -927,6 +927,19 @@ function toolchain() {
 /** What produced this record. Without it a results directory is a pile of numbers with no
  *  way to tell which binary or host they came from — and this effort has already been
  *  burned by results whose provenance had to be reconstructed after the fact. */
+// ⛔ WHEN THIS PROCESS STARTED. `run-batch.sh` invokes `search.mjs` ONCE PER SPEC, so module load
+// time IS the spec's start and `Date.now() - SPEC_STARTED_AT` is its wall-clock cost.
+//
+// Without this the corpus cannot answer the most basic operational question about itself. The
+// timeout bucket is 195 records; deciding whether to recover them turns on whether they were
+// SLOW-BUT-FINISHABLE or genuinely unbounded, and no field said. Answering it needed a whole extra
+// two-arm CI experiment (2400s vs 5400s) that a single number here would have made unnecessary —
+// and that experiment was itself confounded on the first attempt, costing another round.
+//
+// Recorded on EVERY verdict including the failures: a HARNESS-TIMEOUT's duration is exactly the cap
+// it hit, which is what makes "raise the cap" separable from "this spec is hopeless".
+const SPEC_STARTED_AT = Date.now();
+
 function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
   // THE MEASUREMENT NODE IS PART OF THE RESULT. A grant measured on a Node the package was never
   // built against is not the package's grant, so the record carries what was DECLARED, what was
@@ -1006,6 +1019,7 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
   })();
   return {
     nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, lifecycleShell, harnessSha256: harnessSha, corpusGitSha,
+    durationMs: Date.now() - SPEC_STARTED_AT,
     platform: `${process.platform}-${process.arch}`,
     // THE MEASUREMENT NODE IS PART OF THE RESULT. A grant measured on a Node the package was never
     // built against is not that package's grant, so the record carries what was DECLARED, what the

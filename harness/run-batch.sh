@@ -422,6 +422,10 @@ for spec in "$@"; do
   # `<harness dir>/results/runs`; without this flag, RUNS_ROOT above governs only the directories
   # this script creates and the record still lands beside the harness code. MEASURED: with
   # NUB_CORPUS_RUNS set, `records under records/runs: 0` and `records under harness/: 10`.
+  # Wall clock for THIS spec. On the failure path search.mjs is killed before it can stamp its own
+  # duration, and a timeout's elapsed time is exactly the cap it hit -- which is what separates
+  # "raise the budget" from "this spec is hopeless at any budget".
+  _spec_t0=$(date +%s)
   if "$TIMEOUT" "$PKG_BUDGET" node "$here/search.mjs" "$spec" --nub "$NUB" --runs "$RUNS_ROOT" $FORCE 2>"$d/harness-stderr.log"; then
     RECORDED=$((RECORDED + 1))
     [ -s "$d/harness-stderr.log" ] || rm -f "$d/harness-stderr.log"
@@ -456,13 +460,14 @@ for spec in "$@"; do
     # `process.env.*` yields null silently and the record looks well-formed while attesting nothing.
     # `NUB_GIT_SHA` is the exception: the workflow exports it to this step, so env is correct there.
     node -e '
-      const [f,pkg,ver,verdict,why,rc,tail,nubPath,plat] = process.argv.slice(1);
+      const [f,pkg,ver,verdict,why,rc,tail,nubPath,plat,dur] = process.argv.slice(1);
       require("fs").writeFileSync(f, JSON.stringify(
         { pkg, version: ver, verdict, why, exitCode: Number(rc), stderrTail: tail,
           provenance: { at: new Date().toISOString(), nubGitSha: process.env.NUB_GIT_SHA || null,
-                        nubPath: nubPath || null, platform: plat || null } },
+                        nubPath: nubPath || null, platform: plat || null,
+                        durationMs: Number(dur) * 1000 } },
         null, 2));
-    ' "$d/results.json" "$pkg" "$ver" "$verdict" "$why" "$rc" "$tail" "$NUB" "$PLAT"
+    ' "$d/results.json" "$pkg" "$ver" "$verdict" "$why" "$rc" "$tail" "$NUB" "$PLAT" "$(( $(date +%s) - _spec_t0 ))"
     echo "{\"pkg\":\"$pkg\",\"version\":\"$ver\",\"verdict\":\"$verdict\",\"exitCode\":$rc}"
     echo "  ✗ $spec — $verdict ($why)" >&2
     tail -3 "$d/harness-stderr.log" 2>/dev/null | sed 's/^/      /' >&2
