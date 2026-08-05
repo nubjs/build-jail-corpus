@@ -200,8 +200,27 @@ for attempt in 1 2 3; do
     if [ -n "$theirs" ] && [ -f "$mine" ]; then
       newer="$(MINE="$(cat "$mine")" THEIRS="$theirs" node -e '
         const at = (s) => { try { return Date.parse(JSON.parse(s)?.provenance?.at) || 0 } catch { return 0 } };
+        const verdict = (s) => { try { return JSON.parse(s)?.verdict || "" } catch { return "" } };
+        // ⛔⛔ SIXTH FAILURE. A `HARNESS-*` verdict is the harness reporting that it FAILED TO
+        // MEASURE -- it carries no grant at all. The recency rule below cannot see that: a timeout
+        // is genuinely NEWER, so it wins on time and overwrites a real measurement with an absence.
+        //
+        // MEASURED IN PRODUCTION, and it is the failure the restore commit `4301b38c` had to undo:
+        // run 30988317189 re-measured 7 hugo-extended specs with force=true on the 2400s default
+        // cap, all 7 hit HARNESS-TIMEOUT, and each overwrote a valid MINIMUM carrying write:"disk".
+        // The collator then could not see them and hugo-extended`s band collapsed to
+        // {"network":true} -- an UNDER-GRANT, the one direction this project rejects. So the damage
+        // is not merely a lost measurement; it inverts the safety property the jail exists for.
+        //
+        // Scoped to `HARNESS-*` deliberately. BROKEN-WITHOUT-JAIL-TOO, BROKEN-IN-ENVIRONMENT,
+        // REFUSED-MALICIOUS and NO-STATE-PASSED are real FINDINGS about the package and must still
+        // be able to supersede an older record; only the harness`s own "I could not measure this"
+        // is barred from destroying data.
+        const harnessFailure = (v) => v.startsWith("HARNESS-");
+        const mv = verdict(process.env.MINE), tv = verdict(process.env.THEIRS);
+        if (harnessFailure(mv) && tv && !harnessFailure(tv)) { process.stdout.write("theirs"); }
         // Strictly greater: an equal timestamp is the same measurement, so staging ours is a no-op.
-        process.stdout.write(at(process.env.THEIRS) > at(process.env.MINE) ? "theirs" : "mine");
+        else process.stdout.write(at(process.env.THEIRS) > at(process.env.MINE) ? "theirs" : "mine");
       ' 2>/dev/null)"
       if [ "$newer" = "theirs" ]; then
         git checkout "origin/$BRANCH" -- "$rel" 2>/dev/null || true
