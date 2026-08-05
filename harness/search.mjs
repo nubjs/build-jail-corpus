@@ -586,6 +586,17 @@ function runCell(nub, { proj, home }, { catalogFile, label, ignoreScripts, pkg, 
     confinementReduced: reducedLine !== null,
     confinementLost: lostAxes,
     confinementNote: reducedLine,
+    // ⛔ WHY A CELL FAILED, WHICH NOTHING ELSE IN THE RECORD CAN SAY. `rc` is NUB's exit status
+    // and takes only 0 or 1 (measured: 11,530 win32 cells, two distinct values); the SCRIPT's own
+    // status lives in the log text. `failureSignature` already existed but was only ever called
+    // for the npm/pnpm reference arms — never for a jail cell — so no published record carried it.
+    //
+    // The cost of that gap: on Windows the whole `write:"disk"` tail was unattributable from the
+    // corpus. The deciding status is `-1073741502` (0xC0000142, STATUS_DLL_INIT_FAILED — the
+    // LowBox-token incompatibility), and confirming it took a 14.6 MB CI artifact whose cell logs
+    // survive for 3 specs out of 2,239. The scrubber leaves the status intact: it is not a path,
+    // a semver or a hash.
+    signature: failureSignature(log),
   };
 }
 
@@ -1262,15 +1273,38 @@ function screenForMalicious(specs) {
  *  Normalised so two runs are comparable: absolute paths, versions and hashes differ between npm
  *  and nub for reasons that are not the failure. */
 function failureSignature(log) {
-  const line = (log || '').split('\n').find((l) => /\b(ERR!|error|fatal|failed|not ok)\b/i.test(l)
+  // `exited with code` is in this alternation for a reason that cost a full debug cycle: the status
+  // line carries NONE of the error words, so a filter without it excludes the one line the selector
+  // below exists to find, and the "prefer the status line" rule silently degrades to "take the first".
+  const lines = (log || '').split('\n').filter((l) => /\b(ERR!|error|fatal|failed|not ok)\b|exited with code/i.test(l)
     && !/^\s*(npm )?(warn|notice)/i.test(l));
-  if (!line) return null;
-  return line
+  if (!lines.length) return null;
+  // ⛔ PREFER THE LINE THAT CARRIES A STATUS CODE, AND THEN PROTECT THE CODE FROM THE SCRUBBERS.
+  // MEASURED against a real win32 cell log, where THREE separate defects each destroyed the one
+  // value worth keeping:
+  //   1. the FIRST error-shaped line is `x lifecycle script postinstall failed for
+  //      @ffmpeg-installer/linux-x64@4.1.0:` -- the deciding line is the NEXT one,
+  //      `| script `postinstall` exited with code -1073741502`, so `.find()` took the wrong line;
+  //   2. the path rule `\/[^\s"']+` then swallowed `/linux-x64@4.1.0:` and everything after it;
+  //   3. and `-1073741502` is ten characters all inside [0-9a-f], so the HASH rule would have
+  //      rewritten it to `<hash>` even on the right line.
+  // 0xC0000142 (STATUS_DLL_INIT_FAILED) is the LowBox-token incompatibility that made the whole
+  // Windows `write:"disk"` tail unattributable from the corpus; confirming it once cost a 14.6 MB
+  // CI artifact whose cell logs survive for 3 specs out of 2,239.
+  //
+  // The code is re-appended rather than carved out of the scrubbers deliberately: these same
+  // signatures drive the npm-vs-nub reference-arm comparison, where a long decimal really can be a
+  // timestamp that MUST stay normalised. Widening the hash rule would have traded a live gap for a
+  // subtle one.
+  const line = lines.find((l) => /exited with code\s+-?\d+/i.test(l)) || lines[0];
+  const code = (line.match(/exited with code\s+(-?\d+)/i) || [])[1];
+  const scrubbed = line
     .replace(/\/[^\s"']+/g, '<path>')
     .replace(/\bv?\d+\.\d+\.\d+\b/g, '<ver>')
     .replace(/\b[0-9a-f]{8,}\b/g, '<hash>')
     .trim()
     .slice(0, 160);
+  return code && !scrubbed.includes(code) ? `${scrubbed} [code ${code}]` : scrubbed;
 }
 
 /** Does npm fail the same way? npm is the REFERENCE: nub's job is to match it.
