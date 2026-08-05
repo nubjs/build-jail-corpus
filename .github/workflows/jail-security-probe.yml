@@ -105,7 +105,17 @@ jobs:
           N=$(grep -ac 'build-jail' "$BIN" || true)
           echo "build-jail string hits: $N"
           test "${N:-0}" -gt 0 || { echo "⛔ the binary has no build-jail strings — it cannot be jailing anything, so any 'BLOCKED' result would be meaningless"; exit 1; }
-          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+          # ⛔ EXPORT IT ABSOLUTE. The measure steps invoke this from INSIDE the fixture
+          # (`( cd work/ctl/proj && "$NUB_BIN" install )`), where a checkout-relative path resolves to
+          # nothing — the install silently never runs, the control steals nothing, and the step fails
+          # with the fixture looking broken rather than the path.
+          #
+          # MEASURED: macOS passed this probe twice, then FAILED the moment I moved the binary from an
+          # absolute `/tmp/nub/...` to a relative `nubsrc/...`. I had just written a comment on the
+          # subshell explaining that a leaked `cd` would relocate the LOG, and did not notice the same
+          # `cd` relocates the BINARY. Two axes make a path ambiguous — WHICH SHELL reads it, and WHICH
+          # DIRECTORY it is read from — and fixing only the first is what caused this regression.
+          echo "NUB_BIN=$PWD/$BIN" >> "$GITHUB_ENV"
 
       # ⛔ THE CONTROL CANNOT STEAL WHAT DOES NOT EXIST. A fresh runner has no ~/.aws/credentials and
       # no ~/.ssh/id_rsa, so an unseeded control would return ENOENT on every read — indistinguishable
