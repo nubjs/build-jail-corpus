@@ -979,8 +979,33 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
   // is what identifies a fix; the runner already knows it as its required `nub_sha` input. Null for
   // a local sweep against a working tree, which is honest — there is no commit to name.
   const nubGitSha = process.env.NUB_GIT_SHA || null;
+  // ⛔ WHICH LIFECYCLE SHELL PRODUCED THIS RECORD. On Windows nub SHIPS a bundled busybox-w32 beside
+  // nub.exe and runs every lifecycle script through it; with no sidecar it falls back to cmd.exe.
+  // Those are DIFFERENT MEASUREMENTS — @apollo/rover lands write.deps+network under cmd.exe and
+  // write:"disk" under busybox — and until now nothing in a record said which one ran. That is not
+  // cosmetic: the corpus measured the cmd.exe FALLBACK, a shell nub does not ship, so a catalog built
+  // from it can UNDER-grant, and under-granting BREAKS installs where over-granting merely fails to
+  // confine.
+  //
+  // Without this field the only way to tell an escalation from a pre-existing value was to snapshot
+  // the old grants to a file before dispatching an arm that overwrites them in place — a manual step
+  // one forgotten command away from an unfalsifiable comparison. MEASURED 2026-08-05: a baseline diff
+  // run against records the arm had not yet rewritten reported "49 of 49 identical, zero escalations",
+  // which is precisely what a REFUTATION of the divergence looks like. The record should answer this,
+  // not a file on someone's laptop.
+  //
+  // Derived from what is OBSERVABLE here rather than by re-implementing nub's own resolution: the
+  // `__NUB_BUSYBOX_EXE` override the CI arm sets, else a sidecar beside the binary, else the fallback.
+  const lifecycleShell = (() => {
+    if (process.platform !== 'win32') return 'sh';
+    if (process.env.__NUB_BUSYBOX_EXE) return 'busybox(override)';
+    try {
+      if (fs.existsSync(path.join(path.dirname(nub), 'busybox.exe'))) return 'busybox(sidecar)';
+    } catch {}
+    return 'cmd.exe(fallback)';
+  })();
   return {
-    nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, harnessSha256: harnessSha, corpusGitSha,
+    nubPath: nub, nubSha256: sha, nubGitSha, nubVersion, lifecycleShell, harnessSha256: harnessSha, corpusGitSha,
     platform: `${process.platform}-${process.arch}`,
     // THE MEASUREMENT NODE IS PART OF THE RESULT. A grant measured on a Node the package was never
     // built against is not that package's grant, so the record carries what was DECLARED, what the
