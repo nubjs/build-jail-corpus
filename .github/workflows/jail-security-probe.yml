@@ -15,11 +15,6 @@ on:
       nub_sha:
         description: 'nubjs/nub commit to build and probe (REQUIRED — must contain the build jail)'
         required: true
-      os:
-        description: 'which runner'
-        type: choice
-        options: [all, linux, windows, macos]
-        default: all
 
 permissions:
   contents: read
@@ -34,7 +29,11 @@ jobs:
           - { os: windows, runner: windows-latest }
           - { os: macos, runner: macos-14 }
     runs-on: ${{ matrix.runner }}
-    if: inputs.os == 'all' || inputs.os == matrix.os
+    # ⛔ ALL THREE ALWAYS RUN — there is deliberately no per-OS input. A job-level `if:` cannot see
+    # `matrix` (GitHub rejects it: "Unrecognized named-value: 'matrix'"), and a selector that silently
+    # did nothing would be worse than none. macOS is not redundant even though it was verified by
+    # hand: it is the KNOWN-ANSWER case that proves this workflow measures what it claims. If macOS
+    # ever disagrees with the hand result, the harness is broken, not the jail.
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
