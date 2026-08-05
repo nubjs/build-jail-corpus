@@ -40,6 +40,31 @@ const OUT = opt('--out', path.join(here, 'catalog-v2.json'));
 const PLATFORM = opt('--platform', null);
 const OVERRIDES = opt('--overrides', path.join(here, 'overrides'));
 
+// ⛔ REFUSE AN UNRECOGNISED FLAG — THIS SCRIPT BUILDS THE SHIPPED CATALOG. Every option above falls
+// back to a default, so a typo'd or wrong-script flag is silently ignored and the default is used
+// instead. MEASURED 2026-08-05: invoking this with `--records <dir>` (the flag its sibling
+// verify-corpus.mjs takes) read the DEFAULT empty path, printed `records read 0`, wrote a catalog with
+// ZERO entries, and EXITED 0. A green run that produced an empty deliverable is the worst possible
+// failure for this particular script.
+//
+// verify-corpus.mjs already refuses unknown flags for exactly this reason — "a gate that tolerates
+// unrecognised input cannot be trusted to report on anything" — and this is the same hazard with a
+// larger blast radius, so it gets the same treatment rather than a comment warning readers to be
+// careful.
+{
+  const KNOWN = new Set(['--runs', '--only-platform', '--baseline', '--out', '--platform', '--overrides']);
+  const unknown = argv.filter(
+    (a, i) => a.startsWith('--') && !KNOWN.has(a) && !(i > 0 && KNOWN.has(argv[i - 1])),
+  );
+  if (unknown.length) {
+    console.error(`COLLATE REFUSED: unknown flag(s): ${unknown.join(', ')}`);
+    console.error(`  known flags: ${[...KNOWN].join(', ')}`);
+    console.error('  Refusing rather than ignoring them: every flag here has a DEFAULT, so an ignored');
+    console.error('  one silently collates the wrong tree — and an empty catalog exits 0 and looks fine.');
+    process.exit(2);
+  }
+}
+
 // ── read ──────────────────────────────────────────────────────────────────────
 
 const records = [];
@@ -468,7 +493,35 @@ console.log(`records read        ${records.length}`);
 console.log(`platforms           ${[...platforms].join(', ') || '(none recorded)'}`);
 const hh = Object.entries(harnessHashes).sort((a, b) => b[1] - a[1]);
 console.log(`harness revisions   ${hh.map(([h, n]) => `${h}:${n}`).join('  ')}`);
-if (hh.length > 1) console.log(`  ⚠ RECORDS SPAN ${hh.length} HARNESS REVISIONS — re-run the minority under ${hh[0][0]} before shipping this catalog`);
+// ⛔ DO NOT NAME THE MODAL REVISION AS THE TARGET. This line used to say "re-run the minority under
+// <hh[0][0]>" — the most COMMON revision — and modal is the OLDEST era BY CONSTRUCTION: a spec that
+// already holds a record is never revisited (search.mjs's resumability rule), so the earliest sweep
+// permanently owns the largest share. MEASURED 2026-08-05: the modal revision `81d34faf44f6e376`
+// (1782 records) had measured EXCLUSIVELY with nub `666a4aadfe`, the binary predating BOTH disk-tail
+// fixes, while `2abf8f2aaa9a8eee` carried 571 records on the branch tip. Following the old advice
+// would have migrated CURRENT records onto the stalest configuration — the same staleness that took
+// 81% of the win32 disk tail to undo.
+//
+// The collator cannot know which nub commit is newest (it has no ancestry), so it must not prescribe
+// a target at all. It reports the SPAN and the harness->binary pairing; choosing the target needs
+// `git merge-base --is-ancestor` against the fixes, which belongs to whoever runs the re-measure.
+if (hh.length > 1) {
+  console.log(`  ⚠ RECORDS SPAN ${hh.length} HARNESS REVISIONS — this catalog mixes measurement regimes`);
+  console.log('    ⛔ the MODAL revision is NOT the target: it is the oldest era by construction (a spec');
+  console.log('       holding a record is never re-measured, so the first sweep keeps the largest share).');
+  console.log('       Pick the revision paired with a FIX-CARRYING nub commit, verified by ancestry.');
+  const pairing = {};
+  for (const r of records) {
+    const h = String(r.provenance?.harnessSha256 ?? 'unknown').slice(0, 16);
+    const b = String(r.provenance?.nubGitSha ?? 'none').slice(0, 10);
+    pairing[h] ??= {};
+    pairing[h][b] = (pairing[h][b] ?? 0) + 1;
+  }
+  for (const [h, n] of hh) {
+    const bins = Object.entries(pairing[h] ?? {}).sort((a, b) => b[1] - a[1]);
+    console.log(`       ${h}  n=${String(n).padStart(4)}  nub: ${bins.slice(0, 4).map(([b, c]) => `${b}(${c})`).join(' ')}`);
+  }
+}
 console.log(`packages with entry ${Object.keys(packages).length}`);
 console.log(`grants emitted      ${grantCount}  (${Object.keys(packages).length} default + ${bandCount} version bands)`);
 console.log(`needed nothing      ${byPackage.size - Object.keys(packages).length}`);
