@@ -1994,6 +1994,21 @@ function search(nub, pkg, version, root, keep, runDir) {
       // these two fields were dropped on this line.
       confinementReduced: r.confinementReduced,
       confinementLost: r.confinementLost,
+      // ⛔ THE SAME DEFECT AS THE TWO FIELDS ABOVE, AND IT COST A WHOLE INVESTIGATION.
+      // `runCell` already computes `failureSignature(log)` — the first error-shaped line, with
+      // paths/versions/hashes scrubbed — and it was DISCARDED here exactly as those two were.
+      //
+      // The consequence is that a record cannot say WHY a cell failed. `rc` does NOT substitute:
+      // it holds NUB's exit status and only ever takes the values 0 or 1 (measured: 11,530 win32
+      // cells, two distinct values), while the script's own status lives in the log text. So on
+      // Windows the whole `write:"disk"` tail was unattributable from the corpus — the deciding
+      // status is `-1073741502` (0xC0000142, STATUS_DLL_INIT_FAILED, the LowBox-token
+      // incompatibility) and NOTHING in a published record carried it. Confirming it needed a
+      // 14.6 MB CI artifact, and cell logs survive for only 3 specs out of 2,239.
+      //
+      // The signature already survives that scrubbing — the code is not a path, a semver or a
+      // hash — so persisting it makes every future record self-attributing at no extra cost.
+      signature: r.signature,
     });
     if (!r.overrideOk) return { pkg, version, cells, verdict: 'HARNESS-ERROR', why: `override did not engage at state ${i}`, log: r.log.slice(-400) };
     // The runner-up delta, computed BEFORE `prev` advances. Null at i=0 (nothing narrower failed)
