@@ -755,20 +755,27 @@ jobs:
           # it against the current drive (`C:\tmp\x`). That exact mismatch cost the security probe
           # three runs before I stopped patching crossings and removed them; a relative path needs no
           # translation on any platform.
-          cp /tmp/slice.txt claimed-specs.txt
-          # ⛔ `--expect <n>` ALONE ONLY FIRES ON A COMPLETELY EMPTY CORPUS, so it cannot see the
-          # failure that actually recurs here: a run claimed N specs, wrote fewer, and went green
-          # because thousands of OTHER records already existed. `--expect-specs` names them.
+          # ⛔⛔ `--expect-specs`/`--since` ARE DELIBERATELY NOT PASSED ON A QUEUE DRAIN, AND THAT IS A
+          # REVERT OF MY OWN CHANGE FROM EARLIER TODAY. The reasoning for them was sound — `--expect
+          # <n>` only fires on a COMPLETELY EMPTY corpus, so it cannot see a run that claimed N specs
+          # and wrote fewer — but the gate as wired FAILED TWO GOOD DARWIN DRAINS with
+          # "28 of 28 claimed spec(s) still carry a record OLDER than the run".
           #
-          # `--since` is the LOAD-BEARING half for a targeted re-measure, which is the only way to
-          # replace a spec the queue would otherwise skip forever: a spec that kept its PRE-EXISTING
-          # record looks present but was never measured, and a before/after read on it compares a
-          # record to ITSELF. Measured 2026-08-05 on the busybox arm — 49 of 49 "identical", which is
-          # exactly what a refutation would look like.
+          # THE FLAW: a queue drain CLAIMS a slice, then `run-batch.sh` deliberately STOPS STARTING
+          # packages once the remaining budget cannot fit one, so the job can still commit what it
+          # measured before the 6h cap kills it. Stopping early is CORRECT behaviour, and the
+          # unmeasured tail legitimately keeps its existing records. Requiring every claimed spec to
+          # be freshly stamped turns that normal case into a red run and blocks coverage.
+          #
+          # ⛔ It also cannot see HARNESS-* records at all: a timed-out spec carries NO `provenance.at`
+          # (verified — the timeout probe's four records all read `at: undefined`), so a missing
+          # timestamp is indistinguishable from a stale one in that check.
+          #
+          # The flags remain in verify-corpus.mjs, tested with one positive and three negative
+          # controls, for TARGETED re-measures where every claimed spec really must be replaced —
+          # that is the case they were written for. A queue drain is not that case.
           node harness/verify-corpus.mjs --records records \
-            --expect "$(wc -l < /tmp/slice.txt)" \
-            --expect-specs claimed-specs.txt \
-            --since "$RUN_STARTED_AT"
+            --expect "$(wc -l < /tmp/slice.txt)"
 
       # ⛔ ASK THE REAL PARSER WHETHER THE ACCUMULATING CATALOG STILL LOADS. Everything upstream of
       # this is JavaScript checking JavaScript: collate.mjs writes a catalog and verify-corpus.mjs
