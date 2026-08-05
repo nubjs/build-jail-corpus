@@ -73,21 +73,21 @@ jobs:
         shell: bash
         run: |
           set -eux
-          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nub
-          cd /tmp/nub
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git nubsrc
+          cd nubsrc
           git checkout --detach "${{ inputs.nub_sha }}"
           git log --oneline -1
 
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: /tmp/nub
+          workspaces: nubsrc
 
       - name: Build nub
         shell: bash
         run: |
           set -eu
-          cd /tmp/nub
+          cd nubsrc
           cargo build --release -p nub-cli
           echo "EXIT=$?"
 
@@ -99,7 +99,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          BIN=/tmp/nub/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}
+          BIN=nubsrc/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}
           test -f "$BIN" || { echo "⛔ no binary at $BIN"; exit 1; }
           "$BIN" --version
           N=$(grep -ac 'build-jail' "$BIN" || true)
@@ -149,21 +149,26 @@ jobs:
         shell: bash
         run: |
           set -eu
-          # ⛔ THE OUTPUT DIR CROSSES THE SAME BASH/NODE BOUNDARY AS $HOME DID, and gets the same
-          # treatment. Native Windows Node resolves `/tmp/ctl` against the CURRENT DRIVE (`C:\tmp\ctl`)
-          # while Git Bash's `cd /tmp/ctl` goes to `…\AppData\Local\Temp\ctl` — two different
-          # directories, so the fixture would be written where the install never looks. Create it in
-          # bash, hand Node the native spelling.
-          mkdir -p /tmp/ctl
-          if [ "${{ matrix.os }}" = "windows" ]; then OUT=$(cygpath -w /tmp/ctl); else OUT=/tmp/ctl; fi
-          node security/make-probe.mjs "$OUT" "$PROBE_HOME" jail-off
-          test -f /tmp/ctl/proj/package.json || { echo "⛔ the fixture is not where bash will run it — the path translation is wrong"; exit 1; }
-          cd /tmp/ctl/proj
-          "$NUB_BIN" install 2>&1 | tee /tmp/ctl.log || true
-          "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/ctl.log || true
-          grep -q 'PROBE_RESULT' /tmp/ctl.log || { echo "⛔ the probe never ran unjailed — there is nothing to compare against"; exit 1; }
+          # ⛔ NOTHING HERE USES AN ABSOLUTE `/tmp` PATH, AND THAT IS THE WHOLE FIX. Bash and native
+          # Windows Node disagree about what `/tmp/x` MEANS — Git Bash resolves it to
+          # `…\AppData\Local\Temp\x`, Node to `C:\tmp\x` (the current drive), and a JS action to
+          # `D:\tmp\x`. I patched that boundary twice, at $HOME and at the fixture dir, and BOTH times
+          # a third crossing was still broken: the run that finally passed its control died on
+          # `ENOENT … open 'C:\tmp\ctl.log'` because the parser read a path `tee` had never written.
+          # Paths RELATIVE to the checkout need no translation on any platform, so the class is gone
+          # rather than the instances. Do not reintroduce an absolute /tmp path here.
+          #
+          # ⛔ THE SUBSHELL IS LOAD-BEARING: `cd` must not leak, or `work/ctl.log` after it would mean
+          # `work/ctl/proj/work/ctl.log` — a different file from the one the parser reads, which is
+          # the same silent mismatch in a new costume.
+          mkdir -p work/ctl
+          node security/make-probe.mjs work/ctl "$PROBE_HOME" jail-off
+          test -f work/ctl/proj/package.json || { echo "⛔ the fixture is not where bash will run it"; exit 1; }
+          ( cd work/ctl/proj && "$NUB_BIN" install 2>&1 ) | tee work/ctl.log || true
+          ( cd work/ctl/proj && "$NUB_BIN" approve-builds --all 2>&1 ) | tee -a work/ctl.log || true
+          grep -q 'PROBE_RESULT' work/ctl.log || { echo "⛔ the probe never ran unjailed — there is nothing to compare against"; exit 1; }
           node -e '
-            const m=require("fs").readFileSync("/tmp/ctl.log","utf8").match(/PROBE_RESULT (.*)/);
+            const m=require("fs").readFileSync("work/ctl.log","utf8").match(/PROBE_RESULT (.*)/);
             const r=JSON.parse(m[1]);
             console.log("CONTROL: "+r.allowed+"/"+r.total+" credential reads succeeded; env secrets visible: "+r.envLeaked);
             if (r.allowed !== r.total) { console.log("⛔ the UNJAILED control failed to steal everything — the fixture or the decoys are broken, so a clean jailed result would be meaningless"); process.exit(1); }
@@ -174,15 +179,14 @@ jobs:
         shell: bash
         run: |
           set -eu
-          mkdir -p /tmp/jail
-          if [ "${{ matrix.os }}" = "windows" ]; then OUT=$(cygpath -w /tmp/jail); else OUT=/tmp/jail; fi
-          node security/make-probe.mjs "$OUT" "$PROBE_HOME"
-          test -f /tmp/jail/proj/package.json || { echo "⛔ the fixture is not where bash will run it — the path translation is wrong"; exit 1; }
-          cd /tmp/jail/proj
-          "$NUB_BIN" install 2>&1 | tee /tmp/jail.log || true
-          "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/jail.log || true
+          # Relative paths + a subshell, for the reasons spelled out on the control step above.
+          mkdir -p work/jail
+          node security/make-probe.mjs work/jail "$PROBE_HOME"
+          test -f work/jail/proj/package.json || { echo "⛔ the fixture is not where bash will run it"; exit 1; }
+          ( cd work/jail/proj && "$NUB_BIN" install 2>&1 ) | tee work/jail.log || true
+          ( cd work/jail/proj && "$NUB_BIN" approve-builds --all 2>&1 ) | tee -a work/jail.log || true
           node -e '
-            const log=require("fs").readFileSync("/tmp/jail.log","utf8");
+            const log=require("fs").readFileSync("work/jail.log","utf8");
             const m=log.match(/PROBE_RESULT (.*)/);
             if (!m) {
               // No probe output is the STRONGEST outcome, not a failure: nub default-denies an
