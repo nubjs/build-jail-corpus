@@ -1,0 +1,178 @@
+# Does the build jail actually BLOCK a Shai-Hulud-style credential steal?
+#
+# The corpus answers "what does a package NEED". Nothing in it answers "does the jail STOP an
+# attacker" — that is the other half of the mission and it needs an adversary, not a survey.
+# Verified by hand on macOS 2026-08-04; this workflow is how Linux and Windows get the same answer
+# on real kernels, since Docker has no Landlock and the cloud VMs are unavailable.
+#
+# ⛔ THE BUILD JAIL LIVES ONLY ON `sandbox/integration`, NOT ON MAIN. Pass a sha from that branch or
+# the probe measures a nub that has no jail to test.
+name: jail-security-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      nub_sha:
+        description: 'nubjs/nub commit to build and probe (REQUIRED — must contain the build jail)'
+        required: true
+      os:
+        description: 'which runner'
+        type: choice
+        options: [all, linux, windows, macos]
+        default: all
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: linux, runner: ubuntu-latest }
+          - { os: windows, runner: windows-latest }
+          - { os: macos, runner: macos-14 }
+    runs-on: ${{ matrix.runner }}
+    if: inputs.os == 'all' || inputs.os == matrix.os
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      # ⛔ THE ENFORCEMENT PRIMITIVE IS CHECKED BEFORE ANYTHING IS MEASURED, AND THE JOB FAILS IF IT
+      # IS ABSENT. This is the highest-value step in the file. A Docker attempt at this same probe ran
+      # on a kernel with no Landlock (`landlock_create_ruleset` -> ENOSYS, errno 38): nub degrades to
+      # no filesystem confinement, so the probe would have reported ALLOWED on every credential read
+      # and the obvious conclusion — "the Linux jail blocks nothing" — would have been catastrophic
+      # and wrong. One cheap precondition check is the whole difference, and it runs FIRST so a
+      # runner that cannot enforce costs a minute rather than a full build.
+      - name: Verify the kernel can actually enforce (LINUX)
+        if: matrix.os == 'linux'
+        run: |
+          set -eu
+          echo "kernel: $(uname -r)"
+          echo "lsm   : $(cat /sys/kernel/security/lsm 2>/dev/null || echo '(unreadable)')"
+          cat > /tmp/lltest.c <<'EOF'
+          #include <linux/landlock.h>
+          #include <sys/syscall.h>
+          #include <unistd.h>
+          #include <stdio.h>
+          #include <errno.h>
+          int main(void) {
+            long r = syscall(SYS_landlock_create_ruleset, NULL, 0,
+                             LANDLOCK_CREATE_RULESET_VERSION);
+            if (r < 0) { printf("LANDLOCK UNAVAILABLE errno=%d\n", errno); return 1; }
+            printf("LANDLOCK ABI v%ld\n", r); return 0;
+          }
+          EOF
+          gcc -o /tmp/lltest /tmp/lltest.c
+          /tmp/lltest || { echo "⛔ NO LANDLOCK ON THIS RUNNER — the probe cannot distinguish 'the jail is broken' from 'the kernel cannot enforce'. Refusing to produce a meaningless result."; exit 1; }
+
+      # nubjs/nub is PUBLIC, so this is an anonymous clone with no credential. `--filter=blob:none`
+      # rather than `--depth 1` because the sha lives on a feature branch, not the default branch.
+      - name: Clone nub at the requested commit
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nub
+          cd /tmp/nub
+          git checkout --detach "${{ inputs.nub_sha }}"
+          git log --oneline -1
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: /tmp/nub
+
+      - name: Build nub
+        shell: bash
+        run: |
+          set -eu
+          cd /tmp/nub
+          cargo build --release -p nub-cli
+          echo "EXIT=$?"
+
+      # ⛔ VERIFY THE BINARY CARRIES THE JAIL BEFORE TRUSTING ANY RESULT. A build that silently
+      # produced a jail-less nub would report every action ALLOWED and read as a devastating security
+      # finding. Measured on the dev Mac: the stale `nub-dev` symlink has ZERO `build-jail` strings,
+      # and probing with it would have produced exactly that false alarm.
+      - name: Assert the built binary contains the build jail
+        shell: bash
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}
+          test -f "$BIN" || { echo "⛔ no binary at $BIN"; exit 1; }
+          "$BIN" --version
+          N=$(grep -ac 'build-jail' "$BIN" || true)
+          echo "build-jail string hits: $N"
+          test "${N:-0}" -gt 0 || { echo "⛔ the binary has no build-jail strings — it cannot be jailing anything, so any 'BLOCKED' result would be meaningless"; exit 1; }
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ THE CONTROL CANNOT STEAL WHAT DOES NOT EXIST. A fresh runner has no ~/.aws/credentials and
+      # no ~/.ssh/id_rsa, so an unseeded control would return ENOENT on every read — indistinguishable
+      # from a working jail, and it would leave the jailed run unfalsifiable. Obvious decoys only.
+      - name: Seed decoy credentials so the control has something to steal
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p "$HOME/.aws" "$HOME/.ssh"
+          printf 'DECOY-NOT-A-REAL-KEY\n' > "$HOME/.ssh/id_rsa"
+          printf '[default]\naws_access_key_id=AKIADECOYDECOYDECOY\n' > "$HOME/.aws/credentials"
+          printf '//registry.npmjs.org/:_authToken=npm_DECOYTOKEN\n' > "$HOME/.npmrc"
+          printf '[user]\n\tname = decoy\n' > "$HOME/.gitconfig"
+          echo "seeded 4 decoys under $HOME"
+
+      # ── POSITIVE CONTROL: jail OFF. Every action MUST succeed, or the jailed run proves nothing.
+      - name: 'CONTROL — jail OFF (all actions must SUCCEED)'
+        shell: bash
+        run: |
+          set -eu
+          node security/make-probe.mjs /tmp/ctl "$HOME" jail-off
+          cd /tmp/ctl/proj
+          "$NUB_BIN" install 2>&1 | tee /tmp/ctl.log || true
+          "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/ctl.log || true
+          grep -q 'PROBE_RESULT' /tmp/ctl.log || { echo "⛔ the probe never ran unjailed — there is nothing to compare against"; exit 1; }
+          node -e '
+            const m=require("fs").readFileSync("/tmp/ctl.log","utf8").match(/PROBE_RESULT (.*)/);
+            const r=JSON.parse(m[1]);
+            console.log("CONTROL: "+r.allowed+"/"+r.total+" credential reads succeeded; env secrets visible: "+r.envLeaked);
+            if (r.allowed !== r.total) { console.log("⛔ the UNJAILED control failed to steal everything — the fixture or the decoys are broken, so a clean jailed result would be meaningless"); process.exit(1); }
+          '
+
+      # ── THE REAL TEST: jail ON, hardcoded absolute paths.
+      - name: 'JAILED — the attack must be BLOCKED'
+        shell: bash
+        run: |
+          set -eu
+          node security/make-probe.mjs /tmp/jail "$HOME"
+          cd /tmp/jail/proj
+          "$NUB_BIN" install 2>&1 | tee /tmp/jail.log || true
+          "$NUB_BIN" approve-builds --all 2>&1 | tee -a /tmp/jail.log || true
+          node -e '
+            const log=require("fs").readFileSync("/tmp/jail.log","utf8");
+            const m=log.match(/PROBE_RESULT (.*)/);
+            if (!m) {
+              // No probe output is the STRONGEST outcome, not a failure: nub default-denies an
+              // unapproved lifecycle script, so the attacker code never executes at all. Accept it
+              // only when nub SAID so — never as an unexplained absence, which is the "green step
+              // that did nothing" shape this corpus keeps hitting.
+              if (/IGNORED_BUILD_SCRIPTS|approve-builds/.test(log)) {
+                console.log("BLOCKED AT LAYER 0: the lifecycle script never executed (default-deny).");
+                process.exit(0);
+              }
+              console.log("⛔ no probe output and no default-deny notice — cannot tell BLOCKED from NEVER-RAN");
+              process.exit(1);
+            }
+            const r=JSON.parse(m[1]);
+            console.log("JAILED: "+r.allowed+"/"+r.total+" credential reads succeeded; env secrets visible: "+r.envLeaked);
+            for (const x of r.results) console.log("   "+x.status.padEnd(8)+" "+x.name.padEnd(20)+"  "+x.detail);
+            // ⛔ EPERM vs ENOENT IS THE WHOLE RESULT. ENOENT means only that $HOME was REDIRECTED,
+            // which hardcoding defeats; EPERM means the filesystem policy denied the real path. The
+            // macOS round-1 probe used os.homedir(), got ENOENT everywhere, and would have reported
+            // a defeatable defence as a working one.
+            const enoent=r.results.filter(x=>x.status==="BLOCKED"&&/ENOENT/.test(x.detail)).length;
+            const eperm=r.results.filter(x=>x.status==="BLOCKED"&&/EPERM|EACCES/.test(x.detail)).length;
+            console.log("   -> "+eperm+" denied by POLICY (EPERM/EACCES), "+enoent+" merely ENOENT (path absent)");
+            if (r.allowed > 0) { console.log("⛔⛔ THE JAIL LEAKED: "+r.allowed+" credential read(s) SUCCEEDED"); process.exit(1); }
+            console.log("PASS: every credential read was denied.");
+          '
