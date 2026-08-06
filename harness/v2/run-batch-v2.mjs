@@ -57,6 +57,50 @@ const CORPUS_SHA = gitSha(path.join(HERE, '..', '..'));
 const NUB_VERSION = nubVersion();
 const NUB_SHA = process.env.NUB_GIT_SHA ?? '';
 
+// ── FALSIFICATION PRE-FLIGHT ──────────────────────────────────────────────────────────────────
+//
+// ⛔ A SWEEP IS EXACTLY WHEN A SILENT WRONG ANSWER IS CHEAPEST TO PRODUCE AND MOST EXPENSIVE TO
+// UNWIND, so the one check that can go red for the right reason runs BEFORE the first package
+// rather than after the last. `falsify.mjs` installs a real package under a grant the corpus's own
+// records say is insufficient and requires the driver to reject it — see FALSIFICATION.md.
+//
+// Refusing on INCONCLUSIVE (rc 2) as well as FAIL (rc 1) is deliberate, and the bring-up case is the
+// argument: a nub binary built without `build-jail-catalog-override` makes EVERY arm VOID, which is
+// not a harness defect but does mean a whole slice would have measured nothing. Both are "do not
+// start". `--no-falsify` is the escape hatch for someone who already knows why.
+//
+// ⛔ EVERY PATH THROUGH THIS BLOCK PRINTS ITS OUTCOME, INCLUDING THE SKIPS. A gate that can be
+// silently absent is not a gate: a reader of a slice log has to be able to tell "the control passed"
+// from "the control never ran", and the two look identical if the skip is quiet.
+if (process.platform !== 'linux') {
+  console.log(`falsify: SKIPPED — no case table for ${process.platform} yet (linux-only for now)`);
+} else if (argv.includes('--no-falsify')) {
+  console.log('falsify: SKIPPED by --no-falsify — this slice is NOT covered by the falsification control');
+} else if (!NUB) {
+  // ⛔ REFUSE, DO NOT SKIP. Without `--nub` the driver falls back to its own default path, so the
+  // control would be exercising a different binary from the one about to measure the slice — and a
+  // control that passes for a binary you are not using is worse than none.
+  console.log('⛔ falsify: no --nub given, so the control cannot pin the binary the slice will use.');
+  console.log('   Name the binary, or pass --no-falsify to measure without the control.');
+  process.exit(2);
+} else {
+  // ⛔ THE FULL RUN, NOT `--quick`. `--quick` drops the `wrong-warm` arm, which is the only check on
+  // whether warm state left by a previous arm can satisfy an operation the grant forbids — and a
+  // sweep is exactly where that matters. MEASURED on the corpus VM: six arms took 55s total, against
+  // a slice budget of ~13 min PER PACKAGE. There is nothing to save here.
+  //
+  // No timeout here on purpose: `falsify.mjs` already caps each arm, and a `spawnSync` timeout
+  // surfaces as `status === null`, which would otherwise be reported with the P0 exit code.
+  const f = spawnSync(process.execPath, [path.join(HERE, 'falsify.mjs'), '--nub', NUB],
+    { stdio: 'inherit' });
+  if (f.status !== 0) {
+    const rc = f.status ?? 2;
+    console.log(`\n⛔ falsification control did not pass (rc=${rc}) — refusing to start the batch.`);
+    console.log('   Run `node falsify.mjs --nub <bin>` directly for the per-arm detail.');
+    process.exit(rc);
+  }
+}
+
 let attempted = 0; let recorded = 0; let skipped = 0; let deadlineStopped = 0;
 // Sized from the SLOWEST package seen, not the mean: a native rebuild and a JS postinstall differ by
 // an order of magnitude, so an average-sized reservation routinely starts a package that cannot
