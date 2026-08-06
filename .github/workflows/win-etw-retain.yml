@@ -1,0 +1,182 @@
+# WINDOWS ETW RETENTION — does a record keep enough to make a future harness fix a RE-PARSE?
+#
+# ⛔ THIS PROBE PUBLISHES NO RECORD AND TOUCHES NO GRANT. It runs the OBSERVE half through
+# `probes/win-viability/observe-pkg.mjs`, so `measure-windows.mjs` and its
+# `NUB_V2_WINDOWS_EVICTION_VERIFIED` guard are deliberately not involved and nothing lands in
+# `records-v2/`. Retention is insurance against a decoder bug; it must not be able to move a verdict.
+#
+# ⛔ ONE PACKAGE. Not a sweep, not a list. The deliverable is a retained archive somebody READ and
+# confirmed holds what it claims, which a batch of forty cannot give you.
+#
+# WHAT IT ASSERTS, and each one is a way the archive could be useless while looking fine:
+#   1. the raw XML is retained BYTE-FOR-BYTE — sha256 of the gunzipped archive vs the source trace;
+#   2. the header names the session, every provider keyword mask, the device map and the roots,
+#      because a path in the stream is undecodable without them and a mask that is not written down
+#      makes "what is this archive missing" unanswerable;
+#   3. the derived view carries things `windows.mjs` discards — a non-refusal NTSTATUS, an I/O byte
+#      count, a create disposition — which is the whole reason it is a second decoder;
+#   4. `*.log` REALLY IS DROPPED by the repo's .gitignore. A positive control, because the rule is
+#      the reason the artifacts are named `.ndjson.gz` and `.xml.gz`, and a rule nobody watched fire
+#      is a rule you are trusting rather than testing.
+#
+# Branch-scoped, no PR: CI is the only Windows path here.
+#
+# ── TWO CI FACTS THIS PROBE PAID FOR, BOTH OF WHICH MISLEAD IN A SPECIFIC DIRECTION ─────────────
+#
+# ⛔ A WINDOWS JOB THAT NEVER GOT A RUNNER REPORTS AS A FAILED MEASUREMENT. Under runner starvation
+# a `windows-latest` job is cancelled after ~15 minutes with `runner_name` EMPTY and ZERO steps
+# executed; the RUN then reports `conclusion=failure` with no artifacts. That is indistinguishable
+# at a glance from a probe that ran and failed, and it is not one — nothing executed. Measured five
+# times here in one afternoon, with several agents' Windows probes competing. ALWAYS check
+# `runner_name` and the step count before believing a Windows failure:
+#
+#   gh api /repos/nubjs/build-jail-corpus/actions/runs/<id>/jobs \
+#     --jq '.jobs[]|{conclusion,runner_name,steps:(.steps|length)}'
+#
+# ⛔ AND WHAT DECIDES WHETHER `workflow_dispatch` WORKS IS REGISTRATION, NOT THE BRANCH. A workflow
+# whose NAME has never been on the default branch answers `gh workflow run --ref <branch>` with
+# HTTP 404 "not found on the default branch". Once the name has been on `main` ONCE it stays
+# dispatchable per-branch forever, even if the file later leaves `main` — registration is sticky.
+# The trap in between: a branch push made BEFORE registration fires RETROACTIVELY, so the window
+# looks like a dead trigger and is not (measured: a push produced nothing, the file reached `main`
+# ~4 minutes later, and GitHub then created push runs for that same older commit). The tell for
+# "not registered" is no `github-actions` check suite on the commit.
+#
+# ⛔ DISPATCH-ONLY, DELIBERATELY, AND NOT BECAUSE PUSH DOES NOT WORK. This name is registered, so
+# both triggers fire. Windows runners in this org are the scarce resource and several probes
+# compete for them, so an accidental run on every commit to this branch spends a slot that a
+# higher-priority probe needs. Ask for a run when you want one.
+#
+# ⛔ NO GITHUB EXPRESSION APPEARS INSIDE ANY `run:` BLOCK HERE — the one input is read through the
+# job-level `env:` instead. A run block is a string GitHub scans end to end, so a leading `#` does
+# NOT protect an expression written in a comment inside one, and an unparseable one takes the WHOLE
+# file down: it is reported as a run that fails in seconds with no jobs, no steps, no annotation and
+# no log, while every local YAML parser accepts the file. Three CI round-trips have already been
+# spent on exactly that. The two forms that did it were an EMPTY interpolation and a doubled quote
+# borrowed from PowerShell, which is why neither spelling is written out anywhere in this file.
+name: win-etw-retain
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'ONE pkg@version to observe and retain — never a list'
+        default: 'hugo-extended@0.141.0'
+
+permissions:
+  contents: read
+
+jobs:
+  retain:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      SPEC: ${{ inputs.package || 'hugo-extended@0.141.0' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unit tests for the retention decoder
+        shell: pwsh
+        run: |
+          node --test harness/v2/adapters/windows-retain.test.mjs
+
+      # ── THE POSITIVE CONTROL, RUN BEFORE THE EXPENSIVE PART so a broken premise costs seconds.
+      # `*.log` is gitignored repo-wide. The failure it causes is SILENT: the file sits on the
+      # runner's disk looking perfectly present and is simply never added. Two files with IDENTICAL
+      # BYTES and different extensions is the only way to show the extension is what decides.
+      - name: '.log is dropped, .ndjson.gz is kept — the naming control'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path ctl | Out-Null
+          $bytes = [System.Text.Encoding]::ASCII.GetBytes('{"k":"h","control":true}')
+          [System.IO.File]::WriteAllBytes("ctl/events.log", $bytes)
+          [System.IO.File]::WriteAllBytes("ctl/events.ndjson.gz", $bytes)
+          [System.IO.File]::WriteAllBytes("ctl/etw-raw.xml.gz", $bytes)
+          Write-Output '--- on disk, all three present and byte-identical ---'
+          Get-ChildItem ctl | ForEach-Object { Write-Output "  $($_.Name)  $($_.Length) B" }
+          # ⛔ A PLAIN `git add`, NEVER `-f`. `git add -Af` FORCES ignored files in, which stages
+          # events.log and makes the control assert the opposite of what it is for. It did exactly
+          # that on the first run of this workflow, and the step correctly went red over it.
+          git add ctl 2>&1 | Out-Null
+          $staged = (git diff --cached --name-only) -join "`n"
+          Write-Output '--- what git actually staged ---'
+          Write-Output $staged
+          Write-Output '--- and the rule git says it applied ---'
+          git check-ignore -v ctl/events.log
+          git reset 2>&1 | Out-Null
+          $ok = $true
+          if ($staged -match 'ctl/events\.log') { Write-Output '!! events.log WAS staged - the .gitignore rule is not firing, so the naming premise is wrong'; $ok = $false }
+          if ($staged -notmatch 'ctl/events\.ndjson\.gz') { Write-Output '!! events.ndjson.gz was NOT staged'; $ok = $false }
+          if ($staged -notmatch 'ctl/etw-raw\.xml\.gz')   { Write-Output '!! etw-raw.xml.gz was NOT staged'; $ok = $false }
+          Remove-Item -Recurse -Force ctl
+          if (-not $ok) { exit 1 }
+          Write-Output 'CONTROL OK: identical bytes, .log dropped, .ndjson.gz and .xml.gz kept'
+
+      # ── OBSERVE ONE REAL PACKAGE. The same hugo-extended@0.141.0 the viability and destination
+      # probes traced, so the event counts are directly comparable against runs that predate this.
+      - name: OBSERVE one real package
+        shell: pwsh
+        run: |
+          $i = $env:SPEC.LastIndexOf('@')
+          $pkg = $env:SPEC.Substring(0, $i); $ver = $env:SPEC.Substring($i + 1)
+          $free = (Get-PSDrive -Name C).Free
+          Write-Output "free on C: $([math]::Round($free/1GB,1)) GB"
+          # A trace runs ~1.3 KB of XML per event, so running out of disk mid-capture yields a SHORT
+          # trace with no error - which reads exactly like a package that touched fewer files.
+          if ($free -lt 12GB) { Write-Output '::error::under 12 GB free; a short trace would look like a quiet package'; exit 1 }
+          New-Item -ItemType Directory -Force -Path C:\obs\out | Out-Null
+          node harness/v2/probes/win-viability/observe-pkg.mjs $pkg $ver --root C:\obs\pkg 2>&1 |
+            Tee-Object -FilePath C:\obs\out\observe.txt
+          $probe = Get-ChildItem C:\obs\pkg -Filter probe.json -Recurse | Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $probe) { Write-Output '::error::no probe.json'; exit 1 }
+          Copy-Item $probe.FullName C:\obs\out\probe.json -Force
+          $j = Get-Content $probe.FullName -Raw | ConvertFrom-Json
+          if ($j.status -ne 'OK') { Write-Output "::error::observe status $($j.status)"; exit 1 }
+          "CAPDIR=$($j.capDir)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "OBSDIR=$($j.obsDir)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "PKG=$pkg"            | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "VER=$ver"            | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+
+      # ── RETAIN. Into a record-SHAPED directory that is deliberately NOT under `records-v2/`:
+      # retention must not feed grant synthesis, and a probe that writes where the publisher looks
+      # is one careless commit away from doing exactly that.
+      - name: RETAIN the capture
+        shell: pwsh
+        run: |
+          $rec = "C:\obs\out\record"
+          New-Item -ItemType Directory -Force -Path $rec | Out-Null
+          node harness/v2/adapters/windows-retain.mjs $env:CAPDIR `
+            --raw-out    "$rec\etw-raw.xml.gz" `
+            --header-out "$rec\etw-header.json" `
+            --out        "$rec\events.ndjson.gz" `
+            --project $env:OBSDIR --home $env:USERPROFILE --pkg $env:PKG --version $env:VER 2>&1 |
+            Tee-Object -FilePath C:\obs\out\retain.txt
+          if ($LASTEXITCODE -ne 0) { Write-Output '::error::windows-retain.mjs failed'; exit 1 }
+          Get-ChildItem $rec | ForEach-Object { Write-Output "  $($_.Name)  $($_.Length) B" }
+
+      # ── READ THE ARCHIVE BACK. Every assertion here is about the retained bytes, not about the
+      # decoder's console output: a summary line is the program's claim, the archive is the artifact.
+      - name: VERIFY the archive
+        shell: pwsh
+        run: |
+          node harness/v2/probes/win-viability/verify-retain.mjs C:\obs\out\record `
+            --cap $env:CAPDIR --project $env:OBSDIR --json C:\obs\out\verify.json 2>&1 |
+            Tee-Object -FilePath C:\obs\out\verify.txt
+          if ($LASTEXITCODE -ne 0) { Write-Output '::error::the retained archive did not verify'; exit 1 }
+
+      - name: SIZES — raw gz vs derived gz, and what the corpus would pay
+        if: always()
+        shell: pwsh
+        run: |
+          Get-Content C:\obs\out\verify.txt -ErrorAction SilentlyContinue |
+            Select-String -Pattern 'SIZE|ratio|bytes'
+          Get-Content C:\obs\out\probe.json -ErrorAction SilentlyContinue
+
+      # The archive itself is the deliverable, so it is uploaded rather than deleted. The ETL and the
+      # loose XML are the bulk of the disk cost and are NOT the deliverable.
+      - name: Upload the retained archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-etw-retain-out
+          path: C:\obs\out

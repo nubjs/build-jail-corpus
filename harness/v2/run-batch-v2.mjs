@@ -101,8 +101,26 @@ for (const spec of specs) {
   // named that is dropped silently at `git add` while looking perfectly present on the runner's
   // disk — the same trap `record.mjs` documents for `driver.out`. `.ndjson.gz` is tracked.
   fs.mkdirSync(dir, { recursive: true });
-  if (process.platform === 'linux') process.env.NUB_V2_EVENTS_OUT = path.join(dir, 'events.ndjson.gz');
-  else delete process.env.NUB_V2_EVENTS_OUT;
+  // ⛔ THE PLATFORM GATE IS ABOUT WHICH DRIVER HAS A RETENTION PATH, NOT ABOUT WHICH OS DESERVES
+  // ONE. It read `=== 'linux'` because `measure.sh` was the only driver carrying the hook;
+  // `measure-windows.mjs` does not use `measure.sh` and so got nothing. macOS is still excluded for
+  // the same reason and for no other — `measure-macos.sh` has no retention step yet.
+  //
+  // ⛔ WINDOWS RETAINS TWO ARTIFACTS AND THEY ARE NOT PEERS. `etw-raw.xml.gz` is the ARTIFACT OF
+  // RECORD — tracerpt's XML byte-for-byte, so a decoder bug is a re-parse; `events.ndjson.gz` is a
+  // queryable convenience regenerable from it. The raw is a separate variable rather than implied
+  // by the derived one so the two can be turned off independently, and so a reader of this file can
+  // see that the archive is not just "the Linux thing, on Windows".
+  if (process.platform === 'linux') {
+    process.env.NUB_V2_EVENTS_OUT = path.join(dir, 'events.ndjson.gz');
+    delete process.env.NUB_V2_ETW_RAW_OUT;
+  } else if (process.platform === 'win32') {
+    process.env.NUB_V2_EVENTS_OUT = path.join(dir, 'events.ndjson.gz');
+    process.env.NUB_V2_ETW_RAW_OUT = path.join(dir, 'etw-raw.xml.gz');
+  } else {
+    delete process.env.NUB_V2_EVENTS_OUT;
+    delete process.env.NUB_V2_ETW_RAW_OUT;
+  }
   const t0 = Date.now();
   let r;
   if (process.platform === 'win32') {

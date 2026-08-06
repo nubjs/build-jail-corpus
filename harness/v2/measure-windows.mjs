@@ -339,6 +339,37 @@ console.log(clsOut.trimEnd().split('\n').map((l) => '  ' + l).join('\n'));
 const observed = JSON.parse(fs.readFileSync(path.join(ROOT, 'observed.json'), 'utf8'));
 const GRANT = observed.grant;
 
+// ── 2b. RETAIN the capture, when the batch driver asked for it. ────────────────────────────────
+//
+// ⛔ THIS IS THE ONLY THING IN THE PIPELINE THAT SURVIVES `$ROOT`. The capture directory lives under
+// the run root on an ephemeral runner and the publisher only ever copies `driver.out` plus the
+// extracted verdict, so every path a package touched has been discarded at the end of every Windows
+// run this corpus has ever done. That is why a harness fix has always meant RE-MEASURING rather
+// than re-parsing — and it is why the raw ETW XML, not this harness's reading of it, is what gets
+// kept.
+//
+// ⛔ IT RUNS AFTER SYNTHESIS AND FEEDS NOTHING BACK. `windows.mjs` + `classify.mjs` above have
+// already produced the grant; this is a second, INDEPENDENT decode whose output no arm reads.
+// Retention must not be able to move a verdict, and the cheapest way to guarantee that is for the
+// verdict to be computed first and by a different decoder. A failure here is deliberately non-fatal
+// for the same reason — losing an archive is bad, losing a measurement over an archive is worse.
+//
+// ⛔ AND IT IS THE WINDOWS LANE'S OWN PATH. `measure.sh` carries the Linux hook and this driver has
+// never used `measure.sh`, so wiring retention on Linux left Windows with none.
+if (process.env.NUB_V2_EVENTS_OUT || process.env.NUB_V2_ETW_RAW_OUT) {
+  // The standalone header rides with the RAW, not with the derived view: it is what makes
+  // `etw-raw.xml.gz` re-parseable on its own, so it is derived from the raw path and is absent
+  // whenever the raw is.
+  const RAW = process.env.NUB_V2_ETW_RAW_OUT;
+  const rr = run(NODE, [path.join(HERE, 'adapters', 'windows-retain.mjs'), CAP,
+    ...(RAW ? ['--raw-out', RAW, '--header-out', path.join(path.dirname(RAW), 'etw-header.json')] : []),
+    ...(process.env.NUB_V2_EVENTS_OUT ? ['--out', process.env.NUB_V2_EVENTS_OUT] : []),
+    '--project', OBS, '--home', HOME, '--pkg', PKG, '--version', VER]);
+  const rrOut = ((rr.stdout ?? '') + (rr.stderr ?? '')).trimEnd();
+  if (rrOut) console.log(rrOut.split('\n').map((l) => '  ' + l.replace(/^ {2}/, '')).join('\n'));
+  if (rr.status !== 0) console.log(`  !! RETAIN failed rc=${rr.status} — the measurement stands, the archive does not`);
+}
+
 // ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ─
 //
 // The cache root mirrors `aube_store::dirs::cache_dir()`: `XDG_CACHE_HOME` wins on EVERY platform
