@@ -70,11 +70,26 @@ verify () {
   # dangerous false green available here, because it inflates the agreement rate rather than
   # breaking anything. The catalog override engaging is NOT evidence the jail engaged.
   printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
-  # ⛔ AND THE UNIQUE NAME IS NOT ENOUGH ON ITS OWN. The memo is keyed on the DEPENDENCY's identity
-  # too, which is identical across arms by construction — so arm N would replay arm 1's outcome
-  # with every precondition still green. Dropping the store's side-effects memo is the only thing
-  # that makes two arms of the SAME package@version independent.
-  rm -rf "$NUB_CACHE_DIR/pm/side-effects-v1" 2>/dev/null
+  # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM GETS ITS OWN CACHE.
+  #
+  # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so
+  # the unique ROOT name above does not separate them. Dropping `pm/side-effects-v1` was the fix for
+  # that — and it is INSUFFICIENT, proven on the Windows driver, which carries both mitigations and
+  # replayed anyway: three runs of the same binary and package gave rc=1 with a real refusal once,
+  # then rc=0 twice, and diffing the install logs showed the later runs printed only
+  # `materialized …` / `installed 1 package in 2.4s` where the first had downloaded 84 packages and
+  # run the script. **The lifecycle script never executed.** The surviving replay source is the
+  # GLOBAL VIRTUAL STORE — a package already materialized there is relinked, not reinstalled, so its
+  # scripts do not run again.
+  #
+  # ⛔ AND EVERY PRECONDITION STAYED GREEN THROUGHOUT — override engaged, jail stated, unique name,
+  # fixture outside temp. That is what makes this the most dangerous failure shape in the harness:
+  # it does not break, it silently measures nothing. A per-RUN cache (set once at the top) does not
+  # help, because the ladder rungs below all execute inside one run against the same store.
+  #
+  # Cost: each arm re-materializes from scratch. That is the price of arms that are independent.
+  local cache="$v/nubcache"
+  rm -rf "$cache" 2>/dev/null
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
@@ -83,9 +98,17 @@ verify () {
   # as a parameter rather than a second copy of this function so the preconditions above — unique
   # name, explicit `buildJail`, memo drop, override assertion — cannot drift between the arm that
   # decides the verdict and the arm that explains it.
-  ( cd "$v" && NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
+  ( cd "$v" && export NUB_CACHE_DIR="$cache"
+    NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
   local rc=$?
+  # ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
+  # a real one by rc and by every other precondition. `materialized` with no install line is the
+  # replay signature; a genuine first touch downloads and runs. Reported, not fatal — a package with
+  # no lifecycle script legitimately shows neither.
+  if grep -qE '^\s*materialized ' "$v/i.log" 2>/dev/null && ! grep -qE 'installed [0-9]+ package' "$v/i.log" 2>/dev/null; then
+    echo "     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run"
+  fi
   # ⛔ A malformed override WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   # assertion an arm can measure the SHIPPED policy while you believe it measured yours.
   local ovr rej files
@@ -126,9 +149,18 @@ fi
 # ⛔ THE GREP IS `= -1 EACCES`, NOT `EACCES`. A bare grep matches the `AT_EACCESS` FLAG NAME in
 # every `faccessat2(...)` line — measured, that read 26/13/1 where the truth was 11/0/0.
 #
-# The output is a LEAD, not a verdict: "last refusal before the process died" is correlation. It is
-# still the single most useful line the loop can print, because it turns "some grant was too narrow"
-# into a named path a human can act on in one step.
+# ⛔⛔ THE OUTPUT IS A LEAD AND THE "LAST REFUSAL" LINE HAS ALREADY BEEN WRONG ONCE — READ THIS
+# BEFORE ACTING ON IT. On `@opencode-ai/cli@0.0.0-next-16573` the last refusal before `tgkill(SIGABRT)`
+# really was `/proc/self/cgroup`, confirmed by strace. It was a TRAILING RED HERRING: a
+# single-variable arm granting `/proc/self/cgroup` ALONE still aborts, while granting
+# `/proc/self/maps` alone exits 0 (3/3 runs), and a negative control granting cgroup +
+# mmap_min_addr + version_signature together still aborts — so `maps` is necessary and cgroup is
+# merely the last thing tried before death.
+#
+# ⇒ TREAT THE LIST AS A CANDIDATE SET AND SETTLE IT WITH A SINGLE-VARIABLE ARM PER PATH. Grant one,
+# re-run, repeat; then a negative control granting all the OTHERS to prove the survivor is
+# necessary and not merely sufficient. The full refusal census above is the more honest output of
+# the two, which is why it prints first and unabridged.
 diagnose () {
   command -v strace > /dev/null 2>&1 || { echo "  DIAGNOSE skipped (no strace)"; return 0; }
   local d="$ROOT/diag"; mkdir -p "$d"
