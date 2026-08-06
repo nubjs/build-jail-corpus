@@ -346,6 +346,16 @@ if (fetch.status !== 0) {
   process.exit(0);
 }
 
+// ⛔ TAKEN NOW, BECAUSE NOW IS THE ONLY MOMENT IT EXISTS. The fetch above ran `--ignore-scripts`, so
+// the package directory at this instant is exactly what the tarball shipped. Once the lifecycle
+// script runs that state is unrecoverable — and it is what decides whether the artifact gate could
+// ever have FAILED for this package. A package that ships its build output prebuilt has every file
+// present at full size before any script runs, so a green arm carries no evidence about the grant.
+// `|| true` in spirit: a detector fault must never cost a record.
+const PRE_MANIFEST = path.join(OBS, 'pre-manifest.json');
+run(NODE, [path.join(HERE, 'arm-falsifiability.mjs'), '--snapshot', OBS,
+  '--pkg', PKG, '--ver', VER, '--out', PRE_MANIFEST]);
+
 const CAP = path.join(ROOT, 'cap');
 // ⛔ THE TRACED COMMAND GOES THROUGH `cmd /c`, WHICH STRIPS THE OUTER QUOTE PAIR when the string
 // both starts and ends with a quote. `"C:\Program Files\nodejs\node.exe" "...npm-cli.js" rebuild`
@@ -441,6 +451,18 @@ if (!OBS_PKG || OBS_PKG.size === 0) {
   process.exit(1);
 }
 console.log(`  OBSERVE artifacts: ${OBS_PKG.size} files  (${OBS_PKG.root})`);
+
+// ⛔ FLAG, NEVER FAIL — and the LINE IS PRINTED UNCONDITIONALLY, which is the load-bearing part.
+// `record.mjs` decides whether a passing narrow arm is evidence by looking for this line: absence of
+// the flag is NOT evidence of falsifiability, it is usually evidence the check never ran, so the
+// line itself is what says the question was asked. Without it every descended grant on this platform
+// would be filed as "predates the falsifiability check" and kept wide.
+{
+  const af = run(NODE, [path.join(HERE, 'arm-falsifiability.mjs'), '--obs', OBS,
+    '--pre', PRE_MANIFEST, '--pkg', PKG, '--ver', VER]);
+  const afOut = ((af.stdout ?? '') + (af.stderr ?? '')).trimEnd();
+  if (afOut) console.log(afOut.split('\n').map((l) => '  ' + l).join('\n'));
+}
 
 // The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
 // arm's own hoisted `node_modules` — MEASURED, not guessed from the manifest. Consumed by the
@@ -986,6 +1008,108 @@ if (synth.void) {
 if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${synth.stage}); no verdict, and the ladder is NOT walked`); process.exit(3); }
 if (synth.ok) {
   console.log(`  => MINIMUM ${JSON.stringify(GRANT)}   (observed, then verified)`);
+
+  // ── 3a. DESCEND — is the verified grant MINIMAL, or did OBSERVE over-predict? ────────────────
+  //
+  // ⛔ THE DESCENT MATTERS MORE ON WINDOWS THAN ANYWHERE ELSE, because win32 OBSERVE is the least
+  // trustworthy of the three tracers: Kernel-File's Create carries no DesiredAccess, so read-vs-write
+  // intent is inferred from the disposition, and a non-filesystem, non-network denial is invisible to
+  // the session entirely. The verify-side descent is therefore not parity garnish — it is the
+  // compensating evidence that makes a win32 record mean anything. Synthesis-only is weakest exactly
+  // where synthesis is weakest.
+  //
+  // ⛔ DROP ONE CAPABILITY AND RE-VERIFY IN THE SAME REAL JAIL. That is the only honest
+  // over-prediction measurement available and it needs no oracle: comparing against a v1 record
+  // answers nothing, because v1 is a blind pass/fail ladder that can only say "insufficient", never
+  // WHAT was missing, and it carries every defect live when it was taken. One leave-one-out level,
+  // deliberately NOT a lattice search — the point is to characterise the synthesis, not to re-derive
+  // a minimum by searching, which is what v1 did.
+  //
+  // ⛔ EACH ARM IS A FULL `verify()` CALL, so it inherits the store eviction, the unique root package
+  // name, the catalog override and the override assertion. An arm run any cheaper than the verdict
+  // arm would not be comparable to the verdict arm.
+  //
+  // ⛔ THE VARIANT NAMES ARE `no-network` / `no-write-<scope>` AND THE SPELLING IS A CONTRACT, not a
+  // label. `record.mjs`'s `applyGrantSourceRule` recomputes the descended grant by matching exactly
+  // these names against `overPredictedBy`; a name it cannot parse yields a "descended" grant
+  // identical to the synthesized one, so the record would claim it narrowed while publishing the wide
+  // value. Same spelling as `measure-macos.sh`.
+  const variants = [];
+  if (GRANT.network) variants.push(['no-network', (g) => { delete g.network; }]);
+  for (const k of Object.keys(GRANT.write ?? {})) {
+    variants.push([`no-write-${k}`, (g) => {
+      delete g.write[k];
+      if (!Object.keys(g.write).length) delete g.write;
+    }]);
+  }
+  if (GRANT.read) variants.push(['no-read', (g) => { delete g.read; }]);
+
+  const narrow = (drop) => {
+    const g = JSON.parse(JSON.stringify(GRANT));
+    for (const name of drop) variants.find(([n]) => n === name)[1](g);
+    return g;
+  };
+
+  const dropped = [];
+  const inconclusive = [];
+  if (!variants.length) {
+    // `record.mjs` reads this phrase as MINIMAL, which is the honest verdict: an empty grant has
+    // nothing to narrow, so it is minimal by construction rather than by measurement.
+    console.log('  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.');
+  } else {
+    for (const [name] of variants) {
+      const sub = narrow([name]);
+      const r = verify(sub, `nar-${name}`);
+      // ⛔⛔ THREE OUTCOMES, AND COLLAPSING THEM TO TWO IS THE BUG. A VOID arm measured NOTHING — the
+      // override did not engage, so nub silently ran the COMPILED-IN catalog — and an
+      // `if (ok) … else NECESSARY` reads that as necessity. That manufactures evidence a capability
+      // is needed out of an arm that measured nothing, in the direction that HIDES over-prediction,
+      // which is the direction we are least able to detect by other means. A TIMEOUT is the same
+      // shape: a hang says nothing about the grant.
+      if (r.void) {
+        console.log(`     ⛔ INCONCLUSIVE for '${name}' — the arm was VOID, so nothing was measured; NOT evidence of necessity`);
+        inconclusive.push(name);
+      } else if (r.timedOut) {
+        console.log(`     ⛔ INCONCLUSIVE for '${name}' — the arm TIMED OUT in ${r.stage}; a hang says nothing about the grant`);
+        inconclusive.push(name);
+      } else if (r.ok) {
+        console.log(`     ⛔ OVER-PREDICTED — the strictly narrower ${JSON.stringify(sub)} also verifies; '${name}' was not needed`);
+        dropped.push(name);
+      } else {
+        console.log(`     '${name}' is NECESSARY — dropping it fails to verify`);
+      }
+    }
+    // ⛔ WITHOUT THIS LINE A FULLY-MINIMAL RECORD CANNOT SAY SO. `record.mjs` sets `minimality` from
+    // `=> MINIMAL`; a driver that printed nothing when every narrowing failed recorded the STRONGEST
+    // possible descent result — every capability independently proven necessary — as `null`,
+    // indistinguishable from a descent that never ran. That already bit the macOS port.
+    if (!dropped.length && inconclusive.length) {
+      console.log(`  => DESCENT INCOMPLETE — no capability dropped, but ${inconclusive.join(' ')} was never measured; MINIMALITY IS UNPROVEN`);
+    } else if (!dropped.length) {
+      console.log(`  => MINIMAL — every capability in ${JSON.stringify(GRANT)} is independently necessary`);
+    }
+  }
+
+  // ⛔ THE JOINT ARM. The descent is LEAVE-ONE-OUT, so N droppable capabilities give N arms proving
+  // each drops ON ITS OWN and nothing proving they drop TOGETHER. The joint grant is strictly
+  // narrower than any arm that ran, so publishing it off the individual results would be an
+  // INFERENCE dressed as a measurement — in the under-grant direction. One extra arm converts it
+  // into a real one, and only when there is something to convert: N<2 needs no joint arm, because
+  // the single leave-one-out arm IS the joint case. `record.mjs` keeps the wider synthesized value
+  // for N>=2 unless it sees `JOINT-NARROW VERIFIED`.
+  if (dropped.length >= 2) {
+    const joint = narrow(dropped);
+    const r = verify(joint, 'joint-narrow');
+    if (r.void || r.timedOut) {
+      console.log(`  => JOINT-NARROW INCONCLUSIVE — the arm was ${r.void ? 'VOID' : 'TIMED-OUT'}, so the joint drop is unmeasured;`);
+      console.log('     the record keeps the wider synthesized grant, which is the safe direction.');
+    } else if (r.ok) {
+      console.log(`  => JOINT-NARROW VERIFIED ${JSON.stringify(joint)} — all ${dropped.length} capabilities drop TOGETHER, measured`);
+    } else {
+      console.log(`  => JOINT-NARROW FAILED ${JSON.stringify(joint)} — each capability drops alone but not together;`);
+      console.log('     the leave-one-out results stand and the record keeps the synthesized grant.');
+    }
+  }
   process.exit(0);
 }
 
