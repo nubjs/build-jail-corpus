@@ -45,6 +45,48 @@ GLOBAL_STORE="$STORE"
 # Linux. macOS has no `readlink -f`, so the resolution is done with node itself.
 INTERPRETER="$(node -e 'const fs=require("fs"),p=require("path");let n=process.argv[1];try{n=fs.realpathSync(n)}catch{};console.log(p.dirname(p.dirname(n)))' "$(command -v node)" 2>/dev/null)"
 
+# ⛔ R7 — THE TRACED SCRIPT RUNS AS AN ORDINARY USER, ASSERTED RATHER THAN INTENDED. The TRACER needs
+# uid 0 (dtrace does), which is apparatus; the traced PROCESS is the environment under test and must
+# have the permissions a real developer has. A LESS privileged OBSERVE measures a script's FALLBACK
+# path while a real user takes the primary one — a capability we never see, which is an under-grant
+# and invisible in the record. Erring toward MORE privilege is the safe side, so this asserts only
+# that the run user is a real non-root account.
+#
+# `sudo -u "$RUNUSER" -H` is what gives the traced process that identity, and `-H` sets HOME to the
+# REAL home of that user from the directory service — verified: `USER_HOME` above is read with
+# `dscl . -read NFSHomeDirectory` and is `/Users/runner` on CI, matching what the traced npm saw in
+# every record so far. The jail-home redirect below then overrides it for the CHILD only, exactly as
+# nub does — `sandbox_homes` reads nub's OWN `HOME`, not the one it hands the script.
+RUNUID="$(id -u "$RUNUSER" 2>/dev/null || echo -1)"
+if [ "$RUNUID" = "-1" ]; then
+  echo "  ⛔ R7 VIOLATION: run user '$RUNUSER' does not resolve to a uid. Refusing to measure."; exit 1
+fi
+if [ "$RUNUID" = "0" ]; then
+  echo "  ⛔ R7 VIOLATION: the traced script would run as ROOT. A root OBSERVE takes paths no real"
+  echo "     user can, and the tracer's own privilege is not the script's. Refusing to measure."; exit 1
+fi
+
+# ⛔ THE OBSERVE ARM MUST REPRODUCE THE JAIL'S ENVIRONMENT, AND UNTIL NOW THIS DRIVER REPRODUCED NONE
+# OF IT. `measure.sh` rewrites five variables here; this rewrote zero, so the traced script saw the
+# REAL $HOME and $TMPDIR. That was not a cosmetic gap — MEASURED on kerberos@7.0.0, run 31128743486:
+# OBSERVE downloaded the prebuilt binary into the real `~/.npm/_prebuilds`, EVICT clears only the nub
+# store and never `~/.npm`, so every later arm started with that tarball already cached. The
+# `nar-no-network` arm therefore PASSED and the record claimed `network` was unnecessary — while the
+# same arm on Linux FAILS with `missing: build/Release/kerberos.node`. A false pass in the
+# under-grant direction, caused entirely by the missing redirect.
+#
+# ⛔ EACH REWRITE CORRESPONDS TO SOMETHING THE JAIL ACTUALLY DOES TO A CONFINED SCRIPT — none is here
+# to make two numbers agree. Ported verbatim from measure.sh:145-172, which carries the derivations:
+#   HOME                     private_home_dir / jail_private_home, RW-granted by push_rw_path
+#   TMPDIR                   make_private_tmp, TmpMode::Private
+#   NODE_COMPAT=1            build_jail.rs:140, unconditional
+#   PLAYWRIGHT_BROWSERS_PATH redirect_playwright_browsers, unconditional for every jailed spawn
+#   ELECTRON_CACHE / electron_config_cache   redirect_electron_cache, likewise
+#   npm_config_prefix        redirect_npm_prefix, likewise
+JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
+JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
+chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
+
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
 ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
@@ -114,9 +156,21 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 # ⛔ THE WRAPPER MUST NOT BE `sh -c`. The decoder identifies the lifecycle script as the only
 # `sh -c` in the subtree (npm execs one per script); a `-c` wrapper here would be indistinguishable
 # from it and would attribute the ENTIRE npm subtree to the package.
+# ⛔ THE REWRITES GO AFTER `sudo`, NOT BEFORE IT. sudo's env_reset discards the caller's environment,
+# so a variable set on the driver side never reaches the traced npm; `env` runs as the target user
+# and its assignments are what the child actually sees. `-H` still sets HOME first — the `env`
+# assignment overrides it, which is the same one-way redirect nub applies to a confined script.
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
-sudo -u "$RUNUSER" -H env "PATH=\$PATH" "$NPM_BIN" rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
+sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
+  "HOME=$JAIL_HOME" \
+  "TMPDIR=$JAIL_TMP" \
+  "NODE_COMPAT=1" \
+  "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
+  "ELECTRON_CACHE=$TOOLS/electron-cache" \
+  "electron_config_cache=$TOOLS/electron-cache" \
+  "npm_config_prefix=$TOOLS/npm-prefix" \
+  "$NPM_BIN" rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 echo \$? > "$OBS/rc"
 WRAP
 
@@ -200,7 +254,7 @@ CAPTURE="$OBS/capture.json"
 node -e '
   const fs = require("fs"), crypto = require("crypto");
   const [dscript, trace, obs, home, pkg, ver, sw, kern, argvline, globalStore, toolsDir,
-         interpreter] = process.argv.slice(1);
+         interpreter, jailHome, jailTmp] = process.argv.slice(1);
   const src = fs.readFileSync(dscript);
   const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
   console.log(JSON.stringify({
@@ -237,16 +291,25 @@ node -e '
     // `cwd` is `null` on principle, not by omission: it is per-process, macOS cannot observe it
     // (posix_spawn addchdir_np) and this driver cannot truthfully declare it, because npm chooses
     // it. The cwd guard in the classifier is what handles the resulting unresolvable paths.
-    roots: { project: obs, home, jailHome: null, temp: null, npmPrefix: null,
+    roots: { project: obs, home, jailHome, temp: jailTmp, npmPrefix: `${toolsDir}/npm-prefix`,
              toolsDir, globalStore, projectStore: `${obs}/node_modules/.store`,
              interpreter, ownPkg: `${obs}/node_modules/${pkg}`, cwd: null },
+    // ⛔ THE OBSERVE/VERIFY PARITY CONTRACT, RECORDED. These rewrites are what make the traced run
+    // reproduce the environment the real jail creates; a script reading os.tmpdir() writes to a
+    // DIFFERENT path without them. When this set changes, a trace taken under the old set is not
+    // comparable with one taken under the new, and only a recorded set makes that detectable.
+    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1",
+                  PLAYWRIGHT_BROWSERS_PATH: `${toolsDir}/ms-playwright`,
+                  ELECTRON_CACHE: `${toolsDir}/electron-cache`,
+                  electron_config_cache: `${toolsDir}/electron-cache`,
+                  npm_config_prefix: `${toolsDir}/npm-prefix` },
     rawBytes: st(trace),
     at: new Date().toISOString(),
   }, null, 2));
 ' "$HERE/adapters/macos-observe.d" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" "$VER" \
   "$(sw_vers -productVersion 2>/dev/null)" "$(uname -a 2>/dev/null)" \
   "dtrace -q -s adapters/macos-observe.d -o trace.txt -c '/bin/bash -x run.sh'" \
-  "$GLOBAL_STORE" "$TOOLS" "$INTERPRETER" \
+  "$GLOBAL_STORE" "$TOOLS" "$INTERPRETER" "$JAIL_HOME" "$JAIL_TMP" \
   > "$CAPTURE" 2>/dev/null
 gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
 if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
@@ -261,20 +324,28 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
   # `GITHUB_ACTIONS` and `NODE_ENV` are passed through verbatim, because an install script reads them
   # and changes what it downloads or whether it builds from source; flattening them would produce a
   # catalog that under-grants every CI user.
-  # ⛔ THE `set` LIST IS SHORT HERE AND THAT IS THE HONEST ANSWER, NOT AN OMISSION. This driver
-  # redirects nothing for the traced run — the wrapper is `sudo -u <user> -H env PATH=...`, so the
-  # script sees the real HOME and the real TMPDIR. `measure.sh` rewrites five variables at this
-  # point; the difference is real, and `roots` declares the matching nulls.
+  # ⛔ `unset` IS NOT EMPTY AND THE ENTRY THERE IS A MEASURED FINDING. sudo env_reset discards the
+  # caller environment, so before this driver set TMPDIR the traced npm had NONE — and node's
+  # os.tmpdir() falls back to the SHARED /tmp when TMPDIR is unset. MEASURED on hugo-extended: its
+  # downloader wrote to /private/tmp/<hex> rather than the per-user /var/folders/... a real developer
+  # gets. So the old wrapper was not merely "not redirecting temp", it was moving the script to a
+  # different temp root than any user has. Recorded because a reader comparing an old archive with a
+  # new one needs to know the temp root changed and why.
   echo "  VENUE-OVERRIDES $(node -e '
     const e = process.env;
+    const jh = process.argv[1], jt = process.argv[2], tools = process.argv[3];
     process.stdout.write(JSON.stringify({
-      set: { PATH: "inherited-and-forwarded" },
-      unset: [],
+      set: { PATH: "inherited-and-forwarded", HOME: jh, TMPDIR: jt, NODE_COMPAT: "1",
+             PLAYWRIGHT_BROWSERS_PATH: tools + "/ms-playwright",
+             ELECTRON_CACHE: tools + "/electron-cache",
+             electron_config_cache: tools + "/electron-cache",
+             npm_config_prefix: tools + "/npm-prefix" },
+      unset: ["(sudo env_reset discards the caller environment; every var above is re-set after it)"],
       passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
-                       NODE_ENV: e.NODE_ENV ?? null, HOME: "real user home (no jail redirect)",
-                       TMPDIR: "real (no private tmp)" },
+                       NODE_ENV: e.NODE_ENV ?? null },
     }));
-  ' 2>/dev/null)"
+  ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" 2>/dev/null)"
+  echo "  VENUE-OBSERVE-USER $RUNUSER uid=$RUNUID (R7: ordinary non-root user, asserted)"
 else
   # ⛔ THIS USED TO BE NON-FATAL AND IT NO LONGER IS — noted here so the change is not rediscovered
   # from a confusing failure downstream. Retention was additive while roots arrived as arguments;
