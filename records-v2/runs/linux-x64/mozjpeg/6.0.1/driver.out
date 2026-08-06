@@ -1,0 +1,30 @@
+### mozjpeg@6.0.1   (/home/runner/v2-LIiMl7)
+  OBSERVE   rc=0 files=1574 trace=14267 lines
+  CLOSURE   208 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 2  /  whole traced tree 5
+    sockets script 3  /  whole traced tree 3
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-LIiMl7/observe/node_modules/mozjpeg/vendor
+        /home/runner/v2-LIiMl7/observe/node_modules/mozjpeg/vendor/cjpeg
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 6
+        127.0.0.53:53
+        185.199.111.133:0
+        185.199.108.133:0
+        185.199.109.133:0
+        185.199.110.133:0
+        185.199.111.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 (tree 5860/1574) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=0 artifacts=7/8 missing=1 (tree 5857/1574) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: vendor/cjpeg
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
