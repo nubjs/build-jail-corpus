@@ -103,9 +103,22 @@ const rootMarkerRc = await new Promise((res) => child.on('exit', (code) => res(c
 
 dropSentinels('post');
 spawnSync('/bin/sleep', ['2']);           // let the kernel drain both trace buffers before teardown
-es.kill('SIGINT'); fsu.kill('SIGINT');
-spawnSync('/bin/sleep', ['1']);
-es.kill('SIGKILL'); fsu.kill('SIGKILL');
+// MEASURED: eslogger IGNORES SIGINT when it is not in the foreground process group — all three
+// tracer instances survived a 20-second grace and needed SIGKILL. It honours SIGTERM. With SIGINT
+// the SIGKILL 1s later was therefore the only thing that ever stopped it, which discards whatever
+// the tracer still had buffered, so the clean-exit path below had never once been taken.
+// The wait must be ASYNC: spawnSync blocks the event loop, so a synchronous grace period can never
+// observe the 'exit' event it is waiting for and would SIGKILL every time regardless.
+const stopTracer = (proc, name) => new Promise((res) => {
+  if (proc.exitCode !== null || proc.signalCode !== null) return res();
+  const hard = setTimeout(() => {
+    console.error(`[macos] ${name} did not exit on SIGTERM within 20s; SIGKILL (buffered output lost)`);
+    proc.kill('SIGKILL');
+  }, 20_000);
+  proc.on('exit', () => { clearTimeout(hard); res(); });
+  proc.kill('SIGTERM');
+});
+await Promise.all([stopTracer(es, 'eslogger'), stopTracer(fsu, 'fs_usage')]);
 fs.closeSync(esOut); fs.closeSync(fsOut);
 
 // ─── 3. PARSE eslogger ────────────────────────────────────────────────────────────────────────

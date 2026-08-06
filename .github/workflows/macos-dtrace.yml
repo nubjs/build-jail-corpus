@@ -1,0 +1,70 @@
+# Does dtrace work on a hosted macOS runner, and does it attribute a syscall to the process that
+# made it? Every previous "dtrace is refused" measurement in this effort came from a SIP-ENABLED
+# local Mac; a hosted runner reports SIP DISABLED and nobody has tried it there. Branch-scoped, no
+# PR — the probe needs uid 0 on a real macOS host, which is exactly what this is.
+name: macos-dtrace
+
+on:
+  push:
+    branches: [probe/macos-dtrace-attr]
+    paths:
+      - 'harness/v2/adapters/dtrace-coverage-control.sh'
+      - 'harness/v2/adapters/macos-dtrace.d'
+      - '.github/workflows/macos-dtrace.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dtrace:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts
+        run: |
+          set +e
+          sw_vers; uname -m
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          echo "uid=$(id -u) user=$(whoami)"
+          sudo -n true && echo "passwordless sudo: YES" || echo "passwordless sudo: NO"
+          echo "dtrace: $(command -v dtrace || echo MISSING)"
+          echo "fs_usage: $(command -v fs_usage || echo MISSING)"
+          echo "--- csrutil as root ---"
+          sudo csrutil status 2>&1
+
+      # The cheapest possible answer, on its own step, so a refusal is unmissable in the log even
+      # if everything after it goes sideways.
+      - name: GATE — dtrace hello
+        continue-on-error: true
+        run: |
+          set +e
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
+          echo "HELLO_RC=$?"
+
+      # `set +e` is load-bearing: GitHub runs `run:` under `bash -e`, so without it the first
+      # non-zero command aborts the step BEFORE the output that explains it.
+      - name: dtrace coverage + contract control
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/dtrace-coverage-control.sh
+          sudo harness/v2/adapters/dtrace-coverage-control.sh "$RUNNER_TEMP/dt" \
+            > "$RUNNER_TEMP/dt.log" 2>&1
+          echo "CONTROL_EXIT=$?"
+          cat "$RUNNER_TEMP/dt.log"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-dtrace-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/dt
+            ${{ runner.temp }}/dt.log
+          if-no-files-found: warn
