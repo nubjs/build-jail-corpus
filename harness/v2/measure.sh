@@ -84,12 +84,31 @@ verify () {
   #
   # ⛔ AND EVERY PRECONDITION STAYED GREEN THROUGHOUT — override engaged, jail stated, unique name,
   # fixture outside temp. That is what makes this the most dangerous failure shape in the harness:
-  # it does not break, it silently measures nothing. A per-RUN cache (set once at the top) does not
-  # help, because the ladder rungs below all execute inside one run against the same store.
+  # it does not break, it silently measures nothing.
   #
-  # Cost: each arm re-materializes from scratch. That is the price of arms that are independent.
-  local cache="$v/nubcache"
-  rm -rf "$cache" 2>/dev/null
+  # ⛔⛔ A PER-ARM `NUB_CACHE_DIR` DOES **NOT** CLOSE THIS, AND AN EARLIER REVISION OF THIS FILE
+  # CLAIMED IT DID. That is worse than no fix, because it looks like protection. `NUB_CACHE_DIR`
+  # governs the RESOLVER PRIMER CACHE only — `pm_engine/mod.rs` says so where it maps
+  # `config_env("CACHE_DIR")`, and the store comes from a DIFFERENT function,
+  # `aube_store::dirs::cache_dir()` joined with the embedder's `virtual_store_subdir`
+  # (`vite_compat.rs:248`). MEASURED on Windows: with a fresh cache dir per arm, the arm's cache
+  # ended the run with ZERO files while the old store still served the package.
+  #
+  # So evict the package from the STORE instead. The positive control that settles it: before
+  # eviction the install log holds only `materialized …` (1.2s); after eviction it holds the
+  # package's OWN script output — both binary downloads, the extractions, `Success!` (5.8s). The
+  # script's stdout appears only in the evicted arm.
+  #
+  # ⛔ TARGETED, NOT `rm -rf` ON THE WHOLE STORE. The store is MACHINE-GLOBAL and a sibling agent
+  # may be measuring on the same box; wiping it would silently corrupt their run. Match the
+  # package's own entries only.
+  #
+  # Cost: each arm re-materializes this package from scratch. That is the price of independent arms.
+  local slug; slug=$(printf '%s' "$PKG" | tr '/@' '--')
+  local store="${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store"
+  if [ -d "$store" ]; then
+    find "$store" -maxdepth 1 -name "*${slug}*" -exec rm -rf {} + 2>/dev/null
+  fi
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
@@ -98,7 +117,7 @@ verify () {
   # as a parameter rather than a second copy of this function so the preconditions above — unique
   # name, explicit `buildJail`, memo drop, override assertion — cannot drift between the arm that
   # decides the verdict and the arm that explains it.
-  ( cd "$v" && export NUB_CACHE_DIR="$cache"
+  ( cd "$v"
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
   local rc=$?
