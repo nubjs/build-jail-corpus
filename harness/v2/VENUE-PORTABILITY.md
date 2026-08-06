@@ -50,7 +50,20 @@ This is already proven workable — a macOS archive was re-decoded with roots ta
 
 Add `venue` (`"vm"` | `"ci"` | `"local"`), `ciEnvSet` (bool), `storeLayout` (`"isolated"` | `"hoisted"`), `interpreterPath`, and `interpreterInsideHome` (bool).
 
-`ciEnvSet` and `storeLayout` are separate fields on purpose and neither implies the other. `is_ci()` is `std::env::var_os("CI").is_some()`, and `install_report.rs` returns the isolated layout when it is set — so CI genuinely measures a different store layout. That difference is **real and must be preserved, not normalised away**; recording it is what turns it from a confound into a covered axis.
+`ciEnvSet` and `storeLayout` are separate fields on purpose and neither implies the other.
+
+⛔ **There are TWO layout axes and they are easy to collapse into one. They are not the same axis.**
+
+1. **node-linker** — `isolated` vs `hoisted`. `NodeLinker::Isolated` is the engine default.
+2. **where the isolated store LIVES** — the global virtual store (`~/.cache/nub/pm/store`) vs project-local (`<project>/node_modules/.store`).
+
+`CI` moves axis 2, not axis 1: `install_report.rs` reaches `Source::Ci`, which renders as *"global virtual store auto-disabled in CI"*. The linker stays isolated either way. So a CI run is **not** a no-op on layout — it relocates every dependency's materialised directory from the user's cache into the project.
+
+**That relocation is exactly why the store layout can move a grant.** A write into a dependency's directory sits OUTSIDE the project under the global store and INSIDE it under the project-local store, so the same write can classify differently. Two things bound the blast radius, and only the first is verified: `preset::store_entry_write_root` recognises BOTH roots, so a package writing into its OWN entry is covered by the preset under either layout; a write into a SIBLING dependency is the residual case where the scope genuinely differs.
+
+⛔ There is a THIRD layout in play and forgetting it is the usual error: **OBSERVE runs npm in a flat hoisted tree**, always. So a grant synthesized from OBSERVE must hold in both nub layouts, neither of which it was measured in.
+
+The difference is **real and must be preserved, not normalised away**; recording it is what turns it from a confound into a covered axis. **The resolution is the union** — see the acceptance test.
 
 ### R4 — the artifact gate does not compare sizes of toolchain-generated build files
 
