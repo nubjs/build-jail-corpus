@@ -15,9 +15,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # ⛔ NOT UNDER /tmp. That path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all — it already produced one wrong all-clear.
 ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
-# Per-run cache, so two packages measured concurrently cannot share a store — and so clearing the
-# side-effects memo between arms (below) touches only this run. Without it the memo drop is a
-# global mutation and concurrent runs corrupt each other's arms silently.
+# ⛔ THIS DOES NOT ISOLATE THE STORE, AND AN EARLIER COMMENT HERE CLAIMED IT DID. `NUB_CACHE_DIR`
+# governs the RESOLVER PRIMER CACHE only; the global virtual store comes from a different function
+# (see the long note in `verify()`). It is kept because a per-run primer cache is still worth
+# having, but the thing that makes two arms independent is the per-arm STORE EVICTION below.
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)"
 
@@ -70,7 +71,7 @@ verify () {
   # dangerous false green available here, because it inflates the agreement rate rather than
   # breaking anything. The catalog override engaging is NOT evidence the jail engaged.
   printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
-  # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM GETS ITS OWN CACHE.
+  # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM EVICTS THE STORE.
   #
   # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so
   # the unique ROOT name above does not separate them. Dropping `pm/side-effects-v1` was the fix for
@@ -104,10 +105,26 @@ verify () {
   # package's own entries only.
   #
   # Cost: each arm re-materializes this package from scratch. That is the price of independent arms.
-  local slug; slug=$(printf '%s' "$PKG" | tr '/@' '--')
+  # Both, not either: the memo drop is NECESSARY and never SUFFICIENT, so keeping it costs nothing
+  # and removing it would reintroduce a second replay path behind the one being fixed here.
+  rm -rf "$NUB_CACHE_DIR/pm/side-effects-v1" 2>/dev/null
+  # ⛔ THE SLUG MUST MATCH THE STORE'S OWN NAMING, AND THE FIRST REVISION OF THIS EVICTION DID NOT
+  # — so it silently NO-OPPED FOR EVERY SCOPED PACKAGE, leaving open exactly the replay it was
+  # added to close. The store names each directory `<name, with `/` as `+`>@<version>-<hash>`, e.g.
+  # `@babel+core@7.29.7-ee0b878d8515d4c9`. `tr '/@' '--'` turned `@babel/core` into `-babel-core`,
+  # which matches nothing. MEASURED on the Linux box against a populated 802-entry store: the old
+  # pattern found 0 entries for `@babel/core` while that package was demonstrably present in it;
+  # the pattern below found 1. Scoped packages are a large share of the corpus, so this was not an
+  # edge case — and it fails silently, which is the shape this whole comment block exists to warn
+  # about.
+  #
+  # Anchoring on `<slug>@` instead of wrapping in `*…*` also keeps the eviction TARGETED, as the
+  # note above requires: the store is machine-global and a sibling agent may be measuring on the
+  # same box, so a bare `*yorkie*` would take out an unrelated `yorkie-foo` alongside it.
+  local slug; slug=$(printf '%s' "$PKG" | tr '/' '+')
   local store="${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store"
   if [ -d "$store" ]; then
-    find "$store" -maxdepth 1 -name "*${slug}*" -exec rm -rf {} + 2>/dev/null
+    find "$store" -maxdepth 1 -name "${slug}@*" -exec rm -rf {} + 2>/dev/null
   fi
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
@@ -146,7 +163,60 @@ verify () {
 }
 
 if verify "$GRANT" "synth"; then
-  echo "  => MINIMUM $GRANT   (observed, then verified)"
+  echo "  => VERIFIED $GRANT   (observed, then verified)"
+
+  # ── 3a. DESCEND — is the verified grant actually MINIMAL, or did OBSERVE over-predict? ────────
+  #
+  # ⛔ THIS IS THE ONLY HONEST OVER-PREDICTION MEASUREMENT AVAILABLE, AND IT NEEDS NO ORACLE.
+  # Comparing a synthesized grant against a v1 corpus record does not answer the question. A v1
+  # record is the output of a blind pass/fail ladder that can only ever report "this grant was
+  # insufficient" — never WHAT was missing — and it carries every harness and nub defect live at
+  # the moment it was taken. At least one record is already known stale (`iedriver@4.0.0` records
+  # `write:"disk"` and installs today under a narrow grant). So a disagreement with the record is
+  # not evidence against v2; it is not evidence about v2 at all.
+  #
+  # What IS evidence: drop one capability from the VERIFIED grant and re-verify in the same real
+  # jail. If a strictly narrower grant also passes, OBSERVE over-predicted by exactly that
+  # capability — measured, not inferred. One leave-one-out level is enough to detect and size
+  # over-prediction, and it is deliberately NOT a lattice search: the point is to characterise the
+  # synthesis, not to re-derive a minimum by searching, which is precisely what v1 did.
+  #
+  # ⛔ EACH DESCENT ARM IS A FULL `verify` CALL, so it inherits the store eviction, the unique root
+  # name, the explicit `buildJail`, and the override assertion. An arm run any cheaper than the
+  # verdict arm would not be comparable to the verdict arm.
+  CAPS=$(node -e '
+    const g = JSON.parse(process.argv[1]); const out = [];
+    if (g.network) out.push("network");
+    for (const k of Object.keys(g.write ?? {})) out.push("write." + k);
+    if (g.read) out.push("read");
+    console.log(out.join(" "));
+  ' "$GRANT")
+  if [ -z "$CAPS" ]; then
+    echo "  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction."
+  else
+    NARROWER=""
+    for cap in $CAPS; do
+      SUB=$(node -e '
+        const [g0, cap] = process.argv.slice(1); const g = JSON.parse(g0);
+        if (cap === "network") delete g.network;
+        else if (cap === "read") delete g.read;
+        else { const k = cap.split(".")[1]; delete g.write[k];
+               if (!Object.keys(g.write).length) delete g.write; }
+        console.log(JSON.stringify(g));
+      ' "$GRANT" "$cap")
+      if verify "$SUB" "drop-$(printf '%s' "$cap" | tr -d '.')"; then
+        echo "     ⛔ OVER-PREDICTED: dropping '$cap' STILL VERIFIES — $SUB is sufficient"
+        NARROWER="$NARROWER $cap"
+      else
+        echo "     '$cap' is NECESSARY — dropping it fails to verify"
+      fi
+    done
+    if [ -n "$NARROWER" ]; then
+      echo "  => OVER-PREDICTED by:$NARROWER  (synthesized $GRANT; each named capability drops on its own)"
+    else
+      echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+    fi
+  fi
   exit 0
 fi
 
