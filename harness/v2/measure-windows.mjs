@@ -164,6 +164,37 @@ const verify = (grant, label) => {
   const cat = path.join(v, 'cat.json');
   fs.writeFileSync(cat, JSON.stringify({ packages: { [PKG]: { default: grant } } }));
 
+  // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
+  // Both were tried and both FAILED to stop an arm replaying its predecessor's result. There are
+  // three distinct carry-overs between arms and they must ALL be cleared, or an arm reports a
+  // verdict it never measured while every precondition (OVERRIDDEN>=1, REJECTED==0) reads green:
+  //
+  //   1. the side-effects memo, keyed on the DEPENDENCY -- identical across arms by construction,
+  //      so a unique ROOT name does not perturb it;
+  //   2. the GLOBAL VIRTUAL STORE -- a package already built there is `materialized` by the linker
+  //      and its lifecycle script is never re-run, which is the replay the memo drop did not catch;
+  //   3. `pm/tools/npm-prefix` -- once any run creates it, a later arm's `mkdir` of it succeeds, so
+  //      a first-run denial silently stops reproducing.
+  //
+  // MEASURED 2026-08-06 on iedriver@4.0.0: an arm that had produced rc=1 with an EPERM on that
+  // mkdir replayed as rc=0 in 2.4s, twice, with the memo drop in place.
+  //
+  // ⛔ `NUB_CACHE_DIR` DOES NOT FIX THIS AND MUST NOT BE USED FOR IT. It was the obvious candidate
+  // and it is wrong: under the nub embedder profile that variable is read via
+  // `config_env("CACHE_DIR")` and governs the RESOLVER PRIMER cache only -- it does not relocate
+  // the content-addressed store. MEASURED: with it set per arm, the arm dir ended with 0 files
+  // while `%LOCALAPPDATA%\nub\pm\store` still served the package, so the arm looked isolated and
+  // was not. Evict the store entry itself, which is the only thing the linker consults.
+  const STORE = path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'store');
+  for (const d of (fs.existsSync(STORE) ? fs.readdirSync(STORE) : [])) {
+    // Store dirs are `<name>@<version>-<hash>`; the hash is not predictable, so match the prefix.
+    if (d.startsWith(`${PKG}@${VER}-`) || d.startsWith(`${PKG}@`)) {
+      fs.rmSync(path.join(STORE, d), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    }
+  }
+  // The memo drop stays: it is necessary but, on its own, was measured to be insufficient.
+  fs.rmSync(path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'side-effects-v1'),
+    { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat };
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
@@ -210,6 +241,9 @@ if (synth.ok) {
 // `internetClient` AppContainer capability). So a package that only passes at `write:"disk"` may be
 // failing for a TOKEN-compatibility reason no path grant can fix -- the ladder cannot tell those
 // apart, which is why the per-rung file counts are printed rather than only the verdict.
+// A single-variable A/B between two BINARIES needs only the synthesized arm; walking the ladder
+// afterwards costs three more full installs and answers a different question.
+if (argv.includes('--synth-only')) { console.log('  => SYNTH-ONLY: stopping before the ladder'); process.exit(4); }
 console.log('  synthesized grant did not verify -- falling back to a bounded ladder');
 const LADDER = [
   { write: { deps: true, project: true, userHome: true }, network: true },
