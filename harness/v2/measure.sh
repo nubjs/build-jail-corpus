@@ -146,7 +146,14 @@ observe_once () {
   # the grant.
   #
   # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-  HOME="$JAIL_HOME" ${RTMP:+TMPDIR=$RTMP} strace -f -e trace=file,network,process -o "$ROOT/trace-$n.txt" \
+  # ⛔ VIA `env`, NOT A `${RTMP:+TMPDIR=$RTMP}` ASSIGNMENT PREFIX. bash recognises assignment
+  # prefixes at PARSE time, so a prefix that only appears after expansion is treated as the COMMAND
+  # NAME: the first revision of this line ran every OBSERVE arm as `TMPDIR=/tmp/v2obs-7 strace …`
+  # and came back rc=127 `command not found`. Honest — it aborted as BROKEN-WITHOUT-JAIL-TOO rather
+  # than measuring nothing quietly — but the array form cannot express it at all.
+  local -a envp=(env "HOME=$JAIL_HOME")
+  [ -n "$RTMP" ] && envp+=("TMPDIR=$RTMP")
+  "${envp[@]}" strace -f -e trace=file,network,process -o "$ROOT/trace-$n.txt" \
     npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 }
 

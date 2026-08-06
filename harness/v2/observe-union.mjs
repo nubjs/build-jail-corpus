@@ -36,18 +36,29 @@ const DUMP = /^WRITE\t([^\t]*)\t(.*)$/;
 // difference confined to them CANNOT move a grant and must not be counted as one.
 const GRANT_SCOPES = ['deps', 'project', 'userHome'];
 
+// ⛔ THE WHOLE-TREE TOTALS ARE PARSED TOO, AND THEY ARE THE ONLY HONEST EVICTION CHECK. A derived
+// path SET can look identical across two runs while run 2 did far less work — the package manager
+// hitting a cache run 1 filled — and the attributed set is the narrowest, most filtered number in
+// the report, so it is the last place incomplete eviction shows up. Comparing the UNFILTERED totals
+// is what catches "run 2 is systematically quieter", which is the failure that makes every
+// disagreement number downstream of it garbage.
 export function parseObserved(text) {
   const writes = new Map(); // path -> scope
   let grant = null, sockets = null, next = false;
+  let treeWrites = null, treeSockets = null, unparsed = 0, truncated = 0;
   for (const line of text.split('\n')) {
     const m = DUMP.exec(line);
     if (m) { writes.set(m[2], m[1]); continue; }
     if (next) { grant = line.trim(); next = false; continue; }
     if (line.includes('SYNTHESIZED GRANT')) { next = true; continue; }
-    const s = line.match(/AF_INET sockets:\s*(\d+)/);
-    if (s) sockets = Number(s[1]);
+    let x;
+    if ((x = line.match(/AF_INET sockets:\s*(\d+)/))) sockets = Number(x[1]);
+    if ((x = line.match(/writes\s+script\s+(\d+)\s+\/\s+whole traced tree\s+(\d+)/))) treeWrites = Number(x[2]);
+    if ((x = line.match(/sockets\s+script\s+(\d+)\s+\/\s+whole traced tree\s+(\d+)/))) treeSockets = Number(x[2]);
+    if ((x = line.match(/(\d+) trace lines the decoder could not parse/))) unparsed = Number(x[1]);
+    if ((x = line.match(/(\d+) arguments strace TRUNCATED/))) truncated = Number(x[1]);
   }
-  return { writes, grant, sockets };
+  return { writes, grant, sockets, treeWrites, treeSockets, unparsed, truncated };
 }
 
 // The synthesizer, restated over a scope SET rather than a bucket map. Same key order as
@@ -109,8 +120,27 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const byScope = {};
     for (const s of r.writes.values()) byScope[s] = (byScope[s] ?? 0) + 1;
     const shape = Object.entries(byScope).sort().map(([k, v]) => `${k}=${v}`).join(' ');
-    console.log(`  run ${i + 1}: writes=${r.writes.size} sockets=${r.sockets ?? '?'} [${shape}]  grant=${r.grant}`);
+    console.log(`  run ${i + 1}: writes=${r.writes.size} sockets=${r.sockets ?? '?'} treeWrites=${r.treeWrites ?? '?'}`
+      + ` treeSockets=${r.treeSockets ?? '?'} unparsed=${r.unparsed} truncated=${r.truncated} [${shape}]  grant=${r.grant}`);
   });
+
+  // ⛔ THE EVICTION CHECK, PRINTED ON EVERY REPEAT RUN RATHER THAN DONE ONCE BY HAND. If run 2 is
+  // systematically quieter than run 1 the eviction is incomplete, run 2 is not an independent
+  // sample, and the disagreement number below is meaningless — so it is reported next to the number
+  // it invalidates instead of in a write-up nobody re-reads.
+  if (runs.length > 1 && runs.every((r) => r.treeWrites != null)) {
+    const base = runs[0].treeWrites;
+    const drops = runs.slice(1).map((r, i) => `run ${i + 2}: ${r.treeWrites} (${(((r.treeWrites - base) / (base || 1)) * 100).toFixed(1)}%)`);
+    // A single threshold, stated: a later run doing under half the whole-tree writes of run 1 is the
+    // shape the macOS compile-cache defect produced (541 renames -> 0), and is not explicable by
+    // ordinary noise.
+    const quiet = runs.slice(1).some((r) => r.treeWrites < base * 0.5);
+    console.log(`== EVICTION CHECK == whole-tree writes, run 1: ${base}; ${drops.join('; ')}`);
+    console.log(quiet
+      ? '  ⛔ A LATER RUN IS UNDER HALF OF RUN 1 — the eviction is INCOMPLETE and the runs are NOT'
+        + '\n     independent samples. Everything below is measuring the eviction, not the package.'
+      : '  run 2+ is not systematically quieter than run 1 — the runs are comparable.');
+  }
 
   // Path-level: what each run saw that no OTHER run saw. Reported per run rather than only pairwise
   // so a three-run comparison stays readable, and split by whether the scope can reach a grant —

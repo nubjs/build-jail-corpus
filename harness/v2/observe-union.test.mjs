@@ -65,6 +65,21 @@ test('an unparseable run REFUSES agreement rather than silently supporting it', 
   assert.strictEqual(grantAgreement([a, b]).agree, false);
 });
 
+test('the whole-tree totals are read off the report, not re-derived', () => {
+  // The eviction check is only as good as this parse: a silent `null` here would print `?` and the
+  // check would skip itself, which reads as "no problem found".
+  const r = parseObserved([
+    '  writes  script 12  /  whole traced tree 1088',
+    '  sockets script 0  /  whole traced tree 3',
+    '  ⛔ 4 trace lines the decoder could not parse',
+    '  ⛔ 2 arguments strace TRUNCATED — those paths are incomplete',
+  ].join('\n'));
+  assert.strictEqual(r.treeWrites, 1088);
+  assert.strictEqual(r.treeSockets, 3);
+  assert.strictEqual(r.unparsed, 4);
+  assert.strictEqual(r.truncated, 2);
+});
+
 test('synthesize emits the same key order observe.mjs does', () => {
   assert.strictEqual(
     JSON.stringify(synthesize(new Set(['userHome', 'deps', 'project']), true)),
