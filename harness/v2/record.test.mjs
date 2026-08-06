@@ -12,6 +12,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDriverLog, firstObject } from './record.mjs';
@@ -326,4 +328,35 @@ test('a malformed binary marker is NOTED rather than silently dropped', () => {
   assert.equal(r.nubBinary, null);
   assert.ok(r.notes.includes('nub-binary-unparsable'),
     `a marker that failed to parse must leave a trace:\n${JSON.stringify(r.notes)}`);
+});
+
+// ── THE CLI MUST CARRY THE grant-SOURCE FIELDS THROUGH ────────────────────────────────────────
+//
+// ⛔ EVERY PARSE-LEVEL TEST ABOVE PASSED WHILE THE PUBLISHED RECORD CARRIED NONE OF THESE FIELDS.
+// `rec` in the CLI block is an explicit whitelist, so `parseDriverLog` set `grantSource` and the CLI
+// silently dropped it — while still writing the NARROWED `grant` it justified. A record whose grant
+// has been narrowed with nothing saying on what basis is the exact silent-narrowing shape the rule
+// exists to prevent, and no test that stops at `parseDriverLog` can see it. MEASURED on
+// kerberos@7.0.0 at 76c25673: grant {} as the rule intended, grantSource absent.
+test('the CLI writes grantSource, grantSourceReason and descendedGrant into the record', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'reccli-'));
+  const log = path.join(dir, 'driver.out');
+  fs.writeFileSync(log, [
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ].join('\n'));
+  // `--out` is a ROOT; the CLI appends <platform>/<pkg>/<version>/results.json under it.
+  const outRoot = path.join(dir, 'out');
+  execFileSync(process.execPath, [path.join(HARNESS, 'record.mjs'),
+    '--log', log, '--pkg', 'p', '--version', '1.0.0', '--out', outRoot, '--rc', '0'], { encoding: 'utf8' });
+  const found = fs.globSync
+    ? fs.globSync(path.join(outRoot, '**', 'results.json'))
+    : [path.join(outRoot, process.platform === 'darwin' ? `darwin-${process.arch}` : '', 'p', '1.0.0', 'results.json')];
+  assert.ok(found.length === 1, `exactly one record should be written, got ${found.length}`);
+  const rec = JSON.parse(fs.readFileSync(found[0], 'utf8'));
+  assert.deepEqual(rec.grant, { network: true }, 'the narrowed grant is written');
+  assert.equal(rec.grantSource, 'descended', 'AND the record says which value it is');
+  assert.match(rec.grantSourceReason, /verified in the real jail/, 'AND why');
+  assert.deepEqual(rec.descendedGrant, { network: true });
 });

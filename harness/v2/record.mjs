@@ -463,6 +463,14 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     verifiedBy: parsed.verifiedBy,
     minimality: parsed.minimality,
     overPredictedBy: parsed.overPredictedBy,
+    // ⛔ WHICH VALUE `grant` ABOVE IS, AND WHY. `rec` is an explicit whitelist, so the first version
+    // of the grant-source rule narrowed `grant` correctly and then dropped every field explaining it
+    // — a record whose grant had been narrowed with nothing saying on what basis, which is the exact
+    // silent-narrowing shape the rule exists to prevent. The parse-level tests all passed; only an
+    // end-to-end run of this CLI shows it, which is why one now exists.
+    grantSource: parsed.grantSource ?? null,
+    grantSourceReason: parsed.grantSourceReason ?? null,
+    descendedGrant: parsed.descendedGrant ?? null,
     notes: [...new Set(parsed.notes)],
     // The event log's own census, inlined so `results.json` states how much evidence sits beside
     // it — event count, dropped-event count, the errno histogram — without opening the log.
