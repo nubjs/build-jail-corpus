@@ -27,6 +27,10 @@ NPM_BIN="$(command -v npm)"
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
 ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
+# The driver runs under sudo (dtrace needs uid 0) but every measured process is dropped back to the
+# invoking user — so the tree they write into must be theirs, or npm fails on its own fixture and
+# the run reports a package problem that is really a harness problem.
+chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 
@@ -93,7 +97,7 @@ fi
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. Runs as the invoking user, never root. ────────────
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
-  local v="$ROOT/verify-$label"; mkdir -p "$v"
+  local v="$ROOT/verify-$label"; mkdir -p "$v"; chown -R "$RUNUSER" "$v" 2>/dev/null
   # A unique root package name per arm: nub's side-effects memo replays a lifecycle outcome keyed
   # on package identity, and a replayed arm is indistinguishable from a real one by exit code.
   local name="v$(echo "$label" | tr -dc 'a-z0-9')$RANDOM"
@@ -124,9 +128,14 @@ JW
              -c "/bin/sh $v/jail.sh" > "$v/dtrace.log" 2>&1 )
     local rc; rc=$(cat "$v/rc" 2>/dev/null || echo 99)
   else
-    ( cd "$v" && export NUB_CACHE_DIR="$cache"
-      NUB_BUILD_JAIL_CATALOG="$v/cat.json" "$NUB" install > "$v/i.log" 2>&1
-      NUB_BUILD_JAIL_CATALOG="$v/cat.json" "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
+    # ⛔ THE JAILED RUN MUST NOT BE ROOT. This driver is invoked under sudo because dtrace needs
+    # uid 0, and a build jail evaluated as root is not the jail that ships — root defeats several
+    # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
+    # nothing to do with the grant.
+    chown -R "$RUNUSER" "$v" 2>/dev/null
+    sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
+      NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
+      '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?
   fi
   # The replay signature: `materialized` with no install line. Reported, not fatal — a package with
@@ -165,22 +174,24 @@ fi
 # tells you nothing. Each variant removes exactly ONE capability, so a passing variant names the
 # capability the synthesis did not need. Single-variable by construction.
 if [ "$VERIFIED" -eq 1 ]; then
-  mapfile -t VARIANTS < <(node -e '
+  # ⛔ NO `mapfile` AND NO ARRAYS HERE. macOS ships bash 3.2 at /bin/bash, where `mapfile` does not
+  # exist and `${arr[@]}` on an empty array is an unbound-variable error under `set -u`. A plain
+  # file plus a read loop works on both.
+  node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
-    if (g.network) { const c = structuredClone(g); delete c.network; out.push(["no-network", c]); }
+    if (g.network) { const c = JSON.parse(JSON.stringify(g)); delete c.network; out.push(["no-network", c]); }
     for (const k of Object.keys(g.write ?? {})) {
-      const c = structuredClone(g); delete c.write[k];
+      const c = JSON.parse(JSON.stringify(g)); delete c.write[k];
       if (!Object.keys(c.write).length) delete c.write;
       out.push(["no-write-" + k, c]);
     }
     for (const [n, c] of out) console.log(n + "\t" + JSON.stringify(c));
-  ' "$GRANT" 2>/dev/null)
-  if [ "${#VARIANTS[@]}" -eq 0 ]; then
+  ' "$GRANT" > "$ROOT/variants.tsv" 2>/dev/null
+  if [ ! -s "$ROOT/variants.tsv" ]; then
     echo "  NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction"
   fi
-  for line in "${VARIANTS[@]}"; do
-    [ -n "$line" ] || continue
-    nm="${line%%$'\t'*}"; gg="${line#*$'\t'}"
+  while IFS=$'\t' read -r nm gg; do
+    [ -n "${nm:-}" ] || continue
     # ⛔ An empty `default` block is REJECTED by the parser, which would make the arm VOID and read
     # as a failure. That is not the same answer as "the narrower grant did not work", so say so.
     if [ "$gg" = "{}" ]; then
@@ -193,7 +204,7 @@ if [ "$VERIFIED" -eq 1 ]; then
     else
       echo "     narrowing '$nm' fails ⇒ that capability IS necessary"
     fi
-  done
+  done < "$ROOT/variants.tsv"
 fi
 
 # ── 3c. DIAGNOSE — run the FAILING grant JAILED, under dtrace, and name the refusal. ───────────
