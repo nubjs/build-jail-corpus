@@ -27,6 +27,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 // A grant is a JSON object with no string values containing braces, so brace-depth scanning is
 // exact. `JSON.parse` on a regex-sliced tail is not: `(observed, then verified)` trails the object
@@ -344,7 +345,21 @@ const applyGrantSourceRule = (out, lines) => {
 };
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
-if (import.meta.url === `file://${process.argv[1]}`) {
+//
+// ⛔⛔ `pathToFileURL`, NEVER `file://${process.argv[1]}` — AND THIS FILE IS WHERE THAT MISTAKE COSTS
+// A WHOLE PLATFORM'S CORPUS. On Windows `process.argv[1]` is `D:\a\repo\harness\v2\record.mjs`
+// while `import.meta.url` is `file:///D:/a/repo/harness/v2/record.mjs`: backslashes, and one slash
+// versus three. The string form therefore NEVER matches on Windows, so everything below is skipped,
+// the process prints nothing and EXITS 0.
+//
+// ⛔ AND THE CALLER CANNOT TELL. `run-batch-v2.mjs` checks `if (w.status !== 0)` and moves on, so a
+// Windows batch would mark every row measured while writing no `results.json` at all — a silent
+// total loss with a green log. `records-v2/runs/` holding `darwin-arm64` and `linux-x64` and no
+// `win32-x64` is consistent with exactly this.
+//
+// `adapters/windows-retain.mjs` already carries this scar and its fix; `adapters/linux.mjs` uses the
+// string form and is correct there and only there, because it never runs anywhere else.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const argv = process.argv.slice(2);
   const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
   const log = fs.readFileSync(opt('--log'), 'utf8');

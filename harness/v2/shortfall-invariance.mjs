@@ -74,7 +74,11 @@ export function classify(ledger, armsExpected = 4) {
   return { ok: true, count: arms[0].count, sig };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// ⛔ `pathToFileURL`, not the string form. On Windows `process.argv[1]` is a backslash path while
+// `import.meta.url` is `file:///C:/...`, so the comparison never matches, the CLI silently does
+// nothing and the process exits 0. See the note on the same guard in `record.mjs`, where the same
+// mistake would have cost the whole win32 corpus.
+if (import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href) {
   const { default: fs } = await import('node:fs');
   const argv = process.argv.slice(2);
   const armsExpected = argv.includes('--arms') ? Number(argv[argv.indexOf('--arms') + 1]) : 4;
