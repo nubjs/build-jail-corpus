@@ -18,6 +18,49 @@ permissions:
   contents: read
 
 jobs:
+  # Does the adapter depend on SIP being OFF? The generation harness may run on machines we control,
+  # so a SIP-disabled host is a legitimate one — but "works only with SIP off" would be a real
+  # constraint on where generation can EVER run, and it should not be discovered later by surprise.
+  #
+  # macos-14 reports `SIP: disabled`, so the authoritative `probe` job below cannot answer this. This
+  # job sweeps the runner images looking for one with SIP ENABLED and runs the same known-answer
+  # validation there. A green arm on a SIP-enabled image settles it by measurement; if no image has
+  # SIP on, the sweep says so and the question stays open rather than being answered by assumption.
+  #
+  # ⛔ NEVER "CORRECT" THE INSTRUMENT SURVEY FROM THESE RUNNERS. The survey that ruled out
+  # DYLD_INSERT_LIBRARIES, dtrace and ktrace was measured on a real SIP-ENABLED Mac. A mechanism that
+  # works on a SIP-disabled runner is a SIP-off fact, not a refutation of that survey.
+  sip-sensitivity:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [macos-14, macos-15, macos-26]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Which authorization does each instrument actually demand?
+        run: |
+          set +e
+          echo "image=${{ matrix.image }}  $(sw_vers -productVersion)  $(uname -m)"
+          echo "SIP: $(csrutil status 2>&1)"
+          # Run each UNPRIVILEGED and read the refusal. dtrace is the POSITIVE CONTROL: it is known
+          # to refuse on SIP grounds, so it proves this host emits a SIP diagnostic when SIP is the
+          # gate. Without it, "neither tool mentioned SIP" would be indistinguishable from "these
+          # tools never mention SIP".
+          echo "--- eslogger (unprivileged) ---"; /usr/bin/eslogger open 2>&1 | head -3
+          echo "--- fs_usage (unprivileged) ---"; /usr/bin/fs_usage -w 2>&1 | head -3
+          echo "--- dtrace   (unprivileged, POSITIVE CONTROL for a SIP refusal) ---"
+          /usr/sbin/dtrace -n 'syscall:::entry' 2>&1 | head -3
+      - name: Known-answer validation on this image
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/validate-macos.sh
+          sudo NODE="$(command -v node)" harness/v2/adapters/validate-macos.sh > "$RUNNER_TEMP/v.log" 2>&1
+          echo "VALIDATE_EXIT=$?"
+          grep -E 'PASS|FAIL|MUTATION CONTROL|ARM |BOTH ARMS|VALIDATION FAILED' "$RUNNER_TEMP/v.log"
+
   probe:
     runs-on: macos-14
     timeout-minutes: 30
