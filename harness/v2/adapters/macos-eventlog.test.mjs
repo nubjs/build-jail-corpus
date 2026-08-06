@@ -1,18 +1,17 @@
-// Golden cases for the RETAINED event log. `node --test harness/v2/adapters/macos-eventlog.test.mjs`.
+// Golden cases for the DERIVED event log. `node --test harness/v2/adapters/macos-eventlog.test.mjs`.
 //
-// ⛔ THE BAR HERE IS NOT "does it parse". It is the one the retention decision rests on:
+// ⛔ THE BAR HERE IS NOT "does it parse". This file is a queryable view; the artifact of record is
+// the raw `trace.txt.gz` beside it. So the standard is not "the view is correct" — a bug in the
+// view is a re-parse — it is that the view does not QUIETLY LOSE something the archive contains,
+// because a silent loss is what makes a wrong answer look like a right one. Every case below is
+// about a loss that would be invisible: a classification standing in for its input, a rename
+// destination that vanished, a dedup key that merged two unrelated events, an fd resolved to the
+// wrong file.
 //
-//     the retained log must let ANY FUTURE grant model be re-derived, without re-running the
-//     package.
-//
-// So most cases are about what must NOT be in the file (a classification standing in for its input)
-// and what must survive intact (the raw syscall, both paths of a two-path op, the errno, and enough
-// process identity to recompute attribution under a rule that does not exist yet). A parser test
-// would pass on a log that is useless a month from now.
-//
-// The spelling is the Linux adapter's — it shipped first with a committed artifact, and three
-// dialects would make the corpus un-re-parseable as one thing. The cases below therefore also serve
-// as the cross-platform contract check: `k`/`p`/`o`/`s`/`f`/`g`/`r`/`fl`/`w`/`n`/`u`.
+// The spelling happens to line up with the Linux adapter's, because agreeing where agreement is
+// free makes `../eventlog-query.mjs` writable once. It is NOT a contract: per-OS formats with
+// per-OS parsers is the settled shape, and a macOS-only field is a reason to capture it, not to
+// leave it out.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -252,4 +251,76 @@ PATHOP|3952|3950|node|mkdirat|ret=0|errno=0|ev=1|dirfd=7|role=only|rel/under-fd
   assert.equal(e.u, '7', 'marked unresolved, in the shared spelling');
   assert.equal(e.dfd, 7, 'and the raw dirfd survives, so an fd table could resolve it later');
   assert.ok(!events.find((x) => x.f === '/proj/rel/under-fd'), 'no invented absolute path');
+});
+
+// ── THE ARCHIVE-ERA ADDITIONS ─────────────────────────────────────────────────────────────────
+// The raw trace is the artifact of record, so this adapter captures everything dtrace can give
+// rather than trimming to what all three platforms share. These pin the two record kinds that
+// exist for that reason alone.
+
+test('an FD-ONLY mutator resolves through the fd table built from this stream', () => {
+  // ⛔ 37 OF 86 PATH-MUTATING CALLS IN THE CENSUS WORKLOAD NAME NO PATH — `fchmod` 22, `ftruncate`
+  // 8, `fchown` 4, `fsetattrlist` 3. dtrace cannot resolve the fd, but the OPEN records in the same
+  // stream carry (pid, fd, path), so the join happens in the parser, off the archive.
+  const { events, stats } = convert(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|node install.js
+EXEC|3950|3896|sh|sh
+OPEN|3950|3896|sh|flags=0x601|ret=7|errno=0|ev=1|dirfd=-2|/proj/build/out.bin
+FDOP|3950|3896|sh|fchmod|ret=0|errno=0|fd=7
+FDOP|3950|3896|sh|ftruncate|ret=0|errno=0|fd=99
+`);
+  const resolved = events.find((e) => e.s === 'fchmod');
+  assert.equal(resolved.f, '/proj/build/out.bin', 'fd 7 was opened in this stream, so it resolves');
+  assert.equal(resolved.w, 1, 'a metadata write is a write');
+  // ⛔ AND AN UNKNOWN FD IS NEVER GUESSED. fd 99 was opened before the trace started or inherited
+  // across a fork this stream did not witness; attributing it to the most recent path would put a
+  // write on the wrong file, which is worse than admitting the gap.
+  const unknown = events.find((e) => e.s === 'ftruncate');
+  assert.equal(unknown.f, null);
+  assert.equal(unknown.u, 'fd:99', 'kept, marked, with the raw fd recoverable');
+  assert.equal(stats.unresolvedFd, 1);
+});
+
+test('read-side path syscalls are captured even though no grant model reads them', () => {
+  // `open` is not the only way to READ a path: a script that only `stat`s a file leaves no OPEN
+  // record at all, and on the census workload the read-side calls outnumbered everything else
+  // combined (stat64 303, access 43, getattrlist 38). A future read-scope model is derivable from
+  // an archive that has them and from nothing else — so they are captured now and consumed by
+  // nothing, which is exactly the point of an archive.
+  const { events } = convert(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|node install.js
+EXEC|3950|3896|sh|sh
+STATOP|3950|3896|sh|stat64|ret=-1|errno=2|dirfd=-2|/opt/homebrew/bin/cmake
+STATOP|3950|3896|sh|access|ret=0|errno=0|dirfd=-2|/usr/bin/cc
+`);
+  const probe = events.find((e) => e.f === '/opt/homebrew/bin/cmake');
+  assert.equal(probe.o, 'stat');
+  assert.equal(probe.s, 'stat64', 'the arm64 spelling survives, not a normalized `stat`');
+  assert.equal(probe.r, 'ENOENT', 'a failed probe names a fallback path and is retained');
+  assert.equal(probe.w, undefined, 'a stat is not a write');
+  assert.equal(events.find((e) => e.f === '/usr/bin/cc').o, 'access');
+});
+
+test('the dedup key cannot merge two DIFFERENT renames that share a path prefix', () => {
+  // ⛔ RED ON REVERT: join the key tuple with an empty separator (a real accident this file already
+  // suffered). `rename(/a/b -> /c)` and `rename(/a -> /b/c)` then concatenate to the identical
+  // `/a/b/c` and merge into ONE event with `n:2`. Both are ordinary paths, so this is not a
+  // contrived collision — and the merge is indistinguishable from the dedup working, which is what
+  // makes it dangerous. A delimiter-joined key is only ever as safe as the claim that the delimiter
+  // cannot appear in the content; a JSON encoding is injective outright and needs no such claim.
+  const { events } = convert(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|true
+EXEC|3950|3896|sh|sh
+PATHOP|3950|3896|mv|rename|ret=0|errno=0|ev=1|dirfd=-2|role=p1|/a/b
+PATHOP|3950|3896|mv|rename|ret=0|errno=0|ev=1|dirfd=-2|role=p2|/c
+PATHOP|3950|3896|mv|rename|ret=0|errno=0|ev=2|dirfd=-2|role=p1|/a
+PATHOP|3950|3896|mv|rename|ret=0|errno=0|ev=2|dirfd=-2|role=p2|/b/c
+`);
+  const renames = events.filter((e) => e.o === 'rename');
+  assert.equal(renames.length, 2, 'two distinct renames must stay two events');
+  assert.deepEqual(renames.map((e) => e.n), [1, 1], 'and neither may absorb the other');
+  assert.deepEqual(renames.map((e) => `${e.f}->${e.g}`).sort(), ['/a->/b/c', '/a/b->/c']);
 });

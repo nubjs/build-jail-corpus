@@ -70,6 +70,9 @@ self int64_t odfd;     /* the dirfd governing the OPEN path */
 self int64_t dfd;      /* the dirfd governing np  — AT_FDCWD (-2) when the call takes none */
 self int64_t dfd2;     /* the dirfd governing np2 */
 self uint64_t ev;      /* per-syscall id, so a two-path op's two records can be PAIRED */
+self uintptr_t sp;     /* READ-side path (stat/access/readlink/getattrlist family) */
+self int64_t sdfd;     /* the dirfd governing sp */
+self int64_t ffd;      /* the fd an FD-only mutator operates on */
 /* ── NP2-DECL-END ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── THE `*at` FAMILY, AND WHY ITS ABSENCE WAS AN UNDER-GRANT ──────────────────────────────────
@@ -349,6 +352,94 @@ syscall::renameat:return, syscall::renameatx_np:return
 	self->np2 = 0;
 	self->dfd2 = 0;
 	self->ev = 0;
+}
+
+/* ── READ-SIDE PATH SYSCALLS, AND FD-ONLY MUTATORS ─────────────────────────────────────────────
+ *
+ * ⛔ CAPTURED BECAUSE THE TRACER CAN GIVE THEM, NOT BECAUSE A GRANT MODEL READS THEM TODAY. Nothing
+ * downstream consumes either record: `observe-macos.mjs` filters on record kind and never sees
+ * them, so they cannot move a verdict. They are here for the ARCHIVE — the raw trace is the artifact
+ * of record, and the one thing a re-parse can never recover is an event that was never captured.
+ *
+ * READS. Today's grant model synthesises no read scope at all, because every process reads dyld's
+ * shared cache and its own binary, so a read-derived grant would be `read:"disk"` for every package
+ * on the platform. But `open` is not the only way to READ a path — a script that only ever
+ * `stat`s a file leaves no `OPEN` record, and MEASURED on the census workload the read-side syscalls
+ * outnumber everything else combined: stat64 303, access 43, getattrlist 38, fstatat64 30,
+ * lstat64 25, readlink 3. A future read-scope model is derivable from an archive that has them and
+ * from nothing else.
+ *
+ * FD-ONLY MUTATORS. `fchmod`/`fchown`/`ftruncate`/`fsetattrlist` are WRITES that name no path —
+ * 37 of the 86 path-mutating calls in the census workload, and the half that subscribing the `*at`
+ * family could not close. The fd alone cannot be resolved by this adapter, but it is recorded with
+ * its pid, and the `OPEN` records in the same stream carry (pid, fd, path) — so an fd->path table
+ * built by a LATER parser can resolve them from the archive, with no re-measure. That is exactly the
+ * property the raw archive exists to preserve: capture now, decide how to read it later.
+ *
+ * Both spellings of the stat family are subscribed. On arm64 the census saw `stat64`/`lstat64`/
+ * `fstatat64` fire and the unsuffixed names never; both exist as probes, and subscribing a name that
+ * never fires costs nothing while missing the one that does costs the data. */
+
+syscall::stat:entry, syscall::stat64:entry, syscall::lstat:entry, syscall::lstat64:entry,
+syscall::access:entry, syscall::readlink:entry, syscall::getattrlist:entry,
+syscall::getxattr:entry, syscall::listxattr:entry
+/progenyof($target)/
+{
+	self->sp = arg0;
+	self->sdfd = -2;
+	self->sop = probefunc;
+	self->sn = 1;
+}
+
+syscall::fstatat:entry, syscall::fstatat64:entry, syscall::faccessat:entry,
+syscall::readlinkat:entry, syscall::getattrlistat:entry
+/progenyof($target)/
+{
+	self->sp = arg1;
+	self->sdfd = (int64_t)arg0;
+	self->sop = probefunc;
+	self->sn = 1;
+}
+
+syscall::stat:return, syscall::stat64:return, syscall::lstat:return, syscall::lstat64:return,
+syscall::access:return, syscall::readlink:return, syscall::getattrlist:return,
+syscall::getxattr:return, syscall::listxattr:return,
+syscall::fstatat:return, syscall::fstatat64:return, syscall::faccessat:return,
+syscall::readlinkat:return, syscall::getattrlistat:return
+/self->sn/
+{
+	printf("STATOP|%d|%d|%s|%s|ret=%d|errno=%d|dirfd=%d|%s\n",
+	    pid, curpsinfo->pr_ppid, execname, self->sop,
+	    (int)arg0, (int)arg0 < 0 ? errno : 0, self->sdfd, copyinstr(self->sp));
+	self->sn = 0;
+	self->sp = 0;
+	self->sop = 0;
+	self->sdfd = 0;
+}
+
+syscall::fchmod:entry, syscall::fchown:entry, syscall::ftruncate:entry,
+syscall::fsetattrlist:entry, syscall::fsetxattr:entry, syscall::fremovexattr:entry,
+syscall::futimes:entry
+/progenyof($target)/
+{
+	self->ffd = (int64_t)arg0;
+	self->fop = probefunc;
+	self->fn = 1;
+}
+
+syscall::fchmod:return, syscall::fchown:return, syscall::ftruncate:return,
+syscall::fsetattrlist:return, syscall::fsetxattr:return, syscall::fremovexattr:return,
+syscall::futimes:return
+/self->fn/
+{
+	/* No path, by construction — and saying so explicitly beats omitting the record, because a
+	 * reader that sees the fd can join it against this stream's own OPEN returns. */
+	printf("FDOP|%d|%d|%s|%s|ret=%d|errno=%d|fd=%d\n",
+	    pid, curpsinfo->pr_ppid, execname, self->fop,
+	    (int)arg0, (int)arg0 < 0 ? errno : 0, self->ffd);
+	self->fn = 0;
+	self->ffd = 0;
+	self->fop = 0;
 }
 
 /* ── EXEC. Two records per exec, because neither one alone is sufficient on macOS.

@@ -132,22 +132,82 @@ CLOSURE=$(node -e '
 ' "$OBS/node_modules" 2>/dev/null)
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm   store=$STORE"
 
-# ── 1b. RETAIN THE EVENT LOG ───────────────────────────────────────────────────────────────────
+# ── 1b. RETAIN THE RAW TRACE — THE ARTIFACT OF RECORD ──────────────────────────────────────────
 #
-# ⛔ THE TRACE DIES WITH THIS DIRECTORY AND THAT IS THE DEFECT. `$OBS/trace.txt` is the complete
-# event stream — thousands of lines — and everything downstream of here reduces it to a one-line
-# verdict plus a scope COUNT. `$ROOT` is a `mktemp -d` on an ephemeral runner, so the moment the
-# job ends the evidence is gone: a package with 651 script writes publishes about a dozen
-# path-looking lines, and a surprising grant can only ever be RE-MEASURED, never RE-READ.
+# ⛔ THE RAW TRACER OUTPUT IS THE ARCHIVE. THE NORMALIZED STREAM BELOW IT IS A DERIVED CACHE.
+# Maintainer directive, and it corrects a mistake one layer up from the scope tags: a normalized
+# event stream bakes in TODAY'S DECODER exactly as a scope tag bakes in today's classifier. Two
+# measured proofs that this is not theoretical —
 #
-# The cost of that is not curiosity, it is the corpus: every harness fix currently invalidates
-# every record it touched, because a verdict cannot be re-derived. With the events kept, most
-# harness fixes become a RE-PARSE — minutes instead of the runner-hours a re-measure costs.
+#   * this adapter lost 100% of rename DESTINATIONS for its entire existence, silently. Every
+#     normalized log written in that era would have carried the hole forward, permanently.
+#   * the Linux decoder retained 18 of 27 known writes against a C fixture where the rewritten one
+#     retains 26 of 26. Nine losses, invisible, and unrecoverable without the raw.
 #
-# ⛔ WHAT IS RETAINED IS THE RAW EVENT, NOT ITS CLASSIFICATION. A path tagged with today's scope
-# would bake in today's classifier and would need a re-measure the moment the scope set changes —
-# which it is changing right now, with `tmp`. So the log carries the syscall, its arguments, its
-# errno and the process identity, and no scope at all.
+# With the raw kept, a decoder bug is a RE-PARSE. Without it, it is a re-measure — or, worse, a hole
+# nobody can see. So if only one of these two files can be committed, THIS is the one that survives.
+#
+# ⛔ AND A RAW TRACE WITHOUT ITS CAPTURE PARAMETERS IS WORTH FAR LESS THAN IT LOOKS. A future
+# re-parse has to know WHAT WAS SUBSCRIBED — a trace with no `linkat` records means "linkat never
+# fired" under today's adapter and "linkat was not subscribed" under the one from this morning, and
+# nothing in the byte stream distinguishes them. `capture.json` records the exact invocation, a hash
+# of the D script that produced it, the kernel it ran on, and the roots every path is relative to.
+CAPTURE="$OBS/capture.json"
+node -e '
+  const fs = require("fs"), crypto = require("crypto");
+  const [dscript, trace, obs, home, pkg, ver, sw, kern, argvline] = process.argv.slice(1);
+  const src = fs.readFileSync(dscript);
+  const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
+  console.log(JSON.stringify({
+    v: 1,
+    kind: "capture",
+    platform: `darwin-${process.arch}`,
+    pkg, version: ver,
+    tracer: "dtrace",
+    // The exact invocation, verbatim. A paraphrase is the thing that goes stale.
+    invocation: argvline,
+    // ⛔ THE HASH IS WHAT MAKES "what was subscribed?" ANSWERABLE. The adapter is versioned by its
+    // CONTENT, not by a number someone has to remember to bump, and the subscription list is
+    // recorded beside it so the question can be answered without the file in hand.
+    adapter: { path: "harness/v2/adapters/macos-observe.d", sha256: crypto.createHash("sha256").update(src).digest("hex"), bytes: src.length },
+    subscribes: [...new Set((src.toString().match(/syscall::[a-z_0-9]+:entry/g) ?? []).map((s) => s.slice(9, -6)))].sort(),
+    os: { product: sw, kernel: kern },
+    // Every path in the trace is machine-specific. Without these a future parser has a pile of
+    // strings — the same reason the normalized log carries them.
+    roots: { project: obs, home },
+    rawBytes: st(trace),
+    at: new Date().toISOString(),
+  }, null, 2));
+' "$HERE/adapters/macos-observe.d" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" "$VER" \
+  "$(sw_vers -productVersion 2>/dev/null)" "$(uname -a 2>/dev/null)" \
+  "dtrace -q -s adapters/macos-observe.d -o trace.txt -c '/bin/bash -x run.sh'" \
+  > "$CAPTURE" 2>/dev/null
+gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
+if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
+  echo "  RAWLOG-FILE $OBS/trace.txt.gz"
+  echo "  RAWLOG-CAPTURE $CAPTURE"
+  echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
+else
+  echo "  ⛔ RAW TRACE NOT RETAINED — the archive artifact is missing for this record"
+fi
+
+# ── 1c. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────
+#
+# ⛔ DERIVED, AND REGENERABLE FROM `trace.txt.gz` ABOVE. This is the file anyone will actually query
+# — greppable, one JSON object per event, paths already resolved — but it is a CACHE, not the
+# archive. If it disagrees with the raw trace, the raw trace is right; if a decoder bug is found,
+# this file is rebuilt rather than re-measured. That ordering is the whole reason the raw is kept.
+#
+# ⛔ WHAT IS RETAINED IS STILL THE RAW EVENT, NOT ITS CLASSIFICATION. A path tagged with today's
+# scope would bake in today's classifier and would need a re-measure the moment the scope set
+# changes — which it is changing right now, with `tmp`. So even the derived view carries the
+# syscall, its arguments, its errno and the process identity, and no scope at all.
+#
+# ⛔ AND IT IS NOT REQUIRED TO MATCH ANY OTHER PLATFORM. Trimming each adapter to the intersection
+# of what all three can express is itself a canonicalization, and it would force this lane to drop
+# whatever dtrace exposes that strace and ETW do not. Per-OS formats with per-OS parsers is the
+# settled shape; `fixtures/schema-contract.test.mjs` checks the derived views for ACCIDENTAL drift
+# and is advisory — where conformance would cost fidelity, fidelity wins.
 #
 # ⛔ TWO PUBLISH PATHS EXIST AND THIS HONOURS BOTH, DELIBERATELY. The Linux lane writes STRAIGHT into
 # the record dir from `NUB_V2_EVENTS_OUT`, which `run-batch-v2.mjs` sets (and currently sets only for

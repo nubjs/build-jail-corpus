@@ -64,6 +64,8 @@ export function parseDriverLog(log) {
     minimality: null,
     overPredictedBy: [],
     notes: [],
+    rawLogPath: null,
+    capturePath: null,
     eventLogPath: null,
     eventLog: null,
   };
@@ -73,6 +75,18 @@ export function parseDriverLog(log) {
     // ⛔ THE RETAINED EVENT LOG. The driver writes the file and prints its PATH; this reader only
     // learns where it is. That keeps the contract at two stdout lines, so a platform adopts
     // retention by printing them and this file never learns a trace format.
+    // ⛔ THE RAW TRACER OUTPUT IS THE ARTIFACT OF RECORD; the normalized event log below it is a
+    // derived cache. A normalized stream bakes in today's DECODER the way a scope tag bakes in
+    // today's classifier — and both of those decoders have already been measured losing events
+    // silently. With the raw kept, a decoder bug is a re-parse; without it, a permanent hole.
+    const rwf = /RAWLOG-FILE\s+(\S+)/.exec(l);
+    if (rwf) { out.rawLogPath = rwf[1]; continue; }
+    // A raw trace with unknown capture parameters is worth much less than it looks: "no `linkat`
+    // records" means `linkat` never fired under one adapter revision and was never SUBSCRIBED under
+    // another, and nothing in the byte stream tells them apart.
+    const rwc = /RAWLOG-CAPTURE\s+(\S+)/.exec(l);
+    if (rwc) { out.capturePath = rwc[1]; continue; }
+    if (/RAW TRACE NOT RETAINED/.test(l)) out.notes.push('rawlog-missing');
     const evf = /EVENTLOG-FILE\s+(\S+)/.exec(l);
     if (evf) { out.eventLogPath = evf[1]; continue; }
     const evs = /EVENTLOG-STATS\s+(\{.*)/.exec(l);
@@ -244,16 +258,30 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // Gzipped rather than plain: the checkout cost is what bounds how long retention stays
   // affordable, and `gzcat`/`zgrep` keep the corpus-wide query the maintainer asked for ("what do
   // all the outside-writes look like?") a one-liner. Reversible — the driver writes both.
-  if (parsed.eventLogPath) {
+  //
+  // ⛔ ORDER IS DELIBERATE: THE RAW TRACE AND ITS CAPTURE HEADER GO FIRST. They are the ARCHIVE —
+  // the normalized `events.ndjson.gz` is a derived cache that can be rebuilt from them. If disk,
+  // a size cap, or a publish policy ever forces one of the three out, the two that must survive are
+  // `trace.txt.gz` and `capture.json`; the third is a re-parse away. Copying them first is what
+  // makes that ordering true in practice rather than only in a comment.
+  const copies = [
+    [parsed.rawLogPath, 'trace.txt.gz', 'rawlog-copy-failed'],
+    [parsed.capturePath, 'capture.json', 'capture-copy-failed'],
+    [parsed.eventLogPath, 'events.ndjson.gz', 'eventlog-copy-failed'],
+  ];
+  let copyFailed = false;
+  for (const [src, name, note] of copies) {
+    if (!src) continue;
     try {
-      fs.copyFileSync(parsed.eventLogPath, path.join(dir, 'events.ndjson.gz'));
+      fs.copyFileSync(src, path.join(dir, name));
     } catch (e) {
-      // Loud, and only in the record: retention is additive, so a copy failure must not cost a
-      // measured package — but a record that silently lost its evidence is the state being fixed.
-      rec.notes = [...new Set([...rec.notes, 'eventlog-copy-failed'])];
-      fs.writeFileSync(path.join(dir, 'results.json'), `${JSON.stringify(rec, null, 2)}\n`);
-      console.error(`record.mjs: WARN could not copy ${parsed.eventLogPath}: ${e.message}`);
+      // Loud, and recorded: retention is additive, so a copy failure must not cost a measured
+      // package — but a record that silently lost its evidence is the state being fixed.
+      rec.notes = [...new Set([...rec.notes, note])];
+      copyFailed = true;
+      console.error(`record.mjs: WARN could not copy ${src}: ${e.message}`);
     }
   }
+  if (copyFailed) fs.writeFileSync(path.join(dir, 'results.json'), `${JSON.stringify(rec, null, 2)}\n`);
   console.log(dir);
 }

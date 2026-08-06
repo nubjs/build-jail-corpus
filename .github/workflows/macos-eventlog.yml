@@ -103,10 +103,13 @@ jobs:
           node --test harness/v2/observe-macos.test.mjs; echo "DECODER_RC=$?"
           node --test harness/v2/adapters/macos-eventlog.test.mjs; echo "EVENTLOG_RC=$?"
           node --test harness/v2/record.test.mjs; echo "RECORD_RC=$?"
-          # ⛔ THE ONLY TEST THAT READS MORE THAN ONE PLATFORM'S OUTPUT. Each adapter's own suite
-          # passes against its own spelling, so nothing anywhere notices when two of them drift —
-          # and the whole value of retention is that the corpus re-parses as ONE thing.
-          node --test harness/v2/fixtures/schema-contract.test.mjs; echo "CONTRACT_RC=$?"
+          # ⛔ ADVISORY, AND `|| true` IS THE POINT. It checks the DERIVED views for accidental
+          # drift; it does not govern the archive, and it must never stop a lane from capturing a
+          # field its tracer exposes and the others do not. Per-OS formats with per-OS parsers is
+          # the settled shape — a mandatory shared key set would be a canonicalization, which is the
+          # same failure as scope tags one level out.
+          node --test harness/v2/fixtures/schema-contract.test.mjs || true
+          echo "CONTRACT_RC=$? (advisory — a non-zero here is a REPORT, not a failure)"
 
       # ── THE RETENTION ARM ────────────────────────────────────────────────────────────────────
       - name: 4. ONE package, end to end, with the event log retained

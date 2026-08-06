@@ -1,48 +1,57 @@
-// dtrace trace.txt -> the RETAINED event log (NDJSON), in the SHARED schema.
+// dtrace trace.txt -> a QUERYABLE view of it (NDJSON). Derived; regenerable; not the archive.
 //
-// ⛔ WHY THIS FILE EXISTS. The v2 pipeline captures a complete syscall trace into a `mktemp -d`
-// fixture root, extracts a one-line verdict from it, publishes `driver.out` + `results.json`, and
-// lets the runner evaporate with the trace inside it. A package with 651 script writes publishes
-// about a dozen path-looking lines. So a verdict can only ever be RE-MEASURED, never RE-DERIVED —
-// which is why every harness fix invalidates the corpus, and why "what do all the outside-writes
-// look like across the corpus?" is a question nobody can ask.
+// ⛔⛔ READ THIS FIRST: THIS FILE'S OUTPUT IS A CACHE. The artifact of record is the RAW dtrace
+// output, `trace.txt.gz`, published beside `capture.json` in the same record dir. A normalized
+// event stream bakes in TODAY'S DECODER exactly the way a scope tag bakes in today's classifier,
+// and that is not a hypothetical:
 //
-// ⛔⛔ THE BAR, AND IT IS NOT "a useful debugging artifact":
+//   * this adapter lost 100% of rename DESTINATIONS for its entire existence, silently. Every
+//     normalized log written in that era would have carried the hole forward, permanently.
+//   * the Linux decoder retained 18 of 27 known writes against a C fixture where its rewrite
+//     retains 26 of 26. Nine losses, invisible, unrecoverable without the raw.
 //
-//     the retained log must let ANY FUTURE grant model be re-derived, without re-running the
-//     package.
+// With the raw archived, a bug in THIS FILE is a re-parse. Without it, a re-measure — or a hole
+// nobody can see. So: if this file and the raw trace ever disagree, the raw trace is right.
 //
-// Two consequences, and the second is the one that is easy to get wrong:
+// ⛔ IT IS NOT REQUIRED TO MATCH ANOTHER PLATFORM, AND MUST NOT BE TRIMMED TO THE INTERSECTION.
+// Per-OS formats with per-OS parsers is the settled shape. Demanding one shared key set across
+// three tracers is itself a canonicalization: it would force this lane to drop whatever dtrace
+// exposes that strace and ETW do not — which is the same lossy-classification failure as scope
+// tags, one level out. A macOS-only field is a REASON to capture it.
 //
-//   1. NOTHING DERIVED IS RETAINED IN PLACE OF ITS INPUT. A path tagged with today's SCOPE
-//      (`deps`/`project`/`userHome`/`outside`) bakes in today's classifier: the `tmp` scope being
-//      added right now did not exist when the corpus was measured, so a scope-tagged log would need
-//      a full RE-MEASURE where a raw log needs a RE-PARSE. That distinction is the whole point.
-//      Scopes are absent here by construction; the header's `roots` are what make every scope —
-//      today's and tomorrow's — recomputable from the file alone.
-//   2. THE RAW SYSCALL SURVIVES ALONGSIDE THE NEUTRAL CLASS. `o` is the cross-platform class a
-//      shared classifier reads; `s` is what the kernel actually saw. A model that later wants to
-//      tell `unlink` (destroys) from `mkdir` (creates), or an atomic `renameatx_np` swap from an
-//      ordinary rename, needs `s`, and `o` alone cannot reconstruct it.
+// In practice it DOES line up with `adapters/linux.mjs` today, because agreeing where agreement is
+// free makes a cross-platform query (`../eventlog-query.mjs`) writable once instead of three times:
+// `k`/`v`/`h` header, `k:"p"` process rows, `k:"e"` events with `p` pid, `o` class, `s` syscall,
+// `f`/`g` paths, `r` errno symbol, `fl` flags, `w` write intent, `n` repeat count, `u`/`u2`
+// unresolved base. `fixtures/schema-contract.test.mjs` watches that alignment and is ADVISORY —
+// where conformance would cost fidelity, fidelity wins and the test gets relaxed.
 //
-// ⛔ THE SCHEMA IS THE LINUX ADAPTER'S, NOT THIS FILE'S. `adapters/linux.mjs` shipped first and has
-// a committed artifact (`fixtures/linux-hugo-extended-0.141.0.events.ndjson.gz`), so its spelling is
-// the contract and this file matches it key for key: `k`/`v`/`h` header, `k:"p"` process rows,
-// `k:"e"` events with `p` pid, `o` class, `s` syscall, `f`/`g` paths, `r` result, `fl` flags,
-// `w` write intent, `n` repeat count, `u`/`u2` unresolved dirfd. Three adapters emitting three
-// dialects would make the corpus un-re-parseable as one thing, which is the entire value.
+// What is still true regardless of which file is the archive:
 //
-// ⛔ TWO ADDITIONS THIS PLATFORM NEEDS, both additive so a shared reader that filters on `k` is
-// unaffected:
+//   1. NOTHING DERIVED STANDS IN FOR ITS INPUT. No scope tags — the `tmp` scope added while this
+//      was being written did not exist at measurement time, and a scope-tagged log would have
+//      needed a re-measure to gain it. The header's `roots` make every scope recomputable instead.
+//   2. THE RAW SYSCALL SURVIVES ALONGSIDE THE NEUTRAL CLASS. `o` is the class a shared classifier
+//      reads; `s` is what the kernel saw. Telling `unlink` (destroys) from `mkdir` (creates), or an
+//      atomic `renameatx_np` swap from an ordinary rename, needs `s`.
+//
+// ⛔ THREE THINGS THIS PLATFORM CARRIES THAT LINUX DOES NOT, all additive so a reader filtering on
+// `k` is unaffected:
 //   `k:"x"`  — the TRACER LOSS LEDGER. dtrace aborts a whole clause on a copyin fault, so the event
 //              is dropped; a truncated `self->np2` lost 100% of rename destinations for as long as
 //              the adapter existed, silently, because dtrace's complaint went to a stderr file
 //              nothing read. A dropped event is a path never seen and therefore a capability never
 //              granted, so WHERE the stream has holes has to be in the stream. strace has no
 //              analogue, which is why Linux has no such record.
-//   `dfd`    — the numeric dirfd, kept beside `u` so an fd->path table added later can resolve what
-//              this tracer could not. Linux resolves dirfds from its own fd table and only needs to
-//              report the base; macOS has no fd table yet, so the raw value is the recoverable part.
+//   `dfd`    — the numeric dirfd, kept beside `u`. Linux resolves dirfds through its own fd table
+//              and only needs to report the base; this file builds an fd table too (from its own
+//              OPEN returns) but a dirfd opened before the trace started is still unresolvable, and
+//              the raw value is what a later parser needs to do better.
+//   `fd`     — on an FD-ONLY MUTATOR whose fd the table could not resolve. `fchmod`/`fchown`/
+//              `ftruncate`/`fsetattrlist` are writes that name NO path — 37 of the 86 path-mutating
+//              calls the census workload issued, and the half that subscribing the `*at` family
+//              could not close. Where the fd IS known they resolve to a real path; where it is not,
+//              the record is kept with the raw fd and no path, never a guessed one.
 //
 // ⛔ NOTHING IS FILTERED, AND THAT IS A DECISION. Every filter decides what a future model may see —
 // the same trap as a scope tag. The one filter that looks unambiguously safe, dropping `ENOENT` on
@@ -151,6 +160,20 @@ const OP_OF = {
   setattrlist: 'setattr', setattrlistat: 'setattr',
   setxattr: 'setxattr', removexattr: 'removexattr',
   utimes: 'utimes',
+  // Read-side path syscalls. No grant model reads these today — a read-derived grant would be
+  // `read:"disk"` for every package, since every process reads dyld's shared cache — but `open` is
+  // not the only way to READ a path, and a script that only `stat`s a file leaves no open record at
+  // all. Captured so a future read-scope model is a re-parse rather than a re-measure.
+  stat: 'stat', stat64: 'stat', lstat: 'stat', lstat64: 'stat',
+  fstatat: 'stat', fstatat64: 'stat',
+  access: 'access', faccessat: 'access',
+  readlink: 'readlink', readlinkat: 'readlink',
+  getattrlist: 'getattr', getattrlistat: 'getattr',
+  getxattr: 'getxattr', listxattr: 'listxattr',
+  // FD-only mutators — writes that name no path.
+  fchmod: 'chmod', fchown: 'chown', ftruncate: 'truncate',
+  fsetattrlist: 'setattr', fsetxattr: 'setxattr', fremovexattr: 'removexattr',
+  futimes: 'utimes',
 };
 // Ops whose very occurrence is a write, independent of any flags word.
 const MUTATING = new Set(['mkdir', 'rmdir', 'unlink', 'rename', 'link', 'symlink', 'clone',
@@ -168,6 +191,9 @@ const exeOf = new Map();
 const argvOf = new Map();
 const lifecycle = new Set();
 const seenPids = new Set();
+// pid -> (fd -> resolved path), built from this stream's own successful OPEN returns. It is what
+// lets an fd-only mutator name a path without the tracer having been able to.
+const fds = new Map();
 
 const basename = (p) => (p ?? '').split('/').pop();
 const isLifecycleShell = (a0, a1) => /^(sh|bash|dash|zsh)$/.test(basename(a0)) && a1 === '-c';
@@ -186,7 +212,7 @@ const resolve = (pid, p) => {
 const stats = {
   lines: lines.length, parsed: 0, unparsed: 0, live: false,
   tracerErrors: 0, tracerErrorTotal: null,
-  unresolvedDirfd: 0, pairedTwoPath: 0, danglingPair: 0,
+  unresolvedDirfd: 0, unresolvedFd: 0, pairedTwoPath: 0, danglingPair: 0,
   failed: 0, enoent: 0, refusals: 0, byErrno: {},
 };
 const events = new Map();    // dedup key -> event, carrying `n`
@@ -198,7 +224,12 @@ const pending = new Map();   // `${pid}:${ev}` -> the p1 half awaiting its p2
 // capability model. It is NOT lossless for ORDER, which no grant model reads; the chdir events are
 // emitted individually so path resolution stays replayable.
 const emit = (e) => {
-  const key = `${e.p} ${e.s} ${e.f ?? ''} ${e.g ?? ''} ${e.r} ${e.fl ?? ''}`;
+  // ⛔ THE KEY IS JSON, NOT A DELIMITER-JOINED STRING, AND THAT IS A CORRECTNESS CHOICE. Any
+  // delimiter has to be a character that cannot appear in a path, a syscall name or an errno
+  // symbol — and getting that wrong merges two unrelated events into one with `n:2`, silently,
+  // which is indistinguishable from the dedup working. `JSON.stringify` of the tuple sidesteps the
+  // question: the encoding is injective, so distinct tuples cannot collide however odd a path is.
+  const key = JSON.stringify([e.p, e.s, e.f ?? null, e.g ?? null, e.r, e.fl ?? null]);
   const prev = events.get(key);
   if (prev) { prev.n++; return prev; }
   e.n = 1;
@@ -218,7 +249,7 @@ for (const raw of lines) {
     const g = raw.split('|');
     stats.tracerErrors++;
     const sig = g.slice(4).join('|');
-    const k = `${g[1]} ${sig}`;
+    const k = JSON.stringify([g[1], sig]);   // injective, same reason as the event dedup key
     const prev = lost.get(k);
     if (prev) prev.n++;
     else lost.set(k, { k: 'x', p: Number(g[1]), comm: g[3], sig, n: 1 });
@@ -266,7 +297,29 @@ for (const raw of lines) {
       pt: Number(kv.port ?? 0), af: Number(kv.af ?? 0), r: errnoName(Number(kv.errno ?? 0)) });
     continue;
   }
-  if (kind !== 'OPEN' && kind !== 'PATHOP') { if (raw.trim()) stats.unparsed++; continue; }
+  // ⛔ AN FD-ONLY MUTATOR IS A WRITE THAT NAMES NO PATH, and it is 37 of the 86 path-mutating calls
+  // the census workload issued — the half subscribing the `*at` family could not close. dtrace
+  // cannot resolve the fd, but this stream's own OPEN returns carry (pid, fd, path), so the join
+  // happens HERE, in the parser, off the archive. Where the fd is unknown (opened before the trace
+  // started, or inherited across a fork this stream did not witness) the record is kept with the
+  // raw fd in `u` and NO path — never a guessed one.
+  if (kind === 'FDOP') {
+    const kv = Object.fromEntries(f.slice(5).filter((x) => x.includes('='))
+      .map((x) => [x.slice(0, x.indexOf('=')), Number(x.slice(x.indexOf('=') + 1))]));
+    const call = f[4];
+    const resolved = fds.get(pid)?.get(kv.fd);
+    stats.parsed++;
+    if (resolved === undefined) stats.unresolvedFd++;
+    const e = { p: pid, o: OP_OF[call] ?? call, s: call, f: resolved ?? null,
+      r: errnoName(kv.errno ?? 0), w: 1 };
+    if (resolved === undefined) { e.u = `fd:${kv.fd}`; e.fd = kv.fd; }
+    emit(e);
+    continue;
+  }
+  if (kind !== 'OPEN' && kind !== 'PATHOP' && kind !== 'STATOP') {
+    if (raw.trim()) stats.unparsed++;
+    continue;
+  }
 
   const isOpen = kind === 'OPEN';
   const call = isOpen ? 'open' : f[4];
@@ -298,7 +351,16 @@ for (const raw of lines) {
   } else {
     e.f = resolve(pid, path);
   }
-  if (isOpen) e.fl = flagText(meta.flags ?? 0);
+  if (isOpen) {
+    e.fl = flagText(meta.flags ?? 0);
+    // A successful open returns the fd. Recorded against the RESOLVED path so a later FDOP can be
+    // joined to it — the table is per-pid only, so an fd inherited across a fork this stream did
+    // not witness stays unresolved rather than being attributed to the wrong file.
+    if ((meta.ret ?? -1) >= 0 && e.f && !e.u) {
+      if (!fds.has(pid)) fds.set(pid, new Map());
+      fds.get(pid).set(meta.ret, e.f);
+    }
+  }
   if (MUTATING.has(op) || op === 'open-w') e.w = 1;
 
   // Two-path operations arrive as two records sharing an `ev`, and are MERGED so the pairing

@@ -1,11 +1,21 @@
-// The CROSS-PLATFORM contract for the retained event log.
+// ⛔ ADVISORY, NOT A GATE. Read this before "fixing" a failure here.
 // `node --test harness/v2/fixtures/schema-contract.test.mjs`
 //
-// ⛔ WHY THIS EXISTS. Three adapters produce the corpus and each one's own test suite passes against
-// its own spelling — so nothing anywhere notices when they drift apart. The whole value of retention
-// is that a future model can RE-PARSE the corpus as ONE thing; two dialects make that a three-parser
-// job, and the drift is invisible until someone tries. This is the only test that reads more than
-// one platform's output.
+// This checks that the DERIVED event streams — `events.ndjson.gz` — have not drifted apart by
+// accident. It does NOT check the archive, and it must never constrain what a platform records.
+//
+// ⛔ THE ARCHIVE IS THE RAW PER-OS TRACER OUTPUT (`trace.txt.gz` + `capture.json`), and per-OS
+// formats with per-OS parsers are the settled shape. Requiring every adapter to satisfy one key set
+// is ITSELF a canonicalization: it forces each lane to trim to the intersection of what all three
+// tracers can express, so anything dtrace exposes that strace and ETW do not would have to be
+// dropped or bloated into everyone's schema. That is the same lossy-classification failure as scope
+// tags, one level out. ⇒ **If satisfying an assertion here would cost fidelity in a raw capture or
+// in a platform's derived view, the capture wins and the assertion gets relaxed.** A macOS-only
+// field is a REASON to capture it, not a reason to leave it out.
+//
+// What it is still good for, and it is worth keeping: each adapter's own suite passes against its
+// own spelling, so nothing else in the tree notices when two of them diverge for no reason. A
+// cross-platform query (`eventlog-query.mjs`) is only writable once because these agree today.
 //
 // It runs against COMMITTED REAL LOGS, not constructed ones. A hand-written fixture agrees with
 // whatever the author believed the schema was, which is exactly the belief under test.

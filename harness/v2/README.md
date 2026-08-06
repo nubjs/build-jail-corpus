@@ -184,6 +184,27 @@ Until now nothing about WHAT a package touched survived a run. `measure.sh` writ
 
 ⛔ **Nothing is filtered, and dropping `ENOENT` is NOT the free win it looks like.** It buys 1.3–1.75× after dedup, and the argument for it ("the file does not exist, so no grant would change the outcome") holds only on the MEASURING machine. MEASURED on `lmdb-store@2.0.0-alpha2`: 21,142 of its ENOENT probes are outside project and home, and they are the C++ **include search path** — `/usr/include/c++/12/bits/…`, `/usr/local/include/…`. On a box with a different gcc layout those same probes HIT. A future model that wants "grant the read the compiler searched for" is derivable only from the ENOENT set, so filtering it is the under-grant direction. Refusals (`EACCES`/`EPERM`/`EROFS`) are kept for the obvious reason: they are the signal that a grant is missing.
 
+#### ⛔ The RAW tracer output is the archive; the normalized stream is a derived cache
+
+Maintainer directive, and it corrects the retention design one layer up from the scope tags. A normalized event stream bakes in **today's DECODER** exactly the way a scope tag bakes in today's classifier — and we have two measured instances where that would already have cost us:
+
+- the macOS dtrace adapter lost **100% of rename destinations** for its entire existence, silently;
+- the Linux decoder retained **18 of 27** known writes against a C fixture where its rewrite retains 26 of 26.
+
+Every normalized log written in either era would have carried those holes forward, permanently and invisibly. With the raw kept, a decoder bug is a **re-parse**; without it, a re-measure at best.
+
+⇒ **Per-OS raw formats with per-OS parsers is the shape.** Do NOT canonicalize onto one wire format — a mandatory shared schema is itself a canonicalization, and it would force each lane to trim to the intersection of what all three tracers can express. A field only one tracer exposes is a reason to capture it.
+
+| file in the record dir | role |
+| --- | --- |
+| `trace.txt.gz` | **the archive.** Byte-exact tracer output. If only one file survives, this one. |
+| `capture.json` | what makes the archive re-parseable — exact invocation, a **sha256 of the D script** plus the subscription list it implies, OS/kernel, roots |
+| `events.ndjson.gz` | derived, queryable, regenerable from the two above |
+
+⛔ **`capture.json` is not optional metadata.** A trace with no `linkat` records means "`linkat` never fired" under today's adapter and "`linkat` was not subscribed" under this morning's, and *nothing in the byte stream distinguishes them*. The adapter is versioned by content hash rather than by a number someone has to remember to bump.
+
+**Measured on `@apollo/rover@0.2.1`:** archive `trace.txt.gz` **40,870 B** against derived `events.ndjson.gz` 23,623 B — **1.73×**, at the low end of the 2–2.8× Linux measured. Committing both is 64.5 KB/package (~138 MiB per platform at 2,250); archive-only is ~88 MiB.
+
 #### The macOS half — `adapters/macos-eventlog.mjs`
 
 Same schema, same file name in the record dir, same no-scope-tags rule; the differences are the ones dtrace forces, and each is additive so a shared reader that filters on `k` is unaffected.
