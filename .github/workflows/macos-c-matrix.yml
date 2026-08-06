@@ -1,0 +1,73 @@
+# Two INDEPENDENT bounded experiments on the macOS lane, run as separate jobs so neither can
+# contaminate the other's read:
+#
+#   1. dtrace-c-matrix   — why the `dtrace -c` child never completes (the blocker).
+#   2. copyinstr-fixture — the silent OPEN-record drop from copyinstr-at-entry.
+#
+# Branch-scoped and no PR: dtrace needs uid 0, and a hosted runner is the only place with SIP
+# disabled and a `sudo` we are allowed to use.
+name: macos-c-matrix
+
+on:
+  push:
+    branches: [probe/macos-c-matrix]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dtrace-c-matrix:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Host facts + dtrace positive control
+        run: |
+          set +e
+          sw_vers; uname -m
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' > /tmp/hello.log 2>&1
+          echo "HELLO_EXIT=$?"
+          sed 's/^/  /' /tmp/hello.log
+          codesign -dv --entitlements - /bin/sh 2>&1 | head -20
+          echo "SH_FLAGS: $(codesign -d --verbose=4 /bin/sh 2>&1 | grep -i 'flags\|CodeDirectory' | head -3)"
+      - name: MATRIX
+        run: |
+          set +e
+          chmod +x harness/v2/probes/dtrace-c-matrix.sh
+          sudo -E harness/v2/probes/dtrace-c-matrix.sh "$HOME/cmatrix" > /tmp/matrix.txt 2>&1
+          echo "MATRIX_EXIT=$?"
+          cat /tmp/matrix.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dtrace-c-matrix
+          path: |
+            /tmp/matrix.txt
+            /Users/runner/cmatrix/*.trace
+            /Users/runner/cmatrix/*.stderr
+            /Users/runner/cmatrix/*.wtrace
+          if-no-files-found: warn
+
+  copyinstr-fixture:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: KNOWN-ANSWER FIXTURE
+        run: |
+          set +e
+          chmod +x harness/v2/probes/copyinstr-fixture.sh
+          sudo -E harness/v2/probes/copyinstr-fixture.sh "$HOME/kaf-work" > /tmp/kaf.txt 2>&1
+          echo "FIXTURE_EXIT=$?"
+          cat /tmp/kaf.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: copyinstr-fixture
+          path: |
+            /tmp/kaf.txt
+            /Users/runner/kaf-work/*.trace
+            /Users/runner/kaf-work/*.stderr
+          if-no-files-found: warn
