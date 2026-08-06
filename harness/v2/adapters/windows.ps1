@@ -109,8 +109,26 @@ foreach ($ch in [char[]]([char]'A'..[char]'Z')) {
 # ---------------------------------------------------------------------------------------------
 # The session.
 #
-#   Kernel-File     0x11F0  FILENAME | FILEIO | OP_END | CREATE | READ | WRITE | DELETE_PATH |
-#                           RENAME_SETLINK_PATH | CREATE_NEW_FILE
+#   Kernel-File     0x11F0  FILENAME | FILEIO | OP_END | CREATE | READ | CREATE_NEW_FILE
+#
+#   ⛔ THIS LIST USED TO NAME NINE KEYWORDS AND THE MASK ONLY CARRIES SIX. MEASURED on a real
+#   windows-latest runner (run 31116467283) against the provider's own `wevtutil gp` manifest, and
+#   corroborated by `logman query -ets`, which renders the live session's mask as exactly those six
+#   names. WRITE (0x200), DELETE_PATH (0x400) and RENAME_SETLINK_PATH (0x800) are NOT enabled; the
+#   mask that would carry all nine is 0x1FF0.
+#
+#   WRITE's absence turns out not to matter: event 16 (Write) is published under `WRITE|FILEIO`, and
+#   FILEIO is on, so writes are delivered anyway — a known-answer fixture confirmed a write through a
+#   plain FILE_OPEN handle IS reported. The other two DO matter. Events 26/27/28 (DeletePath,
+#   RenamePath, SetLinkPath) are published under 0x400/0x800 ALONE, so they can never be delivered
+#   here — and they are the only events carrying the DESTINATION path of a rename or a hard link.
+#   The same fixture measured both destinations ABSENT ENTIRELY.
+#
+#   ⛔ WIDENING THE MASK ALONE DOES NOT FIX IT — measured, not assumed. The same fixture at 0x1FF0
+#   lost both destinations identically, because `windows.mjs` resolves a handle op as
+#   `nameByObject.get(FileObject) ?? … ?? data.FileName` and for a RenamePath the FileObject is still
+#   the SOURCE handle, so the source name wins over the destination in the payload. Two independent
+#   defects on one axis; fixing the mask without fixing the lookup order changes nothing.
 #   Kernel-Network  0x30    IPV4 | IPV6
 #   Kernel-Process  0x10    WINEVENT_KEYWORD_PROCESS -- Start carries ParentProcessID, which is
 #                           the ONLY way to follow grandchildren

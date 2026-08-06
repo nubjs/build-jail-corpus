@@ -29,7 +29,7 @@ Three providers, and each is load-bearing:
 
 | provider | keywords | what it supplies |
 | --- | --- | --- |
-| `Microsoft-Windows-Kernel-File` | `0x11F0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles |
+| `Microsoft-Windows-Kernel-File` | `0x11F0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles — but see [What it cannot see](#what-it-cannot-see): the mask omits `DELETE_PATH` and `RENAME_SETLINK_PATH`, so rename and hard-link **destinations** are never delivered |
 | `Microsoft-Windows-Kernel-Network` | `0x30` | TCP and UDP connection attempts with `PID`, `daddr`, `dport` |
 | `Microsoft-Windows-Kernel-Process` | `0x10` | ProcessStart with `ParentProcessID` — the only way to follow grandchildren |
 
@@ -46,7 +46,13 @@ disposition = (CreateOptions >>> 24) & 0xFF
 1 OPEN                                                          -> read
 ```
 
-Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete`, `Rename`, `DeletePath`, `RenamePath` and `SetLinkPath` are writes as well.
+Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete` and `Rename` are writes as well.
+
+⛔ **`DeletePath`, `RenamePath` and `SetLinkPath` are handled in the parser but are NEVER DELIVERED, so the rename and hard-link DESTINATION is lost.** MEASURED on a real runner ([31116467283](https://github.com/nubjs/build-jail-corpus/actions/runs/31116467283)) against the provider's `wevtutil gp /ge:true` manifest: those three events are published under keywords `0x400`/`0x800` alone, and the session's mask `0x11F0` contains neither. `logman query -ets` renders the live mask as exactly six keyword names, confirming it independently. A known-answer fixture — a rename and a hard link whose exact source and destination the fixture chose — reported both **destinations absent entirely** while both sources came back.
+
+⛔ **And widening the mask does not fix it.** The same fixture at `0x1FF0`, changing nothing else, lost both destinations identically. The reason is in this file's own resolution order: a handle op resolves as `nameByObject.get(FileObject) ?? nameByKey.get(FileKey) ?? data.FileName`, and for a `RenamePath` the `FileObject` is still the **source** handle, so the source name wins over the destination carried in the payload. The two defects have to be fixed together — mask *and* lookup order — or the change is inert.
+
+This is the same defect class the macOS dtrace adapter carried (100% of rename destinations lost, for the life of that adapter), reached independently on a different platform by a different mechanism.
 
 Only four NTSTATUS values are refusals: `STATUS_ACCESS_DENIED`, `STATUS_PRIVILEGE_NOT_HELD`, `STATUS_MEDIA_WRITE_PROTECTED`, `STATUS_CANNOT_DELETE`. The Windows near-miss is not a string collision like `AT_EACCESS` — it is the temptation to call every non-zero status a denial. A probe for a file that is not there returns `STATUS_OBJECT_NAME_NOT_FOUND`, which means the operation did not happen; those are omitted, matching the Linux extractor skipping `= -1`. On the fixture trace 379 operations failed for a reason that was not a refusal and exactly one was a refusal.
 
