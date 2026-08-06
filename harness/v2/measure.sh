@@ -78,46 +78,95 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)"
 
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
-OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
-printf '{"name":"o","version":"1.0.0"}\n' > package.json
-# ⛔ THE FETCH IS NOT TRACED, AND THAT IS THE WHOLE POINT. Tracing `npm install` traces NPM —
-# its registry TLS connections and its `~/.npm/_cacache` writes land in the same event stream as
-# the lifecycle script's, so EVERY package synthesizes `network:true` + `write:userHome` no matter
-# what its script does. MEASURED: that is over-prediction on 100% of packages and it makes the
-# per-path question (can `writePaths` replace `write:"disk"`?) unanswerable. So: fetch and unpack
-# with `--ignore-scripts` OUTSIDE the trace, then trace `npm rebuild`, which runs the lifecycle
-# scripts and nothing else.
-npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log" 2>&1
-FETCH_RC=$?
-if [ "$FETCH_RC" -ne 0 ]; then
-  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
-fi
-PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
-# ⛔ OBSERVE WITH THE SAME `HOME` THE JAIL WILL GIVE THE SCRIPT, OR EVERY npm-CACHE WRITE IS BILLED
-# AS A CAPABILITY THE PACKAGE DOES NOT NEED. The jail redirects `HOME`/`USERPROFILE` to a per-package
-# private home (`preset.rs` `private_home_dir`, RW-granted by the base profile), so inside the jail
-# `$HOME/.npm/_cacache/...` lands in already-granted space. Observing under the AMBIENT `$HOME` put
-# those same writes under the real home and synthesized `write:{userHome}` — measured on
-# `vanilla-cookieconsent@3.0.0-rc.9`, 51 of its 52 writes were npm's own cache.
 #
-# ⛔ THE REDIRECT IS THE POINT, AND A `$HOME`-PREFIX EXCLUSION WOULD NOT DO. Filtering the paths
-# afterwards would silently swallow a script that hardcodes a real-home path — an UNDER-prediction,
-# the one direction that breaks installs. Redirecting instead makes `jailHome` a MEASUREMENT of
-# which writes actually follow `$HOME`: a hardcoded path still lands in `userHome` and still earns
-# the grant.
-JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
-# `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-HOME="$JAIL_HOME" strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
-  npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
-OBS_RC=$?
-OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
-echo "  OBSERVE   rc=$OBS_RC files=$OBS_FILES trace=$(wc -l < "$OBS/trace.txt" | tr -d ' ') lines"
-if [ "$OBS_RC" -ne 0 ]; then
-  # An unjailed failure means the package is broken HERE — a jailed result would be meaningless.
-  # v1 calls this BROKEN-WITHOUT-JAIL-TOO and it is a real verdict, not an error.
-  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)"
-  exit 0
-fi
+# ⛔ OBSERVE RUNS ONCE BY DEFAULT, AND A SINGLE OBSERVATION OF A NON-DETERMINISTIC SCRIPT MISSES
+# WHATEVER THAT RUN DID NOT DO. A cache that is cold only the first time, a race, a timestamped
+# download name, a network-dependent branch — any of them can hide a capability from the one run
+# that decides the grant, and the grant then omits it and a real install breaks. Over-granting is
+# safe; under-granting is not, so the fix is to repeat and UNION.
+#
+# `NUB_V2_OBSERVE_RUNS=N` (default 1) runs OBSERVE N times with FULL EVICTION between, keeps every
+# per-run set, and hands the union to VERIFY. `NUB_V2_OBSERVE_ONLY=1` stops after that — the union
+# is a property of OBSERVE alone, and VERIFY needs an unprivileged jail (Landlock) that the fastest
+# venue for a repeat sweep, a container, does not have.
+#
+# ⛔⛔ TWO SEQUENTIAL RUNS ARE NOT INDEPENDENT SAMPLES UNLESS EVERYTHING RUN 1 WARMED IS EVICTED.
+# Run 1 populates caches that run 2 then HITS, so run 2 observes systematically LESS and the
+# comparison measures the eviction rather than the package. This has already bitten this project on
+# the macOS lane: Node writes its V8 compile cache only when cold, so arm 1 renamed 541 files and
+# arm 2 renamed zero, and a working fix read as capturing nothing. `observe_once` therefore rebuilds
+# the fixture root, the jail HOME (which carries the traced run's whole npm cache, `~/.cache`, and
+# any per-tool cache the script creates) and the temp dir from scratch before EVERY run, run 1
+# included, so no run is privileged.
+#
+# ⛔ NOT EVICTED, DELIBERATELY: the ambient `~/.npm/_cacache` the UNTRACED fetch uses. It is outside
+# the trace by construction (see the fetch note below), so its warmth cannot reach the event stream
+# — and it is machine-global, so wiping it would slow every sibling agent on the box for nothing.
+OBSERVE_RUNS="${NUB_V2_OBSERVE_RUNS:-1}"
+OBS="$ROOT/observe"
+JAIL_HOME="$ROOT/jailhome"
+# ⛔ THE TEMP DIR IS THE V8 COMPILE CACHE'S HOME (`os.tmpdir()/node-compile-cache`), so a per-run
+# TMPDIR is what makes the compile cache cold on every run rather than only the first.
+#
+# ⛔ IT MUST STAY UNDER `/tmp`, NOT UNDER `$ROOT`. `$ROOT` is under `$HOME`, so a temp write there
+# would classify `userHome` and SYNTHESIZE A GRANT the same write does not earn today — changing
+# the answer for real runs, which this must not do. `/tmp/...` classifies `outside` exactly as the
+# ambient `/tmp` does, so the bucket, and therefore the grant, is unchanged.
+#
+# Only when repeating: at `N=1` there is no "between runs", so the default path is left byte-identical.
+RTMP=""
+[ "$OBSERVE_RUNS" -gt 1 ] && RTMP="/tmp/v2obs-$$"
+
+observe_once () {
+  local n="$1"
+  # EVICT. Order matters only in that everything is gone before anything is rebuilt.
+  rm -rf "$OBS" "$JAIL_HOME"; mkdir -p "$OBS" "$JAIL_HOME"
+  [ -n "$RTMP" ] && { rm -rf "$RTMP"; mkdir -p "$RTMP"; }
+  cd "$OBS" || return 1
+  printf '{"name":"o","version":"1.0.0"}\n' > package.json
+  # ⛔ THE FETCH IS NOT TRACED, AND THAT IS THE WHOLE POINT. Tracing `npm install` traces NPM —
+  # its registry TLS connections and its `~/.npm/_cacache` writes land in the same event stream as
+  # the lifecycle script's, so EVERY package synthesizes `network:true` + `write:userHome` no matter
+  # what its script does. MEASURED: that is over-prediction on 100% of packages and it makes the
+  # per-path question (can `writePaths` replace `write:"disk"`?) unanswerable. So: fetch and unpack
+  # with `--ignore-scripts` OUTSIDE the trace, then trace `npm rebuild`, which runs the lifecycle
+  # scripts and nothing else.
+  npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log" 2>&1 || return 4
+  # ⛔ OBSERVE WITH THE SAME `HOME` THE JAIL WILL GIVE THE SCRIPT, OR EVERY npm-CACHE WRITE IS BILLED
+  # AS A CAPABILITY THE PACKAGE DOES NOT NEED. The jail redirects `HOME`/`USERPROFILE` to a per-package
+  # private home (`preset.rs` `private_home_dir`, RW-granted by the base profile), so inside the jail
+  # `$HOME/.npm/_cacache/...` lands in already-granted space. Observing under the AMBIENT `$HOME` put
+  # those same writes under the real home and synthesized `write:{userHome}` — measured on
+  # `vanilla-cookieconsent@3.0.0-rc.9`, 51 of its 52 writes were npm's own cache.
+  #
+  # ⛔ THE REDIRECT IS THE POINT, AND A `$HOME`-PREFIX EXCLUSION WOULD NOT DO. Filtering the paths
+  # afterwards would silently swallow a script that hardcodes a real-home path — an UNDER-prediction,
+  # the one direction that breaks installs. Redirecting instead makes `jailHome` a MEASUREMENT of
+  # which writes actually follow `$HOME`: a hardcoded path still lands in `userHome` and still earns
+  # the grant.
+  #
+  # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
+  HOME="$JAIL_HOME" ${RTMP:+TMPDIR=$RTMP} strace -f -e trace=file,network,process -o "$ROOT/trace-$n.txt" \
+    npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
+}
+
+for n in $(seq 1 "$OBSERVE_RUNS"); do
+  observe_once "$n"; OBS_RC=$?
+  if [ "$OBS_RC" -eq 4 ]; then
+    echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
+  fi
+  OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+  echo "  OBSERVE[$n] rc=$OBS_RC files=$OBS_FILES trace=$(wc -l < "$ROOT/trace-$n.txt" | tr -d ' ') lines"
+  if [ "$OBS_RC" -ne 0 ]; then
+    # An unjailed failure means the package is broken HERE — a jailed result would be meaningless.
+    # v1 calls this BROKEN-WITHOUT-JAIL-TOO and it is a real verdict, not an error.
+    echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)"
+    exit 0
+  fi
+done
+# The last run's tree is the artifact-gate reference and the last run's trace is what the retention
+# step keeps. Both were true of the single run before; naming them keeps the rest of the file honest.
+LAST_TRACE="$ROOT/trace-$OBSERVE_RUNS.txt"
 
 # The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
 # arm's own hoisted `node_modules`. Consumed by the per-arm store eviction in `verify()` — see the
@@ -137,10 +186,33 @@ CLOSURE=$(node -e '
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
-sed 's/^/  /' "$ROOT/observed.txt"
-GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
+#
+# ⛔ ONE `observe.mjs` PER RUN, THEN A UNION — NEVER ONE `observe.mjs` OVER CONCATENATED TRACES.
+# The decoder tracks cwd and the lifecycle subtree PER PID, and two runs reuse pids, so a
+# concatenated trace would resolve run 2's relative paths against run 1's cwd map and attribute run
+# 2's syscalls through run 1's process tree. That fabricates paths, which is worse than missing one.
+#
+# `NUB_V2_DUMP_WRITES=1` is what makes the per-run sets diffable at all: the report prints a count
+# plus ten examples per bucket, and the union has to be over the COMPLETE set.
+OBSERVED_FILES=""
+for n in $(seq 1 "$OBSERVE_RUNS"); do
+  NUB_V2_DUMP_WRITES=1 node "$HERE/observe.mjs" "$ROOT/trace-$n.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" \
+    > "$ROOT/observed-$n.txt" 2>&1
+  # Built explicitly rather than globbed: `observed-*.txt` sorts `10` before `2`, which would label
+  # every per-run diff with the wrong run number past nine runs.
+  OBSERVED_FILES="$OBSERVED_FILES $ROOT/observed-$n.txt"
+done
+# Continuity: the single-run artifact keeps its old name and, at the default `N=1`, its old content.
+cp "$ROOT/observed-$OBSERVE_RUNS.txt" "$ROOT/observed.txt"
+grep -v '^WRITE' "$ROOT/observed.txt" | sed 's/^/  /'
+node "$HERE/observe-union.mjs" $OBSERVED_FILES > "$ROOT/union.txt" 2>&1
+sed 's/^/  /' "$ROOT/union.txt"
+GRANT=$(grep -A1 'UNION GRANT' "$ROOT/union.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+if [ -n "${NUB_V2_OBSERVE_ONLY:-}" ]; then
+  echo "  => OBSERVE-ONLY $GRANT   (union of $OBSERVE_RUNS run(s); NOT verified — no jail was entered)"
+  exit 0
+fi
 
 # ── 2b. RETAIN the decoded trace, when the batch driver asked for it. ──────────────────────────
 #
@@ -155,7 +227,7 @@ GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *
 # to move a verdict, and the cheapest way to guarantee that is for the verdict to be computed first
 # and by a different decoder. A failure here is deliberately non-fatal for the same reason.
 if [ -n "${NUB_V2_EVENTS_OUT:-}" ]; then
-  node "$HERE/adapters/linux.mjs" "$OBS/trace.txt" \
+  node "$HERE/adapters/linux.mjs" "$LAST_TRACE" \
     --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" \
     --pkg "$PKG" --version "$VER" --out "$NUB_V2_EVENTS_OUT" 2>&1 | sed 's/^/  /'
 fi
