@@ -59,9 +59,14 @@ echo \$? > "$OBS/rc"
 WRAP
 
 PRE=$(find -L "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# `-x` and an unconditional dump of both the wrapper and dtrace's own stderr: the first run of this
+# driver produced a live tracer, a clean dtrace exit, and NO npm.log at all — i.e. the `-c` child
+# exited without executing its body, which is invisible unless the wrapper narrates itself.
 dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
-       -c "/bin/sh $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
+       -c "/bin/sh -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
 DT_RC=$?
+echo "  --- wrapper (run.sh) ---"; sed 's/^/     /' "$OBS/run.sh"
+echo "  --- dtrace stderr + wrapper trace ---"; sed 's/^/     /' "$OBS/dtrace.log" | head -30
 OBS_RC=$(cat "$OBS/rc" 2>/dev/null || echo 99)
 OBS_FILES=$(find -L "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 TRACE_LINES=$(wc -l < "$OBS/trace.txt" 2>/dev/null | tr -d ' ')
