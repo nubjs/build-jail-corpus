@@ -292,34 +292,43 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
   echo "  RAWLOG-FILE $OBS/trace.txt.gz"
   echo "  RAWLOG-CAPTURE $CAPTURE"
   echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
-  echo "  VENUE-INTERPRETER $INTERPRETER"
-  # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
-  # its INHERITED value precisely because the one override that would invalidate the whole
-  # venue/CI acceptance test is touching it. Recording it unchanged is the claim a reader can check.
-  # ⛔ The harness normalises its own APPARATUS, never the environment under test: `CI`,
-  # `GITHUB_ACTIONS` and `NODE_ENV` are passed through verbatim, because an install script reads them
-  # and changes what it downloads or whether it builds from source. Flattening them would produce a
-  # catalog that under-grants every CI user.
-  echo "  VENUE-OVERRIDES $(node -e '
-    const e = process.env;
-    process.stdout.write(JSON.stringify({
-      set: { HOME: process.argv[1], TMPDIR: process.argv[2], NODE_COMPAT: "1",
-             PLAYWRIGHT_BROWSERS_PATH: process.argv[3] + "/ms-playwright",
-             ELECTRON_CACHE: process.argv[3] + "/electron-cache",
-             electron_config_cache: process.argv[3] + "/electron-cache",
-             npm_config_prefix: process.argv[3] + "/npm-prefix",
-             NUB_CACHE_DIR: process.argv[4] },
-      unset: [],
-      passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
-                       NODE_ENV: e.NODE_ENV ?? null },
-    }));
-  ' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" 2>/dev/null)"
 else
   # ⛔ NOT FATAL, BUT NEVER SILENT. Retention is additive to the measurement, so losing it must not
   # cost a measured package — but a record that carries a verdict and no evidence is the exact state
   # this machinery exists to end, and `record.mjs` turns this line into a `rawlog-missing` note.
   echo "  ⛔ RAW TRACE NOT RETAINED — the archive artifact is missing for this record"
 fi
+
+# ⛔ VENUE PROVENANCE IS EMITTED UNCONDITIONALLY, OUTSIDE THE RETENTION BLOCK ABOVE, AND THE NESTING
+# IS NOT COSMETIC. These two markers describe the RUN — which interpreter it used, and what this
+# driver did to the environment (PORTABILITY R3 + R6). The block above describes the ARCHIVE. They
+# are independent facts, and coupling them meant a `gzip` failure or a zero-byte `capture.json`
+# silently stripped `interpreterPath`, `interpreterInsideHome` and the WHOLE `overrides` object from
+# a record whose measurement was otherwise perfect. A record that cannot say whether `CI` was touched
+# is exactly the un-attributable record R6 exists to end — and it would have failed CLOSED-looking,
+# with `overrides: null` reading as "nothing was overridden" rather than as "we lost the answer".
+echo "  VENUE-INTERPRETER $INTERPRETER"
+# ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
+# its INHERITED value precisely because the one override that would invalidate the whole
+# venue/CI acceptance test is touching it. Recording it unchanged is the claim a reader can check.
+# ⛔ The harness normalises its own APPARATUS, never the environment under test: `CI`,
+# `GITHUB_ACTIONS` and `NODE_ENV` are passed through verbatim, because an install script reads them
+# and changes what it downloads or whether it builds from source. Flattening them would produce a
+# catalog that under-grants every CI user.
+echo "  VENUE-OVERRIDES $(node -e '
+  const e = process.env;
+  process.stdout.write(JSON.stringify({
+    set: { HOME: process.argv[1], TMPDIR: process.argv[2], NODE_COMPAT: "1",
+           PLAYWRIGHT_BROWSERS_PATH: process.argv[3] + "/ms-playwright",
+           ELECTRON_CACHE: process.argv[3] + "/electron-cache",
+           electron_config_cache: process.argv[3] + "/electron-cache",
+           npm_config_prefix: process.argv[3] + "/npm-prefix",
+           NUB_CACHE_DIR: process.argv[4] },
+    unset: [],
+    passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
+                     NODE_ENV: e.NODE_ENV ?? null },
+  }));
+' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" 2>/dev/null)"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 # ⛔ ROOTS ARE NOT PASSED AS ARGUMENTS ANY MORE — the classifier takes them from `capture.json` and
@@ -674,11 +683,21 @@ verify () {
   # Deriving it from the env var would encode the very rule this field exists to let us CHECK, and it
   # would then agree with itself forever. MEASURED, and this is why it matters: a `CI`-unset install
   # on the corpus VM still produced a `node_modules/.store`, so "CI implies isolated" is not a
-  # biconditional. Emitted once, from the first arm, because every arm shares one layout.
+  # biconditional. Emitted once, from the first arm that can actually SEE a layout.
+  #
+  # ⛔ THE LATCH IS SET INSIDE EACH EMITTING BRANCH, NEVER AFTER THE `if`, AND THE DIFFERENCE IS A
+  # WHOLE PACKAGE'S FIELD. An arm with NO `node_modules` at all — a failed install, which is the
+  # normal shape of the first rung of a descent ladder — matches neither branch and emits no marker.
+  # With the latch outside, that arm still LATCHED, so every later arm was silenced and `record.mjs`
+  # wrote `storeLayout: null` for the entire package even though every subsequent arm installed
+  # perfectly and had the answer on disk. "Emitted once" has to mean once SUCCESSFULLY, not once
+  # ATTEMPTED, because the thing being latched is the emission and not the visit.
   if [ -z "${STORE_LAYOUT_REPORTED:-}" ]; then
-    if [ -d "$v/node_modules/.store" ]; then echo "  VENUE-STORE-LAYOUT isolated"
-    elif [ -d "$v/node_modules" ]; then echo "  VENUE-STORE-LAYOUT hoisted"; fi
-    STORE_LAYOUT_REPORTED=1
+    if [ -d "$v/node_modules/.store" ]; then
+      echo "  VENUE-STORE-LAYOUT isolated"; STORE_LAYOUT_REPORTED=1
+    elif [ -d "$v/node_modules" ]; then
+      echo "  VENUE-STORE-LAYOUT hoisted"; STORE_LAYOUT_REPORTED=1
+    fi
   fi
   # ⛔⛔ `files >= OBS_FILES` IS NOT A SUCCESS GATE AND MUST NOT BE READ AS ONE. `find -L` follows the
   # isolated layout's symlinks into the machine-global store, so the number is dominated by the
