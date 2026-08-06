@@ -71,6 +71,22 @@ const manifest = (base) => {
     if (seen.has(rp)) return; seen.add(rp);
     let ents; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
     for (const e of ents) {
+      // ⛔ A NESTED `node_modules` IS THE OTHER LAYOUT'S DEPENDENCY CLOSURE, NOT THIS PACKAGE'S
+      // ARTIFACTS, AND WALKING INTO IT MANUFACTURES A FALSE UNDER-PREDICTION. npm parks a private
+      // copy of any dependency it could not hoist INSIDE the package directory; nub's isolated
+      // layout puts the same dependencies in the store as SIBLINGS of the package's store entry,
+      // reachable only through symlinks. So the same install produces wildly different trees under
+      // one root, and the difference is layout, never the grant.
+      //
+      // MEASURED on `jotai-devtools@0.5.1`: the package's own directory holds 13,206 files, of
+      // which 13,181 (118 MB) are the nested `node_modules` and exactly 25 are the package. The
+      // gate reported `artifacts=26/13206 missing=13181` and the driver walked the whole ladder to
+      // `NO-STATE-PASSED` — for a package that verifies at `{"network":true}`.
+      //
+      // Skipping it restores the invariant the gate is built on: the ONE universe both layouts
+      // genuinely share is the measured package's own files. Its dependencies' artifacts are out of
+      // scope here by the same reasoning that put the transitive set out of scope on Windows.
+      if (e.name === 'node_modules') continue;
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
       let st; try { st = fs.statSync(p); } catch { continue; }

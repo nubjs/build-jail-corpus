@@ -101,6 +101,25 @@ verify () {
   # dangerous false green available here, because it inflates the agreement rate rather than
   # breaking anything. The catalog override engaging is NOT evidence the jail engaged.
   printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
+  # ⛔ THE THIRD REPLAY GUARD, AND IT IS NOT REDUNDANT WITH THE OTHER TWO — MEASURED, NOT ASSUMED.
+  # v1 used this and the v2 drivers never inherited it (`harness/search.mjs`: "a warm cache replays a
+  # prior build and the lifecycle script NEVER SPAWNS, which reads exactly like a jail denial").
+  # The engine really reads it: `aube_settings::resolved::side_effects_cache`, consulted in
+  # `vendor/aube/crates/aube/src/commands/rebuild.rs` and the `install/finalize.rs` path.
+  #
+  # THE THREE GUARDS CLOSE THREE DIFFERENT REPLAY PATHS, and dropping any one reopens its own:
+  #   unique root name      — nub memoises a lifecycle outcome keyed on package identity
+  #   side-effects-cache=no — the memo says "this script already ran, skip it"
+  #   store eviction        — the store says "this package is already materialised, relink it"
+  #
+  # Tested directly on `@apollo/rover@0.2.1` with this line PRESENT in every arm and the only
+  # variable being whether the transitive dependency's store entry was evicted:
+  #
+  #   evict binary-install=no    {"network":true}   rc=0   bin/ POPULATED  -> false PASS survives
+  #   evict binary-install=yes   {"network":true}   rc=1   bin/ empty      -> correct FAIL
+  #
+  # So the config line does NOT subsume the eviction. Keep both.
+  printf 'side-effects-cache=false\n' > "$v/.npmrc"
   # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM EVICTS THE STORE.
   #
   # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so
