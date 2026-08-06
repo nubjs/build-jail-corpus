@@ -313,6 +313,19 @@ function stageCatalog() {
   // records to produce one line. The repo's `overrides/` IS still read, because a hand-authored
   // override REPLACES the measured entry in production and a check that skipped it would validate a
   // catalog nobody ships.
+  //
+  // VERIFIED rather than assumed: collating `kerberos@7.0.0` alone and collating the whole
+  // `records-v2/runs` tree produce a byte-identical entry — `{"default":{"network":true,"notes":
+  // "latest measured 7.0.0"}}` — with identical `baseline` and `env` blocks.
+  //
+  // ⛔ ONE THING THIS CATALOG GENUINELY LACKS, AND ITS DIRECTION IS THE SAFE ONE. The override
+  // REPLACES the compiled-in table rather than merging into it, so a DEPENDENCY of the package under
+  // test that has its own catalog entry in the shipped catalog has none here and runs its lifecycle
+  // scripts at the base profile. That can make the install stage FAIL where the shipped catalog
+  // would have succeeded — a false FAILURE, never a false pass, so it cannot launder an under-grant
+  // through as green. When an install stage failure is not explained by this package's own grant,
+  // that is the first thing to check: `--catalog <shipped-catalog.json>` reruns the same arm against
+  // the real table.
   const solo = path.join(WORK, 'solo-runs');
   const dst = path.join(solo, PLATFORM, PKG.replace(/\//g, '+'), VER);
   fs.mkdirSync(dst, { recursive: true });
@@ -482,6 +495,10 @@ function render() {
     L.push(`catalog   ${summary.catalog.absent ? 'NO ENTRY (needs nothing — absence is the grant)'
       : JSON.stringify(stripNotes(e))}`);
     L.push(`          ${summary.catalog.file}`);
+    if (summary.catalog.source === 'collate.mjs') {
+      L.push('          this package only — a dependency with its own shipped entry runs at the base');
+      L.push('          profile here, which can fail an install the real catalog would pass');
+    }
   }
   if (summary.install) {
     if (summary.install.negativeControl) {
