@@ -28,6 +28,19 @@ const isWriteFlags = (fl) => (fl & (O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_T
 // that missed, not a denial, and counting it inflates the refusal census with ordinary lookups.
 const REFUSAL_ERRNO = new Set([1, 13, 30]);
 
+// The adapter's `key=value` tokens, recognised by NAME so a free-form path can never be read as
+// one. Adding a key here is what makes a new adapter field visible; omitting it makes the scan stop
+// at that field and treat it as the start of the path, which is the safe direction.
+const META_KEYS = new Set(['ret', 'errno', 'flags', 'ev', 'dirfd', 'role', 'mode']);
+const AT_FDCWD = -2;   // Darwin
+let unresolvableDirfd = 0;
+
+// ⛔ EVERY PATH-MUTATING CALL THE ADAPTER SUBSCRIBES TO MUST BE HERE, OR ITS PATH IS BILLED AS A
+// READ. The `*at` family and the Darwin-specific forms were added to the adapter after a census
+// measured 53% of path-mutating syscalls invisible to it (run 31116027627); a decoder that did not
+// learn the names alongside would have turned a fixed under-grant into a different one.
+const PATH_MUTATOR = /^(mkdir|mkdirat|rmdir|unlink|unlinkat|rename|renameat|renameatx_np|link|linkat|symlink|symlinkat|clonefileat|fclonefileat|copyfile|truncate|chmod|fchmodat|chown|lchown|fchownat|mknod|mkfifo|undelete|exchangedata|setattrlist|setattrlistat|setxattr|removexattr|utimes)$/;
+
 const cwds = new Map();      // pid -> cwd
 const parent = new Map();    // pid -> ppid, rebuilt from the events themselves
 const psargs = new Map();    // pid -> exec argv text
@@ -152,20 +165,48 @@ for (const raw of lines) {
   }
 
   // OPEN | PATHOP
+  //
+  // ⛔ THE TRAILING FIELDS ARE PARSED BY KEY, NOT BY POSITION, and that is what lets the adapter
+  // gain a field without breaking this reader. The previous version read `ret` at index 5, `errno`
+  // at 6 and the path at 7+, so the adapter's new `ev`/`dirfd`/`role` tokens would have shifted the
+  // PATH into the metadata and left a decoder happily treating `ev=173…` as a filename. A path is
+  // never mistaken for a token because only the keys in META_KEYS are recognised, and the scan
+  // stops at the first field that is not one.
   const isOpen = kind === 'OPEN';
-  const flags = isOpen ? Number((f[4] ?? '0').replace('flags=', '')) : 0;
+  const meta = {};
+  let i = isOpen ? 4 : 5;
+  for (; i < f.length; i++) {
+    const eq = f[i].indexOf('=');
+    if (eq < 0) break;
+    const k = f[i].slice(0, eq);
+    if (!META_KEYS.has(k)) break;
+    const raw = f[i].slice(eq + 1);
+    meta[k] = /^0x/.test(raw) ? parseInt(raw, 16) : (/^-?\d+$/.test(raw) ? Number(raw) : raw);
+  }
+  const rawPath = f.slice(i).join('|');
+  const flags = isOpen ? (meta.flags ?? 0) : 0;
   const op = isOpen ? 'open' : f[4];
-  const ret = Number((f[isOpen ? 5 : 5] ?? '').replace('ret=', ''));
-  const errno = Number((f[6] ?? '').replace('errno=', ''));
-  const path = abs(pid, f.slice(7).join('|'));
+  const ret = meta.ret ?? NaN;
+  const errno = meta.errno ?? 0;
+  if (!rawPath) continue;
+  // ⛔ A RELATIVE PATH UNDER A REAL dirfd IS NOT RESOLVABLE HERE, AND RESOLVING IT ANYWAY INVENTS A
+  // PATH NO PROCESS TOUCHED. `abs()` resolves against the process CWD, which is correct only when
+  // the dirfd is AT_FDCWD; every other dirfd names an open directory this tracer cannot map back to
+  // a path. Such a record is COUNTED and dropped rather than scope-assigned — a phantom path in a
+  // write bucket keeps a whole capability alive on its own, which is the defect the symlink-target
+  // fix already paid for once.
+  if (meta.dirfd !== undefined && meta.dirfd !== AT_FDCWD && !rawPath.startsWith('/')) {
+    unresolvableDirfd++;
+    continue;
+  }
+  const path = abs(pid, rawPath);
   if (!path) continue;
 
   if (ret < 0) {
     if (REFUSAL_ERRNO.has(errno) && mine(pid)) denials.add(`${op} errno=${errno} ${path}`);
     continue;   // a call that failed is not a need
   }
-  const w = isOpen ? isWriteFlags(flags)
-    : /^(mkdir|rmdir|unlink|rename|link|symlink|truncate|chmod)$/.test(op);
+  const w = isOpen ? isWriteFlags(flags) : PATH_MUTATOR.test(op);
   if (w) allWrites.add(path);
   if (mine(pid)) (w ? writes : reads).add(path);
 }
@@ -187,6 +228,14 @@ const w = bucket(writes), r = bucket(reads);
 
 const lostEvents = [...lost.values()].reduce((a, b) => a + b, 0);
 console.log(`== TRACER == live=${live} decodable-events=${events} dropped-events=${lostTotal ?? lostEvents}`);
+if (unresolvableDirfd > 0) {
+  // Not a drop and not an error: the record arrived intact and its path is genuinely not resolvable
+  // without an fd->path table. Reported because the alternative — resolving it against the cwd —
+  // is a confidently wrong path, and because a rising count is the signal that the table is worth
+  // building.
+  console.log(`  NOTE ${unresolvableDirfd} relative path(s) under a non-AT_FDCWD dirfd were not`);
+  console.log('     scope-assigned: resolving them against the cwd would invent a path.');
+}
 if (!live) console.log('  ⛔ NO DTRACE-LIVE MARKER — the tracer never started. Nothing below is a measurement.');
 // The two counters come from different places on purpose — per-event records vs the adapter's own
 // END-time aggregation — so a disagreement means records were lost on the way OUT (a full principal

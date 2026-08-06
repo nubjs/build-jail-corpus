@@ -181,3 +181,73 @@ EXEC|3950|3896|sh|sh
   assert.equal(attributed(out), 1);
   assert.equal(grant(out), '{}', 'needing nothing is a real answer and must remain distinct');
 });
+
+// ── 5. THE `*at` FAMILY AND THE EXTENDED RECORD ───────────────────────────────────────────────
+// MEASURED on run 31116027627: of 86 path-mutating syscalls a realistic install-script workload
+// issues, 46 were invisible to the adapter — `unlinkat`, `linkat`, `clonefileat`, `fchmodat` and
+// `setattrlistat` among them. Each is a path a grant must cover, so every miss is an UNDER-grant.
+// The adapter now subscribes them and carries three new fields; these cases pin both halves.
+
+test('the trailing fields are read by KEY, so a new adapter field cannot shift the path', () => {
+  // RED ON REVERT: restore the positional reader (`ret` at 5, `errno` at 6, path at 7+). The path
+  // then comes back as `ev=1730…`, which is billed as a written file with a plausible-looking name
+  // and no error anywhere — the exact silent-wrong-answer shape this decoder keeps paying for.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|mv ./old ./new
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj
+PATHOP|3958|3950|mv|renameat|ret=0|errno=0|ev=1730000000|dirfd=-2|role=p1|/opt/at-old-x1
+PATHOP|3958|3950|mv|renameat|ret=0|errno=0|ev=1730000000|dirfd=-2|role=p2|/opt/at-new-x2
+`);
+  assert.match(out, /writes\s+script 2\b/, 'both ends of the renameat are writes');
+  // ⛔ THE PATHS ARE ABSOLUTE AND OUTSIDE BOTH ROOTS ON PURPOSE. Only the `outside` bucket is
+  // DUMPED; a bucket that is merely COUNTED lets a mangled path pass unseen, and the first draft of
+  // this case did exactly that — it stayed green against a deliberately broken reader, because the
+  // mangled `/proj/ev=1730…` classified as `project` and was therefore never printed.
+  assert.match(out, /\/opt\/at-old-x1/, 'the real path must survive the metadata scan');
+  assert.match(out, /\/opt\/at-new-x2/);
+  assert.doesNotMatch(out, /ev=1730000000/, 'a metadata token must never be billed as a path');
+});
+
+test('unlinkat is a write, exactly as unlink is', () => {
+  // RED ON REVERT: drop `unlinkat` from PATH_MUTATOR. The path is then billed as a READ, and a
+  // package whose script only removes files synthesizes an empty write grant.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|rm ./gone
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj
+PATHOP|3958|3950|rm|unlinkat|ret=0|errno=0|ev=1|dirfd=-2|role=only|./at-gone-x3
+`);
+  assert.match(out, /writes\s+script 1\b/, 'unlinkat destroys a path, so it is a write');
+});
+
+test('a relative path under a REAL dirfd is not scope-assigned, because it cannot be resolved', () => {
+  // RED ON REVERT: delete the dirfd guard. `abs()` then resolves `rel/phantom-x4` against the cwd
+  // and produces `/proj/rel/phantom-x4` — a path no process touched, in a bucket that earns a
+  // grant. Same class as billing a symlink's TARGET, which cost a whole capability once already.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|node x.js
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj
+PATHOP|3958|3950|node|mkdirat|ret=0|errno=0|ev=2|dirfd=7|role=only|rel/phantom-x4
+`);
+  assert.doesNotMatch(out, /phantom-x4/, 'an unresolvable path must not appear anywhere');
+  assert.match(out, /NOTE 1 relative path/, 'and the drop must be reported, not silent');
+});
+
+test('the SAME relative path under AT_FDCWD is billed normally', () => {
+  // The positive control for the case above. Without it that assertion would pass on a decoder
+  // that had simply stopped billing `mkdirat` at all, which is the failure it exists to prevent.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|node x.js
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj
+PATHOP|3958|3950|node|mkdirat|ret=0|errno=0|ev=2|dirfd=-2|role=only|rel/phantom-x4
+`);
+  assert.match(out, /writes\s+script 1\b/, 'AT_FDCWD resolves against the cwd, so this is billable');
+  assert.doesNotMatch(out, /NOTE 1 relative path/, 'and nothing is dropped');
+});

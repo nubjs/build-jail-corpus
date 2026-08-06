@@ -132,6 +132,38 @@ CLOSURE=$(node -e '
 ' "$OBS/node_modules" 2>/dev/null)
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm   store=$STORE"
 
+# ── 1b. RETAIN THE EVENT LOG ───────────────────────────────────────────────────────────────────
+#
+# ⛔ THE TRACE DIES WITH THIS DIRECTORY AND THAT IS THE DEFECT. `$OBS/trace.txt` is the complete
+# event stream — thousands of lines — and everything downstream of here reduces it to a one-line
+# verdict plus a scope COUNT. `$ROOT` is a `mktemp -d` on an ephemeral runner, so the moment the
+# job ends the evidence is gone: a package with 651 script writes publishes about a dozen
+# path-looking lines, and a surprising grant can only ever be RE-MEASURED, never RE-READ.
+#
+# The cost of that is not curiosity, it is the corpus: every harness fix currently invalidates
+# every record it touched, because a verdict cannot be re-derived. With the events kept, most
+# harness fixes become a RE-PARSE — minutes instead of the runner-hours a re-measure costs.
+#
+# ⛔ WHAT IS RETAINED IS THE RAW EVENT, NOT ITS CLASSIFICATION. A path tagged with today's scope
+# would bake in today's classifier and would need a re-measure the moment the scope set changes —
+# which it is changing right now, with `tmp`. So the log carries the syscall, its arguments, its
+# errno and the process identity, and no scope at all.
+EVENTS="$OBS/events.ndjson"
+node "$HERE/adapters/macos-eventlog.mjs" "$OBS/trace.txt" --out "$EVENTS" \
+     --pkg "$PKG@$VER" --project "$OBS" --home "$USER_HOME" > "$OBS/eventlog-stats.json" 2>&1
+EV_RC=$?
+if [ "$EV_RC" -eq 0 ] && [ -s "$EVENTS.gz" ]; then
+  # The record writer copies this file into the record dir. A path on stdout is the contract
+  # because the three drivers already communicate with `record.mjs` through their stdout alone.
+  echo "  EVENTLOG-FILE $EVENTS.gz"
+  echo "  EVENTLOG-STATS $(tr -d '\n ' < "$OBS/eventlog-stats.json")"
+else
+  # ⛔ NOT FATAL, BUT NEVER SILENT. Retention is additive to the measurement; losing it must not
+  # cost a measured package. Saying so is what stops a corpus quietly reverting to verdict-only.
+  echo "  ⛔ EVENTLOG NOT WRITTEN (rc=$EV_RC) — this record will carry a verdict and no evidence"
+  sed 's/^/     /' "$OBS/eventlog-stats.json" 2>/dev/null | head -5
+fi
+
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "$USER_HOME" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"

@@ -16,9 +16,11 @@
 # runner (which reports SIP DISABLED) is the only venue.
 name: macos-at-family
 
+# ⛔ workflow_dispatch ONLY, deliberately. The census it exists to take was banked on run
+# 31116027627; re-running it on every push to the branch would burn a macOS runner to re-measure a
+# number that is already recorded in the adapter's own comment. Dispatch it when the workload or the
+# subscription list changes.
 on:
-  push:
-    branches: [probe/macos-at-family]
   workflow_dispatch:
     inputs:
       package:

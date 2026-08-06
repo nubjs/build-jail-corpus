@@ -1,0 +1,223 @@
+# Close the `*at`-family hole, then PROVE the retained event log end to end on ONE package.
+#
+# Two deliverables, and the first gates the second: a log we already know is lossy is worse than no
+# log, because it invites trust it has not earned.
+#
+#   1. COMPLETENESS. `at-family-fixture.sh` is a known-answer fixture whose denominator is MEASURED
+#      in the same run (a `syscall:::entry` census), not assumed from the C source. The control is
+#      the adapter as it shipped before this change and must capture ZERO of the `*at` family; the
+#      fixed adapter must capture exactly the number of times each syscall fired. A control that
+#      fails to go red makes the whole job INCONCLUSIVE rather than green.
+#   2. RETENTION. One real package, driven through the actual driver, producing a real
+#      `events.ndjson` — read back, sized raw and gzipped, and committed so the `*.log` gitignore
+#      trap (which silently ate every per-cell log in the v1 corpus) is proven not to apply.
+#
+# ⛔ ONE PACKAGE. Maintainer directive: no batches until the harness is verified on a single package
+# whose full output was actually read.
+#
+# Branch-scoped and no PR: dtrace needs uid 0 and the maintainer's Mac has SIP enabled, so a hosted
+# runner (which reports SIP DISABLED) is the only venue.
+name: macos-eventlog
+
+on:
+  push:
+    branches: [probe/macos-at-family]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'pkg@version for the end-to-end retention arm'
+        required: false
+        default: '@apollo/rover@0.2.1'
+
+permissions:
+  contents: write
+
+jobs:
+  eventlog:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts + dtrace gate
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          sw_vers; uname -m; node --version; npm --version
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
+          echo "HELLO_RC=$?"
+
+      # ⛔ FIRST, AND FAIL THE JOB ON IT. The adapter gained ~30 probe names. A single name this
+      # kernel does not publish makes dtrace refuse to run the WHOLE script — so a compile failure
+      # here does not degrade the measurement, it removes it, and every arm below would fail for a
+      # reason with nothing to do with the hole.
+      - name: Does the extended adapter compile at all?
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          sudo dtrace -e -s harness/v2/adapters/macos-observe.d -c /usr/bin/true > /tmp/compile.log 2>&1
+          echo "COMPILE_RC=$?"
+          sed 's/^/     /' /tmp/compile.log | head -30
+          grep -q 'failed to compile\|invalid probe specifier\|probe description.*does not match' /tmp/compile.log \
+            && { echo "⛔ THE ADAPTER DOES NOT COMPILE — nothing below is a measurement"; exit 1; }
+          exit 0
+
+      - name: 1. KNOWN-ANSWER FIXTURE — the control must lose every *at record
+        id: kaf
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          chmod +x harness/v2/probes/at-family-fixture.sh
+          sudo harness/v2/probes/at-family-fixture.sh /tmp/atfx > /tmp/kaf.txt 2>&1
+          KAF_RC=$?
+          cat /tmp/kaf.txt
+          echo "KAF_RC=$KAF_RC"
+          # ⛔ PROPAGATED. The fixture already returns non-zero for exactly the two cases worth a red
+          # job: the fix fell short, or the CONTROL failed to go red so no arm means anything.
+          # Every later step carries `if: always()`, so the diagnostic data still lands.
+          exit "$KAF_RC"
+
+      # The blind fraction, re-measured against the SAME workload the first run scored 53% on. This
+      # is the before/after that turns "we added some probes" into a number.
+      - name: 2. Blind fraction, re-measured after the fix
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          chmod +x harness/v2/probes/at-family-census.sh
+          sudo env "PATH=$PATH" harness/v2/probes/at-family-census.sh /tmp/atw2 > /tmp/census2.txt 2>&1
+          echo "CENSUS_RC=$?"
+          sed -n '/PATH-MUTATING/,/blind fraction/p' /tmp/census2.txt
+          echo "--- what the shipping adapter now emits ---"
+          sed -n '/3. THE SHIPPING ADAPTER/,$p' /tmp/census2.txt
+
+      - name: 3. Decoder + event-log unit tests (RED-on-revert guards)
+        if: always()
+        run: |
+          set +e
+          node --test harness/v2/observe-macos.test.mjs; echo "DECODER_RC=$?"
+          node --test harness/v2/adapters/macos-eventlog.test.mjs; echo "EVENTLOG_RC=$?"
+          node --test harness/v2/record.test.mjs; echo "RECORD_RC=$?"
+
+      # ── THE RETENTION ARM ────────────────────────────────────────────────────────────────────
+      - name: 4. ONE package, end to end, with the event log retained
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          SPEC='${{ github.event.inputs.package }}'
+          [ -n "$SPEC" ] || SPEC='@apollo/rover@0.2.1'
+          P="${SPEC%@*}"; V="${SPEC##*@}"
+          echo "retention arm: $P@$V"
+          # ⛔ Node writes its V8 compile cache on a COLD run only, and that alone once made two arms
+          # of a probe differ by 541 renames. Cleared so this arm's numbers are the package's.
+          sudo rm -rf /tmp/node-compile-cache /Users/runner/v2m-* 2>/dev/null
+          chmod +x harness/v2/measure-macos.sh
+          sudo -E harness/v2/measure-macos.sh "$P" "$V" > /tmp/driver.out 2>&1
+          echo "DRIVER_RC=$?"
+          sed 's/^/  /' /tmp/driver.out | head -80
+
+          R=""; for d in /Users/runner/v2m-*; do [ -d "$d" ] && R="$d"; done
+          [ -n "$R" ] || { echo "⛔ no fixture root — the driver never ran"; exit 0; }
+          EV="$R/observe/events.ndjson"
+          echo "=================================================================="
+          echo "THE RETAINED LOG"
+          echo "=================================================================="
+          if [ ! -s "$EV" ]; then echo "⛔ NO EVENT LOG AT $EV"; ls -la "$R/observe" | head; exit 0; fi
+          sudo chmod -R a+r "$R" 2>/dev/null
+          echo "--- census (from the converter itself) ---"
+          cat "$R/observe/eventlog-stats.json"
+          echo "--- SIZES ---"
+          RAW=$(wc -c < "$EV" | tr -d ' ')
+          GZ=$(wc -c < "$EV.gz" | tr -d ' ')
+          TRACE=$(wc -c < "$R/observe/trace.txt" | tr -d ' ')
+          DRV=$(wc -c < /tmp/driver.out | tr -d ' ')
+          echo "  trace.txt (the dtrace source) : $TRACE B"
+          echo "  events.ndjson  raw            : $RAW B"
+          echo "  events.ndjson  gzip -9        : $GZ B"
+          echo "  driver.out (published today)  : $DRV B"
+          [ "$GZ" -gt 0 ] && echo "  compression ratio             : $((RAW / GZ))x"
+          echo "  ⇒ EXTRAPOLATED TO 2250 PACKAGES, PER PLATFORM:"
+          echo "      raw   $((RAW * 2250 / 1048576)) MiB"
+          echo "      gzip  $((GZ * 2250 / 1048576)) MiB"
+          echo "--- what a filter would save (measured, not assumed) ---"
+          node harness/v2/adapters/macos-eventlog.mjs "$R/observe/trace.txt" --out /tmp/ev-noenoent.ndjson \
+               --drop-enoent --pkg "$P@$V" | head -40
+          echo "--- first 5 retained events ---"
+          head -6 "$EV" | cut -c1-400
+          echo "--- op histogram straight out of the retained log ---"
+          node -e '
+            const fs = require("fs");
+            const rows = fs.readFileSync(process.argv[1], "utf8").trim().split("\n").map(JSON.parse);
+            const by = {}, errn = {};
+            for (const r of rows) {
+              if (r.kind !== "event") continue;
+              by[r.call] = (by[r.call] ?? 0) + 1;
+              if (r.ret < 0) errn[r.errno] = (errn[r.errno] ?? 0) + 1;
+            }
+            console.log("  by syscall:", JSON.stringify(by));
+            console.log("  by errno on failure:", JSON.stringify(errn));
+            console.log("  two-path events:", rows.filter((r) => r.path2).length);
+            console.log("  lifecycle-attributed:", rows.filter((r) => r.lifecycle).length,
+                        "/", rows.filter((r) => r.kind === "event").length);
+          ' "$EV"
+          cp "$EV" /tmp/events.ndjson; cp "$EV.gz" /tmp/events.ndjson.gz
+          cp "$R/observe/trace.txt" /tmp/trace.txt
+
+      # ⛔ THE `*.log` TRAP, PROVEN RATHER THAN REASONED ABOUT. The repo's `.gitignore` carries a
+      # bare `*.log`, and that is why the v1 corpus tracks `results.json` ALONE — every per-cell log
+      # it wrote vanished at `git add` while looking present on the runner's disk
+      # (`git ls-files records | grep -c '\.log$'` is 0 against 6,750 records). A retained event log
+      # that evaporates the same way would be strictly worse than none, so the file is written
+      # through `record.mjs`, committed, and pushed here; reading it back from the remote is the
+      # only check that cannot be fooled by a working tree.
+      - name: 5. Prove the published file survives a real commit
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          [ -s /tmp/events.ndjson.gz ] || { echo "no event log to publish; skipping"; exit 0; }
+          SPEC='${{ github.event.inputs.package }}'
+          [ -n "$SPEC" ] || SPEC='@apollo/rover@0.2.1'
+          P="${SPEC%@*}"; V="${SPEC##*@}"
+          R=""; for d in /Users/runner/v2m-*; do [ -d "$d" ] && R="$d"; done
+          node harness/v2/record.mjs --log /tmp/driver.out --pkg "$P" --version "$V" \
+               --out /tmp/recdir --platform darwin-arm64 --driver measure-macos.sh \
+               --rc 0 --duration-ms 1000 > /tmp/recpath.txt 2>&1
+          echo "record.mjs rc=$?"; cat /tmp/recpath.txt
+          REC=$(tail -1 /tmp/recpath.txt)
+          echo "--- record dir contents ---"; ls -la "$REC"
+          echo "--- results.json ---"; cat "$REC/results.json"
+
+          DEST="probe-records/darwin-arm64/$(echo "$P" | tr '/' '+')/$V"
+          mkdir -p "$DEST"
+          cp "$REC"/* "$DEST"/ 2>/dev/null
+          echo "--- would git ignore any of these? (empty output = no) ---"
+          git check-ignore -v "$DEST"/* ; echo "CHECK_IGNORE_RC=$? (1 means nothing is ignored)"
+          git config user.name corpus-runner
+          git config user.email corpus-runner@users.noreply.github.com
+          git add -- "$DEST"
+          echo "--- what git actually staged ---"; git diff --cached --name-only
+          git commit -q -m "probe(macos): one retained event log, to prove it survives a commit"
+          git push origin HEAD:probe/macos-at-family > /tmp/push.log 2>&1
+          echo "PUSH_RC=$?"; tail -3 /tmp/push.log
+          echo "--- READ IT BACK FROM THE REMOTE, not from the working tree ---"
+          git fetch -q origin probe/macos-at-family
+          git cat-file -s "origin/probe/macos-at-family:$DEST/events.ndjson.gz" \
+            && echo "  ⇒ the blob EXISTS on the remote at the size above"
+          git show "origin/probe/macos-at-family:$DEST/events.ndjson.gz" | gzcat | head -3 | cut -c1-300
+          echo "  ⇒ decompressed and readable straight out of the remote's object store"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-eventlog
+          path: |
+            /tmp/kaf.txt
+            /tmp/census2.txt
+            /tmp/driver.out
+            /tmp/events.ndjson
+            /tmp/events.ndjson.gz
+            /tmp/trace.txt
+          if-no-files-found: warn

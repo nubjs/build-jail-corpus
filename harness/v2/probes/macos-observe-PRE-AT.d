@@ -66,48 +66,7 @@ self uintptr_t cdp;    /* chdir path */
 self uintptr_t p;      /* open path */
 self uintptr_t np;     /* path-op path; rename OLD */
 self uintptr_t np2;    /* rename NEW — the path a rename CREATES */
-self int64_t odfd;     /* the dirfd governing the OPEN path */
-self int64_t dfd;      /* the dirfd governing np  — AT_FDCWD (-2) when the call takes none */
-self int64_t dfd2;     /* the dirfd governing np2 */
-self uint64_t ev;      /* per-syscall id, so a two-path op's two records can be PAIRED */
 /* ── NP2-DECL-END ───────────────────────────────────────────────────────────────────────────── */
-
-/* ── THE `*at` FAMILY, AND WHY ITS ABSENCE WAS AN UNDER-GRANT ──────────────────────────────────
- *
- * MEASURED on run 31116027627 (macOS 15.7.7 / arm64) over a workload of the shell utilities and
- * node fs calls a lifecycle script really issues: of 86 path-mutating syscalls, 46 — 53% — were
- * invisible to this adapter. That number splits into two very different halves, and only one of
- * them is a path a grant could ever have named:
- *
- *   PATH-TAKING and invisible   9  — unlinkat 4, setattrlistat 2, linkat 1, clonefileat 1,
- *                                    fchmodat 1. Every one names a path a grant must cover, and
- *                                    every one was dropped on the floor. THIS is the under-grant,
- *                                    and the clauses below close it.
- *   FD-TAKING and invisible    37  — fchmod 22, ftruncate 8, fchown 4, fsetattrlist 3. These carry
- *                                    an fd, not a path, so no tracer without an fd->path table can
- *                                    attribute them at all. Deliberately NOT subscribed, and the
- *                                    residual is stated rather than hidden: a metadata write
- *                                    through an fd whose open was READ-ONLY is billed as a read.
- *
- * ⛔ FIVE CANDIDATES HAVE NO dtrace PROBE ON THIS KERNEL AT ALL. They are not "not yet subscribed"
- * — they are unreachable from the `syscall` provider, and a `syscall:::entry` census cannot even
- * count them. MEASURED by compiling each name alone, which is the only safe way to ask: a name the
- * kernel does not publish makes dtrace refuse to run the WHOLE script.
- *
- *     clonefile   futimens   lchmod   renamex_np   utimensat
- *
- * `renamex_np` and `utimensat` are the two that matter — both are real Darwin syscalls a modern
- * libc reaches for. Closing them needs a different instrument (Endpoint Security's `rename` event
- * fires for the VFS operation whichever syscall entered it). Until then they are a NAMED, sized
- * hole rather than an unknown one.
- *
- * ⛔ THE PATH ARGUMENT INDEX IS PER-SYSCALL AND GETTING IT WRONG INVENTS A PHANTOM PATH — the same
- * defect class as billing a symlink's TARGET as a written path. The clauses are grouped by argument
- * index for exactly that reason, so the index is stated once per group instead of once per probe.
- * Where a call has a source and a destination and only the destination is CREATED (link, symlink,
- * clonefile, copyfile), only the destination is emitted: the source already exists, so billing it
- * as a write would over-report. `rename` and `exchangedata` are the exceptions — both ends are
- * genuinely mutated — and they emit two records paired by `ev`. */
 
 dtrace:::BEGIN
 {
@@ -164,23 +123,14 @@ syscall::open:entry, syscall::open_nocancel:entry
 {
 	self->p = arg0;
 	self->fl = arg1;
-	self->odfd = -2;     /* AT_FDCWD: open(2) resolves against the process cwd */
-	self->ev = timestamp;
 	self->on = 1;
 }
 
-/* ⛔ `openat`'s dirfd IS RECORDED, AND UNTIL NOW IT WAS SILENTLY DISCARDED. A relative path under a
- * REAL dirfd does not resolve against the process cwd, but the decoder resolved every relative path
- * that way — so an `openat(fd, "lib/x.so", …)` produced a confident absolute path pointing
- * somewhere the process never looked, which then got scope-assigned like any other. Emitting the
- * dirfd is what lets the decoder say "unresolvable" instead of inventing an answer. */
 syscall::openat:entry, syscall::openat_nocancel:entry
 /progenyof($target)/
 {
 	self->p = arg1;
 	self->fl = arg2;
-	self->odfd = (int64_t)arg0;
-	self->ev = timestamp;
 	self->on = 1;
 }
 
@@ -189,76 +139,27 @@ syscall::openat:return, syscall::openat_nocancel:return
 /self->on/
 {
 	/* Darwin flags: O_WRONLY 0x1 O_RDWR 0x2 O_APPEND 0x8 O_CREAT 0x200 O_TRUNC 0x400 */
-	printf("OPEN|%d|%d|%s|flags=0x%x|ret=%d|errno=%d|ev=%d|dirfd=%d|%s\n",
+	printf("OPEN|%d|%d|%s|flags=0x%x|ret=%d|errno=%d|%s\n",
 	    pid, curpsinfo->pr_ppid, execname,
-	    (int)self->fl, (int)arg0, (int)arg0 < 0 ? errno : 0, self->ev, self->odfd,
-	    copyinstr(self->p));
+	    (int)self->fl, (int)arg0, (int)arg0 < 0 ? errno : 0, copyinstr(self->p));
 	@allopens[execname] = count();
 	self->on = 0;
 	self->p = 0;
 	self->fl = 0;
-	self->odfd = 0;
 }
 
 /* ── Namespace mutations. An open with O_CREAT is not the only way to write; mkdir/unlink/rename
  * are writes with no flags word, so they are reported as their own op and classified as writes
  * unconditionally by the decoder. ──────────────────────────────────────────────────────────── */
 
-/* GROUP A — the shared BOOKKEEPING clause. It sets the per-syscall state every return clause needs
- * (nn, nop, ev, and a cleared np2) and takes the path from arg0, which is right for everything
- * listed here EXCEPT the four `at`/two-arg forms at the end. Those appear here to get the
- * bookkeeping and are then corrected by an override clause below — the same shape `symlink`/`link`
- * have used since the phantom-path fix. ⛔ A probe that is in NO entry group never sets `self->nn`,
- * so its return clause silently never fires and the operation is lost with no error anywhere. */
 syscall::mkdir:entry, syscall::rmdir:entry, syscall::unlink:entry,
 syscall::rename:entry, syscall::link:entry, syscall::symlink:entry,
-syscall::truncate:entry, syscall::chmod:entry, syscall::chown:entry,
-syscall::lchown:entry, syscall::mknod:entry, syscall::mkfifo:entry,
-syscall::undelete:entry, syscall::exchangedata:entry, syscall::setattrlist:entry,
-syscall::setxattr:entry, syscall::removexattr:entry, syscall::utimes:entry,
-syscall::copyfile:entry,
-syscall::symlinkat:entry, syscall::fclonefileat:entry,
-syscall::linkat:entry, syscall::clonefileat:entry
+syscall::truncate:entry, syscall::chmod:entry
 /progenyof($target)/
 {
 	self->np = arg0;
 	self->np2 = 0;
-	self->dfd = -2;      /* AT_FDCWD: the path resolves against the process cwd */
-	self->dfd2 = -2;
 	self->nop = probefunc;
-	self->ev = timestamp;
-	self->nn = 1;
-}
-
-/* GROUP B — `<call>at(dirfd, path, …)`. The path is arg1 and arg0 is the dirfd it resolves
- * against. ⛔ THE dirfd IS EMITTED RATHER THAN ASSUMED AWAY: a relative path under a REAL dirfd
- * does not resolve against the cwd, and resolving it that way anyway produces a plausible absolute
- * path that no process ever touched. The decoder marks those unresolvable instead of guessing. */
-syscall::mkdirat:entry, syscall::unlinkat:entry, syscall::fchmodat:entry,
-syscall::fchownat:entry, syscall::setattrlistat:entry
-/progenyof($target)/
-{
-	self->np = arg1;
-	self->np2 = 0;
-	self->dfd = (int64_t)arg0;
-	self->dfd2 = -2;
-	self->nop = probefunc;
-	self->ev = timestamp;
-	self->nn = 1;
-}
-
-/* GROUP C — two paths, BOTH genuinely mutated. `rename` unlinks its source as well as creating its
- * destination; `exchangedata` swaps two existing files. `renameat`/`renameatx_np` put the paths at
- * arg1/arg3 with their dirfds at arg0/arg2. */
-syscall::renameat:entry, syscall::renameatx_np:entry
-/progenyof($target)/
-{
-	self->np = arg1;
-	self->np2 = arg3;
-	self->dfd = (int64_t)arg0;
-	self->dfd2 = (int64_t)arg2;
-	self->nop = probefunc;
-	self->ev = timestamp;
 	self->nn = 1;
 }
 
@@ -276,31 +177,13 @@ syscall::renameat:entry, syscall::renameatx_np:entry
  *
  * rename(2) is deliberately NOT here: it unlinks `old` as well as creating `new`, so BOTH ends are
  * genuine writes and both are reported, via self->np2 below. */
-syscall::symlink:entry, syscall::link:entry, syscall::copyfile:entry
+syscall::symlink:entry, syscall::link:entry
 /progenyof($target)/
 {
 	self->np = arg1;
 }
 
-/* `symlinkat(content, dirfd, linkpath)` — the created path is arg2, its dirfd arg1.
- * `fclonefileat(srcfd, dirfd, dst, flags)` — the created path is arg2, its dirfd arg1. */
-syscall::symlinkat:entry, syscall::fclonefileat:entry
-/progenyof($target)/
-{
-	self->np = arg2;
-	self->dfd = (int64_t)arg1;
-}
-
-/* `linkat(fd1, existing, fd2, created, flag)` and `clonefileat(sfd, src, dfd, dst, flags)` — the
- * created path is arg3, its dirfd arg2. */
-syscall::linkat:entry, syscall::clonefileat:entry
-/progenyof($target)/
-{
-	self->np = arg3;
-	self->dfd = (int64_t)arg2;
-}
-
-syscall::rename:entry, syscall::exchangedata:entry
+syscall::rename:entry
 /progenyof($target)/
 {
 	self->np2 = arg1;
@@ -308,47 +191,26 @@ syscall::rename:entry, syscall::exchangedata:entry
 
 syscall::mkdir:return, syscall::rmdir:return, syscall::unlink:return,
 syscall::rename:return, syscall::link:return, syscall::symlink:return,
-syscall::truncate:return, syscall::chmod:return, syscall::chown:return,
-syscall::lchown:return, syscall::mknod:return, syscall::mkfifo:return,
-syscall::undelete:return, syscall::exchangedata:return, syscall::setattrlist:return,
-syscall::setxattr:return, syscall::removexattr:return, syscall::utimes:return,
-syscall::copyfile:return,
-syscall::mkdirat:return, syscall::unlinkat:return, syscall::fchmodat:return,
-syscall::fchownat:return, syscall::setattrlistat:return,
-syscall::symlinkat:return, syscall::fclonefileat:return,
-syscall::linkat:return, syscall::clonefileat:return,
-syscall::renameat:return, syscall::renameatx_np:return
+syscall::truncate:return, syscall::chmod:return
 /self->nn/
 {
-	/* ⛔ THE PATH STAYS LAST AND EVERY NEW FIELD IS A `key=value` TOKEN BEFORE IT. A path is
-	 * free-form and routinely contains `|`, so a reader recovers it by joining everything past
-	 * the last recognised key — which means a field can be ADDED here without renumbering the
-	 * ones after it, and without breaking a reader written against the older format.
-	 * `role=p1` marks a record whose operation has a second path; `role=only` marks one that
-	 * does not, so a reader never waits for a pair that is not coming. */
-	printf("PATHOP|%d|%d|%s|%s|ret=%d|errno=%d|ev=%d|dirfd=%d|role=%s|%s\n",
+	printf("PATHOP|%d|%d|%s|%s|ret=%d|errno=%d|%s\n",
 	    pid, curpsinfo->pr_ppid, execname, self->nop,
-	    (int)arg0, (int)arg0 < 0 ? errno : 0, self->ev, self->dfd,
-	    self->np2 != 0 ? "p1" : "only", copyinstr(self->np));
+	    (int)arg0, (int)arg0 < 0 ? errno : 0, copyinstr(self->np));
 	self->nn = 0;
 	self->np = 0;
 	self->nop = 0;
-	self->dfd = 0;
 }
 
 /* The second half of a rename: `new` is created. Declared after the clause above, which clears
  * self->nn and self->np but deliberately not self->np2. */
-syscall::rename:return, syscall::exchangedata:return,
-syscall::renameat:return, syscall::renameatx_np:return
+syscall::rename:return
 /self->np2/
 {
-	printf("PATHOP|%d|%d|%s|%s|ret=%d|errno=%d|ev=%d|dirfd=%d|role=p2|%s\n",
-	    pid, curpsinfo->pr_ppid, execname, probefunc,
-	    (int)arg0, (int)arg0 < 0 ? errno : 0, self->ev, self->dfd2,
-	    copyinstr(self->np2));
+	printf("PATHOP|%d|%d|%s|rename|ret=%d|errno=%d|%s\n",
+	    pid, curpsinfo->pr_ppid, execname,
+	    (int)arg0, (int)arg0 < 0 ? errno : 0, copyinstr(self->np2));
 	self->np2 = 0;
-	self->dfd2 = 0;
-	self->ev = 0;
 }
 
 /* ── EXEC. Two records per exec, because neither one alone is sufficient on macOS.
