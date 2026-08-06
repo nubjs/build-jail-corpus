@@ -10,11 +10,14 @@
 // and assumes the script is hostile. This file lives entirely on the generation side; nothing it
 // needs is available to — or required by — the jail.
 //
-//   usage: node observe.mjs <trace-file> <project-root> <home>
+//   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name]
 import fs from 'node:fs';
 
-const [file, proj, home] = process.argv.slice(2);
-if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home>'); process.exit(2); }
+const [file, proj, home, jailHome, pkgName] = process.argv.slice(2);
+if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName]'); process.exit(2); }
+// The rebuilt package's OWN directory in the observation layout (plain hoisted `node_modules`).
+// Its jail counterpart is the store entry, which the base profile already grants RW.
+const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
 // ⛔ ONLY `= -1 EACCES` IS A REFUSAL. A bare `grep EACCES` also matches the FLAG NAME `AT_EACCESS`
@@ -121,12 +124,42 @@ for (const raw of lines) {
 
 // Classify a path against the scopes the CATALOG can express, so the output maps onto a grant
 // rather than onto a pile of strings.
+// ⛔ TWO SCOPES THE JAIL ALREADY GRANTS, WHICH THE NAIVE CLASSIFIER BILLED AS A CAPABILITY.
+// Measured over the 9-package v2 agreement run: 4 of 9 over-predicted, every one of them here,
+// and 3 of the 3 packages in the `network`-only band. Over-granting is safe but it defeats the
+// point of a MINIMUM catalog, so these fall out of the grant entirely rather than being
+// attributed to a scope. Each corresponds to a real base-profile grant in
+// `crates/nub-sandbox/src/compiler/preset.rs`:
+//
+//   `jailHome`  — the jail REDIRECTS `HOME`/`USERPROFILE` to a per-package private home
+//                 (`NUB_JAIL_HOME_ROOT_PATTERN` = `$cache/nub/jail-home`, resolved by
+//                 `private_home_dir`, exported through `jail_private_home`, and RW-granted by
+//                 `push_rw_path`). So a HOME-anchored write moves WITH `$HOME` and lands inside
+//                 a directory the base profile already owns. `measure.sh` reproduces that
+//                 redirect for the traced `npm rebuild`, so this bucket is exactly the set of
+//                 writes that follow `$HOME` — the classifier no longer has to GUESS provenance.
+//                 A write to the REAL user home survives as `userHome` and still earns a grant,
+//                 which is what keeps this from becoming an UNDER-prediction.
+//
+//   `ownPkg`    — `store_entry_write_root` grants RW on the package's own store entry
+//                 (`enclosing_node_modules(package_dir).parent()`, gated on its parent being the
+//                 global store or the project-local `.store`). Under the isolated layout
+//                 `<project>/node_modules/<pkg>` is a SYMLINK into that entry, so a write to the
+//                 package's own directory resolves into granted space. A write to a SIBLING
+//                 dependency does NOT, and stays `deps`.
+//
+// Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {
+  if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
+  if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
   if (proj && p.startsWith(proj)) return p.includes('/node_modules/') ? 'deps' : 'project';
   if (home && p.startsWith(home)) return 'userHome';
   if (p.startsWith('/proc') || p.startsWith('/sys') || p.startsWith('/dev')) return 'kernelfs';
   return 'outside';
 };
+// The buckets a base-profile grant already covers. Named once so the report and the synthesized
+// grant cannot disagree about which writes are free.
+const BASE_COVERED = ['ownPkg', 'jailHome'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);
@@ -145,8 +178,15 @@ if (lifecycle.size === 0) {
 }
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
-  console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);
-  if (k === 'outside' || k === 'kernelfs') v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
+  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)' : '';
+  console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}${free}`);
+  // Dump a sample of every bucket that is either unclassifiable or excluded from the grant. The
+  // excluded ones are the evidence that the exclusion is honest: a reader can see the paths and
+  // check them against the base profile instead of taking the classifier's word for it.
+  if (k === 'outside' || k === 'kernelfs' || BASE_COVERED.includes(k)) {
+    v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
+    if (v.length > 10) console.log(`      … and ${v.length - 10} more`);
+  }
 }
 console.log('== NETWORK ==');
 console.log(`  AF_INET sockets: ${sockets}   distinct peers: ${hosts.size}`);

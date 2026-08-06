@@ -38,8 +38,21 @@ if [ "$FETCH_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# ⛔ OBSERVE WITH THE SAME `HOME` THE JAIL WILL GIVE THE SCRIPT, OR EVERY npm-CACHE WRITE IS BILLED
+# AS A CAPABILITY THE PACKAGE DOES NOT NEED. The jail redirects `HOME`/`USERPROFILE` to a per-package
+# private home (`preset.rs` `private_home_dir`, RW-granted by the base profile), so inside the jail
+# `$HOME/.npm/_cacache/...` lands in already-granted space. Observing under the AMBIENT `$HOME` put
+# those same writes under the real home and synthesized `write:{userHome}` — measured on
+# `vanilla-cookieconsent@3.0.0-rc.9`, 51 of its 52 writes were npm's own cache.
+#
+# ⛔ THE REDIRECT IS THE POINT, AND A `$HOME`-PREFIX EXCLUSION WOULD NOT DO. Filtering the paths
+# afterwards would silently swallow a script that hardcodes a real-home path — an UNDER-prediction,
+# the one direction that breaks installs. Redirecting instead makes `jailHome` a MEASUREMENT of
+# which writes actually follow `$HOME`: a hardcoded path still lands in `userHome` and still earns
+# the grant.
+JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
+HOME="$JAIL_HOME" strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
 OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
@@ -52,7 +65,7 @@ if [ "$OBS_RC" -ne 0 ]; then
 fi
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
