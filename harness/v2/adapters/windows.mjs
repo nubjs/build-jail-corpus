@@ -6,7 +6,12 @@
 // three platforms cannot drift apart. A thing this adapter cannot express, it omits.
 //
 //   usage: node windows.mjs <capture-dir> [--out FILE] [--summary] [--allow-lossy]
+//                           [--resolve-shortnames | --shortnames F | --no-longpath]
 //          <capture-dir>/meta.json  + <capture-dir>/trace.xml   (both written by windows.ps1)
+//
+// `--resolve-shortnames` is the CAPTURE-HOST pass: it resolves 8.3 names against the live
+// filesystem and writes `<capture-dir>/shortnames.json`, which every later decode reads instead.
+// Without it (or an existing map) expansion is OFF — deterministically, on every machine.
 //
 // Prefer --out to a shell redirect. Windows PowerShell's `>` writes UTF-16LE with a BOM, so
 // `node windows.mjs ... > events.ndjson` produces a file that PowerShell reads back happily and
@@ -14,20 +19,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
+import {
+  SHORT_COMPONENT, SHORT_NAMES_FILE, UNMAPPED, componentResolver, shortNameMode, writeShortNames,
+} from './windows-shortnames.mjs';
 
 const args = process.argv.slice(2);
+const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : null; };
 const outIdx = args.indexOf('--out');
 const outFile = outIdx >= 0 ? args[outIdx + 1] : null;
 const dumpIdx = args.indexOf('--dump-dest');
 const dumpDest = dumpIdx >= 0 ? Number(args[dumpIdx + 1] ?? '5') : 0;
-// The index guards are `>= 0 &&` for a reason: a missing flag yields -1, and `-1 + 1` is index 0,
-// which is where the capture directory itself sits.
-const dir = args.filter((a, i) => !a.startsWith('--')
-  && !(outIdx >= 0 && i === outIdx + 1) && !(dumpIdx >= 0 && i === dumpIdx + 1)).find(Boolean);
+// ⛔ EVERY VALUE-TAKING FLAG MUST BE LISTED HERE OR ITS VALUE BECOMES THE CAPTURE DIRECTORY. The
+// positional is found by "the first arg that is not a flag and not a flag's value", so a new
+// `--shortnames F` whose `F` is not excluded silently makes `F` the capture dir and the adapter
+// then fails on a missing `meta.json` — a confusing error a long way from its cause.
+const VALUE_FLAGS = new Set(['--out', '--dump-dest', '--shortnames']);
+const dir = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && VALUE_FLAGS.has(args[i - 1]))).find(Boolean);
 const wantSummary = args.includes('--summary');
 const allowLossy = args.includes('--allow-lossy');
 const noLongPath = args.includes('--no-longpath');
-if (!dir) { console.error('usage: windows.mjs <capture-dir> [--out FILE] [--summary] [--allow-lossy] [--no-longpath] [--dump-dest N]'); process.exit(2); }
+if (!dir) { console.error('usage: windows.mjs <capture-dir> [--out FILE] [--summary] [--allow-lossy] [--no-longpath] [--resolve-shortnames] [--shortnames F] [--dump-dest N]'); process.exit(2); }
 
 const meta = JSON.parse(fs.readFileSync(path.join(dir, 'meta.json'), 'utf8'));
 
@@ -87,54 +98,39 @@ function dosPath(nt) {
 // TWO GUARDS, both of which have a way to be wrong that this refuses to take:
 //   * a resolved component is only accepted when it is still a CHILD of the same parent. Otherwise
 //     `realpath` followed a junction and we would be rewriting the path to a different location.
-//   * expansion is skipped entirely when the capture came from another host, because `RUNNER~1`
-//     names whatever that machine happens to have. Re-decoding an archived trace elsewhere gets
-//     the short spelling back, honestly, rather than a confident wrong long name.
+//   * the resolution happens ONCE, on the capture host, and is ARCHIVED — see
+//     `windows-shortnames.mjs`. This used to be gated on `meta.host == process.env.COMPUTERNAME`,
+//     which made the decoder's OUTPUT depend on the machine it DECODED on: the same archive read on
+//     the capture VM and on a runner produced two different views, and comparing two archives is
+//     exactly what the venue-portability acceptance test does. (VENUE-PORTABILITY R2.)
 // ---------------------------------------------------------------------------------------------
-// DELIBERATELY LOOSE, and tightening it would be the wrong repair. This only decides whether a
-// component is worth ASKING the filesystem about; the filesystem is the authority. A false positive
-// (`a~b~1`, a legitimate long name) resolves to itself, the same-parent guard accepts it, nothing
-// changes, and the one syscall is cached. A false NEGATIVE is the direction that silently keeps a
-// path in the wrong scope, so the pattern errs toward asking.
-const SHORT_COMPONENT = /^[^\\/.]{1,8}~\d+(\.[^\\/.]{1,3})?$/;
-const sameHost = (meta.host ?? '').toLowerCase() === (process.env.COMPUTERNAME ?? '').toLowerCase();
-const longPathOn = !noLongPath && process.platform === 'win32' && sameHost && !!meta.host;
-const longCache = new Map();                            // `${parent}\\${short}` -> long component
-
-// Returns the long component, or null when the name could not be resolved AT ALL (gone, or the
-// resolution left the parent). Null is what makes "we kept the short spelling" countable, which is
-// the honest reading; a component that simply IS its own long name resolves to itself and is not a
-// failure.
-function expandComponent(parent, comp) {
-  const key = `${parent}\\${comp}`.toLowerCase();
-  if (longCache.has(key)) return longCache.get(key);
-  let out = null;
-  try {
-    const real = fs.realpathSync.native(`${parent}\\${comp}`);
-    const leaf = path.win32.basename(real);
-    // Accept ONLY a same-parent rename. A junction or symlink resolves elsewhere; rewriting the
-    // path to its target would silently move a write into a different scope.
-    if (leaf && path.win32.dirname(real).toLowerCase() === parent.toLowerCase()) out = leaf;
-  } catch { /* gone, or not reachable: keep the short spelling */ }
-  longCache.set(key, out);
-  return out;
-}
+const shortNames = shortNameMode({ dir, args, val });
+// `--no-longpath` still wins, and is now the ONLY caller-supplied way to turn expansion off; every
+// other mode is decided by what the archive carries.
+const longPathOn = !noLongPath && shortNames.mode !== 'off';
+const resolveComponent = longPathOn ? componentResolver(shortNames) : null;
 
 function expandShortPath(p) {
   if (!longPathOn || !p.includes('~') || !/^[A-Za-z]:\\/.test(p)) return p;
   const parts = p.split('\\');
   let cur = parts[0];                                   // the drive, e.g. `C:`
-  let changed = false, failed = false;
+  let changed = false, failed = false, unmapped = false;
   for (let i = 1; i < parts.length; i++) {
     const seg = parts[i];
     if (!seg) continue;
     if (!SHORT_COMPONENT.test(seg)) { cur = `${cur}\\${seg}`; continue; }
-    const long = expandComponent(cur, seg);
+    const long = resolveComponent(cur, seg);
+    // ⛔ THREE OUTCOMES, NOT TWO. `null` is the map SAYING there is no long name (the capture host
+    // looked and the name was gone) — an answer. `UNMAPPED` is the map not covering this component
+    // at all, i.e. an incomplete archive. Both keep the short spelling, but only the second means
+    // the archive is missing something, so they are counted apart rather than merged into "failed".
+    if (long === UNMAPPED) { unmapped = true; cur = `${cur}\\${seg}`; continue; }
     if (long === null) { failed = true; cur = `${cur}\\${seg}`; continue; }
     if (long !== seg) changed = true;
     cur = `${cur}\\${long}`;
   }
   if (failed) stats.shortUnexpanded++;
+  if (unmapped) stats.shortUnmapped++;
   if (changed) stats.shortExpanded++;
   // Put back a trailing separator the component walk dropped. The kernel emits a directory both
   // with and without one, and folding those two spellings is the shared normalizer's job (rule 1),
@@ -244,7 +240,7 @@ const emitted = new Set();                              // the contract has no t
 const stats = {
   events: 0, emitted: 0, unresolvedHandle: 0, orphanCreate: 0, reattributedByThread: 0,
   skippedFailed: 0, denied: 0, destResolved: 0, destUnresolved: 0, destUnmatched: 0,
-  shortExpanded: 0, shortUnexpanded: 0,
+  shortExpanded: 0, shortUnexpanded: 0, shortUnmapped: 0,
 };
 const destSamples = [];                                 // raw payloads for --dump-dest
 
@@ -478,6 +474,18 @@ if (dumpDest) {
   console.error('');
 }
 
+// ⛔ THE RESOLVED MAP IS PERSISTED HERE, AFTER THE WHOLE STREAM HAS BEEN WALKED, so it covers every
+// 8.3 component this trace actually contains rather than whatever a partial pass happened to reach.
+// This is the ONLY moment the map can be built: it needs the trace (to know which names to ask
+// about) and the live capture host (to answer). Writing it is what turns a perishable, host-local
+// fact into an archived one — every later decode, on any machine, reads this file and touches no
+// filesystem. `windows-retain.mjs` picks it up from the same capture directory with no extra wiring.
+if (shortNames.mode === 'resolve') {
+  const f = val('--shortnames') ?? path.join(dir, SHORT_NAMES_FILE);
+  const written = writeShortNames(f, shortNames.record, meta);
+  console.error(`windows.mjs: wrote ${path.basename(f)} — ${Object.keys(written.entries).length} 8.3 components resolved on ${written.host}`);
+}
+
 // ---------------------------------------------------------------------------------------------
 // Output. NDJSON is the contract; --summary is an eyeball view shaped like the Linux extractor's.
 // ---------------------------------------------------------------------------------------------
@@ -491,7 +499,17 @@ if (!wantSummary) {
   console.error(`windows.mjs: destination paths ${stats.destResolved} resolved from payload, ` +
     `${stats.destUnresolved} unresolvable, ${stats.destUnmatched} emitted without an OperationEnd` +
     `  |  8.3 names ${stats.shortExpanded} paths expanded, ${stats.shortUnexpanded} kept short` +
-    `${longPathOn ? '' : ' (EXPANSION OFF: ' + (noLongPath ? '--no-longpath' : process.platform !== 'win32' ? 'not on Windows' : `capture host ${meta.host} != ${process.env.COMPUTERNAME}`) + ')'}`);
+    `, ${stats.shortUnmapped} not covered by the archived map` +
+    `  [${shortNames.mode}: ${shortNames.reason}]`);
+  // ⛔ AN INCOMPLETE MAP IS A DIFFERENT FAILURE FROM NO MAP, AND IT IS THE ONE THAT LOOKS FINE. A
+  // path the map does not cover keeps its short spelling and falls to the `outside` scope, which is
+  // reported and never granted — an under-grant. Naming it here is what stops it reading as an
+  // ordinary "kept short".
+  if (stats.shortUnmapped > 0) {
+    console.error(`windows.mjs: !! ${stats.shortUnmapped} paths contained an 8.3 component the archived map does not cover;`
+      + ' this archive\'s map is INCOMPLETE and those paths keep the short spelling. Re-run the'
+      + ' capture-host resolution pass (--resolve-shortnames) against the original capture directory.');
+  }
   if (meta.fileMask && meta.fileMask.toUpperCase() !== '0X1FF0') {
     console.error(`windows.mjs: !! this capture used Kernel-File mask ${meta.fileMask}, not 0x1FF0 -- events 26/27/28` +
       ' were never written, so RENAME and HARDLINK DESTINATIONS ARE MISSING from this stream.');

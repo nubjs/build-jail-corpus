@@ -78,6 +78,9 @@ import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import readline from 'node:readline';
 import { pathToFileURL, fileURLToPath } from 'node:url';
+import {
+  SHORT_COMPONENT, UNMAPPED, componentResolver, shortNameMode,
+} from './windows-shortnames.mjs';
 
 export const RETAIN_SCHEMA = 1;
 
@@ -154,44 +157,37 @@ export function makeDosPath(devmap) {
 // ⛔ THE EXPANSION IS PERISHABLE AND THE RAW SPELLING IS PERMANENT, SO THE LOG CARRIES BOTH.
 // Expanding needs the name to STILL EXIST on the SAME HOST — false for a deleted temp file, false
 // for anyone re-reading this archive later, and false on every other machine. So it can only ever
-// be done here, at capture time, and never during the re-parse this whole archive exists to enable.
+// be RESOLVED at capture time, never during the re-parse this whole archive exists to enable.
 // But an expansion is also a GUESS the moment either precondition slips. Recording `f` as the
 // kernel's own spelling and `fx` as the expansion keeps the honest fact and the perishable one
 // separable: a re-parse that distrusts `fx` can ignore it, and one that needs a long name has it.
 // windows.mjs by contrast REPLACES the path, because a classifier needs exactly one spelling.
-const SHORT_COMPONENT = /^[^\\/.]{1,8}~\d+(\.[^\\/.]{1,3})?$/;
-
-export function makeExpander(enabled, stats) {
-  const cache = new Map();
-  const expandComponent = (parent, comp) => {
-    const key = `${parent}\\${comp}`.toLowerCase();
-    if (cache.has(key)) return cache.get(key);
-    let out = null;
-    try {
-      const real = fs.realpathSync.native(`${parent}\\${comp}`);
-      const leaf = path.win32.basename(real);
-      // Accept ONLY a same-parent rename. A junction or symlink resolves elsewhere, and rewriting
-      // the path to its target would silently move the operation to a different location.
-      if (leaf && path.win32.dirname(real).toLowerCase() === parent.toLowerCase()) out = leaf;
-    } catch { /* gone, or unreachable: there is no long name to be had */ }
-    cache.set(key, out);
-    return out;
-  };
+//
+// ⛔ "RESOLVED AT CAPTURE TIME" USED TO MEAN "RE-DERIVED WHENEVER `COMPUTERNAME` HAPPENED TO MATCH",
+// which made this decoder's output depend on the machine it ran on rather than on the archive it
+// read. The resolution now happens once and is ARCHIVED as `shortnames.json`; this file reads that
+// map and touches no filesystem. See `windows-shortnames.mjs`. (VENUE-PORTABILITY R2.)
+export function makeExpander(enabled, stats, resolver = null) {
+  const expandComponent = resolver ?? (() => UNMAPPED);
   return function expand(p) {
     if (!enabled || !p || !p.includes('~') || !/^[A-Za-z]:\\/.test(p)) return null;
     const parts = p.split('\\');
     let cur = parts[0];
-    let changed = false, failed = false;
+    let changed = false, failed = false, unmapped = false;
     for (let i = 1; i < parts.length; i++) {
       const seg = parts[i];
       if (!seg) continue;
       if (!SHORT_COMPONENT.test(seg)) { cur = `${cur}\\${seg}`; continue; }
       const long = expandComponent(cur, seg);
+      // `null` is the map SAYING there is no long name; `UNMAPPED` is the map not covering this
+      // component. Both keep the short spelling; only the second means the archive is incomplete.
+      if (long === UNMAPPED) { unmapped = true; cur = `${cur}\\${seg}`; continue; }
       if (long === null) { failed = true; cur = `${cur}\\${seg}`; continue; }
       if (long !== seg) changed = true;
       cur = `${cur}\\${long}`;
     }
     if (failed) stats.shortUnexpanded++;
+    if (unmapped) stats.shortUnmapped++;
     if (!changed) return null;
     stats.shortExpanded++;
     // Put back a trailing separator the component walk dropped; the kernel emits a directory both
@@ -213,9 +209,9 @@ export async function decodeLines(lines, opts = {}) {
   const stats = {
     xmlEvents: 0, kept: 0, distinct: 0, byProvider: {}, unknownFileEvent: {},
     unresolvedHandle: 0, unsettled: 0, reattributedByThread: 0, outOfSubtree: 0,
-    destResolved: 0, destUnresolved: 0, shortExpanded: 0, shortUnexpanded: 0,
+    destResolved: 0, destUnresolved: 0, shortExpanded: 0, shortUnexpanded: 0, shortUnmapped: 0,
   };
-  const expand = makeExpander(opts.expandShort === true, stats);
+  const expand = makeExpander(opts.expandShort === true, stats, opts.resolveComponent ?? null);
 
   const ROOT = meta.rootPid;
   const parentOf = new Map(meta.rootPid != null ? [[meta.rootPid, meta.launcherPid ?? null]] : []);
@@ -632,9 +628,13 @@ export function buildHeader({ meta, capDir, opts, rawFile, rawBytes, rawGzBytes,
       dedup: 'identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to '
         + 'one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. '
         + 'Per-operation ordering and file offsets are in the raw only.',
+      // ⛔ NAMES ITS SOURCE, NOT JUST ITS STATE. A reader comparing two archives has to be able to
+      // tell "expansion was off because this archive carries no map" from "expansion was off
+      // because the decoder was run somewhere else" — the second was the old behaviour and is
+      // exactly what R2 removes, so the archive says which it was.
       shortNames: opts.expandShort
-        ? '`f` is the kernel spelling; `fx` is an 8.3 expansion done on the capture host'
-        : '8.3 expansion OFF — `f` is the kernel spelling and no `fx` is present',
+        ? `\`f\` is the kernel spelling; \`fx\` is an 8.3 expansion from the archived map (${opts.shortNameSource})`
+        : `8.3 expansion OFF (${opts.shortNameSource}) — \`f\` is the kernel spelling and no \`fx\` is present`,
     },
   };
 }
@@ -649,7 +649,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const flags = new Set(['--out', '--raw-out', '--header-out', '--project', '--home',
-    '--jail-home', '--pkg', '--version']);
+    '--jail-home', '--pkg', '--version', '--shortnames']);
   const dir = args.find((a, i) => !a.startsWith('--') && !(i > 0 && flags.has(args[i - 1])));
   if (!dir) {
     console.error('usage: windows-retain.mjs <capture-dir> --raw-out F.gz --out F.ndjson.gz'
@@ -687,14 +687,18 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       + ` (${(rawBytes / Math.max(rawGzBytes, 1)).toFixed(1)}x)  sha256 ${rawSha.slice(0, 16)}…`);
   }
 
-  // Expansion is only meaningful on the capture host: `RUNNER~1` names whatever THAT machine had.
-  // Re-decoding an archived trace elsewhere gets the short spelling back, honestly, rather than a
-  // confident wrong long name.
-  const sameHost = (meta.host ?? '').toLowerCase() === (process.env.COMPUTERNAME ?? '').toLowerCase();
-  const expandShort = !args.includes('--no-longpath') && process.platform === 'win32' && sameHost && !!meta.host;
+  // ⛔ THE 8.3 MAP COMES FROM THE ARCHIVE, NEVER FROM THIS MACHINE. This used to be
+  // `meta.host == process.env.COMPUTERNAME`, so the derived view depended on where it was decoded.
+  // `windows.mjs --resolve-shortnames` writes `shortnames.json` into the capture directory at
+  // capture time and `shortNameMode` finds it there; a capture with no map decodes with expansion
+  // OFF on every machine alike. See `windows-shortnames.mjs`. (VENUE-PORTABILITY R2.)
+  const shortNames = shortNameMode({ dir, args, val });
+  const expandShort = shortNames.mode !== 'off';
 
   const opts = {
     meta, expandShort,
+    resolveComponent: expandShort ? componentResolver(shortNames) : null,
+    shortNameSource: shortNames.reason,
     project: val('--project'), home: val('--home'), jailHome: val('--jail-home'),
     pkg: val('--pkg'), version: val('--version'),
   };
@@ -731,7 +735,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (s.unsettled) console.log(`  ⛔ ${s.unsettled} operations with NO OperationEnd — kept, status marked unknown`);
   if (s.unresolvedHandle) console.log(`  ⛔ ${s.unresolvedHandle} handle ops whose path no table could supply`);
   if (s.destUnresolved) console.log(`  ⛔ ${s.destUnresolved} destination events with no resolvable path`);
-  if (expandShort) console.log(`  8.3       ${s.shortExpanded} expanded, ${s.shortUnexpanded} kept short`);
+  console.log(`  8.3       ${expandShort ? `${s.shortExpanded} expanded, ${s.shortUnexpanded} kept short, ${s.shortUnmapped} not covered` : 'OFF'}  [${shortNames.mode}: ${shortNames.reason}]`);
+  if (s.shortUnmapped > 0) {
+    console.log(`  ⛔ ${s.shortUnmapped} paths contain an 8.3 component the archived map does not cover — the map is INCOMPLETE`);
+  }
   const unknown = Object.entries(s.unknownFileEvent);
   if (unknown.length) console.log(`  unnamed Kernel-File events: ${unknown.map(([k, v]) => `${k}×${v}`).join(' ')}`);
   if (out) console.log(`  wrote ${path.basename(out)} (${sizeOf(out)} bytes)`);

@@ -48,15 +48,26 @@ ${fields}
 };
 
 // One decode run: write a synthetic capture, invoke the adapter, return its events plus stderr.
-function decode(events, { fileMask = '0x1FF0', extraArgs = [] } = {}) {
+//
+// `shortNames` writes the archived 8.3 map into the capture directory, exactly where the capture
+// host's resolution pass would leave it. `env` overrides the child's environment so a test can
+// prove the decode does NOT depend on it.
+function decode(events, { fileMask = '0x1FF0', extraArgs = [], shortNames = null, env = null } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'winadapt-'));
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({
     schema: 'nub-obs-win/1', host: 'SYNTHETIC-HOST', rootPid: PID, launcherPid: PPID,
     devmap: { [VOL]: 'C:' }, eventsLost: 0, eventsTotal: events.length, fileMask,
   }));
+  if (shortNames) {
+    fs.writeFileSync(path.join(dir, 'shortnames.json'), JSON.stringify({
+      schema: 'nub-obs-win-shortnames/1', host: 'SYNTHETIC-HOST',
+      resolvedAt: '2026-01-01T00:00:00.000Z', entries: shortNames,
+    }));
+  }
   fs.writeFileSync(path.join(dir, 'trace.xml'), `<Events>\n${events.join('\n')}\n</Events>\n`);
   const outFile = path.join(dir, 'events.ndjson');
-  const r = spawnSync(process.execPath, [ADAPTER, dir, '--out', outFile, ...extraArgs], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [ADAPTER, dir, '--out', outFile, ...extraArgs],
+    { encoding: 'utf8', ...(env ? { env: { ...process.env, ...env } } : {}) });
   assert.equal(r.status, 0, `adapter exited ${r.status}\n${r.stderr}`);
   const lines = fs.readFileSync(outFile, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
   fs.rmSync(dir, { recursive: true, force: true });
@@ -209,14 +220,84 @@ test('a capture taken at the old mask is called out rather than read as complete
   assert.match(d.stderr, /RENAME and HARDLINK DESTINATIONS ARE MISSING/);
 });
 
-test('8.3 expansion is inert when the capture came from another host', () => {
-  // Expansion resolves a short component against the LIVE filesystem, so running it against a
-  // trace from another machine would invent a long name. The synthetic meta names a host that is
-  // not this one, which is exactly that case; the short spelling must survive verbatim.
-  const d = decode([
-    ev(12, { Irp: '0xA1', FileObject: '0xF5', FileName: `${VOL}\\Users\\RUNNER~1\\x.bin`, CreateOptions: '0x05000000' }),
-    ev(24, { Irp: '0xA1', Status: '0x0' }),
-  ]);
-  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `short name was rewritten off-host; got ${[...writes(d)]}`);
-  assert.match(d.stderr, /EXPANSION OFF/);
+// ── 8.3 SHORT NAMES: the decode must not depend on WHERE it is decoded (VENUE-PORTABILITY R2) ───
+//
+// ⛔ THESE REPLACE A TEST THAT PINNED THE DEFECT. The old case asserted expansion was inert "when
+// the capture came from another host", which passed because `meta.host` never equalled this
+// machine's `COMPUTERNAME` — and would have passed identically on a machine where it DID, by taking
+// the other branch. It could therefore never have caught the real failure: one archive decoding
+// differently on two machines. The map is now an archive artifact, so the same three cases below
+// give the same answers on every machine, and the last one is the control that says so.
+const SHORT_WRITE = [
+  ev(12, { Irp: '0xA1', FileObject: '0xF5', FileName: `${VOL}\\Users\\RUNNER~1\\x.bin`, CreateOptions: '0x05000000' }),
+  ev(24, { Irp: '0xA1', Status: '0x0' }),
+];
+
+test('an archive with no 8.3 map keeps the short spelling, and says the ARCHIVE is why', () => {
+  const d = decode(SHORT_WRITE);
+  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `short name was rewritten with no map; got ${[...writes(d)]}`);
+  // The reason must name the archive, not two machines. An "off because you are elsewhere" message
+  // is the old behaviour restated, and a reader cannot check it.
+  assert.match(d.stderr, /no recorded 8\.3 map/);
+  assert.match(d.stderr, /property of this ARCHIVE/);
+});
+
+test('a recorded 8.3 map expands the path, on any machine, with no filesystem access', () => {
+  // The map names a path that exists on NO machine, least of all this one. If the decoder were
+  // still resolving against the filesystem this could not pass anywhere; that it passes is what
+  // proves the map is the sole authority.
+  const d = decode(SHORT_WRITE, {
+    shortNames: { 'c:\\users\\runner~1': 'runneradmin' },
+  });
+  assert.ok(writes(d).has('C:\\Users\\runneradmin\\x.bin'),
+    `recorded map was not applied; got ${[...writes(d)]}`);
+  assert.match(d.stderr, /8\.3 names 1 paths expanded/);
+});
+
+test('a map that does not cover a component keeps it short and reports the archive as INCOMPLETE', () => {
+  // ⛔ THE STATE THAT LOOKS FINE. An absent key is not the same as a recorded `null`: the first
+  // means the map is partial, the second means the capture host looked and found nothing. Merging
+  // them would let a partial archive read as a complete one, and the path then falls to the
+  // `outside` scope — reported, never granted, which is an under-grant.
+  const d = decode(SHORT_WRITE, { shortNames: { 'c:\\users\\somethingelse~1': 'x' } });
+  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `uncovered component was rewritten; got ${[...writes(d)]}`);
+  assert.match(d.stderr, /map is INCOMPLETE/);
+  assert.match(d.stderr, /1 not covered by the archived map/);
+});
+
+test('a recorded null is an ANSWER — kept short, and NOT reported as an incomplete archive', () => {
+  const d = decode(SHORT_WRITE, { shortNames: { 'c:\\users\\runner~1': null } });
+  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `a recorded null was treated as a long name; got ${[...writes(d)]}`);
+  assert.match(d.stderr, /1 kept short/);
+  assert.doesNotMatch(d.stderr, /map is INCOMPLETE/);
+});
+
+test('⭑ THE VENUE CONTROL: the decode is byte-identical under two different COMPUTERNAMEs', () => {
+  // ⛔ THIS IS THE ACCEPTANCE TEST'S OWN INSTRUMENT, IN MINIATURE. The venue-portability test
+  // compares two archives; if the decoder answers differently depending on the machine reading it,
+  // that comparison is measuring the reader. `COMPUTERNAME` is the exact variable both Windows
+  // decoders used to key on, so setting it to two values that BOTH differ from the capture's host
+  // and to one that MATCHES it exercises all three branches of the mechanism that was removed.
+  const map = { 'c:\\users\\runner~1': 'runneradmin' };
+  const under = (COMPUTERNAME) => {
+    const d = decode(SHORT_WRITE, { shortNames: map, env: { COMPUTERNAME } });
+    return `${[...writes(d)].sort().join('|')}  ${/8\.3 names (\d+) paths expanded/.exec(d.stderr)?.[1]}`;
+  };
+  const onCaptureHost = under('SYNTHETIC-HOST');    // the capture's own meta.host
+  const elsewhere = under('SOME-OTHER-RUNNER');
+  const unset = under('');
+  assert.equal(onCaptureHost, elsewhere,
+    'the decoder still varies with COMPUTERNAME — an archive would decode differently by venue');
+  assert.equal(onCaptureHost, unset, 'the decoder varies with COMPUTERNAME being absent');
+  assert.match(onCaptureHost, /runneradmin/, 'positive control: the map must actually have been applied');
+});
+
+test('--resolve-shortnames off Windows refuses rather than recording this machine\'s names', () => {
+  // The resolution pass is capture-host-only by construction. Run anywhere else it would record a
+  // map of the WRONG machine's directory names into the archive — a fabricated fact that every
+  // later decode would then faithfully reproduce.
+  const d = decode(SHORT_WRITE, { extraArgs: ['--resolve-shortnames'] });
+  if (process.platform === 'win32') return;   // the positive path is exercised on the runner
+  assert.match(d.stderr, /refusing to invent a map/);
+  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `short name was rewritten off Windows; got ${[...writes(d)]}`);
 });
