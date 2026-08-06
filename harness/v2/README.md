@@ -100,7 +100,14 @@ evict rover + binary-install  {"write":{"deps":true},...}  rc=0  bin/ rover,READ
 
 A probe of any eviction code therefore has to check that it fired, or it measures nothing while looking healthy — which is how the first Windows attempt at this proof passed its own preconditions and proved nothing.
 
-⛔ **macOS is NOT in that state, and the eviction counters are what say so.** Run [31108257981](https://github.com/nubjs/build-jail-corpus/actions/runs/31108257981) on `macos-15` reports `EVICT[nar-no-network] 30 store entries removed, 5 spared as nub tooling, 50 in store` against `/Users/runner/.cache/nub/pm/store` — a populated machine-global store, on the same hosted-runner class where Windows saw none. The lift rests on that plus the control pair, `@apollo/rover@0.2.1`, three arms:
+⛔⛔ **macOS IS NOT IN THAT STATE, AND THE REASON IS `sudo`, NOT THE PLATFORM — SO IT IS A KNOB THE WINDOWS LANE CAN REACH TOO.** `is_ci()` is `std::env::var_os("CI").is_some()` and nothing more (`aube-util/src/env.rs`). The macOS driver launches every arm as `sudo -u "$RUNUSER" -H env "PATH=$PATH" …`, and sudo's `env_reset` drops `CI`/`GITHUB_ACTIONS` while `env` re-adds only `PATH` — so **nub inside an arm does not know it is in CI, the auto-disable never fires, and the arm uses the machine-global store**. The Windows driver spawns nub with the CI environment intact, which is why it saw zero `EVICT` lines. Measured both directions on `macos-15`:
+
+| | store before | store after | `node_modules/<pkg>` resolves to |
+| --- | --- | --- | --- |
+| driver arm (`sudo -u … env PATH=…`) | absent — `EVICT[synth] no store … yet (first arm on this box)` | **50 entries**, `EVICT` then removing 30 per descent arm | machine-global `/Users/runner/.cache/nub/pm/store` |
+| plain `nub install` in the job shell, `CI` intact ([31109041194](https://github.com/nubjs/build-jail-corpus/actions/runs/31109041194)) | 50 | **50 — unchanged** | `/private/tmp/lay/node_modules/.store/@apollo+rover@0.2.1/…` |
+
+The store not existing before the first arm and holding 50 entries after it is what makes this a measurement rather than an inference: the arms populated it. ⇒ **The macOS lane measures the layout real users get; the Windows lane does not.** The lift rests on that plus the control pair, `@apollo/rover@0.2.1`, three arms:
 
 ```
 VERIFY[synth]             {"write":{"deps":true},"network":true}  rc=0  artifacts=6/6  -> VERIFIED
