@@ -61,6 +61,23 @@ OBSERVE still runs, and must — the artifact gate needs its file manifest as th
 
 **Verification status, stated honestly:** all four `verify` return codes were driven through the decision block with a stub and dispatch correctly (0→SUFFICIENT, 1→INSUFFICIENT, **2→VOID**, 3→INSUFFICIENT); the malformed-grant guard rejects a non-object; both modes parse; `bash -n` clean under stock bash 3.2. ⛔ **It has NOT been run end-to-end against a real package by its author** — `measure.sh` needs `strace`, so it cannot run on macOS. First real use should read its output sceptically and report anything surprising.
 
+## How much each adapter is actually trusted — measured, and it is UNEVEN
+
+Three operating systems means three tracers and three parsers (strace, dtrace, ETW). That is fine by design — the OSes share no observation mechanism, so a common implementation was never available. What matters is knowing how much each one has earned. Stated honestly, because the weakest link is where a wrong grant enters the catalog:
+
+| | tracer | parser unit tests | end-to-end evidence |
+| --- | --- | --- | --- |
+| **linux** | `strace -f` | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
+| **macos** | dtrace (`macos-observe.d`) | **9** (`observe-macos.test.mjs`) | ⛔ none at corpus scale |
+| **windows** | ETW (`windows.ps1`) | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
+| *shared* | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
+
+The unit suites are worth their cost because they cover the *same* semantic hazards independently on Linux and macOS — a symlink into the real user home, `rename` billing **both** ends, a failed call not counting as a need, an unattributed run yielding `UNKNOWN` rather than an empty grant. Two parsers agreeing on those, written separately, is most of the cross-parser confidence there is. The artifact gate's suite carries the one assertion nobody may relax: **`.npmrc` is not excused by the packaging-metadata exclusion.**
+
+⛔ **Windows has no parser unit suite, and `validate-windows.mjs` does not substitute for one** — it needs a real Windows host plus a PowerShell-built fixture at `C:\obs\fx`, so it runs nowhere else. What it *does* cover it covers well: every deliberate action must be PRESENT, every decoy ABSENT, the emitted set EXACT inside the namespace the fixture controls, and `--selftest` deletes each positive assertion's evidence and requires it to FAIL.
+
+⛔⛔ **But note precisely what that validator can and cannot catch, because the known Windows defect slipped past it.** OBSERVE reported `allTreePeers: 0` on a package whose egress two other instruments say is real. `allTreePeers` is the **pre-attribution** count, so zero means no network events reached the parser at all ⇒ **the defect is in CAPTURE, not parsing, and a parser unit test would not have caught it either.** The validator asserts egress (**P4** a raw `TcpClient.Connect` with no DNS and no TLS; **P7** an `Invoke-WebRequest`) and passes — so whatever that package does differs in shape from both, and that shape is unidentified. ⇒ **The gap to close on Windows is capture-side coverage in `windows.ps1`, not more parsing tests.**
+
 ## What v2 does NOT change
 
 - The catalog schema and the grant vocabulary are unchanged.
