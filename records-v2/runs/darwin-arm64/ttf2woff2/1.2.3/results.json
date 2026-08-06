@@ -2,100 +2,29 @@
   "pkg": "ttf2woff2",
   "version": "1.2.3",
   "harnessVersion": 2,
-  "verdict": "MINIMUM",
-  "grant": {},
-  "synthesized": {
-    "write": {
-      "deps": true,
-      "project": true,
-      "userHome": true
-    }
-  },
-  "verifiedBy": "narrow:no-write-project",
-  "minimality": "MINIMAL",
+  "verdict": "HARNESS-ERROR",
+  "grant": null,
+  "synthesized": null,
+  "verifiedBy": null,
+  "minimality": null,
   "overPredictedBy": [],
-  "notes": [
-    "cwd-unobserved"
-  ],
-  "eventLog": {
-    "lines": 12238,
-    "parsed": 12220,
-    "unparsed": 0,
-    "live": true,
-    "tracerErrors": 1,
-    "tracerErrorTotal": 1,
-    "unresolvedDirfd": 24,
-    "unresolvedFd": 0,
-    "pairedTwoPath": 541,
-    "danglingPair": 0,
-    "failed": 4681,
-    "enoent": 4676,
-    "refusals": 0,
-    "byErrno": {
-      "ENXIO": 3,
-      "ENOENT": 4676,
-      "EEXIST": 2
-    },
-    "procs": 6,
-    "lifecyclePids": 1,
-    "distinctEvents": 5587,
-    "emitted": 5587,
-    "calls": 11657,
-    "bytes": 976677,
-    "gzipBytes": 37735,
-    "out": "/Users/runner/v2m-uiyrmE/observe/events.ndjson"
-  },
-  "driverRc": 0,
-  "durationMs": 11112,
+  "notes": [],
+  "eventLog": null,
+  "driverRc": 1,
+  "durationMs": 72,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": null,
     "nubVersion": "v0.6.0",
-    "corpusGitSha": "52e6c079eeab53d21bfd968f76a0318b6d164493",
+    "corpusGitSha": "ee24654f8c908176e2e9fe3fd4a83b16b14cd1fb",
     "node": "v22.23.1",
-    "at": "2026-08-06T21:29:42.933Z"
-  },
-  "rescored": {
-    "kind": "re-parse",
-    "note": "DERIVED FROM THE RETAINED ARCHIVE. No package was installed, no jail arm was executed, and no runner was used. The jailed evidence cited below comes from the ORIGINAL run in `provenance`, printed in `driver.out`.",
-    "at": "2026-08-06T21:56:03.594Z",
-    "harnessGitSha": "1d504fac",
-    "decoder": "harness/v2/observe-macos.mjs",
-    "input": "trace.txt.gz",
-    "reason": "The published grant was the SYNTHESIZED one, and that synthesis rested on a phantom path. The script opens `builderror.log` relative; macOS spawns lifecycle scripts with posix_spawn addchdir_np, so no chdir syscall fires and the decoder resolved it against the inherited wrapper cwd, producing <project>/builderror.log — a path no process touched — which billed write.project. The real file is <project>/node_modules/ttf2woff2/builderror.log, exactly where Linux recorded it.",
-    "grantEstablishedBy": {
-      "arm": "nar-no-write-project",
-      "note": "The original run executed this arm at grant {} in the real unprivileged jail. That is a jailed verification of the empty grant, unaffected by which bucket synthesis had picked.",
-      "rc": 0,
-      "artifacts": "122/122",
-      "missing": 0,
-      "shortfall": "none",
-      "overridden": 2,
-      "rejected": 0
-    },
-    "minimalityEstablishedBy": {
-      "note": "{} is the empty grant: there is no capability left to drop, so minimality is by construction rather than by descent.",
-      "inference": "none — the empty grant is minimal definitionally",
-      "directEmptyGrantArmRun": true
-    },
-    "synthesizedNote": "`synthesized` records what the FIXED decoder (1d504fac) produces from this archive: the unplaceable write widens the grant to every write scope. It is deliberately WIDER than the original {\"write\":{\"project\":true}} — the old value was narrow only by accident of a wrong resolution. The verified grant is unaffected.",
-    "previous": {
-      "grant": {
-        "write": {
-          "project": true
-        }
-      },
-      "synthesized": {
-        "write": {
-          "project": true
-        }
-      },
-      "verifiedBy": "synth",
-      "minimality": "OVER-PREDICTED",
-      "overPredictedBy": [
-        "no-write-project"
-      ]
-    }
+    "at": "2026-08-06T22:19:12.048Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": null,
+    "interpreterPath": null,
+    "interpreterInsideHome": null,
+    "overrides": null
   }
 }
