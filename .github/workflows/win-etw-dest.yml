@@ -23,6 +23,17 @@
 #
 # Branch-scoped, no PR: CI is the only Windows path here, and the push trigger is what makes it
 # iterable while the workflow file lives off the default branch.
+#
+# ⛔ TWO CI ROUND-TRIPS WERE SPENT ON AN INTERPOLATION THAT WILL NOT PARSE. One bad interpolation
+# takes the WHOLE file down, and it is reported as a run failing in seconds with
+# no jobs, no steps, no annotation and no log -- `gh run view` says only "This run likely failed
+# because of a workflow file issue." Every YAML parser accepts the file, so a local YAML check
+# proves nothing. The two forms that did it, BOTH inside a `run: |` block, where a leading `#` is
+# just a character and the text is a real string GitHub scans end to end:
+#   * an EMPTY interpolation, written in a comment that was explaining interpolation;
+#   * a doubled '' borrowed from PowerShell quoting -- inside an expression the quoting is GitHub's,
+#     where '' is an empty string literal, not an escape.
+# The same text in a YAML-level comment is harmless, because the YAML parser strips it first.
 name: win-etw-dest
 
 on:
@@ -304,10 +315,6 @@ jobs:
         continue-on-error: true
         run: |
           $P = 'harness/v2/probes/win-viability'
-          # The `${{ }}` is substituted before PowerShell ever sees the line, so the quoting inside
-          # it is GitHub-expression syntax, not PowerShell's — a doubled '' is not an escape here
-          # and makes the whole workflow file unparseable, which presents as a run that fails in
-          # seconds with no jobs and no annotation.
           $spec = '${{ inputs.package || 'hugo-extended@0.141.0' }}'
           $i = $spec.LastIndexOf('@'); $pkg = $spec.Substring(0, $i); $ver = $spec.Substring($i + 1)
           $free = (Get-PSDrive -Name C).Free
