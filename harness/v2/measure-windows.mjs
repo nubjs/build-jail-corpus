@@ -26,6 +26,13 @@ const HOME = process.env.USERPROFILE;
 // ⛔ NOT UNDER %TEMP%. That path is inside the jail's own private-temp redirect, so a fixture
 // placed there cannot test a filesystem-denial claim at all.
 const BASE = flag('--root', 'C:\\jail');
+
+// A verify arm that never returns is a real, MEASURED outcome here, not a hypothetical: a jailed
+// `nub install` was seen burning a core for 13+ minutes with no output. Bare spawnSync has no
+// deadline, so one such arm blocks the whole driver forever and the lane produces nothing at all.
+// TIMED-OUT is recorded as its own verdict -- it is NOT a failure, and must never be read as one:
+// a failure says the grant was insufficient, a timeout says nothing about the grant.
+const ARM_TIMEOUT_MS = Number(flag('--arm-timeout', '600000'));
 const ROOT = path.join(BASE, `m-${PKG.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`);
 fs.mkdirSync(ROOT, { recursive: true });
 
@@ -48,6 +55,11 @@ if (!fs.existsSync(NPM)) { console.error(`FATAL npm-cli.js not found at ${NPM}`)
 
 const run = (exe, args, opts = {}) =>
   spawnSync(exe, args, { encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, ...opts });
+
+// A spawnSync deadline surfaces as `error.code === 'ETIMEDOUT'`, but a killed child also reports
+// status null with a signal, so both spellings are treated as the deadline firing. Distinguishing a
+// timeout from a non-zero exit is what keeps a hung arm out of the "grant insufficient" bucket.
+const timedOut = (r) => r.error?.code === 'ETIMEDOUT' || (r.status === null && r.signal != null);
 
 const countFiles = (dir, skip = () => false) => {
   let n = 0;
@@ -96,11 +108,17 @@ const CAP = path.join(ROOT, 'cap');
 // the "lifecycle shell = a cmd.exe that is not rootPid" rule is unaffected.
 const WRAP = path.join(ROOT, 'rebuild.cmd');
 fs.writeFileSync(WRAP, `@echo off\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
+// ⛔ THE ETW SESSION NAME MUST BE UNIQUE PER RUN. windows.ps1 defaults to the fixed name `nubobs`
+// and unconditionally `logman stop`s it before creating it, so a second concurrent driver SILENTLY
+// KILLS the first one's live trace -- the victim reports a short or empty capture with no error.
+// A per-run name is what makes the lane parallelisable at all.
+const SESSION = `nubobs_${process.pid}_${Date.now().toString(36)}`;
 const cap = run('powershell.exe', [
   '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(HERE, 'adapters', 'windows.ps1'),
   '-OutDir', CAP,
   '-Command', WRAP,
   '-WorkDir', OBS,
+  '-Session', SESSION,
 ]);
 const capOut = (cap.stdout ?? '') + (cap.stderr ?? '');
 fs.writeFileSync(path.join(ROOT, 'capture.log'), capOut);
@@ -146,11 +164,52 @@ const verify = (grant, label) => {
   const cat = path.join(v, 'cat.json');
   fs.writeFileSync(cat, JSON.stringify({ packages: { [PKG]: { default: grant } } }));
 
+  // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
+  // Both were tried and both FAILED to stop an arm replaying its predecessor's result. There are
+  // three distinct carry-overs between arms and they must ALL be cleared, or an arm reports a
+  // verdict it never measured while every precondition (OVERRIDDEN>=1, REJECTED==0) reads green:
+  //
+  //   1. the side-effects memo, keyed on the DEPENDENCY -- identical across arms by construction,
+  //      so a unique ROOT name does not perturb it;
+  //   2. the GLOBAL VIRTUAL STORE -- a package already built there is `materialized` by the linker
+  //      and its lifecycle script is never re-run, which is the replay the memo drop did not catch;
+  //   3. `pm/tools/npm-prefix` -- once any run creates it, a later arm's `mkdir` of it succeeds, so
+  //      a first-run denial silently stops reproducing.
+  //
+  // MEASURED 2026-08-06 on iedriver@4.0.0: an arm that had produced rc=1 with an EPERM on that
+  // mkdir replayed as rc=0 in 2.4s, twice, with the memo drop in place.
+  //
+  // ⛔ `NUB_CACHE_DIR` DOES NOT FIX THIS AND MUST NOT BE USED FOR IT. It was the obvious candidate
+  // and it is wrong: under the nub embedder profile that variable is read via
+  // `config_env("CACHE_DIR")` and governs the RESOLVER PRIMER cache only -- it does not relocate
+  // the content-addressed store. MEASURED: with it set per arm, the arm dir ended with 0 files
+  // while `%LOCALAPPDATA%\nub\pm\store` still served the package, so the arm looked isolated and
+  // was not. Evict the store entry itself, which is the only thing the linker consults.
+  const STORE = path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'store');
+  for (const d of (fs.existsSync(STORE) ? fs.readdirSync(STORE) : [])) {
+    // Store dirs are `<name>@<version>-<hash>`; the hash is not predictable, so match the prefix.
+    if (d.startsWith(`${PKG}@${VER}-`) || d.startsWith(`${PKG}@`)) {
+      fs.rmSync(path.join(STORE, d), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    }
+  }
+  // The memo drop stays: it is necessary but, on its own, was measured to be insufficient.
+  fs.rmSync(path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'side-effects-v1'),
+    { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat };
-  const i = run(NUB, ['install'], { cwd: v, env });
+  const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
-  const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env });
+  // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
+  // stage so the leak is visible rather than showing up later as a mystery CPU hog.
+  if (timedOut(i)) {
+    console.log(`  VERIFY[${label}] TIMED-OUT in \`install\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
+    return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isLog), rc: null };
+  }
+  const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'a.log'), (a.stdout ?? '') + (a.stderr ?? ''));
+  if (timedOut(a)) {
+    console.log(`  VERIFY[${label}] TIMED-OUT in \`approve-builds\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
+    return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isLog), rc: null };
+  }
 
   // ⛔ A MALFORMED OVERRIDE WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   // assertion an arm can measure the SHIPPED policy while you believe it measured yours.
@@ -168,6 +227,9 @@ const verify = (grant, label) => {
 
 const synth = verify(GRANT, 'synth');
 if (synth.void) { console.log('  => VOID (override never engaged; binary lacks the feature or the catalog was rejected)'); process.exit(1); }
+// A timeout is not evidence that the grant was too narrow, so the ladder must NOT be walked from
+// here -- widening after a hang would manufacture a wider "minimum" than the package really needs.
+if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${synth.stage}); no verdict, and the ladder is NOT walked`); process.exit(3); }
 if (synth.ok) {
   console.log(`  => MINIMUM ${JSON.stringify(GRANT)}   (observed, then verified)`);
   process.exit(0);
@@ -179,6 +241,9 @@ if (synth.ok) {
 // `internetClient` AppContainer capability). So a package that only passes at `write:"disk"` may be
 // failing for a TOKEN-compatibility reason no path grant can fix -- the ladder cannot tell those
 // apart, which is why the per-rung file counts are printed rather than only the verdict.
+// A single-variable A/B between two BINARIES needs only the synthesized arm; walking the ladder
+// afterwards costs three more full installs and answers a different question.
+if (argv.includes('--synth-only')) { console.log('  => SYNTH-ONLY: stopping before the ladder'); process.exit(4); }
 console.log('  synthesized grant did not verify -- falling back to a bounded ladder');
 const LADDER = [
   { write: { deps: true, project: true, userHome: true }, network: true },
@@ -188,6 +253,7 @@ const LADDER = [
 for (const [i, g] of LADDER.entries()) {
   const r = verify(g, `fb${i}`);
   if (r.void) continue;
+  if (r.timedOut) { console.log(`  => TIMED-OUT on ladder rung ${i} (${r.stage}); the ladder is abandoned rather than continued`); process.exit(3); }
   if (r.ok) {
     console.log(`  => MINIMUM ${JSON.stringify(g)}   (ladder fallback; synthesized grant was insufficient)`);
     console.log(`  !! OBSERVE UNDER-PREDICTED -- the gap between ${JSON.stringify(GRANT)} and this is what the trace missed`);
