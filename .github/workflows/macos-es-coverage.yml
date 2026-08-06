@@ -1,0 +1,61 @@
+# Standalone Endpoint Security coverage control for macOS. Deliberately does NOT touch the v2
+# adapter: the adapter's empty pid closure is the thing under investigation, so putting it in the
+# path would make every cell unattributable. Branch-scoped, no PR — both instruments need uid 0 on
+# a real macOS host with SIP enabled, which is exactly what a hosted runner is.
+name: macos-es-coverage
+
+on:
+  push:
+    branches: [probe/macos-es-coverage]
+    paths:
+      - 'harness/v2/adapters/es-coverage-control.sh'
+      - '.github/workflows/macos-es-coverage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  control:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts
+        run: |
+          sw_vers; uname -m
+          echo "SIP: $(csrutil status 2>&1)"
+          echo "uid=$(id -u) user=$(whoami)"
+          sudo -n true && echo "passwordless sudo: YES" || echo "passwordless sudo: NO"
+          echo "eslogger: $(command -v eslogger || echo MISSING)"
+          echo "fs_usage: $(command -v fs_usage || echo MISSING)"
+
+      # `set +e` is load-bearing: GitHub runs `run:` under `bash -e`, so without it the first
+      # non-zero command aborts the step BEFORE the output that explains it.
+      - name: Coverage control
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/es-coverage-control.sh
+          sudo harness/v2/adapters/es-coverage-control.sh "$RUNNER_TEMP/cov" \
+            > "$RUNNER_TEMP/cov.log" 2>&1
+          echo "CONTROL_EXIT=$?"
+          cat "$RUNNER_TEMP/cov.log"
+
+      - name: eslogger event vocabulary
+        continue-on-error: true
+        run: |
+          set +e
+          sudo eslogger --list-events 2>&1 | head -80
+          echo "--- help ---"
+          sudo eslogger --help 2>&1 | head -40
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-es-coverage
+          path: |
+            ${{ runner.temp }}/cov
+            ${{ runner.temp }}/cov.log
+          if-no-files-found: warn
