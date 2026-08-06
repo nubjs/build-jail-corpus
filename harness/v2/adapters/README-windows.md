@@ -73,6 +73,20 @@ Three details the fix depends on:
 
 `path2` and `kind` are additive: `classify.mjs` reads `op`/`path`/`result`/`pid` and `validate-windows.mjs` keys its exact-set on `op|path|result|role`, so neither sees them. The primary `path` stays the destination, which is the end that needs the grant. The Linux retained log bills both ends of a two-path op the same way, as `f`/`g`.
 
+### What this looked like on a real package
+
+Not a fixture artifact. `hugo-extended@0.141.0` writes through node's compile cache, which is an atomic write: a temp file, then a rename into place. Every compile-cache write the harness recorded, before and after, on the same package:
+
+```
+BEFORE  write  …\node-compile-cache\…\b9b9bb80.1lvASz     (spelled C:\Users\RUNNER~1\…)
+        write  …\node-compile-cache\…\b9b9bb80.1lvASz     (spelled C:\Users\runneradmin\…)
+
+AFTER   write  …\node-compile-cache\…\39e31735.c1peEI
+        write  …\node-compile-cache\…\39e31735            path2 …\39e31735.c1peEI  kind rename
+```
+
+Both defects in four lines. Before, the harness recorded one temp file **twice** — the same path under two spellings — and never saw `b9b9bb80`, the only name that still exists when the install finishes. After, each file appears once, and the name that persists is recorded along with where it came from.
+
 A capture whose `meta.json` records a mask other than `0x1FF0`, or records none at all, is called out on stderr at decode time. A stream captured before this change has no destinations in it and the events themselves cannot say so, so the meta has to.
 
 This is the same defect class the macOS dtrace adapter carried — 100% of rename destinations lost, for the life of that adapter — reached independently on a different platform by a different mechanism.
