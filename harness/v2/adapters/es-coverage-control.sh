@@ -131,7 +131,9 @@ sleep 5
 # TEARDOWN — clean exit, never SIGKILL. (An earlier agent proved buffering is not the mechanism, but
 # a dirty teardown would put that back on the table and it costs nothing to rule out again.)
 # ---------------------------------------------------------------------------
-for p in $P1 $P5 $P9 $PF; do kill -INT "$p" 2>/dev/null; done
+# MEASURED run 1: eslogger ignores SIGINT when it is not the foreground process group, so all three
+# tracers had to be SIGKILLed. SIGTERM is the one it honours.
+for p in $P1 $P5 $P9 $PF; do kill -TERM "$p" 2>/dev/null; done
 for p in $P1 $P5 $P9 $PF; do
   for _ in $(seq 1 100); do kill -0 "$p" 2>/dev/null || break; sleep 0.2; done
   kill -0 "$p" 2>/dev/null && { say "tracer $p did NOT exit cleanly; SIGKILL"; kill -9 "$p" 2>/dev/null; }
@@ -180,6 +182,34 @@ for s in A:A-preexisting-longlived B:B-postlived C:C-shortlived-root \
   done
   row="$row $(printf '%8s' "$(grep -c -- "$tok" "$OUT/fsu.txt" 2>/dev/null | tr -d ' ')")"
   printf "%-34s%s\n" "$lbl $tok" "$row"
+done
+
+echo
+echo "============ WHO NAMED IT? (a count alone cannot exclude Spotlight) ========"
+# A record naming the path proves nothing on its own: mdworker indexes every new file and would
+# produce exactly this count. The cell is only a PASS if the naming record's audit_token.pid is the
+# shape's own pid. Print pid + euid + executable for every matching record.
+for s in A:A-preexisting-longlived B:B-postlived C:C-shortlived-root \
+         D:D-shortlived-user E:E-selfshell F:F-shortlived-underload; do
+  lbl="${s%%:*}"; tok="${s#*:}-$TAG"
+  echo "--- shape $lbl (own pid $(cat "$DIR/shape$lbl.pid" 2>/dev/null)) ---"
+  for n in es1 es5 es9; do
+    grep -- "$tok" "$OUT/$n.json" 2>/dev/null | head -6 | while IFS= read -r line; do
+      pid=$(printf '%s' "$line" | grep -o '"audit_token":{[^}]*}' | grep -o '"pid":[0-9]*' | head -1)
+      euid=$(printf '%s' "$line" | grep -o '"audit_token":{[^}]*}' | grep -o '"euid":[0-9]*' | head -1)
+      exe=$(printf '%s' "$line" | grep -o '"executable":{.*"path":"[^"]*"' | sed 's/.*"path":"//;s/\\//g' | head -1)
+      ev=$(printf '%s' "$line" | grep -o '"event":{"[a-z_]*"' | head -1)
+      echo "    $n  $pid $euid  ${ev}  ${exe}"
+    done
+  done
+done
+
+echo
+echo "============ fs_usage lines naming each token (command column) ============="
+for s in A:A-preexisting-longlived C:C-shortlived-root F:F-shortlived-underload; do
+  tok="${s#*:}-$TAG"
+  echo "--- ${s%%:*} ---"
+  grep -- "$tok" "$OUT/fsu.txt" 2>/dev/null | head -6 | cut -c1-160
 done
 
 echo
