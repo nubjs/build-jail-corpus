@@ -315,6 +315,19 @@ console.log(`  sockets script ${sockets}  /  whole traced tree ${allSockets}`);
 // a missing path is an under-grant. These are the numbers that say how much to trust the answer.
 const ds = decoded.stats;
 if (ds.unparsed) console.log(`  ⛔ ${ds.unparsed} trace lines the decoder could not parse`);
+// ⛔ SAME MARKER NAME AS THE macOS DRIVER, DELIBERATELY, so `record.mjs` needs ONE parser rather than
+// a second spelling of the same fact — the divergence the marker-contract test now guards against.
+// The two lanes reach it for different reasons: macOS because `posix_spawn addchdir_np` changes
+// directory in-kernel and emits no chdir syscall at all, Linux because a LOST CLONE EDGE leaves a
+// child re-anchored on the project it was never observed to reach. The consequence is identical — a
+// relative path resolved against a base we did not see — and so is the direction: billing it under
+// the project reads cheaper than the truth, which is an under-grant.
+if (ds.cwdUnobserved) {
+  console.log(`  ⛔ CWD-UNOBSERVED ${ds.cwdUnobserved} relative path(s) (${ds.cwdUnobservedWrites} write(s)) came from a`);
+  console.log('     process whose own cwd was never observed. The paths are KEPT and marked rather');
+  console.log('     than dropped or guessed silently, but they are not evidence of WHERE a write');
+  console.log('     landed, so a grant resting on one is not measured.');
+}
 if (ds.truncatedArg) console.log(`  ⛔ ${ds.truncatedArg} arguments strace TRUNCATED — those paths are incomplete`);
 if (unknownWrites.size) {
   console.log(`  ⛔ ${unknownWrites.size} WRITES with an UNRESOLVED dirfd — base unknown, so NOT classified`);

@@ -140,3 +140,75 @@ test('the cwd is tracked per pid and inherited across clone', () => {
     + '151   openat(AT_FDCWD, "rel.txt", O_WRONLY|O_CREAT, 0644) = 4\n');
   assert.ok(writes(d).has('/proj/pkg/rel.txt'));
 });
+
+// ── The cwd trust model — an absolute chdir establishes trust, a relative one preserves it ────────
+//
+// ⛔ THE DEFECT THIS REPLACES. `resolve()` falls back to `opts.project` for any cwd-relative path,
+// and `unresolvedDirfd` only counts a NULL base — so with `project` set the unresolved case for a
+// relative path COULD NOT FIRE, and a fabricated anchor was byte-identical in the output to an
+// observed one. `chdir` then wrote that fabricated anchor back as an observed cwd (the `open` case
+// beside it checked `unresolved`; `chdir` did not), compounding it through every later relative path.
+// MEASURED on lmdb-store@2.0.0-alpha2: 126 relative chdirs against 2 absolute, one pid six deep.
+// Direction is the forbidden one — a path wrongly anchored under the project bills `proj` and reads
+// cheaper than it is.
+
+/** Paths the decoder marked as resolved against a cwd it never observed. */
+const assumed = (d) => new Set(d.events.filter((e) => e.ca).map((e) => e.f));
+
+test('the ROOT process is trusted, so a normal run flags nothing', () => {
+  // ⛔ THE CONTROL THAT KEEPS THE GUARD USEFUL RATHER THAN MERELY LOUD. The driver cds to $OBS before
+  // exec'ing npm, so the root's cwd is a fact the driver established. Without seeding it, every path
+  // in every normal run would flag, the marker would fire on every record, and a reader would learn
+  // to ignore it — which is how a real warning dies.
+  const d = run('100   openat(AT_FDCWD, "pkg/index.js", O_RDONLY) = 3\n');
+  assert.equal(d.stats.cwdUnobserved, 0, `a normal run must not flag:\n${[...assumed(d)]}`);
+  assert.ok([...writes(d), ...d.events.map((e) => e.f)].includes('/proj/pkg/index.js'),
+    'the path must still resolve against the project');
+});
+
+test('a relative chdir from a TRUSTED cwd stays trusted — the guard is not blanket distrust', () => {
+  // ⛔ Without this, "distrust every relative chdir" would satisfy the flag-fires test while making
+  // the decoder useless: 126 of 128 chdirs in a real trace are relative, so blanket distrust would
+  // flag essentially the whole run. Trust must PROPAGATE through the ordinary idiom.
+  const d = run('100   chdir("build") = 0\n'
+    + '100   openat(AT_FDCWD, "out.o", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.equal(d.stats.cwdUnobserved, 0, `cd build && … from a known cwd must not flag:\n${[...assumed(d)]}`);
+  assert.ok(writes(d).has('/proj/build/out.o'), `the compounded path must resolve:\n${[...writes(d)]}`);
+});
+
+test('⛔ a process whose parent edge was LOST is flagged rather than silently re-anchored', () => {
+  // The real failure: a child appears with no clone edge, so its cwd was never inherited and never
+  // observed. It re-anchors on the project having never been seen to go there. Before this guard the
+  // resulting path was indistinguishable from a measured one.
+  const d = run('4242  chdir("build") = 0\n'
+    + '4242  openat(AT_FDCWD, "artifact.node", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.ok(d.stats.cwdUnobserved > 0,
+    `an orphan process's relative paths must be flagged, not billed as observed:\n${JSON.stringify(d.stats)}`);
+  assert.ok(d.stats.cwdUnobservedWrites > 0,
+    'the WRITE must be counted — writes are what move a grant');
+});
+
+test('an ABSOLUTE chdir REPAIRS a lost chain — trust is establishable, not just losable', () => {
+  // Self-anchoring: an absolute target says where the process now IS regardless of what we believed.
+  // Without this the flag would latch forever after one orphan, and every later path in a long-lived
+  // build process would be flagged on the strength of a fault that had already been corrected.
+  const d = run('4242  chdir("build") = 0\n'
+    + '4242  chdir("/proj/pkg/build") = 0\n'
+    + '4242  openat(AT_FDCWD, "real.o", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.ok(writes(d).has('/proj/pkg/build/real.o'), `the repaired path must resolve:\n${[...writes(d)]}`);
+  assert.ok(!assumed(d).has('/proj/pkg/build/real.o'),
+    `a path after an absolute chdir is OBSERVED and must not be flagged:\n${[...assumed(d)]}`);
+});
+
+test('a FAILED chdir neither moves the cwd nor changes trust', () => {
+  const d = run('100   chdir("/nowhere") = -1 ENOENT (No such file or directory)\n'
+    + '100   openat(AT_FDCWD, "still-here.js", O_RDONLY) = 3\n');
+  assert.equal(d.stats.cwdUnobserved, 0, 'a failed chdir must not cost trust');
+  assert.ok(d.events.some((e) => e.f === '/proj/still-here.js'),
+    `a failed chdir must not move the cwd:\n${d.events.map((e) => e.f)}`);
+});
+
+test('an ABSOLUTE path is never flagged, whatever the cwd is believed to be', () => {
+  const d = run('4242  openat(AT_FDCWD, "/etc/hosts", O_RDONLY) = 3\n');
+  assert.equal(d.stats.cwdUnobserved, 0, 'an absolute path does not depend on the cwd at all');
+});

@@ -200,6 +200,32 @@ export function decode(text, opts = {}) {
   const lines = text.split('\n');
 
   const cwds = new Map();        // pid -> cwd
+  // ⛔ PIDS WHOSE CWD BELIEF TRACES BACK TO AN ANCHOR WE ACTUALLY OBSERVED. Ported from
+  // `observe-macos.mjs`'s `cwdTrusted` — same rule, and the same reported marker so ONE parser in
+  // `record.mjs` serves both lanes: AN ABSOLUTE TARGET ESTABLISHES TRUST, A RELATIVE ONE PRESERVES IT.
+  //
+  // ⛔ WHY THIS IS NEEDED ON LINUX EVEN THOUGH THE FALLBACK IS USUALLY RIGHT. `resolve()` falls back
+  // to `opts.project` for a cwd-relative path, and `unresolvedDirfd` only counts a NULL base — so
+  // with `project` set, the unresolved case for a relative path COULD NOT FIRE, and a fabricated base
+  // was indistinguishable from an observed one. The `chdir` side effect then wrote that fabricated
+  // base back as an observed cwd (the `open` case beside it checks `unresolved`; `chdir` did not), so
+  // one bad anchor compounded through every later relative path in that process.
+  //
+  // MEASURED on `lmdb-store@2.0.0-alpha2`: 126 successful RELATIVE chdirs against 2 absolute, with one
+  // pid walking `Release` → `obj.target` → `lmdb-store` → `dependencies` → `lmdb` → `libraries`. The
+  // compounding case is the DOMINANT one on this lane, not an edge.
+  //
+  // Direction of the error is the forbidden one: a path wrongly anchored under the project bills
+  // `proj` rather than its true location, so it reads CHEAPER than it is — an under-grant.
+  //
+  // ⛔ THE ROOT IS SEEDED AS TRUSTED, AND THAT IS AN OBSERVATION RATHER THAN AN ASSUMPTION: the
+  // DRIVER cds to `$OBS` before exec'ing npm, so it knows that cwd as a fact it created. Everything
+  // else earns trust by inheritance or by an absolute chdir. The flag therefore fires exactly when
+  // provenance is genuinely lost — a pid whose parent edge was missed re-anchors to the project
+  // having never been seen to go there. This lane has that history: 287 of 363 clone edges once split
+  // across `<unfinished ...>` and fabricated 70 paths.
+  const cwdTrusted = new Set();
+  let rootPid = null;
   const fds = new Map();         // pid -> Map(fd -> abs path)
   const ppid = new Map();        // pid -> ppid
   const argvOf = new Map();      // pid -> exec argv (first exec wins; later execs recorded as events)
@@ -211,7 +237,10 @@ export function decode(text, opts = {}) {
 
   const events = new Map();      // dedup key -> event object with a repeat count
   const stats = { lines: lines.length, parsed: 0, unfinished: 0, joined: 0, unparsed: 0,
-    unknownSyscall: new Map(), unresolvedDirfd: 0, truncatedArg: 0 };
+    unknownSyscall: new Map(), unresolvedDirfd: 0, truncatedArg: 0,
+    // Relative paths resolved against a cwd we never observed the process reach, and how many of
+    // those were WRITES — the writes are what move a grant, so they are counted separately.
+    cwdUnobserved: 0, cwdUnobservedWrites: 0 };
 
   const normalize = (p) => {
     const out = [];
@@ -230,17 +259,29 @@ export function decode(text, opts = {}) {
   const resolve = (pid, dirfdArg, p) => {
     if (p == null) return null;
     if (p.startsWith('/')) return { path: normalize(p) };
-    let base;
-    if (dirfdArg == null || dirfdArg === 'AT_FDCWD') base = cwds.get(pid) ?? opts.project ?? null;
-    else if (/^\d+$/.test(dirfdArg)) base = fds.get(pid)?.get(Number(dirfdArg)) ?? null;
+    let base, viaCwd = false;
+    if (dirfdArg == null || dirfdArg === 'AT_FDCWD') {
+      viaCwd = true;
+      base = cwds.get(pid) ?? opts.project ?? null;
+    } else if (/^\d+$/.test(dirfdArg)) base = fds.get(pid)?.get(Number(dirfdArg)) ?? null;
     else base = null;
     if (base == null) { stats.unresolvedDirfd++; return { path: p, base: dirfdArg ?? 'CWD', unresolved: true }; }
+    // ⛔ RESOLVED, BUT AGAINST A CWD WE NEVER SAW THIS PROCESS REACH. The path is still the best
+    // guess available and is kept — a plausible path beats no path for triage — but it is MARKED, so
+    // nothing downstream can mistake a fabricated anchor for an observed one. Before this the two
+    // were byte-identical in the output.
+    if (viaCwd && !cwdTrusted.has(pid)) return { path: normalize(base + '/' + p), cwdAssumed: true };
     return { path: normalize(base + '/' + p) };
   };
 
   const inherit = (parent, child) => {
     ppid.set(child, parent);
-    if (cwds.has(parent)) cwds.set(child, cwds.get(parent));
+    // Trust rides with the cwd it describes, and only with it: a child that inherits a believed cwd
+    // inherits exactly the confidence its parent had in that value.
+    if (cwds.has(parent)) {
+      cwds.set(child, cwds.get(parent));
+      if (cwdTrusted.has(parent)) cwdTrusted.add(child);
+    }
     const t = fds.get(parent);
     if (t) fds.set(child, new Map(t));
     if (lifecycle.has(parent)) lifecycle.add(child);
@@ -262,6 +303,16 @@ export function decode(text, opts = {}) {
     if (!raw) continue;
     const pidM = raw.match(/^(\d+)\s+/);
     const pid = pidM ? Number(pidM[1]) : 0;
+    // ⛔ THE ROOT'S CWD IS KNOWN BY CONSTRUCTION, NOT ASSUMED. The first pid in the trace is the
+    // process the driver itself launched, and `measure.sh` cds to `$OBS` before exec'ing npm — so
+    // `opts.project` IS that process's cwd, established by the driver rather than inferred by this
+    // decoder. Seeding it is what keeps the guard targeted: without it every path in a normal run
+    // would flag, the marker would fire on every record, and a reader would learn to ignore it.
+    if (rootPid == null && opts.project) {
+      rootPid = pid;
+      cwds.set(pid, normalize(opts.project));
+      cwdTrusted.add(pid);
+    }
     let line = raw.replace(/^\d+\s+/, '');
 
     if (line.startsWith('---') || line.startsWith('+++')) continue;
@@ -329,7 +380,16 @@ export function decode(text, opts = {}) {
     // Side effects on the decoder's own state, applied only on SUCCESS — a failed chdir does not
     // move the cwd and a failed open yields no fd.
     if (errno === 0) {
-      if (spec.op === 'chdir' && r1) cwds.set(pid, r1.path);
+      // ⛔ AN ABSOLUTE TARGET ESTABLISHES TRUST; A RELATIVE ONE PRESERVES IT. The absolute case is
+      // self-anchoring — it says where the process now IS regardless of where we believed it was —
+      // so it repairs a lost chain. The relative case can only be as good as the base it was applied
+      // to, which is why it must not manufacture confidence. Previously this line wrote the resolved
+      // path back unconditionally, so a fabricated base became an observed cwd for everything after.
+      if (spec.op === 'chdir' && r1) {
+        cwds.set(pid, r1.path);
+        const wasTrusted = cwdTrusted.has(pid);
+        if (pq.value.startsWith('/') || wasTrusted) cwdTrusted.add(pid); else cwdTrusted.delete(pid);
+      }
       if (spec.op === 'open' && r1 && !r1.unresolved) {
         const fd = Number(resultText.match(/^(\d+)/)?.[1]);
         if (Number.isInteger(fd)) {
@@ -349,6 +409,14 @@ export function decode(text, opts = {}) {
 
     const e = { p: pid, o: op, s: name, f: r1?.path ?? null, r: errno };
     if (r1?.unresolved) e.u = r1.base;
+    // ⛔ THE PATH IS A BEST GUESS, NOT AN OBSERVATION. Marked on the event so a re-parse, the
+    // classifier and a human triaging a retained log all see the same caveat — the point of the whole
+    // guard is that this is no longer indistinguishable from a resolved path.
+    if (r1?.cwdAssumed || r2?.cwdAssumed) {
+      e.ca = 1;
+      stats.cwdUnobserved++;
+      if (MUTATING.has(op) || op === 'open-w') stats.cwdUnobservedWrites++;
+    }
     if (r2) { e.g = r2.path; if (r2.unresolved) e.u2 = r2.base; }
     if (spec.content != null) { const c = q(spec.content); if (c) e.g = c.value; }
     if (flagText) e.fl = flagText;
