@@ -180,6 +180,56 @@ const bucket = (set) => {
   return out;
 };
 
+// ⛔ HOW MANY DIRECTORIES, NOT HOW MANY WRITES. A per-scope count ("userHome 397") cannot tell a
+// script that writes 397 files under two directories from one that scatters across two hundred, and
+// that is precisely the number that decides whether a per-path WRITE axis could retire the `"disk"`
+// escape hatch. The catalog's capability axis is scope-coarse today, but the policy IR one layer
+// down is already path-based (`FsRule { matcher: CanonGlob, effect, access }`) and `read:"disk"` is
+// compiled as hundreds of concrete per-path allows that all three backends enforce — so what is
+// missing is evidence about SET SIZE, not mechanism.
+//
+// (Not to be confused with the catalog's `writePaths`, which is a POST-RUN PROMOTION list — the
+// script writes into the throwaway private $HOME and nub renames the declared subdirectories into
+// the real home afterwards. It is not a live grant during the run.)
+// ⛔ A SCOPE CAN HAVE MORE THAN ONE ROOT, AND `deps` DOES. Under the global-virtual-store linker a
+// dependency's files are at `$proj/node_modules/.store/…`; the content-addressed store is also at
+// `$home/.cache/nub/pm/store`. Relativising `deps` against a single root left every path that
+// matched the OTHER one absolute, so the depth-2 prefix came out as `home/nub/v2-6MqX19` — one
+// bucket, carrying no information, and it reads exactly like a tidy result. Longest match wins
+// (determinism rule 2).
+const ROOTS = {
+  project: [proj],
+  userHome: [home],
+  deps: [store, `${proj}/node_modules/.store`, `${proj}/node_modules`, proj].filter(Boolean),
+  outside: ['/'],
+};
+const relTo = (s, p) => {
+  const rs = (ROOTS[s] ?? ['/']).filter(Boolean).slice().sort((a, b) => b.length - a.length);
+  for (const r of rs) if (p.startsWith(r)) return p.slice(r.length).replace(/^\/+/, '');
+  return p.replace(/^\/+/, '');
+};
+const prefixes = (s, paths, depth) => {
+  const m = new Map();
+  for (const p of paths) {
+    const k = relTo(s, p).split('/').filter(Boolean).slice(0, depth).join('/') || '.';
+    m.set(k, (m.get(k) ?? 0) + 1);
+  }
+  return m;
+};
+const dirReport = (label, buckets) => {
+  console.log(`== ${label}: DISTINCT DIRECTORY PREFIXES per scope (the per-path-axis feasibility number) ==`);
+  for (const [s, paths] of Object.entries(buckets)) {
+    if (s === 'baseline-dev') continue;
+    const d2 = prefixes(s, paths, 2), d3 = prefixes(s, paths, 3);
+    console.log(`  ${s.padEnd(12)} n=${String(paths.length).padStart(6)}  distinctDirs depth2=${d2.size} depth3=${d3.size}`);
+    // Cap the PRINTED list, never the reported total — a silently trimmed list is how a scatter
+    // reads as a handful.
+    const top = [...d3].sort((a, b) => b[1] - a[1]);
+    for (const [k, n] of top.slice(0, 12)) console.log(`      ${String(n).padStart(6)}  ${k}`);
+    if (top.length > 12) console.log(`      … ${top.length - 12} more prefixes not shown (depth3 total ${d3.size})`);
+  }
+};
+
 const w = bucket(writes), r = bucket(reads);
 if (!sawClone) console.log('  ⛔ NO clone/fork LINES IN TRACE — rerun with `-e trace=file,network,process`');
 if (!lifecycleFound) console.log('  ⛔ NO LIFECYCLE SHELL FOUND — nothing attributed; grant below is EMPTY BY DEFAULT, not by evidence');
@@ -194,6 +244,8 @@ for (const [k, v] of Object.entries(r)) {
   console.log(`  ${k.padEnd(12)} ${String(v.length).padStart(5)}`);
   v.slice(0, 12).forEach((p) => console.log(`      ${p}`));
 }
+dirReport('WRITES', w);
+dirReport('READS', r);
 console.log('== NETWORK ==');
 console.log(`  AF_INET sockets: ${sockets}   distinct peers: ${hosts.size}`);
 [...hosts].slice(0, 10).forEach((h) => console.log(`      ${h}`));
