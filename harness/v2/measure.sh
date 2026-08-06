@@ -412,6 +412,37 @@ verify () {
     ' "$store" "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/tools" ||
       echo "  ⛔ EVICTION FAILED — this arm may REPLAY a prior arm's build and UNDER-report"
   fi
+  # ⛔⛔ THE FOURTH REPLAY PATH, AND THE STORE EVICTION ABOVE CANNOT REACH IT. Two directories the
+  # jail hands the script are PERSISTENT ACROSS ARMS by design and live OUTSIDE `pm/store`:
+  #
+  #   $cache/nub/jail-home/<pkg>-<hash>     `private_home_dir` — "PERSISTENT across runs, which is
+  #                                         the one divergence from `$tmp`… re-installing the same
+  #                                         package skips a ~250 MB Cypress re-download".
+  #   $cache/nub/pm/tools/{ms-playwright,electron-cache}
+  #                                         the redirect targets `redirect_playwright_browsers` and
+  #                                         `redirect_electron_cache` stamp for every jailed spawn.
+  #
+  # A downloader that finds its artifact already there does not open a socket, so a LATER arm can
+  # pass on a grant that would have failed cold. MEASURED on `playwright-chromium@0.17.0` (run
+  # 31121368708, records at 8e0a868c): the synth arm at `{"write":{"userHome":true},"network":true}`
+  # downloaded chromium into `tools/ms-playwright/chromium-764964`, and the `drop-network` descent
+  # arm that followed exited 0 with all 6 artifacts — reported as
+  # `⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES`. Its own OBSERVE arm had just recorded
+  # 4 AF_INET sockets and a 142.250.73.91:443 peer, so the package plainly does fetch.
+  #
+  # ⛔ THE DIRECTION IS THE BAD ONE, which is why this is worth the re-download it costs. A replay in
+  # a DESCENT arm reports a capability as droppable that is not — an UNDER-prediction, and this
+  # harness may not take that direction. The same shape the `binary-install` note above records.
+  #
+  # ⛔ THE LEAVES, NEVER `tools` ITSELF. `tools` also holds the node-gyp nub bootstraps for itself and
+  # links into the global store; wiping it strands the only node-gyp a confined native build can
+  # reach, which is the exact failure the elaborate "spared as nub tooling" logic above exists to
+  # prevent. Naming the two redirect leaves keeps this away from it entirely.
+  local jailcache="${XDG_CACHE_HOME:-$HOME/.cache}/nub"
+  rm -rf "$jailcache/pm/tools/ms-playwright" "$jailcache/pm/tools/electron-cache" 2>/dev/null
+  # The private home is keyed on a hash of the package dir, which differs per arm root, so match the
+  # readable basename prefix rather than trying to recompute nub's hash.
+  rm -rf "$jailcache"/jail-home/"$(basename "$PKG")"-* 2>/dev/null
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
   # there are no version bands, so the entry grants exactly the base profile; drop it" — and then
