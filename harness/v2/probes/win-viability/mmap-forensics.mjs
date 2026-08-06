@@ -27,6 +27,13 @@ const needle = needleRaw.toLowerCase();
 const rl = readline.createInterface({ input: fs.createReadStream(xmlPath), crlfDelay: Infinity });
 let block = null;
 const objects = new Set();                              // FileObjects the named file was opened on
+// ⛔ FileKey IS TRACKED SEPARATELY, AND OMITTING IT MADE THIS TOOL LIE. `windows.mjs` resolves a
+// handle op as FileObject first and FileKey second, so an event that carries only a FileKey -- a
+// flush issued against a SECTION rather than the original handle, for instance -- is resolved by
+// the decoder and was invisible here. That produced the exact false negative this file exists to
+// avoid: a memory-mapped write present in the normalized stream while this tool reported the file
+// appeared in one NameCreate and nothing else.
+const keys = new Set();                                 // FileKeys the named file resolves through
 const hits = [];
 const byId = new Map();
 let total = 0;
@@ -49,18 +56,22 @@ for await (const line of rl) {
 
   const named = Object.values(data).some((v) => String(v).toLowerCase().includes(needle));
   if (named && data.FileObject) objects.add(data.FileObject);
+  if (named && data.FileKey) keys.add(data.FileKey);
   const viaObject = data.FileObject && objects.has(data.FileObject);
-  if (!named && !viaObject) continue;
+  const viaKey = data.FileKey && keys.has(data.FileKey);
+  if (!named && !viaObject && !viaKey) continue;
 
   byId.set(id, (byId.get(id) ?? 0) + 1);
   if (hits.length < MAX) {
     const ex = /ProcessID="(\d+)" ThreadID="(\d+)"/.exec(xml);
-    hits.push(`  id=${String(id).padStart(3)} pid=${ex?.[1] ?? '?'} tid=${ex?.[2] ?? '?'} ${named ? 'BY-NAME  ' : 'BY-OBJECT'} ${JSON.stringify(data)}`);
+    const how = named ? 'BY-NAME  ' : viaObject ? 'BY-OBJECT' : 'BY-KEY   ';
+    hits.push(`  id=${String(id).padStart(3)} pid=${ex?.[1] ?? '?'} tid=${ex?.[2] ?? '?'} ${how} ${JSON.stringify(data)}`);
   }
 }
 
 console.log(`== ${total} trace events scanned for "${needleRaw}" ==`);
 console.log(`   FileObjects the name was seen on: ${[...objects].join(', ') || '(none)'}`);
+console.log(`   FileKeys   the name was seen on: ${[...keys].join(', ') || '(none)'}`);
 console.log(`   matching events by EventID: ${JSON.stringify(Object.fromEntries([...byId].sort((a, b) => a[0] - b[0])))}`);
 console.log(`\n== first ${hits.length} matching events, whole ==`);
 hits.forEach((h) => console.log(h));
