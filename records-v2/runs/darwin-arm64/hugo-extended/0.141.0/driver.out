@@ -1,0 +1,77 @@
+### hugo-extended@0.141.0   (/Users/runner/v2m-wbDuce)   nub=/tmp/nub/target/release/nub
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-wbDuce/observe"
+     sudo -u "runner" -H env "PATH=$PATH" "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "hugo-extended" > "/Users/runner/v2m-wbDuce/observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-wbDuce/observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-wbDuce/observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund hugo-extended
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x14000347620) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=1321 (pre=1317) trace=16583 lines
+  CLOSURE   136 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-wbDuce/observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-wbDuce/observe/capture.json
+  RAWLOG-BYTES raw=2440876 gz=88899
+  EVENTLOG-FILE /Users/runner/v2m-wbDuce/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16584,"parsed":16562,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":36,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":6573,"enoent":6556,"refusals":0,"byErrno":{"ENXIO":5,"ENOENT":6556,"EEXIST":8,"ENOTEMPTY":1,"EINVAL":3},"procs":10,"lifecyclePids":1,"distinctEvents":8140,"emitted":8140,"calls":16000,"bytes":1335338,"gzipBytes":51818,"out":"/Users/runner/v2m-wbDuce/observe/events.ndjson"}
+  == TRACER == live=true decodable-events=4178 dropped-events=1
+    NOTE 24 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x14000347620
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 9  /  whole traced subtree 1097
+    sockets script 4  /  whole traced subtree 5
+  == WRITES the script actually performed ==
+    systemfs      2
+        /dev/dtracehelper
+        /dev/null
+    outside       3
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_extended_0.141.0_darwin-universal.tar.gz
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_0.141.0_checksums.txt
+    deps          4
+  == READS the script performed, by scope ==
+    outside      24
+    systemfs     17
+    project       1
+    userHome      3
+    deps        433
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_0.141.0_checksums.txt
+        outside: /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_extended_0.141.0_darwin-universal.tar.gz
+        outside: /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f
+        outside: /opt/homebrew/bin/brew
+        outside: /usr/bin/env
+  == NETWORK ==
+    AF_INET connects: 4   distinct peers: 2
+        140.82.116.3:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    ⛔ 3 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_extended_0.141.0_darwin-universal.tar.gz
+        /private/tmp/acbf8d50ffe0cd58a80ad13f29f00f8f/hugo_0.141.0_checksums.txt
+  EVICT[synth] no store at /Users/runner/.cache/nub/pm/store yet (first arm on this box)
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 4458/1321) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => VERIFIED {"write":{"deps":true},"network":true}
+  EVICT[nar-no-network] 143 store entries removed, 3 spared as nub tooling, 163 in store
+  VERIFY[nar-no-network] rc=1 artifacts=9/12 missing=3 shortfall=219cbefac624 (tree 4449/1321) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+       missing: vendor/LICENSE, vendor/README.md, vendor/hugo
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  EVICT[nar-no-write-deps] 143 store entries removed, 3 spared as nub tooling, 163 in store
+  VERIFY[nar-no-write-deps] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 4458/1321) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
+### DONE hugo-extended@0.141.0  synthesized={"write":{"deps":true},"network":true} verified=1
