@@ -43,7 +43,16 @@
 set -uo pipefail
 PKG="${1:?usage: measure.sh <pkg> <version> [nub] [--at-grant <json>]}"
 VER="${2:?usage: measure.sh <pkg> <version> [nub] [--at-grant <json>]}"
-NUB="${3:-$HOME/nub/target/fast/nub}"
+# ⛔ `[nub-binary]` IS OPTIONAL AND `--at-grant` TAKES ITS SLOT, so a `$3` beginning with `-` is a
+# FLAG, not a path. `${3:-<default>}` took it blindly, which made the documented form
+# `measure.sh <pkg> <ver> --at-grant '<json>'` exec `--at-grant install` — every arm came back
+# rc=127 `--at-grant: command not found`, reported as `⛔ VOID — the override did not engage`.
+# The verdict is honest, so this never corrupted a record; it just made `--at-grant` unusable
+# without also naming the binary.
+case "${3:-}" in
+  ''|-*) NUB="$HOME/nub/target/fast/nub" ;;
+  *) NUB="$3" ;;
+esac
 AT_GRANT=""
 for i in "$@"; do
   case "${PREV_ARG:-}" in --at-grant) AT_GRANT="$i" ;; esac
@@ -243,12 +252,89 @@ verify () {
   # these dependencies pays a re-materialization. That is strictly better than the alternative it
   # replaces, which was a silent false verdict. Still targeted — exact `<slug>@*` names from this
   # package's own closure, never a wildcard sweep of the store.
+  #
+  # ⛔⛔ AND THE STORE IS SHARED WITH nub'S OWN TOOLING, SO A NAME-WILDCARD EVICTION AMPUTATES THE
+  # TOOL THE PACKAGE IS ABOUT TO BUILD WITH. nub bootstraps `node-gyp` lazily into its own project
+  # under `<cache>/nub/pm/tools/node-gyp/<bucket>/`, and that project links against THE SAME global
+  # store — measured, `node-gyp@12.4.0-<hash>/node_modules/semver -> ../../semver@7.8.5-<hash>/…`.
+  # `semver`, `tar`, `which`, `graceful-fs` are ordinary members of a native package's own closure,
+  # so evicting `<name>@*` deletes the entry nub's node-gyp resolves through and leaves a DANGLING
+  # symlink behind it.
+  #
+  # MEASURED on `@pulumi/datadog@0.18.9` against the pre-fix harness: every rung of the ladder
+  # failed, `=> NO-STATE-PASSED even at write:disk`, with `gyp ERR! stack Error: Cannot find module
+  # 'semver'` in the arm logs — require stack rooted at
+  # `<store>/node-gyp@12.4.0-6386ab3e4584a36d/node_modules/node-gyp/lib/process-release.js` — and
+  # ZERO `= -1 EACCES/EPERM` in either arm. Not a jail refusal at all. The direction is the bad one
+  # for the corpus but the SAFE one for users, which is what makes it hard to notice: a harness
+  # failure reads as INSUFFICIENT, the ladder climbs, and the package lands WIDER than it needs.
+  #
+  # ⛔ nub's own fast path cannot self-heal from this. `node_gyp_bootstrap::ensure_cached` returns
+  # early on `node_modules/.bin/node-gyp` merely EXISTING, and that shim is untouched by the
+  # eviction — so nub reports the tool as ready on every subsequent arm while `require` is broken.
+  # Repairing it takes deleting the whole tool dir (verified: `rm -rf <cache>/nub/pm/tools/node-gyp`
+  # then `nub __node-gyp-bootstrap <dir>` restored all ten links).
+  #
+  # ⇒ SKIP THE ENTRIES nub'S OWN TOOL PROJECTS RESOLVE THROUGH. They are read off the tool projects'
+  # virtual-store link dirs, which are FLAT and hold the tool's COMPLETE closure (20 entries for
+  # node-gyp v12), so no graph walk is needed — but the dir's NAME is not stable (`.store` on the
+  # binary that populated this box in the morning, `.nub` on the one that re-bootstrapped it an hour
+  # later), so this resolves every symlink under `tools/` and keeps whatever lands in the store
+  # rather than matching a name that would silently stop matching.
+  #
+  # ⛔ WHY SKIPPING CANNOT MANUFACTURE THE FALSE PASS THIS EVICTION EXISTS TO PREVENT. A protected
+  # entry could mask a refusal only if it carried build output from a prior arm — and nub's tool
+  # closure is pure-JS library code that never builds anything. MEASURED by reading the
+  # `package.json` of all 20 entries the node-gyp v12 tool project resolves through (`semver`, `tar`,
+  # `nopt`, `which`, `minipass`, …): ZERO declare `preinstall`, `install` or `postinstall`, so no arm
+  # can write a build artifact into one. The overlap is narrow besides — an entry is protected only
+  # at the exact `<name>@<version>-<hash>` nub's tooling pinned, so a package resolving any other
+  # version of the same name is still evicted. On `@pulumi/datadog@0.18.9`, 2 of its 188 closure
+  # names hit a protected entry and 193 entries were still removed.
+  #
+  # Rejected alternatives, both measured rather than reasoned about:
+  #   per-arm store isolation — `XDG_CACHE_HOME` DOES relocate the store (unlike `NUB_CACHE_DIR`,
+  #     see above), so it is available; it is refused because it re-downloads the whole closure per
+  #     arm and re-bootstraps node-gyp from the registry inside every arm, turning a registry blip
+  #     into the same false INSUFFICIENT this fix removes.
+  #   re-bootstrap after eviction — works (the repair above is exactly it), but it pays a registry
+  #     install per arm and the bootstrap failure path is a WARNING, not an error, so a flaky fetch
+  #     would again land as a package-under-test failure.
   local store="${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store"
   if [ -d "$store" ]; then
-    printf '%s\n' "$PKG" $CLOSURE | sort -u | while IFS= read -r n; do
-      [ -n "$n" ] || continue
-      find "$store" -maxdepth 1 -name "$(printf '%s' "$n" | tr '/' '+')@*" -exec rm -rf {} + 2>/dev/null
-    done
+    printf '%s\n' "$PKG" $CLOSURE | sort -u | node -e '
+      const fs=require("fs"), path=require("path");
+      const [store, tools] = process.argv.slice(1);
+      // Every store entry any nub tool project links through, at whatever depth and under whatever
+      // name that project gives its virtual-store dir.
+      const keep = new Set();
+      const walk = (dir, depth) => {
+        if (depth > 6) return;
+        let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+        for (const e of ents) {
+          const p = path.join(dir, e.name);
+          if (e.isSymbolicLink()) {
+            let t; try { t = path.resolve(dir, fs.readlinkSync(p)); } catch { continue; }
+            const rel = path.relative(store, t);
+            if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) keep.add(rel.split(path.sep)[0]);
+          } else if (e.isDirectory()) walk(p, depth + 1);
+        }
+      };
+      walk(tools, 0);
+      // `<slug>@` anchoring, not `*<slug>*` — same targeting the note above records as measured.
+      const prefixes = [...new Set(fs.readFileSync(0, "utf8").split("\n").filter(Boolean)
+        .map(n => n.replace(/\//g, "+") + "@"))];
+      let removed = 0, spared = 0;
+      let entries; try { entries = fs.readdirSync(store); } catch { entries = []; }
+      for (const e of entries) {
+        if (!prefixes.some(n => e.startsWith(n))) continue;
+        if (keep.has(e)) { spared++; continue; }
+        fs.rmSync(path.join(store, e), { recursive: true, force: true });
+        removed++;
+      }
+      console.log(`  EVICT     ${removed} store entries removed, ${spared} spared as nub tooling`);
+    ' "$store" "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/tools" ||
+      echo "  ⛔ EVICTION FAILED — this arm may REPLAY a prior arm's build and UNDER-report"
   fi
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
