@@ -9,9 +9,17 @@
 //
 // Output framing: the record is wrapped in sentinels because a jailed run's stdout also carries
 // nub's own warnings, and a driver that JSON.parse'd the whole stream would fail on a healthy run.
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+//
+// ⛔ COMMONJS, AND THAT IS LOAD-BEARING RATHER THAN A STYLE CHOICE. Neither arm can rely on the
+// jailed child being able to READ this file. Arm A's policy has no `package_dir` and never granted
+// the checkout; arm B's postinstall was MEASURED (runs 31125933476 and 31126040505) dying on
+// `EPERM ... open '...\.store\<pkg>@file+<hash>\node_modules\<pkg>\probe-tmp.mjs'` -- a read of a
+// file inside the package's OWN directory. So both arms deliver this fixture as SOURCE rather than
+// as a path, and `node -e` evaluates source as CommonJS. Written as ESM it would need
+// `--input-type=module`, which arm B's `eval` bootstrap has no way to supply.
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const flag = (n, d = '') => {
   const i = process.argv.indexOf(n);

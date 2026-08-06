@@ -10,7 +10,7 @@ That leaves one property to establish before a `temp` grant can even be written 
 
 ## What the harness measures
 
-`probe-tmp.mjs` is the fixture. It runs identically jailed and unjailed and emits one JSON record between `@@PROBE@@` / `@@END@@` sentinels: `os.tmpdir()`, the `TEMP`/`TMP`/`USERPROFILE`/`LOCALAPPDATA` family and the full env key list, what `fs.mkdtempSync` created and where `realpathSync.native` says it is, a write plus read-back inside it, hardcoded writes to `C:\Windows\Temp` and `C:\Temp`, a bounded hunt for its own marker under `%LOCALAPPDATA%\Packages`, and a negative control.
+`probe-tmp.cjs` is the fixture. It runs identically jailed and unjailed and emits one JSON record between assembled sentinels: `os.tmpdir()`, the `TEMP`/`TMP`/`USERPROFILE`/`LOCALAPPDATA` family and the full env key list, what `fs.mkdtempSync` created and where `realpathSync.native` says it is, a write plus read-back inside it, hardcoded writes to `C:\Windows\Temp` and `C:\Temp`, a bounded hunt for its own marker under `%LOCALAPPDATA%\Packages`, and a negative control.
 
 **Every path it probes arrives on `argv`.** The whole question is what the jailed child's environment says, so a fixture that derived its own targets from `%USERPROFILE%` would probe a different target in each arm — and the negative control, which only means anything when both arms aim at the same file, would be aiming at two. The environment is data here, reported and never consumed.
 
@@ -25,7 +25,7 @@ That leaves one property to establish before a `temp` grant can even be written 
 
 Arm A cannot answer the environment question, because only the lifecycle path replaces the strip-all floor with the scrubbed lifecycle env. Reporting arm A's env dump as a `postinstall`'s would be answering a different question in the right format.
 
-Arm A passes the fixture as **source** (`--input-type=module -e`), not as a path. With no `package_dir` the fs allowlist is the OS minimal-root closure plus the dependency-tree reads, and the checkout is not in it — a jailed `node <path>` would die on a read refusal that reads exactly like a temp finding and is not one.
+**Neither arm can rely on the jailed child reading a file, so both deliver the fixture as source.** Arm A passes it to `node -e` on the command line: with no `package_dir` the fs allowlist is the OS minimal-root closure plus the dependency-tree reads, and the checkout is not in it, so a jailed `node <path>` would die on a read refusal that reads exactly like a temp finding and is not one. Arm B hit the same wall from the other side — measured twice, a confined `postinstall` could not read the fixture out of its **own package directory** (`EPERM … open '…\.store\<pkg>@file+<hash>\node_modules\<pkg>\probe-tmp.mjs'`), and forcing `enableGlobalVirtualStore` did not move it — so it ships the fixture as a gzip+base64 blob on the postinstall command line with a one-line `eval` bootstrap. gzip is what makes it fit: cmd.exe truncates at 8191 characters, plain base64 of the fixture is ~10.1 kB, gzip+base64 is ~4.5 kB. That is also why the fixture is CommonJS — `node -e` evaluates source as CJS, and the bootstrap has no way to pass `--input-type=module`.
 
 ### The smoke gate, and why it exists
 

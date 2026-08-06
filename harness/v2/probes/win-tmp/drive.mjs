@@ -30,7 +30,7 @@ if (!NUB || !fs.existsSync(NUB)) {
   process.exit(2);
 }
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
-const FIXTURE = path.join(HERE, 'probe-tmp.mjs');
+const FIXTURE = path.join(HERE, 'probe-tmp.cjs');
 const HOME = process.env.USERPROFILE;
 const LOCALAPPDATA = process.env.LOCALAPPDATA;
 const PACKAGES = path.join(LOCALAPPDATA, 'Packages');
@@ -182,11 +182,13 @@ const runJailed = (cwd, label, marker, envPatch = {}) => {
   const p = probeArgs(label, marker);
   let argv;
   if (CHOSEN === 'sep+file') {
-    const f = path.join(cwd, `${label}.mjs`);
+    const f = path.join(cwd, `${label}.cjs`);
     fs.writeFileSync(f, SRC);
     argv = ['run', '--sandbox', 'build-jail', '--', NODE, f, ...p];
   } else {
-    const tail = ['--input-type=module', '-e', SRC, '--', ...p];
+    // `--` before the probe's own flags: `node -e <code> --label X` makes node reject `--label` as
+    // one of ITS options ("bad option"), and the separator is what hands the tail to the script.
+    const tail = ['-e', SRC, '--', ...p];
     argv = CHOSEN === 'bare+eval' ? spell(cwd, tail)[1] : spell(cwd, tail)[0];
   }
   const r = spawnSync(NUB, argv, { cwd, env, encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT });

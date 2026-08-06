@@ -17,6 +17,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 
 const flag = (n, d = '') => {
   const i = process.argv.indexOf(n);
@@ -33,7 +34,7 @@ if (!NUB || !fs.existsSync(NUB)) {
 }
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
-const FIXTURE = path.join(HERE, 'probe-tmp.mjs');
+const FIXTURE = path.join(HERE, 'probe-tmp.cjs');
 const NODE = process.execPath;
 const NPM = path.join(path.dirname(NODE), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 const HOME = process.env.USERPROFILE;
@@ -64,22 +65,42 @@ const ENV = { ...process.env, npm_config_enable_global_virtual_store: 'true' };
 const run = (exe, args, opts = {}) =>
   spawnSync(exe, args, { encoding: 'utf8', env: ENV, maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT, ...opts });
 
+// ⛔ THE FIXTURE TRAVELS AS A gzip+base64 BLOB ON THE POSTINSTALL COMMAND LINE, NOT AS A FILE.
+// MEASURED twice (runs 31125933476, 31126040505): a confined postinstall could not READ the fixture
+// out of its own package directory -- `EPERM ... open
+// '...\.store\<pkg>@file+<hash>\node_modules\<pkg>\probe-tmp.mjs'` -- so shipping it as a file
+// makes the arm measure that refusal instead of the temp question. Forcing
+// `enableGlobalVirtualStore` did not move it: the linker line changed to
+// `global-virtual-store (npm_config_enable_global_virtual_store)` and the store stayed under the
+// project, with nub resolving the local tarball at version `0.0.0`.
+//
+// gzip is what makes it FIT rather than a nicety: cmd.exe truncates a command line at 8191
+// characters, the fixture is ~7.5 kB, and plain base64 of it is ~10.1 kB -- over the limit.
+// gzip+base64 is ~4.5 kB. base64's alphabet is also the reason this survives cmd.exe at all: no
+// quote, no caret, and no `%` pair for cmd to expand mid-string.
+const BLOB = zlib.gzipSync(fs.readFileSync(FIXTURE), { level: 9 }).toString('base64');
+
 const tarballs = [];
 for (const s of specs) {
   s.marker = `nubtmp${s.label}-${STAMP}`;
   const d = path.join(BASE, s.dir);
   fs.mkdirSync(d, { recursive: true });
-  fs.copyFileSync(FIXTURE, path.join(d, 'probe-tmp.mjs'));
+  const boot = "eval(require('node:zlib').gunzipSync(Buffer.from(process.argv[1],'base64')).toString())";
   const cmd = [
-    'node probe-tmp.mjs',
+    `node -e "${boot}" --`,
+    BLOB,
     `--label ${s.label}`,
     `--marker ${s.marker}`,
     `--negctl "${path.join(HOME, `${s.marker}-negctl.txt`)}"`,
     `--hunt "${[PACKAGES, HOST_TEMP].join(';')}"`,
   ].join(' ');
+  if (cmd.length > 8000) {
+    console.error(`FATAL postinstall command is ${cmd.length} chars; cmd.exe truncates at 8191`);
+    process.exit(2);
+  }
   fs.writeFileSync(
     path.join(d, 'package.json'),
-    JSON.stringify({ name: s.name, version: '1.0.0', scripts: { postinstall: cmd }, files: ['probe-tmp.mjs'] }, null, 2),
+    JSON.stringify({ name: s.name, version: '1.0.0', scripts: { postinstall: cmd } }, null, 2),
   );
   const p = run(NODE, [NPM, 'pack', '--pack-destination', BASE], { cwd: d });
   if (p.status !== 0) {
