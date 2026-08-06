@@ -2,29 +2,100 @@
   "pkg": "hugo-extended",
   "version": "0.141.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-ERROR",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
+  "synthesized": {
+    "network": true
+  },
+  "verifiedBy": "narrow:no-write-deps",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
   "notes": [],
-  "eventLog": null,
-  "driverRc": 1,
-  "durationMs": 76,
+  "eventLog": {
+    "lines": 16584,
+    "parsed": 16562,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 36,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 541,
+    "danglingPair": 0,
+    "failed": 6573,
+    "enoent": 6556,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 5,
+      "ENOENT": 6556,
+      "EEXIST": 8,
+      "ENOTEMPTY": 1,
+      "EINVAL": 3
+    },
+    "procs": 10,
+    "lifecyclePids": 1,
+    "distinctEvents": 8140,
+    "emitted": 8140,
+    "calls": 16000,
+    "bytes": 1335338,
+    "gzipBytes": 51818,
+    "out": "/Users/runner/v2m-wbDuce/observe/events.ndjson"
+  },
+  "driverRc": 0,
+  "durationMs": 17208,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": null,
     "nubVersion": "v0.6.0",
-    "corpusGitSha": "ee24654f8c908176e2e9fe3fd4a83b16b14cd1fb",
+    "corpusGitSha": "df19d9be59842cb226ec94984e911b47a1206128",
     "node": "v22.23.1",
-    "at": "2026-08-06T22:19:09.778Z",
-    "venue": "ci",
-    "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
-    "overrides": null
+    "at": "2026-08-06T19:15:19.899Z"
+  },
+  "rescored": {
+    "kind": "re-parse",
+    "note": "DERIVED FROM THE RETAINED ARCHIVE. No package was installed, no jail arm was executed, and no runner was used for this re-score. The jailed evidence cited below comes from the ORIGINAL run recorded in `provenance` and printed in `driver.out`.",
+    "at": "2026-08-06T20:30:15.619Z",
+    "harnessGitSha": "52e6c079eeab53d21bfd968f76a0318b6d164493",
+    "decoder": "harness/v2/observe-macos.mjs",
+    "input": "trace.txt.gz",
+    "reason": "The decoder that produced the original synthesis had no `ownPkg` bucket, so all four of this script's writes — every one of them inside `node_modules/hugo-extended/vendor/` — were billed `deps`. The jail already grants a package RW on its own store entry via `store_entry_write_root`, so `write.deps` was authority over every SIBLING dependency, manufactured out of a package writing its own vendor dir.",
+    "grantEstablishedBy": {
+      "arm": "nar-no-write-deps",
+      "note": "The original run executed this arm at grant {\"network\":true} — byte-identical to what the fixed decoder now synthesizes. So this exact grant HAS been verified in the real unprivileged jail; only the order differs from a fresh run.",
+      "rc": 0,
+      "artifacts": "12/12",
+      "missing": 0,
+      "shortfall": "none",
+      "overridden": 2,
+      "rejected": 0
+    },
+    "minimalityEstablishedBy": {
+      "arm": "nar-no-network",
+      "note": "That arm ran {\"write\":{\"deps\":true}} — a strict SUPERSET of {} — and failed rc=1, missing 3 (vendor/hugo, vendor/LICENSE, vendor/README.md). Since a superset of {} fails, {} fails a fortiori, so dropping `network` from {\"network\":true} cannot pass.",
+      "inference": "monotonicity — a grant that fails cannot be rescued by removing capability",
+      "directEmptyGrantArmRun": false
+    },
+    "previous": {
+      "grant": {
+        "write": {
+          "deps": true
+        },
+        "network": true
+      },
+      "synthesized": {
+        "write": {
+          "deps": true
+        },
+        "network": true
+      },
+      "verifiedBy": "synth",
+      "minimality": "OVER-PREDICTED",
+      "overPredictedBy": [
+        "no-write-deps"
+      ]
+    }
   }
 }

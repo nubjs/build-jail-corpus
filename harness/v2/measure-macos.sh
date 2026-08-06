@@ -83,13 +83,17 @@ fi
 #   PLAYWRIGHT_BROWSERS_PATH redirect_playwright_browsers, unconditional for every jailed spawn
 #   ELECTRON_CACHE / electron_config_cache   redirect_electron_cache, likewise
 #   npm_config_prefix        redirect_npm_prefix, likewise
-JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
-JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
-chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
 
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
 ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
+# ⛔ THESE LIVE HERE, AFTER `$ROOT`, AND NOT BESIDE THE OTHER ROOT DERIVATIONS ABOVE. The jail home is
+# a subdirectory of the per-run fixture, so it cannot be computed before the fixture exists — placing
+# it with `INTERPRETER` and `GLOBAL_STORE` cost a whole macOS run to `line 86: ROOT: unbound variable`
+# under `set -u`, which clobbered two good published records with HARNESS-ERROR.
+JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
+JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
+chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
 # The driver runs under sudo (dtrace needs uid 0) but every measured process is dropped back to the
 # invoking user — so the tree they write into must be theirs, or npm fails on its own fixture and
 # the run reports a package problem that is really a harness problem.
