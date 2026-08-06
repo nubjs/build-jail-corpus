@@ -1,0 +1,43 @@
+### puppeteer@9.1.1   (/home/runner/v2-7R4IzP)
+  OBSERVE   rc=0 files=1131 trace=13628 lines
+  CLOSURE   58 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 147  /  whole traced tree 151
+    sockets script 4  /  whole traced tree 4
+  == WRITES the script actually performed ==
+    ownPkg      147  (base profile already grants this — NOT billed)
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/chrome-linux.zip
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/chrome_100_percent.pak
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/ClearKeyCdm/
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/ClearKeyCdm/_platform_specific/
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/libclearkeycdm.so
+        /home/runner/v2-7R4IzP/observe/node_modules/puppeteer/.local-chromium/linux-869685/chrome-linux/xdg-mime
+        … and 137 more
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 10
+        127.0.0.53:53
+        104.154.125.27:0
+        34.144.171.27:0
+        34.153.3.27:0
+        34.153.2.27:0
+        104.154.124.27:0
+        34.3.0.27:0
+        34.3.1.27:0
+        34.144.170.27:0
+        104.154.125.27:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=624/624 missing=0 (tree 3491/1131) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=489/624 missing=135 (tree 3084/1131) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: .local-chromium/linux-869685/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/libclearkeycdm.so, .local-chromium/linux-869685/chrome-linux/MEIPreload/manifest.json, .local-chromium/linux-869685/chrome-linux/MEIPreload/preloaded_data.pb, .local-chromium/linux-869685/chrome-linux/chrome, .local-chromium/linux-869685/chrome-linux/chrome-wrapper, .local-chromium/linux-869685/chrome-linux/chrome_100_percent.pak (+129)
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
