@@ -146,6 +146,21 @@ echo "  VENUE-PERMISSIONS $(node -e '
   }));
 ' "$(id -un)" "$(umask)" 2>/dev/null)"
 
+# ⛔ R5 IS A SYMMETRY CLAIM, SO THE HALF THIS DRIVER DOES NOT CONTROL IS CHECKED RATHER THAN ASSUMED.
+# The OBSERVE arm gets `PYTHONDONTWRITEBYTECODE=1` from the env block below; the VERIFY arm gets it
+# from NUB, via `BUILD_JAIL_BASELINE_ENV` in `compiler/preset.rs`. A nub predating that commit
+# silently breaks the symmetry — OBSERVE stops seeing bytecode writes while the jailed arm still
+# attempts and is refused them.
+#
+# Reported, not fatal, and the direction is why: CPython falls back to compiling in memory, so the
+# refusal cannot change an arm's outcome, and failing here would block every measurement whenever a
+# nub build lags the harness. `grep -a` rather than `strings`, which is a binutils dependency this
+# driver otherwise does not have.
+if [ -f "$NUB" ] && ! grep -qa PYTHONDONTWRITEBYTECODE "$NUB" 2>/dev/null; then
+  echo "  ⛔ R5 ASYMMETRY — $NUB does not carry PYTHONDONTWRITEBYTECODE; OBSERVE suppresses Python"
+  echo "     bytecode and the jailed arm does not, so the two arms differ in more than enforcement"
+fi
+
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
 OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
 printf '{"name":"o","version":"1.0.0"}\n' > package.json
@@ -195,6 +210,16 @@ JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 #                           environment the shipped jail does not produce.
 #   NODE_COMPAT=1           `build_jail.rs:140`, unconditional — a dependency's script runs on
 #                           vanilla Node under the jail.
+#   PYTHONDONTWRITEBYTECODE=1  `compiler/preset.rs`'s `BUILD_JAIL_BASELINE_ENV`, applied in
+#                           `compile_build_jail` — the sole build_jail construction path, so every
+#                           CONFINED script gets it and an unconfined one does not.
+#                           ⛔ THIS IS PARITY, NOT NORMALISATION, AND THE DISTINCTION IS THE WHOLE
+#                           RULE THIS DRIVER OBEYS. The harness may normalise its own APPARATUS and
+#                           may not normalise the ENVIRONMENT UNDER TEST — but nub itself now sets
+#                           this variable for the jailed child, so NOT setting it here would be the
+#                           divergence: OBSERVE would trace a run that differs from the jailed run in
+#                           two variables (enforcement AND bytecode) when the contract allows exactly
+#                           one. See R5.
 #   PLAYWRIGHT_BROWSERS_PATH `redirect_playwright_browsers`, unconditional for EVERY jailed spawn.
 #   electron_config_cache / ELECTRON_CACHE   `redirect_electron_cache`, likewise.
 #   npm_config_prefix        `redirect_npm_prefix`, likewise.
@@ -234,7 +259,7 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 \
+HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
@@ -333,11 +358,13 @@ node -e '
     roots: { project: obs, home, jailHome, temp: jailTmp, toolsDir: tools,
              npmPrefix: `${tools}/npm-prefix`, ownPkg: `${obs}/node_modules/${pkg}`,
              globalStore, projectStore: `${obs}/node_modules/.store`, interpreter },
-    // ⛔ THE OBSERVE/VERIFY PARITY CONTRACT, RECORDED. These five rewrites are what make the traced
+    // ⛔ THE OBSERVE/VERIFY PARITY CONTRACT, RECORDED. These rewrites are what make the traced
     // run reproduce the environment the real jail creates; a script reading `os.tmpdir()` writes to
     // a DIFFERENT path without them. When that set changes, a trace taken under the old set is not
     // comparable to one taken under the new, and this is the only place that would say so.
-    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1",
+    // `PYTHONDONTWRITEBYTECODE` joined the set when nub began setting it on every confined script
+    // (`BUILD_JAIL_BASELINE_ENV`); a trace taken before that is not comparable to one taken after.
+    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1", PYTHONDONTWRITEBYTECODE: "1",
                   PLAYWRIGHT_BROWSERS_PATH: `${tools}/ms-playwright`,
                   ELECTRON_CACHE: `${tools}/electron-cache`,
                   electron_config_cache: `${tools}/electron-cache`,
@@ -392,6 +419,7 @@ echo "  VENUE-OVERRIDES $(node -e '
            ELECTRON_CACHE: process.argv[3] + "/electron-cache",
            electron_config_cache: process.argv[3] + "/electron-cache",
            npm_config_prefix: process.argv[3] + "/npm-prefix",
+           PYTHONDONTWRITEBYTECODE: "1",
            NUB_CACHE_DIR: process.argv[4] },
     unset: [],
     passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
