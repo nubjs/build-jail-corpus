@@ -8,6 +8,7 @@
 // invoked as `powershell.exe -File`.
 //
 //   usage: node measure-windows.mjs <pkg> <version> [--nub C:\nub.exe] [--root C:\jail]
+//          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}'
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -19,40 +20,13 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const [PKG, VER] = positional;
 if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [--nub exe] [--root dir]'); process.exit(2); }
 
-// ⛔⛔ HARD STOP — THIS LANE'S STORE EVICTION IS ROOT-ONLY, WHICH IS THE SHAPE THAT UNDER-GRANTS.
-//
-// It DOES evict, unlike the macOS driver — the `${PKG}@*` entry under `%LOCALAPPDATA%\nub\pm\store`
-// goes per arm, and the long note at `const STORE` gets the mechanism right. What is missing is the
-// TRANSITIVE sweep: measured by content, this file mentions no closure at all while `measure.sh`
-// does so twelve times.
-//
-// That distinction is not cosmetic, and `measure.sh` records the experiment that settles it — three
-// runs on one binary differing only in what was evicted:
-//
-//   evict rover only              {"network":true}                rc=0  bin/ EMPTY   -> false PASS
-//   evict rover + binary-install  {"network":true}                rc=1  bin/ absent  -> correct FAIL
-//   evict rover + binary-install  {"write":{"deps":true},...}     rc=0  bin/ rover,README.md,LICENSE
-//
-// ⇒ Root-only eviction is precisely the arm that FALSELY PASSED. A transitive dependency still
-// materialized in the global store is RELINKED rather than reinstalled, so its lifecycle script
-// never runs, and the arm reports success at a grant narrower than the package truly needs. That is
-// an UNDER-GRANT, which breaks real users' installs — the one direction this project treats as
-// unacceptable. Over-granting merely wastes capability.
-//
-// Narrower than the macOS fault (which has no eviction at all, so any package can replay); here
-// only packages whose closure holds a previously-materialized script-bearing dependency are
-// affected. Narrower is not safe: the failure is silent and in the wrong direction either way.
-//
-// TO LIFT THIS: port the `$CLOSURE` sweep from `measure.sh` — read the dependency closure off the
-// OBSERVE tree and evict each member's store entry, sparing nub's own tooling closure per
-// 67c01911 — then prove it BOTH ways on a real Windows runner: an arm that MUST fail at a
-// too-narrow grant actually fails, and a package still installs at its true minimum.
-if (!process.env.NUB_V2_WINDOWS_EVICTION_VERIFIED) {
-  console.error('!! measure-windows.mjs is DISABLED: store eviction is root-only, so a transitive');
-  console.error('   dependency can replay and the arm reports a false PASS at a too-narrow grant --');
-  console.error('   an UNDER-GRANT. See the note above this check. Any win32-x64 v2 record produced');
-  console.error('   before this guard is SUSPECT in the unsafe direction and must be re-measured.');
-  process.exit(3);
+// DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
+// ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers
+// "does this ONE grant suffice", where MINIMUM answers "what is the least that does", and reporting
+// a wider-than-expected MINIMUM as an under-grant is exactly the conflation the split prevents.
+const AT_GRANT = flag('--at-grant', '');
+if (AT_GRANT && !/^\{[\s\S]*\}$/.test(AT_GRANT.trim())) {
+  console.error(`⛔ --at-grant needs a JSON object, got: ${AT_GRANT}`); process.exit(2);
 }
 
 const NUB = flag('--nub', 'C:\\nub-ci.exe');
@@ -295,6 +269,23 @@ if (!OBS_PKG || OBS_PKG.size === 0) {
 }
 console.log(`  OBSERVE artifacts: ${OBS_PKG.size} files  (${OBS_PKG.root})`);
 
+// The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
+// arm's own hoisted `node_modules` — MEASURED, not guessed from the manifest. Consumed by the
+// per-arm store eviction in `verify()`; the long note there is why evicting `$PKG` alone leaves a
+// live replay path.
+const CLOSURE = (() => {
+  const nm = path.join(OBS, 'node_modules');
+  const out = [];
+  let ents; try { ents = fs.readdirSync(nm, { withFileTypes: true }); } catch { return out; }
+  for (const e of ents) {
+    if (!e.isDirectory() || e.name.startsWith('.')) continue;
+    if (e.name.startsWith('@')) for (const s of fs.readdirSync(path.join(nm, e.name))) out.push(`${e.name}/${s}`);
+    else out.push(e.name);
+  }
+  return out;
+})();
+console.log(`  CLOSURE ${CLOSURE.length} packages evicted per arm`);
+
 // ── 2. SYNTHESIZE ─────────────────────────────────────────────────────────────────────────────
 const NDJSON = path.join(CAP, 'events.ndjson');
 const parse = run(NODE, [path.join(HERE, 'adapters', 'windows.mjs'), CAP, '--out', NDJSON]);
@@ -312,6 +303,83 @@ const observed = JSON.parse(fs.readFileSync(path.join(ROOT, 'observed.json'), 'u
 const GRANT = observed.grant;
 
 // ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ─
+//
+// The cache root mirrors `aube_store::dirs::cache_dir()`: `XDG_CACHE_HOME` wins on EVERY platform
+// including Windows, and only then does `%LOCALAPPDATA%` apply. Reading LOCALAPPDATA alone would
+// point the eviction at a directory the linker is not using the moment that variable is set, and it
+// would no-op in silence — the failure shape this whole file is a monument to.
+const CACHE = path.join(process.env.XDG_CACHE_HOME || process.env.LOCALAPPDATA, 'nub', 'pm');
+const STORE = path.join(CACHE, 'store');
+const TOOLS = path.join(CACHE, 'tools');
+
+// ⛔⛔ EVICTING `PKG` ALONE IS NOT ENOUGH — THE REPLAY ALSO ARRIVES THROUGH A TRANSITIVE DEPENDENCY'S
+// STORE ENTRY. A package already materialized in the machine-global store is RELINKED rather than
+// reinstalled, so its lifecycle script never runs, and the arm then PASSES at whatever grant is
+// under test — including one NARROWER than the package needs. That is an UNDER-GRANT, the one
+// direction that breaks real users' installs.
+//
+// MEASURED on `@apollo/rover@0.2.1`, whose postinstall writes into a SIBLING package's directory
+// (`binary-install/bin/`, because it delegates to `binary-install`). In the jail that path resolves
+// through a junction out of rover's own store entry into `binary-install@0.1.1-<hash>`'s, which
+// `preset.rs`'s `store_entry_write_root` deliberately does NOT grant. Three runs on one binary
+// differing only in what was evicted:
+//
+//   evict rover only              {"network":true}                rc=0  bin/ EMPTY   -> false PASS
+//   evict rover + binary-install  {"network":true}                rc=1  bin/ absent  -> correct FAIL
+//   evict rover + binary-install  {"write":{"deps":true},...}     rc=0  bin/ rover,README.md,LICENSE
+//
+// ⛔⛔ AND THE STORE IS SHARED WITH nub'S OWN TOOLING, SO A NAME-WILDCARD EVICTION AMPUTATES THE TOOL
+// THE PACKAGE IS ABOUT TO BUILD WITH. nub bootstraps node-gyp lazily into a project under
+// `<cache>/tools/node-gyp/<bucket>/` that links against THIS SAME store, and `semver`, `tar`,
+// `which`, `graceful-fs` are ordinary members of a native package's own closure. MEASURED on
+// `@pulumi/datadog@0.18.9` against the pre-fix Linux harness: every rung failed with `gyp ERR! stack
+// Error: Cannot find module 'semver'` and ZERO jail refusals — a harness failure that reads as
+// INSUFFICIENT, so the ladder climbs and the package lands WIDER than it needs.
+//
+// ⇒ Spare the entries nub's own tool projects resolve through, and read them by FOLLOWING THE LINKS
+// under `tools/` rather than by matching the link directory's NAME: that name is `.store` on one
+// binary and `.nub` on another, so a name match silently stops matching. Junctions are what Windows
+// uses where Linux uses symlinks, so every entry is resolved with `realpathSync` and classified by
+// WHERE it lands rather than by its dirent type, which reports a junction inconsistently.
+//
+// ⛔ SPARING CANNOT MANUFACTURE THE FALSE PASS THIS EVICTION EXISTS TO PREVENT. A spared entry could
+// mask a refusal only if it carried build output from a prior arm, and nub's tool closure is pure-JS
+// library code that declares no lifecycle scripts (re-verified on this platform — see
+// `.github/workflows/win-evict-probe.yml`). The overlap is narrow besides: an entry is spared only at
+// the exact `<name>@<version>-<hash>` nub's tooling pinned, so any other version of the same name is
+// still evicted.
+const evictClosure = () => {
+  if (!fs.existsSync(STORE)) return;
+  let storeReal; try { storeReal = fs.realpathSync(STORE); } catch { storeReal = STORE; }
+  const keep = new Set();
+  const walk = (dir, depth) => {
+    if (depth > 6) return;
+    let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of ents) {
+      const p = path.join(dir, e.name);
+      let t; try { t = fs.realpathSync(p); } catch { continue; }
+      const rel = path.relative(storeReal, t);
+      if (rel && !rel.startsWith('..') && !path.isAbsolute(rel)) { keep.add(rel.split(path.sep)[0]); continue; }
+      let st; try { st = fs.statSync(p); } catch { continue; }
+      if (st.isDirectory()) walk(p, depth + 1);
+    }
+  };
+  walk(TOOLS, 0);
+  // Store dirs are `<name, with `/` as `+`>@<version>-<hash>`. Anchoring on `<slug>@` keeps the
+  // eviction TARGETED — the store is machine-global and a sibling runner may be measuring on the
+  // same box, so a bare `*yorkie*` would take out an unrelated `yorkie-foo` alongside it.
+  const prefixes = [...new Set([PKG, ...CLOSURE].map((n) => n.replace(/\//g, '+') + '@'))];
+  let removed = 0, spared = 0;
+  let entries; try { entries = fs.readdirSync(STORE); } catch { entries = []; }
+  for (const e of entries) {
+    if (!prefixes.some((n) => e.startsWith(n))) continue;
+    if (keep.has(e)) { spared++; continue; }
+    fs.rmSync(path.join(STORE, e), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    removed++;
+  }
+  console.log(`  EVICT   ${removed} store entries removed, ${spared} spared as nub tooling`);
+};
+
 let armSeq = 0;
 const verify = (grant, label) => {
   const v = path.join(ROOT, `verify-${label}`);
@@ -369,16 +437,11 @@ const verify = (grant, label) => {
   // `config_env("CACHE_DIR")` and governs the RESOLVER PRIMER cache only -- it does not relocate
   // the content-addressed store. MEASURED: with it set per arm, the arm dir ended with 0 files
   // while `%LOCALAPPDATA%\nub\pm\store` still served the package, so the arm looked isolated and
-  // was not. Evict the store entry itself, which is the only thing the linker consults.
-  const STORE = path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'store');
-  for (const d of (fs.existsSync(STORE) ? fs.readdirSync(STORE) : [])) {
-    // Store dirs are `<name>@<version>-<hash>`; the hash is not predictable, so match the prefix.
-    if (d.startsWith(`${PKG}@${VER}-`) || d.startsWith(`${PKG}@`)) {
-      fs.rmSync(path.join(STORE, d), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
-    }
-  }
+  // was not. Evict the store entries themselves, which are the only thing the linker consults --
+  // PKG's and its whole measured closure's, per the note above `evictClosure`.
+  evictClosure();
   // The memo drop stays: it is necessary but, on its own, was measured to be insufficient.
-  fs.rmSync(path.join(process.env.LOCALAPPDATA, 'nub', 'pm', 'side-effects-v1'),
+  fs.rmSync(path.join(CACHE, 'side-effects-v1'),
     { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat };
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
@@ -440,6 +503,25 @@ const verify = (grant, label) => {
   // OBSERVE arm produced for that same package.
   return { ok: rc === 0 && missing.length === 0, void: false, files, rc };
 };
+
+// ── DIRECT MODE: one arm at the caller's grant, no synthesis and no ladder. ───────────────────
+// OBSERVE still had to run, and must: the artifact gate needs its file manifest as the reference
+// for "did this arm produce what an unjailed install produces". Only OBSERVE's synthesized GRANT is
+// bypassed here, which is the point — nothing the tracer missed can enter this verdict.
+if (AT_GRANT) {
+  const g = JSON.parse(AT_GRANT);
+  console.log(`  -- DIRECT: does ${PKG}@${VER} install under EXACTLY ${JSON.stringify(g)} ?`);
+  const r = verify(g, 'at-grant');
+  if (r.void) {
+    console.log('  => VOID -- the override did not engage; NOTHING was measured.');
+    console.log('     Not a result. Do NOT record it, and do NOT read it as insufficient.');
+    process.exit(3);
+  }
+  if (r.timedOut) { console.log(`  => TIMED-OUT (${r.stage}); no verdict -- a hang says nothing about the grant`); process.exit(3); }
+  if (r.ok) { console.log(`  => SUFFICIENT ${JSON.stringify(g)}   (installed, artifacts matched OBSERVE)`); process.exit(0); }
+  console.log(`  => INSUFFICIENT ${JSON.stringify(g)}   (the package needs MORE than this grant)`);
+  process.exit(1);
+}
 
 const synth = verify(GRANT, 'synth');
 // ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. A VOID synth arm measured the COMPILED-IN
