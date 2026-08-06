@@ -32,6 +32,31 @@ Nothing the harness uses has to be available to the jail. That single permission
 
 Discovery is now O(1) runs; the ladder is a bounded repair step.
 
+## `--at-grant` — a second mode, for a different question
+
+```sh
+measure.sh <pkg> <version> [nub-binary]                        # the pipeline above: what is the MINIMUM?
+measure.sh <pkg> <version> [nub-binary] --at-grant '<json>'    # does it install under EXACTLY this grant?
+```
+
+The pipeline answers *"what is the minimum this package needs?"*. To ask instead *"does this package install under exactly this grant?"* — its own v1 record, say — **the ladder is not merely expensive, it is WRONG**, and the reason is worth internalising:
+
+> Every ladder rung on Windows carries `network:true`. MEASURED on `electron-prebuilt@0.31.2`: OBSERVE logged **2417 events with `malformed: 0`** and reported `attributedPeers: 0, peers: []`, for a package whose v1 record says `network: true` — the ETW adapter missed the egress entirely. That package fails at its synthesized grant, climbs to a rung that necessarily includes network, lands WIDER than its v1 record, and the `=> MINIMUM` line then reads as **"v1 UNDER-GRANTED"**.
+
+⇒ **A tracer blind spot presents as a defect in the thing being measured.** `--at-grant` removes that path: no synthesis, so nothing OBSERVE missed can enter the verdict. One arm, ~4× cheaper.
+
+OBSERVE still runs, and must — the artifact gate needs its file manifest as the reference for "did this arm produce what an unjailed install produces". Only OBSERVE's *network* attribution is in question; its file output is unaffected.
+
+| exit | verdict | meaning |
+| --- | --- | --- |
+| 0 | `SUFFICIENT` | installed, artifacts matched OBSERVE |
+| 1 | `INSUFFICIENT` | needs MORE than this grant ⇒ if the grant came from a v1 record, that record UNDER-GRANTS |
+| 3 | `VOID` | the override did not engage — **measured nothing, and is NEITHER outcome** |
+
+⛔ **The vocabulary is deliberately not the ladder's.** Reporting `MINIMUM` here would invite exactly the conflation above: "the minimum came out wider than expected" is not "the record under-grants". And VOID stays its own verdict — collapsing it into `INSUFFICIENT` is the bug the ladder carried at three separate decision points before it was fixed.
+
+**Verification status, stated honestly:** all four `verify` return codes were driven through the decision block with a stub and dispatch correctly (0→SUFFICIENT, 1→INSUFFICIENT, **2→VOID**, 3→INSUFFICIENT); the malformed-grant guard rejects a non-object; both modes parse; `bash -n` clean under stock bash 3.2. ⛔ **It has NOT been run end-to-end against a real package by its author** — `measure.sh` needs `strace`, so it cannot run on macOS. First real use should read its output sceptically and report anything surprising.
+
 ## What v2 does NOT change
 
 - The catalog schema and the grant vocabulary are unchanged.
