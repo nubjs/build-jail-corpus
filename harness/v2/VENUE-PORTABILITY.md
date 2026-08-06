@@ -135,3 +135,31 @@ Report as a table: package, venue, `CI` state, grant, and whether the expectatio
 | linux-x64 | available | available | both halves runnable |
 | win32-x64 | available | available | run measurements through the SSH session itself, which is an ordinary user; a scheduled task runs as SYSTEM and silently changes the answer |
 | darwin-arm64 | **none** | available | no macOS VM exists. The local Mac cannot run the OBSERVE tracer, which needs root. macOS therefore satisfies R1–R3 by construction and verifies the CI half only; its VM half is honestly open, not quietly skipped |
+
+## What comes after: the cross-section run
+
+Requirements R1–R7 and the acceptance test are a READINESS gate — evidence the instrument is sound enough to point at scale. They are not completion. **Completion is a run across a substantial cross-section of real packages**, target ~100 per platform.
+
+**Venue: the VM where one exists, CI where it does not.** `linux-x64` on `nub-corpus-linux`, `win32-x64` on `nub-win3`, `darwin-arm64` on GitHub CI because no macOS VM exists. A VM has no queue and is faster to iterate against; the macOS leg pays a real queue cost and should be sized accordingly.
+
+### ⭑ The SAME 100 packages on all three platforms
+
+Not a per-platform selection. Measuring one list everywhere means the cross-platform comparison is a free by-product rather than a separate exercise — and a genuine OS divergence (`kerberos@7.0.0` needing `network` on Linux but not macOS, because one venue has a working compiler for the `node-gyp` fallback) shows up as two records of one spec rather than as a discrepancy nobody can attribute.
+
+### Selection: stratified, NOT top-100-by-downloads
+
+A popularity ranking is dominated by one or two shapes and would leave the interesting behaviour unmeasured. The list should deliberately cover:
+
+- **native builds** driven by `node-gyp` / `binding.gyp`
+- **prebuilt downloads** via `prebuild-install` / `node-pre-gyp`, including the `X || node-gyp rebuild` fallback shape that produces genuine per-platform splits
+- **pure-JS postinstall** using `__dirname`-style absolute paths
+- **shell-script installs**, which are the shape that trips the relative-path guard
+- **the known-hard families** — electron, playwright, cypress, puppeteer, hugo, ffmpeg-installer — so their behaviour is re-confirmed rather than assumed stable
+- **the structurally-refused set** (the LowBox-token family on win32), to confirm it is still structural rather than quietly fixed
+- **a deliberate slice of packages needing NOTHING**, which is the modal answer and the case v2 could not express until recently
+
+Record the selection criteria and the resulting list in the repo, so the run is reproducible and so a later reader can tell what the sample does and does not represent.
+
+### The stability signal to watch during the run
+
+**Packages measured since the last HARNESS defect.** During the single-package phase that number sat near zero — every package surfaced something about the instrument rather than about the package. A cross-section run is going well when findings are about packages; it is still finding instrument defects when they are not. Report that count, not just the record total.
