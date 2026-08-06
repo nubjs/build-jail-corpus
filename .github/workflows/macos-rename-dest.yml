@@ -180,7 +180,30 @@ jobs:
             echo "    $a: EXECARGV captured=$EA  execve faults=$EF  => $((EA + EF)) execve entries seen"
           done
 
-      - name: 3. Decoder unit tests (RED-on-revert guard)
+      # ⛔ THE ASSERTION THAT WAS ALREADY FAILING. probes/lifecycle-attribution.sh has asserted
+      # `kaf-ren-new-g7h8 MUST-APPEAR` since it was written, and run 31087159355 recorded it as
+      # "HALF SETTLED … the second clause that should emit arg1 did not appear in the trace. Cause
+      # not yet established." That is this defect, observed and unexplained. Unlike @apollo/rover —
+      # whose lost renames all belonged to npm's own node and were discarded by the attribution
+      # filter anyway — this `mv` runs INSIDE the lifecycle script, so the path it loses is a write
+      # billed to the package. This step is what turns the recovery from "more records" into "a
+      # write the grant would otherwise have missed".
+      - name: 3. The pre-existing MUST-APPEAR assertion on a SCRIPT-attributed rename
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user, not by sudo
+          set +e
+          chmod +x harness/v2/probes/lifecycle-attribution.sh
+          sudo rm -rf /tmp/node-compile-cache 2>/dev/null
+          sudo harness/v2/probes/lifecycle-attribution.sh /tmp/lca > /tmp/lca.txt 2>&1
+          echo "LCA_RC=$?"
+          sed -n '/D. symlink\/link\/rename PATH SELECTION/,$p' /tmp/lca.txt
+          echo "=================================================================="
+          echo "READ IT THIS WAY: under ARM old and ARM new alike, kaf-ren-old (the SOURCE) has"
+          echo "always appeared. kaf-ren-new (the DESTINATION, MUST-APPEAR) is the row this fix is"
+          echo "about — it was count=0 on run 31087159355 and must now be >=1 under ARM new."
+
+      - name: 4. Decoder unit tests (RED-on-revert guard)
         if: always()
         run: node --test harness/v2/observe-macos.test.mjs
 
@@ -196,6 +219,7 @@ jobs:
             /tmp/trace-post.txt
             /tmp/trace-pre2.txt
             /tmp/trace-post2.txt
+            /tmp/lca.txt
             /tmp/dtrace-pre.log
             /tmp/dtrace-post.log
           if-no-files-found: warn
