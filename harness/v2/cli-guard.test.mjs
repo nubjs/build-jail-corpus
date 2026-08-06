@@ -40,7 +40,10 @@ for (const dir of ['', 'adapters']) {
   }
 }
 
-const GUARD_LINE = /^\s*if \(import\.meta\.url ===/m;
+// Both spellings of the guard's opening: the bare comparison, and the `process.argv[1] &&` form the
+// import-safety fix introduced. A regex that only knew the first silently stopped finding any guard
+// the moment that fix landed — caught by this file's own control, which is what it is for.
+const GUARD_LINE = /^\s*if \((?:process\.argv\[1\] && )?import\.meta\.url ===/m;
 const NAIVE = /import\.meta\.url === `file:\/\/\$\{process\.argv\[1\]\}`/;
 
 test('CONTROL: the scan finds real CLI guards, so a green result is not vacuous', () => {
@@ -98,6 +101,23 @@ test('record.mjs invoked as a CLI actually produces a record and prints its path
   assert.equal(rec.verdict, 'MINIMUM');
   assert.equal(rec.provenance.platform, 'win32-x64');
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('⭑ a shared script can still be IMPORTED with no argv[1] — the fix\'s own regression', () => {
+  // ⛔ THE CORRECT COMPARISON INTRODUCED A NEW FAILURE MODE AND THE TESTS DID NOT CATCH IT.
+  // `pathToFileURL(undefined)` THROWS, where the naive string form was wrong on Windows but TOTAL —
+  // it simply returned false. So swapping one in without a `process.argv[1] &&` guard means merely
+  // IMPORTING the module from a context with no argv[1] dies before any caller runs. `node --test`
+  // always supplies argv[1], which is exactly why the suite stayed green; it was found by an
+  // unrelated `node -e` one-liner blowing up. Every guarded file is checked, not just record.mjs.
+  const guarded = SCRIPTS.filter((s) => /pathToFileURL\(process\.argv\[1\]\)/.test(fs.readFileSync(s.abs, 'utf8')));
+  assert.ok(guarded.length >= 2, `only ${guarded.length} scripts use pathToFileURL; the scan is broken`);
+  for (const s of guarded) {
+    const src = fs.readFileSync(s.abs, 'utf8');
+    assert.match(src, /process\.argv\[1\] &&\s*\n?\s*import\.meta\.url ===/,
+      `${s.rel} calls pathToFileURL(process.argv[1]) without guarding against argv[1] being absent,`
+      + ' so importing it from a context with no argv[1] throws');
+  }
 });
 
 // ⛔ ONLY THE PORTABLE HALF OF THIS CLAIM IS ASSERTED, DELIBERATELY. `pathToFileURL` applies the

@@ -663,7 +663,13 @@ export function buildHeader({ meta, capDir, opts, rawFile, rawBytes, rawGzBytes,
 // import.meta.url is `file:///C:/path/x.mjs`, so the string form NEVER matches and the CLI silently
 // does nothing at all — on the one platform this file exists for. `linux.mjs` uses the string form
 // and is correct there and only there.
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+// ⛔ `process.argv[1] &&` GUARDS THE IMPORT CASE, and it is not defensive padding.
+// `pathToFileURL(undefined)` THROWS, so without it merely IMPORTING this module from a context
+// with no `argv[1]` — `node -e`, a REPL, an embedder — dies before any caller runs. The naive
+// string form this replaced was wrong on Windows but TOTAL: it just returned false. Swapping in a
+// correct comparison therefore introduced a new failure mode, which is worth stating because the
+// tests did not catch it: `node --test` always supplies `argv[1]`.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const flags = new Set(['--out', '--raw-out', '--header-out', '--project', '--home',

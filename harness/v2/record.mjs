@@ -359,7 +359,13 @@ const applyGrantSourceRule = (out, lines) => {
 //
 // `adapters/windows-retain.mjs` already carries this scar and its fix; `adapters/linux.mjs` uses the
 // string form and is correct there and only there, because it never runs anywhere else.
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+// ⛔ `process.argv[1] &&` GUARDS THE IMPORT CASE, and it is not defensive padding.
+// `pathToFileURL(undefined)` THROWS, so without it merely IMPORTING this module from a context
+// with no `argv[1]` — `node -e`, a REPL, an embedder — dies before any caller runs. The naive
+// string form this replaced was wrong on Windows but TOTAL: it just returned false. Swapping in a
+// correct comparison therefore introduced a new failure mode, which is worth stating because the
+// tests did not catch it: `node --test` always supplies `argv[1]`.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const argv = process.argv.slice(2);
   const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
   const log = fs.readFileSync(opt('--log'), 'utf8');

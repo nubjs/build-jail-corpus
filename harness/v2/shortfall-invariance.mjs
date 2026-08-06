@@ -78,7 +78,10 @@ export function classify(ledger, armsExpected = 4) {
 // `import.meta.url` is `file:///C:/...`, so the comparison never matches, the CLI silently does
 // nothing and the process exits 0. See the note on the same guard in `record.mjs`, where the same
 // mistake would have cost the whole win32 corpus.
-if (import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href) {
+// `process.argv[1] &&` guards the IMPORT case: `pathToFileURL(undefined)` THROWS, so without it
+// merely importing this module from a context with no argv[1] (`node -e`, a REPL, an embedder)
+// dies before any caller runs. The string form it replaced was wrong but total--it returned false.
+if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href) {
   const { default: fs } = await import('node:fs');
   const argv = process.argv.slice(2);
   const armsExpected = argv.includes('--arms') ? Number(argv[argv.indexOf('--arms') + 1]) : 4;
