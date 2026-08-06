@@ -2,27 +2,79 @@
   "pkg": "lmdb-store",
   "version": "2.0.0-alpha2",
   "harnessVersion": 2,
-  "verdict": "NO-STATE-PASSED",
-  "grant": null,
-  "synthesized": {
-    "write": {
-      "project": true
-    },
+  "verdict": "MINIMUM",
+  "grant": {
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "synthesized": {
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "network"
+  ],
   "notes": [],
+  "eventLog": {
+    "lines": 223790,
+    "parsed": 214777,
+    "unparsed": 0,
+    "unfinished": 8532,
+    "rejoined": 8532,
+    "unresolvedDirfd": 4,
+    "truncatedArg": 0,
+    "procs": 364,
+    "lifecyclePids": 352,
+    "distinctEvents": 80818,
+    "unknownSyscall": {
+      "getsockname": 34,
+      "getsockopt": 31,
+      "getcwd": 296,
+      "recvmsg": 7,
+      "exit": 35,
+      "socketpair": 12,
+      "setsockopt": 59,
+      "shutdown": 11,
+      "exit_group": 324,
+      "wait4": 373,
+      "sendmmsg": 1
+    },
+    "out": "/home/runner/v2-uT4vnh/observe/events.ndjson.gz",
+    "gzipBytes": 400739
+  },
   "driverRc": 0,
-  "durationMs": 156591,
+  "durationMs": 113810,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": null,
+    "nubGitSha": "a8eb8c9928f1de66c5557681fa4c0426accb9d2a",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "6c4c4e26863a4df2345db4bb06b69cc0e7e96e1e",
-    "node": "v22.23.2",
-    "at": "2026-08-06T13:36:53.710Z"
+    "corpusGitSha": "52ea0ccb69d2780f119bde08f8fd4580a8fc3216",
+    "node": "v22.23.1",
+    "at": "2026-08-06T22:40:48.344Z",
+    "venue": "ci",
+    "ciEnvSet": false,
+    "storeLayout": "isolated",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.1/x64",
+    "interpreterInsideHome": false,
+    "overrides": {
+      "set": {
+        "HOME": "/home/runner/v2-uT4vnh/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsiROrno",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NUB_CACHE_DIR": "/home/runner/v2-uT4vnh/nubcache"
+      },
+      "unset": [],
+      "passedThrough": {
+        "CI": null,
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
