@@ -40,6 +40,8 @@ let allSockets = 0;
 // is always reached through a shell (`npm run-script` execs `sh -c "<script>"`), so the attributed
 // set is the union of the subtrees rooted at those shells.
 const lifecycle = new Set();
+const toolPids = new Set();
+let started = false;
 const SHELL_EXEC = /^execve\("[^"]*\/(?:sh|bash|dash)"[^)]*"-c"/;
 
 // ⛔ RESOLVE RELATIVE PATHS OR THEY MATCH NO SCOPE. strace prints the path exactly as the syscall
@@ -80,8 +82,17 @@ for (const raw of lines) {
     // child's first syscall is emitted, so propagating here is ordering-safe.
     if (lifecycle.has(pid)) lifecycle.add(Number(cl[1]));
   }
-  if (SHELL_EXEC.test(line) && !line.includes('= -1')) lifecycle.add(pid);
-  const mine = lifecycle.has(pid);
+  if (SHELL_EXEC.test(line) && !line.includes('= -1')) { lifecycle.add(pid); started = true; }
+  // ⛔ THE clone EDGE IS NOT ALWAYS IN THE TRACE, so a pure parent->child walk under-attributes to
+  // exactly the shell and nothing below it. MEASURED on @nuxt/components@2.1.0: the lifecycle shell
+  // was found, its `yarn` descendants were not, and the parser emitted `{}` — a confident "this
+  // package needs nothing" for a package that does not even install at three grants above that.
+  // glibc's posix_spawn issues CLONE_VM|CLONE_VFORK and libuv takes several spawn paths, so the
+  // edge is missing rather than mis-parsed. FALLBACK, and it is a heuristic, not a derivation: once
+  // the lifecycle shell has exec'd, attribute every pid not already seen as the package manager's.
+  // Sound because npm's own pids all appear during the fetch/link phase that precedes the script.
+  if (!started) toolPids.add(pid);
+  const mine = lifecycle.has(pid) || (started && !toolPids.has(pid));
 
   const m = line.match(/^([a-z_0-9]+)\((?:AT_FDCWD,\s*)?"([^"]*)"/);
 

@@ -86,7 +86,12 @@ verify () {
   # assertion an arm can measure the SHIPPED policy while you believe it measured yours.
   local ovr rej files
   ovr=$(cat "$v"/*.log | grep -c 'catalog OVERRIDDEN'); rej=$(cat "$v"/*.log | grep -c 'REJECTED')
-  files=$(find "$v" -type f ! -name '*.log' ! -name 'cat.json' 2>/dev/null | wc -l | tr -d ' ')
+  # ⛔ `-L` IS LOAD-BEARING AND ITS ABSENCE INVERTS THE VERDICT. nub's global virtual store makes
+  # every node_modules entry a SYMLINK, so a bare `find -type f` counts ~30 files where the npm
+  # control counted 456 — and the `files >= OBS_FILES` gate below then fails an arm that installed
+  # perfectly. MEASURED on @nuxt/components@2.1.0: the write:"disk" arm exited 0 with a complete
+  # install and was reported as "NO-STATE-PASSED". Following the links counts the real artifacts.
+  files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
   echo "  VERIFY[$label] rc=$rc files=$files OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
   # Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
