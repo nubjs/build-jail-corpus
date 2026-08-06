@@ -1,0 +1,303 @@
+# The both-directions proof for the Windows driver's per-arm store eviction.
+#
+# ⛔ THE NEGATIVE CONTROL IS THE DELIVERABLE, NOT THE POSITIVE ONE. An eviction that is too NARROW
+# reintroduces the false PASS — an arm succeeding at a grant narrower than the package needs, i.e. an
+# UNDER-GRANT, which breaks real users' installs. A positive control cannot detect that: a driver
+# that evicts nothing at all passes every positive control there is. So this runs the recorded
+# three-row experiment, and row R1 exists purely to prove R2/R3 have teeth — it drives a copy of the
+# driver mutated back to ROOT-ONLY eviction and EXPECTS the false pass. If R1 behaves like R2, the
+# control is not exercising the eviction and neither row means anything.
+#
+# Branch-scoped and no PR: CI is the only Windows path here, and `workflow_dispatch` is inert until a
+# workflow file reaches the default branch, so a push trigger is the only way to iterate on this one.
+#
+# ⛔ SEQUENTIAL, AND THE ROW ORDER IS LOAD-BEARING. Four concurrent Windows workers were measured to
+# stall at process creation with zero writes; and R1's false pass can only exist once R0 has left
+# `binary-install`'s store entry POPULATED, which is precisely what a replay relinks.
+name: win-evict-probe
+
+on:
+  push:
+    branches: [probe/win-evict]
+  workflow_dispatch:
+    inputs:
+      pkg:
+        description: 'the transitive-write package for the negative control'
+        default: '@apollo/rover@0.2.1'
+      gyp_pkg:
+        description: 'the node-gyp-tooling package for the positive control'
+        default: '@pulumi/datadog@0.18.9'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
+      GYP_PKG: ${{ inputs.gyp_pkg || '@pulumi/datadog@0.18.9' }}
+      # ⛔⛔ WITHOUT THIS THE EXPERIMENT MEASURES NOTHING, AND IT LOOKS FINE WHILE DOING SO. MEASURED
+      # in run 31106248877: every arm logged `linker isolated (global virtual store auto-disabled in
+      # CI)` and put its `.store` INSIDE the arm directory, so `%LOCALAPPDATA%\nub\pm\store` never
+      # existed, the eviction skipped in silence, and root-only and transitive eviction were
+      # indistinguishable — four arms, identical verdicts, zero EVICT lines. `is_ci()` picks the
+      # project-local layout (`install_report.rs` `layout_row`), and an explicit
+      # `enableGlobalVirtualStore` is the one thing checked BEFORE it. A real user is not in CI, so
+      # forcing it on is also what makes the arm resemble the install being measured.
+      npm_config_enable_global_virtual_store: 'true'
+      # The sanctioned use of the driver's guard, and the ONLY one: this workflow is the proof the
+      # guard is waiting on, so it has to be able to run the driver. Setting it anywhere else — in
+      # the corpus lane, in a sweep — publishes rows the guard exists to stop.
+      NUB_V2_WINDOWS_EVICTION_VERIFIED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Host facts
+        shell: bash
+        run: |
+          set +e
+          node --version; npm --version
+          echo "LOCALAPPDATA=$LOCALAPPDATA"
+          echo "XDG_CACHE_HOME=${XDG_CACHE_HOME:-<unset>}"
+          powershell.exe -NoProfile -Command 'whoami'
+
+      - name: Resolve the native path of the probe binary
+        shell: bash
+        run: |
+          set -eu
+          P=/tmp/nub/target/release/nub.exe
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-windows-none
+          restore-keys: |
+            nub-bin-v1-windows-
+
+      - name: Build the probe binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          SHA=$(git rev-parse origin/sandbox/integration)
+          git checkout --detach "$SHA"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
+
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub.exe
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ THE CHECK THAT SEPARATES A REAL ARM FROM A VOID ONE, AND IT CHECKS ITSELF FIRST. A
+      # malformed catalog must be REJECTED before a well-formed one is allowed to prove anything —
+      # without that control, a binary that never read the variable at all reads as success.
+      - name: Assert the binary honours NUB_BUILD_JAIL_CATALOG
+        shell: bash
+        run: |
+          set +e
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__v2_probe__":{"default":{"network":true}}}}'    > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$NUB_BIN" --version 2>&1)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused" ;;
+            *) echo "⛔ GATE IS INERT. Saw: ${BAD:-<none>}" >&2; exit 1 ;;
+          esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1)
+          case "$GOOD" in
+            *OVERRIDDEN*) echo "override engages: $GOOD" ;;
+            *) echo "⛔ no OVERRIDDEN banner — this binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      # One substitution, and it must be VERIFIED TO HAVE APPLIED: a silent no-op here would make R1
+      # a second copy of R2 — two agreeing rows that prove nothing.
+      - name: Build the ROOT-ONLY control copy of the driver
+        shell: bash
+        run: |
+          set -eu
+          node -e '
+            const fs = require("fs");
+            const s = fs.readFileSync("harness/v2/measure-windows.mjs", "utf8");
+            const needle = "const prefixes = [...new Set([PKG, ...CLOSURE]";
+            if (!s.includes(needle)) { console.error("⛔ MUTATION TARGET ABSENT — the control cannot be built"); process.exit(1); }
+            fs.writeFileSync("harness/v2/measure-windows-ROOTONLY.mjs", s.replace(needle, "const prefixes = [...new Set([PKG]"));
+          '
+          diff harness/v2/measure-windows.mjs harness/v2/measure-windows-ROOTONLY.mjs || true
+
+      - name: R0 — prime the store at the wide grant
+        shell: bash
+        run: |
+          set +e
+          node harness/v2/measure-windows.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
+            --at-grant '{"write":{"deps":true},"network":true}' > /tmp/r0.log 2>&1
+          echo "R0_EXIT=$?" >> "$GITHUB_ENV"
+          cat /tmp/r0.log
+
+      # The eviction's precondition, checked directly rather than inferred from a verdict: if the
+      # global store does not exist, every row below is measuring the CI layout and proves nothing.
+      - name: Assert the arms actually used the global virtual store
+        shell: bash
+        run: |
+          set +e
+          grep -h "linker " /c/jail/*/verify-*/i.log | sort -u
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const s = path.join(process.env.XDG_CACHE_HOME || process.env.LOCALAPPDATA, "nub", "pm", "store");
+            const n = fs.existsSync(s) ? fs.readdirSync(s).length : -1;
+            console.log(`store=${s} entries=${n}`);
+            if (n < 1) { console.error("⛔ the global store is empty or absent — the eviction has nothing to act on and the experiment is INERT"); process.exit(1); }
+          '
+
+      - name: R1 — the teeth control (ROOT-ONLY eviction; a false PASS is EXPECTED)
+        shell: bash
+        run: |
+          set +e
+          node harness/v2/measure-windows-ROOTONLY.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
+            --at-grant '{"network":true}' > /tmp/r1.log 2>&1
+          echo "R1_EXIT=$?" >> "$GITHUB_ENV"
+          cat /tmp/r1.log
+
+      - name: R2 — THE NEGATIVE CONTROL (transitive eviction; must be INSUFFICIENT)
+        shell: bash
+        run: |
+          set +e
+          node harness/v2/measure-windows.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
+            --at-grant '{"network":true}' > /tmp/r2.log 2>&1
+          echo "R2_EXIT=$?" >> "$GITHUB_ENV"
+          cat /tmp/r2.log
+
+      - name: R3 — the true minimum still verifies
+        shell: bash
+        run: |
+          set +e
+          node harness/v2/measure-windows.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
+            --at-grant '{"write":{"deps":true},"network":true}' > /tmp/r3.log 2>&1
+          echo "R3_EXIT=$?" >> "$GITHUB_ENV"
+          cat /tmp/r3.log
+
+      - name: P — the positive control, full pipeline on a node-gyp-tooling package
+        shell: bash
+        run: |
+          set +e
+          # `--synth-only`: the positive control asks whether the tooling survives the eviction, not
+          # what this package's minimum is, and the ladder costs three more full installs to answer
+          # a question nobody asked here.
+          node harness/v2/measure-windows.mjs "${GYP_PKG%@*}" "${GYP_PKG##*@}" --nub "$NUB_BIN" --synth-only \
+            > /tmp/p.log 2>&1
+          echo "P_EXIT=$?" >> "$GITHUB_ENV"
+          cat /tmp/p.log
+          echo "--- 'Cannot find module' across every arm log on disk ---"
+          grep -rn "Cannot find module" /c/jail 2>/dev/null | head -20 || echo "none"
+
+      # Re-verifies on THIS platform the claim 67c01911 measured on Linux: every store entry nub's own
+      # tool projects link through declares no lifecycle script, so sparing one cannot carry a prior
+      # arm's build output into a later arm. Run AFTER the arms, when the tool project exists because
+      # a real jailed install provisioned it.
+      - name: Enumerate what the eviction spares, and whether any of it builds
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/gypboot && cd /tmp/gypboot && printf '{"name":"b","version":"1.0.0"}\n' > package.json
+          "$NUB_BIN" __node-gyp-bootstrap . 2>&1 | tail -3
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const cache = path.join(process.env.XDG_CACHE_HOME || process.env.LOCALAPPDATA, "nub", "pm");
+            const store = path.join(cache, "store"), tools = path.join(cache, "tools");
+            console.log(`store=${store} exists=${fs.existsSync(store)}`);
+            console.log(`tools=${tools} exists=${fs.existsSync(tools)}`);
+            if (!fs.existsSync(tools)) { console.log("!! no tools dir — the sparing claim is UNVERIFIED on this platform"); process.exit(0); }
+            let storeReal; try { storeReal = fs.realpathSync(store); } catch { storeReal = store; }
+            const keep = new Set();
+            (function walk(d, depth) {
+              if (depth > 6) return;
+              let ents; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+              for (const e of ents) {
+                const p = path.join(d, e.name);
+                let t; try { t = fs.realpathSync(p); } catch { continue; }
+                const rel = path.relative(storeReal, t);
+                if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) { keep.add(rel.split(path.sep)[0]); continue; }
+                let st; try { st = fs.statSync(p); } catch { continue; }
+                if (st.isDirectory()) walk(p, depth + 1);
+              }
+            })(tools, 0);
+            console.log(`tool closure: ${keep.size} store entries`);
+            let withScripts = 0, unread = 0;
+            for (const e of [...keep].sort()) {
+              // The entry name is NOT always `<name>@<version>-<hash>`: a peer-dependency-keyed entry
+              // is `fdir@6.5.0_picomatch@4.0.5_-<hash>`, so de-mangling the name off it reports a
+              // false "unreadable" — which reads as a hole in the zero-lifecycle-scripts claim.
+              // Enumerate the entry's own node_modules instead of reconstructing the name.
+              const cands = [path.join(store, e, "package.json")];
+              const nm = path.join(store, e, "node_modules");
+              for (const d of (fs.existsSync(nm) ? fs.readdirSync(nm) : [])) {
+                if (d.startsWith("@")) for (const t of fs.readdirSync(path.join(nm, d))) cands.push(path.join(nm, d, t, "package.json"));
+                else cands.push(path.join(nm, d, "package.json"));
+              }
+              let s = null;
+              for (const c of cands) { try { s = JSON.parse(fs.readFileSync(c, "utf8")).scripts ?? {}; break; } catch {} }
+              if (s === null) { unread++; console.log(`  ?? ${e} — no readable package.json`); continue; }
+              const life = ["preinstall", "install", "postinstall"].filter((k) => s[k]);
+              if (life.length) { withScripts++; console.log(`  DECLARES ${life.join(",")}: ${e}`); }
+              else console.log(`  ok ${e}`);
+            }
+            console.log(withScripts === 0 && unread === 0
+              ? "=> zero lifecycle scripts across the spared closure — sparing cannot carry build output"
+              : `=> ${withScripts} spared entries declare a lifecycle script, ${unread} unreadable — the sparing rationale needs re-examining`);
+          '
+
+      # ⛔ READS THE LOGS, NOT THE EXIT CODES ALONE. An arm exits non-zero for reasons that have
+      # nothing to do with the grant — VOID, a timeout, a broken tool — and every one of those is
+      # otherwise indistinguishable from the INSUFFICIENT this control is looking for.
+      - name: Verdict
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          for r in R0 R1 R2 R3 P; do
+            v="${r}_EXIT"; f="/tmp/$(echo "$r" | tr A-Z a-z).log"
+            printf '%-3s exit=%-4s %s\n' "$r" "${!v:-?}" "$(grep -E '=> ' "$f" 2>/dev/null | tail -1 | sed 's/^ *//')"
+          done
+          echo; echo "EVICT lines:"; grep -h "EVICT " /tmp/r*.log /tmp/p.log 2>/dev/null
+          echo; echo "CLOSURE lines:"; grep -h "CLOSURE " /tmp/r*.log /tmp/p.log 2>/dev/null
+          echo; echo "arm layouts:"; grep -h "linker " /c/jail/*/verify-*/i.log 2>/dev/null | sort | uniq -c
+          echo; echo "arm failures (first line of each):"
+          for f in /c/jail/*/verify-*/i.log; do
+            printf '%s: %s\n' "$(basename "$(dirname "$(dirname "$f")")")/$(basename "$(dirname "$f")")" \
+              "$(grep -m1 -E 'EPERM|EACCES|Error:|lifecycle script' "$f" 2>/dev/null)"
+          done
+          echo
+          FAIL=0
+          grep -q '=> SUFFICIENT' /tmp/r0.log   || { echo "⛔ R0 did not prime (expected SUFFICIENT)"; FAIL=1; }
+          grep -q '=> INSUFFICIENT' /tmp/r2.log || { echo "⛔ R2 IS THE DELIVERABLE AND IT DID NOT FAIL — the eviction does not stop the replay"; FAIL=1; }
+          grep -q '=> SUFFICIENT' /tmp/r3.log   || { echo "⛔ R3 did not verify at the true minimum — the eviction may be over-broad"; FAIL=1; }
+          grep -q '=> SUFFICIENT' /tmp/r1.log \
+            || echo "!! R1 (root-only) did NOT falsely pass, so R2 proves nothing about the eviction on this package. Find another transitive case before believing the control."
+          if grep -q "Cannot find module" /tmp/p.log; then echo "⛔ positive control hit a missing module — the tooling sparing did not hold"; FAIL=1; fi
+          exit $FAIL
+
+      - name: Preserve the arm logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-evict-probe-${{ github.run_id }}
+          path: |
+            C:/jail/**/*.log
+            C:/jail/**/observed.*
+            C:/jail/**/cat.json
+          if-no-files-found: warn
+          retention-days: 14
