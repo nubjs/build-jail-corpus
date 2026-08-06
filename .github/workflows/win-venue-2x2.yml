@@ -105,16 +105,23 @@ jobs:
           $root = 'C:\jailv'
           New-Item -ItemType Directory -Force -Path $root | Out-Null
 
-          # ⛔ A REAL UNSET, IN THE SAME BLOCK AS THE MEASUREMENT. `CI=""` still satisfies
-          # `env::var_os("CI").is_some()`, so it would leave this cell measuring the same thing as
-          # its neighbour while every log line said otherwise. Removing it here rather than in a
-          # separate step is what makes it reach the driver at all — each `run:` block is its own
-          # shell.
+          # ⛔ THE DRIVER NOW SCRUBS THE CI-DETECTION FAMILY BY DEFAULT, so this cell has to say which
+          # arm it wants or BOTH cells measure the scrubbed path and the axis quietly collapses. The
+          # driver reads `NUB_CORPUS_CI_ENV`: `inherit` leaves the family alone (the real CI path),
+          # anything else removes it. Setting it here is what keeps the two cells different.
+          #
+          # ⛔ AND IT IS A REAL REMOVAL, NEVER A FALSY VALUE. `is_ci()` is
+          # `env::var_os("CI").is_some()`, so `CI=""` still reads as CI — and `ci-info` reads `CI=0`
+          # as CI-ON while `core-js` reads it as CI-OFF, so only ABSENCE is unambiguous. The extra
+          # `Remove-Item` below is belt-and-braces for the `unset` arm on a runner, in the same
+          # `run:` block as the measurement because each block is its own shell.
           if ('${{ inputs.ci_env }}' -eq 'unset') {
+            $env:NUB_CORPUS_CI_ENV = 'unset'
             Remove-Item Env:CI -ErrorAction SilentlyContinue
-            Write-Output "CI removed; now [$env:CI]"
+            Write-Output "CI removed and the driver will scrub the family; now [$env:CI]"
           } else {
-            Write-Output "CI inherited; [$env:CI]"
+            $env:NUB_CORPUS_CI_ENV = 'inherit'
+            Write-Output "CI inherited, scrub DISABLED — measuring the real CI path; [$env:CI]"
           }
 
           node harness/v2/measure-windows.mjs '${{ inputs.package }}' '${{ inputs.version }}' `
