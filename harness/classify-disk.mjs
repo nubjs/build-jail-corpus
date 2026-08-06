@@ -212,9 +212,17 @@ for (const [k, v] of Object.entries(eTally).sort((a, b) => b[1] - a[1])) {
   console.log(`  ${k.padEnd(10)} ${String(v).padStart(3)}  (${((100 * v) / eligible.length).toFixed(0)}%)`);
 }
 const over = (eTally.GATE ?? 0) + (eTally.PATH ?? 0);
+// ⛔ THE TWO HALVES OF THIS SENTENCE DO NOT CARRY THE SAME CONFIDENCE, AND FLATTENING THEM IS THE
+// OVER-CLAIM THE HEADER WARNS ABOUT. The GATE count is read straight off the cells — a package that
+// reaches the control at the ZERO-capability rung needs nothing, with no inference. The wide count
+// is an INFERENCE from v1 `rc` data that cannot distinguish "insufficient grant" from "broken v1
+// harness", and it already has one measured false positive.
 console.log(
-  `\n⇒ ${over} of ${eligible.length} are OVER-GRANTED by the v1 gate; ` +
-    `${eTally.TOKEN ?? 0} are ${WIDE_MEANS}.`,
+  `\n⇒ ${eTally.GATE ?? 0} of ${eligible.length} need NOTHING (read off the cells, no inference) and ` +
+    `${over} total are over-granted by the v1 gate.\n` +
+    `  ${eTally.TOKEN ?? 0} LOOK ${WIDE_MEANS} — but that is a HYPOTHESIS from v1 cell data, ` +
+    `not a measurement.\n  Confirm any individual one with v2 before citing it; the discriminator ` +
+    `is 7 of 8 where v2 has checked.`,
 );
 
 if (process.argv.includes('--list')) {
