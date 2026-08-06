@@ -120,6 +120,23 @@ echo "     csrutil: $(csrutil status 2>&1 | head -1 || true)"
 echo "     fbt probes visible: $(dtrace -l -P fbt 2>/dev/null | wc -l | tr -d ' ' || echo 0)"
 echo "     fbt enable attempt: $(dtrace -n 'fbt:::entry { exit(0); }' -c /usr/bin/true 2>&1 | head -2 | tr '\n' ' ' || true)"
 echo "     cwd builtin value:  $(dtrace -q -n 'syscall::open:entry /pid == $target/ { printf("%s", cwd); exit(0); }' -c /usr/bin/true 2>&1 | head -1 || true)"
+# ⛔ THE ONE QUESTION LEFT, AND EITHER ANSWER RETIRES IT. SIP is off on these runners and ~93k fbt
+# probes are visible, so fbt is AVAILABLE — what is unknown is whether a probe on the kernel's
+# internal chdir routine fires for the posix_spawn + addchdir_np path. If it does, the lifecycle
+# script's cwd becomes OBSERVABLE and the cwd guard drops from mechanism to backstop. If it does not,
+# the guard IS the answer and this loop closes.
+#
+# ⛔ WILDCARD, NOT A GUESSED SYMBOL NAME. `chdir_internal` is the likely XNU routine but the name is
+# not a stable ABI and guessing one produces a silent zero that reads exactly like "does not fire".
+# Listing what actually matches is the difference between a measurement and an assumption.
+echo "     fbt chdir symbols:  $(dtrace -l -n 'fbt::chdir*:entry' 2>/dev/null | tail -n +2 | awk '{print $3}' | sort -u | tr '\n' ' ' || true)"
+# The probe target: a node process that spawns a child with an explicit `cwd`, which is exactly the
+# libuv addchdir_np path npm uses for a lifecycle script. Written to a file because `dtrace -c`
+# word-splits its argument and execs directly — there is no shell, so a quoted -e script cannot work.
+FBTJS="$ROOT/fbt-spawn-probe.js"
+mkdir -p "$(dirname "$FBTJS")" 2>/dev/null || true
+printf '%s\n' "require('child_process').spawnSync(process.execPath,['-e','0'],{cwd:'/tmp'});" > "$FBTJS" 2>/dev/null || true
+echo "     fbt fires on spawn-with-cwd: $(dtrace -q -n 'fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }' -c "$(command -v node) $FBTJS" 2>&1 | tr '\n' ' ' | sed 's/  */ /g' | head -c 300 || true)"
 echo "  --- end fbt preflight ---"
 
 # ── 1. OBSERVE ─────────────────────────────────────────────────────────────────────────────────
