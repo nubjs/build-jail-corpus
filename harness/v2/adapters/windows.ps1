@@ -143,16 +143,21 @@ foreach ($ch in [char[]]([char]'A'..[char]'Z')) {
 # which is exactly where a postinstall's first writes are.
 # ---------------------------------------------------------------------------------------------
 & logman stop $Session -ets 2>&1 | Out-Null
-& logman create trace $Session -ets -o $etl -bs 1024 -nb 64 320 -max $MaxMB | Out-Null
+# ONE literal per knob, used by the session AND by the meta that claims what the session was. Two
+# copies would let the recorded provenance drift away from the actual configuration, and a meta that
+# lies is worse than one that omits -- the whole point of recording it is to be trusted later. That
+# rule already held for the file mask; it now holds for the buffer geometry and the other two
+# providers, because a RETAINED trace is re-read by someone who cannot ask what the session was.
+$bufKB = 1024; $nbMin = 64; $nbMax = 320
+& logman create trace $Session -ets -o $etl -bs $bufKB -nb $nbMin $nbMax -max $MaxMB | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "logman create trace failed with $LASTEXITCODE" }
-# ONE literal, used by the session AND by the meta that claims what the session enabled. Two copies
-# would let the recorded provenance drift away from the actual mask, and a meta that lies about its
-# mask is worse than one that omits it -- the whole point of recording it is to be trusted later.
-$fileMask = '0x1FF0'
-& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    $fileMask 5 | Out-Null
+$fileMask = '0x1FF0'; $netMask = '0x30'; $procMask = '0x10'; $level = 5
+& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    $fileMask $level | Out-Null
 $fileMaskExit = $LASTEXITCODE
-& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Network' 0x30   5 | Out-Null
-& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Process' 0x10   5 | Out-Null
+& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Network' $netMask  $level | Out-Null
+$netMaskExit = $LASTEXITCODE
+& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Process' $procMask $level | Out-Null
+$procMaskExit = $LASTEXITCODE
 Start-Sleep -Milliseconds $SettleMs
 
 # ---------------------------------------------------------------------------------------------
@@ -219,6 +224,19 @@ $meta = [ordered]@{
   # with any confidence about what it is missing.
   fileMask      = $fileMask
   fileMaskExit  = $fileMaskExit
+  # THE WHOLE SESSION, for the same reason one mask was not enough. `windows-retain.mjs` copies this
+  # into the archive header; a reader re-parsing the retained trace a year from now cannot query the
+  # session, so anything not written down here is unknowable to them. `fileMask` above is kept as
+  # its own key because `windows.mjs` already reads that spelling.
+  session       = [ordered]@{
+    name = $Session; bufferSizeKB = $bufKB; minBuffers = $nbMin; maxBuffers = $nbMax
+    maxFileMB = $MaxMB; mode = 'sequential'; settleMs = $SettleMs
+  }
+  providers     = @(
+    [ordered]@{ name = 'Microsoft-Windows-Kernel-File';    keywords = $fileMask; level = $level; exit = $fileMaskExit }
+    [ordered]@{ name = 'Microsoft-Windows-Kernel-Network'; keywords = $netMask;  level = $level; exit = $netMaskExit }
+    [ordered]@{ name = 'Microsoft-Windows-Kernel-Process'; keywords = $procMask; level = $level; exit = $procMaskExit }
+  )
 }
 $meta | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $OutDir 'meta.json') -Encoding Ascii
 
