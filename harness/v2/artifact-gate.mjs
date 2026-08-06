@@ -28,11 +28,19 @@
 // `measure.sh` instead — with the dependency's entry evicted the write is actually attempted and the
 // arm fails honestly on `rc`. The two mechanisms are complementary and neither subsumes the other.
 //
+// ⛔ THE GATE IS A SINGLE-ARM PREDICATE AND STAYS ONE. Whether a shortfall is grant-INDEPENDENT is a
+// cross-arm question that only the driver can see, so the gate does not answer it and does not soften
+// itself for it. What it adds is `shortfall=<digest>` — a stable identity for the shortfall, over the
+// FULL missing list including the sizes, not the truncated display line and not the count. The driver
+// compares those digests across arms. A count would be the wrong instrument: two arms each missing one
+// DIFFERENT file both read `missing=1`, which is a varying shortfall reported as an invariant one.
+//
 //   usage: artifact-gate.mjs --obs <dir> --arm <dir> --pkg <name> --ver <version>
 //   exit 0 = the arm reproduced OBSERVE; exit 1 = artifacts missing (named on stdout);
 //   exit 3 = OBSERVE itself produced nothing for this package, so there is nothing to gate on.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -135,7 +143,14 @@ else for (const [f, size] of obs) {
   if (!got.has(f)) missing.push(f);
   else if (got.get(f) < size) missing.push(`${f} (${got.get(f)}B < ${size}B)`);
 }
-console.log(`artifacts=${got ? got.size : 'ABSENT'}/${obs.size} missing=${missing.length}`);
+// Order the manifest walk produces is filesystem-dependent, so sort before digesting or two arms with
+// the same shortfall can disagree on its identity.
+const shortfall = missing.length
+  ? crypto.createHash('sha1').update(missing.slice().sort().join('\n')).digest('hex').slice(0, 12)
+  : 'none';
+console.log(
+  `artifacts=${got ? got.size : 'ABSENT'}/${obs.size} missing=${missing.length} shortfall=${shortfall}`,
+);
 if (missing.length) {
   console.log(`  missing: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
   process.exit(1);

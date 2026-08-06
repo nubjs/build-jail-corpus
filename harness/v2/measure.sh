@@ -63,6 +63,9 @@ done
   *) echo "⛔ --at-grant needs a JSON object, got: $AT_GRANT" >&2; exit 2 ;;
 esac
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# One `rc:shortfall-digest:ok|abs` line per grant-widening arm, appended by `verify()`. Read once, at
+# the foot of the ladder, to decide whether a shortfall responded to widening.
+ARM_LEDGER=""
 
 # ⛔ NOT UNDER /tmp. That path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all — it already produced one wrong all-clear.
@@ -426,6 +429,22 @@ verify () {
   gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
   echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
   printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
+  # ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
+  # block there for what it decides. Only the arms that actually WIDEN the grant are recorded: the
+  # `diag` arm is the SAME grant re-run under strace, so counting it would let a repeated point pose as
+  # corroboration, and `at-grant` belongs to DIRECT mode, which never reaches the ladder.
+  case "$label" in
+    diag|at-grant) ;;
+    *)
+      local sig; sig=$(printf '%s' "$gate" | head -1 | sed -n 's/.*shortfall=\([A-Za-z0-9]*\).*/\1/p')
+      # `?` for a gate line with no digest at all (an OBSERVE-less rc=3 arm, or a gate that failed to
+      # run). It can never equal another arm's digest, so an unreadable arm can only ever REFUSE the
+      # invariance claim — never silently support it.
+      local nmiss; nmiss=$(printf '%s' "$gate" | head -1 | sed -n 's/.*missing=\([0-9]*\).*/\1/p')
+      ARM_LEDGER="$ARM_LEDGER$rc:${sig:-?}:$(printf '%s' "$gate" | grep -qE 'artifacts=ABSENT|package absent' && echo abs || echo ok):${nmiss:-?}
+"
+      ;;
+  esac
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
   # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
   # Fall back to the exit code rather than passing an ungated arm off as measured.
@@ -616,4 +635,38 @@ do
     exit 0
   fi
 done
+# ── 5. BEFORE DECLARING NOTHING PASSED: DID THE SHORTFALL EVER RESPOND TO THE GRANT? ───────────
+#
+# ⛔ A SHORTFALL INVARIANT UNDER WIDENING IS NOT A CAPABILITY GAP, and everything above this line
+# assumes the opposite. The top rung is `{"write":"disk","network":true}` and the rung below it adds
+# `"read":"disk"`, so every axis this harness models reaches its maximum somewhere in the ladder; a
+# shortfall unchanged across all of them cannot be caused by a denied write, read or socket. But the
+# ladder reads one boolean per rung, so four arms that each exited 0 and each fell
+# short by the SAME files are indistinguishable from four arms that failed for four different reasons.
+# Both land here and the record is discarded. MEASURED on the 45 linux-x64 records in this repo: that
+# is 3 of 45, and one of them (`windows-foreground-love@0.6.1`) had a CORRECT narrow grant in hand —
+# its `{"write":{"project":true},"network":true}` arm exited 0 with all 18 artifacts present and 3
+# node-gyp bookkeeping files a few hundred bytes short, and the identical shortfall survived every rung
+# up to `write:"disk"`, under which no write can be denied at all.
+#
+# The predicate lives in `shortfall-invariance.mjs` — five clauses, one of them the safety clause that
+# keeps `<package absent>` out, all of them unit-tested in both polarities. It reads the SEQUENCE of
+# gate verdicts; it does not soften any one of them, and nothing here can make an arm pass that did not.
+#
+# ⛔ THE VERDICT IS `SUSPECT`, NOT `VERIFIED`, AND THE DIFFERENCE IS THE POINT. Grant-independence
+# proves the shortfall is not a capability gap; it does not prove the install was good, and this path
+# never runs the leave-one-out DESCENT that every genuine `VERIFIED` carries — so minimality is
+# unproven and the grant is a CANDIDATE. The record keeps it so the package is triageable instead of
+# discarded; `collate.mjs` keeps it out of the catalog, because publishing an unverified NARROW grant
+# is the under-granting direction and that is the one that breaks a real install.
+INV=$(printf '%s' "$ARM_LEDGER" | node "$HERE/shortfall-invariance.mjs" --arms 4); IRC=$?
+if [ "$IRC" -eq 0 ]; then
+  MISS_N=$(printf '%s' "$INV" | cut -d' ' -f2)
+  echo "  => ARTIFACT-GATE-SUSPECT $GRANT   (every arm rc=0 and the SAME $MISS_N-artifact shortfall at every"
+  echo "     grant up to write:\"disk\" — invariant under widening, so it is not a capability gap)"
+  echo "     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended."
+  echo "        Triage the shortfall against the arm's toolchain, not against the jail."
+  exit 0
+fi
+echo "  NOT-GRANT-INDEPENDENT ${INV#NOT-ESTABLISHED }"
 echo "  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly"

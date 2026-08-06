@@ -118,6 +118,19 @@ export function parseDriverLog(log) {
     if (/=>\s*MINIMAL\b/.test(l) || /grant is already empty/.test(l)) { out.minimality = 'MINIMAL'; continue; }
     if (/=>\s*DESCENT INCOMPLETE/.test(l)) { out.minimality = 'UNPROVEN'; continue; }
     if (out.verdict === 'MINIMUM') continue;
+    // ⛔ A SUSPECT GRANT IS RETAINED BUT IS NOT A MEASUREMENT, AND THE RECORD HAS TO SAY BOTH.
+    // The driver reaches this when every ladder arm exited 0 and fell short by the SAME files at every
+    // grant up to `write:"disk"` — a shortfall invariant under widening, so not a capability gap. The
+    // grant is kept because discarding it is the defect this verdict exists to fix (3 of 45 linux
+    // records, one of them with a correct narrow grant already in hand), but `verifiedBy` stays null
+    // and no `minimality` is claimed: the leave-one-out descent never ran. `collate.mjs` keeps the
+    // verdict out of the catalog on exactly that basis.
+    if (/=>\s*ARTIFACT-GATE-SUSPECT/.test(l)) {
+      out.verdict = 'ARTIFACT-GATE-SUSPECT';
+      out.grant = firstObject(l);
+      out.notes.push('artifact-shortfall-grant-independent');
+      continue;
+    }
     // ⛔ macOS's `=> UNDER-PREDICTED` IS A REAL FINDING, NOT AN INSTRUMENT FAILURE — and it has no
     // grant, because that driver has no ladder to repair one with. It gets its own verdict so the
     // collator excludes it from the catalog (there is no measured minimum) while the queue still

@@ -137,7 +137,7 @@ const platforms = new Set(records.map((r) => r.provenance?.platform).filter(Bool
 const byPackage = new Map();
 const excluded = {
   noVerdict: [], broken: [], harnessError: [], noStatePassed: [], refusedMalicious: [],
-  brokenWithoutJailToo: [], brokenInEnvironment: [],
+  brokenWithoutJailToo: [], brokenInEnvironment: [], artifactGateSuspect: [],
 };
 
 for (const r of records) {
@@ -168,6 +168,16 @@ for (const r of records) {
     continue;
   }
   if (r.verdict === 'NO-STATE-PASSED') { excluded.noStatePassed.push(`${r.pkg}@${r.version}`); continue; }
+  // ⛔ EXCLUDED FROM THE CATALOG DESPITE CARRYING A GRANT, AND THAT ASYMMETRY IS DELIBERATE. Every
+  // ladder arm exited 0 and fell short by the SAME artifacts at every grant up to `write:"disk"`, so
+  // the shortfall is invariant under widening and says nothing about capabilities — but the grant was
+  // never VERIFIED past that shortfall and its minimality was never descended. The record keeps it so
+  // the package is triageable instead of discarded; the catalog does not take it, because an
+  // unverified NARROW grant is the under-granting direction and that is the one that breaks installs.
+  if (r.verdict === 'ARTIFACT-GATE-SUSPECT') {
+    excluded.artifactGateSuspect.push(`${r.pkg}@${r.version} [${JSON.stringify(r.grant)}]`);
+    continue;
+  }
   // Its OWN bucket, not `noVerdict`. The OSV screen refusing a MAL-* package is a deliberate
   // answer and the screen working as designed — reporting it as "no verdict" invites someone to
   // go re-investigate a package that is refused on purpose. It is excluded from the catalog

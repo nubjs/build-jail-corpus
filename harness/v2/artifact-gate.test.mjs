@@ -105,6 +105,42 @@ test('an absent package directory fails loudly rather than passing vacuously', (
   assert.match(r.out, /absent/);
 });
 
+// ── `shortfall=<digest>`, the field the driver's grant-independence test compares across arms ──────
+//
+// ⛔ BOTH POLARITIES, FOR THE SAME REASON EVERY EXCLUSION ABOVE HAS BOTH. The digest exists so the
+// driver can tell "the same shortfall four times" from "four different shortfalls", and a digest that
+// only ever collides would report every failing ladder as grant-independent — which is the shape that
+// publishes a grant for a package whose install was genuinely broken.
+
+test('the same shortfall digests identically — what lets the driver call a shortfall invariant', () => {
+  const obs = tree('obs-sigsame', { 'index.js': 'x', 'build/out.o.d': 'FULL-DEP-FILE' });
+  const a = gate(obs, tree('arm-sigsame-a', { 'index.js': 'x', 'build/out.o.d': 'SHORT' }));
+  const b = gate(obs, tree('arm-sigsame-b', { 'index.js': 'x', 'build/out.o.d': 'SHORT' }));
+  assert.equal(a.code, 1, `the arm must still FAIL the gate — the digest is not a pass:\n${a.out}`);
+  const sig = (o) => /shortfall=(\w+)/.exec(o)?.[1];
+  assert.ok(sig(a.out), `line 1 must carry a shortfall digest:\n${a.out}`);
+  assert.equal(sig(a.out), sig(b.out), 'two arms short by the same file at the same size must agree');
+});
+
+test('⛔ two DIFFERENT single-file shortfalls digest differently — `missing=1` is not an identity', () => {
+  // The measured `mozjpeg@6.0.1` hazard in miniature: a count-based comparison reads `missing=1` on
+  // both arms and calls the shortfall invariant when it moved. Only the digest sees the difference.
+  const obs = tree('obs-sigdiff', { 'a.bin': 'AAAA', 'b.bin': 'BBBB' });
+  const a = gate(obs, tree('arm-sigdiff-a', { 'a.bin': 'AAAA' }));
+  const b = gate(obs, tree('arm-sigdiff-b', { 'b.bin': 'BBBB' }));
+  assert.match(a.out, /missing=1 /, `precondition: both arms must read missing=1:\n${a.out}`);
+  assert.match(b.out, /missing=1 /, `precondition: both arms must read missing=1:\n${b.out}`);
+  const sig = (o) => /shortfall=(\w+)/.exec(o)?.[1];
+  assert.notEqual(sig(a.out), sig(b.out), 'a shortfall on a DIFFERENT file must not share an identity');
+});
+
+test('a passing arm reports `shortfall=none` rather than a digest of nothing', () => {
+  const files = { 'index.js': 'x' };
+  const r = gate(tree('obs-signone', files), tree('arm-signone', files));
+  assert.equal(r.code, 0);
+  assert.match(r.out, /shortfall=none/, `a clean arm must be distinguishable from a shortfall:\n${r.out}`);
+});
+
 test('an empty reference refuses to gate rather than reporting success', () => {
   const obs = fs.mkdtempSync(path.join(os.tmpdir(), 'agate-obs-empty-'));
   const r = gate(obs, tree('arm-forempty', { 'index.js': 'x' }));
