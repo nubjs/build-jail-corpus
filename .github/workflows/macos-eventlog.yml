@@ -56,6 +56,13 @@ jobs:
       # kernel does not publish makes dtrace refuse to run the WHOLE script — so a compile failure
       # here does not degrade the measurement, it removes it, and every arm below would fail for a
       # reason with nothing to do with the hole.
+      # Runs BEFORE the dtrace compile, and offline, because it names the bad probe SPECIFICALLY
+      # where dtrace's own failure is "the script did not load". It is a necessary condition only —
+      # it cannot catch a wrong argument index or a clause that never fires, which is what the
+      # known-answer fixture below is for.
+      - name: Probe names, checked offline against the measured PRESENT set
+        run: node harness/v2/probes/check-probe-names.mjs
+
       - name: Does the extended adapter compile at all?
         run: |
           # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
