@@ -148,11 +148,21 @@ echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per ar
 # would bake in today's classifier and would need a re-measure the moment the scope set changes —
 # which it is changing right now, with `tmp`. So the log carries the syscall, its arguments, its
 # errno and the process identity, and no scope at all.
+#
+# ⛔ TWO PUBLISH PATHS EXIST AND THIS HONOURS BOTH, DELIBERATELY. The Linux lane writes STRAIGHT into
+# the record dir from `NUB_V2_EVENTS_OUT`, which `run-batch-v2.mjs` sets (and currently sets only for
+# linux); this lane also prints `EVENTLOG-FILE`, which `record.mjs` copies from. The env path is
+# cheaper when the batch runner is driving; the stdout path is the only one that works when the
+# driver is run STANDALONE, which is how every probe branch and every manual re-measure invokes it.
+# Honouring the variable here means the day that gate widens to darwin, nothing has to change.
 EVENTS="$OBS/events.ndjson"
 node "$HERE/adapters/macos-eventlog.mjs" "$OBS/trace.txt" --out "$EVENTS" \
      --pkg "$PKG" --version "$VER" --project "$OBS" --home "$USER_HOME" \
      > "$OBS/eventlog-stats.json" 2>&1
 EV_RC=$?
+if [ "$EV_RC" -eq 0 ] && [ -n "${NUB_V2_EVENTS_OUT:-}" ] && [ -s "$EVENTS.gz" ]; then
+  cp "$EVENTS.gz" "$NUB_V2_EVENTS_OUT" 2>/dev/null
+fi
 if [ "$EV_RC" -eq 0 ] && [ -s "$EVENTS.gz" ]; then
   # The record writer copies this file into the record dir. A path on stdout is the contract
   # because the three drivers already communicate with `record.mjs` through their stdout alone.
