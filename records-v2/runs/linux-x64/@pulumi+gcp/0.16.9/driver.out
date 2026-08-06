@@ -1,0 +1,45 @@
+### @pulumi/gcp@0.16.9   (/home/runner/v2-gzS9wP)
+  OBSERVE   rc=0 files=10637 trace=12773 lines
+  CLOSURE   230 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 9  /  whole traced tree 13
+    sockets script 26  /  whole traced tree 26
+  == WRITES the script actually performed ==
+    userHome      8
+    outside       1
+        /tmp/pulumi-plugin-tar3109935379
+  == NETWORK ==
+    AF_INET sockets: 26   distinct peers: 11
+        127.0.0.53:53
+        13.226.238.3:53
+        13.226.238.67:53
+        13.226.238.118:53
+        13.226.238.103:53
+        13.226.238.3:443
+        140.82.114.4:443
+        140.82.114.6:443
+        172.66.173.242:53
+        104.20.20.220:53
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 9
+        .pulumi
+        .pulumi/logs
+        .pulumi/logs/pulumi-20260806T124738-2822-plugin_install.log
+        .pulumi/plugins
+        .pulumi/plugins/resource-gcp-v0.16.9.lock
+        .pulumi/plugins/resource-gcp-v0.16.9.partial
+        .pulumi/plugins/resource-gcp-v0.16.9
+        .pulumi/plugins/resource-gcp-v0.16.9/pulumi-resource-gcp
+        /tmp/pulumi-plugin-tar3109935379
+  VERIFY[synth] rc=0 artifacts=697/697 missing=0 (tree 46260/10637) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=0 artifacts=697/697 missing=0 (tree 46260/10637) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  VERIFY[drop-writeuserHome] rc=0 artifacts=697/697 missing=0 (tree 46260/10637) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'write.userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: network write.userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
