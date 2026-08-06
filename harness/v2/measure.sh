@@ -58,7 +58,7 @@ GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ──
 verify () {
-  local grant="$1" label="$2"
+  local grant="$1" label="$2" tracer="${3:-}"
   local v="$ROOT/verify-$label"; mkdir -p "$v/pkg"
   # A unique package name per arm: nub's side-effects cache memoises a lifecycle outcome keyed on
   # package identity, so a reused name REPLAYS the previous arm's result with every precondition
@@ -79,8 +79,12 @@ verify () {
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
   ' "$v" "$PKG" "$grant" || return 1
-  ( cd "$v" && NUB_BUILD_JAIL_CATALOG="$v/cat.json" "$NUB" install > "$v/i.log" 2>&1
-    NUB_BUILD_JAIL_CATALOG="$v/cat.json" "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
+  # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
+  # as a parameter rather than a second copy of this function so the preconditions above — unique
+  # name, explicit `buildJail`, memo drop, override assertion — cannot drift between the arm that
+  # decides the verdict and the arm that explains it.
+  ( cd "$v" && NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
+    NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
   local rc=$?
   # ⛔ A malformed override WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   # assertion an arm can measure the SHIPPED policy while you believe it measured yours.
@@ -103,6 +107,51 @@ if verify "$GRANT" "synth"; then
   echo "  => MINIMUM $GRANT   (observed, then verified)"
   exit 0
 fi
+
+# ── 3b. DIAGNOSE — re-run the SAME failing grant JAILED, under strace, and name the refusal. ───
+#
+# ⛔ THIS EXISTS BECAUSE OBSERVING AN UNJAILED RUN STRUCTURALLY CANNOT PREDICT EVERY REFUSAL.
+# Step 1 enumerates what the script TOUCHED; it cannot enumerate what confinement will later REFUSE
+# on an axis the tracer does not cover, and it cannot see a path the script only reaches once some
+# earlier read succeeds. So an under-prediction is expected, and "the synthesized grant did not
+# verify" is worth nothing on its own — the ladder that follows says a WIDER grant worked, never
+# WHICH capability was missing.
+#
+# Every Linux `write:"disk"` package resolved so far was closed by exactly this arm, run BY HAND:
+# `dotnet-2.0.0@1.4.4`, `@nuxt/components@2.1.0`, `@tensorflow/tfjs-backend-wasm`, `codeceptjs`,
+# `postman-code-generators`, `react-native-purchases` — all six turned out to be ONE refused read
+# (`/proc/self/stat`, via yarn v1's `initPeakMemoryCounter` -> `process.memoryUsage()` -> libuv's
+# `uv_resident_set_memory`). Doing it by hand six times is what this automates.
+#
+# ⛔ THE GREP IS `= -1 EACCES`, NOT `EACCES`. A bare grep matches the `AT_EACCESS` FLAG NAME in
+# every `faccessat2(...)` line — measured, that read 26/13/1 where the truth was 11/0/0.
+#
+# The output is a LEAD, not a verdict: "last refusal before the process died" is correlation. It is
+# still the single most useful line the loop can print, because it turns "some grant was too narrow"
+# into a named path a human can act on in one step.
+diagnose () {
+  command -v strace > /dev/null 2>&1 || { echo "  DIAGNOSE skipped (no strace)"; return 0; }
+  local d="$ROOT/diag"; mkdir -p "$d"
+  verify "$GRANT" "diag" "strace -f -o $d/tr" > /dev/null 2>&1
+  local refusals
+  refusals=$(cat "$d"/tr-*.txt 2>/dev/null | grep -oE '"[^"]+"\)?[^=]*= -1 (EACCES|EPERM|EROFS)' \
+    | grep -oE '^"[^"]+"' | sort | uniq -c | sort -rn)
+  if [ -z "$refusals" ]; then
+    echo "  DIAGNOSE  ZERO filesystem refusals under the failing grant."
+    echo "     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,"
+    echo "       or a resource class strace's file+network filter does not carry."
+    return 0
+  fi
+  echo "  DIAGNOSE  refused paths under the failing grant (count, path):"
+  echo "$refusals" | head -12 | sed 's/^/     /'
+  # The last refusal before a process exits non-zero is the strongest single lead available.
+  local fatal
+  fatal=$(cat "$d"/tr-*.txt 2>/dev/null | grep -E '= -1 (EACCES|EPERM|EROFS)|\+\+\+ exited with [1-9]' \
+    | grep -B1 'exited with [1-9]' | grep -E '= -1 ' | tail -1)
+  [ -n "$fatal" ] && echo "     LAST REFUSAL BEFORE A NON-ZERO EXIT (a lead, not proof):" \
+    && echo "       $fatal" | cut -c1-200
+}
+diagnose
 
 # ── 4. FALL BACK — the ladder, retained, but walked UPWARD FROM the synthesized grant. ─────────
 # This is the ladder's real job: repairing a hypothesis, over a handful of states rather than 55.
