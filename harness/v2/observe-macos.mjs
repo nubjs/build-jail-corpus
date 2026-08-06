@@ -58,6 +58,16 @@ if (undeclared.length) {
   console.error('   Declare each one, or `null` where this platform genuinely has no such root.');
   process.exit(3);
 }
+// ⛔ ELEVEN ROOTS ARE REQUIRED; THREE ARE KEYED ON. That is deliberate and not an oversight.
+// R1 requires every root the classifier COULD key on to be DECLARED, because a root re-derived
+// later is a root re-derived from ambient state — the exact failure R2 exists to stop. Changing
+// which bucket a path lands in is a grant-semantics change and needs its own evidence, exactly as
+// the bytecode drop did. The OBSERVE arm is `npm rebuild` in a plain hoisted layout and never
+// touches nub's store, so inventing a bucket for a path this arm cannot produce would be policy
+// with no measurement under it.
+//
+// Only these three are destructured, and every use below is null-guarded — a `null` root must never
+// reach `startsWith`, which would match the literal string "null" and silently misclassify.
 const { project: proj, home, ownPkg: ownPkgDir } = roots;
 const pkgName = capture.pkg ?? null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
