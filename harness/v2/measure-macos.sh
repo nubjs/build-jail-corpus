@@ -46,6 +46,12 @@ npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log"
 if [ $? -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
+# ⛔ CHOWN AFTER THE FETCH, NOT ONLY BEFORE IT. The chown at $ROOT creation predates this fetch, and
+# the fetch runs as ROOT (the driver is under sudo for dtrace) — so every file npm just wrote is
+# root-owned, and the traced `npm rebuild`, which is dropped back to $RUNUSER, then dies on
+# `EACCES: permission denied, mkdir .../node_modules`. MEASURED on run 31086358188: that is what
+# @nuxt/components and codeceptjs reported once the dtrace -c defect stopped masking it.
+chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 
 # dtrace's `-c` word-splits its argument and execs it directly — there is no shell, so the command
 # cannot carry a redirect and cannot report its own exit status. A wrapper file supplies both.
