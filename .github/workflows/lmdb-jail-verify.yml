@@ -145,6 +145,7 @@ jobs:
         if: always()
         run: |
           set -uo pipefail
+          export NUB_V2_DIAG_AT_GRANT=1
           bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant '{"network":true}' > /tmp/armA.log 2>&1
           echo "ARM_A_EXIT=$?" | tee -a "$GITHUB_ENV"
           cat /tmp/armA.log
@@ -154,6 +155,7 @@ jobs:
         if: always()
         run: |
           set -uo pipefail
+          export NUB_V2_DIAG_AT_GRANT=1
           bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant '{"write":{"project":true},"network":true}' > /tmp/armB.log 2>&1
           echo "ARM_B_EXIT=$?" | tee -a "$GITHUB_ENV"
           cat /tmp/armB.log

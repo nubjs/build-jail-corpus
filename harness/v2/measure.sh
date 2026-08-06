@@ -492,6 +492,32 @@ verify () {
 if [ -n "$AT_GRANT" ]; then
   echo "  ── DIRECT: does $PKG@$VER install under EXACTLY $AT_GRANT ?"
   verify "$AT_GRANT" "at-grant"; ARC=$?
+  # ⛔ A PASS/FAIL IS NOT A MECHANISM, AND THIS MODE HAD NO WAY TO GET ONE. The ladder's
+  # `diagnose()` re-runs the FAILING arm under strace and censuses `= -1 EACCES/EPERM`, but it is
+  # defined below this block and keyed on the SYNTHESIZED grant, so DIRECT mode could only ever
+  # report that a stated grant was insufficient — never WHICH write was refused. A filesystem
+  # denial is a Landlock EACCES delivered to the process; nub logs nothing for it (only the
+  # network shim prints `WARN_NUB_JAIL_NET_DENIED`), so without a tracer the answer is unreachable.
+  #
+  # ⛔ THE CENSUS IS ALSO THE ONLY POSITIVE EVIDENCE AVAILABLE WHEN THE ARM PASSES. A jail that is
+  # not enforcing at all produces the same clean pass as a grant that genuinely suffices, so an
+  # arm that PASSES with a refusal census taken is worth more than one that merely exits 0.
+  #
+  # Opt-in, and it costs a second full arm — off by default so the batch driver is unaffected.
+  if [ "${NUB_V2_DIAG_AT_GRANT:-}" = "1" ] && command -v strace > /dev/null 2>&1; then
+    mkdir -p "$ROOT/diag"
+    verify "$AT_GRANT" "diag" "strace -f -o $ROOT/diag/tr" > "$ROOT/diag/arm.log" 2>&1
+    echo "  DIAG-AT-GRANT (a SECOND arm at the same grant, under strace)"
+    sed 's/^/     /' "$ROOT/diag/arm.log" | grep -E 'VERIFY\[|EVICT|OVERRIDDEN' || true
+    REF=$(cat "$ROOT/diag"/tr-*.txt 2>/dev/null | grep -oE '"[^"]+"\)?[^=]*= -1 (EACCES|EPERM|EROFS)' \
+      | grep -oE '^"[^"]+"' | sort | uniq -c | sort -rn)
+    if [ -z "$REF" ]; then
+      echo "     ZERO filesystem refusals under $AT_GRANT — nothing was denied at this grant."
+    else
+      echo "     refused paths under $AT_GRANT (count, path):"
+      printf '%s\n' "$REF" | head -20 | sed 's/^/       /'
+    fi
+  fi
   case "$ARC" in
     0) echo "  => SUFFICIENT $AT_GRANT   (installed, artifacts matched OBSERVE)"; exit 0 ;;
     2) echo "  => ⛔ VOID — the override did not engage; NOTHING was measured."
