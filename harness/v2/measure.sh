@@ -142,6 +142,24 @@ sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
 
+# ── 2b. RETAIN the decoded trace, when the batch driver asked for it. ──────────────────────────
+#
+# ⛔ THIS IS THE ONLY THING IN THE PIPELINE THAT SURVIVES `$ROOT`. `trace.txt` lives under a
+# `mktemp -d` this script deletes on exit, and the publisher only ever copies `driver.out` plus the
+# extracted verdict — so on an ephemeral runner every path a package touched has been discarded at
+# the end of every run this corpus has ever done. That is why a harness fix has always meant
+# RE-MEASURING (28–121 runner-hours per platform) rather than re-parsing.
+#
+# ⛔ IT RUNS AFTER SYNTHESIS AND FEEDS NOTHING BACK. `observe.mjs` above has already produced the
+# grant; this is a second, INDEPENDENT decode whose output no arm reads. Retention must not be able
+# to move a verdict, and the cheapest way to guarantee that is for the verdict to be computed first
+# and by a different decoder. A failure here is deliberately non-fatal for the same reason.
+if [ -n "${NUB_V2_EVENTS_OUT:-}" ]; then
+  node "$HERE/adapters/linux.mjs" "$OBS/trace.txt" \
+    --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" \
+    --pkg "$PKG" --version "$VER" --out "$NUB_V2_EVENTS_OUT" 2>&1 | sed 's/^/  /'
+fi
+
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ──
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
