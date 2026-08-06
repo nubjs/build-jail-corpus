@@ -1,52 +1,73 @@
-### playwright-chromium@0.17.0   (/home/runner/v2-91evC5)
-  OBSERVE   rc=0 files=521 trace=21520 lines
+### playwright-chromium@0.17.0   (/home/runner/v2-qHiSrK)
+  OBSERVE   rc=0 files=521 trace=23306 lines
   CLOSURE   38 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 651  /  whole traced tree 654
-    sockets script 3  /  whole traced tree 3
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 654  /  whole traced tree 1741
+    sockets script 4  /  whole traced tree 4
   == WRITES the script actually performed ==
-    jailHome    650  (base profile already grants this — NOT billed)
-        /home/runner/v2-91evC5/jailhome/.cache
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/.links
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/.links/39973501803a344039a4255d4f4968117c9d6a69
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/chrome_100_percent.pak
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/
-        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/
-        … and 640 more
-    outside       1
-        /tmp/playwright-download-chromium-linux-764964.zip
+    userHome    653
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsgcddQy/playwright-download-chromium-linux-764964.zip
   == NETWORK ==
-    AF_INET sockets: 3   distinct peers: 10
+    AF_INET sockets: 4   distinct peers: 2
         127.0.0.53:53
-        34.3.1.27:0
-        34.3.0.27:0
-        104.154.124.27:0
-        104.154.125.27:0
-        34.144.171.27:0
-        34.153.3.27:0
-        34.153.2.27:0
-        34.144.170.27:0
-        34.3.1.27:443
+        142.250.73.91:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"network":true}
-    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    {"write":{"userHome":true},"network":true}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 1
-        /tmp/playwright-download-chromium-linux-764964.zip
-  VERIFY[synth] rc=1 artifacts=6/6 missing=0 (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-  DIAGNOSE  refused paths under the failing grant (count, path):
-           6 "/proc/self/maps"
-           2 "/proc/version_signature"
-           2 "/proc/self/cgroup"
-     LAST REFUSAL BEFORE A NON-ZERO EXIT (a lead, not proof):
-       4118  <... mkdir resumed>)              = -1 EACCES (Permission denied)
-  synthesized grant did not verify — falling back to a bounded ladder
-  VERIFY[fb2126003217] rc=0 artifacts=6/6 missing=0 (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
-  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+    count: 653
+        .cache
+        .cache/nub
+        .cache/nub/pm
+        .cache/nub/pm/tools
+        .cache/nub/pm/tools/ms-playwright
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/51d12f4854fea5665ebf81b046d1edd11960df37
+        .cache/nub/pm/tools/ms-playwright/chromium-764964
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/chrome_100_percent.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/libclearkeycdm.so
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/xdg-mime
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/nacl_helper_nonsfi
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/MEIPreload
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/MEIPreload/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/MEIPreload/preloaded_data.pb
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/nacl_helper_bootstrap
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/crashpad_handler
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/icudtl.dat
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/chrome_200_percent.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/pt-PT.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/sk.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/fr.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/it.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/ms.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/bg.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/lv.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/fa.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/pl.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/sl.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/am.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/sv.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/sw.pak.info
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/tr.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/bn.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/ar.pak.info
+        … and 613 more
+    EVENTS    6838 distinct from 23195 calls (23307 lines, 84 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×29 exit×20 setsockopt×17 getsockopt×13 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/work/build-jail-corpus/build-jail-corpus/records-v2/runs/linux-x64/playwright-chromium/0.17.0/events.ndjson.gz (45186 bytes)
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  VERIFY[drop-writeuserHome] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     'write.userHome' is NECESSARY — dropping it fails to verify
+  => OVER-PREDICTED by: network  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
