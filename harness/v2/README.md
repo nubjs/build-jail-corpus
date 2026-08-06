@@ -65,12 +65,26 @@ OBSERVE still runs, and must — the artifact gate needs its file manifest as th
 
 Three operating systems means three tracers and three parsers (strace, dtrace, ETW). That is fine by design — the OSes share no observation mechanism, so a common implementation was never available. What matters is knowing how much each one has earned. Stated honestly, because the weakest link is where a wrong grant enters the catalog:
 
-| | tracer | parser unit tests | end-to-end evidence |
-| --- | --- | --- | --- |
-| **linux** | `strace -f` | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
-| **macos** | dtrace (`macos-observe.d`) | **9** (`observe-macos.test.mjs`) | ⛔ none at corpus scale |
-| **windows** | ETW (`windows.ps1`) | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
-| *shared* | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
+| | tracer | store eviction | parser unit tests | end-to-end evidence |
+| --- | --- | --- | --- | --- |
+| **linux** ✅ RUNNING | `strace -f` | root + transitive, nub tooling spared | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
+| **macos** ⛔ **DISABLED** | dtrace (`macos-observe.d`) | ⛔ **NONE** | **9** (`observe-macos.test.mjs`) | ⛔ none at corpus scale |
+| **windows** ⛔ **DISABLED** | ETW (`windows.ps1`) | ⛔ **root only** | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
+| *shared* | — | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
+
+⛔⛔ **TWO OF THE THREE LANES ARE HARD-DISABLED, AND THE EVICTION COLUMN IS WHY.** Each driver exits 3 immediately with an explanation; `measure-macos.sh` and `measure-windows.mjs` carry the full reasoning and a lift procedure above their guard. **Linux is the only lane producing trustworthy rows today.**
+
+The store eviction is not housekeeping — it is what makes two arms independent. A package still materialized in the machine-global virtual store is **relinked, not reinstalled**, so its lifecycle script never runs; the arm then **passes at whatever grant is under test, including one narrower than the package needs**. That is an **under-grant**, and under-granting breaks real users' installs while over-granting only wastes capability. `measure.sh` records the measured case, three runs on one binary differing only in what was evicted:
+
+```
+evict rover only              {"network":true}             rc=0  bin/ EMPTY   -> false PASS
+evict rover + binary-install  {"network":true}             rc=1  bin/ absent  -> correct FAIL
+evict rover + binary-install  {"write":{"deps":true},...}  rc=0  bin/ rover,README.md,LICENSE
+```
+
+⇒ **Root-only eviction is precisely the arm that falsely passed**, so Windows' narrower scope makes it rarer, not safer. macOS evicts nothing at all and mitigates with a per-arm `NUB_CACHE_DIR` — a remedy `measure.sh` records as measured-insufficient, because the cache dir and the virtual store are resolved by different functions.
+
+⛔ **Any darwin-arm64 or win32 record written before those guards is suspect in the UNSAFE direction** — re-measure it rather than trusting it. Linux rows written before `67c01911` skew **wide** instead (the node-gyp collision failed arms spuriously), which is safe for users but inflates the headline `write:"disk"` metric.
 
 The unit suites are worth their cost because they cover the *same* semantic hazards independently on Linux and macOS — a symlink into the real user home, `rename` billing **both** ends, a failed call not counting as a need, an unattributed run yielding `UNKNOWN` rather than an empty grant. Two parsers agreeing on those, written separately, is most of the cross-parser confidence there is. The artifact gate's suite carries the one assertion nobody may relax: **`.npmrc` is not excused by the packaging-metadata exclusion.**
 
