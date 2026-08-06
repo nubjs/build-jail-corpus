@@ -1,0 +1,51 @@
+### sharp@0.32.6   (/home/runner/v2-CSAdeG)
+  OBSERVE   rc=0 files=564 trace=12366 lines
+  CLOSURE   54 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 15
+    writes  script 17  /  whole traced tree 20
+    sockets script 10  /  whole traced tree 10
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+    jailHome      3  (base profile already grants this — NOT billed)
+        /home/runner/v2-CSAdeG/jailhome/.npm/_libvips
+        /home/runner/v2-CSAdeG/jailhome/.npm/_prebuilds
+        /home/runner/v2-CSAdeG/jailhome/.npm/_prebuilds/dbcc16-sharp-v0.32.6-napi-v7-linux-x64.tar.gz.4370-83b790fc54b3.tmp
+    outside       1
+        /tmp/4371-libvips-8.14.5-linux-x64.tar.br
+    ownPkg       12  (base profile already grants this — NOT billed)
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/libvips-cpp.so.42
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/glib-2.0/
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/platform.json
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/versions.json
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/THIRD-PARTY-NOTICES.md
+        /home/runner/v2-CSAdeG/observe/node_modules/sharp/build
+        … and 2 more
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 7
+        127.0.0.53:53
+        140.82.114.4:443
+        185.199.111.133:0
+        185.199.109.133:0
+        185.199.108.133:0
+        185.199.110.133:0
+        185.199.111.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        /tmp/4371-libvips-8.14.5-linux-x64.tar.br
+  VERIFY[synth] rc=0 artifacts=47/47 missing=0 (tree 2007/564) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=42/47 missing=5 (tree 1990/564) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Release/sharp-linux-x64.node, vendor/8.14.5/linux-x64/THIRD-PARTY-NOTICES.md, vendor/8.14.5/linux-x64/lib/libvips-cpp.so.42, vendor/8.14.5/linux-x64/platform.json, vendor/8.14.5/linux-x64/versions.json
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
