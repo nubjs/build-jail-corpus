@@ -241,7 +241,10 @@ else
 fi
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "$USER_HOME" > "$ROOT/observed.txt" 2>&1
+# ⛔ `$PKG` IS LOAD-BEARING, NOT DECORATION. Without it the decoder has no `ownPkg` bucket and bills
+# every write into the package's OWN directory as `write.deps` — a capability the base profile
+# already grants. `measure.sh:194` passes it for the same reason.
+node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }

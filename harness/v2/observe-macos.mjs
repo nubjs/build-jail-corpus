@@ -11,11 +11,14 @@
 // because npm writes `~/.npm/_logs` and opens TLS sockets on every run. dtrace's `progenyof()`
 // already narrowed the stream to the npm subtree; this narrows it to the lifecycle shell's.
 //
-//   usage: node observe-macos.mjs <dtrace-log> <project-root> <home>
+//   usage: node observe-macos.mjs <dtrace-log> <project-root> <home> [pkgName]
 import fs from 'node:fs';
 
-const [file, proj, home] = process.argv.slice(2);
-if (!file) { console.error('usage: observe-macos.mjs <log> <projectRoot> <home>'); process.exit(2); }
+const [file, proj, home, pkgName] = process.argv.slice(2);
+if (!file) { console.error('usage: observe-macos.mjs <log> <projectRoot> <home> [pkgName]'); process.exit(2); }
+// The package's own directory. Its jail counterpart is the store entry, which the base profile
+// already grants RW — see the `ownPkg` note on `scope()` below.
+const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
 // Darwin open(2) flags. Any of these means the fd may be written through; O_RDONLY is 0x0 and so
@@ -211,7 +214,26 @@ for (const raw of lines) {
   if (mine(pid)) (w ? writes : reads).add(path);
 }
 
+// ⛔ `ownPkg` IS A SCOPE THE JAIL ALREADY GRANTS, AND BILLING IT MANUFACTURES A CAPABILITY.
+// `store_entry_write_root` grants RW on the package's own store entry, and under the isolated
+// layout `<project>/node_modules/<pkg>` is a SYMLINK into that entry — so a script writing into its
+// own directory is writing into space the base profile handed it. A write to a SIBLING dependency
+// does NOT resolve there and stays `deps`. Ported from `observe.mjs:162,193`, where it has shipped
+// across 45 Linux records; the long derivation from `preset.rs` lives there and is not duplicated.
+//
+// MEASURED, and it is why this is not a cosmetic tidy-up: `hugo-extended@0.141.0` is the only
+// darwin-arm64 record taken without this bucket, and all four of its billed writes are
+// `node_modules/hugo-extended/vendor/*` — its own directory. It synthesized
+// `{"write":{"deps":true},"network":true}` where Linux synthesized `{"network":true}` for the same
+// package, and the NARROW arm then spent a second jailed run rediscovering that `write.deps` was
+// never needed. Re-parsing that record's retained `trace.txt.gz` through this bucket yields
+// `{"network":true}` at synthesis. Since most install scripts write into their own directory
+// (native builds, downloaded binaries, generated shims), the old behaviour was a systematic
+// over-grant on every macOS record plus a redundant arm on the platform with the scarcest runners.
+//
+// Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {
+  if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (proj && p.startsWith(proj)) return p.includes('/node_modules/') ? 'deps' : 'project';
   if (home && p.startsWith(home)) return 'userHome';
   // macOS has no /proc. The nearest equivalent read floor is the shared cache and the system
@@ -262,7 +284,10 @@ if (lifecycle.size === 0) {
 }
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
-  console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);
+  // Naming the free scopes in the log is what stops a reader reconciling a bucket against the grant
+  // and concluding the synthesis dropped a write it deliberately did not bill.
+  const free = k === 'ownPkg' ? '  (base profile already grants this — NOT billed)' : '';
+  console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}${free}`);
   if (k === 'outside' || k === 'systemfs') v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
 }
 console.log('== READS the script performed, by scope ==');

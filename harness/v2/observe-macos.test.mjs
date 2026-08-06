@@ -18,13 +18,16 @@ import { join } from 'node:path';
 const HERE = new URL('.', import.meta.url).pathname;
 
 // Runs the decoder over a literal trace and returns its stdout.
-const decode = (trace, { proj = '/proj', home = '/Users/runner' } = {}) => {
+// `pkg` is optional on purpose, mirroring the decoder: every case written before the `ownPkg`
+// bucket existed still exercises the no-package path, which is the path a re-parse of an archive
+// recorded without one has to keep taking.
+const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'obsmac-'));
   const f = join(dir, 'trace.txt');
   writeFileSync(f, trace.trimStart() + '\n');
-  return execFileSync(process.execPath, [join(HERE, 'observe-macos.mjs'), f, proj, home], {
-    encoding: 'utf8',
-  });
+  const args = [join(HERE, 'observe-macos.mjs'), f, proj, home];
+  if (pkg) args.push(pkg);
+  return execFileSync(process.execPath, args, { encoding: 'utf8' });
 };
 
 const attributed = (out) => Number(/lifecycle pids: (\d+)/.exec(out)?.[1] ?? -1);
@@ -250,4 +253,43 @@ PATHOP|3958|3950|node|mkdirat|ret=0|errno=0|ev=2|dirfd=-2|role=only|rel/phantom-
 `);
   assert.match(out, /writes\s+script 1\b/, 'AT_FDCWD resolves against the cwd, so this is billable');
   assert.doesNotMatch(out, /NOTE 1 relative path/, 'and nothing is dropped');
+});
+
+// ── 6. THE `ownPkg` BUCKET ────────────────────────────────────────────────────────────────────
+//
+// The pair below is one boundary, tested from both sides. Only the pair is meaningful: the
+// negative case alone would pass on a decoder that had stopped billing writes entirely.
+const OWN_VS_SIBLING = `
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|node install.js
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj/node_modules/kaf-lifecycle
+PATHOP|3952|3950|node|mkdir|ret=0|errno=0|/proj/node_modules/kaf-lifecycle/build
+PATHOP|3952|3950|node|mkdir|ret=0|errno=0|/proj/node_modules/sibling-dep/bin
+`;
+
+test('a write into the package\'s OWN directory is not billed — the base profile already grants it', () => {
+  // RED ON REVERT: drop the `ownPkg` arm from `scope()` and this write buckets as `deps`, which
+  // synthesizes `write.deps` — authority over every sibling dependency, manufactured out of a
+  // package writing its own build output. MEASURED on hugo-extended@0.141.0, the first
+  // darwin-arm64 record: all four of its billed writes were its own `vendor/*`.
+  const out = decode(OWN_VS_SIBLING, { pkg: 'kaf-lifecycle' });
+  assert.match(out, /ownPkg\s+1\s+\(base profile already grants this/, 'own write is free and says so');
+  assert.equal(grant(out), '{"write":{"deps":true}}', 'and ONLY the sibling write survives into the grant');
+});
+
+test('a write into a SIBLING dependency is still billed, because the jail genuinely refuses it', () => {
+  // The positive control. `store_entry_write_root` grants the package's OWN entry only, so a
+  // sibling write is a real refusal in the jail and a real capability here. Without this case the
+  // assertion above is satisfied by a decoder that bills nothing at all.
+  const out = decode(OWN_VS_SIBLING, { pkg: 'kaf-lifecycle' });
+  assert.match(out, /deps\s+1$/m, 'exactly the sibling write lands in deps');
+});
+
+test('with no package name the decoder bills as it always did, so an old archive re-parses unchanged', () => {
+  // Re-parsing is the whole point of retaining the raw trace. A decoder that REQUIRED the package
+  // name would refuse every archive taken before the argument existed.
+  const out = decode(OWN_VS_SIBLING);
+  assert.doesNotMatch(out, /ownPkg/, 'no package name means no ownPkg bucket');
+  assert.equal(grant(out), '{"write":{"deps":true}}', 'both writes fall to deps, as before');
 });
