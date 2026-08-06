@@ -94,8 +94,13 @@ const scopeOf = (p) => {
 // are therefore every cmd.exe exec that is NOT the root, and the attributed set is the union of
 // the subtrees rooted at them. Verified against the dprint trace in README-windows.md, where this
 // admits the install.js/powershell/download subtree and excludes npm's own registry connection.
+// The shell predicate is per-platform because the shell is. npm reaches a lifecycle script through
+// `cmd.exe` on Windows and through `sh -c` everywhere else, so a Windows-only pattern makes every
+// POSIX trace resolve to ZERO lifecycle pids — which the UNKNOWN warning below reports honestly, but
+// which leaves the classifier unable to score a macOS or Linux run at all. Matched on the normalized
+// image basename, so `/bin/sh` and a `/usr/local/bin/bash` both land.
 const rootPid = Number(val('--root-pid', '0'));
-const SHELL = /(^|\\)cmd\.exe$/i;
+const SHELL = WIN ? /(^|\\)cmd\.exe$/i : /(^|\/)(sh|bash|zsh|dash)$/;
 
 const parsed = [];
 let n = 0, bad = 0;

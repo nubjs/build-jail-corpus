@@ -264,8 +264,24 @@ const viaSampler = (pid) => {
   }
   return false;
 };
-const subtreePids = new Set([...parentOf.keys()].filter((p) => inSubtree(p) && !viaSampler(p)));
+// ⛔ AND NEITHER MUST THE ADAPTER OBSERVE ITSELF. This process is a SEED, so it satisfies the
+// closure and its own file activity — the bracket sentinels it writes and unlinks, its tmpdir, the
+// trace logs it opens — was being emitted as though the package had done it. Measured: a worklist
+// run attributed 80 unmapped writes to /private/tmp/macos-adapter-*/sentinel-*, which are the
+// control's own probe files. Same defect as the sampler, one level up.
+//
+// Excluded from the SET only, never from the ancestry WALK: the traced command is a descendant of
+// this process, so removing it from the walk would orphan the entire subtree.
+const subtreePids = new Set([...parentOf.keys()]
+  .filter((p) => inSubtree(p) && !viaSampler(p) && p !== process.pid));
 diag.counts.sampler_pids_excluded = [...parentOf.keys()].filter((p) => inSubtree(p) && viaSampler(p)).length;
+diag.counts.adapter_self_excluded = parentOf.has(process.pid) ? 1 : 0;
+// The traced command's own root pid, which classify.mjs needs as --root-pid to tell the launching
+// shell apart from the lifecycle shells beneath it. With `sudo -u`, `env` execs the command in the
+// same process as sudo's forked child, so that child IS the traced root.
+const childKids = [...parentOf.entries()].filter(([, pp]) => pp === childPid).map(([p]) => p);
+diag.traced_root_pid = asUser ? (childKids.length === 1 ? childKids[0] : null) : childPid;
+diag.traced_root_candidates = childKids;
 diag.counts.subtree_pids = subtreePids.size;
 diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).filter(Boolean))];
 // When the closure comes back empty the question is always "which link is missing?", and answering

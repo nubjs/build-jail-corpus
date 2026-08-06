@@ -67,6 +67,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The classifier is shared by all three adapters, so its golden cases gate this job rather than
+      # only the platform that happened to touch it last. Pure function, no tracing, no root.
+      - name: Shared classifier golden cases
+        run: node harness/v2/classify.test.mjs
+
       - name: Host facts
         run: |
           sw_vers; uname -m
@@ -163,8 +168,13 @@ jobs:
             echo "  adapter rc=$?  events=$(wc -l < "$P/events.ndjson" 2>/dev/null | tr -d ' ')"
             grep -E 'FATAL|WARN' "$P/adapter.log" | sed 's/^/    /' | head -5
             grep -oE '"subtree_pids":[0-9]+|"refusals":[0-9]+' "$P/adapter.log" | tr '\n' ' ' | sed 's/^/    /'; echo
+            # --root-pid is what separates the LAUNCHING shell from the lifecycle shells beneath it.
+            # Without it the launcher counts as lifecycle and npm's own cache and registry traffic
+            # are attributed to the package — a 100% over-prediction on every row.
+            RP=$("$NODE" -e 'const d=require(process.argv[1]);process.stdout.write(String(d.traced_root_pid??0))' "$P/diag.json" 2>/dev/null || echo 0)
+            echo "    traced_root_pid=$RP"
             "$NODE" "$GITHUB_WORKSPACE/harness/v2/classify.mjs" "$P/events.ndjson" \
-              --project "$P" --deps "$P/node_modules" --home "$HOME" 2>&1 | sed 's/^/    /'
+              --project "$P" --home "$HOME" --platform darwin --root-pid "$RP" 2>&1 | sed 's/^/    /'
           }
           run_one C1 '@airbnb/node-memwatch@3.0.0'          'null (needs nothing)'
           run_one C2 '@apollo/rover@0.23.0'                 'network only'
