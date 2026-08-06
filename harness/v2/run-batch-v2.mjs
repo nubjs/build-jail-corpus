@@ -102,9 +102,12 @@ for (const spec of specs) {
   // disk — the same trap `record.mjs` documents for `driver.out`. `.ndjson.gz` is tracked.
   fs.mkdirSync(dir, { recursive: true });
   // ⛔ THE PLATFORM GATE IS ABOUT WHICH DRIVER HAS A RETENTION PATH, NOT ABOUT WHICH OS DESERVES
-  // ONE. It read `=== 'linux'` because `measure.sh` was the only driver carrying the hook;
-  // `measure-windows.mjs` does not use `measure.sh` and so got nothing. macOS is still excluded for
-  // the same reason and for no other — `measure-macos.sh` has no retention step yet.
+  // ONE — and as of now ALL THREE DRIVERS HAVE ONE, so the gate below only decides whether this
+  // file ALSO hands the driver an explicit destination. macOS is excluded on purpose rather than
+  // for want of a retention step: `measure-macos.sh` publishes through its stdout markers, which
+  // `record.mjs` copies from, and so needs no variable. `measure.sh` now does both, and its marker
+  // path is the primary — which is what makes a STANDALONE driver run (every probe branch, every
+  // manual re-measure) retain as much as a batched one, where previously it retained nothing.
   //
   // ⛔ WINDOWS RETAINS TWO ARTIFACTS AND THEY ARE NOT PEERS. `etw-raw.xml.gz` is the ARTIFACT OF
   // RECORD — tracerpt's XML byte-for-byte, so a decoder bug is a re-parse; `events.ndjson.gz` is a

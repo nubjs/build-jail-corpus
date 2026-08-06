@@ -190,6 +190,95 @@ CLOSURE=$(node -e '
 ' "$OBS/node_modules" 2>/dev/null)
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
 
+# ── 1b. RETAIN THE RAW TRACE — THE ARTIFACT OF RECORD ──────────────────────────────────────────
+#
+# ⛔ THE RAW `strace` OUTPUT IS THE ARCHIVE. THE NORMALIZED STREAM AT 2b IS A DERIVED CACHE. Ported
+# from `measure-macos.sh`, which had it first; the reasoning is the maintainer's and it corrects a
+# mistake one layer out from retaining scope tags — a normalized event stream bakes in TODAY'S
+# DECODER exactly as a scope tag bakes in today's classifier. Neither loss is hypothetical:
+#
+#   * this lane's decoder split 287 of 363 clone edges across `<unfinished ...>` and never matched
+#     them, losing each child's inherited cwd and FABRICATING 70 paths no process touched.
+#   * the macOS adapter lost 100% of rename DESTINATIONS, silently, for its entire existence.
+#
+# Both were decoder losses, so both are INVISIBLE in a derived view by construction. With the raw
+# kept, that class of bug is a re-parse; without it, a re-measure — or a hole nobody can see. So if
+# only one of the two files can survive, THIS is the one.
+#
+# ⛔ IT RUNS BEFORE SYNTHESIS, AND THAT ORDERING IS DELIBERATE AND DIFFERENT FROM 2b's. `gzip` and a
+# metadata dump cannot feed anything back into a grant, so the "compute the verdict first" argument
+# that governs 2b does not apply here — while the case where the archive is worth MOST is exactly
+# the one where synthesis fails and `exit 1` runs, taking `$ROOT` with it. Retaining after synthesis
+# would discard the trace precisely when it is needed.
+#
+# ⛔ A RAW TRACE WITHOUT ITS CAPTURE PARAMETERS IS WORTH FAR LESS THAN IT LOOKS. A trace with no
+# `linkat` records means "linkat never fired" under one filter and "linkat was never SUBSCRIBED"
+# under another, and nothing in the byte stream tells them apart. On Linux the subscription is the
+# `-e trace=` class expression, whose MEMBERSHIP is defined by the strace build — so the filter and
+# the strace version are recorded together, because neither answers the question alone.
+CAPTURE="$OBS/capture.json"
+node -e '
+  const fs = require("fs"), crypto = require("crypto");
+  const [trace, obs, home, jailHome, jailTmp, tools, pkg, ver, straceV, kern, distro, here] = process.argv.slice(1);
+  const sha = (p) => { try { const b = fs.readFileSync(p); return { path: "harness/v2/" + p.slice(here.length + 1), sha256: crypto.createHash("sha256").update(b).digest("hex"), bytes: b.length }; } catch { return null; } };
+  const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
+  const lines = () => { try { return fs.readFileSync(trace, "utf8").split("\n").length - 1; } catch { return null; } };
+  console.log(JSON.stringify({
+    v: 1,
+    kind: "capture",
+    platform: `linux-${process.arch}`,
+    pkg, version: ver,
+    tracer: "strace",
+    // The exact invocation, verbatim. A paraphrase is the thing that goes stale.
+    invocation: "strace -f -e trace=file,network,process -o trace.txt npm rebuild --no-audit --no-fund <pkg>",
+    // ⛔ THE CLASS EXPRESSION *AND* THE VERSION. `file` is not a fixed list — which syscalls it
+    // expands to is a property of the strace binary, so recording one without the other leaves
+    // "was `linkat` subscribed?" unanswerable, which is the whole point of this file.
+    subscribes: { traceFilter: "file,network,process", followForks: true, straceVersion: straceV },
+    // Hashed by CONTENT, not by a version number someone must remember to bump. `observe.mjs`
+    // produced the GRANT in this record; `adapters/linux.mjs` produced the derived view at 2b. A
+    // re-parse needs to know which revision of each answered, and they move independently.
+    decoders: { synthesizer: sha(`${here}/observe.mjs`), derived: sha(`${here}/adapters/linux.mjs`) },
+    os: { kernel: kern, distro },
+    // ⛔ EVERY PATH IN THE TRACE IS MACHINE-SPECIFIC. Without these a future classifier cannot tell
+    // a project write from a home write and the archive is a pile of strings. These are exactly the
+    // arguments `observe.mjs` and `adapters/linux.mjs` take, and they must stay in step with them.
+    roots: { project: obs, home, jailHome, jailTmp, tools, npmPrefix: `${tools}/npm-prefix`,
+             ownPkg: `${obs}/node_modules/${pkg}` },
+    // ⛔ THE OBSERVE/VERIFY PARITY CONTRACT, RECORDED. These five rewrites are what make the traced
+    // run reproduce the environment the real jail creates; a script reading `os.tmpdir()` writes to
+    // a DIFFERENT path without them. When that set changes, a trace taken under the old set is not
+    // comparable to one taken under the new, and this is the only place that would say so.
+    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1",
+                  PLAYWRIGHT_BROWSERS_PATH: `${tools}/ms-playwright`,
+                  ELECTRON_CACHE: `${tools}/electron-cache`,
+                  electron_config_cache: `${tools}/electron-cache`,
+                  npm_config_prefix: `${tools}/npm-prefix` },
+    // ⛔ `rawLines` COUNTS NEWLINE-TERMINATED LINES while the decoder `stats.lines` counts the
+    // split, so the two differ by exactly 1 on a well-formed trace. Both are correct under their
+    // own names; noted here so the difference is not chased as a loss.
+    // (No apostrophes in this block: it lives inside a single-quoted `node -e` script.)
+    rawBytes: st(trace), rawLines: lines(),
+    at: new Date().toISOString(),
+  }, null, 2));
+' "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$PKG" "$VER" \
+  "$(strace -V 2>/dev/null | head -1)" "$(uname -a 2>/dev/null)" \
+  "$( (. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME") || echo unknown)" "$HERE" \
+  > "$CAPTURE" 2>/dev/null
+gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
+if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
+  # `record.mjs` copies by PATH off these two stdout lines, and its handling is platform-agnostic —
+  # printing them is the entire adoption cost of retention for a driver.
+  echo "  RAWLOG-FILE $OBS/trace.txt.gz"
+  echo "  RAWLOG-CAPTURE $CAPTURE"
+  echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
+else
+  # ⛔ NOT FATAL, BUT NEVER SILENT. Retention is additive to the measurement, so losing it must not
+  # cost a measured package — but a record that carries a verdict and no evidence is the exact state
+  # this machinery exists to end, and `record.mjs` turns this line into a `rawlog-missing` note.
+  echo "  ⛔ RAW TRACE NOT RETAINED — the archive artifact is missing for this record"
+fi
+
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" "$JAIL_TMP" \
   "$JAIL_TOOLS/npm-prefix" > "$ROOT/observed.txt" 2>&1
@@ -197,22 +286,42 @@ sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
 
-# ── 2b. RETAIN the decoded trace, when the batch driver asked for it. ──────────────────────────
+# ── 2b. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────
 #
-# ⛔ THIS IS THE ONLY THING IN THE PIPELINE THAT SURVIVES `$ROOT`. `trace.txt` lives under a
-# `mktemp -d` this script deletes on exit, and the publisher only ever copies `driver.out` plus the
-# extracted verdict — so on an ephemeral runner every path a package touched has been discarded at
-# the end of every run this corpus has ever done. That is why a harness fix has always meant
-# RE-MEASURING (28–121 runner-hours per platform) rather than re-parsing.
+# ⛔ DERIVED, AND REGENERABLE FROM `trace.txt.gz` AT 1b. This is the file anyone will actually query
+# — greppable, one JSON object per event, paths already resolved — but it is a CACHE, not the
+# archive. If it disagrees with the raw trace, the raw trace is right; a decoder bug rebuilds this
+# file rather than re-measuring the package. That ordering is the whole reason 1b exists.
+#
+# ⛔ WHAT IS RETAINED IS THE RAW EVENT, NOT ITS CLASSIFICATION — the syscall, its arguments, its
+# errno and the process identity, and no scope tag. A scope would bake in today's classifier and
+# force a re-measure the moment the scope set changes, which is exactly what `tmp` is doing now.
 #
 # ⛔ IT RUNS AFTER SYNTHESIS AND FEEDS NOTHING BACK. `observe.mjs` above has already produced the
 # grant; this is a second, INDEPENDENT decode whose output no arm reads. Retention must not be able
 # to move a verdict, and the cheapest way to guarantee that is for the verdict to be computed first
-# and by a different decoder. A failure here is deliberately non-fatal for the same reason.
-if [ -n "${NUB_V2_EVENTS_OUT:-}" ]; then
-  node "$HERE/adapters/linux.mjs" "$OBS/trace.txt" \
-    --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" --jail-tmp "$JAIL_TMP" \
-    --pkg "$PKG" --version "$VER" --out "$NUB_V2_EVENTS_OUT" 2>&1 | sed 's/^/  /'
+# and by a different decoder. A failure here is deliberately non-fatal for the same reason. (1b is
+# ordered the other way round, for the reason stated there.)
+#
+# ⛔ TWO PUBLISH PATHS, AND THIS HONOURS BOTH — the shape `measure-macos.sh` settled on. The batch
+# runner sets `NUB_V2_EVENTS_OUT` to a path inside the record dir; the stdout marker is the only one
+# that works when this driver is run STANDALONE, which is how every probe branch and every manual
+# re-measure invokes it. Writing into `$OBS` first and copying makes the marker path the primary, so
+# a standalone run retains as much as a batched one — previously it retained NOTHING.
+EVENTS="$OBS/events.ndjson.gz"
+node "$HERE/adapters/linux.mjs" "$OBS/trace.txt" \
+  --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" --jail-tmp "$JAIL_TMP" \
+  --pkg "$PKG" --version "$VER" --out "$EVENTS" --stats-json "$OBS/eventlog-stats.json" 2>&1 | sed 's/^/  /'
+if [ -s "$EVENTS" ]; then
+  [ -n "${NUB_V2_EVENTS_OUT:-}" ] && cp "$EVENTS" "$NUB_V2_EVENTS_OUT" 2>/dev/null
+  echo "  EVENTLOG-FILE $EVENTS"
+  # ⛔ RE-SERIALISED BY A JSON PARSER, NOT FLATTENED WITH `tr -d '\n '`. The record contract needs
+  # this on ONE line, but stripping every space also strips the ones INSIDE a string value — and
+  # these stats carry a PATH. `record.mjs` would then note `eventlog-stats-unparsable` and the
+  # evidence census would be silently absent from the record.
+  [ -s "$OBS/eventlog-stats.json" ] && echo "  EVENTLOG-STATS $(node -e 'process.stdout.write(JSON.stringify(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))))' "$OBS/eventlog-stats.json" 2>/dev/null)"
+else
+  echo "  ⛔ EVENTLOG NOT WRITTEN — this record will carry a verdict and no queryable evidence"
 fi
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ──

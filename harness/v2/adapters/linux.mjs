@@ -6,9 +6,11 @@
 // that a grant synthesizer only needs today's four scopes and could round the rest up. Measured
 // against `probes/syscall-coverage.c`, that narrower decoder retained 18 of the 26 writes which
 // actually executed, INVENTED one path no process touched, and truncated another — every loss in the
-// under-grant direction. So the duplication is gone. The retention STEP is still separate and still
-// runs after synthesis (see `measure.sh`), which is what keeps a retention failure from moving a
-// verdict; sharing a pure function is not sharing a step.
+// under-grant direction. So the duplication is gone. The retention STEP is still separate: the
+// DERIVED decode this file performs still runs after synthesis (`measure.sh` 2b), which is what
+// keeps a retention failure from moving a verdict, while the RAW archive is gzipped before it
+// (`measure.sh` 1b) because a copy cannot influence a grant and the case where the archive matters
+// most is a synthesis that fails and exits. Sharing a pure function is not sharing a step.
 //
 // The rule that follows from that history: a decoding fix belongs HERE, where both the retained log
 // and the synthesized grant inherit it, and gets a case in `linux.test.mjs` plus, when it can move a
@@ -65,7 +67,7 @@
 // an fd passed over `SCM_RIGHTS` hides its real target. Both are recorded here as what they are.
 //
 //   usage: node adapters/linux.mjs <trace> --project D --home D [--jail-home D] [--pkg N]
-//                                  [--version V] [--out FILE] [--summary]
+//                                  [--version V] [--out FILE] [--summary] [--stats-json FILE]
 //
 // `--out` ending in `.gz` is gzipped in place. Prefer it: the stream is ~10x its own size in text.
 import fs from 'node:fs';
@@ -245,7 +247,7 @@ export function decode(text, opts = {}) {
   };
 
   const emit = (e) => {
-    const key = `${e.p} ${e.s} ${e.f ?? ''} ${e.g ?? ''} ${e.r} ${e.fl ?? ''}`;
+    const key = `${e.p}\u0000${e.s}\u0000${e.f ?? ''}\u0000${e.g ?? ''}\u0000${e.r}\u0000${e.fl ?? ''}`;
     const prior = events.get(key);
     if (prior) { prior.n++; return; }
     e.n = 1;
@@ -415,5 +417,25 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (s.truncatedArg) console.log(`  ⛔ ${s.truncatedArg} arguments strace TRUNCATED`);
     if (unknown.length) console.log(`  unsubscribed/unmapped syscalls: ${unknown.map(([k, v]) => `${k}×${v}`).join(' ')}`);
     if (out) console.log(`  wrote ${out} (${fs.statSync(out).size} bytes)`);
+  }
+  // ⛔ THE SAME CENSUS THE HUMAN LINES ABOVE PRINT, MACHINE-READABLE, so the driver can hand it to
+  // `record.mjs` as `EVENTLOG-STATS` and a linux record can carry an `eventLog` block the way a
+  // darwin one already does. Without it a record states a verdict and says nothing about how much
+  // of the trace the decoder understood — and `unparsed` / `unresolvedDirfd` / `rejoined` are
+  // exactly the numbers that would have made the clone-edge loss visible while it was happening.
+  // Written only on request, and never in place of the human summary a `driver.out` reader sees.
+  const statsOut = val('--stats-json');
+  if (statsOut) {
+    const s = decoded.stats;
+    fs.writeFileSync(statsOut, JSON.stringify({
+      lines: s.lines, parsed: s.parsed, unparsed: s.unparsed,
+      unfinished: s.unfinished, rejoined: s.joined,
+      unresolvedDirfd: s.unresolvedDirfd, truncatedArg: s.truncatedArg,
+      procs: decoded.procs.length, lifecyclePids: decoded.lifecyclePids,
+      distinctEvents: decoded.events.length,
+      unknownSyscall: Object.fromEntries(s.unknownSyscall),
+      out: out ?? null,
+      gzipBytes: out ? fs.statSync(out).size : null,
+    }));
   }
 }
