@@ -1,0 +1,52 @@
+### playwright-chromium@0.17.0   (/home/runner/v2-91evC5)
+  OBSERVE   rc=0 files=521 trace=21520 lines
+  CLOSURE   38 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 651  /  whole traced tree 654
+    sockets script 3  /  whole traced tree 3
+  == WRITES the script actually performed ==
+    jailHome    650  (base profile already grants this — NOT billed)
+        /home/runner/v2-91evC5/jailhome/.cache
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/.links
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/.links/39973501803a344039a4255d4f4968117c9d6a69
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/chrome_100_percent.pak
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/
+        /home/runner/v2-91evC5/jailhome/.cache/ms-playwright/chromium-764964/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/
+        … and 640 more
+    outside       1
+        /tmp/playwright-download-chromium-linux-764964.zip
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 10
+        127.0.0.53:53
+        34.3.1.27:0
+        34.3.0.27:0
+        104.154.124.27:0
+        104.154.125.27:0
+        34.144.171.27:0
+        34.153.3.27:0
+        34.153.2.27:0
+        34.144.170.27:0
+        34.3.1.27:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        /tmp/playwright-download-chromium-linux-764964.zip
+  VERIFY[synth] rc=1 artifacts=6/6 missing=0 (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  DIAGNOSE  refused paths under the failing grant (count, path):
+           6 "/proc/self/maps"
+           2 "/proc/version_signature"
+           2 "/proc/self/cgroup"
+     LAST REFUSAL BEFORE A NON-ZERO EXIT (a lead, not proof):
+       4118  <... mkdir resumed>)              = -1 EACCES (Permission denied)
+  synthesized grant did not verify — falling back to a bounded ladder
+  VERIFY[fb2126003217] rc=0 artifacts=6/6 missing=0 (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
