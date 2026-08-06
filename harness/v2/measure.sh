@@ -284,6 +284,21 @@ if [ "$FETCH_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# ⛔ TAKEN BEFORE THE TRACE, WHICH IS THE ONLY MOMENT IT EXISTS. The fetch above ran with
+# `--ignore-scripts`, so the package dir right now is exactly what the tarball shipped. After the
+# lifecycle script runs that state is unrecoverable, and it is what decides whether the artifact gate
+# could ever have failed for this package.
+#
+# ⛔ THIS DRIVER RAN WITHOUT THE DETECTOR FOR THE WHOLE LIFE OF THE DESCENT, AND THAT WAS NOT A
+# COSMETIC GAP. `record.mjs:301` gates the entire grant-source rule on seeing an `ARM-FALSIFIABILITY`
+# line — absence is read as "the check never ran", which is correct and deliberate — and it is tested
+# BEFORE the `n===1` and `jointVerified` branches. So a driver that never emits the line is pinned to
+# `grantSource: "synthesized"` no matter what its descent measures. MEASURED: 0 of 45 committed
+# linux-x64 records carry the line, against 3 of the darwin ones, and the Linux descent has therefore
+# never narrowed a single record. macOS (`measure-macos.sh:219,403`) and Windows
+# (`measure-windows.mjs:356,461`) have both called it since it landed.
+node "$HERE/arm-falsifiability.mjs" --snapshot "$OBS" --pkg "$PKG" --ver "$VER" \
+  --out "$OBS/pre-manifest.json" 2>/dev/null || true
 # ⛔ OBSERVE WITH THE SAME `HOME` THE JAIL WILL GIVE THE SCRIPT, OR EVERY npm-CACHE WRITE IS BILLED
 # AS A CAPABILITY THE PACKAGE DOES NOT NEED. The jail redirects `HOME`/`USERPROFILE` to a per-package
 # private home (`preset.rs` `private_home_dir`, RW-granted by the base profile), so inside the jail
@@ -399,6 +414,13 @@ CLOSURE=$(node -e '
   console.log(out.join("\n"));
 ' "$OBS/node_modules" 2>/dev/null)
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
+
+# ⛔ FLAG, NEVER FAIL — the package is still measurable; what a flag says is that a GREEN ARM CARRIES
+# NO EVIDENCE for it. `|| true` is deliberate: a detector fault must never cost a record. Placed here,
+# after the OBSERVE arm is known to have succeeded, because the post-manifest it diffs against only
+# means anything once the lifecycle script has actually run.
+node "$HERE/arm-falsifiability.mjs" --obs "$OBS" --pre "$OBS/pre-manifest.json" \
+  --pkg "$PKG" --ver "$VER" 2>/dev/null | sed 's/^/  /' || true
 
 # ── 1b. RETAIN THE RAW TRACE — THE ARTIFACT OF RECORD ──────────────────────────────────────────
 #
@@ -1027,11 +1049,24 @@ if [ "$SRC" -eq 0 ]; then
   # ⛔ EACH DESCENT ARM IS A FULL `verify` CALL, so it inherits the store eviction, the unique root
   # name, the explicit `buildJail`, and the override assertion. An arm run any cheaper than the
   # verdict arm would not be comparable to the verdict arm.
+  # ⛔⛔ THE NAMES ARE A CONTRACT WITH `record.mjs`, NOT LABELS FOR A HUMAN — AND THIS DRIVER SPELLED
+  # THEM WRONG FOR THE WHOLE LIFE OF THE DESCENT. `applyGrantSourceRule` recomputes the descended
+  # grant by matching the literal `no-network` / `no-write-<scope>` out of `overPredictedBy`. Linux
+  # emitted the bare `network` / `write.deps`, which match neither, so the recomputation deleted
+  # NOTHING: `descendedGrant` came back identical to the synthesized grant and a record published
+  # `grantSource: "descended"` beside an un-narrowed value. MEASURED against the committed logs —
+  # all five Linux records carrying an over-prediction re-parse with `descendedGrant === grant`.
+  # macOS and Windows already use the `no-*` spelling; Linux was the odd one out.
+  #
+  # ⛔ `read` IS DELIBERATELY NOT ENUMERATED. No grant in any record on any platform carries a `read`
+  # key and `classify.mjs` never emits one, so the old `if (g.read)` branch was dead code for a
+  # capability that does not exist — and `record.mjs` has no `no-read` case, so had it ever fired it
+  # would have reproduced this very defect. If `read` becomes real it must land in BOTH files at once;
+  # the unknown-name guard in `applyGrantSourceRule` is what makes that failure loud instead of silent.
   CAPS=$(node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
-    if (g.network) out.push("network");
-    for (const k of Object.keys(g.write ?? {})) out.push("write." + k);
-    if (g.read) out.push("read");
+    if (g.network) out.push("no-network");
+    for (const k of Object.keys(g.write ?? {})) out.push("no-write-" + k);
     console.log(out.join(" "));
   ' "$GRANT")
   if [ -z "$CAPS" ]; then
@@ -1052,9 +1087,8 @@ if [ "$SRC" -eq 0 ]; then
     for cap in $CAPS; do
       SUB=$(node -e '
         const [g0, cap] = process.argv.slice(1); const g = JSON.parse(g0);
-        if (cap === "network") delete g.network;
-        else if (cap === "read") delete g.read;
-        else { const k = cap.split(".")[1]; delete g.write[k];
+        if (cap === "no-network") delete g.network;
+        else { const k = /^no-write-(.+)$/.exec(cap)[1]; delete g.write[k];
                if (!Object.keys(g.write).length) delete g.write; }
         console.log(JSON.stringify(g));
       ' "$GRANT" "$cap")
@@ -1073,6 +1107,42 @@ if [ "$SRC" -eq 0 ]; then
       echo "  => DESCENT INCOMPLETE — no capability dropped, but$INCONCLUSIVE was never measured; MINIMALITY IS UNPROVEN"
     else
       echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+    fi
+
+    # ⛔ THE JOINT ARM. The descent is LEAVE-ONE-OUT, so N droppable capabilities give N arms proving
+    # each drops ON ITS OWN and nothing proving they drop TOGETHER. The joint grant is strictly
+    # narrower than any arm that ran, so publishing it off the individual results would be an
+    # inference dressed as a measurement — in the UNDER-grant direction, the one that breaks installs.
+    # One extra arm converts it into a real one, and only when there is something to convert: N<2
+    # needs no joint arm because the single leave-one-out arm IS the joint case. `record.mjs` keeps
+    # the wider synthesized value for N>=2 unless it sees `JOINT-NARROW VERIFIED`.
+    #
+    # ⛔ THREE OUTCOMES, NOT TWO — the same rule the loop above is built around, and the reason this
+    # is not a byte-for-byte copy of the macOS arm. macOS spells it `if verify …; then VERIFIED; else
+    # FAILED; fi`, which reads a VOID arm (rc 2, the override did not engage, nothing was measured) as
+    # a genuine joint failure. That direction is merely conservative here — a VOID joint arm keeps the
+    # wide grant either way — so it costs no correctness, but it files a measurement that never
+    # happened as evidence that the capabilities do not drop together. `INCONCLUSIVE` is the honest
+    # label and `record.mjs` already parses it; only macOS still needs this fix.
+    DROPPED_N=$(printf '%s\n' $NARROWER | grep -c . || true)
+    if [ "${DROPPED_N:-0}" -ge 2 ]; then
+      JOINT=$(node -e '
+        const g = JSON.parse(process.argv[1]);
+        for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
+          if (n === "no-network") { delete g.network; continue; }
+          const w = /^no-write-(.+)$/.exec(n);
+          if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
+        }
+        console.log(JSON.stringify(g));
+      ' "$GRANT" "$NARROWER")
+      verify "$JOINT" "joint-narrow"; jrc=$?
+      case "$jrc" in
+        0) echo "  => JOINT-NARROW VERIFIED $JOINT — all $DROPPED_N capabilities drop TOGETHER, measured" ;;
+        2) echo "  => JOINT-NARROW INCONCLUSIVE — the arm was VOID, so the joint drop is unmeasured;"
+           echo "     the record keeps the wider synthesized grant, which is the honest answer" ;;
+        *) echo "  => JOINT-NARROW FAILED $JOINT — each capability drops alone but not together;"
+           echo "     the record keeps the wider synthesized grant, which is the honest answer" ;;
+      esac
     fi
   fi
   exit 0

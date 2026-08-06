@@ -315,14 +315,32 @@ const applyGrantSourceRule = (out, lines) => {
   const unfalsifiable = out.notes.includes('arms-unfalsifiable');
   // The synthesized grant minus every capability an arm proved droppable. Keyed on the driver's own
   // variant names, so this cannot drift from what was actually run.
+  //
+  // ⛔⛔ AN UNRECOGNISED NAME IS A FAILED RECOMPUTATION, AND IT USED TO BE INVISIBLE. This loop
+  // silently ignored any name it could not match, so a driver spelling its variants differently
+  // produced a `descended` grant IDENTICAL to the synthesized one — and the record then published
+  // `grantSource: "descended"` beside the un-narrowed value, claiming a narrowing that never
+  // happened. MEASURED: `measure.sh` emitted the bare `network` / `write.deps` for the whole life of
+  // the Linux descent, so `descendedGrant === grant` in every linux-x64 record that over-predicted.
+  //
+  // The driver-side spelling is now `no-*` on all three platforms, which is the fix. This guard is
+  // why the same defect cannot recur silently in a fourth: a name nobody can parse forces the wider
+  // synthesized grant and SAYS SO, instead of dressing a no-op as a measurement. Deliberately NOT a
+  // second vocabulary — the legacy Linux spelling is not accepted here, because accepting it is what
+  // would let the two sides drift apart again.
   const descended = JSON.parse(JSON.stringify(out.grant));
+  const unparsedNames = [];
   for (const name of out.overPredictedBy) {
-    if (name === 'no-network') delete descended.network;
+    if (name === 'no-network') { delete descended.network; continue; }
     const w = /^no-write-(.+)$/.exec(name);
-    if (w && descended.write) {
-      delete descended.write[w[1]];
-      if (!Object.keys(descended.write).length) delete descended.write;
+    if (w) {
+      if (descended.write) {
+        delete descended.write[w[1]];
+        if (!Object.keys(descended.write).length) delete descended.write;
+      }
+      continue;
     }
+    unparsedNames.push(name);
   }
   const jointVerified = lines.some((l) => /JOINT-NARROW\s+VERIFIED/.test(l));
   out.descendedGrant = descended;
@@ -330,6 +348,18 @@ const applyGrantSourceRule = (out, lines) => {
   let source, reason;
   if (n === 0) {
     source = 'synthesized'; reason = 'no capability was droppable — synthesized IS the minimum';
+  } else if (unparsedNames.length) {
+    // ⛔ TESTED BEFORE EVERY NARROWING BRANCH, because this is an INSTRUMENT failure and the branches
+    // below would otherwise publish its no-op as a result. Deliberately louder than the other
+    // `synthesized` outcomes: those are honest measurements of an uncertain package, this one says
+    // the harness and the recorder disagree about their own vocabulary and the record cannot be
+    // computed. The wide grant is the safe direction, so a record is still produced — but it must not
+    // read as `descended`.
+    source = 'synthesized';
+    reason = `the descent named ${unparsedNames.length} capabilit${unparsedNames.length === 1 ? 'y' : 'ies'} `
+      + `this recorder cannot parse (${unparsedNames.join(', ')}) — the descended grant could not be `
+      + 'recomputed, so the wider synthesized value is kept rather than a narrowing that was never applied';
+    out.notes.push('descent-name-unparsed');
   } else if (unfalsifiable) {
     // Tested BEFORE `!checked`: the flag is itself positive evidence the check ran, so a log
     // carrying the flag must never be mistaken for one that predates the detector.
