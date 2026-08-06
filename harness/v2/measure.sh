@@ -153,6 +153,57 @@ echo "  VENUE-OBSERVE-USER $(node -e '
   }));
 ' "$(id -un)" "$(umask)" 2>/dev/null)"
 
+# ⛔ WHICH BINARY, NOT WHICH COMMIT — `nubGitSha` PROVABLY CANNOT ANSWER THIS. Two binaries built
+# from the SAME commit behave differently when their feature sets differ, and that is not
+# hypothetical: MEASURED 2026-08-06, a `--release` build of the right commit missing only
+# `build-jail-catalog-override` VOIDed four measurement cells, while provenance recorded a `nubGitSha`
+# identical to the working binary's. A record has to be able to say what it was measured WITH.
+#
+# ⛔ ONE DETECTION FEEDS ALL THREE CONSUMERS — the R5 symmetry report, the override preflight, and
+# this marker. They were briefly three separate greps of the same file, which is the shape that lets
+# them drift into disagreeing about the same binary.
+#
+# The content hash is the identity that survives a shared mutable path. Lanes sharing
+# `~/nub/target/<profile>/nub` can swap the artifact MID-BATCH — a preflight that passed twenty
+# minutes ago proves nothing about the arm running now — so the hash is what lets a reader tell a
+# batch measured against one binary from a batch measured against two.
+NUB_HAS_OVERRIDE=false; NUB_HAS_BYTECODE_ENV=false
+if [ -f "$NUB" ]; then
+  # ⛔⛔ THE OVERRIDE CHECK IS BEHAVIOURAL, AND A STRING SEARCH FOR THE FEATURE NAME IS EXACTLY
+  # INVERTED. Rust does not embed feature names in a binary. The literal
+  # `build-jail-catalog-override` appears in ONE place: the error text a nub built WITHOUT the
+  # feature prints when it refuses `NUB_BUILD_JAIL_CATALOG`. So the grep matches the BROKEN binary
+  # and misses the WORKING one — MEASURED on both binaries side by side:
+  #
+  #   target/release/nub  (no feature)   grep=1   NUB_BUILD_JAIL_CATALOG=… --version -> rc=1 "Error: … not built with"
+  #   target/fast/nub     (feature on)   grep=0   NUB_BUILD_JAIL_CATALOG=… --version -> rc=0 "catalog OVERRIDDEN from …"
+  #
+  # A grep-based preflight would therefore have refused every correct binary and admitted every
+  # broken one — strictly worse than no check. This is the whole reason a capability is asked of the
+  # ARTIFACT by exercising it, rather than inferred from something that merely correlates with it.
+  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX.json")"
+  printf '{"packages":{"__override_probe__":{"default":{"network":true}}}}' > "$NUB_PROBE_CAT"
+  if NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" "$NUB" --version >/dev/null 2>&1; then
+    NUB_HAS_OVERRIDE=true
+  fi
+  rm -f "$NUB_PROBE_CAT"
+  # The bytecode env name IS a genuine string constant (`BUILD_JAIL_BASELINE_ENV` in preset.rs), so a
+  # content search answers this one honestly. Positively controlled against a binary carrying the
+  # commit (match) and negatively against one predating it (no match).
+  grep -qa PYTHONDONTWRITEBYTECODE "$NUB" 2>/dev/null && NUB_HAS_BYTECODE_ENV=true
+  echo "  VENUE-NUB-BINARY $(node -e '
+    const fs = require("fs"), crypto = require("crypto");
+    let sha = null, bytes = null;
+    try { const b = fs.readFileSync(process.argv[1]);
+          sha = crypto.createHash("sha256").update(b).digest("hex"); bytes = b.length; } catch {}
+    process.stdout.write(JSON.stringify({
+      path: process.argv[1], sha256: sha, bytes,
+      features: { buildJailCatalogOverride: process.argv[2] === "true",
+                  pythonDontWriteBytecodeEnv: process.argv[3] === "true" },
+    }));
+  ' "$NUB" "$NUB_HAS_OVERRIDE" "$NUB_HAS_BYTECODE_ENV" 2>/dev/null)"
+fi
+
 # ⛔ R5 IS A SYMMETRY CLAIM, SO THE HALF THIS DRIVER DOES NOT CONTROL IS CHECKED RATHER THAN ASSUMED.
 # The OBSERVE arm gets `PYTHONDONTWRITEBYTECODE=1` from the env block below; the VERIFY arm gets it
 # from NUB, via `BUILD_JAIL_BASELINE_ENV` in `compiler/preset.rs`. A nub predating that commit
@@ -161,9 +212,8 @@ echo "  VENUE-OBSERVE-USER $(node -e '
 #
 # Reported, not fatal, and the direction is why: CPython falls back to compiling in memory, so the
 # refusal cannot change an arm's outcome, and failing here would block every measurement whenever a
-# nub build lags the harness. `grep -a` rather than `strings`, which is a binutils dependency this
-# driver otherwise does not have.
-if [ -f "$NUB" ] && ! grep -qa PYTHONDONTWRITEBYTECODE "$NUB" 2>/dev/null; then
+# nub build lags the harness.
+if [ -f "$NUB" ] && [ "$NUB_HAS_BYTECODE_ENV" != true ]; then
   echo "  ⛔ R5 ASYMMETRY — $NUB does not carry PYTHONDONTWRITEBYTECODE; OBSERVE suppresses Python"
   echo "     bytecode and the jailed arm does not, so the two arms differ in more than enforcement"
 fi
@@ -178,9 +228,13 @@ fi
 # `provenance` could not have told them apart — which is why this keys on the ARTIFACT and why a
 # feature list belongs beside `nubGitSha` in the record.
 #
+# ⛔ The detection above is BEHAVIOURAL for a reason recorded there: the first version of this
+# preflight grepped the binary for the feature NAME and was exactly inverted, because that string
+# lives only in the refusal message a FEATURELESS build prints.
+#
 # ⛔ Fatal, unlike the R5 check above, and the asymmetry is deliberate: an R5 mismatch cannot change
 # an arm's outcome, whereas this one makes every arm meaningless.
-if [ -f "$NUB" ] && ! grep -qa build-jail-catalog-override "$NUB" 2>/dev/null; then
+if [ -f "$NUB" ] && [ "$NUB_HAS_OVERRIDE" != true ]; then
   echo "⛔ $NUB was not built with \`build-jail-catalog-override\`; every arm would report" >&2
   echo "   OVERRIDDEN=0 and the run would end VOID. Rebuild with:" >&2
   echo "   cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override" >&2

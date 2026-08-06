@@ -298,3 +298,32 @@ test('a MINIMAL record is unaffected — there is nothing to narrow', () => {
   assert.equal(r.grantSource, 'synthesized');
   assert.deepEqual(r.grant, { network: true });
 });
+
+test('the nub binary identity is parsed, so a record says WHAT measured it and not only which commit', () => {
+  // ⛔ `nubGitSha` provably cannot answer this. MEASURED 2026-08-06: a `--release` build of the right
+  // commit, missing only `build-jail-catalog-override`, VOIDed four measurement cells while reporting
+  // a `nubGitSha` identical to the working binary's. The content hash is also the only identity that
+  // survives a shared mutable binary path, which is how that mix-up happened in the first place.
+  const base = load('macos-_apollo_protobufjs-1.2.7.txt').split('\n');
+  base.splice(1, 0, '  VENUE-NUB-BINARY {"path":"/n/nub","sha256":"abc123","bytes":49484400,'
+    + '"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}');
+  const r = parseDriverLog(base.join('\n'));
+  assert.equal(r.nubBinary?.sha256, 'abc123', `the binary hash must survive into the record:\n${JSON.stringify(r.nubBinary)}`);
+  assert.equal(r.nubBinary.features.buildJailCatalogOverride, true);
+  assert.equal(r.nubBinary.features.pythonDontWriteBytecodeEnv, false,
+    'a MISSING feature must be recorded as false, not dropped — absent and false read the same otherwise');
+});
+
+test('CONTROL: a driver log with no binary marker records null rather than inventing a binary', () => {
+  const r = parseDriverLog(load('macos-_apollo_protobufjs-1.2.7.txt'));
+  assert.equal(r.nubBinary, null, 'an unreported binary must stay null, not become a fabricated identity');
+});
+
+test('a malformed binary marker is NOTED rather than silently dropped', () => {
+  const base = load('macos-_apollo_protobufjs-1.2.7.txt').split('\n');
+  base.splice(1, 0, '  VENUE-NUB-BINARY {this is not json');
+  const r = parseDriverLog(base.join('\n'));
+  assert.equal(r.nubBinary, null);
+  assert.ok(r.notes.includes('nub-binary-unparsable'),
+    `a marker that failed to parse must leave a trace:\n${JSON.stringify(r.notes)}`);
+});

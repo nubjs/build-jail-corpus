@@ -85,6 +85,7 @@ export function parseDriverLog(log) {
     // token", and a reader comparing two venues would attribute the second to the first.
     jailRoot: null,
     observeUser: null,
+    nubBinary: null,
   };
 
   let synthesizedNext = false;
@@ -125,6 +126,14 @@ export function parseDriverLog(log) {
     // claim rather than trust that the assertion was present in whatever driver revision ran.
     const ou = /VENUE-OBSERVE-USER\s+(.+)$/.exec(l);
     if (ou) { out.observeUser = ou[1].trim(); continue; }
+    // The binary's content hash and detected features. Same two-stdout-line contract as the markers
+    // above: the driver measures, this file only learns.
+    const nb = /VENUE-NUB-BINARY\s+(\{.*)/.exec(l);
+    if (nb) {
+      try { out.nubBinary = JSON.parse(nb[1]); }
+      catch { out.notes.push('nub-binary-unparsable'); }
+      continue;
+    }
     const ov = /VENUE-OVERRIDES\s+(\{.*)/.exec(l);
     if (ov) {
       try { out.overrides = JSON.parse(ov[1]); }
@@ -399,6 +408,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       jailRoot: p.jailRoot ?? null,
       // R7. Null means the driver did not assert it — which is itself the finding, not a pass.
       observeUser: p.observeUser ?? null,
+      // ⛔ WHICH BINARY, WHICH `nubGitSha` PROVABLY CANNOT ANSWER. Two binaries from the SAME commit
+      // behave differently when their feature sets differ. MEASURED 2026-08-06: a `--release` build
+      // of the right commit, missing only `build-jail-catalog-override`, VOIDed four measurement
+      // cells while reporting a `nubGitSha` identical to the working binary's. The content hash is
+      // also the only identity that survives a SHARED MUTABLE binary path — lanes on one box can
+      // swap the artifact mid-batch, and the hash is what distinguishes a batch measured against one
+      // binary from a batch measured against two.
+      nubBinary: p.nubBinary ?? null,
       // R6. Normalisation that is RECORDED is a covered axis; normalisation that is invisible is a
       // silent bet that it did not matter. The driver names each variable it set, unset or
       // redirected, so a reader can tell whether `CI` was touched — the one override that would
