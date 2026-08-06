@@ -27,6 +27,9 @@ on:
       gyp_pkg:
         description: 'the node-gyp-tooling package for the positive control'
         default: '@pulumi/datadog@0.18.9'
+      nub_ref:
+        description: 'nubjs/nub ref to build and measure'
+        default: 'sandbox/integration'
 
 permissions:
   contents: read
@@ -38,6 +41,10 @@ jobs:
     env:
       PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
       GYP_PKG: ${{ inputs.gyp_pkg || '@pulumi/datadog@0.18.9' }}
+      # ⛔ THE REF IS AN INPUT AND THE RESOLVED SHA IS PRINTED, because "which nub did this measure"
+      # is the question a stale cache answers wrongly and silently. Defaulting to the branch rather
+      # than to a SHA keeps the probe pointed at the code the corpus lane would actually ship on.
+      NUB_REF: ${{ inputs.nub_ref || 'sandbox/integration' }}
       # ⛔⛔ WITHOUT THIS THE EXPERIMENT MEASURES NOTHING, AND IT LOOKS FINE WHILE DOING SO. MEASURED
       # in run 31106248877: every arm logged `linker isolated (global virtual store auto-disabled in
       # CI)` and put its `.store` INSIDE the arm directory, so `%LOCALAPPDATA%\nub\pm\store` never
@@ -65,22 +72,33 @@ jobs:
           echo "XDG_CACHE_HOME=${XDG_CACHE_HOME:-<unset>}"
           powershell.exe -NoProfile -Command 'whoami'
 
-      - name: Resolve the native path of the probe binary
+      # ⛔⛔ THE CACHE IS KEYED ON THE RESOLVED SHA WITH NO `restore-keys` PREFIX, AND THAT IS THE
+      # DIFFERENCE BETWEEN A RESULT AND A FICTION. This step used to key `nub-bin-v1-windows-none`
+      # behind a `nub-bin-v1-windows-` prefix fallback, which matches whatever binary the corpus
+      # fleet cached LAST. MEASURED 2026-08-06 with `gh cache list`: the newest such entry is
+      # `nub-bin-v1-windows-bb9a1036…`, saved 07:33Z — fourteen hours BEFORE `4bd4687521`, the
+      # hardlink fix every jailed arm below now depends on. Run unchanged, this workflow would have
+      # restored a PRE-FIX binary, watched every arm die on the very EPERM that fix removes, and
+      # filed it as the eviction's verdict. `win-jail-copy-verify.yml` reached the same conclusion
+      # about `win-acl-probe`; the prefix fallback is a repeat offender in this repo.
+      - name: Resolve the nub commit under test
         shell: bash
         run: |
           set -eu
-          P=/tmp/nub/target/release/nub.exe
+          SHA=$(git ls-remote https://github.com/nubjs/nub.git "$NUB_REF" | cut -f1)
+          [ -n "$SHA" ] || { echo "⛔ could not resolve ref $NUB_REF" >&2; exit 1; }
+          echo "NUB_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "measuring nubjs/nub $NUB_REF @ $SHA"
+          P=/tmp/nubsrc/target/fast/nub.exe
           if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
           echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
 
-      - name: Restore a feature-enabled nub binary
+      - name: Restore a nub built from THIS commit
         id: nubbin
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-windows-none
-          restore-keys: |
-            nub-bin-v1-windows-
+          key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
 
       - name: Build the probe binary
         if: steps.nubbin.outputs.cache-matched-key == ''
@@ -89,17 +107,23 @@ jobs:
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
           cd /tmp/nubsrc
-          SHA=$(git rev-parse origin/sandbox/integration)
-          git checkout --detach "$SHA"
+          git checkout --detach "$NUB_SHA"
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
-          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
 
-      - name: Point at the restored binary
-        if: steps.nubbin.outputs.cache-matched-key != ''
+      - name: Save the built binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
+
+      - name: Name the binary under test
         shell: bash
         run: |
           set -eu
-          BIN=/tmp/nub/target/release/nub.exe
+          BIN=/tmp/nubsrc/target/fast/nub.exe
+          [ -f "$BIN" ] || { echo "⛔ NO BINARY at $BIN" >&2; exit 1; }
+          echo "commit under test: $NUB_SHA"
           "$BIN" --version
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
 
