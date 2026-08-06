@@ -91,6 +91,11 @@ function dosPath(nt) {
 //     names whatever that machine happens to have. Re-decoding an archived trace elsewhere gets
 //     the short spelling back, honestly, rather than a confident wrong long name.
 // ---------------------------------------------------------------------------------------------
+// DELIBERATELY LOOSE, and tightening it would be the wrong repair. This only decides whether a
+// component is worth ASKING the filesystem about; the filesystem is the authority. A false positive
+// (`a~b~1`, a legitimate long name) resolves to itself, the same-parent guard accepts it, nothing
+// changes, and the one syscall is cached. A false NEGATIVE is the direction that silently keeps a
+// path in the wrong scope, so the pattern errs toward asking.
 const SHORT_COMPONENT = /^[^\\/.]{1,8}~\d+(\.[^\\/.]{1,3})?$/;
 const sameHost = (meta.host ?? '').toLowerCase() === (process.env.COMPUTERNAME ?? '').toLowerCase();
 const longPathOn = !noLongPath && process.platform === 'win32' && sameHost && !!meta.host;
