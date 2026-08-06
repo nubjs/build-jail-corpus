@@ -126,9 +126,29 @@ verify () {
   if [ -d "$store" ]; then
     find "$store" -maxdepth 1 -name "${slug}@*" -exec rm -rf {} + 2>/dev/null
   fi
+  # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
+  # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
+  # there are no version bands, so the entry grants exactly the base profile; drop it" — and then
+  # falls back to the COMPILED-IN catalog, so the arm trips the override assertion and comes back
+  # VOID. VOID is not "insufficient", but the caller cannot tell the difference, so the driver
+  # escalated up the ladder and reported a spuriously WIDE minimum.
+  #
+  # MEASURED, and this is the largest error the harness has produced: `yorkie@2.0.0` and
+  # `@progress/kendo-licensing@1.9.1` both need NOTHING, and both were reported as
+  # `MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}`. With the
+  # construction below they verify at `{}` on the first arm. Roughly half the corpus synthesizes
+  # the empty grant, so unfixed this turns the modal case into a near-total grant.
+  #
+  # The fix follows from what the base profile already IS: nothing. So express the empty grant by
+  # OMITTING the package under test, and carry a sentinel entry for an unrelated name purely so the
+  # override still engages and the assertion below stays meaningful.
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
-    fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
+    const grant=JSON.parse(g);
+    const cat = Object.keys(grant).length
+      ? {packages:{[p]:{default:grant}}}
+      : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
+    fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique
