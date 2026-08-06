@@ -1,0 +1,198 @@
+# Does a grant measured under the CI store layout transfer to the layout real users get?
+#
+# THE DOUBT, stated precisely. Under `is_ci()` nub auto-disables the machine-global virtual store and
+# takes a project-local `node_modules/.store` instead (`install_report.rs` `layout_row`, `Source::Ci`
+# => "global virtual store auto-disabled in CI"). Every corpus record was therefore measured against
+# a layout NOBODY OUTSIDE CI RECEIVES. A grant names a SCOPE (`deps` / `project` / `userHome`), and
+# the layout decides where a dependency physically lives — inside the project under CI, inside
+# `~/.cache/nub/pm/store` outside it. If a scope moves with the layout, every record is measuring the
+# wrong thing.
+#
+# THE EXPERIMENT. Same packages, same OS, ONE variable: `npm_config_enable_global_virtual_store`,
+# which `layout_row` resolves BEFORE the CI branch. Two jobs, one per layout, on separate runners so
+# neither arm can warm the other's store. Compare the SYNTHESIZED and VERIFIED grants, not exit codes.
+#
+# ⛔ THE LAYOUT ASSERTION IS THE CONTROL THAT MAKES THIS MEAN ANYTHING. A run in which both jobs
+# silently took the same layout is a null result that proves nothing while looking clean, and that is
+# exactly how the first Windows attempt at the eviction proof passed its own preconditions. Each job
+# asserts the layout word its arms actually printed and FAILS if it is the other one's.
+#
+# Branch-scoped push trigger: `workflow_dispatch` is inert until a workflow file reaches the default
+# branch, so a push is the only way to iterate on this file itself.
+name: layout-diff-probe
+
+on:
+  push:
+    branches: [probe/layout-diff]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'space-separated pkg@version specs to measure under BOTH layouts'
+        default: 'ghooks@0.1.1 kerberos@7.0.0 @apollo/rover@0.4.8 @pulumi/gcp@0.16.9'
+      nub_sha:
+        description: 'nubjs/nub commit to build the probe binary from (blank = restore any cached feature-enabled binary)'
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  arm:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The corpus's own layout: `is_ci()` fires, the store is project-local.
+          - layout: ci-default
+            gvs: ''
+            expect: 'isolated'
+          # What a real user gets: the machine-global virtual store, forced back on.
+          - layout: global-store
+            gvs: 'true'
+            expect: 'global-virtual-store'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SPECS: ${{ inputs.packages || 'ghooks@0.1.1 kerberos@7.0.0 @apollo/rover@0.4.8 @pulumi/gcp@0.16.9' }}
+      # Empty string is NOT "unset" to `env:`, but aube reads `npm_config_*` through a
+      # present-and-truthy test, so an empty value leaves the CI default standing. The assertion
+      # below is what proves that rather than assuming it.
+      npm_config_enable_global_virtual_store: ${{ matrix.gvs }}
+      EXPECT_LAYOUT: ${{ matrix.expect }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Install strace and prove it traces
+        shell: bash
+        run: |
+          set -eux
+          sudo apt-get update -qq && sudo apt-get install -y -qq strace
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/nub/target/release/nub
+          key: nub-bin-v1-linux-${{ inputs.nub_sha }}
+          restore-keys: |
+            nub-bin-v1-linux-
+
+      - name: Build the probe binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          REF="${{ inputs.nub_sha || 'origin/sandbox/integration' }}"
+          SHA=$(git rev-parse "$REF" 2>/dev/null || git rev-parse "origin/$REF")
+          git checkout --detach "$SHA"
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub" >> "$GITHUB_ENV"
+
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub
+          chmod +x "$BIN" 2>/dev/null || true
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ WITHOUT THE OVERRIDE FEATURE EVERY ARM COMES BACK VOID, and a VOID arm measured nothing —
+      # so a "no difference between layouts" verdict read off two VOID columns is manufactured.
+      # The malformed control runs FIRST: a binary that never read the variable passes the positive
+      # check by doing nothing.
+      - name: Assert the binary honours NUB_BUILD_JAIL_CATALOG
+        shell: bash
+        run: |
+          set -uo pipefail
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__v2_probe__":{"default":{"network":true}}}}'    > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$NUB_BIN" --version 2>&1 || true)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused" ;;
+            *) echo "⛔ GATE IS INERT: no REJECTED banner. Saw: ${BAD:-<none>}" >&2; exit 1 ;;
+          esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *OVERRIDDEN*) echo "override engages: $GOOD" ;;
+            *) echo "⛔ no OVERRIDDEN banner — binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      # The layout, read off a throwaway install BEFORE any measuring — so a mis-set variable costs a
+      # few seconds rather than the whole run. This is the same row `layout_row` prints in every
+      # VERIFY arm; the per-arm assertion after the sweep is the one that actually gates the result.
+      - name: Pre-flight — which layout does this job's env produce?
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p /tmp/preflight && cd /tmp/preflight
+          printf '{"name":"pf","version":"1.0.0","dependencies":{"is-odd":"3.0.1"}}\n' > package.json
+          "$NUB_BIN" install > /tmp/preflight.log 2>&1 || true
+          echo "--- layout row ---"; grep -E "^\s*linker" /tmp/preflight.log || echo "(no linker row)"
+          grep -qE "^\s*linker\s+$EXPECT_LAYOUT( |$)" /tmp/preflight.log || {
+            echo "⛔ this job wanted layout '$EXPECT_LAYOUT' and did not get it — every row below would be meaningless" >&2
+            cat /tmp/preflight.log >&2; exit 1; }
+          echo "pre-flight layout OK: $EXPECT_LAYOUT"
+          echo "--- store presence ---"
+          ls -1 "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store" 2>/dev/null | wc -l
+
+      - name: Measure every spec under this layout
+        shell: bash
+        run: |
+          set -u
+          mkdir -p /tmp/out
+          for SPEC in $SPECS; do
+            PKG="${SPEC%@*}"; VER="${SPEC##*@}"
+            SLUG=$(printf '%s' "$SPEC" | tr -c 'A-Za-z0-9.-' '_')
+            echo "::group::$SPEC  [$EXPECT_LAYOUT]"
+            bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" > "/tmp/out/$SLUG.log" 2>&1
+            echo "MEASURE_EXIT=$?"
+            cat "/tmp/out/$SLUG.log"
+            echo "::endgroup::"
+          done
+
+      # ⛔ THE CONTROL. Read the layout row out of the arms that actually decided the verdicts, not
+      # out of the pre-flight — a variable can be lost between steps, and an arm that silently took
+      # the other layout turns a genuine difference into a null result or vice versa.
+      - name: Assert every VERIFY arm used this job's layout
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          echo "--- layout rows across every arm ---"
+          grep -rhE "^\s*linker" "$HOME"/v2-*/verify-*/i.log 2>/dev/null | sed 's/^ *//' | sort | uniq -c
+          WRONG=$(grep -rlE "^\s*linker" "$HOME"/v2-*/verify-*/i.log 2>/dev/null \
+                  | xargs -r grep -LE "^\s*linker\s+$EXPECT_LAYOUT( |$)" | wc -l)
+          TOTAL=$(ls -1 "$HOME"/v2-*/verify-*/i.log 2>/dev/null | wc -l)
+          echo "arms=$TOTAL  wrong-layout=$WRONG  expected=$EXPECT_LAYOUT"
+          [ "$TOTAL" -ge 1 ] || { echo "⛔ no VERIFY arm logs at all — nothing was measured" >&2; exit 1; }
+          [ "$WRONG" -eq 0 ] || { echo "⛔ $WRONG arms did not use $EXPECT_LAYOUT — the comparison is invalid" >&2; exit 1; }
+          echo "--- EVICT / CLOSURE ---"
+          grep -rh "EVICT " /tmp/out/*.log 2>/dev/null || echo "(no EVICT lines)"
+          grep -rh "CLOSURE " /tmp/out/*.log 2>/dev/null || echo "(no CLOSURE lines)"
+
+      - name: The comparable summary
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          echo "############ LAYOUT=$EXPECT_LAYOUT ############"
+          for f in /tmp/out/*.log; do
+            echo "== $(basename "$f" .log)"
+            grep -E "SYNTHESIZED GRANT" -A1 "$f" | tail -1 | sed 's/^ */  SYNTH  /'
+            grep -E "^\s*(VERIFY\[|=>)" "$f" | sed 's/^ */  /'
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: layout-diff-${{ matrix.layout }}
+          path: /tmp/out
