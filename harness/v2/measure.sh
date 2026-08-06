@@ -152,6 +152,15 @@ JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 # does it: `sandbox_homes` reads nub's OWN `HOME`, not the one it hands the script.
 JAIL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}"
 JAIL_TOOLS="$JAIL_CACHE/nub/pm/tools"
+# ⛔ DERIVED ONCE, HERE, AND PASSED DOWN — never re-derived inside the classifier (PORTABILITY R2).
+# The shell driver is apparatus and may read the environment; the classifier may not, because it is
+# the thing that would silently produce a venue-specific answer. `store` is the embedder's
+# `virtual_store_subdir` (`pm_engine/identity.rs`), joined onto aube's cache dir.
+GLOBAL_STORE="$JAIL_CACHE/nub/pm/store"
+# The interpreter INSTALL ROOT, not the binary: `<root>/bin/node` resolved through any symlink, then
+# up two. This is the tree node-gyp's bundled `gyp/pylib` lives in, and whether it sits inside `$HOME`
+# is exactly the venue difference that made the same package synthesize two different grants.
+INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")" 2>/dev/null && pwd)"
 # Under the OS temp root, matching `make_private_tmp`'s `tempfile` under `std::env::temp_dir()`, so
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
@@ -219,7 +228,8 @@ echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per ar
 CAPTURE="$OBS/capture.json"
 node -e '
   const fs = require("fs"), crypto = require("crypto");
-  const [trace, obs, home, jailHome, jailTmp, tools, pkg, ver, straceV, kern, distro, here] = process.argv.slice(1);
+  const [trace, obs, home, jailHome, jailTmp, tools, pkg, ver, straceV, kern, distro, here,
+         globalStore, interpreter] = process.argv.slice(1);
   const sha = (p) => { try { const b = fs.readFileSync(p); return { path: "harness/v2/" + p.slice(here.length + 1), sha256: crypto.createHash("sha256").update(b).digest("hex"), bytes: b.length }; } catch { return null; } };
   const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
   const lines = () => { try { return fs.readFileSync(trace, "utf8").split("\n").length - 1; } catch { return null; } };
@@ -243,8 +253,17 @@ node -e '
     // ⛔ EVERY PATH IN THE TRACE IS MACHINE-SPECIFIC. Without these a future classifier cannot tell
     // a project write from a home write and the archive is a pile of strings. These are exactly the
     // arguments `observe.mjs` and `adapters/linux.mjs` take, and they must stay in step with them.
-    roots: { project: obs, home, jailHome, jailTmp, tools, npmPrefix: `${tools}/npm-prefix`,
-             ownPkg: `${obs}/node_modules/${pkg}` },
+    // ⛔ EVERY ROOT THE CLASSIFIER KEYS ON IS DECLARED HERE AND NOWHERE ELSE (PORTABILITY R1).
+    // `observe.mjs` reads these and REFUSES TO RUN if one is missing, so this object is the single
+    // definition of what a path means. An absent key is fatal there; `null` is a legitimate answer
+    // meaning this platform has no such root. Never omit a key to express "not applicable".
+    //
+    // globalStore / projectStore / interpreter are declared but not yet keyed on (see the note in
+    // observe.mjs). They are recorded NOW because a root that has to be re-derived later is a root
+    // that gets re-derived from AMBIENT state, which is the exact failure R2 exists to prevent.
+    roots: { project: obs, home, jailHome, temp: jailTmp, toolsDir: tools,
+             npmPrefix: `${tools}/npm-prefix`, ownPkg: `${obs}/node_modules/${pkg}`,
+             globalStore, projectStore: `${obs}/node_modules/.store`, interpreter },
     // ⛔ THE OBSERVE/VERIFY PARITY CONTRACT, RECORDED. These five rewrites are what make the traced
     // run reproduce the environment the real jail creates; a script reading `os.tmpdir()` writes to
     // a DIFFERENT path without them. When that set changes, a trace taken under the old set is not
@@ -264,6 +283,7 @@ node -e '
 ' "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$PKG" "$VER" \
   "$(strace -V 2>/dev/null | head -1)" "$(uname -a 2>/dev/null)" \
   "$( (. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME") || echo unknown)" "$HERE" \
+  "$GLOBAL_STORE" "$INTERPRETER" \
   > "$CAPTURE" 2>/dev/null
 gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
 if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
@@ -272,6 +292,28 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
   echo "  RAWLOG-FILE $OBS/trace.txt.gz"
   echo "  RAWLOG-CAPTURE $CAPTURE"
   echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
+  echo "  VENUE-INTERPRETER $INTERPRETER"
+  # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
+  # its INHERITED value precisely because the one override that would invalidate the whole
+  # venue/CI acceptance test is touching it. Recording it unchanged is the claim a reader can check.
+  # ⛔ The harness normalises its own APPARATUS, never the environment under test: `CI`,
+  # `GITHUB_ACTIONS` and `NODE_ENV` are passed through verbatim, because an install script reads them
+  # and changes what it downloads or whether it builds from source. Flattening them would produce a
+  # catalog that under-grants every CI user.
+  echo "  VENUE-OVERRIDES $(node -e '
+    const e = process.env;
+    process.stdout.write(JSON.stringify({
+      set: { HOME: process.argv[1], TMPDIR: process.argv[2], NODE_COMPAT: "1",
+             PLAYWRIGHT_BROWSERS_PATH: process.argv[3] + "/ms-playwright",
+             ELECTRON_CACHE: process.argv[3] + "/electron-cache",
+             electron_config_cache: process.argv[3] + "/electron-cache",
+             npm_config_prefix: process.argv[3] + "/npm-prefix",
+             NUB_CACHE_DIR: process.argv[4] },
+      unset: [],
+      passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
+                       NODE_ENV: e.NODE_ENV ?? null },
+    }));
+  ' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" 2>/dev/null)"
 else
   # ⛔ NOT FATAL, BUT NEVER SILENT. Retention is additive to the measurement, so losing it must not
   # cost a measured package — but a record that carries a verdict and no evidence is the exact state
@@ -280,8 +322,11 @@ else
 fi
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" "$JAIL_TMP" \
-  "$JAIL_TOOLS/npm-prefix" > "$ROOT/observed.txt" 2>&1
+# ⛔ ROOTS ARE NOT PASSED AS ARGUMENTS ANY MORE — the classifier takes them from `capture.json` and
+# from nothing else (PORTABILITY R2). Two positional lists that had to stay in step were themselves a
+# drift hazard: `measure.sh` and `capture.json` could disagree about what a path meant, and the
+# capture is the artifact a re-parse actually has. One source, and 1b above already wrote it.
+node "$HERE/observe.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
@@ -625,6 +670,16 @@ verify () {
   # perfectly. MEASURED on @nuxt/components@2.1.0: the write:"disk" arm exited 0 with a complete
   # install and was reported as "NO-STATE-PASSED". Following the links counts the real artifacts.
   files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
+  # ⛔ THE STORE LAYOUT IS OBSERVED FROM THE ARM TREE, NEVER INFERRED FROM `CI` (PORTABILITY R3).
+  # Deriving it from the env var would encode the very rule this field exists to let us CHECK, and it
+  # would then agree with itself forever. MEASURED, and this is why it matters: a `CI`-unset install
+  # on the corpus VM still produced a `node_modules/.store`, so "CI implies isolated" is not a
+  # biconditional. Emitted once, from the first arm, because every arm shares one layout.
+  if [ -z "${STORE_LAYOUT_REPORTED:-}" ]; then
+    if [ -d "$v/node_modules/.store" ]; then echo "  VENUE-STORE-LAYOUT isolated"
+    elif [ -d "$v/node_modules" ]; then echo "  VENUE-STORE-LAYOUT hoisted"; fi
+    STORE_LAYOUT_REPORTED=1
+  fi
   # ⛔⛔ `files >= OBS_FILES` IS NOT A SUCCESS GATE AND MUST NOT BE READ AS ONE. `find -L` follows the
   # isolated layout's symlinks into the machine-global store, so the number is dominated by the
   # dependency closure and is nearly insensitive to whether THIS package's script produced anything.

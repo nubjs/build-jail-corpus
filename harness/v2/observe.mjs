@@ -37,16 +37,52 @@
 // back — a failure there still cannot move a verdict. Sharing a pure `decode()` function is not the
 // same as sharing a step, and it is what stops the two from drifting again.
 //
-//   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name] [jail-tmp]
-//                           [jail-npm-prefix]
+// ⛔ EVERY ROOT COMES FROM `capture.json`, AND NOTHING ELSE MAY SUPPLY ONE (VENUE-PORTABILITY R2).
+// Not the ambient environment, not a hardcoded `~/.cache/nub` pattern, not a root derived from the
+// path being classified. The roots are what turn a machine-specific path into a scope, so a
+// classifier that can obtain one from its surroundings produces a plausible answer on the machine
+// that happens to match and a wrong one everywhere else — and says nothing either way.
+//
+// ⛔ A NEEDED ROOT THAT `capture.json` DOES NOT DECLARE IS A HARD ERROR, NEVER A FALLBACK. A
+// fallback is precisely the mechanism that makes a venue difference SILENT: it keeps running and
+// emits a grant, so the failure surfaces as a wrong catalog entry rather than as a crash. Exiting
+// here costs one run; a silent wrong root costs a corpus nobody knows is wrong.
+//
+// ⛔ ABSENT AND `null` ARE DIFFERENT AND ARE TREATED DIFFERENTLY. `null` is the capture SAYING this
+// platform has no such root, which is an answer; an absent key is the capture failing to say, which
+// is not. Only the latter is fatal — collapsing them would let a stale writer silently opt out.
+//
+//   usage: node observe.mjs <trace-file> --capture <capture.json>
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
 
-const [file, proj, home, jailHome, pkgName, jailTmp, jailNpmPrefix] = process.argv.slice(2);
-if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName] [jailTmp] [jailNpmPrefix]'); process.exit(2); }
-// The rebuilt package's OWN directory in the observation layout (plain hoisted `node_modules`).
-// Its jail counterpart is the store entry, which the base profile already grants RW.
-const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
+const argv = process.argv.slice(2);
+const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
+const file = argv.find((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].startsWith('--')));
+const capturePath = flag('--capture');
+if (!file || !capturePath) {
+  console.error('usage: observe.mjs <trace> --capture <capture.json>');
+  process.exit(2);
+}
+
+// Every root this classifier keys on. The list is HERE rather than in the driver because this file
+// is what would misclassify without one, so it is the file that must refuse to run.
+const REQUIRED_ROOTS = ['project', 'home', 'jailHome', 'globalStore', 'projectStore',
+                        'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'ownPkg'];
+let capture;
+try { capture = JSON.parse(fs.readFileSync(capturePath, 'utf8')); }
+catch (e) { console.error(`⛔ cannot read capture.json at ${capturePath}: ${e.message}`); process.exit(3); }
+const roots = capture.roots ?? {};
+const undeclared = REQUIRED_ROOTS.filter((k) => !(k in roots));
+if (undeclared.length) {
+  console.error(`⛔ capture.json does not DECLARE these roots: ${undeclared.join(', ')}`);
+  console.error('   Classification would fall back to ambient state and silently differ by venue.');
+  console.error('   Declare each one, or `null` where this platform genuinely has no such root.');
+  process.exit(3);
+}
+const { project: proj, home, jailHome, temp: jailTmp, npmPrefix: jailNpmPrefix,
+        globalStore, projectStore, interpreter, toolsDir, ownPkg: ownPkgDir } = roots;
+const pkgName = capture.pkg ?? null;
 const text = fs.readFileSync(file, 'utf8');
 const decoded = decode(text, { project: proj });
 
@@ -290,6 +326,23 @@ if (lifecycle.size === 0) {
   // looks like a confident "needs nothing".
   console.log('  ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant');
   console.log('     below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.');
+}
+// ⛔ ECHO THE ROOTS THE GRANT WAS COMPUTED AGAINST. Two jobs, and the second is the reason it is
+// printed rather than merely held: it makes R2 auditable from `driver.out` alone — a reader can see
+// that every root came from the capture, and can tell a `null` (this platform has no such root)
+// from a path. A venue difference then shows up as different ROOTS in the log rather than as an
+// unexplained difference in the grant.
+//
+// ⛔ `globalStore`, `projectStore` and `interpreter` are DECLARED AND REPORTED BUT NOT YET KEYED ON,
+// and saying so is deliberate. R1 requires them declared; changing which bucket a write lands in is
+// a grant-semantics change and needs its own evidence, exactly as the bytecode drop did. The
+// OBSERVE arm is `npm rebuild` in a plain hoisted layout, so it does not touch nub's store at all —
+// inventing a bucket for a path this arm never produces would be policy with no measurement under
+// it. They are here so the next person has the roots without re-deriving them from ambient state.
+console.log('== ROOTS (from capture.json — R2: no ambient reads) ==');
+for (const k of REQUIRED_ROOTS) {
+  const keyed = ['project', 'home', 'jailHome', 'temp', 'npmPrefix', 'ownPkg'].includes(k);
+  console.log(`  ${k.padEnd(13)} ${roots[k] ?? '(null)'}${keyed ? '' : '   [declared, not keyed on]'}`);
 }
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {

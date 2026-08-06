@@ -26,10 +26,30 @@ const SHELL = '100 execve("/usr/bin/sh", ["sh", "-c", "postinstall"], 0x1 /* 1 v
 // examples per bucket, so a case asserting only on the grant cannot tell "the decoder retained this
 // path" from "it retained some other path in the same scope" — and several of the losses below are
 // exactly that shape: a path that is WRONG rather than absent still bills a plausible scope.
-const run = (body, pkg = 'p') => {
-  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
+// ⛔ ROOTS REACH THE CLASSIFIER ONLY THROUGH A `capture.json` (PORTABILITY R2), so every case builds
+// one. This helper is also the spec for what a driver must declare: adding a root the classifier
+// keys on without adding it here makes every test fail loudly, which is the intent — the alternative
+// is a root that silently falls back to ambient state on whichever machine happens to match.
+const CAPTURE_ROOTS = (proj, pkg) => ({
+  project: proj, home: HOME, jailHome: JAIL, temp: null, npmPrefix: null,
+  ownPkg: pkg ? `${proj}/node_modules/${pkg}` : null,
+  globalStore: null, projectStore: `${proj}/node_modules/.store`, interpreter: null,
+  toolsDir: null,
+});
+
+const writeCase = (body, proj, pkg, rootOverrides = {}) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-'));
+  const f = path.join(dir, 'trace.txt');
   fs.writeFileSync(f, SHELL + body);
-  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg], {
+  const cap = path.join(dir, 'capture.json');
+  const roots = { ...CAPTURE_ROOTS(proj, pkg), ...rootOverrides };
+  fs.writeFileSync(cap, JSON.stringify({ v: 1, kind: 'capture', pkg, version: '1.0.0', roots }));
+  return { f, cap };
+};
+
+const run = (body, pkg = 'p', rootOverrides = {}) => {
+  const { f, cap } = writeCase(body, PROJ, pkg, rootOverrides);
+  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap], {
     encoding: 'utf8',
     env: { ...process.env, NUB_V2_DUMP_WRITES: '1' },
   });
@@ -46,9 +66,8 @@ const run = (body, pkg = 'p') => {
 // matches the literal header `writePaths FEASIBILITY (distinct writes outside project/deps)` and
 // so fails on a correct run — measured, while writing this test.
 const grantAtRoot = (body, projRoot, pkg = 'p') => {
-  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
-  fs.writeFileSync(f, SHELL + body);
-  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, projRoot, HOME, JAIL, pkg], {
+  const { f, cap } = writeCase(body, projRoot, pkg);
+  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap], {
     encoding: 'utf8',
   });
   return JSON.parse(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim());
@@ -135,9 +154,13 @@ test('the package own directory is not billed; a sibling dependency is', () => {
 });
 
 test('a stream with no lifecycle shell reports UNKNOWN rather than an empty grant', () => {
-  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
+  // Written without the SHELL prefix on purpose, so `writeCase` is not used here.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-'));
+  const f = path.join(dir, 'trace.txt');
   fs.writeFileSync(f, '100 openat(AT_FDCWD, "/home/u/x", O_WRONLY|O_CREAT) = 3\n');
-  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, 'p'], {
+  const cap = path.join(dir, 'capture.json');
+  fs.writeFileSync(cap, JSON.stringify({ pkg: 'p', version: '1.0.0', roots: CAPTURE_ROOTS(PROJ, 'p') }));
+  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap], {
     encoding: 'utf8',
   });
   assert.match(out, /NO LIFECYCLE SHELL FOUND/);
@@ -234,13 +257,10 @@ test('cwd survives a clone edge split across `<unfinished ...>`', () => {
 const JTMP = '/tmp/nub-tmp-obsAb12Cd';
 const TOOLS = `${HOME}/.cache/nub/pm/tools`;
 const runTmp = (body, pkg = 'p') => {
-  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
-  fs.writeFileSync(f, SHELL + body);
-  return execFileSync(
-    'node',
-    [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg, JTMP, `${TOOLS}/npm-prefix`],
-    { encoding: 'utf8' },
-  );
+  const { f, cap } = writeCase(body, PROJ, pkg,
+    { temp: JTMP, toolsDir: TOOLS, npmPrefix: `${TOOLS}/npm-prefix` });
+  return execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap],
+    { encoding: 'utf8' });
 };
 const grantOf = (out) => JSON.parse(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim());
 
@@ -344,6 +364,42 @@ test('POSITIVE CONTROL: a non-bytecode write into a sibling dependency still bil
   );
   assert.deepStrictEqual(grant, { write: { deps: true } },
     `the bytecode predicate swallowed an ordinary dependency write — it is too wide:\n${out}`);
+});
+
+// ── Venue portability R2: roots come from `capture.json`, and only from there ────────────────────
+
+test('an UNDECLARED root is a hard error, not a silent fallback to ambient state', () => {
+  // ⛔ THE WHOLE REQUIREMENT RESTS ON THIS. A classifier that falls back when a root is missing
+  // produces a plausible grant on the machine whose ambient state happens to match and a wrong one
+  // everywhere else — and reports success either way, so the corpus is wrong without anyone knowing.
+  // Exiting non-zero costs one run; a silent fallback costs a corpus.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-'));
+  const f = path.join(dir, 'trace.txt');
+  fs.writeFileSync(f, SHELL);
+  const roots = CAPTURE_ROOTS(PROJ, 'p');
+  delete roots.jailHome;                       // a root the classifier genuinely keys on
+  const cap = path.join(dir, 'capture.json');
+  fs.writeFileSync(cap, JSON.stringify({ pkg: 'p', roots }));
+  assert.throws(
+    () => execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap],
+      { encoding: 'utf8', stdio: 'pipe' }),
+    (e) => {
+      assert.strictEqual(e.status, 3, `expected a hard exit, got status ${e.status}`);
+      assert.match(String(e.stderr), /does not DECLARE these roots: jailHome/);
+      return true;
+    },
+    'an undeclared root did not stop the run',
+  );
+});
+
+test('an explicitly NULL root is accepted — absent and null are different answers', () => {
+  // The other half, and it is not redundant: if `null` were fatal too, a platform with genuinely no
+  // such root could only satisfy the check by inventing a path, which is worse than declaring none.
+  // Only the ABSENCE of the key is a failure to answer.
+  const { grant } = run(`100 openat(AT_FDCWD, "${PROJ}/f", O_WRONLY|O_CREAT, 0644) = 3\n`, 'p',
+    { temp: null, npmPrefix: null, toolsDir: null, globalStore: null, interpreter: null });
+  assert.deepStrictEqual(grant, { write: { project: true } },
+    'a null root was treated as missing rather than as "this platform has no such root"');
 });
 
 test('POSITIVE CONTROL: a `.py` SOURCE write is not mistaken for bytecode', () => {

@@ -68,6 +68,12 @@ export function parseDriverLog(log) {
     capturePath: null,
     eventLogPath: null,
     eventLog: null,
+    // Venue-portability R3/R6. Null rather than guessed: a driver that does not report these has
+    // not measured them, and inventing a value here would make an unmeasured field indistinguishable
+    // from a measured one.
+    storeLayout: null,
+    interpreterPath: null,
+    overrides: null,
   };
 
   let synthesizedNext = false;
@@ -89,6 +95,18 @@ export function parseDriverLog(log) {
     if (/RAW TRACE NOT RETAINED/.test(l)) out.notes.push('rawlog-missing');
     const evf = /EVENTLOG-FILE\s+(\S+)/.exec(l);
     if (evf) { out.eventLogPath = evf[1]; continue; }
+    // Venue-portability R3/R6, same two-stdout-line contract as the retention markers above: the
+    // driver measures, this file only learns. A platform adopts these by printing them.
+    const sl = /VENUE-STORE-LAYOUT\s+(isolated|hoisted)/.exec(l);
+    if (sl) { out.storeLayout = sl[1]; continue; }
+    const ip = /VENUE-INTERPRETER\s+(\S+)/.exec(l);
+    if (ip) { out.interpreterPath = ip[1]; continue; }
+    const ov = /VENUE-OVERRIDES\s+(\{.*)/.exec(l);
+    if (ov) {
+      try { out.overrides = JSON.parse(ov[1]); }
+      catch { out.notes.push('overrides-unparsable'); }
+      continue;
+    }
     const evs = /EVENTLOG-STATS\s+(\{.*)/.exec(l);
     if (evs) {
       try { out.eventLog = JSON.parse(evs[1]); }
@@ -195,6 +213,43 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const rc = Number(opt('--rc', '0'));
   const parsed = parseDriverLog(log);
 
+  // ⛔ WHAT MACHINE, IN WHAT STATE (VENUE-PORTABILITY R3 + R6). Before this, two records produced on
+  // different venues were INDISTINGUISHABLE in the record, so a divergence between them could not be
+  // attributed without going back to the run — and the runs are ephemeral.
+  //
+  // ⛔ `ciEnvSet` AND `storeLayout` ARE SEPARATE FIELDS AND NEITHER IMPLIES THE OTHER. `is_ci()` is
+  // `env::var_os("CI").is_some()` and `install_report.rs` returns the isolated layout when it is set,
+  // so CI genuinely measures a DIFFERENT store layout. That difference is real and must be PRESERVED,
+  // not normalised away; recording it is what turns a confound into a covered axis. Where the two
+  // states disagree the catalog takes the UNION, because over-granting is safe and under-granting
+  // breaks installs.
+  //
+  // ⛔ `storeLayout` IS OBSERVED, NOT INFERRED FROM `CI`. Deriving it from the env var would encode
+  // the very rule this field exists to let us check, and would then agree with itself forever. The
+  // driver reports what the arm tree actually contained; absent that, `null` — never a guess.
+  // (MEASURED, and the reason this matters: a `CI`-unset install on the VM still produced a
+  // `node_modules/.store`, so the "CI implies isolated" rule is not a biconditional.)
+  const venueProvenance = (p) => {
+    const env = process.env;
+    const home = env.HOME ?? env.USERPROFILE ?? '';
+    const interpreterPath = p.interpreterPath ?? null;
+    return {
+      // GITHUB_ACTIONS is the runner itself; anything else is declared by the operator, because a
+      // cloud VM and a laptop are not distinguishable from inside without being told.
+      venue: env.GITHUB_ACTIONS ? 'ci' : (env.NUB_CORPUS_VENUE ?? 'local'),
+      ciEnvSet: env.CI !== undefined,
+      storeLayout: p.storeLayout ?? null,
+      interpreterPath,
+      interpreterInsideHome:
+        interpreterPath && home ? interpreterPath.startsWith(`${home}/`) : null,
+      // R6. Normalisation that is RECORDED is a covered axis; normalisation that is invisible is a
+      // silent bet that it did not matter. The driver names each variable it set, unset or
+      // redirected, so a reader can tell whether `CI` was touched — the one override that would
+      // invalidate the whole acceptance test — without trusting that it was not.
+      overrides: p.overrides ?? null,
+    };
+  };
+
   // ⛔ NO TERMINAL LINE IS NOT AN EMPTY GRANT. A driver killed by a deadline, or dying before it
   // reaches a `=>`, must land in the `HARNESS-*` bucket so the queue reopens the row rather than
   // recording an absence as a result.
@@ -227,6 +282,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       corpusGitSha: opt('--corpus-sha', '') || null,
       node: process.version,
       at: new Date().toISOString(),
+      ...venueProvenance(parsed),
     },
   };
 
