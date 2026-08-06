@@ -1,0 +1,21 @@
+### @danmarshall/deckgl-typings@3.5.0   (/home/runner/v2-VcEvWg)
+  OBSERVE   rc=0 files=142 trace=10637 lines
+  CLOSURE   26 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 32  /  whole traced tree 35
+    sockets script 0  /  whole traced tree 0
+  == WRITES the script actually performed ==
+    deps         32
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=19/19 missing=0 (tree 401/142) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => VERIFIED {"write":{"deps":true}}   (observed, then verified)
+  VERIFY[drop-writedeps] rc=0 artifacts=19/19 missing=0 (tree 401/142) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'write.deps' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: write.deps  (synthesized {"write":{"deps":true}}; each named capability drops on its own)
