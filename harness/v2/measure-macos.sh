@@ -62,8 +62,20 @@ PRE=$(find -L "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 # `-x` and an unconditional dump of both the wrapper and dtrace's own stderr: the first run of this
 # driver produced a live tracer, a clean dtrace exit, and NO npm.log at all — i.e. the `-c` child
 # exited without executing its body, which is invisible unless the wrapper narrates itself.
+#
+# ⛔ /bin/bash, NEVER /bin/sh. macOS's /bin/sh is a 101 KB STUB that immediately RE-EXECS the real
+# 1.29 MB /bin/bash, and `dtrace -c` does not survive its target re-execing: the grip dtrace took on
+# the process it spawned is invalidated, dtrace tears down, and the child dies without running its
+# body. MEASURED by probes/dtrace-c-matrix.sh — `/bin/sh` 0/8 sentinels, `/bin/bash` 1/1 with the
+# full exec tree including the inner `sudo`. The tell in the trace is an `EXEC` record at the
+# TARGET's own pid whose execname is `bash`; /bin/bash produces no such record.
+#
+# Single-variable: an UNSIGNED copy of /bin/sh fails identically, so this is the re-exec and not a
+# code-signature or SIP restriction; `-x` and the inner `sudo` were each independently exonerated.
+# Not `sh -c`/`bash -c` either — the decoder identifies the lifecycle script as the only `-c` shell
+# in the subtree, so the wrapper stays a FILE argument.
 dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
-       -c "/bin/sh -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
+       -c "/bin/bash -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
 DT_RC=$?
 echo "  --- wrapper (run.sh) ---"; sed 's/^/     /' "$OBS/run.sh"
 echo "  --- dtrace stderr + wrapper trace ---"; sed 's/^/     /' "$OBS/dtrace.log" | head -30
@@ -130,7 +142,7 @@ sudo -u "$RUNUSER" -H env "PATH=\$PATH" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CA
 echo \$? > "$v/rc"
 JW
       dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$v/trace.txt" \
-             -c "/bin/sh $v/jail.sh" > "$v/dtrace.log" 2>&1 )
+             -c "/bin/bash -x $v/jail.sh" > "$v/dtrace.log" 2>&1 )   # /bin/sh re-execs; see OBSERVE
     local rc; rc=$(cat "$v/rc" 2>/dev/null || echo 99)
   else
     # ⛔ THE JAILED RUN MUST NOT BE ROOT. This driver is invoked under sudo because dtrace needs
