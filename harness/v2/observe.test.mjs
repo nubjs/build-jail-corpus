@@ -298,3 +298,58 @@ test('an UNRESOLVABLE dirfd is reported as UNKNOWN and never guessed into a scop
   assert.deepStrictEqual(grant, {});
   assert.ok(!writes.some((p) => p.endsWith('/mystery')), `invented a path for an unresolvable dirfd: ${JSON.stringify(writes)}`);
 });
+
+// ── Python bytecode is never billed ─────────────────────────────────────────────────────────────
+//
+// Grounds, both required and both stated in `observe.mjs` beside the predicate: MEASURED — 10 of 10
+// `mkdir __pycache__` refused EACCES under a real Landlock jail with `rc=0` regardless (lmdb-store,
+// caches cleared first, controls in-trace) — and LANGUAGE-LEVEL, since CPython compiles in memory
+// when it cannot write the cache. The second is what licenses generalizing from the first.
+
+test('a __pycache__ write under the REAL user home is not billed', () => {
+  // The case that motivated this: with Node installed under `$HOME` — `~/.nvm`, and this corpus VM
+  // until it was moved — node-gyp's bundled `gyp/pylib` sits inside the home, so CPython writing
+  // bytecode beside it billed `write:{userHome}` on every node-gyp package. MEASURED on
+  // `@pulumi/gcp@0.16.9`, whose whole grant was that and which needs nothing.
+  const { grant, out } = run(
+    `100 mkdir("${HOME}/node/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/__pycache__", 0777) = 0\n`
+    + `100 openat(AT_FDCWD, "${HOME}/node/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/__pycache__/input.cpython-312.pyc", O_WRONLY|O_CREAT, 0644) = 3\n`,
+  );
+  assert.deepStrictEqual(grant, {},
+    `bytecode beside a home-installed toolchain manufactured a grant:\n${out}`);
+  assert.match(out, /bytecode\s+2/, `the writes were not routed to the bytecode bucket:\n${out}`);
+  // The report must say the jail REFUSES these, not that it grants them — the two exclusions have
+  // different reasons and collapsing them would make the report claim something untrue.
+  assert.match(out, /bytecode.*jail REFUSES these/, `bytecode was reported as base-granted:\n${out}`);
+});
+
+test('bytecode is dropped wherever it lands, so the grant does not depend on where Node is installed', () => {
+  // The property that makes this a classifier rule rather than a VM configuration detail. The same
+  // package built against `/opt/node` and against `~/node` must synthesize the SAME grant; before
+  // this rule the first billed `outside` and the second billed `userHome`.
+  const inHome = run(`100 openat(AT_FDCWD, "${HOME}/node/lib/x/__pycache__/m.cpython-312.pyc", O_WRONLY|O_CREAT, 0644) = 3\n`);
+  const inOpt = run('100 openat(AT_FDCWD, "/opt/node/lib/x/__pycache__/m.cpython-312.pyc", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.deepStrictEqual(inHome.grant, {}, `home-installed Node still bills:\n${inHome.out}`);
+  assert.deepStrictEqual(inOpt.grant, {}, `opt-installed Node still bills:\n${inOpt.out}`);
+  assert.deepStrictEqual(inHome.grant, inOpt.grant, 'the grant still depends on the Node install location');
+});
+
+test('POSITIVE CONTROL: a non-bytecode write into a sibling dependency still bills `deps`', () => {
+  // ⛔ WITHOUT THIS THE TWO CASES ABOVE PASS FOR A CLASSIFIER THAT DROPS EVERYTHING. They assert an
+  // ABSENCE, and an absence assertion is satisfied by a predicate that is far too wide as readily as
+  // by the correct one. This pins the other side: an ordinary write into the very same
+  // `node_modules` tree, differing only in that it is not bytecode, must still earn its scope.
+  const { grant, out } = run(
+    `100 openat(AT_FDCWD, "${PROJ}/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py", O_WRONLY|O_CREAT, 0644) = 3\n`,
+  );
+  assert.deepStrictEqual(grant, { write: { deps: true } },
+    `the bytecode predicate swallowed an ordinary dependency write — it is too wide:\n${out}`);
+});
+
+test('POSITIVE CONTROL: a `.py` SOURCE write is not mistaken for bytecode', () => {
+  // `.pyc`/`.pyo` only. A `.py` is source a build may legitimately generate, and dropping it would
+  // be an under-grant. Guards the predicate against being loosened to a bare `.py` prefix match.
+  const { grant } = run(`100 openat(AT_FDCWD, "${HOME}/gen/thing.py", O_WRONLY|O_CREAT, 0644) = 3\n`);
+  assert.deepStrictEqual(grant, { write: { userHome: true } },
+    'a generated .py source was dropped as if it were bytecode');
+});

@@ -188,8 +188,48 @@ for (const e of decoded.events) {
 //                 is reported rather than silently absorbed. Only the per-run dir this driver
 //                 created and exported is free, which is exactly the jail's own rule.
 //
+// ⛔ PYTHON BYTECODE IS DROPPED WHEREVER IT LANDS, AND THIS IS THE ONLY UNCONDITIONAL DROP HERE.
+// It is tested FIRST, ahead of every root, because the bucket a `.pyc` would otherwise fall into is
+// an accident of where the user's Node happens to be installed — under `$HOME` (`~/.nvm`, and this
+// corpus VM until today) it bills `userHome`; under `/opt` or `/usr/local` it bills `outside`. The
+// same package would then carry a different grant on two machines running identical code.
+//
+// ⛔ THE JUSTIFICATION IS TWO INDEPENDENT GROUNDS AND IT NEEDS BOTH. Either alone would be a bad
+// reason to discard an observed write, because dropping a write a scope COULD have satisfied is an
+// under-prediction — the one direction this system may not take.
+//
+//   1. MEASURED, on this corpus, `lmdb-store@2.0.0-alpha2` under a real Landlock jail with the
+//      bytecode caches cleared in both node-gyp trees first (a warm cache makes the observation
+//      vacuous — every `.pyc` is then a READ that succeeds, which is consistent with the write
+//      being suppressed AND with it never being attempted):
+//        mkdir attempts for a __pycache__ dir   total: 10   refused: 10   (= -1 EACCES)
+//        .pyc files created on disk after the run: 0
+//        install rc=0
+//      Controls in the same trace: python execve 5, gyp/pylib source reads 40, and 344 EACCES/EPERM
+//      overall, so the tracer was live and refusals were observable. A capability whose absence does
+//      not change the outcome is not a capability the package needs.
+//
+//   2. LANGUAGE-LEVEL, which is what makes generalizing from that one measurement sound. CPython
+//      compiles to bytecode in memory when it cannot write the cache; the import simply proceeds.
+//      That is a property of the interpreter, not a per-package accident, so it holds for every
+//      package whose build shells out to Python — which on this corpus means every node-gyp build.
+//
+// ⛔ WHAT THIS DELIBERATELY IS NOT: a general "the preset already covers it, so drop it" rule. That
+// broader bucket was proposed and is WRONG, because the scopes do not compile to what it assumes.
+// `Scope::Deps` (`compiler/curated.rs`) resolves each DECLARED dependency through the store and
+// `push_rw`s it, explicitly UNclamped to the project — so for a package that declares `node-gyp`,
+// `deps` really does grant rw over the tree these writes target. `Scope::UserHome` expands to
+// `home_minus_secrets_allows(..., ReadWrite)`, which covers the interpreter closure whenever Node
+// lives under `$HOME`. And the compiled policy is a pure allowlist with the deny floor stripped
+// (`enforce_pure_allowlist`), so grants UNION: a read-only preset rule does not veto an rw scope
+// rule over the same path. A blanket drop would therefore discard writes a scope could have
+// satisfied. Bytecode is exempt only because ground 2 says the write is never load-bearing at all.
+// ⇒ Any further drop class needs its own "refused, and rc=0 anyway" measurement with a control.
+const isBytecode = (p) => /(^|\/)__pycache__(\/|$)/.test(p) || /\.py[co]$/.test(p);
+
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {
+  if (isBytecode(p)) return 'bytecode';
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
   if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
@@ -218,6 +258,12 @@ const scope = (p) => {
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
 const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
+// ⛔ `bytecode` IS NOT IN `BASE_COVERED`, AND THE DISTINCTION IS THE POINT. A base-covered write is
+// one the jail GRANTS; a bytecode write is one the jail REFUSES and the build survives without.
+// Collapsing them into one list would make the report claim the jail hands these paths over, which
+// is the opposite of what was measured. They are excluded from the grant for different reasons, so
+// they are named separately and reported with different words.
+const NOT_BILLED = [...BASE_COVERED, 'bytecode'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);
@@ -247,12 +293,13 @@ if (lifecycle.size === 0) {
 }
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
-  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)' : '';
+  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)'
+    : k === 'bytecode' ? '  (jail REFUSES these and the build succeeds anyway — NOT billed)' : '';
   console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}${free}`);
   // Dump a sample of every bucket that is either unclassifiable or excluded from the grant. The
   // excluded ones are the evidence that the exclusion is honest: a reader can see the paths and
   // check them against the base profile instead of taking the classifier's word for it.
-  if (k === 'outside' || k === 'kernelfs' || BASE_COVERED.includes(k)) {
+  if (k === 'outside' || k === 'kernelfs' || NOT_BILLED.includes(k)) {
     v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
     if (v.length > 10) console.log(`      … and ${v.length - 10} more`);
   }
