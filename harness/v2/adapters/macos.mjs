@@ -81,8 +81,17 @@ const fsReady = waitReady('fs_usage', fsLog, 'probe-');
 // Dropped to the invoking (non-root) user when available. The fixture's EACCES check is meaningless
 // under root, which bypasses mode bits entirely.
 const asUser = process.env.SUDO_USER;
+// `sudo -u` resets PATH to secure_path, which has neither npm nor a hosted node — so the traced
+// command must be handed the PATH it would have had. Without this an `npm install` under
+// observation fails with "command not found" and the trace is of nothing.
+// sudo also drops everything else the caller set, so anything the traced command was configured
+// with — including a fixture's control variable — has to be carried across explicitly.
+const DROP = new Set(['SUDO_USER', 'SUDO_UID', 'SUDO_GID', 'SUDO_COMMAND', 'USER', 'LOGNAME', 'HOME', 'MAIL', 'SHELL']);
+const forwarded = Object.entries(process.env)
+  .filter(([k, v]) => !DROP.has(k) && typeof v === 'string' && !v.includes('\0'))
+  .map(([k, v]) => `${k}=${v}`);
 const run = asUser
-  ? spawnSync('/usr/bin/sudo', ['-u', asUser, ...cmd], { stdio: 'inherit' })
+  ? spawnSync('/usr/bin/sudo', ['-u', asUser, '/usr/bin/env', ...forwarded, ...cmd], { stdio: 'inherit' })
   : spawnSync(cmd[0], cmd.slice(1), { stdio: 'inherit' });
 const rootMarkerRc = run.status;
 spawnSync('/bin/sleep', ['2']);           // let the kernel drain both trace buffers before teardown
@@ -145,14 +154,34 @@ diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).f
 // Write intent is read from the OPEN FLAGS. By the time bytes move the fd hides the path, so an
 // open that never writes still establishes the need for a write grant, and an open that does write
 // is invisible as a write if you only watch write(2).
-const O = { WRONLY: 0x0001, RDWR: 0x0002, APPEND: 0x0008, CREAT: 0x0200, TRUNC: 0x0400 };
+//
+// ⛔ ES `fflag` IS THE KERNEL'S FFLAGS, NOT THE USERSPACE O_* FLAGS. They are off by one in the
+// access-mode bits, because the kernel stores `oflags + 1`:
+//
+//     userspace  O_RDONLY=0  O_WRONLY=1  O_RDWR=2
+//     kernel     FREAD  =1   FWRITE  =2  FREAD|FWRITE=3
+//
+// So the userspace value for O_WRONLY (0x0001) is the kernel's value for FREAD. Testing `fflag &
+// 0x0001` — the obvious port of the Linux predicate — classifies EVERY READ AS A WRITE, silently,
+// and over-grants every package in the corpus. Measured on the runner: a read-only open of a
+// results.json reported fflag=32769 (0x8001 = O_EVTONLY|FREAD), which that predicate calls a write.
+const F = { READ: 0x0001, WRITE: 0x0002, APPEND: 0x0008, CREAT: 0x0200, TRUNC: 0x0400 };
 const isWriteOpen = (fflag) => typeof fflag === 'number'
-  && (fflag & (O.WRONLY | O.RDWR | O.APPEND | O.CREAT | O.TRUNC)) !== 0;
+  && (fflag & (F.WRITE | F.APPEND | F.CREAT | F.TRUNC)) !== 0;
 // Path-taking mutators. Each names a write need on its own, independent of any open.
 const MUTATORS = { create: 1, unlink: 1, rename: 1, link: 1, truncate: 1 };
 
 const events = [];
-let unknownShape = 0;
+let unknownShape = 0, esTruncated = 0;
+// ES states truncation EXPLICITLY, per path, as a sibling `path_truncated` boolean. That is
+// authoritative and needs no heuristic — unlike the fs_usage side, where truncation has to be
+// inferred. A truncated path is DROPPED, never emitted: it would prefix-match the wrong declared
+// root downstream and produce a confidently wrong grant.
+const takePath = (holder) => {
+  if (!holder || typeof holder.path !== 'string') return undefined;
+  if (holder.path_truncated === true) { esTruncated++; return undefined; }
+  return holder.path;
+};
 for (const r of esRecords) {
   const pid = first(r, P_PID), ppid = first(r, P_PPID);
   if (typeof pid !== 'number' || !subtreePids.has(pid)) continue;
@@ -163,19 +192,18 @@ for (const r of esRecords) {
   const emit = (op, p) => { if (typeof p === 'string' && p.length) events.push({ op, path: p, result: 'ok', pid, ppid }); };
 
   if (kind === 'open') {
-    const p = first(body, ['file.path']);
-    emit(isWriteOpen(first(body, ['fflag'])) ? 'write' : 'read', p);
+    emit(isWriteOpen(first(body, ['fflag'])) ? 'write' : 'read', takePath(dig(body, 'file')));
   } else if (kind === 'exec') {
-    emit('exec', first(body, ['target.executable.path']));
+    emit('exec', takePath(dig(body, 'target.executable')));
   } else if (MUTATORS[kind]) {
-    // `create` reports either an existing file or a (dir,name) pair for a file that does not exist
-    // yet; `rename`/`link` have a source and a destination and BOTH are needs.
-    const dirName = first(body, ['destination.new_path.dir.path']);
+    // `create` reports either an EXISTING file or a (dir, filename) pair for one that does not
+    // exist yet; `rename`/`link` carry a source and a destination and BOTH are write needs.
+    const dirName = takePath(dig(body, 'destination.new_path.dir'));
     const leaf = first(body, ['destination.new_path.filename']);
     for (const cand of [
-      first(body, ['target.path', 'source.path', 'file.path']),
-      first(body, ['destination.existing_file.path']),
-      dirName && leaf ? path.join(dirName, leaf) : undefined,
+      takePath(dig(body, 'target')) ?? takePath(dig(body, 'source')) ?? takePath(dig(body, 'file')),
+      takePath(dig(body, 'destination.existing_file')),
+      dirName && typeof leaf === 'string' ? path.join(dirName, leaf) : undefined,
     ]) emit('write', cand);
   }
 }
@@ -194,10 +222,24 @@ for (const r of esRecords) {
 // openat's directory fd, rendered `[ 3]/relative/path`, on ordinary SUCCESSFUL calls. That is the
 // true macOS analogue of AT_EACCESS. A free-text `\[\s*\d+\]` scan matches it and invents refusals.
 const ERRNO = { 1: 'EPERM', 13: 'EACCES', 30: 'EROFS' };
-// Anchored at the call column: timestamp, then the syscall name, then the bracketed errno. The
-// leading `\S+\s+\S+` consumes the timestamp and call name so a bracket appearing later — inside
-// the pathname field, i.e. the openat dirfd — cannot match.
-const REFUSAL = /^\d\d:\d\d:\d\d\.\d+\s+(\S+)\s+(?:F=\d+)?\s*\[\s*(\d+)\]/;
+// Two discriminators, and BOTH are needed. Measured on the runner:
+//
+//   errno form   `05:18:56.926933  open        [ 13] (R___________)  /path/denied.txt`
+//   dirfd form   `05:18:54.164789  renameat                         [4]/F365749A20...`
+//
+// The dirfd form is the true macOS analogue of `AT_EACCESS`: an ordinary SUCCESSFUL call carrying a
+// bracketed number that is not an errno. Filtering it by "is the number a refusal errno?" alone is
+// NOT enough — a process holding 13 open fds does `openat` with dirfd 13, which renders `[13]/...`
+// and reads as EACCES. So:
+//   (a) the errno is printed `[%3d]`, i.e. exactly THREE characters inside the brackets, space
+//       padded; the dirfd is printed `[%d]` with no padding.
+//   (b) the dirfd bracket is immediately followed by `/` — it is a path prefix, not a column.
+const REFUSAL = /^\d\d:\d\d:\d\d\.\d+\s+(\S+)\s+(?:F=-?\d+\s*)?\[(\s{0,2}\d{1,3})\](?!\/)/;
+// Calls whose bracketed value is not an errno at all, or that name no path so cannot express a
+// filesystem refusal. `exit` is the dangerous member — see the comment at the match site.
+const NON_PATH_CALLS = new Set(['exit', 'close', 'close_nocancel', 'read', 'write', 'fcntl',
+  'fcntl_nocancel', 'ioctl', 'select', 'kevent', 'kevent_id', 'kevent_qos', 'fsync', 'lseek',
+  'dup', 'dup2', 'pipe', 'socket', 'connect', 'bind', 'listen', 'accept', 'sendto', 'recvfrom']);
 const AF_INET_SOCKET = /^\d\d:\d\d:\d\d\.\d+\s+socket\s+.*AF_INET/;
 const CONNECT_LINE = /^\d\d:\d\d:\d\d\.\d+\s+connect/;
 
@@ -221,8 +263,20 @@ const pidForCommand = (c) => {
 // stops matching any declared root and lands in the unmapped bucket, or worse matches the wrong
 // one. `-w` raises the budget to MAX_WIDE_MODE_COLS(264) minus overhead; it does not remove the
 // limit. So every path taken from fs_usage is checked, and a suspect one FAILS LOUDLY.
+// Two distinct incomplete-path signals, both measured on the runner:
+//
+//  (a) TAIL TRIM. A 124-char path printed in full; a 164-char one printed as
+//      `unner/recon-1iFd0J/len160/f...` — the leading `/Users/r` simply gone, no ellipsis. So an
+//      absolute path that does not START with `/` was trimmed. (The `[3]/rel` openat form is the
+//      one legitimate exception and is excluded.)
+//
+//  (b) `>` PADDING. The KERNEL, not fs_usage, pads a VFS_LOOKUP record with `>` when there is more
+//      path beyond the component it resolved (xnu bsd/vfs/vfs_lookup.c). Observed live as
+//      `/System/Volumes/Data/private/var/root/Library>>>>>>>>>>>`. That string is a valid-looking
+//      absolute path, so signal (a) does NOT catch it — it would be scope-assigned to whatever root
+//      `/System/...` matches and silently produce a wrong answer.
 let truncated = 0;
-const looksTruncated = (p) => p && !p.startsWith('/') && !/^\[\d+\]\//.test(p);
+const looksTruncated = (p) => !!p && ((!p.startsWith('/') && !/^\[\d+\]\//.test(p)) || p.includes('>'));
 
 let sockets = 0, connects = 0, droppedUnattributable = 0;
 const denials = [];
@@ -233,8 +287,16 @@ for (const raw of fsLines) {
   if (CONNECT_LINE.test(line)) connects++;
   const m = line.match(REFUSAL);
   if (!m) continue;
-  const name = ERRNO[Number(m[2])];
-  if (!name) continue;                                   // a bracketed number that is not a refusal errno
+  // `[%3d]` is exactly three characters wide. A shorter one is an unpadded `[%d]` — a dirfd or a
+  // count that happens to sit in this position, not an errno column.
+  if (m[2].length !== 3) continue;
+  // ⛔ A THIRD IMPOSTOR, found in real trace data: `exit` prints the process EXIT STATUS in the very
+  // same bracketed column. `05:18:56.927043  exit  [  1]` is a `cat` exiting 1 after its open was
+  // refused — three characters wide, value 1, and NOT a refusal. It even sits next to the genuine
+  // EACCES it followed, so it reads as corroboration. Calls that take no path can never be one.
+  if (NON_PATH_CALLS.has(m[1])) continue;
+  const name = ERRNO[Number(m[2].trim())];
+  if (!name) continue;                                   // a bracketed errno that is not a refusal
   const comm = commandOfLine(line);
   if (!comm || !subtreeCommands.has(comm)) continue;     // not ours
   // The pathname column is whatever sits between the call/errno prefix and the trailing timing.
@@ -259,7 +321,8 @@ diag.counts.af_inet_sockets = sockets;
 diag.counts.connect_calls = connects;
 diag.counts.refusals = denials.length;
 diag.counts.dropped_unattributable = droppedUnattributable;
-diag.counts.truncated_paths_rejected = truncated;
+diag.counts.fs_usage_truncated_paths_rejected = truncated;
+diag.counts.eslogger_truncated_paths_rejected = esTruncated;
 diag.counts.events = events.length;
 diag.counts.unknown_es_event_shape = unknownShape;
 diag.command_rc = rootMarkerRc;

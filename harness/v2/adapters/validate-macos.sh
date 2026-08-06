@@ -12,6 +12,12 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ "$(id -u)" -eq 0 ] || { echo "validate-macos.sh must run as root (the TRACER needs it; the fixture does not)"; exit 2; }
+# sudo resets PATH to secure_path, which on a GitHub runner does NOT contain the hosted node. An
+# absolute /usr/bin/node does not exist there either. Take it from the environment, else search.
+NODE="${NODE:-$(command -v node 2>/dev/null)}"
+[ -x "$NODE" ] || NODE="$(ls -1 /usr/local/bin/node /opt/homebrew/bin/node 2>/dev/null | head -1)"
+[ -x "$NODE" ] || { echo "validate-macos.sh: no node found; pass NODE=/path/to/node"; exit 2; }
+echo "validate: node=$NODE"
 REALUSER="${SUDO_USER:-$(stat -f '%Su' /dev/console)}"
 REALHOME="$(dscl . -read "/Users/$REALUSER" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
 [ -d "$REALHOME" ] || REALHOME="/Users/$REALUSER"
@@ -58,7 +64,7 @@ for ARM in full skip-home; do
   SKIPENV=""; [ "$ARM" = "skip-home" ] && SKIPENV="home"
   rm -f "$FIXHOME/home-write.txt" "$PROJ/project-write.txt"
 
-  FIXTURE_SKIP="$SKIPENV" /usr/bin/node "$HERE/macos.mjs" --out "$EV" --diag "$DG" -- \
+  FIXTURE_SKIP="$SKIPENV" "$NODE" "$HERE/macos.mjs" --out "$EV" --diag "$DG" -- \
     "$ROOT/run-fixture.sh" "$PROJ" "$FIXHOME" "$PORT" > "$ROOT/adapter-$ARM.log" 2>&1
   ADAPTER_RC=$?
   echo "adapter rc=$ADAPTER_RC"
@@ -68,7 +74,7 @@ for ARM in full skip-home; do
   # what the arm claims, every assertion below is meaningless — so check the artifact first.
   echo "  ground truth: project-write.txt exists=$([ -f "$PROJ/project-write.txt" ] && echo yes || echo no)  home-write.txt exists=$([ -f "$FIXHOME/home-write.txt" ] && echo yes || echo no)"
 
-  /usr/bin/node "$HERE/expect-macos.mjs" "$EV" "$PROJ" "$FIXHOME" "$ARM"
+  "$NODE" "$HERE/expect-macos.mjs" "$EV" "$PROJ" "$FIXHOME" "$ARM"
   [ $? -ne 0 ] && RC_TOTAL=1
   echo "  --- events ---"; sed 's/^/  | /' "$EV" | head -40
 done

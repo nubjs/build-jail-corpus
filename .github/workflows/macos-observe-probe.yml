@@ -35,17 +35,24 @@ jobs:
       # threshold. The adapter was written without ever having seen either (both need root), so this
       # stage is what turns its assumptions into measurements. It must never fail the job: a negative
       # answer here is the deliverable.
+      # ⛔ `set +e` IS LOAD-BEARING IN EVERY STEP BELOW. GitHub runs `run:` under `bash -e`, so the
+      # step aborts on the first non-zero command — which in run 1 meant a failing probe killed the
+      # step BEFORE the `cat` that would have shown why, and `continue-on-error` does not help
+      # because it governs the JOB's verdict, not the shell's. Capture the rc on its own line and
+      # print the log unconditionally.
       - name: Recon — what do the two instruments actually emit?
         continue-on-error: true
         run: |
+          set +e
           chmod +x harness/v2/adapters/recon-macos.sh
           sudo harness/v2/adapters/recon-macos.sh "$RUNNER_TEMP/recon" > "$RUNNER_TEMP/recon.log" 2>&1
-          echo "EXIT=$?"
+          echo "RECON_EXIT=$?"
           tail -400 "$RUNNER_TEMP/recon.log"
 
       - name: Recon — full schema dump
         continue-on-error: true
         run: |
+          set +e
           echo "=========== eslogger schema ==========="; cat "$RUNNER_TEMP/recon/es-schema.txt" 2>&1 | head -300
           echo "=========== fs_usage analysis ==========="; cat "$RUNNER_TEMP/recon/fsu-analysis.txt" 2>&1 | head -200
           echo "=========== raw eslogger sample ==========="; head -3 "$RUNNER_TEMP/recon/es-raw.json" 2>&1
@@ -56,9 +63,12 @@ jobs:
         id: validate
         continue-on-error: true
         run: |
+          set +e
           chmod +x harness/v2/adapters/validate-macos.sh
-          sudo harness/v2/adapters/validate-macos.sh > "$RUNNER_TEMP/validate.log" 2>&1
-          echo "EXIT=$?"
+          # sudo resets PATH to secure_path, which has no node on a hosted runner. Hand the
+          # resolved interpreter across the privilege boundary explicitly.
+          sudo NODE="$(command -v node)" harness/v2/adapters/validate-macos.sh > "$RUNNER_TEMP/validate.log" 2>&1
+          echo "VALIDATE_EXIT=$?"
           cat "$RUNNER_TEMP/validate.log"
 
       # STAGE 3 — a real package. esbuild's postinstall downloads a platform binary, so it exercises
@@ -67,12 +77,13 @@ jobs:
       - name: Observe a real package end to end
         continue-on-error: true
         run: |
+          set +e
           OBS="$HOME/obs"; mkdir -p "$OBS"; cd "$OBS"
           printf '{"name":"o","version":"1.0.0"}\n' > package.json
-          sudo /usr/bin/node "$GITHUB_WORKSPACE/harness/v2/adapters/macos.mjs" \
+          sudo "$(command -v node)" "$GITHUB_WORKSPACE/harness/v2/adapters/macos.mjs" \
             --out "$OBS/events.ndjson" --diag "$OBS/diag.json" \
             -- /bin/sh -c "cd $OBS && npm install --no-audit --no-fund --foreground-scripts esbuild@0.21.5"
-          echo "EXIT=$?"
+          echo "OBSERVE_EXIT=$?"
           echo "=== diag ==="; cat "$OBS/diag.json"
           echo "=== events: total $(wc -l < "$OBS/events.ndjson") ==="
           echo "--- by op ---"; awk -F'"op":"' '{split($2,a,"\""); print a[1]}' "$OBS/events.ndjson" | sort | uniq -c | sort -rn

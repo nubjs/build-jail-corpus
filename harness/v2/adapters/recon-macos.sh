@@ -31,19 +31,32 @@ sleep 4    # subscription latency; the sample loop below is the actual proof it 
 sudo -u "$REALUSER" /bin/sh -c "
   echo hello > '$WORK/es-write.txt'
   cat '$WORK/es-write.txt' > /dev/null
+  cp '$WORK/es-write.txt' '$WORK/es-copy.txt'
   mv '$WORK/es-write.txt' '$WORK/es-renamed.txt'
   rm -f '$WORK/es-renamed.txt'
+  /usr/bin/true
 " > "$OUT/es-driver.log" 2>&1
 sleep 3
 kill -INT $ES 2>/dev/null; sleep 1; kill -9 $ES 2>/dev/null; wait $ES 2>/dev/null
 
+# Settle what `/bin/sh` is actually CALLED at the kernel level. fs_usage's default exclusion list
+# matches on p_comm, so "is /bin/sh named sh?" decides whether that exclusion can bite at all — and
+# a run where no process was named `sh` looks identical to a run where every `sh` was excluded.
+echo "recon: p_comm of /bin/sh  = $(/bin/sh  -c 'ps -o comm= -p $$' 2>&1)"
+echo "recon: p_comm of /bin/bash= $(/bin/bash -c 'ps -o comm= -p $$' 2>&1)"
+echo "recon: p_comm of /bin/zsh = $(/bin/zsh  -c 'ps -o comm= -p $$' 2>&1)"
+
 echo "recon: eslogger lines=$(wc -l < "$OUT/es-raw.json" | tr -d ' ')"
 # One pretty sample per event type, plus the flattened key list — the key list is what the adapter's
 # extraction must match, so print it explicitly rather than making a human diff two blobs of JSON.
-/usr/bin/python3 - "$OUT/es-raw.json" "$OUT/es-schema.txt" <<'PY'
+/usr/bin/python3 - "$OUT/es-raw.json" "$OUT/es-schema.txt" "$WORK" <<'PY'
 import json, sys
-src, dst = sys.argv[1], sys.argv[2]
-seen, out = {}, []
+src, dst, work = sys.argv[1], sys.argv[2], sys.argv[3]
+# Sample OUR driver's records, not the first of each type system-wide. Run 1 sampled whatever
+# background daemon happened to fire first (mdworker, AMPLibraryAgent), so the write/exec/rename
+# shapes never appeared and the open sample was a read — which is exactly the record that hides the
+# FREAD-vs-O_WRONLY off-by-one in `fflag`. Ours-first, anything-else only as a fallback.
+seen, fallback, out = {}, {}, []
 for line in open(src, errors='replace'):
     line = line.strip()
     if not line.startswith('{'): continue
@@ -51,8 +64,12 @@ for line in open(src, errors='replace'):
     except Exception: continue
     ev = r.get('event') or {}
     k = next(iter(ev), '?')
-    if k in seen: continue
-    seen[k] = r
+    if work in line:
+        seen.setdefault(k, r)
+    else:
+        fallback.setdefault(k, r)
+for k, v in fallback.items():
+    seen.setdefault(k, v)
 def flat(o, p=''):
     if isinstance(o, dict):
         for k, v in o.items(): yield from flat(v, f'{p}.{k}' if p else k)
@@ -80,12 +97,15 @@ sleep 3
 
 sudo -u "$REALUSER" /bin/sh -c '
   W="$1"
-  for n in 40 80 120 160 200 240 300 400; do
-    d="$W/len$n"; mkdir -p "$d"
-    # pad the LAST component out so the full path length lands near $n
-    pad=""; while [ $(( ${#d} + ${#pad} + 6 )) -lt $n ]; do pad="${pad}xxxxx"; done
-    f="$d/f${pad}.txt"
-    echo t > "$f" 2>/dev/null
+  # Grow the path across NESTED DIRECTORIES, not one long filename. A single component is capped at
+  # 255 bytes, so run 1 got `File name too long` for every length above ~240 and never measured the
+  # interesting range at all.
+  for n in 40 80 120 160 200 240 300 400 600; do
+    d="$W/L$n"
+    while [ $(( ${#d} + 12 )) -lt $n ]; do d="$d/dddddddd"; done
+    mkdir -p "$d" 2>/dev/null || { echo "MARK len=$n MKDIR-FAILED"; continue; }
+    f="$d/f.txt"
+    echo t > "$f" 2>/dev/null || { echo "MARK len=$n WRITE-FAILED actual=${#f}"; continue; }
     echo "MARK len=$n actual=${#f} $f"
   done
   # a genuine EACCES, and a successful openat near-miss
@@ -102,7 +122,7 @@ echo "recon: fs_usage lines=$(wc -l < "$OUT/fsu-raw.txt" | tr -d ' ')"
   echo "lines whose command is sh:   $(grep -cE '[[:space:]]sh\.[0-9]+[[:space:]]*$' "$OUT/fsu-raw.txt")"
   echo "lines whose command is bash: $(grep -cE '[[:space:]]bash\.[0-9]+[[:space:]]*$' "$OUT/fsu-raw.txt")"
   echo; echo "##### long-path samples (look for a path NOT starting with /) #####"
-  grep -E 'len(40|80|120|160|200|240|300|400)' "$OUT/fsu-raw.txt" | head -40
+  grep -E '/L(40|80|120|160|200|240|300|400|600)/' "$OUT/fsu-raw.txt" | grep -E ' open |f.txt' | head -40
   echo; echo "##### candidate refusal lines (bracketed errno 1/13/30) #####"
   grep -E '^[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+[[:space:]]+[^[:space:]]+[[:space:]]+(F=[0-9]+)?[[:space:]]*\[[[:space:]]*(1|13|30)\]' "$OUT/fsu-raw.txt" | head -20
   echo; echo "##### THE NEAR-MISS: openat dirfd rendered [ N]/relpath in the PATHNAME column #####"
