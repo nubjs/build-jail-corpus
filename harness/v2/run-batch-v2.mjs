@@ -94,6 +94,15 @@ for (const spec of specs) {
   }
 
   attempted++;
+  // ⛔ THE RECORD DIR HAS TO EXIST BEFORE THE DRIVER RUNS, because the driver writes the retained
+  // event log straight into it. `record.mjs` also mkdirs it later; both are `recursive: true`.
+  //
+  // ⛔ AND THE NAME MAY NOT END IN `.log`. The repo's `.gitignore` carries a bare `*.log`, so a file
+  // named that is dropped silently at `git add` while looking perfectly present on the runner's
+  // disk — the same trap `record.mjs` documents for `driver.out`. `.ndjson.gz` is tracked.
+  fs.mkdirSync(dir, { recursive: true });
+  if (process.platform === 'linux') process.env.NUB_V2_EVENTS_OUT = path.join(dir, 'events.ndjson.gz');
+  else delete process.env.NUB_V2_EVENTS_OUT;
   const t0 = Date.now();
   let r;
   if (process.platform === 'win32') {
