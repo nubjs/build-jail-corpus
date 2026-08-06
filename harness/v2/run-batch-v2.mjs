@@ -57,6 +57,17 @@ const CORPUS_SHA = gitSha(path.join(HERE, '..', '..'));
 const NUB_VERSION = nubVersion();
 const NUB_SHA = process.env.NUB_GIT_SHA ?? '';
 
+// Extra argv appended to whichever driver the dispatch below selects, as a JSON array.
+//
+// ⛔ THIS EXISTS SO THERE STAYS EXACTLY ONE COPY OF THE DISPATCH. The dispatch below is the only
+// place that knows the three drivers are not interchangeable, and a caller needing a driver MODE
+// this file does not model (`--at-grant`, `--at-catalog`) would otherwise have to fork it — at
+// which point the two copies can select different drivers, or pass `--nub` where the driver wants
+// a positional, and produce different verdicts for the same package. `e2e.mjs` is that caller, and
+// it exists so a single-package debugging loop is one command rather than four. Unset is the normal
+// case and changes nothing.
+const DRIVER_ARGS = process.env.NUB_V2_DRIVER_ARGS ? JSON.parse(process.env.NUB_V2_DRIVER_ARGS) : [];
+
 // ── FALSIFICATION PRE-FLIGHT ──────────────────────────────────────────────────────────────────
 //
 // ⛔ A SWEEP IS EXACTLY WHEN A SILENT WRONG ANSWER IS CHEAPEST TO PRODUCE AND MOST EXPENSIVE TO
@@ -172,15 +183,16 @@ for (const spec of specs) {
   let r;
   if (process.platform === 'win32') {
     r = sh(process.execPath, [path.join(HERE, 'measure-windows.mjs'), pkg, version,
-      ...(NUB ? ['--nub', NUB] : [])], BUDGET_MS);
+      ...(NUB ? ['--nub', NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
   } else if (process.platform === 'darwin') {
     // ⛔ `sudo -E`, AND THE `-E` IS LOAD-BEARING. dtrace needs uid 0, and the driver reads
     // `SUDO_USER` to drop every measured process back to the invoking user — but it also needs the
     // ambient PATH to find npm, which a bare `sudo` strips.
     r = sh('sudo', ['-E', 'bash', path.join(HERE, 'measure-macos.sh'), pkg, version,
-      ...(NUB ? [NUB] : [])], BUDGET_MS);
+      ...(NUB ? [NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
   } else {
-    r = sh('bash', [path.join(HERE, 'measure.sh'), pkg, version, ...(NUB ? [NUB] : [])], BUDGET_MS);
+    r = sh('bash', [path.join(HERE, 'measure.sh'), pkg, version,
+      ...(NUB ? [NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
   }
   const ms = Date.now() - t0;
   slowestMs = Math.max(slowestMs, ms);

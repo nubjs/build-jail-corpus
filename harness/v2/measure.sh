@@ -7,6 +7,7 @@
 #
 #   usage: measure.sh <pkg> <version> [nub-binary]
 #          measure.sh <pkg> <version> [nub-binary] --at-grant '<json>'
+#          measure.sh <pkg> <version> [nub-binary] --at-catalog <catalog.json>
 #
 # ⛔ `--at-grant` ANSWERS A DIFFERENT AND SHARPER QUESTION, AND IT EXISTS BECAUSE THE LADDER
 # ANSWERS IT UNSOUNDLY. The default mode asks "what is the minimum this package needs?" — OBSERVE,
@@ -54,14 +55,34 @@ case "${3:-}" in
   *) NUB="$3" ;;
 esac
 AT_GRANT=""
+# ⛔ `--at-catalog <file>` IS DIRECT MODE AGAINST A CATALOG NOBODY SYNTHESIZED HERE. `--at-grant`
+# asks "does this install under exactly this grant?" and builds the one-package catalog ITSELF, so it
+# can only ever test a catalog of this driver's own construction. The catalog nub actually SHIPS is
+# `collate.mjs`'s output — version bands, `baseline`, `env`, an ABSENT package where the grant is
+# empty, a hand-authored override where one exists — and none of that shape is reachable through
+# `--at-grant`. This flag runs the identical arm against that FILE instead, so the collated catalog
+# meets the same store eviction, memo drop, replay guard, override assertion and artifact gate as
+# every measured arm. `e2e.mjs` is the caller.
+AT_CATALOG=""
 for i in "$@"; do
-  case "${PREV_ARG:-}" in --at-grant) AT_GRANT="$i" ;; esac
+  case "${PREV_ARG:-}" in
+    --at-grant) AT_GRANT="$i" ;;
+    --at-catalog) AT_CATALOG="$i" ;;
+  esac
   PREV_ARG="$i"
 done
 [ -n "$AT_GRANT" ] && case "$AT_GRANT" in
   '{'*'}') : ;;
   *) echo "⛔ --at-grant needs a JSON object, got: $AT_GRANT" >&2; exit 2 ;;
 esac
+[ -n "$AT_GRANT" ] && [ -n "$AT_CATALOG" ] && {
+  echo "⛔ --at-grant and --at-catalog ask two different questions; pass one" >&2; exit 2; }
+[ -n "$AT_CATALOG" ] && { [ -s "$AT_CATALOG" ] || {
+  echo "⛔ --at-catalog needs a non-empty catalog FILE, got: $AT_CATALOG" >&2; exit 2; }; }
+# Absolute, resolved NOW: this script `cd`s into its own fixture roots, so a relative path handed in
+# from the caller's cwd would later be read against a directory that did not exist when it was named.
+[ -n "$AT_CATALOG" ] &&
+  AT_CATALOG="$(cd "$(dirname "$AT_CATALOG")" && pwd)/$(basename "$AT_CATALOG")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 # One `rc:shortfall-digest:ok|abs` line per grant-widening arm, appended by `verify()`. Read once, at
 # the foot of the ladder, to decide whether a shortfall responded to widening.
@@ -813,6 +834,15 @@ verify () {
   # The fix follows from what the base profile already IS: nothing. So express the empty grant by
   # OMITTING the package under test, and carry a sentinel entry for an unrelated name purely so the
   # override still engages and the assertion below stays meaningful.
+  #
+  # ⛔ AND UNDER `--at-catalog` NONE OF THAT CONSTRUCTION APPLIES — THE FILE IS THE HYPOTHESIS. It is
+  # copied VERBATIM, sentinel or no sentinel, because the question that mode asks is whether the
+  # catalog AS COLLATED installs the package. Rewriting it here to be likelier to engage would answer
+  # about a catalog nobody ships. A collated catalog that does not engage the override leaves the arm
+  # VOID, and VOID saying so is the honest reading of "this file would not have worked".
+  if [ -n "${AT_CATALOG:-}" ]; then
+    cp "$AT_CATALOG" "$v/cat.json" || return 1
+  else
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     const grant=JSON.parse(g);
@@ -821,6 +851,7 @@ verify () {
       : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
     fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
+  fi
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique
   # name, explicit `buildJail`, memo drop, override assertion — cannot drift between the arm that
@@ -912,7 +943,7 @@ verify () {
   # `diag` arm is the SAME grant re-run under strace, so counting it would let a repeated point pose as
   # corroboration, and `at-grant` belongs to DIRECT mode, which never reaches the ladder.
   case "$label" in
-    diag|at-grant) ;;
+    diag|at-grant|at-catalog) ;;
     *)
       local sig; sig=$(printf '%s' "$gate" | head -1 | sed -n 's/.*shortfall=\([A-Za-z0-9]*\).*/\1/p')
       # `?` for a gate line with no digest at all (an OBSERVE-less rc=3 arm, or a gate that failed to
@@ -949,14 +980,20 @@ verify () {
 # how a wider-than-expected minimum gets read as an under-grant — the exact confusion this mode
 # exists to prevent. VOID stays VOID: an arm whose override did not engage measured nothing, and
 # must never be reported as either outcome.
-if [ -n "$AT_GRANT" ]; then
-  echo "  ── DIRECT: does $PKG@$VER install under EXACTLY $AT_GRANT ?"
-  verify "$AT_GRANT" "at-grant"; ARC=$?
+if [ -n "$AT_GRANT" ] || [ -n "$AT_CATALOG" ]; then
+  if [ -n "$AT_CATALOG" ]; then
+    echo "  ── DIRECT: does $PKG@$VER install under the catalog at $AT_CATALOG ?"
+    verify "(catalog $AT_CATALOG)" "at-catalog"; ARC=$?
+  else
+    echo "  ── DIRECT: does $PKG@$VER install under EXACTLY $AT_GRANT ?"
+    verify "$AT_GRANT" "at-grant"; ARC=$?
+  fi
+  AT_SUBJECT="${AT_CATALOG:-$AT_GRANT}"
   case "$ARC" in
-    0) echo "  => SUFFICIENT $AT_GRANT   (installed, artifacts matched OBSERVE)"; exit 0 ;;
+    0) echo "  => SUFFICIENT $AT_SUBJECT   (installed, artifacts matched OBSERVE)"; exit 0 ;;
     2) echo "  => ⛔ VOID — the override did not engage; NOTHING was measured."
        echo "     Not a result. Do NOT record it, and do NOT read it as insufficient."; exit 3 ;;
-    *) echo "  => INSUFFICIENT $AT_GRANT   (the package needs MORE than this grant)"
+    *) echo "  => INSUFFICIENT $AT_SUBJECT   (the package needs MORE than this grant)"
        echo "     ⇒ If this grant came from a v1 record, that record UNDER-GRANTS — the direction"
        echo "        that breaks a real install. Worth a mechanism before it is acted on."; exit 1 ;;
   esac
