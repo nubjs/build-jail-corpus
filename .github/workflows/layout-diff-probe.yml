@@ -142,12 +142,20 @@ jobs:
             cat /tmp/preflight.log >&2; exit 1; }
           echo "pre-flight layout OK: $EXPECT_LAYOUT"
           echo "--- store presence ---"
-          ls -1 "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store" 2>/dev/null | wc -l
+          # ⛔ `set -e -o pipefail` IS THE RUNNER'S DEFAULT SHELL, NOT SOMETHING THIS STEP OPTED IN
+          # TO. A bare `ls | wc -l` on an absent store made the pipeline fail, took the whole step
+          # down AFTER it had already printed `pre-flight layout OK`, and SKIPPED the measure step
+          # behind it — a green-looking assertion with nothing measured behind it.
+          ( ls -1 "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store" 2>/dev/null || true ) | wc -l
 
       - name: Measure every spec under this layout
         shell: bash
         run: |
-          set -u
+          # `set +e`: a driver exiting non-zero is a RESULT here (NO-STATE-PASSED, VOID,
+          # BROKEN-WITHOUT-JAIL-TOO), and the runner's default `-e` would abandon every later
+          # package on the first one. The loop must run to the end under both layouts or the
+          # columns are not comparable.
+          set +e -u
           mkdir -p /tmp/out
           for SPEC in $SPECS; do
             PKG="${SPEC%@*}"; VER="${SPEC##*@}"
@@ -166,7 +174,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          set -u
+          set +e -u
           echo "--- layout rows across every arm ---"
           grep -rhE "^\s*linker" "$HOME"/v2-*/verify-*/i.log 2>/dev/null | sed 's/^ *//' | sort | uniq -c
           WRONG=$(grep -rlE "^\s*linker" "$HOME"/v2-*/verify-*/i.log 2>/dev/null \
@@ -183,7 +191,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          set -u
+          set +e -u
           echo "############ LAYOUT=$EXPECT_LAYOUT ############"
           for f in /tmp/out/*.log; do
             echo "== $(basename "$f" .log)"
