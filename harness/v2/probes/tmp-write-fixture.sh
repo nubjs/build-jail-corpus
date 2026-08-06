@@ -168,14 +168,29 @@ read_report "$A2"; R2=$?
 V2=$(cat "$A2/verdict.txt" 2>/dev/null)
 
 # ── ARM 3: where did B actually land? A PERMISSION result and a REDIRECT result are different
-# claims, and only this one settles the second. If the bind mount is doing the work, the host's
-# shared /tmp never sees the file the jailed script wrote to "/tmp".
+# claims, and only this one settles the second. If the temp mode is implemented as a bind mount over
+# `/tmp`, the host's shared `/tmp` never sees the file the jailed script wrote to "/tmp"; if it is
+# implemented as an env redirect plus a deny, B is refused outright and never lands anywhere.
+#
+# ⛔ MATCH THE JAILED ARM'S OWN PID TAG, NOT THE `B-hardcoded-*` GLOB. Arm 1 is UNJAILED and writes
+# its own `B-hardcoded-<pid>` into the very same host `/tmp`, so the glob counts arm 1's residue and
+# reports "the redirect did NOT engage" no matter what arm 2 did. MEASURED — it did exactly that on
+# run 31115255290, on a run whose jailed B was in fact REFUSED.
 echo
 echo "── ARM 3  REDIRECT CHECK — did the jailed B write reach the HOST's /tmp?"
-HOSTHITS=$(ls /tmp 2>/dev/null | grep -c '^B-hardcoded-')
-echo "  host /tmp entries matching B-hardcoded-*: $HOSTHITS"
-[ "$HOSTHITS" -eq 0 ] && echo "  ⇒ the write was REDIRECTED, not merely permitted" \
-                      || echo "  ⇒ the write reached the SHARED host /tmp — the redirect did NOT engage"
+JTAG=$(node -e 'try{console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).tag)}catch{}' \
+  "$(find -L "$A2/node_modules" -name report.json -maxdepth 4 2>/dev/null | head -1)")
+if [ -z "$JTAG" ]; then
+  echo "  (no jailed report — nothing to check)"
+else
+  echo "  jailed arm tag: $JTAG"
+  if [ -e "/tmp/B-hardcoded-$JTAG" ]; then
+    echo "  ⇒ /tmp/B-hardcoded-$JTAG EXISTS on the host — the jailed write reached the SHARED tmp"
+  else
+    echo "  ⇒ /tmp/B-hardcoded-$JTAG is absent from the host — the write was refused or redirected"
+    echo "    (which of the two is the B row above, not this check)"
+  fi
+fi
 
 echo
 echo "══ VERDICT"

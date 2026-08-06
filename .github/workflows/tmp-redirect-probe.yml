@@ -143,13 +143,30 @@ jobs:
       # vocabulary is preserved verbatim in the log: SUFFICIENT / INSUFFICIENT / VOID.
       - name: REAL — --at-grant arms
         shell: bash
+        # ⛔ THE INPUT ARRIVES THROUGH `env:`, NEVER `${{ }}` INSIDE THE SCRIPT. Actions substitutes
+        # the expression as raw TEXT before bash parses the line, so a grant like
+        # `{"network":true}` closes the surrounding double-quoted string and bash re-parses the JSON
+        # as shell words — the arm then ran at `{network:true}`, which `JSON.parse` rejects, and the
+        # whole step died on the FIRST spec. MEASURED, run 31115255290.
+        env:
+          AT_GRANT_SPECS: ${{ inputs.at_grant_specs }}
+        # ⛔ `-e` IS WRONG FOR THIS STEP AND MUST BE OVERRIDDEN. The default shell is `bash -e`, and
+        # an INSUFFICIENT arm exits 1 — a legitimate, expected result. Under `-e` the first one
+        # aborts the step, so the arms that would have explained it never run and the job reads as
+        # broken rather than informative.
         run: |
+          set +e
           set -uo pipefail
-          SPECS="${{ inputs.at_grant_specs }}"
+          SPECS="$AT_GRANT_SPECS"
           # ⛔ SPACE-separated, and a grant JSON therefore must carry no spaces. Stated rather than
           # assumed because a grant that DOES contain one splits into two specs and the second half
           # measures a package named `true}` — which fails in a way that reads like a jail result.
-          [ -z "$SPECS" ] && SPECS='playwright-chromium@0.17.0:{"network":true} playwright-chromium@0.17.0:{"read":"disk","network":true} hugo-extended@0.141.0:{"network":true}'
+          # The default set answers the question the ladder cannot ask. Arms 1-3 are one package at
+          # three grants that differ on ONE axis each: reproduce the recorded failure, widen READS
+          # only, widen ONE write scope. Arm 4 is the cross-check — a package whose only `outside`
+          # writes are also `/tmp` and which the corpus records as passing with no write scope at
+          # all, so a failure there would indict the harness rather than the package.
+          [ -z "$SPECS" ] && SPECS='playwright-chromium@0.17.0:{"network":true} playwright-chromium@0.17.0:{"read":"disk","network":true} playwright-chromium@0.17.0:{"write":{"deps":true},"network":true} hugo-extended@0.141.0:{"network":true}'
           chmod +x harness/v2/measure.sh
           mkdir -p /tmp/arms
           n=0
@@ -160,9 +177,19 @@ jobs:
             echo "═══════════════════════════════════════════════════════════════"
             echo "ARM $n  $PKG@$VER  at  $GRANT"
             harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant "$GRANT" > "/tmp/arms/arm-$n.out" 2>&1
-            echo "ARM_EXIT=$?"
+            rc=$?
+            echo "ARM_EXIT=$rc"
             cat "/tmp/arms/arm-$n.out"
+            # 0 SUFFICIENT, 1 INSUFFICIENT, 3 VOID — `measure.sh`'s DIRECT-mode vocabulary, kept
+            # distinct here because VOID is not a weaker INSUFFICIENT, it is "nothing was measured".
+            case "$rc" in
+              0) v=SUFFICIENT ;; 1) v=INSUFFICIENT ;; 3) v=VOID-NOTHING-MEASURED ;; *) v="rc=$rc" ;;
+            esac
+            printf '%-38s %-46s %s\n' "$PKG@$VER" "$GRANT" "$v" >> /tmp/arms/summary.txt
           done
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "SUMMARY"
+          cat /tmp/arms/summary.txt
 
       - uses: actions/upload-artifact@v4
         if: always()
