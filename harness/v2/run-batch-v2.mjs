@@ -1,0 +1,148 @@
+// Drive a worklist of pkg@version specs through the v2 measurement pipeline and write one record
+// each. The v2 counterpart of `run-batch.sh`, and deliberately the same shape: resume by default,
+// per-package budget, a per-record hook, and a deadline that STOPS STARTING packages rather than
+// letting the job cap kill a slice that has already measured 40 of them.
+//
+// ⛔ THE THREE PLATFORM DRIVERS ARE NOT INTERCHANGEABLE AND THIS FILE IS THE ONLY PLACE THAT KNOWS
+// IT. `measure.sh` takes `<pkg> <ver> [nub]` and needs strace; `measure-macos.sh` takes the same but
+// must run as uid 0 (dtrace) while dropping the measured processes back to the invoking user;
+// `measure-windows.mjs` takes `--nub`/`--root` flags and needs no elevation. Keeping the dispatch
+// here means the workflow does not carry three near-identical steps that drift apart.
+//
+// ⛔ IT NEVER EDITS A DRIVER. `measure.sh` is under concurrent development; the contract this file
+// depends on is its ARGV and its `=>` terminal vocabulary, both of which are stable and neither of
+// which this file may change.
+//
+//   usage: node run-batch-v2.mjs --file <worklist> --nub <bin> [--runs <dir>] [--force]
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync, execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const argv = process.argv.slice(2);
+const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
+const FORCE = argv.includes('--force');
+const NUB = opt('--nub', '');
+const RUNS = path.resolve(opt('--runs', path.join(HERE, '..', '..', 'records-v2', 'runs')));
+const PLATFORM = `${process.platform}-${process.arch}`;
+const BUDGET_MS = Number(opt('--budget', process.env.NUB_CORPUS_PKG_BUDGET ?? '2400')) * 1000;
+const DEADLINE = Number(process.env.NUB_CORPUS_DEADLINE ?? '0');
+const ON_RECORD = process.env.NUB_CORPUS_ON_RECORD ?? '';
+
+const specs = fs.readFileSync(opt('--file'), 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
+
+// `@scope/name@version` — the LAST `@` is the separator, and splitting on the first one silently
+// produces a package that does not exist while still yielding a well-formed record.
+const splitSpec = (s) => {
+  const at = s.lastIndexOf('@');
+  if (at <= 0) return null;
+  return [s.slice(0, at), s.slice(at + 1)];
+};
+
+const sh = (cmd, args, ms) => spawnSync(cmd, args, { encoding: 'utf8', maxBuffer: 1 << 28, timeout: ms });
+
+const gitSha = (dir) => {
+  try { return execFileSync('git', ['-C', dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); }
+  catch { return ''; }
+};
+const nubVersion = () => {
+  if (!NUB) return '';
+  const r = sh(NUB, ['--version'], 60_000);
+  return (r.stdout ?? '').trim().split('\n').pop() ?? '';
+};
+
+const CORPUS_SHA = gitSha(path.join(HERE, '..', '..'));
+const NUB_VERSION = nubVersion();
+const NUB_SHA = process.env.NUB_GIT_SHA ?? '';
+
+let attempted = 0; let recorded = 0; let skipped = 0; let deadlineStopped = 0;
+// Sized from the SLOWEST package seen, not the mean: a native rebuild and a JS postinstall differ by
+// an order of magnitude, so an average-sized reservation routinely starts a package that cannot
+// finish and loses the whole slice to the job cap.
+let slowestMs = 0;
+
+for (const spec of specs) {
+  const parts = splitSpec(spec);
+  if (!parts) { console.log(`SKIP  ${spec} — not a name@version spec`); continue; }
+  const [pkg, version] = parts;
+  const dir = path.join(RUNS, PLATFORM, pkg.replace(/\//g, '+'), version);
+
+  if (!FORCE && fs.existsSync(path.join(dir, 'results.json'))) {
+    // ⛔ RESUME SKIPS A MEASUREMENT, NEVER AN INSTRUMENT FAILURE. A `HARNESS-*` record is the
+    // harness saying it could not measure — exactly the package a later fix needs to reach — so
+    // treating it as answered is how a defect becomes permanent.
+    let prior = null;
+    try { prior = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8')); } catch { /* re-measure */ }
+    if (prior && !String(prior.verdict ?? '').startsWith('HARNESS-')) {
+      console.log(`SKIP  ${spec} — already recorded (${prior.verdict})`);
+      skipped++;
+      continue;
+    }
+  }
+
+  if (DEADLINE > 0) {
+    const leftMs = DEADLINE * 1000 - Date.now();
+    const need = Math.max(slowestMs, 300_000);
+    if (leftMs < need) {
+      console.log(`DEADLINE: stopping before ${spec} — ${Math.round(leftMs / 60000)} min left, `
+        + `${Math.round(need / 60000)} min needed`);
+      deadlineStopped = specs.length - attempted - skipped;
+      break;
+    }
+  }
+
+  attempted++;
+  const t0 = Date.now();
+  let r;
+  if (process.platform === 'win32') {
+    r = sh(process.execPath, [path.join(HERE, 'measure-windows.mjs'), pkg, version,
+      ...(NUB ? ['--nub', NUB] : [])], BUDGET_MS);
+  } else if (process.platform === 'darwin') {
+    // ⛔ `sudo -E`, AND THE `-E` IS LOAD-BEARING. dtrace needs uid 0, and the driver reads
+    // `SUDO_USER` to drop every measured process back to the invoking user — but it also needs the
+    // ambient PATH to find npm, which a bare `sudo` strips.
+    r = sh('sudo', ['-E', 'bash', path.join(HERE, 'measure-macos.sh'), pkg, version,
+      ...(NUB ? [NUB] : [])], BUDGET_MS);
+  } else {
+    r = sh('bash', [path.join(HERE, 'measure.sh'), pkg, version, ...(NUB ? [NUB] : [])], BUDGET_MS);
+  }
+  const ms = Date.now() - t0;
+  slowestMs = Math.max(slowestMs, ms);
+
+  const log = (r.stdout ?? '') + (r.stderr ?? '');
+  // A deadline kill leaves `status === null`; `record.mjs` reads rc 124 as the timeout convention
+  // that `portable-timeout.sh` and GNU `timeout` both use, so the two lanes agree on the spelling.
+  const rc = r.error?.code === 'ETIMEDOUT' || (r.status === null && r.signal) ? 124 : (r.status ?? 1);
+  fs.mkdirSync(dir, { recursive: true });
+  const tmpLog = path.join(dir, '.driver.out');
+  fs.writeFileSync(tmpLog, log);
+
+  const w = sh(process.execPath, [path.join(HERE, 'record.mjs'),
+    '--log', tmpLog, '--pkg', pkg, '--version', version, '--out', RUNS,
+    '--rc', String(rc), '--platform', PLATFORM, '--duration-ms', String(ms),
+    '--nub-sha', NUB_SHA, '--nub-version', NUB_VERSION, '--corpus-sha', CORPUS_SHA,
+    '--driver', process.platform === 'win32' ? 'measure-windows.mjs'
+      : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh'], 120_000);
+  fs.rmSync(tmpLog, { force: true });
+  if (w.status !== 0) { console.log(`FAIL  ${spec} — record.mjs rc=${w.status}\n${w.stderr}`); continue; }
+
+  const rec = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8'));
+  recorded++;
+  console.log(`REC   ${spec} [${Math.round(ms / 1000)}s] ${rec.verdict}`
+    + `${rec.grant ? ` ${JSON.stringify(rec.grant)}` : ''}`
+    + `${rec.verifiedBy ? ` via=${rec.verifiedBy}` : ''}`);
+
+  if (ON_RECORD) {
+    // Best effort by design: a record that does not publish stays on disk for the end-of-slice
+    // commit and the artifact. Killing a measuring run over a rejected push trades the thing being
+    // protected for the protection.
+    spawnSync(ON_RECORD, [dir], { stdio: 'inherit' });
+  }
+}
+
+console.log(`\nv2 batch: ${attempted} attempted, ${recorded} recorded, ${skipped} skipped (already measured)`);
+if (deadlineStopped > 0) {
+  console.log(`DEADLINE: stopped before ${deadlineStopped} package(s) — the job cap would have killed the run`);
+}

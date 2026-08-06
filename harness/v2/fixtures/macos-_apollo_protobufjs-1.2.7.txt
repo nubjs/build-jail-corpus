@@ -1,0 +1,47 @@
+### @apollo/protobufjs@1.2.7   (/Users/runner/v2m-lIqQnz)   nub=/tmp/nub/target/release/nub
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-lIqQnz/observe"
+     sudo -u "runner" -H env "PATH=$PATH" "/opt/homebrew/bin/npm" rebuild --no-audit --no-fund "@apollo/protobufjs" > "/Users/runner/v2m-lIqQnz/observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-lIqQnz/observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-lIqQnz/observe
+     + sudo -u runner -H env PATH=/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools /opt/homebrew/bin/npm rebuild --no-audit --no-fund @apollo/protobufjs
+     dtrace: error on enabled probe ID 33 (ID 286: syscall::execve:entry): invalid address (0x600001390280) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=207 (pre=206) trace=1649 lines
+  == TRACER == live=true decodable-events=1634
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 2  /  whole traced subtree 6
+    sockets script 0  /  whole traced subtree 0
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    deps          1
+  == READS the script performed, by scope ==
+    outside      43
+    project       3
+    systemfs      7
+    deps          2
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /opt/homebrew/Cellar/node@22/22.23.1/bin/node
+        outside: /opt/homebrew/Cellar/node@22/22.23.1/lib/libnode.127.dylib
+        outside: /opt/homebrew/opt/libuv/lib/libuv.1.dylib
+        outside: /opt/homebrew/opt/simdjson/lib/libsimdjson.33.dylib
+        outside: /opt/homebrew/opt/simdutf/lib/libsimdutf.34.dylib
+        outside: /opt/homebrew/opt/brotli/lib/libbrotlidec.1.dylib
+        outside: /opt/homebrew/opt/brotli/lib/libbrotlienc.1.dylib
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 files=618 OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => VERIFIED {"write":{"deps":true}}
+  VERIFY[nar-no-write-deps] rc=0 files=618 OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
+### DONE @apollo/protobufjs@1.2.7  synthesized={"write":{"deps":true}} verified=1

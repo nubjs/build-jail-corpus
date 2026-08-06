@@ -1,0 +1,394 @@
+# Pop a slice off the V2 queue, measure it with the observe-first harness, commit the records AND
+# the queue update together.
+#
+# THE SHAPE IS `corpus-queue-runner.yml`'s, deliberately and almost line for line: one job = one OS =
+# one slice, the claim PUSHED before any measuring starts so parallel runners can never hold the same
+# row, records add-only and unique per (platform, package, version), and resume-by-default so a
+# killed batch costs only what it had not yet measured. Those properties were each paid for by a lost
+# slice; re-deriving them for a second lane would be re-paying.
+#
+# ⛔ WHAT IS DIFFERENT, AND IT IS THE ONLY THING THAT MATTERS FOR SAFETY: THIS LANE TOUCHES NO V1
+# FILE. Records land under `records-v2/`, the index is `queue-v2.ndjson`, and the publisher is
+# `harness/v2/publish-record-v2.sh`, which REFUSES any path that is not `records-v2/*`. The v1 corpus
+# is not gold-standard data but it is kept for historical reference, so "v2 cannot overwrite v1" is a
+# structural guarantee here rather than a convention: there is no path expressible in this lane that
+# names a v1 record. Each record also carries `harnessVersion: 2` internally, which is what survives
+# a record being collated or copied out of that tree, where the path is gone.
+#
+# ⛔ V2 IS O(1) RUNS, NOT 54 CELLS. v1 walks an ascending-cost ladder and costs ~13 min/package; v2
+# OBSERVES one unjailed traced install, SYNTHESIZES a grant, and VERIFIES it in the real jail —
+# typically 2-6 arms. That is why the slice sizes here are not v1's.
+#
+# ⛔⛔ `chain` DEFAULTS TO FALSE, AND THAT IS A DELIBERATE INVERSION OF THE V1 RUNNER'S DEFAULT. A
+# full-corpus v2 re-measure is a large compute commitment and a separate decision; a lane that
+# self-dispatches by default would take that decision by accident, one hop at a time, and the tell
+# would arrive hours later as a drained queue.
+
+name: corpus-v2-runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: which operating system to measure
+        type: choice
+        options: [linux, macos, windows]
+        required: true
+      slice:
+        description: how many queue rows to claim
+        type: string
+        default: "10"
+      nub_sha:
+        description: nubjs/nub commit to build the probe binary from (blank = restore any cached feature-enabled binary)
+        type: string
+        default: ""
+      chain:
+        description: "re-dispatch itself while the queue still has pending rows (OFF by default — a full-corpus v2 run is a separate decision)"
+        type: boolean
+        default: false
+      force:
+        description: "re-measure even when a v2 record already exists"
+        type: boolean
+        default: false
+      packages:
+        description: "debug only: measure these specs instead of claiming from the queue"
+        type: string
+        default: ""
+  push:
+    # Branch-scoped so the lane can be iterated on with no PR and no dispatch — `workflow_dispatch`
+    # is inert until the file is on the default branch, which makes a push trigger the only way to
+    # test an edit to this file itself.
+    branches: [probe/corpus-v2-lane]
+
+concurrency:
+  # Keyed on the RUN so nothing is ever cancelled: an interrupted job strands its claim until
+  # `--reclaim-stale` ages it out.
+  group: corpus-v2-${{ inputs.os || 'push' }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  slice:
+    runs-on: >-
+      ${{ (inputs.os || 'linux') == 'linux' && 'ubuntu-latest'
+       || (inputs.os || 'linux') == 'macos' && 'macos-15'
+       || 'windows-latest' }}
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      actions: write
+    env:
+      OS_NAME: ${{ inputs.os || 'linux' }}
+      # ⛔ JOB-SCOPED, NOT STEP-SCOPED. The publisher WRITES this manifest during the measure step and
+      # the end-of-slice commit READS it to decide which records are genuinely this run's. A
+      # step-level `env:` does not reach other steps, and on macOS the shared `${TMPDIR:-/tmp}`
+      # default resolves to `/var/folders/…/T/`, not `/tmp` — so writer and reader would silently
+      # resolve DIFFERENT paths and the commit would fall back to stashing the whole tree.
+      NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Stamp the job start
+        shell: bash
+        run: echo "JOB_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
+
+      # ⛔ THE OBSERVE ARM IS THE WHOLE POINT OF V2 AND IT NEEDS A TRACER. Without strace the driver
+      # cannot observe anything, and it would fall through to a synthesized-nothing grant that reads
+      # as "this package needs nothing" — an UNDER-prediction, the one direction that breaks real
+      # installs. Fail here rather than measure blind.
+      - name: Install strace and prove it traces
+        if: env.OS_NAME == 'linux'
+        shell: bash
+        run: |
+          set -eux
+          sudo apt-get update -qq && sudo apt-get install -y -qq strace
+          # A positive control: strace must produce a syscall for a command whose behaviour is known.
+          # A restricted `ptrace_scope` yields a live binary that traces nothing, which is exactly the
+          # silent-no-op shape this corpus keeps getting caught by.
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+
+      # macOS: dtrace needs uid 0 AND a runner that is not SIP-protected. A hosted runner reports SIP
+      # DISABLED, which is what makes this work here and nowhere on a developer Mac. Asserted rather
+      # than assumed — a dtrace that never attaches produces an empty trace and a `{}` grant that
+      # reads as a confident "needs nothing".
+      - name: dtrace gate
+        if: env.OS_NAME == 'macos'
+        shell: bash
+        run: |
+          set -eu
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1 | tee /tmp/dtrace-hello.txt
+          grep -q hello /tmp/dtrace-hello.txt
+
+      # ⛔⛔ THE VERIFY ARM IS INERT WITHOUT `build-jail-catalog-override`, AND NOT SILENTLY — a
+      # binary lacking the feature does not ignore `NUB_BUILD_JAIL_CATALOG`, it ERRORS, so every arm
+      # comes back VOID and the whole slice records nothing. Any cached corpus-probe binary will do:
+      # the arm needs the FEATURE, not a specific commit, and each record names the binary that
+      # answered it. A prefix restore-key is therefore correct and a miss is merely slower.
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.OS_NAME == 'windows' && 'D:\nubbin\nub.exe' || '/tmp/nub/target/release/nub' }}
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ inputs.nub_sha }}
+          restore-keys: |
+            nub-bin-v1-${{ env.OS_NAME }}-
+
+      - name: Build the probe binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          git checkout --detach "${{ inputs.nub_sha || 'sandbox/integration' }}"
+          echo "NUB_GIT_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          # `--profile fast` rather than `--release`: identical semantics for this purpose (fast
+          # inherits dev) and it does not pay for LTO, which on a cold macOS runner is the difference
+          # between fitting in the job and not.
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub${{ env.OS_NAME == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub
+          [ "${OS_NAME}" = "windows" ] && BIN='D:\nubbin\nub.exe'
+          chmod +x "$BIN" 2>/dev/null || true
+          # Prove it RUNS before trusting it: a restored file of the right size that cannot execute
+          # surfaces much later, inside the first measurement, as a confusing failure.
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+          echo "NUB_GIT_SHA=${{ inputs.nub_sha }}" >> "$GITHUB_ENV"
+
+      # ⛔ THE ONE CHECK THAT SEPARATES A REAL SLICE FROM A SLICE OF VOIDs, AND IT CHECKS ITSELF
+      # FIRST. A deliberately malformed catalog must be REJECTED before a well-formed one is allowed
+      # to prove anything — without that control, a binary that never read the variable at all reads
+      # as success, which is precisely how a vacuous check passes forever.
+      - name: Assert the binary honours NUB_BUILD_JAIL_CATALOG
+        shell: bash
+        run: |
+          set -uo pipefail
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__v2_probe__":{"default":{"network":true}}}}'    > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$NUB_BIN" --version 2>&1 || true)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused" ;;
+            *) echo "⛔ GATE IS INERT: a malformed catalog produced no REJECTED banner. Saw: ${BAD:-<none>}" >&2
+               echo "   Every VERIFY arm would come back VOID and the slice would record nothing." >&2
+               exit 1 ;;
+          esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *OVERRIDDEN*) echo "override engages: $GOOD" ;;
+            *) echo "⛔ no OVERRIDDEN banner — this binary lacks build-jail-catalog-override." >&2
+               echo "   Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      - name: Reclaim rows stranded by a dead run
+        if: inputs.packages == ''
+        shell: bash
+        run: node harness/claim-slice.mjs --queue queue-v2.ndjson --reclaim-stale 360
+
+      - name: Claim a slice
+        if: inputs.packages == ''
+        shell: bash
+        run: |
+          # ⛔ WINDOWS PARALLELISM IS MEASURED-HARMFUL AND THE CLAMP IS NOT ABOUT SPEED. Four
+          # concurrent workers all stalled at process creation with ZERO writes and timed out, while
+          # one worker produced real verdicts. Within a runner the batch driver is sequential by
+          # construction; this keeps the slice small enough that a Windows job still commits.
+          SLICE="${{ inputs.slice || 10 }}"
+          if [ "$OS_NAME" = "windows" ] && [ "$SLICE" -gt 15 ]; then
+            echo "windows: clamping slice $SLICE -> 15"
+            SLICE=15
+          fi
+          # ⛔ PUBLISH THE CLAIM BEFORE MEASURING ANYTHING. A claim that lives only in this runner's
+          # working tree is not exclusive: a second runner reads the same pending rows and measures
+          # the same packages. Each retry RE-CLAIMS against the queue it just fetched, so a loser
+          # automatically takes rows the winner did not and the two converge on disjoint slices with
+          # no coordination.
+          git config user.name corpus-runner
+          git config user.email corpus-runner@users.noreply.github.com
+          CLAIMED=0
+          for attempt in 1 2 3 4 5 6; do
+            # A MIXED reset (the default), not --soft: --soft leaves the index holding the tree as it
+            # was at checkout, including a stale `.github/workflows/`, and GITHUB_TOKEN may not modify
+            # workflow files — so every push is rejected and the job refuses to measure.
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git reset -q "origin/$GITHUB_REF_NAME"
+            git checkout -q "origin/$GITHUB_REF_NAME" -- queue-v2.ndjson
+            node harness/claim-slice.mjs --queue queue-v2.ndjson \
+              --claim "$SLICE" --os "$OS_NAME" --run "${{ github.run_id }}" > /tmp/slice.txt
+            if [ ! -s /tmp/slice.txt ]; then
+              echo "DRAINED=1" >> "$GITHUB_ENV"; CLAIMED=1; break
+            fi
+            N=$(wc -l < /tmp/slice.txt | tr -d ' ')
+            git add queue-v2.ndjson
+            git commit -q -m "corpus-v2($OS_NAME): claim $N rows [run ${{ github.run_id }}]"
+            if git push -q origin "HEAD:$GITHUB_REF_NAME"; then
+              CLAIMED=1; echo "claimed $N rows"; break
+            fi
+            echo "claim push $attempt rejected — re-claiming against the new head" >&2
+            sleep $((attempt * 4))
+          done
+          # ⛔ FAIL rather than measure on an unpublished claim: carrying on would duplicate whatever
+          # another runner is already measuring.
+          [ "$CLAIMED" = "1" ] || { echo "could not publish a claim after 6 attempts — refusing to measure" >&2; exit 1; }
+
+      - name: Take the debug package list instead of a claim
+        if: inputs.packages != ''
+        shell: bash
+        env:
+          PKGS: ${{ inputs.packages }}
+        run: |
+          # Split on commas and newlines as well as spaces: a comma list is what a human types, and
+          # space-only splitting turns one into a SINGLE spec that measures a package which does not
+          # exist while still producing a well-formed record.
+          printf '%s' "$PKGS" | tr ' ,\n' '\n\n\n' | grep . > /tmp/slice.txt || true
+          test -s /tmp/slice.txt || { echo "⛔ empty package list — the input did not arrive"; exit 1; }
+          while read -r spec; do
+            printf '%s' "$spec" | grep -qE '^@?[^@]+@[^@]+$' \
+              || { echo "⛔ '$spec' is not a name@version spec"; exit 1; }
+          done < /tmp/slice.txt
+          cat /tmp/slice.txt
+
+      - name: Measure the slice
+        if: env.DRAINED != '1'
+        shell: bash
+        env:
+          NUB_CORPUS_ON_RECORD: ${{ github.workspace }}/harness/v2/publish-record-v2.sh
+          NUB_CORPUS_REPO: ${{ github.workspace }}
+          NUB_CORPUS_BRANCH: ${{ github.ref_name }}
+          NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
+        run: |
+          set -uo pipefail
+          chmod +x harness/v2/*.sh
+          # ⛔ STOP MEASURING BEFORE THE JOB CAP KILLS US, so the slice can still be committed. A
+          # terminated job commits nothing: every measurement taken dies with the runner and the rows
+          # stay claimed. 40 minutes of headroom covers reconcile, verify, commit and push retries.
+          CAP_MIN=300; HEADROOM_MIN=40
+          export NUB_CORPUS_DEADLINE=$(( JOB_START_EPOCH + (CAP_MIN - HEADROOM_MIN) * 60 ))
+          echo "setup consumed $(( ($(date +%s) - JOB_START_EPOCH) / 60 )) min of the ${CAP_MIN}-min cap"
+          node harness/v2/run-batch-v2.mjs --file /tmp/slice.txt --nub "$NUB_BIN" \
+            --runs "$GITHUB_WORKSPACE/records-v2/runs" \
+            ${{ (inputs.packages != '' || inputs.force) && '--force' || '' }} \
+            || echo "run-batch-v2 exited non-zero — the gate below decides whether that lost the slice"
+          echo "v2 records on disk: $(find records-v2 -name results.json | wc -l)"
+
+      - name: Collect verdicts
+        if: inputs.packages == '' && env.DRAINED != '1'
+        shell: bash
+        run: |
+          node -e '
+            const fs=require("fs"),path=require("path");const out=[];
+            (function walk(d){let e;try{e=fs.readdirSync(d,{withFileTypes:true})}catch{return}
+              for(const x of e){const f=path.join(d,x.name);
+                if(x.isDirectory()){walk(f);continue}
+                if(x.name!=="results.json")continue;
+                try{const r=JSON.parse(fs.readFileSync(f,"utf8"));
+                  out.push(JSON.stringify({pkg:r.pkg,version:r.version,verdict:r.verdict}))}catch{}}
+            })("records-v2");
+            fs.writeFileSync("/tmp/verdicts.ndjson",out.join("\n")+"\n");
+            console.error(`collected ${out.length} verdict(s)`);
+          '
+          node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+          node harness/claim-slice.mjs --queue queue-v2.ndjson --reconcile --records records-v2
+
+      # ⛔ `if: always()` IS THE WHOLE POINT: this must run precisely when a later step FAILS. A slice
+      # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
+      # would otherwise take every measurement down with the ephemeral runner. Uploading BEFORE the
+      # gate is deliberate too — records that fail verification are the ones worth diagnosing.
+      - name: Preserve this slice's records as an artifact
+        if: always() && env.DRAINED != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: records-v2-${{ env.OS_NAME }}-${{ github.run_id }}
+          path: records-v2/
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ⛔ ASK THE REAL PARSER WHETHER THE V2 CATALOG LOADS. Everything upstream is JavaScript
+      # checking JavaScript. A rejected catalog does NOT fail — nub keeps running on the compiled-in
+      # one and merely prints REJECTED — so this failure is silent by construction.
+      - name: Ask nub to parse the catalog these v2 records produce
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          set -uo pipefail
+          node harness/collate.mjs --runs records-v2/runs --out /tmp/catalog-v2-gate.json >/dev/null 2>&1
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/catalog-v2-gate.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *REJECTED*) echo "⛔ THE V2 CATALOG WAS REJECTED BY NUB: $GOOD" >&2; exit 1 ;;
+            *OVERRIDDEN*) echo "the catalog these v2 records produce loads in nub: $GOOD" ;;
+            *) echo "⛔ no catalog banner at all — nub did not read the override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      # ONE COMMIT: records and queue together, so a claim and its evidence can never diverge.
+      - name: Commit records and queue
+        if: inputs.packages == '' && env.DRAINED != '1'
+        shell: bash
+        run: |
+          git config user.name  "corpus-runner"
+          git config user.email "corpus-runner@users.noreply.github.com"
+          SLICE_N=$(wc -l < /tmp/slice.txt)
+          # ⛔ DO NOT REBASE OR MERGE. This step's output is not a patch, it is a set of FILES whose
+          # identity is (platform, package, version); two runs producing the same path is not a
+          # conflict to resolve. Copy ours aside, hard-reset onto origin, put them back, RE-DERIVE the
+          # queue from the records that now exist. Conflict-free by construction rather than by luck.
+          #
+          # ⛔⛔ STASH ONLY THE RECORDS THIS RUN MEASURED. Restoring the whole tree over origin
+          # REVERTS every record another runner landed since this checkout — measured in the v1 lane,
+          # where one macOS slice rewrote a win32 record it never measured back to a stale copy.
+          MANIFEST="$NUB_CORPUS_MANIFEST"
+          STASH=$(mktemp -d)
+          if [ -s "$MANIFEST" ]; then
+            # ⛔ MANIFEST ENTRIES ARE DIRECTORIES, NOT FILES — `[ -f "$rel" ]` is FALSE for one, and
+            # that spelling would stash nothing and LOSE this run's records.
+            while IFS= read -r rel; do
+              [ -e "$rel" ] || continue
+              mkdir -p "$STASH/$rel"; cp -R "$rel/." "$STASH/$rel/" 2>/dev/null || true
+            done < "$MANIFEST"
+          else
+            echo "::warning::no publish manifest — stashing the whole records-v2 tree"
+            mkdir -p "$STASH/records-v2"; cp -R records-v2/. "$STASH/records-v2/" 2>/dev/null || true
+          fi
+          for i in 1 2 3 4 5; do
+            git reset -q --hard HEAD
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git reset -q --hard "origin/$GITHUB_REF_NAME"
+            if [ -s "$MANIFEST" ]; then
+              while IFS= read -r rel; do
+                [ -d "$STASH/$rel" ] || continue
+                mkdir -p "$rel"; cp -R "$STASH/$rel/." "$rel/" 2>/dev/null || true
+              done < "$MANIFEST"
+            else
+              mkdir -p records-v2; cp -R "$STASH/records-v2/." records-v2/ 2>/dev/null || true
+            fi
+            node harness/claim-slice.mjs --queue queue-v2.ndjson --reconcile --records records-v2
+            git add records-v2 queue-v2.ndjson
+            git diff --cached --quiet && { echo "already up to date after reconcile"; exit 0; }
+            git commit -q -m "corpus-v2($OS_NAME): slice of $SLICE_N [run ${{ github.run_id }}]"
+            git push -q && exit 0
+            echo "push $i rejected — another runner landed first; rebuilding on the new head" >&2
+            sleep $((i * 5))
+          done
+          echo "could not push after 5 attempts" >&2; exit 1
+
+      - name: Report v2 queue status
+        if: inputs.packages == ''
+        shell: bash
+        run: node harness/claim-slice.mjs --queue queue-v2.ndjson --status
+
+      - name: Dispatch the next slice
+        if: inputs.packages == '' && inputs.chain && env.DRAINED != '1'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        shell: bash
+        run: |
+          gh workflow run corpus-v2-runner.yml \
+            -f os="$OS_NAME" -f slice="${{ inputs.slice }}" \
+            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}
