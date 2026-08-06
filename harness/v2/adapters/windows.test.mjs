@@ -16,11 +16,12 @@
 //
 // ⛔ WHAT THESE CAN AND CANNOT PROVE. They pin the RESOLUTION ORDER -- that a destination event's
 // payload path beats the handle tables, that a rename keeps BOTH ends, that a shared Irp does not
-// evict one for the other. They CANNOT prove which payload field the kernel actually populates on
-// events 26/27/28, because that comes from the provider and `wevtutil gp /ge:true` publishes no
-// templates for it. Both plausible spellings are covered here; the real trace is what settles it,
-// and `windows.mjs --dump-dest N` prints the raw payload so it can be settled by reading rather
-// than by guessing.
+// evict one for the other. They cannot prove anything about the KERNEL: which field it populates on
+// events 26/27/28 is the provider's business, and `wevtutil gp /ge:true` publishes no templates for
+// it. That was settled by reading a real trace instead (run 31118563399) -- it is `FilePath`, and
+// every destination arrived as an absolute NT device path. Both plausible spellings stay covered
+// here so the decoder is not pinned to one observation, and `windows.mjs --dump-dest N` prints the
+// raw payload so the next person can re-settle it by reading rather than by guessing.
 import { test } from 'node:test';
 import assert from 'node:assert';
 import fs from 'node:fs';
