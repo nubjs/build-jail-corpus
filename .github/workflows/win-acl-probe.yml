@@ -1,0 +1,238 @@
+# Why does EVERY Windows verify arm fail on a READ of the package's own entry point?
+#
+# The failure the driver's guard is blocked on, verbatim from win-evict-probe run 31108012440
+# (which restored a nub binary that ALREADY carries the busybox verbatim-line fix, so that fix is
+# not the explanation):
+#
+#   Error: EPERM: operation not permitted, open
+#   'C:\jail\m-apollorover-...\verify-at-grant\node_modules\.store\@apollo+rover@0.2.1\node_modules\@apollo\rover\install.js'
+#     at getSourceSync (node:internal/modules/esm/load:41:14)
+#
+# The lifecycle script SPAWNS -- node starts and dies in its own module loader -- so this is a
+# filesystem-policy denial, not the jail refusing to launch a shell. Two candidate mechanisms, and
+# this probe is built to tell them apart rather than to confirm either:
+#
+#   C1  THE JUNCTION LEAVES THE GRANTED SUBTREE. Under the global virtual store, `.store/<pkg>@<ver>`
+#       is a JUNCTION into `%LOCALAPPDATA%\nub\pm\store\...`. The jail aces the ARM directory; the
+#       real file object lives outside it, so no ace ever lands on what the open actually reaches.
+#
+#   C2  A HARDLINK DOES NOT INHERIT. The linker materializes store files with
+#       `std::fs::hard_link` (aube-linker `materialize.rs`). A hard link is a new directory ENTRY to
+#       an existing file OBJECT, and security lives on the object -- so the destination directory's
+#       inheritable ace is never applied. nub's own ACL design depends on exactly that inheritance
+#       (`windows_account/acl.rs`: "Created AFTER the grant, so the inheritable allow propagates
+#       onto it as an INHERITED ace").
+#
+# C1 predicts the global-virtual-store arm fails and the project-local arm passes. C2 predicts BOTH
+# fail. Step 0 settles C2's premise on its own, with no nub in the picture at all, and carries its
+# own positive control -- a file created normally in the same directory, which MUST show the
+# inherited ace, or the experiment proves nothing about hardlinks.
+#
+# ⛔ THIS PROBE NEVER SETS `NUB_V2_WINDOWS_EVICTION_VERIFIED`. It does not invoke the v2 driver, it
+# publishes no records, and the guard on `measure-windows.mjs` stays exactly where it is. The
+# eviction is still unproven and nothing here claims otherwise.
+#
+# ⛔ Every step runs under `bash --noprofile --norc {0}` (no `-e`). A non-zero exit is the EXPECTED
+# result of the arms here, and the default `-e` shell aborts the step before the forensics run --
+# losing the only evidence that distinguishes a real result from a broken probe.
+name: win-acl-probe
+
+on:
+  push:
+    branches: [probe/win-acl]
+  workflow_dispatch:
+    inputs:
+      pkg:
+        description: 'package@version whose install script reads its own entry point'
+        default: '@apollo/rover@0.2.1'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # ── STEP 0 ─────────────────────────────────────────────────────────────────────────────────
+      # C2's premise, isolated: does a hard link into a directory pick up that directory's
+      # inheritable ace? No nub, no jail, no package manager. `fresh.txt` is the positive control:
+      # created normally inside the same granted directory, it MUST come back carrying the inherited
+      # ace. If it does not, the grant itself failed and the linked.txt result means nothing.
+      - name: 'S0 — control: does a HARDLINK inherit the destination directory ACE?'
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          rm -rf /c/acltest; mkdir -p /c/acltest/dst /c/acltest/src
+          echo hi > /c/acltest/src/orig.txt
+          echo "--- grant Guests an INHERITABLE read on dst ---"
+          icacls 'C:\acltest\dst' /grant 'Guests:(OI)(CI)(R)'
+          echo hi > /c/acltest/dst/fresh.txt
+          cmd /c 'mklink /H C:\acltest\dst\linked.txt C:\acltest\src\orig.txt'
+          echo; echo "=== fresh.txt (POSITIVE CONTROL — must show an inherited Guests ace) ==="
+          icacls 'C:\acltest\dst\fresh.txt'
+          echo; echo "=== linked.txt (the hardlink) ==="
+          icacls 'C:\acltest\dst\linked.txt'
+          echo; echo "=== src\orig.txt (the same file object, other name) ==="
+          icacls 'C:\acltest\src\orig.txt'
+          echo; echo "--- verdict ---"
+          F=$(icacls 'C:\acltest\dst\fresh.txt' 2>/dev/null | grep -c 'Guests')
+          L=$(icacls 'C:\acltest\dst\linked.txt' 2>/dev/null | grep -c 'Guests')
+          echo "fresh_has_guests_aces=$F  linked_has_guests_aces=$L"
+          if [ "$F" -eq 0 ]; then
+            echo "S0 INVALID — the positive control did NOT inherit, so the grant never applied and this step proves nothing"
+          elif [ "$L" -eq 0 ]; then
+            echo "S0 => C2 PREMISE CONFIRMED: a hardlink does NOT receive the destination directory's inheritable ace"
+          else
+            echo "S0 => C2 PREMISE REFUTED: the hardlink DID carry the ace"
+          fi
+
+      - name: Resolve the native path of the probe binary
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          P=/tmp/nub/target/release/nub.exe
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-windows-none
+          restore-keys: |
+            nub-bin-v1-windows-
+
+      # ⛔ WHICH BINARY THIS IS, IN THE LOG. The restore is a PREFIX match, so the key it resolved to
+      # is the only record of which nub source SHA produced the artifact every result below rests on.
+      - name: Identify the restored binary, and assert the override feature is live
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          echo "matched-key=${{ steps.nubbin.outputs.cache-matched-key }}"
+          BIN=/tmp/nub/target/release/nub.exe
+          if [ ! -f "$BIN" ]; then echo "⛔ NO CACHED BINARY — cannot run the nub arms"; echo "NUB_BIN=" >> "$GITHUB_ENV"; exit 0; fi
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+          # The same self-checking gate win-evict-probe uses: a malformed catalog must be REJECTED
+          # before a well-formed one is allowed to prove the override engaged.
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__v2_probe__":{"default":{"network":true}}}}'    > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$BIN" --version 2>&1)
+          case "$BAD" in *REJECTED*) echo "control ok — a malformed catalog is refused" ;; *) echo "⛔ GATE IS INERT: ${BAD:-<none>}" ;; esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$BIN" --version 2>&1)
+          case "$GOOD" in *OVERRIDDEN*) echo "override engages" ;; *) echo "⛔ binary lacks build-jail-catalog-override: ${GOOD:-<none>}" ;; esac
+
+      # ── THE TWO ARMS ───────────────────────────────────────────────────────────────────────────
+      # Identical except for the store layout, which is the single variable C1 turns on. Each is a
+      # bare `nub install` at a grant OBSERVE already synthesized as sufficient for this package
+      # (`{"write":{"deps":true},"network":true}` -- it downloads a binary from GitHub and writes it
+      # into its own directory), so a failure here is the jail, not a too-narrow grant.
+      - name: 'A1 — global virtual store (junction into %LOCALAPPDATA%): the measured failure'
+        shell: bash --noprofile --norc {0}
+        env:
+          npm_config_enable_global_virtual_store: 'true'
+        run: |
+          set +e
+          [ -z "$NUB_BIN" ] && { echo "skipped — no binary"; exit 0; }
+          D=/c/jail/a1; rm -rf "$D"; mkdir -p "$D"
+          node -e '
+            const fs=require("fs"); const [p,v]=(process.env.PKG||"").split(/@(?=[^@]*$)/);
+            fs.writeFileSync(process.argv[1]+"/package.json", JSON.stringify({name:"a1probe",version:"1.0.0",dependencies:{[p]:v}})+"\n");
+            fs.writeFileSync(process.argv[1]+"/cat.json", JSON.stringify({packages:{[p]:{default:{write:{deps:true},network:true}}}}));
+          ' "$D"
+          cd "$D" && NUB_BUILD_JAIL_CATALOG="$D/cat.json" "$NUB_BIN" install > "$D/i.log" 2>&1
+          echo "A1_RC=$?" | tee -a "$GITHUB_ENV"
+          cat "$D/i.log"
+
+      - name: 'A2 — project-local .store (real directory inside the arm): the discriminator'
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          [ -z "$NUB_BIN" ] && { echo "skipped — no binary"; exit 0; }
+          D=/c/jail/a2; rm -rf "$D"; mkdir -p "$D"
+          node -e '
+            const fs=require("fs"); const [p,v]=(process.env.PKG||"").split(/@(?=[^@]*$)/);
+            fs.writeFileSync(process.argv[1]+"/package.json", JSON.stringify({name:"a2probe",version:"1.0.0",dependencies:{[p]:v}})+"\n");
+            fs.writeFileSync(process.argv[1]+"/cat.json", JSON.stringify({packages:{[p]:{default:{write:{deps:true},network:true}}}}));
+          ' "$D"
+          cd "$D" && NUB_BUILD_JAIL_CATALOG="$D/cat.json" "$NUB_BIN" install > "$D/i.log" 2>&1
+          echo "A2_RC=$?" | tee -a "$GITHUB_ENV"
+          cat "$D/i.log"
+
+      # ── FORENSICS ──────────────────────────────────────────────────────────────────────────────
+      # Read the ACL off the exact object the failing open reached, in both arms. `fsutil hardlink
+      # list` names every directory entry pointing at that one file object -- an entry under the CAS
+      # is what makes C2 concrete rather than inferred.
+      - name: 'F — ACLs and link counts on the object the open actually reached'
+        if: always()
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          for A in a1 a2; do
+            D=/c/jail/$A
+            [ -d "$D" ] || continue
+            echo "════════════════════════ $A ════════════════════════"
+            echo "--- layout line ---"; grep -h 'linker ' "$D/i.log" 2>/dev/null
+            echo "--- the denied path, from the arm's own error ---"
+            P=$(grep -oE "open '[^']+'" "$D/i.log" 2>/dev/null | head -1 | sed "s/^open '//; s/'$//")
+            echo "denied=${P:-<none — this arm did not hit an EPERM>}"
+            if [ -n "$P" ]; then
+              # ⛔ `dirname` on a BACKSLASH path returns "." -- it only knows "/". Go through the
+              # POSIX spelling for every path manipulation and convert back with cygpath -w.
+              U=$(cygpath -u "$P" 2>/dev/null)
+              PAR=$(cygpath -w "$(dirname "$U")" 2>/dev/null)
+              echo; echo "--- icacls on the DENIED file ---";      icacls "$P"
+              echo; echo "--- icacls on its PARENT directory ---"; icacls "$PAR"
+              echo; echo "--- fsutil hardlink list (every name for this ONE file object) ---"
+              fsutil hardlink list "$P"
+              # The `.store/<entry>` directory is where a junction would sit under the global
+              # virtual store. Querying it directly settles C1 without inferring from the layout.
+              ENTRY=$(printf '%s' "$U" | sed -n 's|\(.*/\.store/[^/]*\)/.*|\1|p')
+              if [ -n "$ENTRY" ]; then
+                EW=$(cygpath -w "$ENTRY" 2>/dev/null)
+                echo; echo "--- is the .store entry a REPARSE POINT (junction)? $EW ---"
+                fsutil reparsepoint query "$EW" 2>&1 | head -12
+                echo "--- icacls on the .store entry ---"; icacls "$EW"
+              fi
+            fi
+            echo; echo "--- icacls on the ARM ROOT (what the jail was asked to grant) ---"
+            icacls "$(cygpath -w "$D" 2>/dev/null)"
+            echo; echo "--- icacls on a file nub itself wrote into the arm (comparison) ---"
+            icacls "$(cygpath -w "$D/package.json" 2>/dev/null)"
+          done
+          echo "════════════════════════ global store ════════════════════════"
+          S="$LOCALAPPDATA\\nub\\pm\\store"
+          echo "store=$S"; icacls "$S" 2>/dev/null | head -20
+
+      - name: Verdict
+        if: always()
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          echo "A1 (global virtual store) rc=${A1_RC:-?}"
+          echo "A2 (project-local .store) rc=${A2_RC:-?}"
+          for A in a1 a2; do
+            printf '%s first error: %s\n' "$A" "$(grep -m1 -E 'EPERM|EACCES|Error:' /c/jail/$A/i.log 2>/dev/null)"
+          done
+          echo
+          echo "Reading: BOTH arms failing => C2 (hardlink does not inherit) is implicated;"
+          echo "         only A1 failing   => C1 (the junction leaves the granted subtree) alone."
+
+      - name: Preserve the arm logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-acl-probe-${{ github.run_id }}
+          path: |
+            C:/jail/**/*.log
+            C:/jail/**/cat.json
+          if-no-files-found: warn
+          retention-days: 14
