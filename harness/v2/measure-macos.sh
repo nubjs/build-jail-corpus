@@ -197,6 +197,49 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 # so a variable set on the driver side never reaches the traced npm; `env` runs as the target user
 # and its assignments are what the child actually sees. `-H` still sets HOME first — the `env`
 # assignment overrides it, which is the same one-way redirect nub applies to a confined script.
+# ⛔ ASSERT WHAT THE CHILD SEES, NOT WHAT THE DRIVER UNSET. `ci-env-scrub.sh` does a plain `unset` in
+# THIS shell, which is sufficient on Linux because strace runs the target directly in the driver's
+# environment. It is NOT sufficient reasoning here: this driver reaches the traced npm through
+# `sudo -u <user> -H env …`, and sudo's env_reset builds a FRESH environment from its own env_keep
+# list rather than inheriting ours. So whether the child ever saw `CI` is a property of sudo's
+# configuration, not of the scrub — and the two produce an identical-looking record.
+#
+# Dumping the child's real environment under the IDENTICAL sudo/env chain is the only thing that
+# distinguishes them. Runs before the traced command, outside the trace, so it costs the measurement
+# nothing.
+cat > "$OBS/childenv.sh" <<WRAP
+sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
+  "HOME=$JAIL_HOME" "TMPDIR=$JAIL_TMP" "NODE_COMPAT=1" \
+  "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
+  "ELECTRON_CACHE=$TOOLS/electron-cache" \
+  "electron_config_cache=$TOOLS/electron-cache" \
+  "npm_config_prefix=$TOOLS/npm-prefix" \
+  /usr/bin/env > "$OBS/child-env.txt" 2>&1
+WRAP
+bash "$OBS/childenv.sh" 2>/dev/null || true
+# ⛔ THE GUARD CHECKS ITSELF FIRST, BECAUSE ITS FAILURE MODE IS A SILENT "CLEAN". Every part of this
+# is a false-negative risk: a malformed alternation makes grep error out and print nothing, which
+# reads exactly like "no CI variable reached the child". That is the same vacuous-guard shape as the
+# `[A-Z]` assertion, and it is invisible unless the pattern is run against a line that MUST match.
+#
+# (The scare that produced this: the pattern appeared broken until I noticed I had been testing it in
+# zsh, which does not word-split unquoted expansions, while this driver is bash, which does. The
+# spelling was fine; my instrument was in the wrong shell. A self-check is immune to both.)
+CI_PAT="$(printf '%s\n' $CI_KEYS | paste -sd'|' -)"
+if ! printf 'CI=1\n' | grep -qE "^($CI_PAT)=" 2>/dev/null; then
+  echo "  ⛔ VENUE-CI-CHILD SELF-CHECK FAILED — the leak pattern does not match a known-positive"
+  echo "     line, so a 'clean' result below would prove nothing. Treat CI scrubbing as UNVERIFIED."
+elif printf 'PRECIRCLECI=1\nMY_CI_THING=1\n' | grep -qE "^($CI_PAT)=" 2>/dev/null; then
+  echo "  ⛔ VENUE-CI-CHILD SELF-CHECK FAILED — the pattern matches a NON-CI variable, so a leak"
+  echo "     report below would be noise. Treat CI scrubbing as UNVERIFIED."
+fi
+CI_IN_CHILD="$(grep -oE "^($CI_PAT)=" "$OBS/child-env.txt" 2>/dev/null | tr -d '=' | tr '\n' ' ' || true)"
+if [ -n "${CI_IN_CHILD// /}" ]; then
+  echo "  ⛔ VENUE-CI-CHILD LEAKED:$CI_IN_CHILD — the traced script SEES CI detection despite the scrub"
+else
+  echo "  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)"
+fi
+
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
 sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
