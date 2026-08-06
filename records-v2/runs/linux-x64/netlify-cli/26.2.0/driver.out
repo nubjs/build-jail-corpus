@@ -1,0 +1,35 @@
+### netlify-cli@26.2.0   (/home/runner/v2-Em9xro)
+  OBSERVE   rc=0 files=35566 trace=32857 lines
+  CLOSURE   836 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 2  /  whole traced tree 5
+    sockets script 0  /  whole traced tree 0
+  == WRITES the script actually performed ==
+    userHome      2
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2
+        .config/netlify
+        .config/netlify/autocompletion.json
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[synth] rc=0 artifacts=ABSENT/1110 missing=1 (tree 3/35566) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+       missing: <package absent>
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb2126003217] rc=0 artifacts=ABSENT/1110 missing=1 (tree 3/35566) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: <package absent>
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb3938809772] rc=0 artifacts=ABSENT/1110 missing=1 (tree 3/35566) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: <package absent>
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb2742342390] rc=0 artifacts=ABSENT/1110 missing=1 (tree 3/35566) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: <package absent>
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
