@@ -7,8 +7,15 @@
 // the resulting trace looks healthy -- `EventsLost 0`, thousands of events, a plausible path set.
 // The undercount direction is an UNDER-GRANT, which is the direction that breaks installs.
 //
-// Input is `wevtutil gp <provider>` text, which lists every keyword with its value and every event
-// with the keyword mask it is published under. Nothing here is guessed from a name.
+// Input is `wevtutil gp <provider> /ge:true` text, which lists every keyword with its value and
+// every event with the keyword mask it is published under. Nothing here is guessed from a name.
+//
+// ⛔ TWO FORMAT FACTS, BOTH MEASURED AFTER A FIRST VERSION OF THIS PARSER READ ZERO OF EACH:
+//   1. `mask:` is BARE HEX with no `0x` prefix -- `mask: 1000` is 0x1000, not decimal 1000.
+//      Reading it as decimal is silent and produces a plausible-looking wrong answer.
+//   2. `wevtutil gp` WITHOUT `/ge:true` emits no `events:` block at all. The `tasks:` block is
+//      still there and gives id -> name, so the ids are recoverable, but the per-event keyword
+//      mapping -- the thing that actually decides delivery -- is not.
 //
 //   usage: node keywords.mjs <wevtutil-dump.txt> <mask-hex> [--events 12,15,16,...]
 import fs from 'node:fs';
@@ -19,6 +26,9 @@ if (!dumpPath || !maskHex) { console.error('usage: keywords.mjs <dump.txt> <mask
 
 const text = fs.readFileSync(dumpPath, 'utf8');
 const MASK = BigInt(maskHex);
+// A `mask:`/`keywords:` value in this dump is bare hex. Normalise both spellings so a future dump
+// that DOES carry `0x` is read the same way rather than becoming a second silent failure mode.
+const hex = (s) => BigInt(/^0x/i.test(s) ? s : `0x${s}`);
 
 // `wevtutil gp` emits an indentation-structured listing. Two blocks matter and they are parsed
 // independently rather than with one clever regex, because their shapes differ:
@@ -32,32 +42,44 @@ const MASK = BigInt(maskHex);
 //       value: 12
 //       ...
 //       keywords: 0x80
+// Each block is parsed by splitting on its own record separator (`  keyword:`, `  task:`,
+// `  event:`) rather than by slicing the file on block headers. A header slice was the first
+// version and it is brittle in exactly the way that produces a confident empty answer.
+const recs = (label) => text.split(new RegExp(`^\\s*${label}:\\s*$`, 'm')).slice(1);
+
 const keywords = [];
-{
-  const re = /name:\s*(\S+)[\s\S]*?mask:\s*(0x[0-9a-fA-F]+)/g;
-  // Scope to the keywords block so an event's `name:`/`mask:` pair cannot be mistaken for one.
-  const start = text.indexOf('keywords:');
-  const end = text.indexOf('\n  events:', start >= 0 ? start : 0);
-  const block = text.slice(start >= 0 ? start : 0, end > 0 ? end : text.length);
-  let m;
-  while ((m = re.exec(block))) keywords.push({ name: m[1], mask: BigInt(m[2]) });
+for (const chunk of recs('keyword')) {
+  const n = /\bname:\s*(\S+)/.exec(chunk);
+  const m = /\bmask:\s*([0-9a-fA-Fx]+)/.exec(chunk);
+  if (n && m) keywords.push({ name: n[1], mask: hex(m[1]) });
 }
 
-// Events: `value: N` ... `keywords: 0xNN` within one event record. Split on the record boundary so a
-// missing `keywords:` line cannot silently borrow the next event's.
-const events = [];
-for (const chunk of text.split(/^\s*event:\s*$/m).slice(1)) {
+// `tasks:` gives id -> name and is present even without `/ge:true`. It does NOT give the keyword
+// mapping, so on its own it can say what an id IS but never whether it can be delivered.
+const tasks = new Map();
+for (const chunk of recs('task')) {
+  const n = /\bname:\s*(\S+)/.exec(chunk);
   const v = /\bvalue:\s*(\d+)/.exec(chunk);
-  const k = /\bkeywords:\s*(0x[0-9a-fA-F]+)/.exec(chunk);
-  const o = /\bopcode:\s*(\S+)/.exec(chunk);
-  const t = /\btemplate:\s*(\S+)/.exec(chunk);
-  if (v) events.push({ id: +v[1], keywords: k ? BigInt(k[1]) : null, opcode: o?.[1] ?? '', template: t?.[1] ?? '' });
+  if (n && v) tasks.set(+v[1], n[1]);
 }
 
-console.log(`== PROVIDER MANIFEST ==  keywords parsed: ${keywords.length}   events parsed: ${events.length}`);
-if (keywords.length === 0 || events.length === 0) {
-  console.log('!! PARSE FOUND NOTHING -- the instrument is broken, not the provider. Read the raw dump.');
+// `events:` is only present with `/ge:true`. Each record carries `value:` and `keywords:`.
+const events = [];
+for (const chunk of recs('event')) {
+  const v = /\bvalue:\s*(\d+)/.exec(chunk);
+  const k = /\bkeywords:\s*([0-9a-fA-Fx]+)/.exec(chunk);
+  const t = /\btemplate:\s*(\S+)/.exec(chunk);
+  if (v) events.push({ id: +v[1], keywords: k ? hex(k[1]) : null, template: t?.[1] ?? '' });
+}
+
+console.log(`== PROVIDER MANIFEST ==  keywords ${keywords.length}   tasks ${tasks.size}   events ${events.length}`);
+if (keywords.length === 0) {
+  console.log('!! NO KEYWORDS PARSED -- the instrument is broken, not the provider. Read the raw dump.');
   process.exit(1);
+}
+if (events.length === 0) {
+  console.log('!! NO EVENTS BLOCK -- re-run `wevtutil gp <provider> /ge:true`. Delivery cannot be');
+  console.log('   decided from tasks alone, so the per-event table below will be INCONCLUSIVE.');
 }
 
 console.log(`\n== MASK ${maskHex} DECODED ==`);
@@ -74,14 +96,16 @@ if (unaccounted !== 0n) console.log(`  !! 0x${unaccounted.toString(16)} of the m
 const want = evArg ? evArg.split(',').map(Number) : [];
 if (want.length) {
   console.log(`\n== EVENTS THE PARSER SWITCHES ON, UNDER ${maskHex} ==`);
-  let dead = 0;
+  let dead = 0, unknown = 0;
   for (const id of want) {
+    const name = tasks.get(id) ?? '?';
     const e = events.find((x) => x.id === id);
-    if (!e) { console.log(`  ??  ${String(id).padStart(3)}  NOT DECLARED BY THIS PROVIDER`); continue; }
+    if (!e) { unknown++; console.log(`  ????????   ${String(id).padStart(3)}  ${name.padEnd(18)} no event record (need /ge:true)`); continue; }
     const kw = e.keywords ?? 0n;
     const delivered = kw === 0n || (MASK & kw) !== 0n;
     if (!delivered) dead++;
-    console.log(`  ${delivered ? 'DELIVERED' : '⛔ NEVER  '}  ${String(id).padStart(3)}  keywords=0x${kw.toString(16)}  ${e.opcode} ${e.template}`);
+    console.log(`  ${delivered ? 'DELIVERED' : '⛔ NEVER  '}  ${String(id).padStart(3)}  ${name.padEnd(18)} keywords=0x${kw.toString(16)}  ${e.template}`);
   }
-  console.log(`\n  ⇒ ${dead} of ${want.length} handled event IDs can NEVER be delivered under ${maskHex}.`);
+  console.log(`\n  ⇒ ${dead} of ${want.length} handled event IDs can NEVER be delivered under ${maskHex}` +
+    (unknown ? `, and ${unknown} are UNDECIDED (no event record).` : '.'));
 }

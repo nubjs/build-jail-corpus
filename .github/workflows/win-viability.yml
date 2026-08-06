@@ -76,15 +76,23 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\obs\out | Out-Null
-          wevtutil gp Microsoft-Windows-Kernel-File    > C:\obs\out\kernel-file-provider.txt 2>&1
-          wevtutil gp Microsoft-Windows-Kernel-Network > C:\obs\out\kernel-network-provider.txt 2>&1
-          wevtutil gp Microsoft-Windows-Kernel-Process > C:\obs\out\kernel-process-provider.txt 2>&1
+          # ⛔ `/ge:true` IS LOAD-BEARING. Without it `wevtutil gp` emits no `events:` block at all,
+          # so the per-event keyword mapping -- the thing that decides whether an event can be
+          # delivered under a given mask -- is simply absent, and the decode can only guess.
+          wevtutil gp Microsoft-Windows-Kernel-File    /ge:true > C:\obs\out\kernel-file-provider.txt 2>&1
+          wevtutil gp Microsoft-Windows-Kernel-Network /ge:true > C:\obs\out\kernel-network-provider.txt 2>&1
+          wevtutil gp Microsoft-Windows-Kernel-Process /ge:true > C:\obs\out\kernel-process-provider.txt 2>&1
           Write-Output "dump sizes:"
           Get-ChildItem C:\obs\out\*-provider.txt | Select-Object Name, Length | Format-Table | Out-String
           # Every event ID `adapters/windows.mjs` switches on, in its EV table order.
+          $ids = '10,11,12,13,14,15,16,17,18,19,20,22,24,26,27,28,30'
+          Write-Output '--- what the adapter ENABLES today ---'
           node harness/v2/probes/win-viability/keywords.mjs C:\obs\out\kernel-file-provider.txt 0x11F0 `
-            --events 10,11,12,13,14,15,16,17,18,19,20,22,24,26,27,28,30 `
-            2>&1 | Tee-Object -FilePath C:\obs\out\keyword-decode.txt
+            --events $ids 2>&1 | Tee-Object -FilePath C:\obs\out\keyword-decode-11F0.txt
+          Write-Output ''
+          Write-Output '--- the mask that would carry all nine keywords its comment NAMES ---'
+          node harness/v2/probes/win-viability/keywords.mjs C:\obs\out\kernel-file-provider.txt 0x1FF0 `
+            --events $ids 2>&1 | Tee-Object -FilePath C:\obs\out\keyword-decode-1FF0.txt
 
       # ── Q1b: THE KNOWN-ANSWER FIXTURE. The one step whose result gates every other conclusion.
       - name: Known-answer fixture — capture
@@ -102,25 +110,56 @@ jobs:
             '@echo off',
             "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf $env:STORM `"$abs\kaf-grandchild.ps1`""
           )
+          # BASELINE ARM: the shipped adapter, unmodified, at the mask every existing Windows
+          # measurement went through.
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
             -OutDir C:\obs\kafcap -Command $wrap -WorkDir C:\obs -Session nubkaf 2>&1 |
             Tee-Object -FilePath C:\obs\out\kaf-capture.txt
           Get-Content C:\obs\kafcap\run.out -ErrorAction SilentlyContinue | Select-Object -Last 40
           Get-Content C:\obs\kafcap\run.err -ErrorAction SilentlyContinue | Select-Object -Last 40
 
-      - name: Known-answer fixture — parse and assert
+      # ⛔ THE SINGLE-VARIABLE A/B. Same fixture, same code path, same buffers, same privilege drop
+      # — only the Kernel-File keyword mask differs. This is what turns "0x11F0 looks wrong" into a
+      # measurement of exactly which write shapes it loses. Running it as its own step keeps the
+      # baseline arm's result intact if this one fails.
+      - name: Known-answer fixture — WIDENED mask arm (0x1FF0)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf2
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\kaf2-run.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf2 $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$P/capture-mask.ps1" `
+            -OutDir C:\obs\kafcap2 -Command C:\obs\kaf2-run.cmd -WorkDir C:\obs `
+            -Session nubkaf2 -FileMask 0x1FF0 2>&1 |
+            Tee-Object -FilePath C:\obs\out\kaf2-capture.txt
+
+      - name: Known-answer fixture — parse and assert BOTH arms
         shell: pwsh
         run: |
           $P = 'harness/v2/probes/win-viability'
           # `--allow-lossy` on purpose: a lossy trace is what this probe is here to characterise, and
           # the adapter's default refusal would hide the number the whole question turns on.
-          node harness/v2/adapters/windows.mjs C:\obs\kafcap --out C:\obs\kafcap\events.ndjson --allow-lossy 2>&1 |
-            Tee-Object -FilePath C:\obs\out\kaf-parse.txt
-          node "$P/kaf-assert.mjs" C:\obs\kafcap\events.ndjson C:\obs\kaf\kaf-expect.json C:\obs\kafcap `
-            --json C:\obs\out\kaf-assert.json 2>&1 | Tee-Object -FilePath C:\obs\out\kaf-assert.txt
-          Copy-Item C:\obs\kafcap\events.ndjson C:\obs\out\kaf-events.ndjson -ErrorAction SilentlyContinue
-          Copy-Item C:\obs\kafcap\meta.json     C:\obs\out\kaf-meta.json     -ErrorAction SilentlyContinue
-          Copy-Item C:\obs\kaf\kaf-expect.json  C:\obs\out\kaf-expect.json   -ErrorAction SilentlyContinue
+          foreach ($arm in @(
+            @{ cap = 'C:\obs\kafcap';  fx = 'C:\obs\kaf';  tag = '11F0' },
+            @{ cap = 'C:\obs\kafcap2'; fx = 'C:\obs\kaf2'; tag = '1FF0' }
+          )) {
+            if (-not (Test-Path "$($arm.cap)\meta.json")) { Write-Output "arm $($arm.tag): NO CAPTURE"; continue }
+            Write-Output "================ ARM $($arm.tag) ================"
+            node harness/v2/adapters/windows.mjs $arm.cap --out "$($arm.cap)\events.ndjson" --allow-lossy 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\kaf-parse-$($arm.tag).txt"
+            node "$P/kaf-assert.mjs" "$($arm.cap)\events.ndjson" "$($arm.fx)\kaf-expect.json" $arm.cap `
+              --json "C:\obs\out\kaf-assert-$($arm.tag).json" 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\kaf-assert-$($arm.tag).txt"
+            Copy-Item "$($arm.cap)\events.ndjson" "C:\obs\out\kaf-events-$($arm.tag).ndjson" -ErrorAction SilentlyContinue
+            Copy-Item "$($arm.cap)\meta.json"     "C:\obs\out\kaf-meta-$($arm.tag).json"     -ErrorAction SilentlyContinue
+            Copy-Item "$($arm.fx)\kaf-expect.json" "C:\obs\out\kaf-expect-$($arm.tag).json"  -ErrorAction SilentlyContinue
+          }
 
       # ── Q1c: IS THE LOSS COUNTER AN INSTRUMENT OR A CONSTANT?
       # ⛔ "eventsLost 0" IS THE LOAD-BEARING CLAIM OF THIS LANE AND HAS NEVER BEEN SHOWN CAPABLE OF
@@ -201,10 +240,10 @@ jobs:
         shell: pwsh
         run: |
           Write-Output '===== KEYWORD DECODE ====='
-          Get-Content C:\obs\out\keyword-decode.txt -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\keyword-decode-11F0.txt, C:\obs\out\keyword-decode-1FF0.txt -ErrorAction SilentlyContinue
           Write-Output ''
-          Write-Output '===== KNOWN-ANSWER FIXTURE ====='
-          Get-Content C:\obs\out\kaf-assert.txt -ErrorAction SilentlyContinue
+          Write-Output '===== KNOWN-ANSWER FIXTURE, BOTH MASKS ====='
+          Get-Content C:\obs\out\kaf-assert-11F0.txt, C:\obs\out\kaf-assert-1FF0.txt -ErrorAction SilentlyContinue
           Write-Output ''
           Write-Output '===== EVENTS LOST ====='
           Get-Content C:\obs\out\loss-starved.txt, C:\obs\out\loss-real.txt -ErrorAction SilentlyContinue
