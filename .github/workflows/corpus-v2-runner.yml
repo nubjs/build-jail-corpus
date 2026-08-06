@@ -54,6 +54,17 @@ on:
         description: "debug only: measure these specs instead of claiming from the queue"
         type: string
         default: ""
+      ci_env:
+        # ⛔ AN EXPERIMENTAL CELL, NOT NORMALISATION. The venue-portability acceptance test is a 2x2
+        # over {venue} x {CI-ness}, and this input is what isolates the second axis from the first —
+        # the same runner, with CI toggled. It exists to MEASURE the CI axis, which is the opposite
+        # of the one-line `CI=1` fix VENUE-PORTABILITY.md warns against: that one hides the axis by
+        # making the venues agree, and silently leaves one store layout unmeasured.
+        # `GITHUB_ACTIONS` is deliberately left alone, so `venue` still records `ci`.
+        description: "CI env var for the measure step: inherit (real CI) or unset (isolates CI-ness from venue)"
+        type: choice
+        options: [inherit, unset]
+        default: inherit
   push:
     # Branch-scoped so the lane can be iterated on with no PR and no dispatch — `workflow_dispatch`
     # is inert until the file is on the default branch, which makes a push trigger the only way to
@@ -294,6 +305,14 @@ jobs:
         run: |
           set -uo pipefail
           chmod +x harness/v2/*.sh
+          # See the `ci_env` input. `unset` genuinely REMOVES the variable rather than blanking it:
+          # `is_ci()` is `env::var_os("CI").is_some()`, so `CI=""` still reads as CI and would make
+          # this cell a duplicate of the one beside it while looking like a measurement.
+          if [ "${{ inputs.ci_env }}" = "unset" ]; then
+            unset CI
+            echo "CI unset for this measure step (GITHUB_ACTIONS left intact, so venue stays 'ci')"
+          fi
+          echo "CI is now: ${CI-<unset>}"
           # ⛔ STOP MEASURING BEFORE THE JOB CAP KILLS US, so the slice can still be committed. A
           # terminated job commits nothing: every measurement taken dies with the runner and the rows
           # stay claimed. 40 minutes of headroom covers reconcile, verify, commit and push retries.
