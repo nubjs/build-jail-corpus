@@ -3,7 +3,13 @@
   "version": "1.2.3",
   "harnessVersion": 2,
   "verdict": "MINIMUM",
-  "grant": {},
+  "grant": {
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    }
+  },
   "synthesized": {
     "write": {
       "deps": true,
@@ -11,15 +17,19 @@
       "userHome": true
     }
   },
-  "verifiedBy": "narrow:no-write-project",
-  "minimality": "MINIMAL",
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-project",
+    "no-write-userHome"
+  ],
   "notes": [
     "cwd-unobserved"
   ],
   "eventLog": {
-    "lines": 12238,
-    "parsed": 12220,
+    "lines": 12235,
+    "parsed": 12217,
     "unparsed": 0,
     "live": true,
     "tracerErrors": 1,
@@ -29,73 +39,55 @@
     "pairedTwoPath": 541,
     "danglingPair": 0,
     "failed": 4681,
-    "enoent": 4676,
+    "enoent": 4678,
     "refusals": 0,
     "byErrno": {
       "ENXIO": 3,
-      "ENOENT": 4676,
-      "EEXIST": 2
+      "ENOENT": 4678
     },
     "procs": 6,
     "lifecyclePids": 1,
-    "distinctEvents": 5587,
-    "emitted": 5587,
-    "calls": 11657,
-    "bytes": 976677,
-    "gzipBytes": 37735,
-    "out": "/Users/runner/v2m-uiyrmE/observe/events.ndjson"
+    "distinctEvents": 5584,
+    "emitted": 5584,
+    "calls": 11654,
+    "bytes": 1110960,
+    "gzipBytes": 37786,
+    "out": "/Users/runner/v2m-FSIYyF/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 11112,
+  "durationMs": 17387,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": null,
     "nubVersion": "v0.6.0",
-    "corpusGitSha": "52e6c079eeab53d21bfd968f76a0318b6d164493",
+    "corpusGitSha": "8e6944629b6660f7e9f8fc090bfb20b4df225ab5",
     "node": "v22.23.1",
-    "at": "2026-08-06T21:29:42.933Z"
-  },
-  "rescored": {
-    "kind": "re-parse",
-    "note": "DERIVED FROM THE RETAINED ARCHIVE. No package was installed, no jail arm was executed, and no runner was used. The jailed evidence cited below comes from the ORIGINAL run in `provenance`, printed in `driver.out`.",
-    "at": "2026-08-06T21:56:03.594Z",
-    "harnessGitSha": "1d504fac",
-    "decoder": "harness/v2/observe-macos.mjs",
-    "input": "trace.txt.gz",
-    "reason": "The published grant was the SYNTHESIZED one, and that synthesis rested on a phantom path. The script opens `builderror.log` relative; macOS spawns lifecycle scripts with posix_spawn addchdir_np, so no chdir syscall fires and the decoder resolved it against the inherited wrapper cwd, producing <project>/builderror.log — a path no process touched — which billed write.project. The real file is <project>/node_modules/ttf2woff2/builderror.log, exactly where Linux recorded it.",
-    "grantEstablishedBy": {
-      "arm": "nar-no-write-project",
-      "note": "The original run executed this arm at grant {} in the real unprivileged jail. That is a jailed verification of the empty grant, unaffected by which bucket synthesis had picked.",
-      "rc": 0,
-      "artifacts": "122/122",
-      "missing": 0,
-      "shortfall": "none",
-      "overridden": 2,
-      "rejected": 0
-    },
-    "minimalityEstablishedBy": {
-      "note": "{} is the empty grant: there is no capability left to drop, so minimality is by construction rather than by descent.",
-      "inference": "none — the empty grant is minimal definitionally",
-      "directEmptyGrantArmRun": true
-    },
-    "synthesizedNote": "`synthesized` records what the FIXED decoder (1d504fac) produces from this archive: the unplaceable write widens the grant to every write scope. It is deliberately WIDER than the original {\"write\":{\"project\":true}} — the old value was narrow only by accident of a wrong resolution. The verified grant is unaffected.",
-    "previous": {
-      "grant": {
-        "write": {
-          "project": true
-        }
+    "at": "2026-08-06T22:25:38.947Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterInsideHome": true,
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-FSIYyF/jailhome",
+        "TMPDIR": "/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T//nub-tmp-obsTGiFYa",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
       },
-      "synthesized": {
-        "write": {
-          "project": true
-        }
-      },
-      "verifiedBy": "synth",
-      "minimality": "OVER-PREDICTED",
-      "overPredictedBy": [
-        "no-write-project"
-      ]
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
     }
   }
 }
