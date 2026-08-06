@@ -63,7 +63,23 @@ const fail = (m) => { diag.errors.push(m); console.error(`macos.mjs: FATAL ${m}`
 const ES_EVENTS = ['open', 'create', 'unlink', 'rename', 'link', 'truncate', 'exec', 'fork'];
 const esOut = fs.openSync(esLog, 'w');
 const esErr = fs.openSync(esErrLog, 'w');
-const es = spawn('/usr/bin/eslogger', ES_EVENTS, { stdio: ['ignore', esOut, esErr] });
+// ⛔ `detached: true` IS THE LOAD-BEARING FLAG ON THIS LINE, AND IT IS NOT ABOUT PROCESS LIFETIME.
+// From eslogger(1), verbatim: "To avoid feedback loops when filtering output using shell pipelines,
+// eslogger automatically suppresses events for all processes that are part of its process group."
+//
+// node's `spawn` leaves a child in the PARENT's process group, so an eslogger started the obvious
+// way suppresses the adapter, the traced command, and every descendant — precisely the processes we
+// exist to observe. It reports everything ELSE, so the failure has no error, no empty log, and no
+// stderr: just a full, healthy-looking stream with our subtree silently absent.
+//
+// MEASURED on the macos-14 runner before this flag: 6682 records whose top executables were
+// mdworker_shared=3291, mds=2763, mds_stores=400, xpcproxy=96, cfprefsd=63, launchd=40 — system
+// daemons only, not one `node`/`sh`/`sudo`/`fixture`. The adapter's own sentinel file opens never
+// appeared either, which is what the bracket control caught as `pre=false post=false`.
+//
+// `detached` makes node call setsid(2), putting eslogger in its own session and process group, so
+// our tree is no longer "part of its process group". We still kill it by pid, so nothing leaks.
+const es = spawn('/usr/bin/eslogger', ES_EVENTS, { stdio: ['ignore', esOut, esErr], detached: true });
 const fsOut = fs.openSync(fsLog, 'w');
 const fsErr = fs.openSync(fsErrLog, 'w');
 // `-w` forces the wide format. It is NOT cosmetic: it is also what puts microseconds in the
@@ -122,9 +138,11 @@ const forwarded = Object.entries(process.env)
 const [c0, cargs] = asUser
   ? ['/usr/bin/sudo', ['-u', asUser, '/usr/bin/env', ...forwarded, ...cmd]]
   : [cmd[0], cmd.slice(1)];
+const cmdStartedAt = new Date().toISOString();
 const child = spawn(c0, cargs, { stdio: 'inherit' });
 const childPid = child.pid;
 const rootMarkerRc = await new Promise((res) => child.on('exit', (code) => res(code)));
+const cmdEndedAt = new Date().toISOString();
 
 dropSentinels('post');
 // Whether each tracer was still ALIVE at the end is a first-class result. A tracer that exited on
@@ -236,6 +254,15 @@ diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).f
 // When the closure comes back empty the question is always "which link is missing?", and answering
 // it from a re-run costs a full CI cycle. Record the ancestry evidence inline instead.
 diag.seeds = [...SEEDS];
+// Which link is missing is decidable from the map itself. A seed that appears as no pid AND as no
+// ppid means no source emitted a single record naming it, so the closure had nothing to anchor to —
+// distinct from a seed that IS present but whose descendants were never recorded. Both seeds coming
+// back false is the signature of the eslogger process-group suppression documented above.
+diag.seed_presence = [...SEEDS].map((s) => ({
+  pid: s,
+  appears_as_child: parentOf.has(s),
+  appears_as_parent: [...parentOf.values()].includes(s),
+}));
 diag.counts.parent_edges = parentOf.size;
 diag.ancestry_sample = [...parentOf.entries()]
   .filter(([p]) => /^(sudo|env|bash|sh|zsh|fixture|node|npm|run-fixture\.sh|level1\.sh|level2\.sh)$/.test(commOf.get(p) ?? ''))
@@ -244,8 +271,14 @@ diag.ancestry_sample = [...parentOf.entries()]
 // cannot say — 8341 records that all predate the command look identical to 8341 that bracket it.
 // The window and the per-executable histogram answer it directly.
 {
+  // The command's own start/end are what make the record window READABLE: a log whose last record
+  // predates the command is a truncated capture, one that brackets it and still reports nothing is a
+  // suppression. Identical symptoms downstream, completely different defects.
   const times = esRecords.map((r) => r.time).filter((t) => typeof t === 'string').sort();
-  diag.eslogger_window = { first: times[0] ?? null, last: times[times.length - 1] ?? null };
+  diag.eslogger_window = {
+    first: times[0] ?? null, last: times[times.length - 1] ?? null,
+    command_started: cmdStartedAt, command_ended: cmdEndedAt,
+  };
   const hist = new Map();
   for (const r of esRecords) {
     const exe = first(r, ['process.executable.path']);
@@ -445,7 +478,7 @@ diag.counts.eslogger_truncated_paths_rejected = esTruncated;
 diag.counts.events = events.length;
 diag.counts.unknown_es_event_shape = unknownShape;
 diag.command_rc = rootMarkerRc;
-if (truncated > 0) diag.warnings.push(`${truncated} fs_usage path(s) were tail-truncated and REJECTED rather than emitted`);
+if (truncated > 0) diag.warnings.push(`${truncated} fs_usage path(s) were head-truncated and REJECTED rather than emitted`);
 if (droppedUnattributable > 0) diag.warnings.push(`${droppedUnattributable} fs_usage event(s) dropped: no unambiguous pid`);
 diag.warnings.push('connect events carry NO host/port: no macOS god-mode source exposes the peer sockaddr');
 
@@ -454,5 +487,12 @@ if (diagPath) fs.writeFileSync(diagPath, JSON.stringify(diag, null, 2));
 diag.raw = { eslogger: esLog, fs_usage: fsLog };
 console.error(`macos.mjs: ${events.length} events -> ${outPath}`);
 console.error(JSON.stringify(diag.counts));
+// These three are what a failure is diagnosed FROM, so they go to the log rather than only into the
+// diag file: the window says whether the capture covered the run, seed_presence says whether the
+// ancestry had anything to anchor to, and the histogram says WHOSE events the tracer was willing to
+// report. Together they separate "tracer died", "tracer truncated", and "tracer suppressed us".
+console.error(`macos.mjs: window=${JSON.stringify(diag.eslogger_window)}`);
+console.error(`macos.mjs: seeds=${JSON.stringify(diag.seed_presence)} subtree_commands=${JSON.stringify(diag.subtree_commands)}`);
+console.error(`macos.mjs: es_top=${JSON.stringify(diag.eslogger_top_executables)}`);
 for (const w of diag.warnings) console.error(`macos.mjs: WARN ${w}`);
 process.exit(diag.errors.length ? 1 : 0);
