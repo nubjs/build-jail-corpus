@@ -209,6 +209,20 @@ That is **8.7 gzipped bytes per distinct event**, against the Linux fixture's 6.
 
 Dropping `ENOENT` — 705 of 2,716 events — buys **15% of the gzipped size** (23,623 → 20,029 B). Refused, for the reason the Linux lane refused it: a failed lookup names a fallback path the script probed for, and on a machine where it exists the same script reads it.
 
+#### The claim, executed rather than asserted — `eventlog-query.mjs`
+
+The argument for retention is that a scope set which did not exist at measurement time is still derivable. `harness/v2/eventlog-query.mjs` is that argument as a command: it reads any platform's log with the same code and classifies from raw paths plus the header's roots, including a **`tmp` scope that is in no shipped classifier**.
+
+```
+$ node harness/v2/eventlog-query.mjs harness/v2/fixtures/*.events.ndjson.gz
+linux-arm64   hugo-extended            {"jailHome":4,"ownPkg":8,"tmp":9}
+darwin-arm64  @apollo/rover            {"systemfs":7,"tmp":1625,"userHome":2,"deps":6,"project":2}
+```
+
+Those 1,625 macOS temp writes were `outside` under the classifier that measured them; naming them took a re-parse of a committed log and no runner at all. `--script-only` applies the attribution the process table records, and `--paths <scope>` dumps the distinct paths — which is the corpus-wide question ("what do all the outside-writes look like?") that could not be asked before.
+
+⛔ **Analysis only.** Nothing here feeds grant synthesis, the driver, or the catalog. The moment a retained log can move a verdict, the verdict stops being an independent second opinion on the trace.
+
 ### One thing v2 broke that v1 could not
 
 ⛔ **Roughly half the corpus synthesizes the empty grant, and `collate.mjs` used to emit an entry for it.** nub rejects an entry that widens nothing — and a rejected catalog is a *silently discarded* one, since `Decision::FellBack` keeps nub running on the compiled-in table and merely prints `REJECTED`. So one such package invalidated the whole catalog while every record beside it was sound. It could not arise under v1, whose needs-nothing records carry `grant: null` and never become a meaningful row; a v2 record carries a *verified* `{}`, which is a stronger statement and a legitimately different value. Measured on the first macOS smoke slice: `git-validate@2.2.4` took the catalog gate down alongside two good records. The collator now omits the package, which is the correct encoding — the override replaces the compiled-in table rather than merging into it, so an absent package runs at the base profile.
