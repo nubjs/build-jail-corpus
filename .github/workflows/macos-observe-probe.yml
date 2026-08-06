@@ -91,6 +91,45 @@ jobs:
           echo "--- denied ---"; grep '"result":"denied"' "$OBS/events.ndjson" | head -20
           echo "--- distinct pids ---"; awk -F'"pid":' '{split($2,a,","); print a[1]}' "$OBS/events.ndjson" | sort -u | tr '\n' ' '
 
+      # STAGE 4 — the known-answer WORKLIST. Six packages whose darwin minimum was established
+      # independently by v1's 55-state search, so the synthesized grant can be scored against an
+      # answer this pipeline had no hand in producing.
+      #
+      # ⛔ THIS IS OBSERVE + SYNTHESIZE ONLY — it is NOT the VERIFY arm, and its output is therefore
+      # a hypothesis, not a catalog record. Agreement here says the observer saw what v1 concluded;
+      # only a run of the synthesized grant in the real unprivileged jail can promote that to a fact.
+      # Reported as UNDER (synthesis narrower than the known minimum — the observer MISSED something,
+      # the dangerous direction) and OVER (wider — it attributed something the package does not need).
+      #
+      # The project dir sits UNDER $HOME on purpose: it makes the longest-prefix rule load-bearing
+      # rather than decorative, since every project path is also a userHome path.
+      - name: Worklist — observe and synthesize against known v1 minimums
+        continue-on-error: true
+        timeout-minutes: 18
+        run: |
+          set +e
+          NODE="$(command -v node)"
+          run_one() {
+            N="$1"; PKG="$2"; WANT="$3"
+            P="$HOME/wl/$N"; mkdir -p "$P"; printf '{"name":"w","version":"1.0.0"}\n' > "$P/package.json"
+            echo; echo "########## $N  $PKG   (known v1 darwin minimum: $WANT) ##########"
+            sudo "$NODE" "$GITHUB_WORKSPACE/harness/v2/adapters/macos.mjs" \
+              --out "$P/events.ndjson" --diag "$P/diag.json" \
+              -- /bin/sh -c "cd $P && npm install --no-audit --no-fund --foreground-scripts $PKG" \
+              > "$P/adapter.log" 2>&1
+            echo "  adapter rc=$?  events=$(wc -l < "$P/events.ndjson" 2>/dev/null | tr -d ' ')"
+            grep -E 'FATAL|WARN' "$P/adapter.log" | sed 's/^/    /' | head -5
+            grep -oE '"subtree_pids":[0-9]+|"refusals":[0-9]+' "$P/adapter.log" | tr '\n' ' ' | sed 's/^/    /'; echo
+            "$NODE" "$GITHUB_WORKSPACE/harness/v2/classify.mjs" "$P/events.ndjson" \
+              --project "$P" --deps "$P/node_modules" --home "$HOME" 2>&1 | sed 's/^/    /'
+          }
+          run_one C1 '@airbnb/node-memwatch@3.0.0'          'null (needs nothing)'
+          run_one C2 '@apollo/rover@0.23.0'                 'network only'
+          run_one C3 '@apollo/rover@0.10.0'                 'write:project'
+          run_one C4 '@playwright/browser-chromium@1.61.1'  'write:userHome'
+          run_one E1 '@nuxt/components@2.1.0'               'read:disk'
+          run_one E2 'codeceptjs@1.1.3'                     'read:disk'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
