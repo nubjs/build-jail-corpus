@@ -127,11 +127,28 @@ jobs:
       # comes back VOID and the whole slice records nothing. Any cached corpus-probe binary will do:
       # the arm needs the FEATURE, not a specific commit, and each record names the binary that
       # answered it. A prefix restore-key is therefore correct and a miss is merely slower.
+      # ⛔ THE CACHE PATH MUST BE NATIVE, AND ON WINDOWS `/tmp/...` IS NOT. `actions/cache` runs in
+      # NODE: a bash step sees `/tmp/nub/...` correctly because Git-bash maps `/tmp`, while Node on
+      # Windows resolves that same string against the Windows filesystem, where it does not exist.
+      # In the v1 lane that made the SAVE silently store nothing while reporting success. Here it
+      # cost a restore MISS — the smoke run fell through to a cold build (run 31102882458) — because
+      # a restore only finds an entry whose path input matches the one it was saved under, and the
+      # v1 fleet saves under the cygpath spelling.
+      - name: Resolve the native path of the probe binary
+        shell: bash
+        run: |
+          set -eu
+          P=/tmp/nub/target/release/nub
+          [ "$OS_NAME" = "windows" ] && P="$P.exe"
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+          echo "binary cache path (native): $P"
+
       - name: Restore a feature-enabled nub binary
         id: nubbin
         uses: actions/cache/restore@v4
         with:
-          path: ${{ env.OS_NAME == 'windows' && 'D:\nubbin\nub.exe' || '/tmp/nub/target/release/nub' }}
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ env.OS_NAME }}-${{ inputs.nub_sha }}
           restore-keys: |
             nub-bin-v1-${{ env.OS_NAME }}-
@@ -143,8 +160,15 @@ jobs:
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
           cd /tmp/nubsrc
-          git checkout --detach "${{ inputs.nub_sha || 'sandbox/integration' }}"
-          echo "NUB_GIT_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          # ⛔ `--detach <branch-name>` IS REJECTED, not merely unusual: git DWIMs a bare remote
+          # branch name into a local-branch creation and then refuses — "fatal: '--detach' cannot be
+          # used with '-b/-B/--orphan'". MEASURED, run 31102882458, which is why the Windows smoke
+          # run never reached a compiler. Resolve to a SHA first; that also accepts a raw sha input,
+          # which a `origin/` prefix would not.
+          REF="${{ inputs.nub_sha || 'origin/sandbox/integration' }}"
+          SHA=$(git rev-parse "$REF" 2>/dev/null || git rev-parse "origin/$REF")
+          git checkout --detach "$SHA"
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
           # `--profile fast` rather than `--release`: identical semantics for this purpose (fast
           # inherits dev) and it does not pay for LTO, which on a cold macOS runner is the difference
           # between fitting in the job and not.
@@ -156,8 +180,10 @@ jobs:
         shell: bash
         run: |
           set -eu
+          # The BASH spelling, not `NUB_BIN_CACHE_PATH`: that one is the native path the Node-based
+          # cache action needs, and every consumer downstream of here runs under Git-bash.
           BIN=/tmp/nub/target/release/nub
-          [ "${OS_NAME}" = "windows" ] && BIN='D:\nubbin\nub.exe'
+          [ "$OS_NAME" = "windows" ] && BIN="$BIN.exe"
           chmod +x "$BIN" 2>/dev/null || true
           # Prove it RUNS before trusting it: a restored file of the right size that cannot execute
           # surfaces much later, inside the first measurement, as a confusing failure.

@@ -417,6 +417,31 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
       throw new Error(`${pkg} band ${k} grants less than default — generator invariant broken`);
     }
   }
+  // ⛔ AN ENTRY THAT WIDENS NOTHING IS REJECTED BY NUB, AND A REJECTED CATALOG IS A SILENTLY
+  // DISCARDED ONE — `Decision::FellBack` keeps nub running on the compiled-in table and merely
+  // prints REJECTED, so ONE such package invalidates the WHOLE catalog while every record beside it
+  // is perfectly good. Verbatim: "`default` widens nothing and there are no version bands, so the
+  // entry grants exactly the base profile; drop it".
+  //
+  // ⛔ IT COULD NOT FIRE UNDER v1 AND IT FIRES CONSTANTLY UNDER v2, which is why the gate reached
+  // production without it. A v1 "needs nothing" record carries `grant: null` and never becomes a
+  // `meaningful` row; a v2 record carries `grant: {}` — an empty grant VERIFIED in the real jail,
+  // which is a stronger statement and a legitimately different value. Roughly half the corpus
+  // synthesizes the empty grant, so v2 turns a case that never arose into the modal one. MEASURED,
+  // run 31102880006: `git-validate@2.2.4` verified at `{}` and took the macOS smoke slice's catalog
+  // gate down with it, alongside two sound records.
+  //
+  // Dropping the package IS the correct encoding, not a workaround: the override REPLACES the
+  // compiled-in table rather than merging into it, so an ABSENT package runs at the base profile —
+  // exactly what "this package needs nothing" means, and exactly what the `needed nothing` line
+  // below has always counted.
+  //
+  // ⛔ `notes` AND `platforms` ARE NOT CAPABILITIES, and `capsKey` only strips the first. `dflt`
+  // always carries a `notes` and carries `platforms` whenever one platform measured it, so testing
+  // `capsKey(dflt) === '{}'` would never fire on a real entry — the guard would look present and be
+  // inert. Test for the capability axes by name instead.
+  const CAPS = ['read', 'write', 'network', 'writePaths', 'env'];
+  if (!CAPS.some((k) => dflt[k] !== undefined) && !Object.keys(versions).length) continue;
   packages[pkg] = entry;
 }
 
