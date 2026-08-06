@@ -131,6 +131,11 @@ function expandShortPath(p) {
   }
   if (failed) stats.shortUnexpanded++;
   if (changed) stats.shortExpanded++;
+  // Put back a trailing separator the component walk dropped. The kernel emits a directory both
+  // with and without one, and folding those two spellings is the shared normalizer's job (rule 1),
+  // not this adapter's -- doing it here would be a second, invisible normalization that only fires
+  // on paths that happened to contain a short name.
+  if (changed && p.endsWith('\\') && !cur.endsWith('\\')) cur += '\\';
   return changed ? cur : p;
 }
 
