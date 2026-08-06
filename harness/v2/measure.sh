@@ -240,11 +240,28 @@ verify () {
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
   local rc=$?
   # ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
-  # a real one by rc and by every other precondition. `materialized` with no install line is the
-  # replay signature; a genuine first touch downloads and runs. Reported, not fatal — a package with
-  # no lifecycle script legitimately shows neither.
-  if grep -qE '^\s*materialized ' "$v/i.log" 2>/dev/null && ! grep -qE 'installed [0-9]+ package' "$v/i.log" 2>/dev/null; then
-    echo "     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run"
+  # a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
+  # script; a replay materializes from cache and never spawns it.
+  #
+  # ⛔⛔ THIS CHECK WAS INERT AND CRIED WOLF ON EVERY ARM, WHICH IS WORSE THAN HAVING NO CHECK. It
+  # required `installed [0-9]+ package` in `i.log`, and that was wrong on BOTH halves at once:
+  #
+  #   1. nub PRINTS NO SUCH LINE. The install summary is `resolved N · reused N`
+  #      (`vendor/aube/crates/aube/src/progress/ci.rs`); grepping every crate finds
+  #      `installed .* package` only in unrelated prose. The negation was therefore ALWAYS true.
+  #   2. IT READ THE WRONG LOG. Lifecycle scripts run under `approve-builds`, whose output goes to
+  #      `a.log`. `i.log` is the install step and cannot hold that evidence even in principle.
+  #
+  # A warning that fires on 100% of arms trains its reader to skip it, so a REAL replay would have
+  # sailed straight through — precisely the failure this check exists to catch. Both halves are
+  # fixed by searching every log the arm wrote (the same `"$v"/*.log` the override assertion just
+  # below already uses) for the one line that actually evidences a script being invoked.
+  #
+  # Reported, not fatal, and deliberately: the corpus only measures packages that DECLARE an install
+  # script, so missing evidence is a real signal here — but a script nub declines to run would also
+  # land here and is not a replay.
+  if ! grep -qE 'running build scripts for' "$v"/*.log 2>/dev/null; then
+    echo "     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run"
   fi
   # ⛔ A malformed override WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   # assertion an arm can measure the SHIPPED policy while you believe it measured yours.
