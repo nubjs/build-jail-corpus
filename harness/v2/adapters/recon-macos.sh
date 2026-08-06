@@ -42,9 +42,14 @@ kill -INT $ES 2>/dev/null; sleep 1; kill -9 $ES 2>/dev/null; wait $ES 2>/dev/nul
 # Settle what `/bin/sh` is actually CALLED at the kernel level. fs_usage's default exclusion list
 # matches on p_comm, so "is /bin/sh named sh?" decides whether that exclusion can bite at all — and
 # a run where no process was named `sh` looks identical to a run where every `sh` was excluded.
-echo "recon: p_comm of /bin/sh  = $(/bin/sh  -c 'ps -o comm= -p $$' 2>&1)"
-echo "recon: p_comm of /bin/bash= $(/bin/bash -c 'ps -o comm= -p $$' 2>&1)"
-echo "recon: p_comm of /bin/zsh = $(/bin/zsh  -c 'ps -o comm= -p $$' 2>&1)"
+# ⛔ THE TRAILING `:` IS THE WHOLE PROBE. Run 2 reported `p_comm of /bin/sh = ps` for all three
+# shells — a broken instrument, not a finding: a shell EXEC-OPTIMISES its last command over itself,
+# so `sh -c 'ps ...'` had already become `ps` by the time ps looked. With a statement after it the
+# shell must survive to run that statement, and ps reports the shell. Same trap the fixture's
+# level1/level2 scripts document; it bit the instrument built to measure it.
+echo "recon: p_comm of /bin/sh  = $(/bin/sh   -c 'ps -o comm= -p $$; :' 2>&1)"
+echo "recon: p_comm of /bin/bash= $(/bin/bash -c 'ps -o comm= -p $$; :' 2>&1)"
+echo "recon: p_comm of /bin/zsh = $(/bin/zsh  -c 'ps -o comm= -p $$; :' 2>&1)"
 
 echo "recon: eslogger lines=$(wc -l < "$OUT/es-raw.json" | tr -d ' ')"
 # One pretty sample per event type, plus the flattened key list — the key list is what the adapter's

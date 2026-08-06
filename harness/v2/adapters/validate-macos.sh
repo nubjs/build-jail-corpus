@@ -74,9 +74,15 @@ for ARM in full skip-home; do
   # what the arm claims, every assertion below is meaningless — so check the artifact first.
   echo "  ground truth: project-write.txt exists=$([ -f "$PROJ/project-write.txt" ] && echo yes || echo no)  home-write.txt exists=$([ -f "$FIXHOME/home-write.txt" ] && echo yes || echo no)"
 
-  "$NODE" "$HERE/expect-macos.mjs" "$EV" "$PROJ" "$FIXHOME" "$ARM"
+  # --selftest is not optional here. Without it a green arm only says "13 assertions returned true",
+  # which is also what a vacuous assertion set returns. See the header of expect-macos.mjs.
+  "$NODE" "$HERE/expect-macos.mjs" "$EV" "$PROJ" "$FIXHOME" "$ARM" --selftest
   [ $? -ne 0 ] && RC_TOTAL=1
   echo "  --- events ---"; sed 's/^/  | /' "$EV" | head -40
+  # The diagnostics are how a failure is DIAGNOSED rather than merely observed: tracer liveness, the
+  # eslogger time window, where the ancestry edges came from. Printing them only on failure would
+  # mean the one run that could have explained a regression is the one that discarded them.
+  echo "  --- diag ---"; sed 's/^/  | /' "$DG" 2>/dev/null | head -80
 done
 
 kill $LISTENER 2>/dev/null

@@ -41,7 +41,10 @@ if (process.getuid() !== 0) { console.error('macos.mjs must run as root: eslogge
 
 const work = fs.mkdtempSync(path.join(os.tmpdir(), 'macos-adapter-'));
 const esLog = path.join(work, 'eslogger.json');
+const esErrLog = path.join(work, 'eslogger.stderr');
 const fsLog = path.join(work, 'fs_usage.txt');
+const fsErrLog = path.join(work, 'fs_usage.stderr');
+const psLog = path.join(work, 'ps-samples.txt');
 const diag = { warnings: [], errors: [], counts: {} };
 const fail = (m) => { diag.errors.push(m); console.error(`macos.mjs: FATAL ${m}`); };
 
@@ -51,13 +54,35 @@ const fail = (m) => { diag.errors.push(m); console.error(`macos.mjs: FATAL ${m}`
 // empty stream passes every "did we over-report?" check trivially. That is a probe measuring
 // nothing while looking green. So readiness is not a sleep — it is a positive control: touch a
 // sentinel path in a loop until the tracer's own output proves it saw it.
-const ES_EVENTS = ['open', 'create', 'unlink', 'rename', 'link', 'truncate', 'exec', 'fork', 'exit'];
+// ⛔ EACH TRACER'S STDERR GOES TO ITS OWN FILE, NEVER MERGED INTO THE DATA STREAM. Merging them
+// (`stdio: ['ignore', out, out]`) is not merely untidy — it DESTROYS the only evidence of a tracer
+// that failed, because the parser below skips every line not starting with `{` and does not even
+// count it. Measured on run 2: eslogger produced 8341 records over a ~90s window while fs_usage
+// produced 339811 lines over the same window, i.e. eslogger stopped early — and whatever it said
+// about why went into the JSON file and was silently discarded. Never again.
+const ES_EVENTS = ['open', 'create', 'unlink', 'rename', 'link', 'truncate', 'exec', 'fork'];
 const esOut = fs.openSync(esLog, 'w');
-const es = spawn('/usr/bin/eslogger', ES_EVENTS, { stdio: ['ignore', esOut, esOut] });
+const esErr = fs.openSync(esErrLog, 'w');
+const es = spawn('/usr/bin/eslogger', ES_EVENTS, { stdio: ['ignore', esOut, esErr] });
 const fsOut = fs.openSync(fsLog, 'w');
+const fsErr = fs.openSync(fsErrLog, 'w');
 // `-w` forces the wide format. It is NOT cosmetic: it is also what puts microseconds in the
-// timestamp and the threadid on the command name. Path width still runs out — see checkTruncation.
-const fsu = spawn('/usr/bin/fs_usage', ['-w', '-f', 'filesys', '-f', 'network'], { stdio: ['ignore', fsOut, fsOut] });
+// timestamp and the threadid on the command name. Path width still runs out — see looksTruncated.
+const fsu = spawn('/usr/bin/fs_usage', ['-w', '-f', 'filesys', '-f', 'network'], { stdio: ['ignore', fsOut, fsErr] });
+// Neither tracer's exit is expected before we kill it, so record the fact if one dies on its own.
+let esDied = null, fsuDied = null;
+es.on('exit', (code, sig) => { if (esDied === null) esDied = { code, sig, at: Date.now() }; });
+fsu.on('exit', (code, sig) => { if (fsuDied === null) fsuDied = { code, sig, at: Date.now() }; });
+
+// ─── 1b. AN ANCESTRY SOURCE THAT DOES NOT DEPEND ON eslogger ──────────────────────────────────
+// The pid subtree is the load-bearing step: get it wrong and every file event is dropped, which
+// looks exactly like "the package touched nothing". Run 2 failed precisely here — `subtree_pids: 0`
+// out of 8341 ES records — and an ancestry map built ONLY from ES records cannot survive a tracer
+// that drops or stops. So sample `ps` independently and UNION the two edge sets. `ps` misses
+// processes shorter-lived than the sample interval; ES misses whatever the tracer dropped. Their
+// failure modes are unrelated, which is the entire point of having both.
+const psOut = fs.openSync(psLog, 'w');
+const psSampler = spawn('/bin/sh', ['-c', 'while :; do /bin/ps -axo pid=,ppid=,comm=; echo "--"; /bin/sleep 0.05; done'], { stdio: ['ignore', psOut, 'ignore'] });
 
 // ⛔ THE READINESS CHECK IS POST-HOC, NOT A POLL, AND THAT IS DELIBERATE. Polling the tracer's log
 // for a sentinel cannot work: both tracers write to a FILE, so their stdout is block-buffered, and
@@ -102,11 +127,33 @@ const childPid = child.pid;
 const rootMarkerRc = await new Promise((res) => child.on('exit', (code) => res(code)));
 
 dropSentinels('post');
+// Whether each tracer was still ALIVE at the end is a first-class result. A tracer that exited on
+// its own mid-run makes every "we saw nothing there" conclusion vacuous, and until run 2 that was
+// indistinguishable from a genuinely quiet package.
+diag.tracer_health = {
+  eslogger_exited_early: esDied,
+  fs_usage_exited_early: fsuDied,
+  eslogger_events_subscribed: ES_EVENTS,
+};
 spawnSync('/bin/sleep', ['2']);           // let the kernel drain both trace buffers before teardown
+psSampler.kill('SIGKILL');
+// SIGINT then WAIT, rather than SIGINT then a fixed 1s then SIGKILL. Both tracers write to a FILE,
+// so their stdio is block-buffered; killing before the process actually exits discards whatever sits
+// in that final partial block — which is the END of the log, i.e. exactly the part covering the
+// traced command. `wait` blocks until the pid is really gone.
 es.kill('SIGINT'); fsu.kill('SIGINT');
-spawnSync('/bin/sleep', ['1']);
+const waitGone = (pid) => spawnSync('/bin/sh', ['-c', `for i in $(seq 1 80); do kill -0 ${pid} 2>/dev/null || exit 0; /bin/sleep 0.1; done; exit 1`]).status === 0;
+diag.tracer_health.eslogger_exited_cleanly = waitGone(es.pid);
+diag.tracer_health.fs_usage_exited_cleanly = waitGone(fsu.pid);
 es.kill('SIGKILL'); fsu.kill('SIGKILL');
-fs.closeSync(esOut); fs.closeSync(fsOut);
+fs.closeSync(esOut); fs.closeSync(fsOut); fs.closeSync(esErr); fs.closeSync(fsErr); fs.closeSync(psOut);
+// Surface whatever the tracers said about themselves. Empty is the expected case; non-empty is
+// almost always the answer to "why is the event stream short?".
+const tail = (f) => { try { return fs.readFileSync(f, 'utf8').trim().split('\n').slice(-12).join('\n'); } catch { return ''; } };
+diag.tracer_health.eslogger_stderr = tail(esErrLog);
+diag.tracer_health.fs_usage_stderr = tail(fsErrLog);
+if (diag.tracer_health.eslogger_stderr) console.error(`macos.mjs: eslogger stderr:\n${diag.tracer_health.eslogger_stderr}`);
+if (diag.tracer_health.fs_usage_stderr) console.error(`macos.mjs: fs_usage stderr:\n${diag.tracer_health.fs_usage_stderr}`);
 
 // ─── 3. PARSE eslogger ────────────────────────────────────────────────────────────────────────
 // The ES JSON shape is resolved by probing candidate key paths rather than hardcoding one, and a
@@ -140,13 +187,35 @@ if (esRecords.length === 0) fail('eslogger produced no parsable records — sche
 // that stops at the direct child reports a clean run for a package that needs a grant.
 const parentOf = new Map();
 const commOf = new Map();
+const edgeSource = { es_record: 0, es_fork: 0, ps_sample: 0 };
+const addEdge = (pid, ppid, src) => {
+  if (typeof pid !== 'number' || typeof ppid !== 'number' || parentOf.has(pid)) return;
+  parentOf.set(pid, ppid); edgeSource[src]++;
+};
 for (const r of esRecords) {
   const pid = first(r, P_PID), ppid = first(r, P_PPID);
-  if (typeof pid !== 'number') continue;
-  if (typeof ppid === 'number' && !parentOf.has(pid)) parentOf.set(pid, ppid);
   const exe = first(r, ['process.executable.path', 'event.exec.target.executable.path']);
-  if (typeof exe === 'string') commOf.set(pid, path.basename(exe));
+  if (typeof exe === 'string' && typeof pid === 'number') commOf.set(pid, path.basename(exe));
+  // A `fork` event states the edge DIRECTLY — parent is `process`, child is the event payload —
+  // and it fires for a process that never goes on to open anything, which a per-record
+  // (pid, ppid) pair cannot cover. It is also the only edge available for a pure `fork` with no
+  // subsequent exec, which is what a shell does before every builtin redirect.
+  const childPidEv = first(r, ['event.fork.child.audit_token.pid', 'event.fork.child.ppid']);
+  if (typeof childPidEv === 'number' && typeof pid === 'number') addEdge(childPidEv, pid, 'es_fork');
+  addEdge(pid, ppid, 'es_record');
 }
+// The `ps` sampler's edges, added last so ES always wins a disagreement (ES is exact; `ps` is a
+// snapshot and can observe a pid AFTER it was reparented to launchd, which would break the chain).
+try {
+  for (const line of fs.readFileSync(psLog, 'utf8').split('\n')) {
+    const m = line.match(/^\s*(\d+)\s+(\d+)\s+(\S.*)$/);
+    if (!m) continue;
+    const pid = Number(m[1]), ppid = Number(m[2]);
+    addEdge(pid, ppid, 'ps_sample');
+    if (!commOf.has(pid)) commOf.set(pid, path.basename(m[3].trim().split(/\s+/)[0]));
+  }
+} catch { diag.warnings.push('ps sampler produced no output'); }
+diag.counts.ancestry_edges_by_source = edgeSource;
 // TWO seeds, not one. `selfPid` alone breaks if any link between this process and the fixture
 // produced no ES record we subscribed to; `childPid` re-anchors the closure below that gap.
 const SEEDS = new Set([process.pid, childPid].filter((p) => typeof p === 'number'));
@@ -171,6 +240,20 @@ diag.counts.parent_edges = parentOf.size;
 diag.ancestry_sample = [...parentOf.entries()]
   .filter(([p]) => /^(sudo|env|bash|sh|zsh|fixture|node|npm|run-fixture\.sh|level1\.sh|level2\.sh)$/.test(commOf.get(p) ?? ''))
   .slice(0, 40).map(([p, pp]) => `${commOf.get(p) ?? '?'}(${p}) <- ${pp}`);
+// Did the ES stream actually COVER the traced command, or did it stop partway? A record count alone
+// cannot say — 8341 records that all predate the command look identical to 8341 that bracket it.
+// The window and the per-executable histogram answer it directly.
+{
+  const times = esRecords.map((r) => r.time).filter((t) => typeof t === 'string').sort();
+  diag.eslogger_window = { first: times[0] ?? null, last: times[times.length - 1] ?? null };
+  const hist = new Map();
+  for (const r of esRecords) {
+    const exe = first(r, ['process.executable.path']);
+    if (typeof exe === 'string') hist.set(path.basename(exe), (hist.get(path.basename(exe)) ?? 0) + 1);
+  }
+  diag.eslogger_top_executables = [...hist.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15)
+    .map(([k, v]) => `${k}=${v}`);
+}
 
 // ─── 5. eslogger → EVENTS ─────────────────────────────────────────────────────────────────────
 // Write intent is read from the OPEN FLAGS. By the time bytes move the fd hides the path, so an
@@ -283,18 +366,28 @@ const pidForCommand = (c) => {
   return hits.length === 1 ? hits[0] : null;
 };
 
-// ⛔ TRUNCATION. fs_usage stores the path at MAXPATHLEN but PRINTS only `columns - overhead` bytes,
-// and when it overflows it prints the TAIL with no ellipsis and no marker (source: fs_usage.c —
-// `pathname = &buf[len - clen]`). A tail-trimmed absolute path is the dangerous case: it silently
-// stops matching any declared root and lands in the unmapped bucket, or worse matches the wrong
-// one. `-w` raises the budget to MAX_WIDE_MODE_COLS(264) minus overhead; it does not remove the
-// limit. So every path taken from fs_usage is checked, and a suspect one FAILS LOUDLY.
+// ⛔ TRUNCATION, AND IT GOES THE OPPOSITE WAY FROM THE OBVIOUS GUESS. fs_usage stores the path at
+// MAXPATHLEN but PRINTS only `columns - overhead` bytes, and when it overflows it KEEPS THE TAIL AND
+// DROPS THE HEAD, with no ellipsis and no marker (source: fs_usage.c — `pathname = &buf[len-clen]`).
+// It does NOT trim the tail. That direction is the dangerous one: a head-trimmed path is no longer
+// absolute, so it silently stops matching any declared root and lands in the unmapped bucket — and
+// a head-trimmed path that happens to still look plausible would match the WRONG root.
+//
+// MEASURED on the macos-14 runner, from `recon-macos.sh`'s length-ladder marks:
+//   * total line width is fixed at ~242 columns (~254 for the wider `WrData` form), so the budget
+//     left for the path DEPENDS ON THE CALL — a long syscall name eats into it.
+//   * longest path printed COMPLETE: 154 chars. Shortest printed form observed already truncated:
+//     144 chars (real length 154, the leading 10 chars gone). The boundary therefore sits in a
+//     144–162 band rather than at one number, which is exactly why the check is structural
+//     ("does it still start with `/`?") and not a length threshold.
+//   * `-w` raises the budget to MAX_WIDE_MODE_COLS(264) minus overhead; it does not remove the limit.
+//
 // Two distinct incomplete-path signals, both measured on the runner:
 //
-//  (a) TAIL TRIM. A 124-char path printed in full; a 164-char one printed as
-//      `unner/recon-1iFd0J/len160/f...` — the leading `/Users/r` simply gone, no ellipsis. So an
-//      absolute path that does not START with `/` was trimmed. (The `[3]/rel` openat form is the
-//      one legitimate exception and is excluded.)
+//  (a) HEAD TRIM. A 154-char path printed in full; the same path behind `/System/Volumes/Data`
+//      (174 chars) printed as `mes/Data/Users/runner/...` — the leading `/System/Volu` simply gone,
+//      no ellipsis. So an absolute path that does not START with `/` was trimmed. (The `[3]/rel`
+//      openat form is the one legitimate exception and is excluded.)
 //
 //  (b) `>` PADDING. The KERNEL, not fs_usage, pads a VFS_LOOKUP record with `>` when there is more
 //      path beyond the component it resolved (xnu bsd/vfs/vfs_lookup.c). Observed live as
