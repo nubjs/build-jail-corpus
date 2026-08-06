@@ -1,0 +1,97 @@
+### kerberos@7.0.0   (/Users/runner/v2m-nqYnZx)   nub=/tmp/nub/target/release/nub
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+  --- end fbt preflight ---
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-nqYnZx/Observe"
+     sudo -u "runner" -H env "PATH=$PATH" "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "kerberos" > "/Users/runner/v2m-nqYnZx/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-nqYnZx/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-nqYnZx/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund kerberos
+     dtrace: error on enabled probe ID 8 (ID 179: syscall::open:return): invalid address (0x6000013ba6f0) in action #9 at DIF offset 12
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=360 (pre=358) trace=13207 lines
+  CLOSURE   37 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-nqYnZx/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-nqYnZx/Observe/capture.json
+  RAWLOG-BYTES raw=2013042 gz=69627
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded"},"unset":[],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null,"HOME":"real user home (no jail redirect)","TMPDIR":"real (no private tmp)"}}
+  EVENTLOG-FILE /Users/runner/v2m-nqYnZx/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13208,"parsed":13190,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":542,"danglingPair":0,"failed":5034,"enoent":5029,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5029,"EEXIST":2},"procs":6,"lifecyclePids":1,"distinctEvents":6042,"emitted":6042,"calls":12625,"bytes":1037427,"gzipBytes":40006,"out":"/Users/runner/v2m-nqYnZx/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3335 dropped-events=1
+    NOTE 16 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 3 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=2477 read  unproven .
+         pid=2478 read  unproven .
+         pid=2478 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=8 action=9 fault=1 addr=0x6000013ba6f0
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 7  /  whole traced subtree 1095
+    sockets script 2  /  whole traced subtree 3
+  == ROOTS (from /Users/runner/v2m-nqYnZx/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-nqYnZx/Observe
+    home          /Users/runner
+    jailHome      (null — this platform has no such root)
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-nqYnZx/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          (null — this platform has no such root)
+    npmPrefix     (null — this platform has no such root)
+    ownPkg        /Users/runner/v2m-nqYnZx/Observe/node_modules/kerberos
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    userHome      3
+    ownPkg        3  (base profile already grants this — NOT billed)
+  == READS the script performed, by scope ==
+    outside       8
+    systemfs      9
+    userHome      3
+    deps        135
+    ownPkg        1
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 2
+        20.29.134.23:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        .npm/_prebuilds
+        .npm/_prebuilds/8fdefe-kerberos-v7.0.0-napi-v9-darwin-arm64.tar.gz.2478-7cf1ceb4e7144.tmp
+        .npm/_prebuilds/8fdefe-kerberos-v7.0.0-napi-v9-darwin-arm64.tar.gz
+  EVICT[synth] no store at /Users/runner/.cache/nub/pm/store yet (first arm on this box)
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 1157/360) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}
+  EVICT[nar-no-network] 36 store entries removed, 2 spared as nub tooling, 56 in store
+  VERIFY[nar-no-network] rc=0 artifacts=35/21 missing=0 shortfall=none (tree 1199/360) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  EVICT[nar-no-write-userHome] 36 store entries removed, 2 spared as nub tooling, 56 in store
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 1157/360) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+### DONE kerberos@7.0.0  synthesized={"write":{"userHome":true},"network":true} verified=1
