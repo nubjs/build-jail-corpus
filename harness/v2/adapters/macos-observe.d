@@ -452,8 +452,16 @@ dtrace:::END
 }
 
 /* ── THE LOSS LEDGER. Declared LAST on purpose: clause-probe tuples take their enabled-probe ids in
- * program order, so appending here leaves every existing epid where it was and keeps a future
- * "probe ID 31" report comparable to the enumeration in the np2 note above.
+ * program order, so appending here leaves every existing epid where it was.
+ *
+ * ⛔ THE EPIDS THEMSELVES ARE NO LONGER STABLE ACROSS REVISIONS, AND THE `probe ID 31` ARITHMETIC IN
+ * THE np2 NOTE ABOVE IS HISTORICAL. Subscribing the `*at` family INSERTED clauses in the middle of
+ * this file, which renumbers everything after them — so a future "probe ID N" report must be
+ * re-counted against the file AT THAT REVISION rather than against that note. The note is kept
+ * because the reasoning that identified the faulting clause is the transferable part; the number is
+ * not. And the epid is the only handle available here — `probefunc` inside a `dtrace:::ERROR` clause
+ * names the ERROR probe, not the one that faulted — so there is no cheaper way to close the loop
+ * than counting clauses in the file that produced the report.
  *
  * ⛔ A COPY FAULT ABORTS THE WHOLE CLAUSE, SO THE EVENT IS DROPPED — AND UNTIL NOW IT WAS DROPPED
  * SILENTLY. dtrace's own complaint goes to STDERR, which the driver captures into `dtrace.log` and
