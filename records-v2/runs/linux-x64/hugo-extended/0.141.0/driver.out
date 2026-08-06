@@ -1,0 +1,43 @@
+### hugo-extended@0.141.0   (/home/runner/v2-YFiiJ1)
+  OBSERVE   rc=0 files=1314 trace=14363 lines
+  CLOSURE   136 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 7  /  whole traced tree 10
+    sockets script 7  /  whole traced tree 7
+  == WRITES the script actually performed ==
+    outside       3
+        /tmp/ca2223935f4dec08eea62524ef6923e6
+        /tmp/ca2223935f4dec08eea62524ef6923e6/hugo_extended_0.141.0_linux-amd64.tar.gz
+        /tmp/ca2223935f4dec08eea62524ef6923e6/hugo_0.141.0_checksums.txt
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-YFiiJ1/observe/node_modules/hugo-extended/vendor
+        /home/runner/v2-YFiiJ1/observe/node_modules/hugo-extended/vendor/hugo
+        /home/runner/v2-YFiiJ1/observe/node_modules/hugo-extended/vendor/LICENSE
+        /home/runner/v2-YFiiJ1/observe/node_modules/hugo-extended/vendor/README.md
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 7
+        127.0.0.53:53
+        140.82.114.4:443
+        185.199.109.133:0
+        185.199.111.133:0
+        185.199.108.133:0
+        185.199.110.133:0
+        185.199.109.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    ⛔ 3 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        /tmp/ca2223935f4dec08eea62524ef6923e6
+        /tmp/ca2223935f4dec08eea62524ef6923e6/hugo_extended_0.141.0_linux-amd64.tar.gz
+        /tmp/ca2223935f4dec08eea62524ef6923e6/hugo_0.141.0_checksums.txt
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 (tree 4458/1314) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[drop-network] rc=1 artifacts=9/12 missing=3 (tree 4449/1314) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: vendor/LICENSE, vendor/README.md, vendor/hugo
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
