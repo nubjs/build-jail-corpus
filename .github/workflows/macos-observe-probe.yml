@@ -58,6 +58,39 @@ jobs:
           echo "=========== raw eslogger sample ==========="; head -3 "$RUNNER_TEMP/recon/es-raw.json" 2>&1
           echo "=========== raw fs_usage sample ==========="; sed -n '1,40p' "$RUNNER_TEMP/recon/fsu-raw.txt" 2>&1
 
+      # STAGE 1b — THE eslogger COVERAGE CONTROL. Independent of the adapter entirely, and the
+      # cheapest question that separates the two candidate mechanisms behind run 3's result: 2556
+      # records resolving to 17 distinct pids, over a window that provably bracketed the command.
+      # Here a bare `eslogger open` runs while known processes open a uniquely-named file. If the
+      # marker is absent the stream does not cover ordinary short-lived processes at all, which is a
+      # property of the instrument that no adapter change can repair. Never fails the job.
+      - name: Control — does a bare eslogger see an ordinary process open a file?
+        continue-on-error: true
+        run: |
+          set +e
+          MARKER="esctrl$$"
+          sudo /usr/bin/eslogger open > "$RUNNER_TEMP/es-ctrl-open.json" 2>&1 &
+          ES1=$!
+          sudo /usr/bin/eslogger open create exec fork exit > "$RUNNER_TEMP/es-ctrl-multi.json" 2>&1 &
+          ES2=$!
+          sleep 6
+          # Three openers: this long-lived shell, a fresh short-lived one, and a root one. If the
+          # coverage limit is about process LIFETIME or about uid, these three rows disagree.
+          echo hi > "$HOME/$MARKER-shell.txt"; cat "$HOME/$MARKER-shell.txt" > /dev/null
+          /bin/sh -c "cat '$HOME/$MARKER-shell.txt' > '$HOME/$MARKER-short.txt'"
+          sudo /bin/sh -c "cat '$HOME/$MARKER-shell.txt' > '$HOME/$MARKER-root.txt'"
+          sleep 4
+          sudo pkill -INT eslogger; sleep 3
+          for f in es-ctrl-open es-ctrl-multi; do
+            L="$RUNNER_TEMP/$f.json"
+            echo "===== $f: $(wc -l < "$L") lines ====="
+            for suffix in shell short root; do
+              echo "  marker $suffix: $(grep -c "$MARKER-$suffix" "$L") hit(s)"
+            done
+            echo "  most-seen executables:"
+            grep -o '"path": *"[^"]*"' "$L" | sort | uniq -c | sort -rn | head -15
+          done
+
       # STAGE 2 — the known-answer validation, both directions.
       - name: Validate the adapter against a fixture whose answer we control
         id: validate

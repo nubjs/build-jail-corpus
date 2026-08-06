@@ -210,6 +210,21 @@ diag.seed_presence = [...SEEDS].map((s) => ({
   appears_as_parent: [...parentOf.values()].includes(s),
 }));
 diag.counts.parent_edges = parentOf.size;
+// Run 3 measured 2556 eslogger records resolving to exactly 17 distinct pids, over a window that
+// provably bracketed the traced command — so the stream is live but covers almost no processes. The
+// histogram is what separates the two candidate mechanisms, which are indistinguishable from counts
+// alone: eslogger not DELIVERING our short-lived processes, versus their records arriving in a shape
+// whose pid this file fails to extract. If our own executables are absent from this list it is the
+// former; if they are present with a null pid it is the latter.
+const hist = new Map();
+for (const r of esRecords) {
+  const exe = first(r, ['process.executable.path', 'event.exec.target.executable.path']);
+  const k = typeof exe === 'string' ? path.basename(exe) : '<no-executable-path>';
+  hist.set(k, (hist.get(k) ?? 0) + 1);
+}
+diag.es_process_histogram = [...hist.entries()].sort((a, b) => b[1] - a[1]).slice(0, 25);
+diag.counts.es_records_without_pid = esRecords.filter((r) => typeof first(r, P_PID) !== 'number').length;
+diag.counts.es_distinct_pids = new Set(esRecords.map((r) => first(r, P_PID)).filter((p) => typeof p === 'number')).size;
 diag.ancestry_sample = [...parentOf.entries()]
   .filter(([p]) => /^(sudo|env|bash|sh|zsh|fixture|node|npm|run-fixture\.sh|level1\.sh|level2\.sh)$/.test(commOf.get(p) ?? ''))
   .slice(0, 40).map(([p, pp]) => `${commOf.get(p) ?? '?'}(${p}) <- ${pp}`);
@@ -407,5 +422,7 @@ console.error(`macos.mjs: teardown=${JSON.stringify(diag.teardown)}`);
 console.error(`macos.mjs: window=${JSON.stringify(diag.window)}`);
 console.error(`macos.mjs: seeds=${JSON.stringify(diag.seed_presence)} subtree_commands=${JSON.stringify(diag.subtree_commands)}`);
 if (diag.ancestry_sample?.length) console.error(`macos.mjs: ancestry=${JSON.stringify(diag.ancestry_sample)}`);
+console.error(`macos.mjs: es_hist=${JSON.stringify(diag.es_process_histogram)}`);
+console.error(`macos.mjs: raw_eslogger=${esLog} raw_fs_usage=${fsLog}`);
 for (const w of diag.warnings) console.error(`macos.mjs: WARN ${w}`);
 process.exit(diag.errors.length ? 1 : 0);
