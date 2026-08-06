@@ -4,22 +4,14 @@
   "harnessVersion": 2,
   "verdict": "MINIMUM",
   "grant": {
-    "write": {
-      "deps": true
-    },
     "network": true
   },
   "synthesized": {
-    "write": {
-      "deps": true
-    },
     "network": true
   },
-  "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-write-deps"
-  ],
+  "verifiedBy": "narrow:no-write-deps",
+  "minimality": "MINIMAL",
+  "overPredictedBy": [],
   "notes": [],
   "eventLog": {
     "lines": 16584,
@@ -61,5 +53,49 @@
     "corpusGitSha": "df19d9be59842cb226ec94984e911b47a1206128",
     "node": "v22.23.1",
     "at": "2026-08-06T19:15:19.899Z"
+  },
+  "rescored": {
+    "kind": "re-parse",
+    "note": "DERIVED FROM THE RETAINED ARCHIVE. No package was installed, no jail arm was executed, and no runner was used for this re-score. The jailed evidence cited below comes from the ORIGINAL run recorded in `provenance` and printed in `driver.out`.",
+    "at": "2026-08-06T20:30:15.619Z",
+    "harnessGitSha": "52e6c079eeab53d21bfd968f76a0318b6d164493",
+    "decoder": "harness/v2/observe-macos.mjs",
+    "input": "trace.txt.gz",
+    "reason": "The decoder that produced the original synthesis had no `ownPkg` bucket, so all four of this script's writes — every one of them inside `node_modules/hugo-extended/vendor/` — were billed `deps`. The jail already grants a package RW on its own store entry via `store_entry_write_root`, so `write.deps` was authority over every SIBLING dependency, manufactured out of a package writing its own vendor dir.",
+    "grantEstablishedBy": {
+      "arm": "nar-no-write-deps",
+      "note": "The original run executed this arm at grant {\"network\":true} — byte-identical to what the fixed decoder now synthesizes. So this exact grant HAS been verified in the real unprivileged jail; only the order differs from a fresh run.",
+      "rc": 0,
+      "artifacts": "12/12",
+      "missing": 0,
+      "shortfall": "none",
+      "overridden": 2,
+      "rejected": 0
+    },
+    "minimalityEstablishedBy": {
+      "arm": "nar-no-network",
+      "note": "That arm ran {\"write\":{\"deps\":true}} — a strict SUPERSET of {} — and failed rc=1, missing 3 (vendor/hugo, vendor/LICENSE, vendor/README.md). Since a superset of {} fails, {} fails a fortiori, so dropping `network` from {\"network\":true} cannot pass.",
+      "inference": "monotonicity — a grant that fails cannot be rescued by removing capability",
+      "directEmptyGrantArmRun": false
+    },
+    "previous": {
+      "grant": {
+        "write": {
+          "deps": true
+        },
+        "network": true
+      },
+      "synthesized": {
+        "write": {
+          "deps": true
+        },
+        "network": true
+      },
+      "verifiedBy": "synth",
+      "minimality": "OVER-PREDICTED",
+      "overPredictedBy": [
+        "no-write-deps"
+      ]
+    }
   }
 }
