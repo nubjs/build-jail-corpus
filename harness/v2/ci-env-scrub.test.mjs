@@ -14,12 +14,30 @@
 // the cross-driver test below is what makes it safe — a family that drifts apart per-driver is the
 // same defect class as the four half-wired markers found today.
 
-import { test } from 'node:test';
+import { test, test as nodeTest } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// ⛔ SKIPPED ON WINDOWS — BUT ONLY THE CASES THAT EXECUTE `bash`, NOT THE FILE. MEASURED on the
+// corpus Windows VM: `where bash` finds nothing and no Git-for-Windows `bash.exe` exists, so the
+// five `runScrub` cases die `spawnSync bash ENOENT` — a failure that says nothing about the scrub.
+// 14 of the 20 cases across this file and `measure-provenance.test.mjs` fail for exactly that.
+//
+// ⛔ A FILE-LEVEL SKIP WOULD COST THE ONE CASE THIS FILE EXISTS FOR ON THIS PLATFORM. The four
+// cases above `runScrub` only read source text, pass on Windows today, and include the cross-driver
+// check that `measure-windows.mjs`'s MIRRORED `CI_KEYS` list still matches `ci-env-scrub.sh`. That
+// mirror is a Windows-only hazard — the POSIX drivers source the shell file and cannot drift — so
+// skipping the whole file would disarm the drift guard precisely where drift is possible.
+// `measure-r7.test.mjs` skips at file level correctly: every one of its cases drives bash.
+//
+// ⛔ A SKIP IS NOT A PASS, so it is spelled as one and carries its reason into the TAP output.
+const SHELL_SKIP = process.platform === 'win32'
+  ? 'no bash on Windows: this case executes the shared scrub as a shell script'
+  : false;
+const shellTest = (name, fn) => nodeTest(name, { skip: SHELL_SKIP }, fn);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const read = (f) => fs.readFileSync(path.join(HERE, f), 'utf8');
@@ -80,7 +98,7 @@ test('the v1 list is matched exactly, so the two harnesses cannot disagree about
 
 // ── Behaviour ─────────────────────────────────────────────────────────────────────────────────────
 
-test('the family is scrubbed by default, and what was removed is reported', () => {
+shellTest('the family is scrubbed by default, and what was removed is reported', () => {
   const out = runScrub({ CI: 'true', GITHUB_ACTIONS: 'true', TRAVIS: '1' });
   assert.match(out, /CI_NOW=\[<unset>\]/, `CI must be gone from the environment:\n${out}`);
   for (const k of ['CI', 'GITHUB_ACTIONS', 'TRAVIS']) {
@@ -88,7 +106,7 @@ test('the family is scrubbed by default, and what was removed is reported', () =
   }
 });
 
-test('⛔ the ORIGINAL values are captured BEFORE the scrub, or a CI record claims it was not CI', () => {
+shellTest('⛔ the ORIGINAL values are captured BEFORE the scrub, or a CI record claims it was not CI', () => {
   // The subtle half. If `passedThrough` were read after the scrub, a real runner would file
   // `CI: null` — asserting the venue was not CI precisely because we removed the proof.
   const out = runScrub({ CI: 'true', GITHUB_ACTIONS: 'true' });
@@ -96,7 +114,7 @@ test('⛔ the ORIGINAL values are captured BEFORE the scrub, or a CI record clai
   assert.match(out, /INHERITED=\[[^\]]*GITHUB_ACTIONS=true/, `and so must GITHUB_ACTIONS:\n${out}`);
 });
 
-test('NUB_CORPUS_CI_ENV=inherit keeps the axis MEASURABLE instead of normalising it away', () => {
+shellTest('NUB_CORPUS_CI_ENV=inherit keeps the axis MEASURABLE instead of normalising it away', () => {
   // This is what separates the scrub from the one-line `CI=1` that VENUE-PORTABILITY.md forbids:
   // that hides the axis and leaves one state unmeasured, this measures both and records which.
   const out = runScrub({ CI: 'true', NUB_CORPUS_CI_ENV: 'inherit' });
@@ -104,14 +122,14 @@ test('NUB_CORPUS_CI_ENV=inherit keeps the axis MEASURABLE instead of normalising
   assert.match(out, /SCRUBBED=\[\]/, `and must scrub nothing:\n${out}`);
 });
 
-test('CONTROL: on a developer machine with nothing set, the scrub is a no-op and stays silent', () => {
+shellTest('CONTROL: on a developer machine with nothing set, the scrub is a no-op and stays silent', () => {
   const out = runScrub({});
   assert.match(out, /SCRUBBED=\[\]/, `nothing to scrub must report nothing:\n${out}`);
   assert.match(out, /INHERITED=\[\]/, `and capture nothing:\n${out}`);
   assert.doesNotMatch(out, /CI-ENV scrubbed/, 'a no-op must not print a scrub line');
 });
 
-test('⛔ the scrub REMOVES rather than setting a falsy value', () => {
+shellTest('⛔ the scrub REMOVES rather than setting a falsy value', () => {
   // MEASURED and load-bearing: the value semantics are inconsistent across packages. `ci-info` reads
   // `CI=0` as CI-ON while `core-js` reads it as CI-OFF, so no value means "not CI" to everyone —
   // only absence does. A future "simplification" to `CI=0` or `CI=""` would silently re-open this.
