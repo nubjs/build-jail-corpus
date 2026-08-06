@@ -1,0 +1,235 @@
+# WINDOWS ETW DESTINATION-PATH FIX — does the rename/hardlink DESTINATION come back, and did
+# anything that worked before stop working?
+#
+# ⛔ THIS PROBE TOUCHES NO GRANT AND PUBLISHES NO RECORD. It runs the OBSERVE half only, against the
+# known-answer fixture whose answer the fixture itself chose. `measure-windows.mjs` and its
+# `NUB_V2_WINDOWS_EVICTION_VERIFIED` guard are deliberately not involved.
+#
+# ⛔ THE 2x2 IS THE WHOLE POINT AND ITS DIAGONAL IS THE CONTROL. Two defects sit on one axis --
+# the capture mask never delivers events 26/27/28, and the decoder resolves a handle op's path from
+# the FileObject, which on a RenamePath still names the SOURCE. Each masks the other, so fixing one
+# is measurably INERT and a single-arm "it works now" run cannot tell a fix from a coincidence.
+# Two captures and four decodes settle it:
+#
+#            decode OLD          decode NEW
+#   0x11F0   dest ABSENT         dest ABSENT   <- the mask gates it
+#   0x1FF0   dest ABSENT         dest PRESENT  <- and so does the lookup order
+#            ^ the shipped baseline
+#
+# ⛔ AND THE FOURTEEN SHAPES THAT ALREADY PASS ARE THE OTHER HALF OF THE RESULT. Widening a mask and
+# loosening a path lookup is exactly the change that can turn a tracer into a noise generator, so
+# the 500-file exact-count storm, the never-touched decoy and the read-only control are re-asserted
+# in every arm. A destination that appears at the cost of the storm going 497/500 is not a fix.
+#
+# Branch-scoped, no PR: CI is the only Windows path here, and the push trigger is what makes it
+# iterable while the workflow file lives off the default branch.
+name: win-etw-dest
+
+on:
+  push:
+    branches: [harness/win-etw-dest]
+  workflow_dispatch:
+    inputs:
+      storm:
+        description: 'known-answer fixture storm file count'
+        default: '500'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      STORM: ${{ inputs.storm || '500' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Host facts
+        shell: pwsh
+        run: |
+          $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $elevated = ([Security.Principal.WindowsPrincipal]$id).IsInRole(544)
+          Write-Output "whoami      = $($id.Name)"
+          Write-Output "elevated    = $elevated"
+          Write-Output "os          = $([System.Environment]::OSVersion.VersionString)"
+          Write-Output "TEMP        = $env:TEMP"
+          Write-Output "USERPROFILE = $env:USERPROFILE"
+          node --version
+          if (-not $elevated) { Write-Output "::error::not elevated — ETW kernel providers are admin-only"; exit 1 }
+
+      # ── The parser's own known-answer tests, first and cheap. They pin the resolution order the
+      # fix turns on and they run in under a second, so a mistake in the decode half is caught here
+      # rather than after two ETW captures.
+      - name: Adapter unit tests
+        shell: pwsh
+        run: node --test harness/v2/adapters/windows.test.mjs
+
+      # ── THE BASELINE HALVES, taken from `origin/main` rather than copied. A hand-kept "before"
+      # copy is a copy, and a reader has no way to tell whether it drifted; `git show` cannot.
+      - name: Materialise the SHIPPED (pre-fix) adapter halves from origin/main
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\obs\before, C:\obs\out | Out-Null
+          # NOT `--depth=1`: the checkout is already unshallow (fetch-depth 0), and re-fetching at a
+          # depth turns a complete clone into a shallow one mid-job.
+          git fetch origin +refs/heads/main:refs/remotes/origin/main
+          git show origin/main:harness/v2/adapters/windows.ps1 | Set-Content -Path C:\obs\before\windows.ps1 -Encoding UTF8
+          git show origin/main:harness/v2/adapters/windows.mjs | Set-Content -Path C:\obs\before\windows.mjs -Encoding UTF8
+          Write-Output "baseline commit: $(git rev-parse origin/main)"
+          Write-Output "baseline Kernel-File mask line:"
+          Select-String -Path C:\obs\before\windows.ps1 -Pattern "Kernel-File'\s+0x" | ForEach-Object { $_.Line.Trim() }
+          Write-Output "fixed Kernel-File mask line:"
+          Select-String -Path harness/v2/adapters/windows.ps1 -Pattern "Kernel-File'\s+0x" | ForEach-Object { $_.Line.Trim() }
+
+      # ── ARM OLD: the shipped capture script, unmodified, at the mask every existing Windows
+      # measurement went through.
+      - name: Capture ARM-OLD (shipped windows.ps1, mask 0x11F0)
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf-old
+          # A space-free wrapper, because `cmd /c` strips the outer quote pair when a string both
+          # starts and ends with a quote, and `C:\Program Files\nodejs\node.exe` then degrades into
+          # something that reads as a PATH failure rather than a quoting one.
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\kaf-old.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf-old $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\obs\before\windows.ps1 `
+            -OutDir C:\obs\cap-old -Command C:\obs\kaf-old.cmd -WorkDir C:\obs -Session nubold 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-old.txt
+
+      # ── ARM NEW: the fixed capture script. THE ONLY VARIABLE IS THE KEYWORD MASK — the privilege
+      # drop, the device map, the buffer configuration and the meta schema are the same code.
+      - name: Capture ARM-NEW (fixed windows.ps1, mask 0x1FF0)
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf-new
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\kaf-new.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf-new $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-new -Command C:\obs\kaf-new.cmd -WorkDir C:\obs -Session nubnew 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-new.txt
+
+      # ── THE 2x2. `--allow-lossy` on purpose: the old decoder refuses a lossy trace outright, and
+      # the loss counter is asserted separately by the fixture's own LOSS integrity check, so the
+      # flag hides nothing here.
+      - name: Decode and assert all four cells
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          foreach ($cell in @(
+            @{ cap = 'C:\obs\cap-old'; fx = 'C:\obs\kaf-old'; dec = 'C:\obs\before\windows.mjs';          tag = 'old-mask_old-decode' },
+            @{ cap = 'C:\obs\cap-old'; fx = 'C:\obs\kaf-old'; dec = 'harness/v2/adapters/windows.mjs';    tag = 'old-mask_NEW-decode' },
+            @{ cap = 'C:\obs\cap-new'; fx = 'C:\obs\kaf-new'; dec = 'C:\obs\before\windows.mjs';          tag = 'NEW-mask_old-decode' },
+            @{ cap = 'C:\obs\cap-new'; fx = 'C:\obs\kaf-new'; dec = 'harness/v2/adapters/windows.mjs';    tag = 'NEW-mask_NEW-decode' }
+          )) {
+            Write-Output "================ CELL $($cell.tag) ================"
+            if (-not (Test-Path "$($cell.cap)\meta.json")) { Write-Output "NO CAPTURE"; continue }
+            $nd = "C:\obs\out\events-$($cell.tag).ndjson"
+            node $cell.dec $cell.cap --out $nd --allow-lossy 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\parse-$($cell.tag).txt"
+            node "$P/kaf-assert.mjs" $nd "$($cell.fx)\kaf-expect.json" $cell.cap `
+              --json "C:\obs\out\assert-$($cell.tag).json" 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\assert-$($cell.tag).txt"
+          }
+          Copy-Item C:\obs\cap-old\meta.json C:\obs\out\meta-old.json -Force -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\cap-new\meta.json C:\obs\out\meta-new.json -Force -ErrorAction SilentlyContinue
+
+      # ── GROUND TRUTH FOR THE FIELD NAME. `wevtutil gp /ge:true` publishes no templates for this
+      # provider, so the decoder reads the destination from a candidate list of field names. This
+      # prints the raw payloads so the list is checked against a real trace rather than against
+      # anyone's recollection of the manifest.
+      - name: Raw payload of events 26/27/28
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          node harness/v2/adapters/windows.mjs C:\obs\cap-new --out C:\obs\out\dump.ndjson `
+            --allow-lossy --dump-dest 12 2>&1 | Tee-Object -FilePath C:\obs\out\dump-dest.txt
+          Remove-Item C:\obs\out\dump.ndjson -Force -ErrorAction SilentlyContinue
+
+      # ── THE ONE SHAPE THAT IS STILL ABSENT. Named, not left silent.
+      - name: Memory-mapped write — what the raw trace holds
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kaf-mmap.bin --max 40 2>&1 |
+            Tee-Object -FilePath C:\obs\out\mmap-forensics.txt
+          Write-Output '--- the ADS host, for contrast: a mechanism that DOES come through ---'
+          node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kafstream --max 10 2>&1 |
+            Tee-Object -FilePath C:\obs\out\ads-forensics.txt
+
+      # ── 8.3 SHORT NAMES, on its own tiny capture so the fixture above stays byte-comparable with
+      # every earlier run of it.
+      - name: 8.3 short-name known-answer check
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\short.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\shortname-kaf.mjs`" write C:\obs\short-expect.json"
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-short -Command C:\obs\short.cmd -WorkDir C:\obs -Session nubshort 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-short.txt
+          Write-Output '--- with the fix ---'
+          node harness/v2/adapters/windows.mjs C:\obs\cap-short --out C:\obs\out\events-short-NEW.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-short-NEW.txt
+          node "$P/shortname-kaf.mjs" assert C:\obs\short-expect.json C:\obs\out\events-short-NEW.ndjson 2>&1 |
+            Tee-Object -FilePath C:\obs\out\shortname-NEW.txt
+          Write-Output '--- the control: the same capture through the SHIPPED decoder, which must FAIL ---'
+          node C:\obs\before\windows.mjs C:\obs\cap-short --out C:\obs\out\events-short-OLD.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-short-OLD.txt
+          node "$P/shortname-kaf.mjs" assert C:\obs\short-expect.json C:\obs\out\events-short-OLD.ndjson 2>&1 |
+            Tee-Object -FilePath C:\obs\out\shortname-OLD.txt
+          Copy-Item C:\obs\short-expect.json C:\obs\out\short-expect.json -Force -ErrorAction SilentlyContinue
+
+      - name: Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Output '===== THE 2x2 ====='
+          foreach ($tag in 'old-mask_old-decode','old-mask_NEW-decode','NEW-mask_old-decode','NEW-mask_NEW-decode') {
+            Write-Output "---------------- $tag ----------------"
+            Get-Content "C:\obs\out\parse-$tag.txt"  -ErrorAction SilentlyContinue
+            Get-Content "C:\obs\out\assert-$tag.txt" -ErrorAction SilentlyContinue
+          }
+          Write-Output ''
+          Write-Output '===== DESTINATION EVENT PAYLOADS ====='
+          Get-Content C:\obs\out\dump-dest.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== 8.3 SHORT NAMES ====='
+          Write-Output '--- with the fix ---';       Get-Content C:\obs\out\shortname-NEW.txt -ErrorAction SilentlyContinue
+          Write-Output '--- shipped control ---';    Get-Content C:\obs\out\shortname-OLD.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== MEMORY-MAPPED WRITE ====='
+          Get-Content C:\obs\out\mmap-forensics.txt -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\ads-forensics.txt  -ErrorAction SilentlyContinue
+
+      # The traces are the bulk of the disk cost and are not the deliverable; the normalized streams
+      # already copied out are.
+      - name: Upload probe output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-etw-dest-out
+          path: C:\obs\out
+          if-no-files-found: warn

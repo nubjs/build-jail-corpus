@@ -109,11 +109,30 @@ foreach ($ch in [char[]]([char]'A'..[char]'Z')) {
 # ---------------------------------------------------------------------------------------------
 # The session.
 #
-#   Kernel-File     0x11F0  FILENAME | FILEIO | OP_END | CREATE | READ | WRITE | DELETE_PATH |
+#   Kernel-File     0x1FF0  FILENAME | FILEIO | OP_END | CREATE | READ | WRITE | DELETE_PATH |
 #                           RENAME_SETLINK_PATH | CREATE_NEW_FILE
 #   Kernel-Network  0x30    IPV4 | IPV6
 #   Kernel-Process  0x10    WINEVENT_KEYWORD_PROCESS -- Start carries ParentProcessID, which is
 #                           the ONLY way to follow grandchildren
+#
+# ⛔ THE MASK WAS 0x11F0 AND ITS COMMENT NAMED NINE KEYWORDS IT DID NOT CARRY. Decoded against the
+# provider's own `wevtutil gp Microsoft-Windows-Kernel-File /ge:true` manifest on a real
+# windows-latest runner, 0x11F0 leaves WRITE (0x200), DELETE_PATH (0x400) and RENAME_SETLINK_PATH
+# (0x800) CLEAR. A keyword mask is a SILENT filter -- `logman update trace` exits 0 whatever the
+# mask is, and an event whose keyword bit is clear is simply never written -- so the parser carried
+# correct handlers for events 26/27/28 that could never fire, and the trace still looked healthy
+# (EventsLost 0, tens of thousands of events, a plausible path set).
+#
+# Those three events are the ONLY carriers of a DESTINATION path: a rename's new name, a hard
+# link's new name, a delete's resolved path. Measured on the known-answer fixture at 0x11F0, the
+# rename destination and the hardlink destination were ABSENT ENTIRELY from the normalized stream
+# -- a write the tracer cannot see becomes a capability the synthesized grant omits, which is the
+# direction that breaks a user's install.
+#
+# 0x1FF0 is every keyword the provider declares (their OR is exactly 0x1FF0), so there is nothing
+# further to enable here. Widening the mask ALONE is inert: the decoder resolved a handle op's path
+# from the FileObject, which on a RenamePath still names the SOURCE, so the source won even once the
+# destination arrived. See `windows.mjs`'s DEST_PATH_EVENTS -- the two halves must move together.
 #
 # CREATE and OP_END are the load-bearing pair: Create carries the path and the disposition, and the
 # matching OperationEnd carries the NTSTATUS that says whether it was refused. FILEIO is kept
@@ -126,7 +145,8 @@ foreach ($ch in [char[]]([char]'A'..[char]'Z')) {
 & logman stop $Session -ets 2>&1 | Out-Null
 & logman create trace $Session -ets -o $etl -bs 1024 -nb 64 320 -max $MaxMB | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "logman create trace failed with $LASTEXITCODE" }
-& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    0x11F0 5 | Out-Null
+& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    0x1FF0 5 | Out-Null
+$fileMaskExit = $LASTEXITCODE
 & logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Network' 0x30   5 | Out-Null
 & logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Process' 0x10   5 | Out-Null
 Start-Sleep -Milliseconds $SettleMs
@@ -189,6 +209,12 @@ $meta = [ordered]@{
   eventsLost    = $lost
   eventsTotal   = $processed
   tracerptExit  = $tracerptExit
+  # PROVENANCE, not decoration. A stream is only as complete as the keyword mask that produced it,
+  # and 0x11F0 vs 0x1FF0 is the difference between having rename/hardlink destinations and silently
+  # not having them. A retained record whose meta does not name its mask cannot be re-read later
+  # with any confidence about what it is missing.
+  fileMask      = '0x1FF0'
+  fileMaskExit  = $fileMaskExit
 }
 $meta | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $OutDir 'meta.json') -Encoding Ascii
 

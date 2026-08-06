@@ -29,7 +29,7 @@ Three providers, and each is load-bearing:
 
 | provider | keywords | what it supplies |
 | --- | --- | --- |
-| `Microsoft-Windows-Kernel-File` | `0x11F0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles |
+| `Microsoft-Windows-Kernel-File` | `0x1FF0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles, and — see [Destination paths](#destination-paths) — the destination of a rename, hard link or delete |
 | `Microsoft-Windows-Kernel-Network` | `0x30` | TCP and UDP connection attempts with `PID`, `daddr`, `dport` |
 | `Microsoft-Windows-Kernel-Process` | `0x10` | ProcessStart with `ParentProcessID` — the only way to follow grandchildren |
 
@@ -47,6 +47,36 @@ disposition = (CreateOptions >>> 24) & 0xFF
 ```
 
 Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete`, `Rename`, `DeletePath`, `RenamePath` and `SetLinkPath` are writes as well.
+
+## Destination paths
+
+Events 26, 27 and 28 — `DeletePath`, `RenamePath`, `SetLinkPath` — are the only events in this provider that carry a path the handle tables cannot supply: a rename's new name, a hard link's new name, a delete's resolved name. Two independent defects hid all of them, and each masked the other, so the fix had to move both halves together.
+
+**The keyword mask never delivered them.** The session enabled `0x11F0`, whose own comment named nine keywords when it carried six. Decoded on a real runner ([31116467283](https://github.com/nubjs/build-jail-corpus/actions/runs/31116467283)) against the provider's `wevtutil gp Microsoft-Windows-Kernel-File /ge:true` manifest, `WRITE` (`0x200`), `DELETE_PATH` (`0x400`) and `RENAME_SETLINK_PATH` (`0x800`) were clear. A keyword mask is a silent filter — `logman update trace` exits 0 whatever the mask is, and an event whose keyword bit is clear is simply never written — so the parser carried correct handlers for three events that could never fire while the trace looked healthy. `WRITE`'s absence turned out not to matter, because event 16 is published under `WRITE|FILEIO` and `FILEIO` was on; the other two are published under `0x400`/`0x800` alone. The mask is now `0x1FF0`, which is every keyword the provider declares.
+
+**And the decoder preferred the source.** A handle op resolved its path as `nameByObject.get(FileObject) ?? nameByKey.get(FileKey) ?? data.FileName`, and on a `RenamePath` that `FileObject` still names the source. So the source won, the source had already been emitted by the `Rename` event, the dedup set swallowed it, and the destination was absent with nothing in the stream saying so. Measured on the known-answer fixture at both masks: rename destination and hard-link destination absent entirely, identically. Widening the mask alone changed nothing.
+
+For those three events the payload path now wins and the handle tables are a fallback. Two details the fix depends on:
+
+- **`Rename` and `RenamePath` share one Irp**, and the pending-status map is single-valued and last-writer-wins — so routing the destination through it evicts the source and trades one end of the rename for the other. The destination events get their own list-valued map, leaving the Create/Read/Write pairing untouched. `harness/v2/adapters/windows.test.mjs` pins this; it is the one case a mutation of that map turns red.
+- **The provider publishes no templates**, so the destination field name is read from a candidate list rather than hardcoded. Run `windows.mjs <capture-dir> --dump-dest N` to print the raw payload of the first N of these events against a real trace.
+
+A capture whose `meta.json` records a mask other than `0x1FF0`, or records none at all, is called out on stderr at decode time. A stream captured before this change has no destinations in it and the events themselves cannot say so, so the meta has to.
+
+This is the same defect class the macOS dtrace adapter carried — 100% of rename destinations lost, for the life of that adapter — reached independently on a different platform by a different mechanism.
+
+## 8.3 short names
+
+NTFS keeps a legacy 8.3 spelling for a name that does not fit, and the kernel reports whichever spelling the caller used. On a GitHub runner `%TEMP%` is literally `C:\Users\RUNNER~1\AppData\Local\Temp` while `%USERPROFILE%` is `C:\Users\runneradmin`, so one directory arrives under two names in one trace.
+
+That is a scope defect, not a cosmetic one, and it under-grants. The classifier assigns scope by longest-prefix against the roots it is handed, and `c:\users\runner~1\...` does not start with `c:\users\runneradmin\`, so a real write under the user profile lands in `outside` — reported, never granted. Measured on the one real package the viability probe traced (`hugo-extended@0.141.0`): 543 paths, 1 write and 542 reads, every one genuinely under the profile and every one classified `outside`.
+
+The adapter expands short to long, never the reverse — contracting would mean inventing a short name, and expanding needs the name to still exist, which is false for a deleted temp file. It walks the path left to right and expands each component against a parent that is already long, so a deleted leaf still lands in the right scope; only its own spelling stays ambiguous. Two guards:
+
+- A resolved component is accepted only when it is still a child of the same parent. Otherwise `realpath` followed a junction, and taking that answer would rewrite the path to a different location.
+- Expansion is skipped entirely when the capture came from another host, because `RUNNER~1` names whatever that machine happens to have. Re-decoding an archived trace elsewhere gets the short spelling back rather than a confident wrong long name. `--no-longpath` forces the same.
+
+When expansion fails the short spelling is kept verbatim and counted in the stderr stats. That over-counts distinct paths, which is the safe direction; guessing a long name would be an invented fact.
 
 Only four NTSTATUS values are refusals: `STATUS_ACCESS_DENIED`, `STATUS_PRIVILEGE_NOT_HELD`, `STATUS_MEDIA_WRITE_PROTECTED`, `STATUS_CANNOT_DELETE`. The Windows near-miss is not a string collision like `AT_EACCESS` — it is the temptation to call every non-zero status a denial. A probe for a file that is not there returns `STATUS_OBJECT_NAME_NOT_FOUND`, which means the operation did not happen; those are omitted, matching the Linux extractor skipping `= -1`. On the fixture trace 379 operations failed for a reason that was not a refusal and exactly one was a refusal.
 

@@ -1,0 +1,182 @@
+// Known-answer tests for the Windows ETW adapter's PARSE half.
+//
+// ⛔ EVERY CASE BELOW IS A DECODING FAILURE THAT WAS MEASURED ON A REAL RUNNER, NOT IMAGINED. The
+// known-answer fixture in `probes/win-viability/` performed a rename and a hard link at paths it
+// named itself; at BOTH keyword masks the DESTINATION of each was absent entirely from the
+// normalized stream (run 31116467283). The cause is here rather than in the capture script: a
+// handle op resolved its path as `nameByObject.get(FileObject)` first, and on a RenamePath that
+// FileObject still names the SOURCE -- so the source won, the source had already been emitted by
+// the Rename event, the dedup set swallowed it, and the destination silently never existed.
+//
+// ⛔ THE ADAPTER IS A SCRIPT, NOT A MODULE, SO THESE DRIVE IT AS A SUBPROCESS over a synthetic
+// capture directory. That is deliberate: the alternative is refactoring `windows.mjs` to export a
+// `decode()` the way `linux.mjs` does, and the fourteen write shapes that pass today all run
+// through the code path such a refactor would move. A subprocess test costs a few milliseconds and
+// touches nothing.
+//
+// ⛔ WHAT THESE CAN AND CANNOT PROVE. They pin the RESOLUTION ORDER -- that a destination event's
+// payload path beats the handle tables, that a rename keeps BOTH ends, that a shared Irp does not
+// evict one for the other. They CANNOT prove which payload field the kernel actually populates on
+// events 26/27/28, because that comes from the provider and `wevtutil gp /ge:true` publishes no
+// templates for it. Both plausible spellings are covered here; the real trace is what settles it,
+// and `windows.mjs --dump-dest N` prints the raw payload so it can be settled by reading rather
+// than by guessing.
+import { test } from 'node:test';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const ADAPTER = path.join(import.meta.dirname, 'windows.mjs');
+const VOL = '\\Device\\HarddiskVolume4';
+const PID = 4242, TID = 77, PPID = 4200;
+
+const ev = (id, data, pid = PID) => {
+  const fields = Object.entries(data).map(([k, v]) => `    <Data Name="${k}">${v}</Data>`).join('\n');
+  return `<Event xmlns="x">
+  <System>
+    <Provider Name="Microsoft-Windows-Kernel-File" />
+    <EventID>${id}</EventID>
+    <Execution ProcessID="${pid}" ThreadID="${TID}" />
+  </System>
+  <EventData>
+${fields}
+  </EventData>
+</Event>`;
+};
+
+// One decode run: write a synthetic capture, invoke the adapter, return its events plus stderr.
+function decode(events, { fileMask = '0x1FF0', extraArgs = [] } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'winadapt-'));
+  fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({
+    schema: 'nub-obs-win/1', host: 'SYNTHETIC-HOST', rootPid: PID, launcherPid: PPID,
+    devmap: { [VOL]: 'C:' }, eventsLost: 0, eventsTotal: events.length, fileMask,
+  }));
+  fs.writeFileSync(path.join(dir, 'trace.xml'), `<Events>\n${events.join('\n')}\n</Events>\n`);
+  const outFile = path.join(dir, 'events.ndjson');
+  const r = spawnSync(process.execPath, [ADAPTER, dir, '--out', outFile, ...extraArgs], { encoding: 'utf8' });
+  assert.equal(r.status, 0, `adapter exited ${r.status}\n${r.stderr}`);
+  const lines = fs.readFileSync(outFile, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  fs.rmSync(dir, { recursive: true, force: true });
+  return { events: lines, stderr: r.stderr };
+}
+
+const writes = (d) => new Set(d.events.filter((e) => e.op === 'write' && e.result === 'ok').map((e) => e.path));
+const reads = (d) => new Set(d.events.filter((e) => e.op === 'read' && e.result === 'ok').map((e) => e.path));
+
+// The shape the kernel emits for `rename(SRC, DST)`: the handle was opened on SRC, the Rename and
+// the RenamePath share ONE Irp, and a single OperationEnd settles both.
+const renameSeq = (destField, destValue) => [
+  ev(12, { Irp: '0xA0', FileObject: '0xF1', FileName: `${VOL}\\w\\SRC.bin`, CreateOptions: '0x01000000' }),
+  ev(24, { Irp: '0xA0', Status: '0x0' }),
+  ev(19, { Irp: '0xB0', FileObject: '0xF1' }),
+  ev(27, { Irp: '0xB0', FileObject: '0xF1', [destField]: destValue }),
+  ev(24, { Irp: '0xB0', Status: '0x0' }),
+];
+
+test('a rename destination is emitted from the RenamePath payload, not the source handle', () => {
+  const w = writes(decode(renameSeq('FilePath', `${VOL}\\w\\DST.bin`)));
+  assert.ok(w.has('C:\\w\\DST.bin'), `destination absent; got ${[...w]}`);
+});
+
+test('a rename keeps BOTH ends even though Rename and RenamePath share one Irp', () => {
+  // The regression this guards is specific and was visible in the probe as `orphan creates` going
+  // 8 -> 23: a single-valued pending map is last-writer-wins, so putting the destination in it
+  // evicts the source and trades one missing end of the rename for the other.
+  const w = writes(decode(renameSeq('FilePath', `${VOL}\\w\\DST.bin`)));
+  assert.ok(w.has('C:\\w\\SRC.bin'), `source absent; got ${[...w]}`);
+  assert.ok(w.has('C:\\w\\DST.bin'), `destination absent; got ${[...w]}`);
+});
+
+test('the destination field is read from whichever spelling the payload carries', () => {
+  // DEST_PATH_FIELDS exists because the provider publishes no template. Both candidates resolve.
+  for (const field of ['FilePath', 'FileName']) {
+    const w = writes(decode(renameSeq(field, `${VOL}\\w\\DST.bin`)));
+    assert.ok(w.has('C:\\w\\DST.bin'), `${field}: destination absent; got ${[...w]}`);
+  }
+});
+
+test('a bare-leaf destination is anchored to the source directory', () => {
+  const w = writes(decode(renameSeq('FilePath', 'DST.bin')));
+  assert.ok(w.has('C:\\w\\DST.bin'), `relative destination not anchored; got ${[...w]}`);
+});
+
+test('a hardlink destination is emitted from SetLinkPath', () => {
+  const d = decode([
+    ev(12, { Irp: '0xA0', FileObject: '0xF2', FileName: `${VOL}\\w\\LINKSRC.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xA0', Status: '0x0' }),
+    ev(28, { Irp: '0xB1', FileObject: '0xF2', FilePath: `${VOL}\\w\\LINKDST.bin` }),
+    ev(24, { Irp: '0xB1', Status: '0x0' }),
+  ]);
+  assert.ok(writes(d).has('C:\\w\\LINKDST.bin'), `hardlink destination absent; got ${[...writes(d)]}`);
+});
+
+test('a DeletePath reports the deleted path', () => {
+  const d = decode([
+    ev(26, { Irp: '0xC0', FileObject: '0xF9', FilePath: `${VOL}\\w\\GONE.bin` }),
+    ev(24, { Irp: '0xC0', Status: '0x0' }),
+  ]);
+  assert.ok(writes(d).has('C:\\w\\GONE.bin'), `deleted path absent; got ${[...writes(d)]}`);
+});
+
+test('a \\??\\ destination decodes to its drive letter rather than landing in kernelfs', () => {
+  // classify.mjs sends anything starting `\??\` to the `kernelfs` bucket, where a real write is
+  // reported as filesystem metadata and never reaches a grant.
+  const w = writes(decode(renameSeq('FilePath', '\\??\\C:\\w\\DST.bin')));
+  assert.ok(w.has('C:\\w\\DST.bin'), `\\??\\ prefix not decoded; got ${[...w]}`);
+});
+
+test('a refused destination is reported as denied, never as a successful write', () => {
+  const d = decode([
+    ev(12, { Irp: '0xA0', FileObject: '0xF1', FileName: `${VOL}\\w\\SRC.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xA0', Status: '0x0' }),
+    ev(27, { Irp: '0xB0', FileObject: '0xF1', FilePath: `${VOL}\\w\\DST.bin` }),
+    ev(24, { Irp: '0xB0', Status: '0xC0000022' }),       // STATUS_ACCESS_DENIED
+  ]);
+  assert.ok(!writes(d).has('C:\\w\\DST.bin'), 'a denied rename destination was reported as a write');
+  assert.ok(d.events.some((e) => e.path === 'C:\\w\\DST.bin' && e.result === 'denied'),
+    `the refusal was dropped instead of recorded; got ${JSON.stringify(d.events)}`);
+});
+
+test('the ordinary read path is untouched: a FILE_OPEN create is still a read', () => {
+  // The control. Every one of the fourteen shapes that passed before this change runs through this
+  // branch, so a test that only checks the new behavior cannot tell a fix from a rewrite.
+  const d = decode([
+    ev(12, { Irp: '0xD0', FileObject: '0xE1', FileName: `${VOL}\\w\\INPUT.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xD0', Status: '0x0' }),
+  ]);
+  assert.deepEqual([...reads(d)], ['C:\\w\\INPUT.bin']);
+  assert.equal(writes(d).size, 0, 'a plain FILE_OPEN was reported as a write');
+});
+
+test('a write through a FILE_OPEN handle is still rescued by the Write event', () => {
+  const d = decode([
+    ev(12, { Irp: '0xD0', FileObject: '0xE2', FileName: `${VOL}\\w\\RW.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xD0', Status: '0x0' }),
+    ev(16, { Irp: '0xD1', FileObject: '0xE2' }),
+    ev(24, { Irp: '0xD1', Status: '0x0' }),
+  ]);
+  assert.ok(writes(d).has('C:\\w\\RW.bin'), `write-through-handle lost; got ${[...writes(d)]}`);
+});
+
+test('a capture taken at the old mask is called out rather than read as complete', () => {
+  // ⛔ THE POINT OF RETENTION IS THAT A STREAM CAN BE RE-READ LATER. A record captured at 0x11F0
+  // has no rename or hardlink destinations in it and nothing in the events themselves says so, so
+  // the meta has to. Silence here is what would let a short stream be trusted.
+  const d = decode([ev(26, { Irp: '0xC0', FilePath: `${VOL}\\w\\X.bin` }), ev(24, { Irp: '0xC0', Status: '0x0' })],
+    { fileMask: '0x11F0' });
+  assert.match(d.stderr, /RENAME and HARDLINK DESTINATIONS ARE MISSING/);
+});
+
+test('8.3 expansion is inert when the capture came from another host', () => {
+  // Expansion resolves a short component against the LIVE filesystem, so running it against a
+  // trace from another machine would invent a long name. The synthetic meta names a host that is
+  // not this one, which is exactly that case; the short spelling must survive verbatim.
+  const d = decode([
+    ev(12, { Irp: '0xA1', FileObject: '0xF5', FileName: `${VOL}\\Users\\RUNNER~1\\x.bin`, CreateOptions: '0x05000000' }),
+    ev(24, { Irp: '0xA1', Status: '0x0' }),
+  ]);
+  assert.ok(writes(d).has('C:\\Users\\RUNNER~1\\x.bin'), `short name was rewritten off-host; got ${[...writes(d)]}`);
+  assert.match(d.stderr, /EXPANSION OFF/);
+});
