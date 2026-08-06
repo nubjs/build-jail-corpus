@@ -69,10 +69,19 @@ Three operating systems means three tracers and three parsers (strace, dtrace, E
 | --- | --- | --- | --- | --- |
 | **linux** ✅ RUNNING | `strace -f` | root + transitive, nub tooling spared | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
 | **macos** ⛔ **DISABLED** | dtrace (`macos-observe.d`) | ⛔ **NONE** | **9** (`observe-macos.test.mjs`) | ⛔ none at corpus scale |
-| **windows** ⛔ **DISABLED** | ETW (`windows.ps1`) | ⛔ **root only** | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
+| **windows** ⛔ **DISABLED** | ETW (`windows.ps1`) | root + transitive, nub tooling spared — **active but UNPROVEN** | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
 | *shared* | — | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
 
-⛔⛔ **TWO OF THE THREE LANES ARE HARD-DISABLED, AND THE EVICTION COLUMN IS WHY.** Each driver exits 3 immediately with an explanation; `measure-macos.sh` and `measure-windows.mjs` carry the full reasoning and a lift procedure above their guard. **Linux is the only lane producing trustworthy rows today.**
+⛔⛔ **TWO OF THE THREE LANES ARE HARD-DISABLED.** Each driver exits 3 immediately with an explanation; `measure-macos.sh` and `measure-windows.mjs` carry the full reasoning and a lift procedure above their guard. **Linux is the only lane producing trustworthy rows today.** macOS is disabled for the eviction column. **Windows no longer is** — the transitive sweep is ported and measured active (run 31107020153: `EVICT   30 store entries removed, 5 spared as nub tooling` per arm) — but it stays disabled because that eviction is **unproven in the direction that matters**, blocked by the read denial below.
+
+⛔ **A WINDOWS ARM CURRENTLY FAILS AT EVERY GRANT, ON A READ OF THE PACKAGE'S OWN ENTRY POINT.** Verbatim, from four `@apollo/rover@0.2.1` arms spanning `{"network":true}` to `{"write":{"deps":true},"network":true}`:
+
+```
+Error: EPERM: operation not permitted, open
+'C:\jail\...\verify-at-grant\node_modules\.store\@apollo+rover@0.2.1\node_modules\@apollo\rover\install.js'
+```
+
+`@pulumi/datadog@0.18.9` dies the same way on `...\.store\grpc@1.24.2\...\node-pre-gyp\bin\node-pre-gyp`. No rung on the ladder widens a read of the package's own store entry, so every rung returns the same verdict — which means **no arm can pass, so no arm can FALSELY pass**, and the teeth control (the same arm under a deliberately root-only eviction, which must falsely pass) came back INSUFFICIENT alongside the real one. Two eviction modes agreeing when neither can succeed is evidence of nothing. Fixing that read denial is the prerequisite for the Windows proof, and the probe that runs it is `.github/workflows/win-evict-probe.yml`.
 
 The store eviction is not housekeeping — it is what makes two arms independent. A package still materialized in the machine-global virtual store is **relinked, not reinstalled**, so its lifecycle script never runs; the arm then **passes at whatever grant is under test, including one narrower than the package needs**. That is an **under-grant**, and under-granting breaks real users' installs while over-granting only wastes capability. `measure.sh` records the measured case, three runs on one binary differing only in what was evicted:
 
@@ -83,6 +92,13 @@ evict rover + binary-install  {"write":{"deps":true},...}  rc=0  bin/ rover,READ
 ```
 
 ⇒ **Root-only eviction is precisely the arm that falsely passed**, so Windows' narrower scope makes it rarer, not safer. macOS evicts nothing at all and mitigates with a per-arm `NUB_CACHE_DIR` — a remedy `measure.sh` records as measured-insufficient, because the cache dir and the virtual store are resolved by different functions.
+
+⛔⛔ **AND ON A HOSTED RUNNER THE EVICTION NEVER FIRES AT ALL, WHICH IS NOT THE REASSURANCE IT SOUNDS LIKE.** Under `is_ci()` nub resolves the linker to a **project-local** `node_modules/.store` inside each arm directory rather than the machine-global store (`install_report.rs` `layout_row`; an explicit `enableGlobalVirtualStore` is the one thing resolved before it). So there is no global store to evict, the sweep skips in silence, and arms come out independent by accident. MEASURED on Windows in run 31106248877: four arms, `linker isolated (global virtual store auto-disabled in CI)` in every log, **zero `EVICT` lines**, and root-only and transitive eviction giving identical verdicts. Every v2 `driver.out` in the corpus shows the same shape — 3 of 3 carry a `CLOSURE` line and 0 of 3 an `EVICT` line. Two consequences, in opposite directions:
+
+- The replay hazard is **not live on the corpus runners today**, so existing rows are not under-granted by *this* mechanism.
+- The corpus is measuring a **layout real users do not get**: outside CI the machine-global store is the default, and the rover case is exactly a write through a link into a *sibling's* store entry, which the project-local layout relocates. Whether a grant measured under one layout transfers to the other is **UNVERIFIED** and worth settling before the next full sweep.
+
+A probe of any eviction code therefore has to set `npm_config_enable_global_virtual_store=true` explicitly, or it measures nothing while looking healthy — which is how the first Windows attempt at this proof passed its own preconditions and proved nothing.
 
 ⛔ **Any darwin-arm64 or win32 record written before those guards is suspect in the UNSAFE direction** — re-measure it rather than trusting it. Linux rows written before `67c01911` skew **wide** instead (the node-gyp collision failed arms spuriously), which is safe for users but inflates the headline `write:"disk"` metric.
 

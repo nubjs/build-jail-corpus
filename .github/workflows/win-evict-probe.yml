@@ -47,6 +47,10 @@ jobs:
       # `enableGlobalVirtualStore` is the one thing checked BEFORE it. A real user is not in CI, so
       # forcing it on is also what makes the arm resemble the install being measured.
       npm_config_enable_global_virtual_store: 'true'
+      # The sanctioned use of the driver's guard, and the ONLY one: this workflow is the proof the
+      # guard is waiting on, so it has to be able to run the driver. Setting it anywhere else — in
+      # the corpus lane, in a sweep — publishes rows the guard exists to stop.
+      NUB_V2_WINDOWS_EVICTION_VERIFIED: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -234,11 +238,18 @@ jobs:
             console.log(`tool closure: ${keep.size} store entries`);
             let withScripts = 0, unread = 0;
             for (const e of [...keep].sort()) {
-              const name = e.replace(/@[^@]*$/, "").replace(/\+/g, "/");
-              let s = null;
-              for (const c of [path.join(store, e, "node_modules", name, "package.json"), path.join(store, e, "package.json")]) {
-                try { s = JSON.parse(fs.readFileSync(c, "utf8")).scripts ?? {}; break; } catch {}
+              // The entry name is NOT always `<name>@<version>-<hash>`: a peer-dependency-keyed entry
+              // is `fdir@6.5.0_picomatch@4.0.5_-<hash>`, so de-mangling the name off it reports a
+              // false "unreadable" — which reads as a hole in the zero-lifecycle-scripts claim.
+              // Enumerate the entry's own node_modules instead of reconstructing the name.
+              const cands = [path.join(store, e, "package.json")];
+              const nm = path.join(store, e, "node_modules");
+              for (const d of (fs.existsSync(nm) ? fs.readdirSync(nm) : [])) {
+                if (d.startsWith("@")) for (const t of fs.readdirSync(path.join(nm, d))) cands.push(path.join(nm, d, t, "package.json"));
+                else cands.push(path.join(nm, d, "package.json"));
               }
+              let s = null;
+              for (const c of cands) { try { s = JSON.parse(fs.readFileSync(c, "utf8")).scripts ?? {}; break; } catch {} }
               if (s === null) { unread++; console.log(`  ?? ${e} — no readable package.json`); continue; }
               const life = ["preinstall", "install", "postinstall"].filter((k) => s[k]);
               if (life.length) { withScripts++; console.log(`  DECLARES ${life.join(",")}: ${e}`); }

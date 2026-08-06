@@ -20,6 +20,43 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const [PKG, VER] = positional;
 if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [--nub exe] [--root dir]'); process.exit(2); }
 
+// ⛔⛔ STILL HARD-STOPPED — BUT NO LONGER FOR THE EVICTION. The transitive closure sweep is ported
+// (see `evictClosure`) and MEASURED ACTIVE on a real runner: win-evict-probe run 31107020153 logged
+// `EVICT   30 store entries removed, 5 spared as nub tooling` per arm, against a 20-entry node-gyp
+// tool closure of which ZERO declare a lifecycle script. What is missing is the PROOF, and the
+// reason it is missing is its own defect:
+//
+// ⛔ EVERY WINDOWS ARM FAILS AT EVERY GRANT, ON A READ OF THE PACKAGE'S OWN ENTRY POINT. Verbatim,
+// from four `@apollo/rover@0.2.1` arms spanning `{"network":true}` to
+// `{"write":{"deps":true},"network":true}`:
+//
+//   Error: EPERM: operation not permitted, open
+//   'C:\jail\...\verify-at-grant\node_modules\.store\@apollo+rover@0.2.1\node_modules\@apollo\rover\install.js'
+//
+// and from `@pulumi/datadog@0.18.9`'s synth arm, on `...\.store\grpc@1.24.2\...\node-pre-gyp\bin\node-pre-gyp`.
+// No grant on the ladder widens a read of the package's own store entry, so the verdict is the same
+// at every rung.
+//
+// ⇒ THE NEGATIVE CONTROL CANNOT BE RUN UNTIL THAT IS FIXED, and without it the eviction is unproven
+// in the only direction that matters. If no arm can PASS, no arm can FALSELY pass — so the teeth
+// control (the same arm under a root-only eviction, which must falsely pass) came back INSUFFICIENT
+// too, and agreement between the two eviction modes is evidence of nothing. A green positive control
+// alone would be exactly the shape this project treats as inadmissible: an eviction that is too
+// narrow passes every positive control there is.
+//
+// TO LIFT THIS: fix the read denial, then re-run `.github/workflows/win-evict-probe.yml` on
+// `probe/win-evict` and require R1 SUFFICIENT (false pass under root-only), R2 INSUFFICIENT, R3
+// SUFFICIENT. The workflow already asserts all three and fails otherwise. ⛔ Setting this variable
+// to get a green run defeats the only thing it is for.
+if (!process.env.NUB_V2_WINDOWS_EVICTION_VERIFIED) {
+  console.error('!! measure-windows.mjs is DISABLED: the transitive store eviction is ported and');
+  console.error('   measured active, but UNPROVEN -- every Windows arm fails at every grant on an');
+  console.error('   EPERM reading the package\'s own install script, so no arm can falsely pass and');
+  console.error('   the negative control has nothing to detect. See the note above this check. Any');
+  console.error('   win32-x64 v2 record produced before this guard is SUSPECT and must be re-measured.');
+  process.exit(3);
+}
+
 // DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
 // ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers
 // "does this ONE grant suffice", where MINIMUM answers "what is the least that does", and reporting
@@ -318,15 +355,24 @@ const TOOLS = path.join(CACHE, 'tools');
 // under test — including one NARROWER than the package needs. That is an UNDER-GRANT, the one
 // direction that breaks real users' installs.
 //
-// MEASURED on `@apollo/rover@0.2.1`, whose postinstall writes into a SIBLING package's directory
-// (`binary-install/bin/`, because it delegates to `binary-install`). In the jail that path resolves
-// through a junction out of rover's own store entry into `binary-install@0.1.1-<hash>`'s, which
+// MEASURED on Linux, on `@apollo/rover@0.2.1`, whose postinstall writes into a SIBLING package's
+// directory (`binary-install/bin/`, because it delegates to `binary-install`). In the jail that path
+// resolves through a link out of rover's own store entry into `binary-install@0.1.1-<hash>`'s, which
 // `preset.rs`'s `store_entry_write_root` deliberately does NOT grant. Three runs on one binary
 // differing only in what was evicted:
 //
 //   evict rover only              {"network":true}                rc=0  bin/ EMPTY   -> false PASS
 //   evict rover + binary-install  {"network":true}                rc=1  bin/ absent  -> correct FAIL
 //   evict rover + binary-install  {"write":{"deps":true},...}     rc=0  bin/ rover,README.md,LICENSE
+//
+// ⛔ THE REPLAY IS A PROPERTY OF THE STORE LAYOUT, AND CI SILENTLY PICKS THE OTHER ONE. Under
+// `is_ci()` nub resolves the linker to a PROJECT-LOCAL `.store` inside each arm directory
+// (`install_report.rs` `layout_row`), so on a hosted runner there is no machine-global store, the
+// eviction below skips in silence, and arms are independent by accident rather than by design.
+// MEASURED in run 31106248877: four arms, zero EVICT lines, root-only and transitive
+// indistinguishable. A real user is not in CI, so that is the layout this eviction is FOR — and it
+// is also why a probe of this code has to set `enableGlobalVirtualStore` explicitly to measure
+// anything at all.
 //
 // ⛔⛔ AND THE STORE IS SHARED WITH nub'S OWN TOOLING, SO A NAME-WILDCARD EVICTION AMPUTATES THE TOOL
 // THE PACKAGE IS ABOUT TO BUILD WITH. nub bootstraps node-gyp lazily into a project under
