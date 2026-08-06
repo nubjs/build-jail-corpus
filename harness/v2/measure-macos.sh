@@ -167,7 +167,12 @@ if [ "$EV_RC" -eq 0 ] && [ -s "$EVENTS.gz" ]; then
   # The record writer copies this file into the record dir. A path on stdout is the contract
   # because the three drivers already communicate with `record.mjs` through their stdout alone.
   echo "  EVENTLOG-FILE $EVENTS.gz"
-  echo "  EVENTLOG-STATS $(tr -d '\n ' < "$OBS/eventlog-stats.json")"
+  # ⛔ RE-SERIALISED BY A JSON PARSER, NOT FLATTENED WITH `tr -d '\n '`. The stats block is pretty-
+  # printed, and the record contract needs it on ONE line — but stripping every space also strips
+  # the ones INSIDE any string value, so the first spelling of this line was a corrupter waiting for
+  # a stats field to contain a path with a space in it. `record.mjs` would then log
+  # `eventlog-stats-unparsable` and the evidence census would be silently absent from the record.
+  echo "  EVENTLOG-STATS $(node -e 'process.stdout.write(JSON.stringify(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))))' "$OBS/eventlog-stats.json" 2>/dev/null)"
 else
   # ⛔ NOT FATAL, BUT NEVER SILENT. Retention is additive to the measurement; losing it must not
   # cost a measured package. Saying so is what stops a corpus quietly reverting to verdict-only.
