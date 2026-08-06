@@ -59,30 +59,52 @@ const mine = (pid) => {
 
 // npm runs a lifecycle script by exec'ing `sh -c "<the script>"`. That is the ONLY `-c` shell in a
 // `npm rebuild` subtree — npm's own work is done in-process in node. The driver's own wrapper is
-// `sh <file>`, with no `-c`, so it cannot match.
-const isLifecycleShell = (name, args) =>
-  /^(sh|bash|dash|zsh)$/.test(name) && / -c( |$)/.test(args ?? '');
+// `bash <file>`, with no `-c`, so it cannot match.
+//
+// ⛔ THIS READS EXECARGV, NOT THE EXEC RECORD'S psargs. On macOS `curpsinfo->pr_psargs` carries only
+// the COMMAND NAME — MEASURED on run 31087159355, where 0 of 9 EXEC records from a real
+// `npm rebuild` contained a space at all: `sudo -u runner -H env PATH=<400 chars> …` came out as
+// the four characters `sudo`, and the lifecycle shell came out as `sh`. A ` -c ` test against
+// psargs therefore can never match on this platform, which is why every macOS arm reported
+// `lifecycle pids: 0`. EXECARGV carries the caller's real argv[]; EXEC still builds the tree.
+//
+// argv[0] is matched on its BASENAME: npm execs a bare `sh`, but an absolute path is legal too.
+const basename = (p) => (p ?? '').split('/').pop();
+const isLifecycleShell = (argv0, argv1) =>
+  /^(sh|bash|dash|zsh)$/.test(basename(argv0)) && argv1 === '-c';
 
 for (const raw of lines) {
   if (!raw) continue;
   if (raw.startsWith('DTRACE-LIVE|')) { live = true; continue; }
   const f = raw.split('|');
   const kind = f[0];
-  if (kind !== 'EXEC' && kind !== 'OPEN' && kind !== 'PATHOP' && kind !== 'CHDIR'
-      && kind !== 'CONN' && kind !== 'CONN-OTHERFAMILY') continue;
+  if (kind !== 'EXEC' && kind !== 'EXECARGV' && kind !== 'OPEN' && kind !== 'PATHOP'
+      && kind !== 'CHDIR' && kind !== 'CONN' && kind !== 'CONN-OTHERFAMILY') continue;
   const pid = Number(f[1]), ppid = Number(f[2]);
   if (!Number.isFinite(pid)) continue;
   events++;
   if (Number.isFinite(ppid) && ppid > 0) parent.set(pid, ppid);
   if (f[3]) execname.set(pid, f[3]);
 
+  // Fires at execve ENTRY, i.e. BEFORE the exec-success record for the same pid, so a lifecycle
+  // shell is already marked by the time any of its own or its children's events arrive.
+  if (kind === 'EXECARGV') {
+    const argv0 = f[3] ?? '', argv1 = f[4] ?? '';
+    const argv2 = f.slice(5).join('|');   // free-form script body; may itself contain `|`
+    if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
+    if (isLifecycleShell(argv0, argv1)) {
+      lifecycle.add(pid);
+      psargs.set(pid, `${argv0} ${argv1} ${argv2}`);
+    }
+    continue;
+  }
+
   if (kind === 'EXEC') {
     const args = f.slice(4).join('|');
-    psargs.set(pid, args);
+    if (!psargs.has(pid)) psargs.set(pid, args);
     // A child inherits the parent's cwd; the exec record is the first time we see the pid, so this
     // is where the inheritance has to be applied or every grandchild resolves against the wrong base.
     if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
-    if (isLifecycleShell(f[3], args)) lifecycle.add(pid);
     continue;
   }
   if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
@@ -182,7 +204,13 @@ if (w.project) g.write = { ...(g.write ?? {}), project: true };
 if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
 if (sockets > 0) g.network = true;
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
-console.log('  ' + JSON.stringify(g));
+// ⛔ `{}` IS A REAL, VERIFIABLE ANSWER — a package whose script genuinely needs nothing. It has been
+// verified as such on another platform (Windows, husky@4.3.8). So it must NEVER double as the
+// failure value: a decoder that emits `{}` when attribution failed is indistinguishable from one
+// that emits it on success, and the difference is a confident empty grant in the corpus. When the
+// subtree filter matched nothing, emit a token that is not valid JSON and that no downstream step
+// can mistake for a measurement.
+console.log('  ' + (lifecycle.size === 0 ? 'UNKNOWN-ATTRIBUTION-FAILED' : JSON.stringify(g)));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 
 const enumerable = [...(w.userHome ?? []), ...(w.outside ?? [])];

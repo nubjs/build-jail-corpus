@@ -46,6 +46,12 @@ npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log"
 if [ $? -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
+# ⛔ CHOWN AFTER THE FETCH, NOT ONLY BEFORE IT. The chown at $ROOT creation predates this fetch, and
+# the fetch runs as ROOT (the driver is under sudo for dtrace) — so every file npm just wrote is
+# root-owned, and the traced `npm rebuild`, which is dropped back to $RUNUSER, then dies on
+# `EACCES: permission denied, mkdir .../node_modules`. MEASURED on run 31086358188: that is what
+# @nuxt/components and codeceptjs reported once the dtrace -c defect stopped masking it.
+chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 
 # dtrace's `-c` word-splits its argument and execs it directly — there is no shell, so the command
 # cannot carry a redirect and cannot report its own exit status. A wrapper file supplies both.
@@ -59,9 +65,26 @@ echo \$? > "$OBS/rc"
 WRAP
 
 PRE=$(find -L "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# `-x` and an unconditional dump of both the wrapper and dtrace's own stderr: the first run of this
+# driver produced a live tracer, a clean dtrace exit, and NO npm.log at all — i.e. the `-c` child
+# exited without executing its body, which is invisible unless the wrapper narrates itself.
+#
+# ⛔ /bin/bash, NEVER /bin/sh. macOS's /bin/sh is a 101 KB STUB that immediately RE-EXECS the real
+# 1.29 MB /bin/bash, and `dtrace -c` does not survive its target re-execing: the grip dtrace took on
+# the process it spawned is invalidated, dtrace tears down, and the child dies without running its
+# body. MEASURED by probes/dtrace-c-matrix.sh — `/bin/sh` 0/8 sentinels, `/bin/bash` 1/1 with the
+# full exec tree including the inner `sudo`. The tell in the trace is an `EXEC` record at the
+# TARGET's own pid whose execname is `bash`; /bin/bash produces no such record.
+#
+# Single-variable: an UNSIGNED copy of /bin/sh fails identically, so this is the re-exec and not a
+# code-signature or SIP restriction; `-x` and the inner `sudo` were each independently exonerated.
+# Not `sh -c`/`bash -c` either — the decoder identifies the lifecycle script as the only `-c` shell
+# in the subtree, so the wrapper stays a FILE argument.
 dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
-       -c "/bin/sh $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
+       -c "/bin/bash -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
 DT_RC=$?
+echo "  --- wrapper (run.sh) ---"; sed 's/^/     /' "$OBS/run.sh"
+echo "  --- dtrace stderr + wrapper trace ---"; sed 's/^/     /' "$OBS/dtrace.log" | head -30
 OBS_RC=$(cat "$OBS/rc" 2>/dev/null || echo 99)
 OBS_FILES=$(find -L "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 TRACE_LINES=$(wc -l < "$OBS/trace.txt" 2>/dev/null | tr -d ' ')
@@ -84,6 +107,13 @@ node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "/Users/$RUNUSER" > "$ROO
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+# ⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. The decoder emits this token
+# instead of `{}` when the subtree filter matched nothing, precisely so the two cannot be confused.
+if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
+  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
+  echo "     measurement here. This is NOT a package that needs nothing.)"
+  exit 0
+fi
 
 if [ -z "$NUB" ] || [ ! -x "$NUB" ]; then
   echo "  => OBSERVE-ONLY: $GRANT"
@@ -112,9 +142,20 @@ verify () {
   # scripts never run again. The signature is `materialized …` with no `installed N packages`,
   # while every precondition stays green. Hence a fresh cache per ARM, not per run.
   local cache="$v/nubcache"; rm -rf "$cache"
+  # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
+  # default block, which would make the arm VOID and read as "the grant did not work" rather than
+  # "the package needs nothing". The override REPLACES the compiled-in table rather than merging
+  # into it, so OMITTING the package makes it run at the base profile, which IS the empty grant. A
+  # throwaway sentinel entry keeps the file non-empty so the override still engages and the
+  # OVERRIDDEN>=1 / REJECTED==0 assertion below stays meaningful. Ported from measure.sh; the
+  # Windows lane took husky@4.3.8 from write:"disk" to a verified {} on exactly this construction.
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
-    fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
+    const grant=JSON.parse(g);
+    const cat = Object.keys(grant).length
+      ? {packages:{[p]:{default:grant}}}
+      : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
+    fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
@@ -125,7 +166,7 @@ sudo -u "$RUNUSER" -H env "PATH=\$PATH" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CA
 echo \$? > "$v/rc"
 JW
       dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$v/trace.txt" \
-             -c "/bin/sh $v/jail.sh" > "$v/dtrace.log" 2>&1 )
+             -c "/bin/bash -x $v/jail.sh" > "$v/dtrace.log" 2>&1 )   # /bin/sh re-execs; see OBSERVE
     local rc; rc=$(cat "$v/rc" 2>/dev/null || echo 99)
   else
     # ⛔ THE JAILED RUN MUST NOT BE ROOT. This driver is invoked under sudo because dtrace needs
@@ -192,13 +233,10 @@ if [ "$VERIFIED" -eq 1 ]; then
   fi
   while IFS=$'\t' read -r nm gg; do
     [ -n "${nm:-}" ] || continue
-    # ⛔ An empty `default` block is REJECTED by the parser, which would make the arm VOID and read
-    # as a failure. That is not the same answer as "the narrower grant did not work", so say so.
-    if [ "$gg" = "{}" ]; then
-      echo "  NARROW[$nm] grant is empty — the catalog cannot express an empty default block, so"
-      echo "     this variant is UNTESTABLE rather than failing. Reported, not counted."
-      continue
-    fi
+    # An empty variant used to be UNTESTABLE here, because the parser rejects an empty `default`
+    # block and the arm came back VOID. `verify` now expresses it the way measure.sh does — omit the
+    # package so it runs at the base profile — so the fully-narrowed variant is a real arm, and a
+    # package that needs nothing is measurable rather than skipped.
     if verify "$gg" "nar-$nm"; then
       echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
     else
