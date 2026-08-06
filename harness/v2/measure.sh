@@ -64,6 +64,23 @@ if [ "$OBS_RC" -ne 0 ]; then
   exit 0
 fi
 
+# The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
+# arm's own hoisted `node_modules`. Consumed by the per-arm store eviction in `verify()` — see the
+# long note there for why evicting `$PKG` alone leaves a live replay path.
+CLOSURE=$(node -e '
+  const fs = require("fs"), path = require("path");
+  const nm = process.argv[1], out = [];
+  let ents; try { ents = fs.readdirSync(nm, { withFileTypes: true }); } catch { process.exit(0); }
+  for (const e of ents) {
+    if (!e.isDirectory() || e.name.startsWith(".")) continue;
+    if (e.name.startsWith("@")) {
+      for (const s of fs.readdirSync(path.join(nm, e.name))) out.push(e.name + "/" + s);
+    } else out.push(e.name);
+  }
+  console.log(out.join("\n"));
+' "$OBS/node_modules" 2>/dev/null)
+echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
+
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
@@ -84,6 +101,25 @@ verify () {
   # dangerous false green available here, because it inflates the agreement rate rather than
   # breaking anything. The catalog override engaging is NOT evidence the jail engaged.
   printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
+  # ⛔ THE THIRD REPLAY GUARD, AND IT IS NOT REDUNDANT WITH THE OTHER TWO — MEASURED, NOT ASSUMED.
+  # v1 used this and the v2 drivers never inherited it (`harness/search.mjs`: "a warm cache replays a
+  # prior build and the lifecycle script NEVER SPAWNS, which reads exactly like a jail denial").
+  # The engine really reads it: `aube_settings::resolved::side_effects_cache`, consulted in
+  # `vendor/aube/crates/aube/src/commands/rebuild.rs` and the `install/finalize.rs` path.
+  #
+  # THE THREE GUARDS CLOSE THREE DIFFERENT REPLAY PATHS, and dropping any one reopens its own:
+  #   unique root name      — nub memoises a lifecycle outcome keyed on package identity
+  #   side-effects-cache=no — the memo says "this script already ran, skip it"
+  #   store eviction        — the store says "this package is already materialised, relink it"
+  #
+  # Tested directly on `@apollo/rover@0.2.1` with this line PRESENT in every arm and the only
+  # variable being whether the transitive dependency's store entry was evicted:
+  #
+  #   evict binary-install=no    {"network":true}   rc=0   bin/ POPULATED  -> false PASS survives
+  #   evict binary-install=yes   {"network":true}   rc=1   bin/ empty      -> correct FAIL
+  #
+  # So the config line does NOT subsume the eviction. Keep both.
+  printf 'side-effects-cache=false\n' > "$v/.npmrc"
   # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM EVICTS THE STORE.
   #
   # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so
@@ -134,10 +170,42 @@ verify () {
   # Anchoring on `<slug>@` instead of wrapping in `*…*` also keeps the eviction TARGETED, as the
   # note above requires: the store is machine-global and a sibling agent may be measuring on the
   # same box, so a bare `*yorkie*` would take out an unrelated `yorkie-foo` alongside it.
-  local slug; slug=$(printf '%s' "$PKG" | tr '/' '+')
+  # ⛔⛔ AND EVICTING `$PKG` ALONE IS STILL NOT ENOUGH — THE REPLAY ALSO ARRIVES THROUGH A
+  # TRANSITIVE DEPENDENCY'S STORE ENTRY, AND WHEN IT DOES IT MANUFACTURES A FALSE **OVER**-PREDICTION.
+  #
+  # MEASURED on `@apollo/rover@0.2.1`. Its postinstall writes into a SIBLING package's directory —
+  # `node_modules/binary-install/bin/{rover,README.md,LICENSE}`, not its own — because it delegates to
+  # the `binary-install` package. In the jail that path resolves through a SYMLINK out of rover's own
+  # store entry into `binary-install@0.1.1-<hash>`'s entry, which `preset.rs`'s
+  # `store_entry_write_root` deliberately does NOT grant (it grants the package's own entry root
+  # only). So the write is genuinely refused and `write.deps` is genuinely NECESSARY.
+  #
+  # Evicting `@apollo+rover@*` alone left `binary-install@*` populated by the PREVIOUS arm, so the
+  # descent arm relinked an already-built dependency, never attempted the write, and passed. Two arms
+  # with the same binary, differing only in what was evicted:
+  #
+  #   evict rover only          {"network":true}                       rc=0   bin/ EMPTY  -> false PASS
+  #   evict rover + binary-install  {"network":true}                   rc=1   bin/ absent -> correct FAIL
+  #   evict rover + binary-install  {"write":{"deps":true},...}        rc=0   bin/ rover,README.md,LICENSE
+  #
+  # ⛔ THE DIRECTION MATTERS. A replay in the VERDICT arm inflates agreement; a replay in a DESCENT
+  # arm reports a capability as droppable that is not — an UNDER-prediction, the one direction that
+  # breaks installs. So the descent is only as honest as this eviction is complete.
+  #
+  # The closure comes from the OBSERVE arm's own hoisted `node_modules`, i.e. it is MEASURED rather
+  # than guessed: exactly the packages npm needed to run this lifecycle script.
+  #
+  # ⛔ COST, weighed and accepted. The store is machine-global, so this reaches further than the
+  # single-entry eviction it replaces and a sibling agent measuring a package that SHARES one of
+  # these dependencies pays a re-materialization. That is strictly better than the alternative it
+  # replaces, which was a silent false verdict. Still targeted — exact `<slug>@*` names from this
+  # package's own closure, never a wildcard sweep of the store.
   local store="${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store"
   if [ -d "$store" ]; then
-    find "$store" -maxdepth 1 -name "${slug}@*" -exec rm -rf {} + 2>/dev/null
+    printf '%s\n' "$PKG" $CLOSURE | sort -u | while IFS= read -r n; do
+      [ -n "$n" ] || continue
+      find "$store" -maxdepth 1 -name "$(printf '%s' "$n" | tr '/' '+')@*" -exec rm -rf {} + 2>/dev/null
+    done
   fi
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
@@ -188,11 +256,33 @@ verify () {
   # perfectly. MEASURED on @nuxt/components@2.1.0: the write:"disk" arm exited 0 with a complete
   # install and was reported as "NO-STATE-PASSED". Following the links counts the real artifacts.
   files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
-  echo "  VERIFY[$label] rc=$rc files=$files OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  # ⛔⛔ `files >= OBS_FILES` IS NOT A SUCCESS GATE AND MUST NOT BE READ AS ONE. `find -L` follows the
+  # isolated layout's symlinks into the machine-global store, so the number is dominated by the
+  # dependency closure and is nearly insensitive to whether THIS package's script produced anything.
+  # MEASURED on `@apollo/rover@0.2.1`: an arm that produced NONE of the package's three artifacts
+  # counted 704 against a 718-file reference and passed. The direction of that error is the dangerous
+  # one — on a DESCENT arm it reports a capability as droppable when it is necessary, and on the
+  # SYNTH arm it would record an under-predicting grant as VERIFIED.
+  #
+  # The gate is the per-file ARTIFACT MANIFEST, ported from `measure-windows.mjs` so the two drivers
+  # agree on what "the arm succeeded" means. See `artifact-gate.mjs` for why a count gate and a
+  # byte-total gate were both measured and rejected, and for the sibling-package limit that the
+  # transitive store eviction above covers instead. `files/OBS_FILES` stays PRINTED for continuity
+  # with the existing corpus logs, but nothing branches on it any more.
+  local gate grc
+  gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
+  echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
+  # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
+  # Fall back to the exit code rather than passing an ungated arm off as measured.
+  if [ "$grc" -eq 3 ]; then
+    echo "     NOTE no artifact reference for $PKG — gating on rc alone"
+    [ "$rc" -eq 0 ]; return $?
+  fi
   # Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
-  # failure mode. Compare against what the unjailed OBSERVE arm produced.
-  [ "$rc" -eq 0 ] && [ "$files" -ge "$OBS_FILES" ]
+  # failure mode. Both must hold.
+  [ "$rc" -eq 0 ] && [ "$grc" -eq 0 ]
 }
 
 # ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. Same three-outcome rule as the descent
