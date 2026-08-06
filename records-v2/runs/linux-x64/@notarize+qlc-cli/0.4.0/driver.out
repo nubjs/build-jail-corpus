@@ -1,0 +1,31 @@
+### @notarize/qlc-cli@0.4.0   (/home/runner/v2-BuE0ID)
+  OBSERVE   rc=0 files=8 trace=9761 lines
+  CLOSURE   1 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 1  /  whole traced tree 4
+    sockets script 5  /  whole traced tree 5
+  == WRITES the script actually performed ==
+    project       1
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 7
+        127.0.0.53:53
+        140.82.114.3:443
+        185.199.111.133:0
+        185.199.108.133:0
+        185.199.109.133:0
+        185.199.110.133:0
+        185.199.111.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"project":true},"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=5/5 missing=0 (tree 24/8) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+  => VERIFIED {"write":{"project":true},"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=5/5 missing=1 (tree 22/8) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true}}
+       missing: bin/qlc (0B < 4430448B)
+     'network' is NECESSARY — dropping it fails to verify
+  VERIFY[drop-writeproject] rc=0 artifacts=5/5 missing=0 (tree 24/8) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'write.project' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: write.project  (synthesized {"write":{"project":true},"network":true}; each named capability drops on its own)
