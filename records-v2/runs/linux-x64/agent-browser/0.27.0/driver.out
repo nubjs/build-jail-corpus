@@ -1,0 +1,30 @@
+### agent-browser@0.27.0   (/home/runner/v2-TcnbWr)
+  OBSERVE   rc=0 files=47 trace=10915 lines
+  CLOSURE   1 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 4
+    writes  script 4  /  whole traced tree 7
+    sockets script 0  /  whole traced tree 0
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-TcnbWr/observe/node_modules/agent-browser/bin/.install-method
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-TcnbWr/jailhome/.npm/_logs/2026-08-06T14_44_35_131Z-debug-0.log
+    outside       1
+        /tmp/node-compile-cache/v22.23.1-x64-9ac5647c-1001/273c1c9b.WCL1cP
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        /tmp/node-compile-cache/v22.23.1-x64-9ac5647c-1001/273c1c9b.WCL1cP
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[synth] rc=0 artifacts=44/44 missing=0 (tree 141/47) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
