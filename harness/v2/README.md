@@ -78,6 +78,47 @@ The unit suites are worth their cost because they cover the *same* semantic haza
 
 ⛔⛔ **But note precisely what that validator can and cannot catch, because the known Windows defect slipped past it.** OBSERVE reported `allTreePeers: 0` on a package whose egress two other instruments say is real. `allTreePeers` is the **pre-attribution** count, so zero means no network events reached the parser at all ⇒ **the defect is in CAPTURE, not parsing, and a parser unit test would not have caught it either.** The validator asserts egress (**P4** a raw `TcpClient.Connect` with no DNS and no TLS; **P7** an `Invoke-WebRequest`) and passes — so whatever that package does differs in shape from both, and that shape is unidentified. ⇒ **The gap to close on Windows is capture-side coverage in `windows.ps1`, not more parsing tests.**
 
+## Running it at corpus scale — the v2 lane
+
+`.github/workflows/corpus-v2-runner.yml` is the queue-driven lane, one job per OS per slice. Its architecture is `corpus-queue-runner.yml`'s and deliberately so: the claim is pushed before any measuring starts (so parallel runners can never hold the same row), records are add-only and unique per `(platform, package, version)`, and a slice resumes past whatever it already measured.
+
+| | v1 lane | v2 lane |
+| --- | --- | --- |
+| workflow | `corpus-queue-runner.yml` | `corpus-v2-runner.yml` |
+| index | `queue.ndjson` | `queue-v2.ndjson` |
+| records | `records/runs/` | `records-v2/runs/` |
+| publisher | `harness/publish-record.sh` | `harness/v2/publish-record-v2.sh` |
+| batch driver | `harness/run-batch.sh` → `search.mjs` | `harness/v2/run-batch-v2.mjs` → the platform driver |
+| chains by default | yes | **no** |
+
+⛔ **The two lanes share no file, and that is the guarantee rather than a convention.** `publish-record-v2.sh` refuses any path that is not `records-v2/*`, so there is no path expressible in the v2 lane that names a v1 record. Each record additionally carries `harnessVersion: 2`, which is what survives being collated or copied out of that tree. The v1 corpus is not gold-standard data but it is kept for historical reference, and nothing here can overwrite it.
+
+⛔ **`chain` defaults to FALSE, inverting the v1 runner's default.** A full-corpus v2 re-measure is a large compute commitment and a separate decision; a lane that self-dispatches by default takes that decision by accident, one hop at a time, and the tell arrives hours later as a drained queue.
+
+### The drivers print; `record.mjs` is what makes a record
+
+None of the three drivers writes a file — they were built to be read by a human on a probe branch, so every v2 result so far has lived in a workflow log that expires. `record.mjs` parses a driver's terminal vocabulary into a record shaped like a v1 one, which is what lets `collate.mjs --runs records-v2/runs` and `claim-slice.mjs --reconcile --records records-v2` read it with no changes.
+
+The vocabularies differ, and one pair is a false friend. The POSIX drivers print `=> VERIFIED <grant>` where the Windows driver prints `=> MINIMUM <grant> (observed, then verified)` for the **same** outcome — and `=> MINIMUM <grant> (ladder fallback)` for a materially different one, where OBSERVE under-predicted and the ladder repaired it. Keying on the word `MINIMUM` alone merges the arm that proves synthesis works with the arm that proves it failed, so the record carries `verifiedBy: synth | ladder`.
+
+| driver says | record verdict | grant |
+| --- | --- | --- |
+| `=> VERIFIED <g>` / `=> MINIMUM <g> (observed, then verified)` | `MINIMUM`, `verifiedBy: synth` | `<g>` |
+| `=> MINIMUM <g> (ladder fallback)` | `MINIMUM`, `verifiedBy: ladder` | `<g>` |
+| `=> UNDER-PREDICTED` (macOS, which has no ladder) | `UNDER-PREDICTED` | none — nothing was verified |
+| `=> BROKEN-WITHOUT-JAIL-TOO`, `=> NO-STATE-PASSED`, `=> VOID` | the same word | none |
+| nothing at all | `HARNESS-ERROR` / `HARNESS-TIMEOUT` | none |
+
+⛔ **Silence is not an empty grant.** A driver killed by a deadline, or dying before its first `=>`, measured NOTHING; emitting `{}` would record "this package needs no capabilities", an under-grant manufactured out of an instrument failure. It gets a `HARNESS-*` verdict instead, which `claim-slice.mjs` refuses to close a queue row on, so a later fix can still reach the package.
+
+⛔ **The recorded grant is the one whose arm passed, never the narrowest variant that also passed.** Leave-one-out proves each capability droppable *individually*, never jointly, so adopting the narrowest observed variant would under-grant the moment a package has two capabilities. Over-prediction is recorded beside the grant, as `minimality` and `overPredictedBy`.
+
+`record.test.mjs` runs the parser against fixtures captured verbatim from `macos-v2-measure` run 31088841052, rather than reconstructed from the drivers' own `echo` statements — a reconstructed fixture agrees with a parser that is wrong in exactly the way the reconstruction was.
+
+### One thing v2 broke that v1 could not
+
+⛔ **Roughly half the corpus synthesizes the empty grant, and `collate.mjs` used to emit an entry for it.** nub rejects an entry that widens nothing — and a rejected catalog is a *silently discarded* one, since `Decision::FellBack` keeps nub running on the compiled-in table and merely prints `REJECTED`. So one such package invalidated the whole catalog while every record beside it was sound. It could not arise under v1, whose needs-nothing records carry `grant: null` and never become a meaningful row; a v2 record carries a *verified* `{}`, which is a stronger statement and a legitimately different value. Measured on the first macOS smoke slice: `git-validate@2.2.4` took the catalog gate down alongside two good records. The collator now omits the package, which is the correct encoding — the override replaces the compiled-in table rather than merging into it, so an absent package runs at the base profile.
+
 ## What v2 does NOT change
 
 - The catalog schema and the grant vocabulary are unchanged.
