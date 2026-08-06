@@ -100,10 +100,15 @@ fs.writeFileSync(
   ),
 );
 
+console.log(`packed ${tarballs.map((t) => t.name).join(', ')}; project at ${proj}`);
+console.log('running `nub install` ...');
 const i = run(NUB, ['install'], { cwd: proj });
 fs.writeFileSync(path.join(OUT, 'install.log'), (i.stdout ?? '') + (i.stderr ?? ''));
+console.log(`install rc=${i.status}${i.error ? ` error=${i.error.message}` : ''}`);
+console.log('running `nub approve-builds --all` ...');
 const a = run(NUB, ['approve-builds', '--all'], { cwd: proj });
 fs.writeFileSync(path.join(OUT, 'approve.log'), (a.stdout ?? '') + (a.stderr ?? ''));
+console.log(`approve rc=${a.status}${a.error ? ` error=${a.error.message}` : ''}`);
 
 const logs = (i.stdout ?? '') + (i.stderr ?? '') + (a.stdout ?? '') + (a.stderr ?? '');
 
@@ -115,21 +120,39 @@ const ranScripts = /running build scripts for/.test(logs);
 // below is a property of an ordinary `node`.
 const unconfined = /running without the build sandbox/.test(logs);
 
-const frames = [...logs.matchAll(/@@PROBE@@([\s\S]*?)@@END@@/g)].map((m) => {
-  try {
-    return JSON.parse(m[1]);
-  } catch (e) {
-    return { parseError: String(e.message) };
-  }
-});
+// ⛔ THE SENTINELS ARE ASSEMBLED, AND A FRAME THAT DOES NOT PARSE IS DROPPED. `probe-tmp.mjs`
+// splits its own literals so an echo of a command line carrying the fixture source cannot pass for
+// a run of it; matching on an assembled pattern is the other half of that. A `{parseError}` object
+// would be truthy and would let the frame count toward the gate while carrying nothing.
+const FRAME = new RegExp(`@@PRO${'BE'}@@([\\s\\S]*?)@@E${'ND'}@@`, 'g');
+const parseErrors = [];
+const frames = [...logs.matchAll(FRAME)]
+  .map((m) => {
+    try {
+      return JSON.parse(m[1]);
+    } catch (e) {
+      parseErrors.push(String(e.message));
+      return null;
+    }
+  })
+  .filter(Boolean);
 
+// Per-root depth and entry caps, for the reason spelled out in `drive.mjs`: an unbounded walk of a
+// hosted runner's `%TEMP%` is minutes of I/O, and a marker written into temp sits at depth 1 or 2.
+const SCAN = [
+  [HOST_TEMP, 3, 20000],
+  [PACKAGES, 6, 20000],
+  ['C:\\Windows\\Temp', 2, 5000],
+  ['C:\\Temp', 2, 5000],
+  [BASE, 6, 20000],
+];
 const scanOutside = (marker) => {
   const out = {};
-  for (const root of [HOST_TEMP, PACKAGES, 'C:\\Windows\\Temp', 'C:\\Temp', BASE]) {
+  for (const [root, maxDepth, cap] of SCAN) {
     const hits = [];
     let seen = 0;
     const walk = (dir, depth) => {
-      if (depth > 6 || seen > 60000) return;
+      if (depth > maxDepth || seen > cap) return;
       let entries;
       try {
         entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -137,7 +160,7 @@ const scanOutside = (marker) => {
         return;
       }
       for (const e of entries) {
-        if (seen++ > 60000) return;
+        if (seen++ > cap) return;
         const full = path.join(dir, e.name);
         if (e.name.includes(marker)) hits.push(full);
         if (e.isDirectory()) walk(full, depth + 1);
@@ -155,7 +178,8 @@ const verdict = {
   approveRc: a.status,
   scriptsRan: ranScripts,
   announcedUnconfined: unconfined,
-  framesRecovered: frames.map((f) => f.label ?? '<unparsed>'),
+  framesRecovered: frames.map((f) => f.label),
+  frameParseErrors: parseErrors,
   jailedArmsThatBreachedTheControl: leaks,
   valid: ranScripts && !unconfined && frames.length === specs.length && leaks.length === 0,
 };

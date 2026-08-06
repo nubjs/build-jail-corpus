@@ -53,7 +53,7 @@ const writeRead = (p) =>
 
 // Bounded walk. The AppContainer profile is nearly empty, so a small cap finds the marker if it is
 // there; the cap exists so a mis-aimed root (a real user profile) cannot turn this into a disk scan.
-const hunt = (root, token, maxDepth = 6, cap = 40000) => {
+const hunt = (root, token, maxDepth = 6, cap = 20000) => {
   const hits = [];
   let seen = 0;
   let truncated = false;
@@ -157,4 +157,9 @@ const record = {
   hunts: HUNT.map((r) => hunt(r, MARKER)),
 };
 
-process.stdout.write(`@@PROBE@@${JSON.stringify(record)}@@END@@\n`);
+// ⛔ THE SENTINELS ARE ASSEMBLED AT RUNTIME, NEVER WRITTEN WHOLE. Arm A hands this file to `node
+// -e` as a command-line ARGUMENT, so any error path that echoes the command line would reproduce a
+// literal `@@PROBE@@ ... @@END@@` pair in the output -- and a driver scanning for that pair would
+// then extract the fixture's own SOURCE and report it as a result. Splitting the literals means the
+// only way the pair appears intact is if this line ran.
+process.stdout.write(`@@PRO${'BE'}@@${JSON.stringify(record)}@@E${'ND'}@@\n`);

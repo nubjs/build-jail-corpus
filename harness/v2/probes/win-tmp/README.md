@@ -27,6 +27,17 @@ Arm A cannot answer the environment question, because only the lifecycle path re
 
 Arm A passes the fixture as **source** (`--input-type=module -e`), not as a path. With no `package_dir` the fs allowlist is the OS minimal-root closure plus the dependency-tree reads, and the checkout is not in it — a jailed `node <path>` would die on a read refusal that reads exactly like a temp finding and is not one.
 
+### The smoke gate, and why it exists
+
+Arm A settles which spelling of `nub run --sandbox <shape> <cmd> [args]` reaches `run_sandboxed` **once**, with three spawns of a payload that contains no fixture, before running a single arm.
+
+The first run of this probe tried the spellings inside every arm instead. Three spellings × five arms, each spawn burning its full timeout because the jail produced nothing, is 45 minutes of wall clock — and `spawnSync`'s deadline kills the direct child only, so each attempt left a jailed grandchild behind. Run 31119799480's runner lost communication with the server at exactly that mark, and GitHub returned no log and no artifact for it. Settling the spelling up front reports a total failure in three minutes instead of making it indistinguishable from a slow run.
+
+Two related hardenings came out of a dry run against a stand-in `nub`:
+
+- **The frame sentinels are assembled at runtime, never written whole.** The fixture travels to arm A as a command-line argument, so any path that echoes the command line would reproduce a literal sentinel pair — and a driver scanning for it would extract the fixture's own source and report it as a result.
+- **A frame that does not parse is not a record.** Returning a `{parseError}` object made it truthy, and the gate counted a garbage arm as one that had produced evidence.
+
 Arm B installs **two** local tarball packages in one `nub install`. Two packages in one session against one host state is the per-package axis; two separate installs would not be. Tarballs rather than directory deps because a `file:` directory is a link, and a linked dependency's lifecycle script is not the spawn under test.
 
 ## The gates
@@ -40,7 +51,9 @@ Reading the user profile is *not* part of the control. The Windows jail leaves i
 
 ## Running it
 
-Windows only, and CI is the only Windows path — `.github/workflows/win-tmp-resolution.yml`, branch-scoped on `probe/win-tmp-resolution`, no PR needed. The workflow builds `nub` once from `nubjs/nub`'s `sandbox/integration`, caches it by commit, and runs the probe on two matrix legs. **The legs are the cross-machine axis, not redundancy:** each is a fresh runner VM, which is the closest reachable stand-in for "after a reboot" since a hosted runner cannot be rebooted and resumed.
+Windows only, and CI is the only Windows path — `.github/workflows/win-tmp-resolution.yml`, branch-scoped on `probe/win-tmp-resolution`, no PR needed. The workflow builds `nub` once from `nubjs/nub`'s `sandbox/integration`, caches it by commit, and runs each arm in **its own job**. That is not cosmetic: when both arms shared a runner and the runner died, arm B was lost to a failure that had nothing to do with arm B. Separate jobs also give the cross-**machine** axis for free — two jobs are two fresh runner VMs, which is the closest reachable stand-in for "after a reboot" since a hosted runner cannot be rebooted and resumed.
+
+Each arm step carries its own `timeout-minutes`. A hung step then gets killed by the runner, which survives to upload its artifact, rather than being starved until it drops off the network.
 
 ```
 node harness/v2/probes/win-tmp/drive.mjs           --nub C:\nubbin\nub.exe --root C:\jail\wintmpA --out C:\jail\wintmpA\out

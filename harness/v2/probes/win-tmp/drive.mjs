@@ -23,7 +23,8 @@ const flag = (n, d = '') => {
 const NUB = flag('--nub');
 const BASE = flag('--root', 'C:\\jail\\wintmp');
 const OUT = flag('--out', path.join(BASE, 'out'));
-const TIMEOUT = Number(flag('--timeout', '180000'));
+const TIMEOUT = Number(flag('--timeout', '90000'));
+const SMOKE_TIMEOUT = Number(flag('--smoke-timeout', '60000'));
 if (!NUB || !fs.existsSync(NUB)) {
   console.error(`FATAL --nub must point at an existing nub.exe (got ${NUB || '<unset>'})`);
   process.exit(2);
@@ -62,14 +63,25 @@ const listProfiles = () => {
 // The OUTSIDE half of "where did it land": run after each arm, with the driver's full rights, over
 // the places a jailed write could plausibly have gone. An EMPTY result is a finding in its own
 // right -- it says the scratch did not survive the run.
+//
+// ⛔ EVERY ROOT CARRIES ITS OWN DEPTH AND ENTRY CAP, and the caps are small on purpose. A hosted
+// runner's `%TEMP%` holds the whole toolcache extraction; an unbounded walk of it, repeated once
+// per arm, is minutes of I/O buying nothing -- a marker written into temp is at depth 1 or 2.
+const SCAN = [
+  [() => HOST_TEMP, 3, 20000],
+  [() => PACKAGES, 6, 20000],
+  [() => 'C:\\Windows\\Temp', 2, 5000],
+  [() => 'C:\\Temp', 2, 5000],
+  [() => BASE, 6, 20000],
+];
 const scanOutside = (marker) => {
-  const roots = [HOST_TEMP, PACKAGES, 'C:\\Windows\\Temp', 'C:\\Temp', BASE];
   const out = {};
-  for (const root of roots) {
+  for (const [rootOf, maxDepth, cap] of SCAN) {
+    const root = rootOf();
     const hits = [];
     let seen = 0;
     const walk = (dir, depth) => {
-      if (depth > 6 || seen > 60000) return;
+      if (depth > maxDepth || seen > cap) return;
       let entries;
       try {
         entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -77,7 +89,7 @@ const scanOutside = (marker) => {
         return;
       }
       for (const e of entries) {
-        if (seen++ > 60000) return;
+        if (seen++ > cap) return;
         const full = path.join(dir, e.name);
         if (e.name.includes(marker)) hits.push(full);
         if (e.isDirectory()) walk(full, depth + 1);
@@ -89,13 +101,19 @@ const scanOutside = (marker) => {
   return out;
 };
 
+// ⛔ A FRAME THAT DOES NOT PARSE IS NOT A RECORD. Returning `{parseError}` made it truthy, and the
+// gate then counted a garbage arm as one that had produced evidence -- caught in a dry run, where
+// the crash landed in the formatter instead of in the verdict.
+const FRAME = new RegExp(`@@PRO${'BE'}@@([\\s\\S]*?)@@E${'ND'}@@`);
+let lastParseError = null;
 const extract = (stdout) => {
-  const m = /@@PROBE@@([\s\S]*?)@@END@@/.exec(stdout ?? '');
+  const m = FRAME.exec(stdout ?? '');
   if (!m) return null;
   try {
     return JSON.parse(m[1]);
   } catch (e) {
-    return { parseError: String(e.message) };
+    lastParseError = String(e.message);
+    return null;
   }
 };
 
@@ -116,31 +134,68 @@ const probeArgs = (label, marker) => [
 // is not one. `--input-type=module -e <source>` needs no file at all. The driver reads the file
 // with its own rights and hands the bytes over on the command line.
 //
-// ⛔ THREE SPELLINGS, TRIED IN ORDER, because `nub run --sandbox <shape> <cmd> [args]` reaches
-// `run_sandboxed` through either the `script` positional or the trailing args depending on whether
-// a `--` separator is present, and guessing wrong yields a clap usage error that looks nothing like
-// a sandbox failure. The last form is the file spelling, kept only so a failure there is
-// DISTINGUISHABLE from a quoting failure in the first two.
+// ⛔ THE SPELLING IS SETTLED ONCE, BY A THREE-SECOND SMOKE TEST, AND NOT RE-TRIED PER ARM. Trying
+// N spellings inside every arm is what killed the first run of this probe: each jailed spawn that
+// produces nothing burns the full timeout, and `nub run --sandbox <shape> <cmd> [args]` has three
+// plausible spellings x five arms, so a jail that never starts costs 45 minutes of wall clock and
+// leaves a jailed grandchild behind per attempt (spawnSync's deadline kills the DIRECT child only).
+// MEASURED, run 31119799480: the runner lost communication with the server at exactly that mark.
+// Settling the spelling on a payload with no fixture in it costs three spawns total, and a total
+// failure is then reported in three minutes instead of being indistinguishable from a slow run.
+// Assembled at runtime for the same reason the fixture's frame is: this string travels ON the
+// command line, so a literal marker would let an echo of the argv pass for a successful run.
+const SMOKE_TOKEN = `@@SMO${'KE'}@@`;
+const SMOKE = 'process.stdout.write("@@SMO"+"KE@@")';
+const spell = (cwd, tail) => [
+  ['run', '--sandbox', 'build-jail', '--', NODE, ...tail],
+  ['run', '--sandbox', 'build-jail', NODE, ...tail],
+];
+const smokeForms = (cwd) => [
+  { name: 'sep+eval', argv: spell(cwd, ['-e', SMOKE])[0] },
+  { name: 'bare+eval', argv: spell(cwd, ['-e', SMOKE])[1] },
+  { name: 'sep+file', argv: spell(cwd, [path.join(cwd, 'smoke.cjs')])[0] },
+];
+
+let CHOSEN = null;
+const chooseSpelling = (cwd) => {
+  fs.writeFileSync(path.join(cwd, 'smoke.cjs'), `${SMOKE}\n`);
+  const tried = [];
+  for (const f of smokeForms(cwd)) {
+    const t0 = Date.now();
+    const r = spawnSync(NUB, f.argv, { cwd, encoding: 'utf8', maxBuffer: 1 << 24, windowsHide: true, timeout: SMOKE_TIMEOUT });
+    const ok = (r.stdout ?? '').includes(SMOKE_TOKEN);
+    tried.push({ form: f.name, ok, rc: r.status, ms: Date.now() - t0, stderr: (r.stderr ?? '').slice(-600), stdout: (r.stdout ?? '').slice(-300) });
+    console.log(`SMOKE[${f.name}] ok=${ok} rc=${r.status} ${Date.now() - t0}ms`);
+    if (!ok) console.log(`     stderr: ${JSON.stringify((r.stderr ?? '').slice(-600))}`);
+    if (ok) {
+      CHOSEN = f.name;
+      break;
+    }
+  }
+  fs.writeFileSync(path.join(OUT, 'smoke.json'), JSON.stringify(tried, null, 2));
+  return tried;
+};
+
 const runJailed = (cwd, label, marker, envPatch = {}) => {
   const env = { ...process.env, ...envPatch };
   for (const k of Object.keys(envPatch)) if (envPatch[k] === undefined) delete env[k];
   const p = probeArgs(label, marker);
-  const forms = [
-    ['run', '--sandbox', 'build-jail', '--', NODE, '--input-type=module', '-e', SRC, '--', ...p],
-    ['run', '--sandbox', 'build-jail', NODE, '--input-type=module', '-e', SRC, '--', ...p],
-    ['run', '--sandbox', 'build-jail', '--', NODE, FIXTURE, ...p],
-  ];
-  let last = null;
-  for (const argv of forms) {
-    const r = spawnSync(NUB, argv, { cwd, env, encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT });
-    last = { argv: argv.map((a) => (a === SRC ? '<fixture source>' : a)), r };
-    if (extract(r.stdout)) return last;
+  let argv;
+  if (CHOSEN === 'sep+file') {
+    const f = path.join(cwd, `${label}.mjs`);
+    fs.writeFileSync(f, SRC);
+    argv = ['run', '--sandbox', 'build-jail', '--', NODE, f, ...p];
+  } else {
+    const tail = ['--input-type=module', '-e', SRC, '--', ...p];
+    argv = CHOSEN === 'bare+eval' ? spell(cwd, tail)[1] : spell(cwd, tail)[0];
   }
-  return last;
+  const r = spawnSync(NUB, argv, { cwd, env, encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT });
+  return { argv: argv.map((a) => (a === SRC ? '<fixture source>' : a)), r };
 };
 
 const arms = [];
 const record = (label, cwd, spawned, marker, note) => {
+  lastParseError = null;
   const rec = extract(spawned.r.stdout);
   const row = {
     label,
@@ -152,6 +207,7 @@ const record = (label, cwd, spawned, marker, note) => {
     spawnError: spawned.r.error ? String(spawned.r.error.message) : null,
     stderrTail: (spawned.r.stderr ?? '').slice(-1200),
     stdoutTail: (spawned.r.stdout ?? '').slice(-600),
+    parseError: lastParseError,
     profilesDuringScan: listProfiles(),
     outsideScan: scanOutside(marker),
     probe: rec,
@@ -159,6 +215,12 @@ const record = (label, cwd, spawned, marker, note) => {
   fs.writeFileSync(path.join(OUT, `${label}.stdout.txt`), spawned.r.stdout ?? '');
   fs.writeFileSync(path.join(OUT, `${label}.stderr.txt`), spawned.r.stderr ?? '');
   arms.push(row);
+  // ⛔ PRINTED AND FLUSHED TO DISK AS EACH ARM LANDS, not batched into a summary at the end. The
+  // first run of this probe lost every row it had already computed when the runner died partway
+  // through, and a partial log would have said in one line what a second full run had to re-earn.
+  console.log(show(row));
+  console.log('');
+  fs.writeFileSync(path.join(OUT, 'arm-a-partial.json'), JSON.stringify(arms, null, 2));
   return row;
 };
 
@@ -170,6 +232,11 @@ const mkcwd = (name) => {
 };
 
 const profilesBefore = listProfiles();
+console.log('='.repeat(100));
+console.log('ARM A — `nub run --sandbox build-jail`');
+console.log('='.repeat(100));
+console.log(`AppContainer profiles under ${PACKAGES} BEFORE: ${JSON.stringify(profilesBefore)}`);
+console.log('');
 
 // ── U1: the unjailed reference, and the positive half of the negative control. ────────────────
 {
@@ -178,6 +245,19 @@ const profilesBefore = listProfiles();
   const argv = [FIXTURE, ...probeArgs('U1', marker)];
   const r = spawnSync(NODE, argv, { cwd, encoding: 'utf8', maxBuffer: 1 << 28, timeout: TIMEOUT });
   record('U1', cwd, { argv: [NODE, ...argv], r }, marker, 'unjailed reference');
+}
+
+// ── The spelling gate, on a payload with no fixture in it. Three spawns, then either a chosen
+//    spelling or an immediate stop. ───────────────────────────────────────────────────────────
+const smoke = chooseSpelling(mkcwd('smoke'));
+console.log(`SMOKE chosen spelling: ${CHOSEN ?? '<none>'}`);
+console.log('');
+if (!CHOSEN) {
+  console.log('⛔ NO SPELLING OF `nub run --sandbox build-jail` PRODUCED OUTPUT.');
+  console.log('   Arm A is not run: five arms x one dead spelling is 8 minutes that says nothing');
+  console.log('   the three spawns above have not already said. The stderrs are in smoke.json.');
+  for (const t of smoke) console.log(`   ${t.form}: rc=${t.rc} ${t.ms}ms stderr=${JSON.stringify(t.stderr)}`);
+  process.exit(1);
 }
 
 // ── J1/J2: the same command, the same cwd, twice. This is the "two runs of the same package"
@@ -230,11 +310,11 @@ const verdict = {
 
 fs.writeFileSync(path.join(OUT, 'arm-a.json'), JSON.stringify({ verdict, arms }, null, 2));
 
-const show = (a) => {
+function show(a) {
   const p = a.probe;
   if (!p) {
     return [
-      `${a.label.padEnd(3)} rc=${a.rc} NO RECORD (${a.spawnError ?? 'no @@PROBE@@ frame'})`,
+      `${a.label.padEnd(3)} rc=${a.rc} NO RECORD (${a.spawnError ?? a.parseError ?? 'no probe frame in stdout'})`,
       `     last argv  = ${JSON.stringify(a.argv)}`,
       `     stderr tail= ${JSON.stringify(a.stderrTail)}`,
       `     stdout tail= ${JSON.stringify(a.stdoutTail)}`,
@@ -266,18 +346,14 @@ const show = (a) => {
     if (hits.length) lines.push(`     post-run scan ${root} -> ${hits.slice(0, 4).join(' | ')}`);
   }
   return lines.join('\n');
-};
+}
 
-console.log('='.repeat(100));
-console.log('ARM A — `nub run --sandbox build-jail`');
-console.log('='.repeat(100));
+console.log('-'.repeat(100));
 console.log(`GATE: unjailed negative control succeeded: ${u1Neg}`);
 console.log(`GATE: jailed arms that BREACHED the control: ${leaks.length ? leaks.join(',') : 'none'}`);
 console.log(`GATE: jailed arms with no record: ${noRecord.length ? noRecord.join(',') : 'none'}`);
 console.log(`GATE: arm A valid: ${verdict.valid}`);
 console.log(`AppContainer profiles under ${PACKAGES}: before=${JSON.stringify(profilesBefore)} after=${JSON.stringify(profilesAfter)}`);
-console.log('');
-for (const a of arms) console.log(show(a) + '\n');
 
 if (!verdict.valid) {
   console.log('⛔ ARM A IS VOID — the rows above are not evidence about the jail.');

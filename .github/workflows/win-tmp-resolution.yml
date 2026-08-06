@@ -91,15 +91,15 @@ jobs:
           path: C:/nubbin/nub.exe
           retention-days: 3
 
-  probe:
+  # ⛔ ONE JOB PER ARM, AND THAT IS NOT COSMETIC. Run 31119799480 put both arms on one runner, the
+  # runner lost communication with the server partway through, and GitHub returned NO log and NO
+  # artifact for it -- so arm B was lost to a failure that had nothing to do with arm B. Separate
+  # jobs also give the cross-MACHINE axis for free: two jobs are two fresh runner VMs, so a temp
+  # path that agrees between them agrees across machines.
+  arm-a:
     needs: build
     runs-on: windows-latest
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        # Two fresh runner VMs, same commit, same harness: the cross-machine stability axis.
-        rep: [r1, r2]
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -111,7 +111,7 @@ jobs:
         shell: pwsh
         run: |
           $id = [Security.Principal.WindowsIdentity]::GetCurrent()
-          Write-Output "leg      = ${{ matrix.rep }}"
+          Write-Output "job      = arm-a"
           Write-Output "nub sha  = ${{ needs.build.outputs.sha }}"
           Write-Output "whoami   = $($id.Name)"
           Write-Output "sid      = $($id.User.Value)"
@@ -132,36 +132,76 @@ jobs:
           node --version
           & C:\nubbin\nub.exe --version
 
+      # `tee` so the rows reach the job log AS THEY LAND rather than in a `cat` after the driver
+      # returns -- the failure mode this probe already hit destroys everything not yet streamed.
+      # `PIPESTATUS[0]` is the driver's status; `$?` through the pipe would be tee's.
+      # `timeout-minutes` is the real protection: a hung step gets killed by the runner, which then
+      # survives to upload, instead of being starved until it drops off the network.
       - name: Arm A — `nub run --sandbox build-jail`
         continue-on-error: true
+        timeout-minutes: 30
         shell: bash
         run: |
           set -u
           node harness/v2/probes/win-tmp/drive.mjs --nub 'C:\nubbin\nub.exe' \
-            --root 'C:\jail\wintmpA' --out 'C:\jail\wintmpA\out' > /c/arm-a.log 2>&1
-          echo "driver EXIT=$?"
-          cat /c/arm-a.log
-
-      - name: Arm B — the real interposed lifecycle jail
-        if: always()
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -u
-          node harness/v2/probes/win-tmp/drive-lifecycle.mjs --nub 'C:\nubbin\nub.exe' \
-            --root 'C:\jail\wintmpB' --out 'C:\jail\wintmpB\out' > /c/arm-b.log 2>&1
-          echo "driver EXIT=$?"
-          cat /c/arm-b.log
+            --root 'C:\jail\wintmpA' --out 'C:\jail\wintmpA\out' 2>&1 | tee /c/arm-a.log
+          echo "driver EXIT=${PIPESTATUS[0]}"
 
       - name: Collect
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: win-tmp-${{ matrix.rep }}
+          name: win-tmp-arm-a
           path: |
             C:/arm-a.log
-            C:/arm-b.log
             C:/jail/wintmpA/out/**
+          retention-days: 7
+          if-no-files-found: warn
+
+  arm-b:
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - uses: actions/download-artifact@v4
+        with: { name: nub-exe, path: C:/nubbin }
+
+      - name: Host facts
+        shell: pwsh
+        run: |
+          Write-Output "job      = arm-b"
+          Write-Output "nub sha  = ${{ needs.build.outputs.sha }}"
+          Write-Output "hostname = $env:COMPUTERNAME"
+          Write-Output "TEMP         = $env:TEMP"
+          Write-Output "TMP          = $env:TMP"
+          Write-Output "USERPROFILE  = $env:USERPROFILE"
+          Write-Output "LOCALAPPDATA = $env:LOCALAPPDATA"
+          Write-Output "GetTempPath() = $([System.IO.Path]::GetTempPath())"
+          Get-ChildItem "$env:LOCALAPPDATA\Packages" -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty Name | Out-String
+          node --version
+          & C:\nubbin\nub.exe --version
+
+      - name: Arm B — the real interposed lifecycle jail
+        continue-on-error: true
+        timeout-minutes: 40
+        shell: bash
+        run: |
+          set -u
+          node harness/v2/probes/win-tmp/drive-lifecycle.mjs --nub 'C:\nubbin\nub.exe' \
+            --root 'C:\jail\wintmpB' --out 'C:\jail\wintmpB\out' 2>&1 | tee /c/arm-b.log
+          echo "driver EXIT=${PIPESTATUS[0]}"
+
+      - name: Collect
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-tmp-arm-b
+          path: |
+            C:/arm-b.log
             C:/jail/wintmpB/out/**
           retention-days: 7
           if-no-files-found: warn
