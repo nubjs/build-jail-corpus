@@ -232,13 +232,17 @@ test('cwd survives a clone edge split across `<unfinished ...>`', () => {
 // The private per-run tmp `measure.sh` creates and exports as `TMPDIR`, mirroring
 // `backend/mod.rs::make_private_tmp` + `backend/linux.rs::apply_landlock`.
 const JTMP = '/tmp/nub-tmp-obsAb12Cd';
+const TOOLS = `${HOME}/.cache/nub/pm/tools`;
 const runTmp = (body, pkg = 'p') => {
   const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
   fs.writeFileSync(f, SHELL + body);
-  return execFileSync('node', [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg, JTMP], {
-    encoding: 'utf8',
-  });
+  return execFileSync(
+    'node',
+    [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg, JTMP, `${TOOLS}/npm-prefix`],
+    { encoding: 'utf8' },
+  );
 };
+const grantOf = (out) => JSON.parse(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim());
 
 test('a write under the private per-run TMPDIR is base-granted, not an unclassifiable `outside`', () => {
   // ⛔ THE GRANT CANNOT CARRY THIS ASSERTION, so it asserts on the BUCKET. An `outside` write earns
@@ -261,6 +265,26 @@ test('the SHARED /tmp stays `outside` — the Landlock arm grants the per-run di
   const out = runTmp('100 openat(AT_FDCWD, "/tmp/hardcoded.lock", O_WRONLY|O_CREAT, 0644) = 3\n');
   assert.match(out, /outside\s+1/, `a hardcoded /tmp write was not reported as outside:\n${out}`);
   assert.match(out, /writes OUTSIDE/, `the OUTSIDE alarm was suppressed for a genuinely refused path:\n${out}`);
+});
+
+test("nub's tool cache is READ-ONLY except the npm prefix, and the classifier splits them", () => {
+  // ⛔ BOTH POLARITIES IN ONE CASE, because the failure is a false EQUIVALENCE between four paths
+  // that all sit under `$cache/nub/pm/tools`. `grant_build_jail_dependency_reads` grants that
+  // directory read-only and then `push_rw_path`s `tools/npm-prefix` alone. Billing the whole
+  // directory free is an UNDER-grant on the two redirects that really are refused; billing all of
+  // it is a spurious `userHome` on every package whose npm invocation creates a prefix.
+  const refused = grantOf(runTmp(
+    `100 mkdir("${TOOLS}/ms-playwright/chromium-764964", 0777) = 0\n`,
+  ));
+  assert.deepStrictEqual(refused, { write: { userHome: true } },
+    'a write into the READ-ONLY tool cache is refused in the jail and must earn userHome');
+
+  const granted = runTmp(
+    `100 mkdir("${TOOLS}/npm-prefix/lib/node_modules", 0777) = 0\n`,
+  );
+  assert.match(granted, /npmPrefix\s+1/, `the rw carve-out was not recognised:\n${granted}`);
+  assert.deepStrictEqual(grantOf(granted), {},
+    'the npm prefix is push_rw_path-granted, so billing it manufactures a userHome grant');
 });
 
 test('an UNRESOLVABLE dirfd is reported as UNKNOWN and never guessed into a scope', () => {

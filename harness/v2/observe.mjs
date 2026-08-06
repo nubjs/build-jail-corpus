@@ -38,11 +38,12 @@
 // same as sharing a step, and it is what stops the two from drifting again.
 //
 //   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name] [jail-tmp]
+//                           [jail-npm-prefix]
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
 
-const [file, proj, home, jailHome, pkgName, jailTmp] = process.argv.slice(2);
-if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName] [jailTmp]'); process.exit(2); }
+const [file, proj, home, jailHome, pkgName, jailTmp, jailNpmPrefix] = process.argv.slice(2);
+if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName] [jailTmp] [jailNpmPrefix]'); process.exit(2); }
 // The rebuilt package's OWN directory in the observation layout (plain hoisted `node_modules`).
 // Its jail counterpart is the store entry, which the base profile already grants RW.
 const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
@@ -165,6 +166,18 @@ for (const e of decoded.events) {
 //                 package's own directory resolves into granted space. A write to a SIBLING
 //                 dependency does NOT, and stays `deps`.
 //
+//   `npmPrefix` — the ONE read-write carve-out inside nub's own tool cache.
+//                 `grant_build_jail_dependency_reads` grants `$cache/nub/pm/tools` READ-ONLY and
+//                 then `push_rw_path`s `$cache/nub/pm/tools/npm-prefix` on top, because
+//                 `redirect_npm_prefix` points `npm_config_prefix` there and a prefix is a
+//                 directory npm CREATES. ⛔ THE DISTINCTION IS NOT PEDANTRY, IT IS THE DIFFERENCE
+//                 BETWEEN THE TWO REDIRECTS: `ms-playwright` and `electron-cache` sit under the
+//                 read-only `tools` grant, so a write there is genuinely refused and genuinely
+//                 needs `userHome`; `npm-prefix` is granted, so billing it would manufacture a
+//                 `userHome` grant for a directory the jail hands the script for free. The scope is
+//                 the exact leaf, never `tools` — a write grant over the whole directory would
+//                 reach the node-gyp nub bootstraps for itself and executes on later installs.
+//
 //   `jailTmp`   — `TmpMode::Private`. `backend/mod.rs::make_private_tmp` creates a fresh per-run
 //                 dir under the OS temp root, `backend/linux_landlock.rs` grants it READ-WRITE, and
 //                 `backend/linux.rs::apply_landlock` points the child's `TMPDIR` at it. `measure.sh`
@@ -180,6 +193,9 @@ const scope = (p) => {
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
   if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
+  // Before the `tools`-wide answer below it would ever be reached, and before `home`: the leaf is
+  // nested inside both, and only the leaf is writable.
+  if (jailNpmPrefix && (p === jailNpmPrefix || p.startsWith(`${jailNpmPrefix}/`))) return 'npmPrefix';
   // ⛔ THE `/node_modules/` TEST RUNS ON THE SUFFIX AFTER `proj`, NEVER ON THE WHOLE PATH, and
   // MAPPING.md rule 2 names this exact anti-pattern: "A rule like 'contains `/node_modules/`' is
   // not deterministic: it depends on where the fixture happened to live." Testing `p` whole is
@@ -201,7 +217,7 @@ const scope = (p) => {
 };
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
-const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp'];
+const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);

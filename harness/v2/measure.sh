@@ -130,6 +130,14 @@ JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 #   electron_config_cache / ELECTRON_CACHE   `redirect_electron_cache`, likewise.
 #   npm_config_prefix        `redirect_npm_prefix`, likewise.
 #
+# ⛔ THE FOUR REDIRECT TARGETS DO NOT ALL LAND IN THE SAME PLACE, AND TREATING THEM ALIKE WOULD
+# MANUFACTURE A GRANT. `$cache/nub/pm/tools` is granted READ-ONLY, but
+# `grant_build_jail_dependency_reads` then `push_rw_path`s the single leaf
+# `$cache/nub/pm/tools/npm-prefix` — because a prefix is a directory npm CREATES, and an unwritable
+# one was measured refusing `iedriver@4.0.0` outright. So `ms-playwright` and `electron-cache` are
+# refused writes that genuinely need `userHome`, while `npm-prefix` is free; the classifier is told
+# about the leaf below so the free one is not billed.
+#
 # ⛔ THE REDIRECT TARGETS ARE NOT INSIDE THE JAIL'S WRITABLE SET, AND THAT IS THE POINT RATHER THAN
 # A BUG TO ROUTE AROUND. All four point under `$cache/nub/pm/tools`, which `preset.rs`'s
 # `NUB_PM_CACHE_PATTERNS` grants READ-ONLY (`grant_build_jail_dependency_reads` → `push_read_path`).
@@ -183,7 +191,8 @@ CLOSURE=$(node -e '
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" "$JAIL_TMP" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" "$JAIL_TMP" \
+  "$JAIL_TOOLS/npm-prefix" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
