@@ -44,6 +44,16 @@ if (!OBS || !ARM || !PKG || !VER) {
 
 const isLog = (p) => /\.log$|cat\.json$|nub\.jsonc$|package-lock\.json$/.test(p);
 
+// Files that ship inside the published tarball and that NO lifecycle script writes. See the long
+// note at the walk for why excluding them is sound and why `.npmrc` is deliberately absent.
+const PACKAGING_METADATA = new Set([
+  '.npmignore',
+  '.gitignore',
+  '.gitattributes',
+  '.editorconfig',
+  '.DS_Store',
+]);
+
 // Where the measured package lives, in either layout. `<base>/node_modules/<pkg>` covers npm's flat
 // OBSERVE tree AND nub's global-virtual-store layout, where that entry is a SYMLINK into
 // `$cache/nub/pm/store/<slug>@<ver>-<hash>/node_modules/<pkg>`; the project-local `.store` variant is
@@ -87,6 +97,21 @@ const manifest = (base) => {
       // genuinely share is the measured package's own files. Its dependencies' artifacts are out of
       // scope here by the same reasoning that put the transitive set out of scope on Windows.
       if (e.name === 'node_modules') continue;
+      // ⛔ PACKAGING METADATA IS NOT AN ARTIFACT, AND COUNTING IT MANUFACTURES A FALSE FAILURE.
+      // These files ship inside the published tarball; NO lifecycle script writes one. So a
+      // missing entry here can never be caused by a denied write — it is a layout difference
+      // between npm's extraction and nub's store materialisation, and nothing else.
+      //
+      // MEASURED on `truffle@5.11.5`: rc=0 on EVERY rung including the synthesized
+      // `{"network":true}`, and all four rungs were failed by this gate on the same single file,
+      // `test/.npmignore`. The driver reported NO-STATE-PASSED for a package that almost certainly
+      // verifies at `{"network":true}` and agrees with its v1 record.
+      //
+      // ⛔ `.npmrc` IS DELIBERATELY ABSENT FROM THIS LIST. It is a credential-bearing file the jail
+      // reasons about explicitly, so it must stay visible to the manifest even though it is also
+      // packaging-adjacent — excluding it would blind the gate to exactly the file class this
+      // project exists to protect.
+      if (PACKAGING_METADATA.has(e.name)) continue;
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
       let st; try { st = fs.statSync(p); } catch { continue; }
