@@ -29,7 +29,7 @@ Three providers, and each is load-bearing:
 
 | provider | keywords | what it supplies |
 | --- | --- | --- |
-| `Microsoft-Windows-Kernel-File` | `0x11F0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles |
+| `Microsoft-Windows-Kernel-File` | `0x1FF0` | Create with the path and disposition, OperationEnd with the NTSTATUS, Read/Write on handles, and — see [Destination paths](#destination-paths) — the destination of a rename, hard link or delete |
 | `Microsoft-Windows-Kernel-Network` | `0x30` | TCP and UDP connection attempts with `PID`, `daddr`, `dport` |
 | `Microsoft-Windows-Kernel-Process` | `0x10` | ProcessStart with `ParentProcessID` — the only way to follow grandchildren |
 
@@ -46,7 +46,65 @@ disposition = (CreateOptions >>> 24) & 0xFF
 1 OPEN                                                          -> read
 ```
 
-Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete`, `Rename`, `DeletePath`, `RenamePath` and `SetLinkPath` are writes as well.
+Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete` and `Rename` are writes as well, and so are `DeletePath`, `RenamePath` and `SetLinkPath` — which resolve their path differently, for the reason below.
+
+## Destination paths
+
+Events 26, 27 and 28 — `DeletePath`, `RenamePath`, `SetLinkPath` — are the only events in this provider that carry a path the handle tables cannot supply: a rename's new name, a hard link's new name, a delete's resolved name. Two independent defects hid all of them, and each masked the other, so the fix had to move both halves together.
+
+**The keyword mask never delivered them.** The session enabled `0x11F0`, whose own comment named nine keywords when it carried six. Decoded on a real runner ([31116467283](https://github.com/nubjs/build-jail-corpus/actions/runs/31116467283)) against the provider's `wevtutil gp Microsoft-Windows-Kernel-File /ge:true` manifest, `WRITE` (`0x200`), `DELETE_PATH` (`0x400`) and `RENAME_SETLINK_PATH` (`0x800`) were clear. A keyword mask is a silent filter — `logman update trace` exits 0 whatever the mask is, and an event whose keyword bit is clear is simply never written — so the parser carried correct handlers for three events that could never fire while the trace looked healthy. `WRITE`'s absence turned out not to matter, because event 16 is published under `WRITE|FILEIO` and `FILEIO` was on; the other two are published under `0x400`/`0x800` alone. The mask is now `0x1FF0`, which is every keyword the provider declares.
+
+**And the decoder preferred the source.** A handle op resolved its path as `nameByObject.get(FileObject) ?? nameByKey.get(FileKey) ?? data.FileName`, and on a `RenamePath` that `FileObject` still names the source. So the source won, the source had already been emitted by the `Rename` event, the dedup set swallowed it, and the destination was absent with nothing in the stream saying so. Measured on the known-answer fixture at both masks: rename destination and hard-link destination absent entirely, identically. Widening the mask alone changed nothing.
+
+For those three events the payload path now wins and the handle tables are a fallback. Measured across both arms of [31118563399](https://github.com/nubjs/build-jail-corpus/actions/runs/31118563399):
+
+| capture mask | decoder | rename destination | hard-link destination | storm | decoy | events lost |
+| --- | --- | --- | --- | --- | --- | --- |
+| `0x11F0` | shipped | absent | absent | 500/500 | 0 | 0 |
+| `0x11F0` | fixed | absent | absent | 500/500 | 0 | 0 |
+| `0x1FF0` | shipped | absent | absent | 500/500 | 0 | 0 |
+| `0x1FF0` | fixed | **present** | **present** | 500/500 | 0 | 0 |
+
+Three details the fix depends on:
+
+- **`Rename` and `RenamePath` share one Irp**, and the pending-status map is single-valued and last-writer-wins — so routing the destination through it evicts the source and trades one end of the rename for the other. Visible as the orphan-create count going 6 to 25 the moment the widened mask puts events 26/27/28 into that map, and back to 8 once they get their own list-valued one. `harness/v2/adapters/windows.test.mjs` pins it; it is the one case a mutation of that map turns red.
+- **The provider publishes no templates**, so the destination field name is read from a candidate list rather than hardcoded. Measured on a real trace it is `FilePath`, and every destination arrived as an absolute NT device path — the relative-leaf branch is defensive and unexercised. Run `windows.mjs <capture-dir> --dump-dest N` to print the raw payload of the first N of these events.
+- **`SetLinkPath` needs both ends kept together.** A hard link creates a second name for existing content, so afterwards two live paths reach the same bytes. Both names already reach the stream — the old one as a read from the open that made the link, the new one as a write — but as two unrelated records nothing says which link went with which target, and two interleaved link operations lose the correspondence outright. The event carries both ends at once (`FileObject` resolves to the source, the payload carries the new name), so the destination record keeps the other end as `path2` with a `kind` of `rename`, `hardlink` or `delete`. A delete carries no `path2`, because both ends are the same file.
+
+`path2` and `kind` are additive: `classify.mjs` reads `op`/`path`/`result`/`pid` and `validate-windows.mjs` keys its exact-set on `op|path|result|role`, so neither sees them. The primary `path` stays the destination, which is the end that needs the grant. The Linux retained log bills both ends of a two-path op the same way, as `f`/`g`.
+
+### What this looked like on a real package
+
+Not a fixture artifact. `hugo-extended@0.141.0` writes through node's compile cache, which is an atomic write: a temp file, then a rename into place. Every compile-cache write the harness recorded, before and after, on the same package:
+
+```
+BEFORE  write  …\node-compile-cache\…\b9b9bb80.1lvASz     (spelled C:\Users\RUNNER~1\…)
+        write  …\node-compile-cache\…\b9b9bb80.1lvASz     (spelled C:\Users\runneradmin\…)
+
+AFTER   write  …\node-compile-cache\…\39e31735.c1peEI
+        write  …\node-compile-cache\…\39e31735            path2 …\39e31735.c1peEI  kind rename
+```
+
+Both defects in four lines. Before, the harness recorded one temp file **twice** — the same path under two spellings — and never saw `b9b9bb80`, the only name that still exists when the install finishes. After, each file appears once, and the name that persists is recorded along with where it came from.
+
+A capture whose `meta.json` records a mask other than `0x1FF0`, or records none at all, is called out on stderr at decode time. A stream captured before this change has no destinations in it and the events themselves cannot say so, so the meta has to.
+
+This is the same defect class the macOS dtrace adapter carried — 100% of rename destinations lost, for the life of that adapter — reached independently on a different platform by a different mechanism.
+
+## 8.3 short names
+
+NTFS keeps a legacy 8.3 spelling for a name that does not fit, and the kernel reports whichever spelling the caller used. On a GitHub runner `%TEMP%` is literally `C:\Users\RUNNER~1\AppData\Local\Temp` while `%USERPROFILE%` is `C:\Users\runneradmin`, so one directory arrives under two names in one trace.
+
+That is a scope defect, not a cosmetic one, and it under-grants. The classifier assigns scope by longest-prefix against the roots it is handed, and `c:\users\runner~1\...` does not start with `c:\users\runneradmin\`, so a real write under the user profile lands in `outside` — reported, never granted. Measured on the one real package the viability probe traced (`hugo-extended@0.141.0`): 543 paths, 1 write and 542 reads, every one genuinely under the profile and every one classified `outside`.
+
+The adapter expands short to long, never the reverse — contracting would mean inventing a short name, and expanding needs the name to still exist, which is false for a deleted temp file. It walks the path left to right and expands each component against a parent that is already long, so a deleted leaf still lands in the right scope; only its own spelling stays ambiguous. Two guards:
+
+- A resolved component is accepted only when it is still a child of the same parent. Otherwise `realpath` followed a junction, and taking that answer would rewrite the path to a different location.
+- Expansion is skipped entirely when the capture came from another host, because `RUNNER~1` names whatever that machine happens to have. Re-decoding an archived trace elsewhere gets the short spelling back rather than a confident wrong long name. `--no-longpath` forces the same.
+
+When expansion fails the short spelling is kept verbatim and counted in the stderr stats. That over-counts distinct paths, which is the safe direction; guessing a long name would be an invented fact.
+
+The known-answer check is `probes/win-viability/shortname-kaf.mjs`: it writes one file through `%TEMP%`, records the long spelling from `realpathSync.native` as ground truth, and asserts the stream reports the long one and only the long one. On [31118563399](https://github.com/nubjs/build-jail-corpus/actions/runs/31118563399) it passes with the fix and fails on the shipped decoder, which emits the same file under both spellings. Over the fixture run, 30 paths expanded and 0 were kept short. The check reports SKIP rather than a pass when `%TEMP%` on the runner carries no 8.3 component, because an assertion with nothing to expand measures nothing.
 
 Only four NTSTATUS values are refusals: `STATUS_ACCESS_DENIED`, `STATUS_PRIVILEGE_NOT_HELD`, `STATUS_MEDIA_WRITE_PROTECTED`, `STATUS_CANNOT_DELETE`. The Windows near-miss is not a string collision like `AT_EACCESS` — it is the temptation to call every non-zero status a denial. A probe for a file that is not there returns `STATUS_OBJECT_NAME_NOT_FOUND`, which means the operation did not happen; those are omitted, matching the Linux extractor skipping `= -1`. On the fixture trace 379 operations failed for a reason that was not a refusal and exactly one was a refusal.
 
@@ -125,6 +183,21 @@ The PowerShell process is five levels below the traced root, and both GitHub pee
 
 - **Work a Windows service performs on the package's behalf.** The subtree filter is the whole attribution model, so anything a service does lands outside it and is dropped. Observed directly: the fixture's DNS lookup appears as UDP:53 from the `dnscache` service, not from the process that asked. The consequence to plan for is that a postinstall using BITS (`Start-BitsTransfer`) would show no network at all, since the transfer runs in the service. Same shape for MSI actions and any COM server that does the work out-of-process.
 - **Hostnames.** Peers are IP addresses only. Adding `Microsoft-Windows-DNS-Client` would plausibly recover query names in the caller's context; that is untested here, and the event contract has no field for it today.
+
+  An alternate data stream, for contrast, *is* observable and was checked at the same time: `file:stream` comes back as its own path (`…\kaf-ads-HOST.bin:kafstream`) across Create, Write, Cleanup and Close, and the host file is separately reported as a write.
+
+## A memory-mapped write IS observable — the fixture just never performed one
+
+The known-answer fixture's `mmap` row reported ABSENT from the day it was written, and that was read as an ETW blind spot through two investigations. It is not one. Once the fixture actually performs the write, the path comes back as a write **in all four cells of the mask/decoder matrix — including the shipped adapter at the old mask.** Nothing about this was ever a tracer defect.
+
+What was wrong was the fixture, twice over:
+
+- `MemoryMappedFile.CreateFromFile` was called with `$null` as the map name. PowerShell marshals `$null` for a .NET `String` as the **empty string**, which the API rejects, so every run threw `Map name cannot be an empty string.` into a `catch` whose output nothing read.
+- The child gated the expectation on the grandchild's **exit code**, which is 0 either way — it sets `ErrorActionPreference Continue` and catches its own exception. So the expectation could never be satisfied and never failed for a reason anyone would act on.
+
+Both are fixed. The grandchild uses the two-argument path overload, which takes no map name, and reads the byte back so `MMAP ok` means the bytes landed rather than that no exception escaped; the child expects the write only on that confirmation, and prints a SKIP line otherwise. `probes/win-viability/mmap-variants.ps1` independently confirms all three flush strategies put `0xAB` on disk.
+
+**How it becomes a write is worth knowing, and is INFERRED rather than measured.** Every one of the six `Create` events for the mapped file carries disposition `FILE_OPEN`, which the disposition rule calls a read, and no `Write` event names the file or its `FileObject`. The write must therefore arrive on an event resolved through `nameByKey` — the `FileKey` fallback in the lookup chain — most plausibly a flush issued against the section rather than the original handle. `mmap-forensics.mjs` could not show this because it tracked `FileObject` only; it now tracks `FileKey` as well, which is what the next run needs to confirm the mechanism. The observation itself does not depend on the explanation: the file is seeded before the trace starts, so the write cannot be an artifact of the fixture's own setup.
 - **The registry.** The contract has no registry op, so `Microsoft-Windows-Kernel-Registry` is not enabled.
 - **Accesses that only an unprivileged user would be refused.** Removing the three DACL-bypass privileges closes the biggest hole, but the target still runs at high integrity with Administrators in its token, so a path writable only to administrators is still writable. Running the target under a medium-integrity restricted token is the real fix and is feasible — ETW needs the privilege in the tracing process, not in the target.
 - **Anything the kernel could not name.** Handles that resolve to no path, and `\FI_UNKNOWN`, are omitted rather than guessed. Measured: 3 unresolved handles on the fixture trace, 2 on the dprint trace.

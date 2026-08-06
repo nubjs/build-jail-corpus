@@ -16,15 +16,28 @@ $ErrorActionPreference = 'Continue'
 $work = Join-Path $Root 'work'
 
 # ── memory-mapped write ───────────────────────────────────────────────────────────────────────
+#
+# ⛔ THIS NEVER RAN, FOR THE WHOLE LIFE OF THIS FIXTURE, AND THE PROBE REPORTED IT AS A TRACER GAP.
+# The five-argument overload takes a `String mapName`, and PowerShell marshals `$null` for a String
+# parameter as the EMPTY STRING -- which the API rejects with "Map name cannot be an empty string."
+# Every run threw there, the catch below printed to a console nobody read, and `mmap` came back
+# ABSENT from the trace for the honest reason that no memory-mapped write was ever performed.
+# MEASURED in run 31120238112 by copying this process's stdout out of the capture directory.
+#
+# The two-argument overload takes no map name at all and defaults to ReadWrite access, so the
+# marshalling question cannot arise again. `[NullString]::Value` is the other fix and is what the
+# variants probe uses where a FileStream overload is genuinely needed.
 $mmapPath = Join-Path $work 'kaf-mmap.bin'
 try {
-  $mmf = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile(
-    $mmapPath, [System.IO.FileMode]::Open, $null, 0,
-    [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite)
+  $mmf = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile($mmapPath, [System.IO.FileMode]::Open)
   $view = $mmf.CreateViewAccessor(0, 4096, [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite)
   for ($i = 0; $i -lt 4096; $i++) { $view.Write($i, [byte]0xAB) }
   $view.Flush(); $view.Dispose(); $mmf.Dispose()
-  Write-Output "MMAP ok $mmapPath"
+  # THE POSITIVE CONTROL, and the reason the line above is trustworthy at all: read the byte back.
+  # "MMAP ok" printed without this said only that no exception escaped.
+  $back = [System.IO.File]::ReadAllBytes($mmapPath)[0]
+  if ($back -eq 0xAB) { Write-Output "MMAP ok $mmapPath" }
+  else { Write-Output ("MMAP failed: no exception, but the file still reads 0x{0:X2}" -f $back) }
 } catch { Write-Output "MMAP failed: $_" }
 
 # ── alternate data stream ─────────────────────────────────────────────────────────────────────

@@ -1,0 +1,401 @@
+# WINDOWS ETW DESTINATION-PATH FIX — does the rename/hardlink DESTINATION come back, and did
+# anything that worked before stop working?
+#
+# ⛔ THIS PROBE TOUCHES NO GRANT AND PUBLISHES NO RECORD. It runs the OBSERVE half only, against the
+# known-answer fixture whose answer the fixture itself chose. `measure-windows.mjs` and its
+# `NUB_V2_WINDOWS_EVICTION_VERIFIED` guard are deliberately not involved.
+#
+# ⛔ THE 2x2 IS THE WHOLE POINT AND ITS DIAGONAL IS THE CONTROL. Two defects sit on one axis --
+# the capture mask never delivers events 26/27/28, and the decoder resolves a handle op's path from
+# the FileObject, which on a RenamePath still names the SOURCE. Each masks the other, so fixing one
+# is measurably INERT and a single-arm "it works now" run cannot tell a fix from a coincidence.
+# Two captures and four decodes settle it:
+#
+#            decode OLD          decode NEW
+#   0x11F0   dest ABSENT         dest ABSENT   <- the mask gates it
+#   0x1FF0   dest ABSENT         dest PRESENT  <- and so does the lookup order
+#            ^ the shipped baseline
+#
+# ⛔ AND THE FOURTEEN SHAPES THAT ALREADY PASS ARE THE OTHER HALF OF THE RESULT. Widening a mask and
+# loosening a path lookup is exactly the change that can turn a tracer into a noise generator, so
+# the 500-file exact-count storm, the never-touched decoy and the read-only control are re-asserted
+# in every arm. A destination that appears at the cost of the storm going 497/500 is not a fix.
+#
+# Branch-scoped, no PR: CI is the only Windows path here, and the push trigger is what makes it
+# iterable while the workflow file lives off the default branch.
+#
+# ⛔ TWO CI ROUND-TRIPS WERE SPENT ON AN INTERPOLATION THAT WILL NOT PARSE. One bad interpolation
+# takes the WHOLE file down, and it is reported as a run failing in seconds with
+# no jobs, no steps, no annotation and no log -- `gh run view` says only "This run likely failed
+# because of a workflow file issue." Every YAML parser accepts the file, so a local YAML check
+# proves nothing. The two forms that did it, BOTH inside a `run: |` block, where a leading `#` is
+# just a character and the text is a real string GitHub scans end to end:
+#   * an EMPTY interpolation, written in a comment that was explaining interpolation;
+#   * a doubled '' borrowed from PowerShell quoting -- inside an expression the quoting is GitHub's,
+#     where '' is an empty string literal, not an escape.
+# The same text in a YAML-level comment is harmless, because the YAML parser strips it first.
+name: win-etw-dest
+
+on:
+  push:
+    branches: [harness/win-etw-dest]
+  workflow_dispatch:
+    inputs:
+      storm:
+        description: 'known-answer fixture storm file count'
+        default: '500'
+      package:
+        description: 'ONE pkg@version to OBSERVE after the fixture verifies — never a list'
+        default: 'hugo-extended@0.141.0'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      STORM: ${{ inputs.storm || '500' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Host facts
+        shell: pwsh
+        run: |
+          $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $elevated = ([Security.Principal.WindowsPrincipal]$id).IsInRole(544)
+          Write-Output "whoami      = $($id.Name)"
+          Write-Output "elevated    = $elevated"
+          Write-Output "os          = $([System.Environment]::OSVersion.VersionString)"
+          Write-Output "TEMP        = $env:TEMP"
+          Write-Output "USERPROFILE = $env:USERPROFILE"
+          node --version
+          if (-not $elevated) { Write-Output "::error::not elevated — ETW kernel providers are admin-only"; exit 1 }
+
+      # ── The parser's own known-answer tests, first and cheap. They pin the resolution order the
+      # fix turns on and they run in under a second, so a mistake in the decode half is caught here
+      # rather than after two ETW captures.
+      - name: Adapter unit tests
+        shell: pwsh
+        run: node --test harness/v2/adapters/windows.test.mjs
+
+      # ── THE BASELINE HALVES, taken from `origin/main` rather than copied. A hand-kept "before"
+      # copy is a copy, and a reader has no way to tell whether it drifted; `git show` cannot.
+      - name: Materialise the SHIPPED (pre-fix) adapter halves from origin/main
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\obs\before, C:\obs\out | Out-Null
+          # NOT `--depth=1`: the checkout is already unshallow (fetch-depth 0), and re-fetching at a
+          # depth turns a complete clone into a shallow one mid-job.
+          git fetch origin +refs/heads/main:refs/remotes/origin/main
+          git show origin/main:harness/v2/adapters/windows.ps1 | Set-Content -Path C:\obs\before\windows.ps1 -Encoding UTF8
+          git show origin/main:harness/v2/adapters/windows.mjs | Set-Content -Path C:\obs\before\windows.mjs -Encoding UTF8
+          Write-Output "baseline commit: $(git rev-parse origin/main)"
+          Write-Output "baseline Kernel-File mask line:"
+          Select-String -Path C:\obs\before\windows.ps1 -Pattern "Kernel-File'\s+0x" | ForEach-Object { $_.Line.Trim() }
+          Write-Output "fixed Kernel-File mask line:"
+          Select-String -Path harness/v2/adapters/windows.ps1 -Pattern "Kernel-File'\s+0x" | ForEach-Object { $_.Line.Trim() }
+
+      # ── ARM OLD: the shipped capture script, unmodified, at the mask every existing Windows
+      # measurement went through.
+      - name: Capture ARM-OLD (shipped windows.ps1, mask 0x11F0)
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf-old
+          # A space-free wrapper, because `cmd /c` strips the outer quote pair when a string both
+          # starts and ends with a quote, and `C:\Program Files\nodejs\node.exe` then degrades into
+          # something that reads as a PATH failure rather than a quoting one.
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\kaf-old.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf-old $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\obs\before\windows.ps1 `
+            -OutDir C:\obs\cap-old -Command C:\obs\kaf-old.cmd -WorkDir C:\obs -Session nubold 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-old.txt
+
+      # ── ARM NEW: the fixed capture script. THE ONLY VARIABLE IS THE KEYWORD MASK — the privilege
+      # drop, the device map, the buffer configuration and the meta schema are the same code.
+      - name: Capture ARM-NEW (fixed windows.ps1, mask 0x1FF0)
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf-new
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\kaf-new.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf-new $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-new -Command C:\obs\kaf-new.cmd -WorkDir C:\obs -Session nubnew 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-new.txt
+
+      # ── THE 2x2. `--allow-lossy` on purpose: the old decoder refuses a lossy trace outright, and
+      # the loss counter is asserted separately by the fixture's own LOSS integrity check, so the
+      # flag hides nothing here.
+      - name: Decode and assert all four cells
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          foreach ($cell in @(
+            @{ cap = 'C:\obs\cap-old'; fx = 'C:\obs\kaf-old'; dec = 'C:\obs\before\windows.mjs';          tag = 'old-mask_old-decode' },
+            @{ cap = 'C:\obs\cap-old'; fx = 'C:\obs\kaf-old'; dec = 'harness/v2/adapters/windows.mjs';    tag = 'old-mask_NEW-decode' },
+            @{ cap = 'C:\obs\cap-new'; fx = 'C:\obs\kaf-new'; dec = 'C:\obs\before\windows.mjs';          tag = 'NEW-mask_old-decode' },
+            @{ cap = 'C:\obs\cap-new'; fx = 'C:\obs\kaf-new'; dec = 'harness/v2/adapters/windows.mjs';    tag = 'NEW-mask_NEW-decode' }
+          )) {
+            Write-Output "================ CELL $($cell.tag) ================"
+            if (-not (Test-Path "$($cell.cap)\meta.json")) { Write-Output "NO CAPTURE"; continue }
+            $nd = "C:\obs\out\events-$($cell.tag).ndjson"
+            node $cell.dec $cell.cap --out $nd --allow-lossy 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\parse-$($cell.tag).txt"
+            node "$P/kaf-assert.mjs" $nd "$($cell.fx)\kaf-expect.json" $cell.cap `
+              --json "C:\obs\out\assert-$($cell.tag).json" 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\assert-$($cell.tag).txt"
+          }
+          Copy-Item C:\obs\cap-old\meta.json C:\obs\out\meta-old.json -Force -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\cap-new\meta.json C:\obs\out\meta-new.json -Force -ErrorAction SilentlyContinue
+
+      # ── GROUND TRUTH FOR THE FIELD NAME. `wevtutil gp /ge:true` publishes no templates for this
+      # provider, so the decoder reads the destination from a candidate list of field names. This
+      # prints the raw payloads so the list is checked against a real trace rather than against
+      # anyone's recollection of the manifest.
+      - name: Raw payload of events 26/27/28
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          node harness/v2/adapters/windows.mjs C:\obs\cap-new --out C:\obs\out\dump.ndjson `
+            --allow-lossy --dump-dest 12 2>&1 | Tee-Object -FilePath C:\obs\out\dump-dest.txt
+          Remove-Item C:\obs\out\dump.ndjson -Force -ErrorAction SilentlyContinue
+
+      # ── THE TWO-PATH PAIRING, on a real trace rather than a synthetic one. A hard link leaves two
+      # live names for one set of bytes; two unrelated records cannot say which link went with which
+      # target once operations interleave.
+      - name: Two-path pairing in the real stream
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          Write-Output '--- records carrying a pairing ---'
+          Select-String -Path C:\obs\out\events-NEW-mask_NEW-decode.ndjson -Pattern '"kind":' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing.txt
+          Write-Output '--- every record naming a fixture link or rename path ---'
+          Select-String -Path C:\obs\out\events-NEW-mask_NEW-decode.ndjson -Pattern 'kaf-link|kaf-rename' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing-fixture.txt
+          Write-Output '--- the same two in the SHIPPED stream, for contrast ---'
+          Select-String -Path C:\obs\out\events-old-mask_old-decode.ndjson -Pattern 'kaf-link|kaf-rename' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing-fixture-SHIPPED.txt
+
+      # ── THE ONE SHAPE THAT IS STILL ABSENT. Named, not left silent.
+      - name: Memory-mapped write — what the raw trace holds
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          # The fixture child's console, so `MMAP ok` vs `MMAP failed` is READ rather than assumed.
+          # The grandchild catches its own exception and still exits 0, so those two look identical
+          # everywhere downstream of this file.
+          Copy-Item C:\obs\cap-new\run.out C:\obs\out\kaf-new-run.out -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\cap-new\run.err C:\obs\out\kaf-new-run.err -ErrorAction SilentlyContinue
+          Get-Content C:\obs\cap-new\run.out -ErrorAction SilentlyContinue | Select-String -Pattern 'MMAP|ADS|grandchild'
+          node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kaf-mmap.bin --max 40 2>&1 |
+            Tee-Object -FilePath C:\obs\out\mmap-forensics.txt
+          Write-Output '--- the ADS host, for contrast: a mechanism that DOES come through ---'
+          node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kafstream --max 10 2>&1 |
+            Tee-Object -FilePath C:\obs\out\ads-forensics.txt
+
+      # ⛔ SEPARATING "NOT OBSERVABLE" FROM "WE STOPPED LISTENING TOO EARLY". Three mmap variants,
+      # each verifying its own file content afterwards, plus an ordinary write that must come back.
+      # A long settle so a lazily-flushed page has time to land inside the session.
+      - name: Memory-mapped write — variants, with a content positive control
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $abs = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\mmapvar.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$abs\mmap-variants.ps1`" -Root C:\obs\mmapfx"
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-mmap -Command C:\obs\mmapvar.cmd -WorkDir C:\obs -Session nubmmap -SettleMs 10000 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-mmap.txt
+          Write-Output '===== DID THE BYTES REACH THE FILE? ====='
+          Get-Content C:\obs\cap-mmap\run.out -ErrorAction SilentlyContinue | Tee-Object -FilePath C:\obs\out\mmap-variants.txt
+          Get-Content C:\obs\cap-mmap\run.err -ErrorAction SilentlyContinue
+          node harness/v2/adapters/windows.mjs C:\obs\cap-mmap --out C:\obs\out\events-mmap.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-mmap.txt
+          Write-Output '===== WHAT THE NORMALIZED STREAM SAYS ABOUT EACH VARIANT ====='
+          Select-String -Path C:\obs\out\events-mmap.ndjson -Pattern 'mmap-' | ForEach-Object { $_.Line } |
+            Tee-Object -FilePath C:\obs\out\mmap-variant-events.txt
+          Write-Output '===== AND WHAT THE RAW TRACE HOLDS FOR EACH ====='
+          foreach ($n in 'mmap-A-asfixture.bin','mmap-B-sleep6.bin','mmap-C-flushbufs.bin','mmap-CONTROL-ordinary.bin') {
+            node "$P/mmap-forensics.mjs" C:\obs\cap-mmap\trace.xml $n --max 12 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\mmap-raw-$n.txt"
+          }
+          Remove-Item C:\obs\cap-mmap\trace.etl, C:\obs\cap-mmap\trace.xml -Force -ErrorAction SilentlyContinue
+
+      # ⛔ IS IT OBSERVABLE BY ANY PROVIDER, OR BY NONE? Kernel-File watches the IRP path; the
+      # memory manager's flush is a PAGING write, which the classic kernel logger's FileIo/DiskIo
+      # events do carry. A limit we can name is one we can grant defensively around.
+      - name: Memory-mapped write — is the paging write visible to the classic kernel logger?
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $abs = (Resolve-Path "$P").Path
+          & logman stop "NT Kernel Logger" -ets 2>&1 | Out-Null
+          & logman create trace "NT Kernel Logger" -ets -o C:\obs\kl.etl -bs 1024 -nb 64 320 -max 2048 `
+            -p "Windows Kernel Trace" "(process,file,fileinit,disk)" | Out-Null
+          $createRc = $LASTEXITCODE
+          Write-Output "logman create rc=$createRc"
+          # ⛔ WITHOUT THIS GATE THE ARM REPORTS A NODE STACK TRACE INSTEAD OF A RESULT. When the
+          # session does not start there is no .etl, tracerpt writes no .xml, and the forensics pass
+          # dies on ENOENT — which reads like a broken probe rather than "no session, no answer".
+          if ($createRc -ne 0) { Write-Output '::warning::NT Kernel Logger did not start; this arm answers nothing'; exit 0 }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$abs\mmap-variants.ps1" -Root C:\obs\mmapkl 2>&1 |
+            Tee-Object -FilePath C:\obs\out\mmap-kernellogger-run.txt
+          Start-Sleep -Seconds 8
+          & logman stop "NT Kernel Logger" -ets | Out-Null
+          if (-not (Test-Path C:\obs\kl.etl)) { Write-Output '::warning::no .etl was written; this arm answers nothing'; exit 0 }
+          & tracerpt C:\obs\kl.etl -o C:\obs\kl.xml -of XML -summary C:\obs\kl-summary.txt -lr -y | Out-Null
+          Write-Output "tracerpt rc=$LASTEXITCODE"
+          if (-not (Test-Path C:\obs\kl.xml)) { Write-Output '::warning::tracerpt produced no XML; this arm answers nothing'; exit 0 }
+          Get-Content C:\obs\kl-summary.txt -ErrorAction SilentlyContinue | Select-Object -First 25 |
+            Tee-Object -FilePath C:\obs\out\mmap-kernellogger-summary.txt
+          foreach ($n in 'mmap-A-asfixture.bin','mmap-C-flushbufs.bin','mmap-CONTROL-ordinary.bin') {
+            node "$P/mmap-forensics.mjs" C:\obs\kl.xml $n --max 12 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\mmap-kernellogger-$n.txt"
+          }
+          Remove-Item C:\obs\kl.etl, C:\obs\kl.xml -Force -ErrorAction SilentlyContinue
+
+      # ── 8.3 SHORT NAMES, on its own tiny capture so the fixture above stays byte-comparable with
+      # every earlier run of it.
+      - name: 8.3 short-name known-answer check
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $node = (Get-Command node).Source
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\short.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\shortname-kaf.mjs`" write C:\obs\short-expect.json"
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-short -Command C:\obs\short.cmd -WorkDir C:\obs -Session nubshort 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-short.txt
+          Write-Output '--- with the fix ---'
+          node harness/v2/adapters/windows.mjs C:\obs\cap-short --out C:\obs\out\events-short-NEW.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-short-NEW.txt
+          node "$P/shortname-kaf.mjs" assert C:\obs\short-expect.json C:\obs\out\events-short-NEW.ndjson 2>&1 |
+            Tee-Object -FilePath C:\obs\out\shortname-NEW.txt
+          Write-Output '--- the control: the same capture through the SHIPPED decoder, which must FAIL ---'
+          node C:\obs\before\windows.mjs C:\obs\cap-short --out C:\obs\out\events-short-OLD.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-short-OLD.txt
+          node "$P/shortname-kaf.mjs" assert C:\obs\short-expect.json C:\obs\out\events-short-OLD.ndjson 2>&1 |
+            Tee-Object -FilePath C:\obs\out\shortname-OLD.txt
+          Copy-Item C:\obs\short-expect.json C:\obs\out\short-expect.json -Force -ErrorAction SilentlyContinue
+
+      # ── ONE REAL PACKAGE, AND ONLY AFTER THE FIXTURE VERIFIED. The same `hugo-extended@0.141.0`
+      # the viability probe traced, so the numbers are directly comparable against a run that
+      # predates this change: it synthesized {"write":{"deps":true,"userHome":true},"network":true}
+      # with writes userHome 3 / deps 4 / kernelfs 1, and carried 543 paths spelled `RUNNER~1` that
+      # bucketed `outside` when they are genuinely under the user profile.
+      #
+      # ⛔ ALSO THE ONLY PLACE THE VOLUME QUESTION GETS ANSWERED. The widened mask adds events, and
+      # `EventsLost 0` was established on the OLD mask. A fixture is too small to threaten a buffer;
+      # a real build is the arm where loss would show.
+      - name: OBSERVE one real package
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $spec = '${{ inputs.package || 'hugo-extended@0.141.0' }}'
+          $i = $spec.LastIndexOf('@'); $pkg = $spec.Substring(0, $i); $ver = $spec.Substring($i + 1)
+          $free = (Get-PSDrive -Name C).Free
+          Write-Output "free on C: $([math]::Round($free/1GB,1)) GB"
+          # A trace runs ~1.3 KB of XML per event, so running out of disk mid-capture yields a SHORT
+          # trace with no error — which reads exactly like a package that touched fewer files.
+          if ($free -lt 12GB) { Write-Output '::warning::skipping — under 12 GB free'; exit 0 }
+          node "$P/observe-pkg.mjs" $pkg $ver --root C:\obs\pkg 2>&1 |
+            Tee-Object -FilePath C:\obs\out\observe-pkg.txt
+          $probe = Get-ChildItem C:\obs\pkg -Filter probe.json -Recurse -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $probe) { Write-Output 'no probe.json'; exit 0 }
+          $j = Get-Content $probe.FullName -Raw | ConvertFrom-Json
+          Copy-Item $probe.FullName C:\obs\out\probe-pkg.json -Force
+          if ($j.status -ne 'OK') { Write-Output "status $($j.status)"; exit 0 }
+          $nd = Join-Path $j.capDir 'events.ndjson'
+          Copy-Item $nd C:\obs\out\events-pkg.ndjson -Force -ErrorAction SilentlyContinue
+          node harness/v2/classify.mjs $nd --project $j.obsDir --home $env:USERPROFILE `
+            --platform win32 --root-pid $j.rootPid --json C:\obs\out\observed-pkg.json 2>&1 |
+            Tee-Object -FilePath C:\obs\out\classify-pkg.txt
+          Write-Output '--- 8.3 spellings left in the real stream (want: none) ---'
+          $short = (Select-String -Path $nd -Pattern '~\d' -AllMatches).Count
+          Write-Output "records still carrying an 8.3 component: $short"
+          Write-Output '--- two-path records in the real stream ---'
+          Select-String -Path $nd -Pattern '"kind":' | ForEach-Object { $_.Line } | Select-Object -First 25 |
+            Tee-Object -FilePath C:\obs\out\pairing-pkg.txt
+          Remove-Item (Join-Path $j.capDir 'trace.etl'), (Join-Path $j.capDir 'trace.xml') -Force -ErrorAction SilentlyContinue
+
+      - name: Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Output '===== REAL PACKAGE ====='
+          Get-Content C:\obs\out\classify-pkg.txt -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\probe-pkg.json   -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== THE 2x2 ====='
+          foreach ($tag in 'old-mask_old-decode','old-mask_NEW-decode','NEW-mask_old-decode','NEW-mask_NEW-decode') {
+            Write-Output "---------------- $tag ----------------"
+            Get-Content "C:\obs\out\parse-$tag.txt"  -ErrorAction SilentlyContinue
+            Get-Content "C:\obs\out\assert-$tag.txt" -ErrorAction SilentlyContinue
+          }
+          Write-Output ''
+          Write-Output '===== DESTINATION EVENT PAYLOADS ====='
+          Get-Content C:\obs\out\dump-dest.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== 8.3 SHORT NAMES ====='
+          Write-Output '--- with the fix ---';       Get-Content C:\obs\out\shortname-NEW.txt -ErrorAction SilentlyContinue
+          Write-Output '--- shipped control ---';    Get-Content C:\obs\out\shortname-OLD.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== TWO-PATH PAIRING ====='
+          Write-Output '--- fixed ---';   Get-Content C:\obs\out\pairing-fixture.txt -ErrorAction SilentlyContinue
+          Write-Output '--- shipped ---'; Get-Content C:\obs\out\pairing-fixture-SHIPPED.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== MEMORY-MAPPED WRITE ====='
+          Get-Content C:\obs\out\mmap-forensics.txt -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\ads-forensics.txt  -ErrorAction SilentlyContinue
+          Write-Output '--- variants: did the bytes reach the file, and did the trace see them? ---'
+          Get-Content C:\obs\out\mmap-variants.txt       -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\mmap-variant-events.txt -ErrorAction SilentlyContinue
+          Get-ChildItem C:\obs\out\mmap-raw-*.txt -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "--- $($_.Name) ---"; Get-Content $_.FullName | Select-Object -First 6
+          }
+          Write-Output '--- classic kernel logger ---'
+          Get-ChildItem C:\obs\out\mmap-kernellogger-*.txt -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "--- $($_.Name) ---"; Get-Content $_.FullName | Select-Object -First 8
+          }
+
+      # The traces are the bulk of the disk cost and are not the deliverable; the normalized streams
+      # already copied out are.
+      - name: Upload probe output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-etw-dest-out
+          path: C:\obs\out
+          if-no-files-found: warn
