@@ -1,0 +1,35 @@
+### kerberos@7.0.0   (/home/runner/v2-6S9iss)
+  OBSERVE   rc=0 files=355 trace=10963 lines
+  CLOSURE   37 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 5  /  whole traced tree 8
+    sockets script 5  /  whole traced tree 5
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-6S9iss/jailhome/.npm/_prebuilds
+        /home/runner/v2-6S9iss/jailhome/.npm/_prebuilds/b62bb1-kerberos-v7.0.0-napi-v9-linux-x64.tar.gz.4530-fc88e61c1af9c.tmp
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build
+        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build/Release
+        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build/Release/kerberos.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 7
+        127.0.0.53:53
+        140.82.112.4:443
+        185.199.110.133:0
+        185.199.109.133:0
+        185.199.111.133:0
+        185.199.108.133:0
+        185.199.110.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 (tree 1157/355) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=24/21 missing=1 (tree 1164/355) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Release/kerberos.node
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
