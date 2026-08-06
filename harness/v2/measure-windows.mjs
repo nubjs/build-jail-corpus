@@ -77,6 +77,90 @@ const countFiles = (dir, skip = () => false) => {
   return n;
 };
 
+// ⛔ A WHOLE-TREE FILE COUNT IS NOT COMPARABLE ACROSS THE TWO LAYOUTS, AND GATING ON ONE FAILED
+// EVERY WINDOWS PACKAGE. MEASURED 2026-08-06 on iedriver@4.0.0, a run whose lifecycle script
+// demonstrably succeeded (both IEDriverServer downloads + extractions + `Success!` in its stdout):
+//
+//   observe/       countFiles=887   887 real files, 22.1 MB   -- npm's flat tree, all content local
+//   verify-synth/  countFiles=203    31 real files + 172 JUNCTIONS, 17.2 MB
+//
+// nub's isolated layout puts every dependency at `node_modules/.store/<pkg>@<ver>` as a JUNCTION
+// into the machine-global content store (`%LOCALAPPDATA%\nub\pm\store\<pkg>@<ver>-<hash>`), so the
+// dependency bytes are not inside the fixture at all and `countFiles` scores each dependency as 1.
+// `files >= OBS_FILES` therefore cannot be satisfied by ANY successful install of a package with
+// more than a handful of transitive deps -- it fails on layout, never on the grant. The package
+// then walks the whole ladder and is recorded at a wider grant than it needs, up to `write:"disk"`.
+//
+// ⛔ AND THE OBVIOUS FIX -- follow junctions when counting the whole tree -- IS ALSO WRONG. It makes
+// the number depend on the machine-global store's contents, which is shared, evicted per arm, and
+// not part of the fixture, so it is neither reproducible nor attributable to this install.
+//
+// The gate below compares the ONE universe both layouts genuinely share: the MEASURED package's own
+// directory, resolved through the junction and enumerated with links followed. That is also exactly
+// the universe the grant is a claim about -- OBSERVE traces `npm rebuild <PKG>` and nothing else.
+// MEASURED on the same iedriver run: observe 15 files / 17,184,827 B vs verify 16 files /
+// 17,184,988 B (the extra file is nub's own `.nub-side-effects-cache`), and every lifecycle
+// artifact -- lib/iedriver{,64}/IEDriverServer.exe, both zips, the tmp/ extractions -- is present
+// in both. TRADE: transitive dependencies' artifacts are no longer file-checked, only `rc`. That is
+// accepted deliberately: the synthesized grant is derived from PKG's trace alone, so PKG's artifact
+// set is the thing the verdict is actually about, and the previous whole-tree count checked the
+// transitive set in name only -- it could never pass.
+const pkgDir = (base, pkg, ver) => {
+  for (const c of [
+    path.join(base, 'node_modules', pkg),
+    path.join(base, 'node_modules', '.store', `${pkg}@${ver}`, 'node_modules', pkg),
+    path.join(base, 'node_modules', '.store', `${pkg}@${ver}`),
+  ]) if (fs.existsSync(c)) return c;
+  return null;
+};
+
+// ⛔ AND A COUNT ALONE IS TOO LOOSE -- gate on the per-file MANIFEST. MEASURED on the arms already
+// on disk: dprint@0.14.1 produced 10 artifact files under both npm and the jail, so a count gate
+// PASSES it, while the verify tree held 6,306 B against npm's 11,071,650 B -- the install script's
+// `dprint.exe` download had been blocked and only the placeholder tree remained. Comparing the
+// manifest catches that by NAME with no threshold to tune, and a byte-total gate would have needed
+// one (the succeeding iedriver arms clear their reference total by as little as 1 byte).
+//
+// The gate: every file the unjailed OBSERVE arm produced must exist in the arm at >= its size.
+// Extra files are ignored -- nub's layout legitimately adds `.nub-side-effects-cache`.
+//
+// Follows junctions/symlinks (statSync, not lstat) and de-dupes by realpath so a self-referential
+// link cannot spin. Returns null when the package is absent -- an absent package is a FAILED arm,
+// never a passing one.
+const pkgManifest = (base, pkg, ver) => {
+  const root = pkgDir(base, pkg, ver);
+  if (!root) return null;
+  const seen = new Set();
+  const m = new Map();
+  const walk = (d) => {
+    let rp; try { rp = fs.realpathSync(d); } catch { return; }
+    if (seen.has(rp)) return; seen.add(rp);
+    let ents; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    for (const e of ents) {
+      const p = path.join(d, e.name);
+      if (isLog(p)) continue;
+      let st; try { st = fs.statSync(p); } catch { continue; }
+      if (st.isDirectory()) walk(p); else m.set(path.relative(root, p).replace(/\\/g, '/'), st.size);
+    }
+  };
+  walk(root);
+  m.root = root;
+  return m;
+};
+
+// Returns the artifacts OBSERVE produced that this arm did not. Empty => the arm reproduced the
+// unjailed result. Naming them is what makes a failing arm self-debugging: the corpus log says
+// `lib/iedriver64/IEDriverServer.exe` rather than a bare number.
+const missingArtifacts = (obs, got) => {
+  if (!got) return ['<package absent>'];
+  const out = [];
+  for (const [f, size] of obs) {
+    if (!got.has(f)) out.push(f);
+    else if (got.get(f) < size) out.push(`${f} (${got.get(f)}B < ${size}B)`);
+  }
+  return out;
+};
+
 console.log(`### ${PKG}@${VER}   (${ROOT})`);
 
 // ── 1. OBSERVE ────────────────────────────────────────────────────────────────────────────────
@@ -135,6 +219,15 @@ if (meta.exitCode !== 0) { console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed r
 
 const isLog = (p) => /\.(log|xml|etl|txt)$|meta\.json$|cat\.json$/i.test(p);
 const OBS_FILES = countFiles(OBS, isLog);
+const OBS_PKG = pkgManifest(OBS, PKG, VER);
+if (!OBS_PKG || OBS_PKG.size === 0) {
+  // The unjailed reference produced no artifacts for the package we are measuring. Nothing
+  // downstream can be gated against that, and falling back to the whole-tree count would
+  // reinstate the layout bug, so refuse rather than emit a verdict.
+  console.log(`  => HARNESS-ERROR: no artifacts for ${PKG}@${VER} under ${OBS} -- cannot gate`);
+  process.exit(1);
+}
+console.log(`  OBSERVE artifacts: ${OBS_PKG.size} files  (${OBS_PKG.root})`);
 
 // ── 2. SYNTHESIZE ─────────────────────────────────────────────────────────────────────────────
 const NDJSON = path.join(CAP, 'events.ndjson');
@@ -217,12 +310,18 @@ const verify = (grant, label) => {
   const ovr = (logs.match(/catalog OVERRIDDEN/g) ?? []).length;
   const rej = (logs.match(/REJECTED/g) ?? []).length;
   const files = countFiles(v, isLog);
+  const got = pkgManifest(v, PKG, VER);
+  const missing = missingArtifacts(OBS_PKG, got);
   const rc = i.status === 0 ? (a.status ?? 0) : i.status;
-  console.log(`  VERIFY[${label}] rc=${rc} files=${files}/${OBS_FILES} OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
+  // `files/OBS_FILES` stays printed for continuity with the existing corpus logs, but it is
+  // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.
+  console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
+  if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
   if (!(ovr >= 1 && rej === 0)) { console.log('     !! override did not engage -- arm is VOID'); return { ok: false, void: true, files, rc }; }
   // Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
-  // failure mode. Compare against what the unjailed OBSERVE arm produced.
-  return { ok: rc === 0 && files >= OBS_FILES, void: false, files, rc };
+  // failure mode. Compare the MEASURED PACKAGE's artifact manifest against what the unjailed
+  // OBSERVE arm produced for that same package.
+  return { ok: rc === 0 && missing.length === 0, void: false, files, rc };
 };
 
 const synth = verify(GRANT, 'synth');
