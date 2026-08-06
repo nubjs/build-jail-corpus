@@ -1,0 +1,51 @@
+### ms-chromium-edge-driver@0.1.0-beta2   (/Users/runner/v2m-UsA9Mc)   nub=/tmp/nub/target/release/nub
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-UsA9Mc/observe"
+     sudo -u "runner" -H env "PATH=$PATH" "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "ms-chromium-edge-driver" > "/Users/runner/v2m-UsA9Mc/observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-UsA9Mc/observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-UsA9Mc/observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund ms-chromium-edge-driver
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=3933 (pre=3932) trace=1753 lines
+  == TRACER == live=true decodable-events=1738
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 1  /  whole traced subtree 4
+    sockets script 0  /  whole traced subtree 0
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+  == READS the script performed, by scope ==
+    outside       3
+    project       3
+    systemfs      8
+    userHome      2
+    deps        124
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=1 files=13341 OVERRIDDEN=2 REJECTED=0 grant={}
+  => UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 7040
+     refused paths under the failing grant (count, path):
+         52 System/Cryptexes/OS
+         22 /Users/runner/.cache/nub/pm/store/node-gyp@12.4.0-6386ab3e4584a36d/node_modules/node-gyp/gyp/pylib/gyp/__pycache__
+         10 /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/xml/sax/__pycache__
+          8 /Users/runner/.cache/nub/pm/store/node-gyp@12.4.0-6386ab3e4584a36d/node_modules/node-gyp/gyp/pylib/gyp/generator/__pycache__
+          6 /Users/runner/.cache/nub/pm/store/node-gyp@12.4.0-6386ab3e4584a36d/node_modules/node-gyp/gyp/pylib/packaging/__pycache__
+          4 /Users/runner/.CFUserTextEncoding
+          4 /Library/Developer/CommandLineTools/SDKs
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+### DONE ms-chromium-edge-driver@0.1.0-beta2  synthesized={} verified=0
