@@ -185,7 +185,21 @@ for (const raw of lines) {
 const scope = (p) => {
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
-  if (proj && p.startsWith(proj)) return p.includes('/node_modules/') ? 'deps' : 'project';
+  // ⛔ THE `/node_modules/` TEST RUNS ON THE SUFFIX AFTER `proj`, NEVER ON THE WHOLE PATH, and
+  // MAPPING.md rule 2 names this exact anti-pattern: "A rule like 'contains `/node_modules/`' is
+  // not deterministic: it depends on where the fixture happened to live." Testing `p` whole is
+  // that bug — a fixture root that itself contains `/node_modules/` bills every project SOURCE
+  // file as `deps`. PROVEN with the two roots side by side: under `/tmp/v2m-abc/fx` a source file
+  // classifies `project`, under `/tmp/x/node_modules/fx` the same file classifies `deps`, and on
+  // the suffix both give `project` while a real dependency still gives `deps`.
+  //
+  // The direction is what makes it worth a line rather than a note: `deps` costs 3 and `project`
+  // costs 5, so the misclassification synthesizes the CHEAPER grant — an UNDER-grant, the one
+  // direction this system may not take. Inert as measured today only because the driver roots
+  // fixtures at `$HOME/v2-XXXXXX`; that is an accident of the driver, not a property of this file.
+  if (proj && p.startsWith(proj)) {
+    return p.slice(proj.length).includes('/node_modules/') ? 'deps' : 'project';
+  }
   if (home && p.startsWith(home)) return 'userHome';
   if (p.startsWith('/proc') || p.startsWith('/sys') || p.startsWith('/dev')) return 'kernelfs';
   return 'outside';

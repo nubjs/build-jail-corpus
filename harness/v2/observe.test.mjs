@@ -34,6 +34,45 @@ const run = (body, pkg = 'p') => {
   };
 };
 
+// Same as `run`, but the caller picks the project root. Only the scope-classification case below
+// needs it: every other case asserts syscall-argument semantics, which the root cannot influence.
+// ⛔ Returns the PARSED grant, never the raw text. Asserting `/deps/` against the output substring
+// matches the literal header `writePaths FEASIBILITY (distinct writes outside project/deps)` and
+// so fails on a correct run — measured, while writing this test.
+const grantAtRoot = (body, projRoot, pkg = 'p') => {
+  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
+  fs.writeFileSync(f, SHELL + body);
+  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, projRoot, HOME, JAIL, pkg], {
+    encoding: 'utf8',
+  });
+  return JSON.parse(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim());
+};
+
+test('a project SOURCE write bills `project` even when the fixture ROOT contains /node_modules/', () => {
+  // MAPPING.md rule 2, which names this anti-pattern by example: testing the WHOLE path for
+  // `/node_modules/` makes the answer depend on where the fixture happened to live. Under a root
+  // that itself sits inside a `node_modules` the same source write flips to `deps`.
+  //
+  // ⛔ The direction is why this is a test and not a comment: `deps` costs 3 against `project`'s 5,
+  // so the misclassification synthesizes the CHEAPER grant — an UNDER-grant. Asserted BOTH ways so
+  // the case cannot pass by classifying everything the same: a real dependency under the same
+  // awkward root must still bill `deps`.
+  const root = '/tmp/x/node_modules/fx';
+  const src = grantAtRoot(`200 openat(AT_FDCWD, "${root}/index.js", O_WRONLY|O_CREAT, 0644) = 3\n`, root);
+  assert.equal(src.write?.project, true, 'a source write under a root containing /node_modules/ must bill project');
+  assert.equal(
+    src.write?.deps,
+    undefined,
+    'billing project source as deps is an UNDER-grant: deps costs 3, project costs 5',
+  );
+
+  const dep = grantAtRoot(
+    `200 openat(AT_FDCWD, "${root}/node_modules/sibling/i.js", O_WRONLY|O_CREAT, 0644) = 3\n`,
+    root,
+  );
+  assert.equal(dep.write?.deps, true, 'a genuine dependency write must still bill deps under the same root');
+});
+
 test('symlink bills the LINKPATH it creates, not the opaque target it stores', () => {
   // The regression that kept `write:{userHome}` alive on vanilla-cookieconsent@3.0.0-rc.9. Taking
   // the first quoted argument resolved `../only-allow/bin.js` against the cwd fallback and invented
