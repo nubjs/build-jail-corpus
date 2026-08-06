@@ -265,7 +265,9 @@ function emit(ev) {
   out.push(ev);
 }
 
-function emitFile(op, ntPath, pid, result) {
+// `pair` is `{ kind, other }` for a TWO-PATH operation -- see the `path2` note below. Everything
+// else passes it undefined and the emitted shape is byte-identical to what it always was.
+function emitFile(op, ntPath, pid, result, pair) {
   const p = dosPath(ntPath);
   // Omit rather than guess: an unnamed handle, or a process whose parent we never saw, cannot fill
   // the contract's fields honestly.
@@ -274,7 +276,32 @@ function emitFile(op, ntPath, pid, result) {
   if (ppid === undefined) return;
   // ONE FILE, ONE SPELLING -- see expandShortPath. This is the last point before the contract, so
   // everything downstream (classifier, retained log, validator) sees the canonical form.
-  emit({ op, path: expandShortPath(p), result, pid, ppid });
+  const ev = { op, path: expandShortPath(p), result, pid, ppid };
+  // ---------------------------------------------------------------------------------------------
+  // ⛔ `path2` -- A TWO-PATH OP BILLS BOTH ENDS, AND THE PAIRING IS A FACT THE KERNEL GAVE US.
+  //
+  // A hard link is the sharp case: it creates a SECOND NAME for existing content, so afterwards two
+  // live paths reach the same bytes. Emitting the two names as two unrelated single-path records
+  // loses which link went with which target the moment two operations interleave -- and a link whose
+  // target is unknown is not merely an under-grant, it is a path the model cannot reason about.
+  //
+  // The SetLinkPath event carries both ends in ONE record: the FileObject resolves to the source
+  // through the handle tables, and the payload carries the new name. Splitting that apart at the
+  // contract boundary would be discarding it on the way out. The Linux retained log already keeps
+  // both ends as `f`/`g` for exactly this reason.
+  //
+  // ADDITIVE AND IGNORED BY EVERYTHING THAT EXISTS. `classify.mjs` reads op/path/result/pid and
+  // `validate-windows.mjs` keys its exact-set on `op|path|result|role`, so neither sees this field.
+  // The primary `path` stays the DESTINATION, which is the end that needs the grant.
+  // ---------------------------------------------------------------------------------------------
+  if (pair?.other) {
+    const o = dosPath(pair.other);
+    if (o && o !== '\\FI_UNKNOWN') {
+      const oe = expandShortPath(o);
+      if (oe !== ev.path) { ev.path2 = oe; ev.kind = pair.kind; }
+    }
+  }
+  emit(ev);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -373,8 +400,8 @@ for await (const line of rl) {
     pendingDest.delete(data.Irp);
     const status = parseInt(data.Status, 16) >>> 0;
     const settle = (o) => {
-      if (ntSuccess(status)) { emitFile(o.op, o.name, o.pid, 'ok'); return; }
-      if (REFUSAL_STATUS.has(status)) { stats.denied++; emitFile(o.op, o.name, o.pid, 'denied'); return; }
+      if (ntSuccess(status)) { emitFile(o.op, o.name, o.pid, 'ok', o.pair); return; }
+      if (REFUSAL_STATUS.has(status)) { stats.denied++; emitFile(o.op, o.name, o.pid, 'denied', o.pair); return; }
       stats.skippedFailed++;                            // failed for a reason that is not a refusal
     };
     if (pend) settle(pend);
@@ -397,8 +424,11 @@ for await (const line of rl) {
     const name = dest ?? source;
     if (!name) { stats.destUnresolved++; continue; }
     if (dest) stats.destResolved++;
-    const op = { op: 'write', name, pid };
-    if (!data.Irp) { emitFile(op.op, op.name, op.pid, 'ok'); continue; }
+    // Keyed on the EVENT, never on InfoClass: one RenamePath carries FileRenameInformation (10) and
+    // another FileRenameInformationEx (65), both seen in one trace, and a delete arrives as 64.
+    const KIND = { [EV.RENAME_PATH]: 'rename', [EV.SET_LINK_PATH]: 'hardlink', [EV.DELETE_PATH]: 'delete' };
+    const op = { op: 'write', name, pid, pair: { kind: KIND[id], other: source } };
+    if (!data.Irp) { emitFile(op.op, op.name, op.pid, 'ok', op.pair); continue; }
     const list = pendingDest.get(data.Irp);
     if (list) list.push(op); else pendingDest.set(data.Irp, [op]);
     continue;
@@ -424,7 +454,7 @@ for await (const line of rl) {
 // because guessing its status could invent a read; here the operation is a WRITE either way, and
 // over-reporting a write is the direction that cannot break an install. The count is printed.
 for (const list of pendingDest.values()) {
-  for (const d of list) { stats.destUnmatched++; emitFile(d.op, d.name, d.pid, 'ok'); }
+  for (const d of list) { stats.destUnmatched++; emitFile(d.op, d.name, d.pid, 'ok', d.pair); }
 }
 pendingDest.clear();
 

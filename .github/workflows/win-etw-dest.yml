@@ -161,17 +161,101 @@ jobs:
             --allow-lossy --dump-dest 12 2>&1 | Tee-Object -FilePath C:\obs\out\dump-dest.txt
           Remove-Item C:\obs\out\dump.ndjson -Force -ErrorAction SilentlyContinue
 
+      # ── THE TWO-PATH PAIRING, on a real trace rather than a synthetic one. A hard link leaves two
+      # live names for one set of bytes; two unrelated records cannot say which link went with which
+      # target once operations interleave.
+      - name: Two-path pairing in the real stream
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          Write-Output '--- records carrying a pairing ---'
+          Select-String -Path C:\obs\out\events-NEW-mask_NEW-decode.ndjson -Pattern '"kind":' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing.txt
+          Write-Output '--- every record naming a fixture link or rename path ---'
+          Select-String -Path C:\obs\out\events-NEW-mask_NEW-decode.ndjson -Pattern 'kaf-link|kaf-rename' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing-fixture.txt
+          Write-Output '--- the same two in the SHIPPED stream, for contrast ---'
+          Select-String -Path C:\obs\out\events-old-mask_old-decode.ndjson -Pattern 'kaf-link|kaf-rename' |
+            ForEach-Object { $_.Line } | Tee-Object -FilePath C:\obs\out\pairing-fixture-SHIPPED.txt
+
       # ── THE ONE SHAPE THAT IS STILL ABSENT. Named, not left silent.
       - name: Memory-mapped write — what the raw trace holds
         if: always()
         shell: pwsh
         continue-on-error: true
         run: |
+          # The fixture child's console, so `MMAP ok` vs `MMAP failed` is READ rather than assumed.
+          # The grandchild catches its own exception and still exits 0, so those two look identical
+          # everywhere downstream of this file.
+          Copy-Item C:\obs\cap-new\run.out C:\obs\out\kaf-new-run.out -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\cap-new\run.err C:\obs\out\kaf-new-run.err -ErrorAction SilentlyContinue
+          Get-Content C:\obs\cap-new\run.out -ErrorAction SilentlyContinue | Select-String -Pattern 'MMAP|ADS|grandchild'
           node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kaf-mmap.bin --max 40 2>&1 |
             Tee-Object -FilePath C:\obs\out\mmap-forensics.txt
           Write-Output '--- the ADS host, for contrast: a mechanism that DOES come through ---'
           node harness/v2/probes/win-viability/mmap-forensics.mjs C:\obs\cap-new\trace.xml kafstream --max 10 2>&1 |
             Tee-Object -FilePath C:\obs\out\ads-forensics.txt
+
+      # ⛔ SEPARATING "NOT OBSERVABLE" FROM "WE STOPPED LISTENING TOO EARLY". Three mmap variants,
+      # each verifying its own file content afterwards, plus an ordinary write that must come back.
+      # A long settle so a lazily-flushed page has time to land inside the session.
+      - name: Memory-mapped write — variants, with a content positive control
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $abs = (Resolve-Path "$P").Path
+          Set-Content -Path C:\obs\mmapvar.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$abs\mmap-variants.ps1`" -Root C:\obs\mmapfx"
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\cap-mmap -Command C:\obs\mmapvar.cmd -WorkDir C:\obs -Session nubmmap -SettleMs 10000 2>&1 |
+            Tee-Object -FilePath C:\obs\out\capture-mmap.txt
+          Write-Output '===== DID THE BYTES REACH THE FILE? ====='
+          Get-Content C:\obs\cap-mmap\run.out -ErrorAction SilentlyContinue | Tee-Object -FilePath C:\obs\out\mmap-variants.txt
+          Get-Content C:\obs\cap-mmap\run.err -ErrorAction SilentlyContinue
+          node harness/v2/adapters/windows.mjs C:\obs\cap-mmap --out C:\obs\out\events-mmap.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\parse-mmap.txt
+          Write-Output '===== WHAT THE NORMALIZED STREAM SAYS ABOUT EACH VARIANT ====='
+          Select-String -Path C:\obs\out\events-mmap.ndjson -Pattern 'mmap-' | ForEach-Object { $_.Line } |
+            Tee-Object -FilePath C:\obs\out\mmap-variant-events.txt
+          Write-Output '===== AND WHAT THE RAW TRACE HOLDS FOR EACH ====='
+          foreach ($n in 'mmap-A-asfixture.bin','mmap-B-sleep6.bin','mmap-C-flushbufs.bin','mmap-CONTROL-ordinary.bin') {
+            node "$P/mmap-forensics.mjs" C:\obs\cap-mmap\trace.xml $n --max 12 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\mmap-raw-$n.txt"
+          }
+          Remove-Item C:\obs\cap-mmap\trace.etl, C:\obs\cap-mmap\trace.xml -Force -ErrorAction SilentlyContinue
+
+      # ⛔ IS IT OBSERVABLE BY ANY PROVIDER, OR BY NONE? Kernel-File watches the IRP path; the
+      # memory manager's flush is a PAGING write, which the classic kernel logger's FileIo/DiskIo
+      # events do carry. A limit we can name is one we can grant defensively around.
+      - name: Memory-mapped write — is the paging write visible to the classic kernel logger?
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $abs = (Resolve-Path "$P").Path
+          & logman stop "NT Kernel Logger" -ets 2>&1 | Out-Null
+          & logman create trace "NT Kernel Logger" -ets -o C:\obs\kl.etl -bs 1024 -nb 64 320 -max 2048 `
+            -p "Windows Kernel Trace" "(process,file,fileinit,disk)" | Out-Null
+          Write-Output "logman create rc=$LASTEXITCODE"
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$abs\mmap-variants.ps1" -Root C:\obs\mmapkl 2>&1 |
+            Tee-Object -FilePath C:\obs\out\mmap-kernellogger-run.txt
+          Start-Sleep -Seconds 8
+          & logman stop "NT Kernel Logger" -ets | Out-Null
+          & tracerpt C:\obs\kl.etl -o C:\obs\kl.xml -of XML -summary C:\obs\kl-summary.txt -lr -y | Out-Null
+          Write-Output "tracerpt rc=$LASTEXITCODE"
+          Get-Content C:\obs\kl-summary.txt -ErrorAction SilentlyContinue | Select-Object -First 25 |
+            Tee-Object -FilePath C:\obs\out\mmap-kernellogger-summary.txt
+          foreach ($n in 'mmap-A-asfixture.bin','mmap-C-flushbufs.bin','mmap-CONTROL-ordinary.bin') {
+            node "$P/mmap-forensics.mjs" C:\obs\kl.xml $n --max 12 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\mmap-kernellogger-$n.txt"
+          }
+          Remove-Item C:\obs\kl.etl, C:\obs\kl.xml -Force -ErrorAction SilentlyContinue
 
       # ── 8.3 SHORT NAMES, on its own tiny capture so the fixture above stays byte-comparable with
       # every earlier run of it.
@@ -220,9 +304,23 @@ jobs:
           Write-Output '--- with the fix ---';       Get-Content C:\obs\out\shortname-NEW.txt -ErrorAction SilentlyContinue
           Write-Output '--- shipped control ---';    Get-Content C:\obs\out\shortname-OLD.txt -ErrorAction SilentlyContinue
           Write-Output ''
+          Write-Output '===== TWO-PATH PAIRING ====='
+          Write-Output '--- fixed ---';   Get-Content C:\obs\out\pairing-fixture.txt -ErrorAction SilentlyContinue
+          Write-Output '--- shipped ---'; Get-Content C:\obs\out\pairing-fixture-SHIPPED.txt -ErrorAction SilentlyContinue
+          Write-Output ''
           Write-Output '===== MEMORY-MAPPED WRITE ====='
           Get-Content C:\obs\out\mmap-forensics.txt -ErrorAction SilentlyContinue
           Get-Content C:\obs\out\ads-forensics.txt  -ErrorAction SilentlyContinue
+          Write-Output '--- variants: did the bytes reach the file, and did the trace see them? ---'
+          Get-Content C:\obs\out\mmap-variants.txt       -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\mmap-variant-events.txt -ErrorAction SilentlyContinue
+          Get-ChildItem C:\obs\out\mmap-raw-*.txt -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "--- $($_.Name) ---"; Get-Content $_.FullName | Select-Object -First 6
+          }
+          Write-Output '--- classic kernel logger ---'
+          Get-ChildItem C:\obs\out\mmap-kernellogger-*.txt -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "--- $($_.Name) ---"; Get-Content $_.FullName | Select-Object -First 8
+          }
 
       # The traces are the bulk of the disk cost and are not the deliverable; the normalized streams
       # already copied out are.

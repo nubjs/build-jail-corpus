@@ -112,6 +112,45 @@ test('a hardlink destination is emitted from SetLinkPath', () => {
   assert.ok(writes(d).has('C:\\w\\LINKDST.bin'), `hardlink destination absent; got ${[...writes(d)]}`);
 });
 
+test('a hardlink keeps BOTH names, and keeps them PAIRED in one record', () => {
+  // ⛔ A HARD LINK IS A SECOND NAME FOR EXISTING CONTENT, so afterwards two live paths reach the
+  // same bytes. Two unrelated single-path records lose which link went with which target the moment
+  // two link operations interleave -- and a link whose target is unknown is not merely an
+  // under-grant, it is a path the model cannot reason about at all. SetLinkPath carries both ends
+  // in ONE event, so splitting them apart on the way out would be discarding a fact we were given.
+  const d = decode([
+    ev(12, { Irp: '0xA0', FileObject: '0xF2', FileName: `${VOL}\\w\\LINKSRC.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xA0', Status: '0x0' }),
+    ev(28, { Irp: '0xB1', FileObject: '0xF2', FilePath: `${VOL}\\w\\LINKDST.bin` }),
+    ev(24, { Irp: '0xB1', Status: '0x0' }),
+  ]);
+  const link = d.events.find((e) => e.path === 'C:\\w\\LINKDST.bin');
+  assert.ok(link, `the new name is absent; got ${JSON.stringify(d.events)}`);
+  assert.equal(link.kind, 'hardlink', 'the record does not say it is a hard link');
+  assert.equal(link.path2, 'C:\\w\\LINKSRC.bin', 'the record does not name the content it links to');
+  // And the old name is in the stream in its own right, from the open that made the link.
+  assert.ok(reads(d).has('C:\\w\\LINKSRC.bin'), `the existing name is absent; got ${[...reads(d)]}`);
+});
+
+test('a rename record names both ends and calls itself a rename', () => {
+  const d = decode(renameSeq('FilePath', `${VOL}\\w\\DST.bin`));
+  const mv = d.events.find((e) => e.path === 'C:\\w\\DST.bin');
+  assert.equal(mv?.kind, 'rename');
+  assert.equal(mv?.path2, 'C:\\w\\SRC.bin');
+});
+
+test('a delete carries no path2, because both ends are the same file', () => {
+  const d = decode([
+    ev(12, { Irp: '0xA0', FileObject: '0xF3', FileName: `${VOL}\\w\\GONE.bin`, CreateOptions: '0x01000000' }),
+    ev(24, { Irp: '0xA0', Status: '0x0' }),
+    ev(26, { Irp: '0xC0', FileObject: '0xF3', FilePath: `${VOL}\\w\\GONE.bin` }),
+    ev(24, { Irp: '0xC0', Status: '0x0' }),
+  ]);
+  const del = d.events.find((e) => e.op === 'write' && e.path === 'C:\\w\\GONE.bin');
+  assert.ok(del, 'the deleted path is absent');
+  assert.equal(del.path2, undefined, 'a self-referential path2 was emitted');
+});
+
 test('a DeletePath reports the deleted path', () => {
   const d = decode([
     ev(26, { Irp: '0xC0', FileObject: '0xF9', FilePath: `${VOL}\\w\\GONE.bin` }),
