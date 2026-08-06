@@ -17,15 +17,29 @@
 //   PATH   some confined cell reaches the control, but the zero-capability one does not
 //          => a real, narrow need — typically `network`, occasionally `write.userHome + network`.
 //
-// MEASURED on win32 (2,239 records): 63 TOKEN / 26 GATE / 7 PATH of 96. Excluding the two
-// structurally-known families (@ffmpeg-installer, @ffprobe-installer, 14 records) leaves 82
-// eligible: 49 TOKEN (60%) / 26 GATE (32%) / 7 PATH (8%). Two independent implementations agree.
+// On win32 (2,239 records): 63 TOKEN / 26 GATE / 7 PATH of 96. Excluding the two structurally-known
+// families (@ffmpeg-installer, @ffprobe-installer, 14 records) leaves 82 eligible: 49 TOKEN (60%) /
+// 26 GATE (32%) / 7 PATH (8%).
 //
-// WHAT POSITIVELY RULES OUT A PATH READING for the TOKEN class, beyond the cell arithmetic: v2
-// re-measurement of four of them reports `missing=0` with `rc=1` — every artifact produced, process
-// still failing. A blocked path removes artifacts; these have them. Corroborated by non-monotonicity,
-// since adding `read:"disk"` makes a run WORSE than the rung below it, which no filesystem-need
-// model explains.
+// ⛔⛔ TREAT THAT SPLIT AS A HYPOTHESIS WITH A KNOWN FALSE POSITIVE, NOT A MEASURED PARTITION.
+// This classifier reads v1 CELL DATA, and a v1 `rc != 0` means EITHER "the grant was insufficient"
+// OR "the v1 harness was broken for this package" — the two are indistinguishable from here. So
+// every defect in v1 propagates straight into the labels.
+//
+// MEASURED COUNTEREXAMPLE: `electron-chromedriver@33.4.9` presents the exact TOKEN signature
+// (`confinedOk 0/52` — not one confined cell reaches control) and yet v2 VERIFIES it at
+// `{write:{deps,userHome},network}`, rc=0, missing=0. The arithmetic here is right about its input;
+// the input was wrong. Counting only packages where v2 has independently measured an answer, the
+// discriminator is 7 of 8, not the clean sweep an earlier revision of this comment claimed.
+//
+// The TOKEN reading is still well-supported for the packages where v2 confirms it: those report
+// `missing=0` with `rc=1` — every artifact produced, process still failing, which a blocked path
+// cannot explain — and they are non-monotonic, since adding `read:"disk"` makes the run WORSE than
+// the rung below it. But "well-supported for the confirmed members" is not "true of all 49", and
+// the difference is exactly the kind of over-claim this project keeps paying for.
+//
+// ⇒ THE NUMBER THAT NEEDS NO DISCRIMINATOR, and therefore the one to quote: 26 of 82 (32%) install
+// at the ZERO-capability rung with rc=0. That is read straight off the cells with no inference.
 //
 // ⛔ THE SELF-CHECK BELOW IS NOT DECORATION. Every wrong answer in this corpus came from an
 // instrument nobody validated — a scope-aware record walk that silently dropped all 31 scoped

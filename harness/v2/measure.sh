@@ -243,19 +243,26 @@ verify () {
   # a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
   # script; a replay materializes from cache and never spawns it.
   #
-  # ⛔⛔ THIS CHECK WAS INERT AND CRIED WOLF ON EVERY ARM, WHICH IS WORSE THAN HAVING NO CHECK. It
-  # required `installed [0-9]+ package` in `i.log`, and that was wrong on BOTH halves at once:
+  # ⛔⛔ THIS CHECK CRIED WOLF, WHICH IS WORSE THAN HAVING NO CHECK. It required
+  # `installed [0-9]+ package` in `i.log`, and that was wrong on two counts:
   #
-  #   1. nub PRINTS NO SUCH LINE. The install summary is `resolved N · reused N`
-  #      (`vendor/aube/crates/aube/src/progress/ci.rs`); grepping every crate finds
-  #      `installed .* package` only in unrelated prose. The negation was therefore ALWAYS true.
+  #   1. THAT LINE IS ONE OF TWO SUMMARY SHAPES, NOT THE SUMMARY. nub prints
+  #      `✓ installed N packages in Xs` in some runs and `✓ resolved N · reused N · downloaded N`
+  #      in others (`vendor/aube/crates/aube/src/progress/`), so the predicate held or failed on
+  #      which shape happened to appear rather than on whether anything ran. MEASURED: a 1-dep
+  #      install printed `✓ installed 1 package in 6.5s`; a 70-dep install printed
+  #      `✓ resolved 70 · reused 36 · downloaded 34 … in 2.8s` and false-fired.
+  #      ⛔ An earlier revision of this comment claimed nub prints no such line at all. That was
+  #      WRONG — a grep for the literal missed it because the string is assembled, not literal —
+  #      and it is recorded here because a confidently false comment is worse than none.
   #   2. IT READ THE WRONG LOG. Lifecycle scripts run under `approve-builds`, whose output goes to
   #      `a.log`. `i.log` is the install step and cannot hold that evidence even in principle.
   #
-  # A warning that fires on 100% of arms trains its reader to skip it, so a REAL replay would have
-  # sailed straight through — precisely the failure this check exists to catch. Both halves are
-  # fixed by searching every log the arm wrote (the same `"$v"/*.log` the override assertion just
-  # below already uses) for the one line that actually evidences a script being invoked.
+  # A warning that fires on arms that genuinely ran trains its reader to skip it, so a REAL replay
+  # sails through — precisely the failure this check exists to catch. Both counts are fixed by
+  # searching every log the arm wrote (the same `"$v"/*.log` the override assertion just below
+  # already uses) for the one line that DIRECTLY evidences a script being invoked, rather than
+  # inferring it from whichever install-summary shape the package count happened to produce.
   #
   # Reported, not fatal, and deliberately: the corpus only measures packages that DECLARE an install
   # script, so missing evidence is a real signal here — but a script nub declines to run would also
