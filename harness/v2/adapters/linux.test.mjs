@@ -2,11 +2,17 @@
 //
 // ⛔ EVERY CASE BELOW IS A DECODING FAILURE THAT WAS MEASURED, NOT IMAGINED. `probes/
 // syscall-coverage.c` performs 27 writes at paths it names itself and prints them; running it under
-// the harness's exact `strace -f -e trace=file,network,process` and feeding the trace to
-// `observe.mjs` retains 18. The nine losses are the nine fixtures here. Keeping them as literal
-// strace lines rather than as a C program means the suite runs on any machine, with no compiler and
-// no ptrace privilege — the C probe stays as the instrument that FINDS a new gap, this file as the
-// one that stops a fixed gap coming back.
+// the harness's exact `strace -f -e trace=file,network,process` and feeding the trace to the regex
+// decoder `observe.mjs` USED TO CARRY retained 18 of the 26 that executed, invented one path no
+// process touched, and truncated another. This adapter retained all 26. That gap is why `observe.mjs`
+// now imports `decode()` from here rather than carrying its own copy of the strace surface — the
+// duplication is what let the two drift. Keeping the cases as literal strace lines rather than as a C
+// program means the suite runs on any machine, with no compiler and no ptrace privilege: the C probe
+// is the instrument that FINDS a new gap, this file the one that stops a fixed gap coming back.
+//
+// The classifier-side counterparts are in `observe.test.mjs` — same mechanisms, asserted through the
+// synthesized GRANT instead of the event stream, because a path can be recovered here and still be
+// billed to the wrong scope there.
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { decode } from './linux.mjs';

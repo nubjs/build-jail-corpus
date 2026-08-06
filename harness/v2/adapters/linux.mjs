@@ -1,12 +1,18 @@
 // Linux god-mode observation adapter: an `strace -f` text trace in, a RETAINED event stream out.
 //
-// WHY THIS EXISTS SEPARATELY FROM `observe.mjs`. observe.mjs is Linux's fused adapter+classifier and
-// it is what synthesizes the grant a VERIFY arm is measured against. Its decoding is deliberately
-// narrow — it answers "which of today's four scopes did this package write into" and nothing more,
-// and every path it drops is a path today's grant model would have rounded up anyway. That is the
-// wrong shape for RETENTION, whose whole point is that a grant model we have not designed yet can be
-// re-derived from what we kept. So this file decodes the trace as completely as strace allows and
-// emits a normalized stream; observe.mjs is left byte-for-byte alone, and grant synthesis with it.
+// WHAT THIS IS TO `observe.mjs`. This file owns the strace SURFACE — decoding a text trace into a
+// normalized event stream — and `observe.mjs` is the CLASSIFIER and grant synthesizer that imports
+// `decode()` from here. It did not start that way: observe.mjs carried its own regexes on the theory
+// that a grant synthesizer only needs today's four scopes and could round the rest up. Measured
+// against `probes/syscall-coverage.c`, that narrower decoder retained 18 of the 26 writes which
+// actually executed, INVENTED one path no process touched, and truncated another — every loss in the
+// under-grant direction. So the duplication is gone. The retention STEP is still separate and still
+// runs after synthesis (see `measure.sh`), which is what keeps a retention failure from moving a
+// verdict; sharing a pure function is not sharing a step.
+//
+// The rule that follows from that history: a decoding fix belongs HERE, where both the retained log
+// and the synthesized grant inherit it, and gets a case in `linux.test.mjs` plus, when it can move a
+// grant, one in `observe.test.mjs`.
 //
 // ⛔ WHAT A RETAINED LOG MAY NOT DO IS BAKE IN TODAY'S ANSWERS. The first draft of this tagged every
 // path with the scope it classified into and kept nothing else. That is derived data: we were at
@@ -17,8 +23,11 @@
 // classifier recompute them.
 //
 // ⛔ EVERY DECODING GAP BELOW WAS MEASURED WITH A KNOWN-ANSWER FIXTURE, not read off the source.
-// `probes/syscall-coverage.c` performs 27 writes at paths it names itself; observe.mjs's decoder
-// reports 18 of them. The nine it loses are the nine cases this adapter exists to handle:
+// `probes/syscall-coverage.c` performs 27 writes at paths it names itself; the regex decoder
+// `observe.mjs` USED TO CARRY reported 18 of the 26 that executed. Every `observe.mjs` below names
+// that SUPERSEDED decoder, not today's file — which imports `decode()` from here and so inherits
+// each of these fixes. They are kept in the present tense of the bug because they are the
+// measurement record that justifies the corresponding code:
 //
 //   1. A `*at` syscall whose first argument is a REAL DIRFD prints a NUMBER, not `AT_FDCWD`, and
 //      observe.mjs's `^name\((?:AT_FDCWD,\s*)?"path"` matcher fails the line WHOLE. Measured misses:
@@ -37,6 +46,14 @@
 //      `fchownat` in one sharp@0.32.6 install.
 //   5. A path containing a double quote is truncated at the backslash, because `"([^"]*)"` cannot
 //      see a C-escaped quote. Measured: `O-with"quote-file` retained as `O-with\`.
+//   6. ⛔ A `clone` SPLIT ACROSS `<unfinished ...>` matches no single-line regex, so the process-tree
+//      edge is lost and with it the child's inherited CWD — after which every relative path that
+//      child opens resolves against the PROJECT ROOT and lands on a fabricated path. This is the one
+//      loss measured to move a real package's grant, and it is the most common by far: in one
+//      `lmdb-store@2.0.0-alpha2` install, 287 of 363 clone edges (79%) are split that way. node-gyp
+//      compiles from `<pkg>/build` with relative `./Release/...` paths, so 70 writes were billed to
+//      `<project>/Release/...` — directories that do not exist on disk after the install — earning
+//      the package a `write:{project:true}` it does not need. The rejoin below is what closes it.
 //
 // ⛔ WHAT NO ADAPTER CAN RECOVER, stated so the log is not trusted past its evidence. The capture is
 // `-e trace=file,network,process`, which subscribes to syscalls that NAME a path. The fd-only
@@ -371,7 +388,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const file = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
-  if (!file) { console.error('usage: linux.mjs <trace> --project D --home D [--jail-home D] [--out F]'); process.exit(2); }
+  if (!file) { console.error('usage: linux.mjs <trace> --project D --home D [--jail-home D] [--jail-tmp D] [--out F]'); process.exit(2); }
   const project = val('--project'), home = val('--home');
   const decoded = decode(fs.readFileSync(file, 'utf8'), { project });
   const text = serialize(decoded, {
@@ -381,7 +398,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     // ⛔ THE ROOTS ARE THE WHOLE REASON A RE-PARSE IS POSSIBLE. Every path in the stream is
     // machine-specific (`/home/runner/v2-hNdvB5/...`); without these a future classifier cannot tell
     // a project write from a home write, and the log is a pile of strings.
-    roots: { project, home, jailHome: val('--jail-home'), ownPkg: val('--pkg') && project ? `${project}/node_modules/${val('--pkg')}` : null },
+    roots: { project, home, jailHome: val('--jail-home'), jailTmp: val('--jail-tmp'), ownPkg: val('--pkg') && project ? `${project}/node_modules/${val('--pkg')}` : null },
     at: new Date().toISOString(),
   });
   const out = val('--out');

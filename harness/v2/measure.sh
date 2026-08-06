@@ -106,8 +106,62 @@ PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 # which writes actually follow `$HOME`: a hardcoded path still lands in `userHome` and still earns
 # the grant.
 JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
+# ⛔ `HOME` IS ONE OF SEVERAL VARIABLES THE JAIL REWRITES, AND OBSERVING WITH ONLY THAT ONE MOVED
+# MEASURES A RUN THAT NEVER HAPPENS. The governing rule for this arm is that OBSERVE and VERIFY may
+# differ in EXACTLY ONE VARIABLE — enforcement — so every env rewrite `compile_build_jail` and
+# `pm_engine/build_jail.rs` apply to the confined child is reproduced here. Each entry below names
+# the nub-side line that puts it in the jailed child's environment; the entry and that line move
+# together, and a divergence is not cosmetic — it changes WHICH PATHS the same script writes, which
+# is the whole input to synthesis.
+#
+#   TMPDIR                  `backend/linux.rs::apply_landlock` sets it to the fresh per-run private
+#                           dir it also grants rw. Without it here `os.tmpdir()` is the shared
+#                           `/tmp`, which classifies `outside` and is billed to no scope at all —
+#                           MEASURED on `playwright-chromium@0.17.0`, whose download staged through
+#                           `/tmp/playwright-download-chromium-linux-764964.zip` and produced the
+#                           driver's "1 writes OUTSIDE project/home" warning for that reason alone.
+#                           ⛔ TMPDIR ONLY, deliberately: the Landlock arm sets that one name, while
+#                           `insert_tmp_env`'s TMPDIR/TMP/TEMP triple is the BUBBLEWRAP arm's, and
+#                           the build jail runs on Landlock. Setting all three here would observe an
+#                           environment the shipped jail does not produce.
+#   NODE_COMPAT=1           `build_jail.rs:140`, unconditional — a dependency's script runs on
+#                           vanilla Node under the jail.
+#   PLAYWRIGHT_BROWSERS_PATH `redirect_playwright_browsers`, unconditional for EVERY jailed spawn.
+#   electron_config_cache / ELECTRON_CACHE   `redirect_electron_cache`, likewise.
+#   npm_config_prefix        `redirect_npm_prefix`, likewise.
+#
+# ⛔ THE FOUR REDIRECT TARGETS DO NOT ALL LAND IN THE SAME PLACE, AND TREATING THEM ALIKE WOULD
+# MANUFACTURE A GRANT. `$cache/nub/pm/tools` is granted READ-ONLY, but
+# `grant_build_jail_dependency_reads` then `push_rw_path`s the single leaf
+# `$cache/nub/pm/tools/npm-prefix` — because a prefix is a directory npm CREATES, and an unwritable
+# one was measured refusing `iedriver@4.0.0` outright. So `ms-playwright` and `electron-cache` are
+# refused writes that genuinely need `userHome`, while `npm-prefix` is free; the classifier is told
+# about the leaf below so the free one is not billed.
+#
+# ⛔ THE REDIRECT TARGETS ARE NOT INSIDE THE JAIL'S WRITABLE SET, AND THAT IS THE POINT RATHER THAN
+# A BUG TO ROUTE AROUND. All four point under `$cache/nub/pm/tools`, which `preset.rs`'s
+# `NUB_PM_CACHE_PATTERNS` grants READ-ONLY (`grant_build_jail_dependency_reads` → `push_read_path`).
+# On Linux `$cache` is `${XDG_CACHE_HOME:-$HOME/.cache}` — under the REAL user home — so a package
+# that writes its cache there needs `write.userHome` and nothing narrower covers it. Observing
+# without the redirect sent the same write to `$JAIL_HOME/.cache/...`, which the base profile already
+# owns, so it was billed as FREE and the synthesized grant omitted the scope the jailed run then
+# required. MEASURED on `playwright-chromium@0.17.0`: 650 of 651 writes landed under `jailHome`,
+# synthesis emitted `{"network":true}`, and the jailed arm died on `mkdir … = -1 EACCES`.
+#
+# `$HOME` here is the REAL home — the redirect is applied to the CHILD's env only, exactly as nub
+# does it: `sandbox_homes` reads nub's OWN `HOME`, not the one it hands the script.
+JAIL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}"
+JAIL_TOOLS="$JAIL_CACHE/nub/pm/tools"
+# Under the OS temp root, matching `make_private_tmp`'s `tempfile` under `std::env::temp_dir()`, so
+# the path SHAPE a script sees is the jail's too.
+JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-HOME="$JAIL_HOME" strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
+HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 \
+  PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
+  electron_config_cache="$JAIL_TOOLS/electron-cache" \
+  ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
+  npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
+  strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
 OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
@@ -137,7 +191,8 @@ CLOSURE=$(node -e '
 echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" "$JAIL_TMP" \
+  "$JAIL_TOOLS/npm-prefix" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
@@ -156,7 +211,7 @@ GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *
 # and by a different decoder. A failure here is deliberately non-fatal for the same reason.
 if [ -n "${NUB_V2_EVENTS_OUT:-}" ]; then
   node "$HERE/adapters/linux.mjs" "$OBS/trace.txt" \
-    --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" \
+    --project "$OBS" --home "$HOME" --jail-home "$JAIL_HOME" --jail-tmp "$JAIL_TMP" \
     --pkg "$PKG" --version "$VER" --out "$NUB_V2_EVENTS_OUT" 2>&1 | sed 's/^/  /'
 fi
 
@@ -357,6 +412,37 @@ verify () {
     ' "$store" "${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/tools" ||
       echo "  ⛔ EVICTION FAILED — this arm may REPLAY a prior arm's build and UNDER-report"
   fi
+  # ⛔⛔ THE FOURTH REPLAY PATH, AND THE STORE EVICTION ABOVE CANNOT REACH IT. Two directories the
+  # jail hands the script are PERSISTENT ACROSS ARMS by design and live OUTSIDE `pm/store`:
+  #
+  #   $cache/nub/jail-home/<pkg>-<hash>     `private_home_dir` — "PERSISTENT across runs, which is
+  #                                         the one divergence from `$tmp`… re-installing the same
+  #                                         package skips a ~250 MB Cypress re-download".
+  #   $cache/nub/pm/tools/{ms-playwright,electron-cache}
+  #                                         the redirect targets `redirect_playwright_browsers` and
+  #                                         `redirect_electron_cache` stamp for every jailed spawn.
+  #
+  # A downloader that finds its artifact already there does not open a socket, so a LATER arm can
+  # pass on a grant that would have failed cold. MEASURED on `playwright-chromium@0.17.0` (run
+  # 31121368708, records at 8e0a868c): the synth arm at `{"write":{"userHome":true},"network":true}`
+  # downloaded chromium into `tools/ms-playwright/chromium-764964`, and the `drop-network` descent
+  # arm that followed exited 0 with all 6 artifacts — reported as
+  # `⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES`. Its own OBSERVE arm had just recorded
+  # 4 AF_INET sockets and a 142.250.73.91:443 peer, so the package plainly does fetch.
+  #
+  # ⛔ THE DIRECTION IS THE BAD ONE, which is why this is worth the re-download it costs. A replay in
+  # a DESCENT arm reports a capability as droppable that is not — an UNDER-prediction, and this
+  # harness may not take that direction. The same shape the `binary-install` note above records.
+  #
+  # ⛔ THE LEAVES, NEVER `tools` ITSELF. `tools` also holds the node-gyp nub bootstraps for itself and
+  # links into the global store; wiping it strands the only node-gyp a confined native build can
+  # reach, which is the exact failure the elaborate "spared as nub tooling" logic above exists to
+  # prevent. Naming the two redirect leaves keeps this away from it entirely.
+  local jailcache="${XDG_CACHE_HOME:-$HOME/.cache}/nub"
+  rm -rf "$jailcache/pm/tools/ms-playwright" "$jailcache/pm/tools/electron-cache" 2>/dev/null
+  # The private home is keyed on a hash of the package dir, which differs per arm root, so match the
+  # readable basename prefix rather than trying to recompute nub's hash.
+  rm -rf "$jailcache"/jail-home/"$(basename "$PKG")"-* 2>/dev/null
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
   # there are no version bands, so the entry grants exactly the base profile; drop it" — and then
