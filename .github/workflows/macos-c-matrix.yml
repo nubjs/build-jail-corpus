@@ -50,6 +50,29 @@ jobs:
             /Users/runner/cmatrix/*.wtrace
           if-no-files-found: warn
 
+  lifecycle-attribution:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: KNOWN-ANSWER lifecycle attribution + path-op selection
+        run: |
+          set +e
+          chmod +x harness/v2/probes/lifecycle-attribution.sh
+          sudo -E harness/v2/probes/lifecycle-attribution.sh "$HOME/attr" > /tmp/attr.txt 2>&1
+          echo "ATTR_EXIT=$?"
+          cat /tmp/attr.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lifecycle-attribution
+          path: |
+            /tmp/attr.txt
+            /Users/runner/attr/*.trace
+            /Users/runner/attr/*.txt
+            /Users/runner/attr/*.log
+          if-no-files-found: warn
+
   copyinstr-fixture:
     runs-on: macos-15
     timeout-minutes: 20

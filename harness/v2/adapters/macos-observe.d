@@ -113,15 +113,36 @@ syscall::truncate:entry, syscall::chmod:entry
 /progenyof($target)/
 {
 	self->np = arg0;
+	self->np2 = 0;
 	self->nop = probefunc;
 	self->nn = 1;
 }
 
-/* symlink(2) and link(2) take the DESTINATION second; arg0 is the existing/target name, which is
- * not the path being created. Reporting arg1 for those would be more accurate, but arg0 is the
- * pointer the entry probe above saved and both are inside the same subtree in practice — so the
- * decoder treats the whole class as "a write happened at this path or next to it" rather than
- * claiming a precise created path it did not verify. */
+/* ⛔ arg0 IS NOT THE PATH BEING CREATED for symlink(2) or link(2).
+ *
+ *   symlink(target, linkpath) — `target` is opaque link CONTENT the kernel stores verbatim and
+ *                               never resolves. The path created is linkpath, arg1.
+ *   link(oldpath, newpath)    — oldpath already exists. The path created is newpath, arg1.
+ *
+ * Reporting arg0 invents a PHANTOM PATH: link targets are usually relative, so the decoder resolves
+ * one against a cwd and emits a plausible path, in a plausible scope, that NO PROCESS EVER WROTE —
+ * enough on its own to hold a whole capability scope alive. The Linux lane shipped exactly this bug
+ * in observe.mjs and fixed it by taking the LAST path for symlink/link. These clauses come after
+ * the one above and override self->np for just those two probes.
+ *
+ * rename(2) is deliberately NOT here: it unlinks `old` as well as creating `new`, so BOTH ends are
+ * genuine writes and both are reported, via self->np2 below. */
+syscall::symlink:entry, syscall::link:entry
+/progenyof($target)/
+{
+	self->np = arg1;
+}
+
+syscall::rename:entry
+/progenyof($target)/
+{
+	self->np2 = arg1;
+}
 
 syscall::mkdir:return, syscall::rmdir:return, syscall::unlink:return,
 syscall::rename:return, syscall::link:return, syscall::symlink:return,
@@ -134,6 +155,17 @@ syscall::truncate:return, syscall::chmod:return
 	self->nn = 0;
 	self->np = 0;
 	self->nop = 0;
+}
+
+/* The second half of a rename: `new` is created. Declared after the clause above, which clears
+ * self->nn and self->np but deliberately not self->np2. */
+syscall::rename:return
+/self->np2/
+{
+	printf("PATHOP|%d|%d|%s|rename|ret=%d|errno=%d|%s\n",
+	    pid, curpsinfo->pr_ppid, execname,
+	    (int)arg0, (int)arg0 < 0 ? errno : 0, copyinstr(self->np2));
+	self->np2 = 0;
 }
 
 /* ── EXEC. psargs is the only place the lifecycle shell's `-c <script>` text appears, and that
