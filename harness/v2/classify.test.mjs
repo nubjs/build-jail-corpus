@@ -72,7 +72,8 @@ test('a complete capture classifies, and the report says what it was classified 
   // The record must carry its own roots, or a grant that disagrees across two venues cannot be
   // explained without going back to runs that no longer exist.
   assert.deepEqual(Object.keys(r.report.roots).sort(), REQUIRED.slice().sort());
-  assert.deepEqual(r.report.keyedOn.sort(), ['deps', 'project', 'userHome']);
+  // `jailTmp` is keyed on whenever the capture declares a temp root, which `fullRoots` does.
+  assert.deepEqual(r.report.keyedOn.sort(), ['deps', 'jailTmp', 'project', 'userHome']);
 });
 
 test('⭑ an UNDECLARED root is a hard error, not a fallback', () => {
@@ -154,6 +155,75 @@ test('classification is case-insensitive on Windows, as the filesystem is', () =
   // sends a real dependency write to `outside` — reported, never granted.
   const r = classify(stream('C:\\OBS\\Node_Modules\\thing\\build\\X.node', 'C:\\obs'), fullRoots());
   assert.deepEqual(r.report.grant, { write: { deps: true } });
+});
+
+// ── The declared private temp (`jailTmp`) ───────────────────────────────────────────────────────
+//
+// ⛔ THE RULE HAS TWO HALVES AND THE SECOND IS THE ONE THAT KEEPS IT SAFE. A write under the
+// DECLARED temp root is not billed, because the build-jail preset sets `fs["$tmp"] = "rw"`
+// unconditionally — every confined script gets a writable private temp with no catalog entry, so a
+// write there can never require a grant. A write to a temp-LOOKING path that is NOT the declared
+// root still bills, because the jail hides the shared temp and that write is genuinely refused.
+const TEMP_ROOT = 'C:\\jailv\\m-x\\tmp';
+
+test('a write into the DECLARED private temp is not billed', () => {
+  const roots = { ...fullRoots(), temp: TEMP_ROOT };
+  const r = classify(stream(`${TEMP_ROOT}\\phase1\\download.tgz`, 'C:\\obs'), roots);
+  assert.deepEqual(r.report.grant, {},
+    'a write the jail grants unconditionally must not widen the grant');
+  assert.equal(r.report.writes.jailTmp, 1, 'the write must still be COUNTED and reported, not lost');
+  assert.deepEqual(r.report.baseCovered, ['jailTmp']);
+});
+
+test('⭑ POSITIVE CONTROL: the USER\'S OWN %TEMP%, once it is no longer the declared root, STILL BILLS', () => {
+  // ⛔ THIS IS THE SHARP FORM OF THE UNDER-GRANT HAZARD, and it is the one the redirect creates.
+  // After the driver points `TMP`/`TEMP` at its own directory, the user's real
+  // `%USERPROFILE%\AppData\Local\Temp` is just another path under the home — and a script that
+  // HARDCODES it, rather than reading the variable, is writing somewhere the jail does not grant.
+  // That write is a real capability need and must still produce `write.userHome`.
+  //
+  // A "looks like temp" heuristic would drop it and under-grant exactly those packages. Keying on
+  // the exact declared root is what keeps this billing. If this assertion ever goes green by the
+  // grant becoming `{}`, the rule has silently become a heuristic.
+  const home = 'C:\\Users\\nub';
+  const r = classify(stream(`${home}\\AppData\\Local\\Temp\\hardcoded.bin`, 'C:\\obs'),
+    { ...fullRoots('C:\\obs', home), temp: TEMP_ROOT });
+  assert.deepEqual(r.report.grant, { write: { userHome: true } },
+    'a hardcoded write to the real %TEMP% stopped billing — this is an under-grant');
+  assert.equal(r.report.writes.jailTmp, undefined, 'a hardcoded temp path was absorbed into jailTmp');
+});
+
+test('a hardcoded SYSTEM temp is not absorbed into jailTmp — it stays visible for inspection', () => {
+  // ⛔ THE HONEST FORM FOR A PATH NO SCOPE BILLS. `C:\Windows\Temp` is world-writable on Windows, so
+  // a script really can write there and the jail really does refuse it — but no catalog scope covers
+  // it, so rule 3 REPORTS it rather than rounding it up to `write:"disk"`. The hazard here is
+  // therefore not "stops billing" (it never billed) but "stops being SEEN": absorbed into `jailTmp`
+  // it would vanish from the systemfs warning and nobody would ever inspect it.
+  const r = classify(stream('C:\\Windows\\Temp\\hardcoded.bin', 'C:\\obs'),
+    { ...fullRoots(), temp: TEMP_ROOT });
+  assert.equal(r.report.writes.jailTmp, undefined, 'a system temp path was absorbed into jailTmp');
+  assert.equal(r.report.writes.systemfs, 1, 'the write must stay visible in the systemfs bucket');
+  assert.deepEqual(r.report.systemWrites, ['c:\\windows\\temp\\hardcoded.bin']);
+});
+
+test('the declared temp nested INSIDE the home still wins, by longest prefix', () => {
+  // ⛔ THE WINDOWS-SHAPED CASE, AND THE REASON THIS MATTERS AT ALL. `%TEMP%` is
+  // `%USERPROFILE%\AppData\Local\Temp`, so before the redirect every temp write billed
+  // `write.userHome`. Even with the redirect, a declared temp under the home must beat `userHome`
+  // — first-match-wins on an unsorted list would bill it as home and undo the whole change.
+  const home = 'C:\\Users\\nub';
+  const nested = `${home}\\AppData\\Local\\Temp`;
+  const r = classify(stream(`${nested}\\x.bin`, 'C:\\obs'), { ...fullRoots('C:\\obs', home), temp: nested });
+  assert.deepEqual(r.report.grant, {}, 'a temp nested inside the home was billed as userHome');
+  assert.equal(r.report.writes.jailTmp, 1);
+});
+
+test('a null temp root leaves the bucket out entirely rather than matching everything', () => {
+  // A capture that declares no temp must not acquire a `jailTmp` root spelled "null", which would
+  // match nothing — or, worse, everything, if the null ever reached a prefix test as a bare string.
+  const r = classify(stream('C:\\obs\\out.txt', 'C:\\obs'), { ...fullRoots(), temp: null });
+  assert.deepEqual(r.report.grant, { write: { project: true } });
+  assert.ok(!r.report.keyedOn.includes('jailTmp'), 'a null temp must not become a keyed root');
 });
 
 test('a relative path is never anchored to a working directory', () => {

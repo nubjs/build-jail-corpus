@@ -259,7 +259,33 @@ fs.writeFileSync(path.join(OBS, 'package.json'), JSON.stringify({ name: 'o', ver
 // equivalent. A per-run cache directory gives the arm the same cold start a user gets, and is
 // passed to the traced rebuild as well as the fetch since the lifecycle script runs under rebuild.
 const NPM_CACHE = path.join(ROOT, 'npm-cache');
-const obsEnv = { ...process.env, npm_config_cache: NPM_CACHE };
+
+// ⛔ THE PRIVATE TEMP, WHICH REPRODUCES WHAT THE JAIL DOES TO A CONFINED SCRIPT — not a convenience,
+// and not an attempt to make two venues agree. GROUNDED IN NUB: the build-jail preset sets
+// `fs["$tmp"] = "rw"` unconditionally (`compiler/preset.rs`), which is `TmpMode::Private`, so
+// `backend/mod.rs::make_private_tmp` creates a fresh per-run directory and `set_tmp_env` points
+// `TMPDIR`/`TMP`/`TEMP` at it while the shared host temp stays hidden. Linux and macOS reproduce
+// both halves; this driver reproduced neither.
+//
+// ⛔ WHAT THAT COST, AND THE DIRECTION. On Windows `%TEMP%` is `%USERPROFILE%\AppData\Local\Temp` —
+// INSIDE the home — so a script's temp write classified as `userHome` and billed `write.userHome`
+// for a directory the jail hands it for free. An over-grant, the safe direction, but it silently
+// widened every Windows package that touches temp.
+//
+// ⛔ AND IT ONLY WORKS WITH THE CLASSIFIER HALF. Redirecting alone moves those writes out of
+// `userHome` and into `outside`, which is REPORTED and never granted — an under-grant, the forbidden
+// direction. `classify.mjs` keys a `jailTmp` bucket on the `temp` root declared in `capture.json`
+// and excludes it from the grant, so the two land together or not at all. All three variables are
+// set because the jail sets all three: Windows tools read `TMP`/`TEMP`, cross-platform ones read
+// `TMPDIR`, and a script that reads the one we skipped would land somewhere neither of us declared.
+const OBS_TMP = path.join(ROOT, 'tmp');
+fs.mkdirSync(OBS_TMP, { recursive: true });
+
+const obsEnv = {
+  ...process.env,
+  npm_config_cache: NPM_CACHE,
+  TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
+};
 const fetch = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: OBS, env: obsEnv });
 fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stderr ?? ''));
 if (fetch.status !== 0) {
@@ -280,7 +306,11 @@ const WRAP = path.join(ROOT, 'rebuild.cmd');
 // `set` inside the wrapper rather than an env option on the powershell call: the capture script
 // spawns the command through its own cmd.exe, so this is the one place guaranteed to be in scope
 // for the lifecycle script itself.
-fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
+// ⛔ THE TEMP REDIRECT IS REPEATED HERE, NOT ONLY IN `obsEnv`. `obsEnv` reaches the untraced FETCH;
+// the traced rebuild runs under the capture script's OWN cmd.exe, and this wrapper is the one place
+// guaranteed to be in scope for the lifecycle script itself — the same reason `npm_config_cache` is
+// set here rather than passed to powershell.
+fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\nset "TMP=${OBS_TMP}"\r\nset "TEMP=${OBS_TMP}"\r\nset "TMPDIR=${OBS_TMP}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
 // ⛔ THE ETW SESSION NAME MUST BE UNIQUE PER RUN. windows.ps1 defaults to the fixed name `nubobs`
 // and unconditionally `logman stop`s it before creating it, so a second concurrent driver SILENTLY
 // KILLS the first one's live trace -- the victim reports a short or empty capture with no error.
@@ -455,19 +485,17 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
     projectStore: path.join(OBS, 'node_modules', '.store'),
     interpreter: NODE,
     toolsDir: TOOLS,
-    // ⛔ THE REAL `%TEMP%`, AND THAT IS A KNOWN DIVERGENCE FROM THE JAIL — recorded rather than
-    // quietly left to be rediscovered. The build-jail preset sets `fs["$tmp"]="rw"`
-    // (`compiler/preset.rs`), which is `TmpMode::Private`, so `backend/mod.rs` `make_private_tmp()`
-    // + `set_tmp_env()` give a CONFINED script a fresh per-run temp on Windows and hide the shared
-    // one. This OBSERVE arm reproduces none of that: it traces against the user's real temp.
+    // ⛔ THE PRIVATE TEMP THIS DRIVER CREATED AND EXPORTED — not the user's `%TEMP%`. The jail gives
+    // a confined script a fresh per-run temp (`preset.rs` `$tmp`=rw -> `TmpMode::Private` ->
+    // `backend/mod.rs::set_tmp_env`) and hides the shared one, so tracing against the real `%TEMP%`
+    // measured an environment no confined script ever sees.
     //
-    // DIRECTION OF THE ERROR, which is why it is recorded rather than urgent: on Windows `%TEMP%`
-    // is INSIDE `%USERPROFILE%`, so a script's temp write classifies as `userHome` and bills
-    // `write.userHome` for a write the jail grants unconditionally. That over-grants, which is the
-    // safe direction. Fixing it needs BOTH a driver redirect and a `temp` scope in `classify.mjs`
-    // that maps to no capability — landing only the first would move these writes into `outside`,
-    // which is reported and never granted, i.e. an under-grant.
-    temp: meta.temp ?? process.env.TEMP ?? null,
+    // ⛔ THIS DECLARATION IS WHAT MAKES THE `jailTmp` BUCKET SAFE. `classify.mjs` drops a write from
+    // the grant only when it is under THIS EXACT PATH, never because a path looks temp-shaped. A
+    // script that hardcodes `C:\\Windows\\Temp\\foo` is writing somewhere the jail does NOT grant, so
+    // that write is a real capability need and still bills. Keying on the declared root rather than
+    // on a heuristic is the difference between dropping noise and manufacturing an under-grant.
+    temp: OBS_TMP,
     // Null for the same reason as `jailHome`: this driver sets no `npm_config_prefix`, so there is
     // no separate npm prefix root for a path to land in.
     npmPrefix: null,
@@ -620,12 +648,21 @@ console.log('  VENUE-STORE-LAYOUT hoisted');
 // RECORDED RATHER THAN LEFT TO BE REDISCOVERED. See the `temp` root in `capture.json` for the
 // grounding and the direction of the error.
 console.log(`  VENUE-OVERRIDES ${JSON.stringify({
-  set: { npm_config_cache: NPM_CACHE },
+  set: {
+    npm_config_cache: NPM_CACHE,
+    // All three, because the jail sets all three. Recorded with their values so a reader can check
+    // that the path OBSERVE exported is the same one `capture.json` declares as the `temp` root —
+    // if those two ever disagree, the `jailTmp` bucket silently stops matching and every temp write
+    // falls to `outside`, which is an under-grant.
+    TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
+  },
   unset: [],
   notRedirected: {
-    TMP: process.env.TMP ?? null, TEMP: process.env.TEMP ?? null,
     USERPROFILE: process.env.USERPROFILE ?? null,
-    why: 'the jail gives a confined script a private per-run tmp (preset.rs `$tmp`=rw -> TmpMode::Private) and leaves HOME alone; this OBSERVE arm reproduces neither redirect',
+    why: 'the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient'
+      + ' value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no'
+      + ' private jail home to reproduce and redirecting one would measure an environment no'
+      + ' confined script sees',
   },
   passedThrough: {
     CI: process.env.CI ?? null,

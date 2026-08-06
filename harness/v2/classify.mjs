@@ -107,11 +107,31 @@ const isSystemFs = (p) => WIN
 
 // Rule 2. Roots come IN, longest-first, first match wins. `deps` must precede `project` because
 // it is nested inside it; a longest-first sort gets that right without special-casing.
+//
+// ⛔ `jailTmp` IS KEYED ON THE PATH `capture.json` DECLARES, NEVER ON "looks like temp", AND THAT IS
+// THE WHOLE SAFETY OF THIS BUCKET. The build-jail preset sets `fs["$tmp"] = "rw"` unconditionally
+// (`compiler/preset.rs`), so `TmpMode::Private` gives every confined script a fresh per-run temp
+// directory and `backend/mod.rs::set_tmp_env` points `TMP`/`TEMP`/`TMPDIR` at it. A write that
+// FOLLOWS that variable therefore needs no capability at all, and billing it is pure noise — on
+// Windows especially, where `%TEMP%` sits INSIDE `%USERPROFILE%` and so billed `write.userHome` for
+// every package that touched temp.
+//
+// ⛔ BUT A SCRIPT THAT HARDCODES A TEMP PATH IS A DIFFERENT CASE AND MUST STILL BILL. `C:\Windows\Temp\foo`
+// (or `/tmp/foo` on POSIX) is not the jail's private temp; the jail hides the shared one, so that
+// write is genuinely refused and is a genuine capability need. A heuristic that dropped anything
+// temp-shaped would silently under-grant exactly those packages. Only the exact declared root is
+// free, which is the jail's own rule rather than an approximation of it. Same reasoning, same
+// spelling and the same hazard note as `observe.mjs` and `observe-macos.mjs`.
 const ROOTS = [
+  ...(roots.temp ? [{ name: 'jailTmp', path: norm(roots.temp) }] : []),
   { name: 'deps', path: norm(project + (WIN ? '\\node_modules' : '/node_modules')) },
   { name: 'project', path: norm(project) },
   { name: 'userHome', path: norm(home) },
 ].sort((a, b) => b.path.length - a.path.length);
+
+// The buckets a base-profile grant already covers. Named once so the report and the synthesized
+// grant cannot disagree about which writes are free.
+const BASE_COVERED = ['jailTmp'];
 
 const under = (p, root) => p === root || p.startsWith(root + (WIN ? '\\' : '/'));
 
@@ -196,6 +216,11 @@ const w = bucket(writes), r = bucket(reads);
 //
 // `write` implies `read` at its own scope and stating the redundant `read` is a PARSE ERROR, so a
 // read scope is only emitted where the same scope has no write.
+//
+// ⛔ A BASE-COVERED BUCKET CONTRIBUTES NOTHING. `w.jailTmp` is deliberately absent below: the jail
+// grants that directory unconditionally, so there is no catalog scope to widen for it. It is still
+// COUNTED and REPORTED, because "this package wrote 40 files into temp" is a fact a reader wants —
+// it is only excluded from the grant.
 const grant = {};
 const wr = {};
 if (w.deps) wr.deps = true;
@@ -213,6 +238,10 @@ const report = {
   rootsFrom: capturePath,
   roots: Object.fromEntries(REQUIRED_ROOTS.map((k) => [k, roots[k] ?? null])),
   keyedOn: ROOTS.map((r) => r.name),
+  // Which buckets were excluded from the grant because the base profile already covers them. A
+  // reader comparing two records has to be able to tell a package that needed nothing from one whose
+  // writes were all free, and the grant alone says `{}` for both.
+  baseCovered: BASE_COVERED,
   lifecyclePids: lifecycle.size,
   attributedWrites: writes.size, allTreeWrites: allWrites.size,
   attributedPeers: peers.size, allTreePeers: allPeers.size,
@@ -261,6 +290,10 @@ console.log(`  distinct: ${denials.length}`);
 denials.slice(0, 15).forEach((d) => console.log(`      ${d.op} [${d.scope}] ${d.path}`));
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 console.log('  ' + JSON.stringify(grant));
+if (w.jailTmp) {
+  console.log(`  NOTE ${w.jailTmp.length} writes into the DECLARED private temp -- the base profile grants`);
+  console.log('       that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.');
+}
 if (w.outside) console.log(`  !! ${w.outside.length} writes OUTSIDE project/home -- no scope covers these; inspect before granting`);
 if (w.systemfs) console.log(`  !! ${w.systemfs.length} writes into system dirs -- an unprivileged user would be refused these`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel/metadata writes -- not a write-grant question (rule 3)`);
