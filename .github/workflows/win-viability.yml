@@ -1,0 +1,223 @@
+# WINDOWS VIABILITY PROBE — can ETW give us a COMPLETE filesystem path set, and is retaining it
+# practical?
+#
+# ⛔ THIS PROBE TOUCHES NO GRANT AND PUBLISHES NO RECORD. It runs the OBSERVE half only, against a
+# fixture whose answer is known and against real packages, and reports numbers. `measure-windows.mjs`
+# and its `NUB_V2_WINDOWS_EVICTION_VERIFIED` guard are deliberately not involved — nub is not in the
+# picture at all, because the question is about the TRACER.
+#
+# ⛔ THE ORDER IS LOAD-BEARING, AND THE FIRST TWO STEPS OUTRANK EVERYTHING AFTER THEM. The keyword
+# decode says which operations CAN be delivered; the known-answer fixture says which ones ARE. If a
+# write shape does not come back from a fixture that performed it a known number of times, nothing
+# measured on a real package afterwards can be trusted, and no retention design built on it is worth
+# having — retaining a stream known to be short is worse than retaining nothing, because it invites
+# trust it has not earned.
+#
+# Branch-scoped, no PR: CI is the only Windows path here, and `workflow_dispatch` is inert until the
+# file reaches the default branch, so the push trigger is what makes it iterable.
+name: win-viability
+
+on:
+  push:
+    branches: [probe/win-viability]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'space-separated pkg@version list to OBSERVE — ONE, until the fixture verifies'
+        default: 'hugo-extended@0.141.0'
+      storm:
+        description: 'known-answer fixture storm file count'
+        default: '500'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      # ⛔ ONE PACKAGE. A verdict from a harness nobody has read the raw output of is worth nothing,
+      # and scale does not find that class of defect — it multiplies it. 24 Linux packages were run
+      # to "build confidence" and the artifact-gate and `/tmp`-misclassification defects surfaced
+      # only afterwards; the macOS adapter lost 100% of rename destinations for its whole life. One
+      # package, inspected properly, shows all of those. Widen only once the fixture above has
+      # verified, and even then only to size a DISTRIBUTION.
+      PACKAGES: ${{ inputs.packages || 'hugo-extended@0.141.0' }}
+      STORM: ${{ inputs.storm || '500' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # ── Host facts. Elevation is a PRECONDITION, not a detail: windows.ps1 throws without it,
+      # and a run that fails here fails for a reason nothing downstream could diagnose.
+      - name: Host facts
+        shell: pwsh
+        run: |
+          $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $elevated = ([Security.Principal.WindowsPrincipal]$id).IsInRole(544)
+          Write-Output "whoami   = $($id.Name)"
+          Write-Output "sid      = $($id.User.Value)"
+          Write-Output "elevated = $elevated"
+          Write-Output "os       = $([System.Environment]::OSVersion.VersionString)"
+          Write-Output "TEMP     = $env:TEMP"
+          Write-Output "TMP      = $env:TMP"
+          Write-Output "USERPROFILE = $env:USERPROFILE"
+          Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{n='FreeGB';e={[math]::Round($_.Free/1GB,1)}}, @{n='UsedGB';e={[math]::Round($_.Used/1GB,1)}} | Format-Table | Out-String
+          node --version; npm --version
+          if (-not $elevated) { Write-Output "::error::not elevated — ETW kernel providers are admin-only"; exit 1 }
+
+      # ── Q1a: THE EXPECTED SURFACE, read off the provider's OWN manifest rather than a comment.
+      # ⛔ A KEYWORD MASK IS A SILENT FILTER: `logman update trace` succeeds whatever the mask is, and
+      # an event whose keyword bit is clear is simply never written. So the parser can carry a
+      # correct handler for an event it will never see, and the trace still looks healthy.
+      - name: Provider manifest and keyword decode
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\obs\out | Out-Null
+          wevtutil gp Microsoft-Windows-Kernel-File    > C:\obs\out\kernel-file-provider.txt 2>&1
+          wevtutil gp Microsoft-Windows-Kernel-Network > C:\obs\out\kernel-network-provider.txt 2>&1
+          wevtutil gp Microsoft-Windows-Kernel-Process > C:\obs\out\kernel-process-provider.txt 2>&1
+          Write-Output "dump sizes:"
+          Get-ChildItem C:\obs\out\*-provider.txt | Select-Object Name, Length | Format-Table | Out-String
+          # Every event ID `adapters/windows.mjs` switches on, in its EV table order.
+          node harness/v2/probes/win-viability/keywords.mjs C:\obs\out\kernel-file-provider.txt 0x11F0 `
+            --events 10,11,12,13,14,15,16,17,18,19,20,22,24,26,27,28,30 `
+            2>&1 | Tee-Object -FilePath C:\obs\out\keyword-decode.txt
+
+      # ── Q1b: THE KNOWN-ANSWER FIXTURE. The one step whose result gates every other conclusion.
+      - name: Known-answer fixture — capture
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          node "$P/kaf-setup.mjs" C:\obs\kaf
+          # A space-free wrapper, because `cmd /c` strips the outer quote pair when a string both
+          # starts and ends with a quote, and `C:\Program Files\nodejs\node.exe` then degrades into
+          # something that reads as a PATH failure rather than a quoting one.
+          $node = (Get-Command node).Source
+          $wrap = 'C:\obs\kaf-run.cmd'
+          $abs  = (Resolve-Path "$P").Path
+          Set-Content -Path $wrap -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" `"$abs\kaf-child.mjs`" C:\obs\kaf $env:STORM `"$abs\kaf-grandchild.ps1`""
+          )
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 `
+            -OutDir C:\obs\kafcap -Command $wrap -WorkDir C:\obs -Session nubkaf 2>&1 |
+            Tee-Object -FilePath C:\obs\out\kaf-capture.txt
+          Get-Content C:\obs\kafcap\run.out -ErrorAction SilentlyContinue | Select-Object -Last 40
+          Get-Content C:\obs\kafcap\run.err -ErrorAction SilentlyContinue | Select-Object -Last 40
+
+      - name: Known-answer fixture — parse and assert
+        shell: pwsh
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          # `--allow-lossy` on purpose: a lossy trace is what this probe is here to characterise, and
+          # the adapter's default refusal would hide the number the whole question turns on.
+          node harness/v2/adapters/windows.mjs C:\obs\kafcap --out C:\obs\kafcap\events.ndjson --allow-lossy 2>&1 |
+            Tee-Object -FilePath C:\obs\out\kaf-parse.txt
+          node "$P/kaf-assert.mjs" C:\obs\kafcap\events.ndjson C:\obs\kaf\kaf-expect.json C:\obs\kafcap `
+            --json C:\obs\out\kaf-assert.json 2>&1 | Tee-Object -FilePath C:\obs\out\kaf-assert.txt
+          Copy-Item C:\obs\kafcap\events.ndjson C:\obs\out\kaf-events.ndjson -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\kafcap\meta.json     C:\obs\out\kaf-meta.json     -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\kaf\kaf-expect.json  C:\obs\out\kaf-expect.json   -ErrorAction SilentlyContinue
+
+      # ── Q1c: IS THE LOSS COUNTER AN INSTRUMENT OR A CONSTANT?
+      # ⛔ "eventsLost 0" IS THE LOAD-BEARING CLAIM OF THIS LANE AND HAS NEVER BEEN SHOWN CAPABLE OF
+      # BEING ANYTHING ELSE. `windows.ps1` scrapes it from a tracerpt summary line with a regex; if
+      # that line is spelled differently or absent, `$lost` keeps its initialised value and the trace
+      # is declared complete. A zero a broken reader produced looks exactly like a zero the kernel
+      # produced. The starved arm must go NONZERO or the counter is not measuring loss.
+      - name: EventsLost — starved arm and real-config arm on the same workload
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $node = (Get-Command node).Source
+          # A heavier storm than the fixture's, to make loss achievable at all.
+          Set-Content -Path C:\obs\storm.cmd -Encoding Ascii -Value @(
+            '@echo off',
+            "`"$node`" -e `"const fs=require('fs'),p='C:\\obs\\stormdir';fs.rmSync(p,{recursive:true,force:true});fs.mkdirSync(p,{recursive:true});for(let i=0;i<40000;i++)fs.writeFileSync(p+'\\s'+i+'.bin','x');`""
+          )
+          Write-Output '--- STARVED (smallest buffers ETW accepts) ---'
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$P/lossctl.ps1" `
+            -OutDir C:\obs\loss-starved -Command C:\obs\storm.cmd -WorkDir C:\obs `
+            -BufKB 4 -MinBuf 2 -MaxBuf 2 -Label starved 2>&1 | Tee-Object -FilePath C:\obs\out\loss-starved.txt
+          Write-Output '--- REAL CONFIG (what windows.ps1 uses) ---'
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$P/lossctl.ps1" `
+            -OutDir C:\obs\loss-real -Command C:\obs\storm.cmd -WorkDir C:\obs `
+            -BufKB 1024 -MinBuf 64 -MaxBuf 320 -Label real 2>&1 | Tee-Object -FilePath C:\obs\out\loss-real.txt
+          Copy-Item C:\obs\loss-starved\loss.json C:\obs\out\loss-starved.json -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\loss-real\loss.json    C:\obs\out\loss-real.json    -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\loss-starved\logman-query.txt C:\obs\out\loss-starved-logman.txt -ErrorAction SilentlyContinue
+          Copy-Item C:\obs\loss-real\summary.txt  C:\obs\out\loss-real-summary.txt -ErrorAction SilentlyContinue
+          Remove-Item C:\obs\loss-starved\trace.etl, C:\obs\loss-starved\trace.xml, C:\obs\loss-real\trace.etl, C:\obs\loss-real\trace.xml -Force -ErrorAction SilentlyContinue
+          Remove-Item C:\obs\stormdir -Recurse -Force -ErrorAction SilentlyContinue
+
+      # ── Q1d/Q2/Q3/Q4 on real packages. Every version here was OSV-screened before it was listed.
+      - name: OBSERVE real packages
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          foreach ($spec in ($env:PACKAGES -split '\s+' | Where-Object { $_ })) {
+            $i = $spec.LastIndexOf('@')
+            $pkg = $spec.Substring(0, $i); $ver = $spec.Substring($i + 1)
+            $slug = ($spec -replace '[^a-zA-Z0-9]', '_')
+            Write-Output "=============== $spec ==============="
+            $free = (Get-PSDrive -Name C).Free
+            Write-Output "free on C: $([math]::Round($free/1GB,1)) GB"
+            # A trace runs ~1.3 KB of XML per event, so a heavy build is gigabytes. Running out of
+            # disk mid-capture yields a SHORT trace with no error, which reads exactly like a package
+            # that touched fewer files — the undercount direction.
+            if ($free -lt 12GB) { Write-Output "::warning::skipping $spec — under 12 GB free"; continue }
+            node "$P/observe-pkg.mjs" $pkg $ver --root C:\obs 2>&1 |
+              Tee-Object -FilePath "C:\obs\out\observe-$slug.txt"
+            $probe = Get-ChildItem C:\obs -Filter probe.json -Recurse -ErrorAction SilentlyContinue |
+              Sort-Object LastWriteTime | Select-Object -Last 1
+            if (-not $probe) { Write-Output "no probe.json for $spec"; continue }
+            $j = Get-Content $probe.FullName -Raw | ConvertFrom-Json
+            Copy-Item $probe.FullName "C:\obs\out\probe-$slug.json" -Force
+            if ($j.status -ne 'OK') { Write-Output "$spec => $($j.status)"; continue }
+            $nd = Join-Path $j.capDir 'events.ndjson'
+            if (Test-Path $nd) {
+              Copy-Item $nd "C:\obs\out\events-$slug.ndjson" -Force
+              node harness/v2/classify.mjs $nd --project $j.obsDir --home $env:USERPROFILE `
+                --platform win32 --root-pid $j.rootPid --json "C:\obs\out\observed-$slug.json" 2>&1 |
+                Tee-Object -FilePath "C:\obs\out\classify-$slug.txt"
+              node "$P/retain.mjs" $nd --project $j.obsDir --home $env:USERPROFILE --temp $j.temp `
+                --json "C:\obs\out\retain-$slug.json" 2>&1 |
+                Tee-Object -FilePath "C:\obs\out\retain-$slug.txt"
+            }
+            # The trace is the bulk of the disk cost and is not the deliverable; the normalized
+            # stream already copied out is. Drop it before the next package so a later, heavier one
+            # is not skipped for space the previous one is still holding.
+            Remove-Item (Join-Path $j.capDir 'trace.etl'), (Join-Path $j.capDir 'trace.xml') -Force -ErrorAction SilentlyContinue
+            Remove-Item $j.root -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Output '===== KEYWORD DECODE ====='
+          Get-Content C:\obs\out\keyword-decode.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== KNOWN-ANSWER FIXTURE ====='
+          Get-Content C:\obs\out\kaf-assert.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== EVENTS LOST ====='
+          Get-Content C:\obs\out\loss-starved.txt, C:\obs\out\loss-real.txt -ErrorAction SilentlyContinue
+          Write-Output ''
+          Write-Output '===== PER-PACKAGE ====='
+          Get-ChildItem C:\obs\out\retain-*.txt -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "--- $($_.Name) ---"; Get-Content $_.FullName
+          }
+
+      - name: Upload probe output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-viability-out
+          path: C:\obs\out
+          if-no-files-found: warn
