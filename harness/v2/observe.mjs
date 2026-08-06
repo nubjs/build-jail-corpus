@@ -41,6 +41,7 @@
 //                           [jail-npm-prefix]
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
+import { enumerateGrant } from './pathgrant.mjs';
 
 const [file, proj, home, jailHome, pkgName, jailTmp, jailNpmPrefix] = process.argv.slice(2);
 if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName] [jailTmp] [jailNpmPrefix]'); process.exit(2); }
@@ -264,6 +265,21 @@ console.log('== REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==');
 console.log(`  distinct: ${denials.size}`);
 [...denials].slice(0, 15).forEach((d) => console.log(`      ${d}`));
 
+// ⛔ THE `userHome` RUNG IS TRIED NARROW FIRST, AND THE FALLBACK IS THE SCOPE, NEVER NOTHING.
+// A single write to `~/.cache/foo` used to synthesize `write: {userHome: true}` — the whole home,
+// minus the secret floor. Where the writes roll up to a small, stable set of DIRECTORIES, that set
+// is emitted instead: `write: {userHome: [".cache/nub/pm/tools/ms-playwright"]}`. `enumerateGrant`
+// refuses whenever it cannot prove the set enumerable, and a refusal falls through to exactly the
+// grant that ships today, so the narrow rung can only ever narrow — it cannot break a package that
+// works now.
+//
+// ⛔⛔ AND THE NARROW RUNG IS ONLY SOUND IF NUB CREATES THE GRANTED DIRECTORY BEFORE THE CHILD
+// LAUNCHES. Both Linux backends drop a rule whose path is absent (Landlock's `add_rule` cannot
+// open it; `linux_grants.rs` skips an absent Speculative rule), and "the cache does not exist yet"
+// is this tier's common case. See `pathgrant.mjs`'s header for the source citations.
+const homeRel = (p) => (home && p.startsWith(`${home}/`) ? p.slice(home.length + 1) : p);
+const enumerated = w.userHome ? enumerateGrant(w.userHome.map(homeRel)) : { ok: false, reason: 'no userHome writes' };
+
 // The synthesized grant: the NARROWEST catalog entry covering everything observed.
 const g = {};
 if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
@@ -272,17 +288,35 @@ if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
 if (sockets > 0) g.network = true;
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 console.log('  ' + JSON.stringify(g));
+
+// ⛔ THE NARROW RUNG IS PRINTED SEPARATELY AND IS NOT YET WHAT VERIFY RUNS, deliberately. nub's
+// catalog parser accepts only `true` as a scope's value today (`catalog_v2.rs::parse_reach`), so
+// feeding the array form to the override would be REJECTED — and a rejected override falls back to
+// the compiled-in table SILENTLY, which reads exactly like a passing arm. Emitting it as its own
+// line keeps the running pipeline on the schema it can enforce while making the narrowing
+// measurable now; the line becomes the grant once the enforcement side lands.
+if (enumerated.ok) {
+  const narrow = { ...g, write: { ...g.write, userHome: enumerated.dirs } };
+  console.log('== PATH-TIER GRANT (narrower; NOT enforceable until the Rust side lands) ==');
+  console.log('  ' + JSON.stringify(narrow));
+}
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant`);
 
-// Could an ENUMERATION replace a scope grant? Only if the set outside project/deps is small AND
-// stable run to run. A version- or PID-stamped directory name makes it neither, so print the
-// candidate paths — a human reading them can tell a fixed `~/.cache/foo` from a random temp name
-// far more reliably than any heuristic here.
+// The candidate paths, kept as a REPORT even though the enumeration above is now mechanical. A
+// refusal names its reason but not the evidence, and the evidence is what tells a reader whether
+// the refusal is a real instability (hugo's fresh 32-hex download dir) or a predicate that needs
+// a case added. `outside` is included because no scope covers it at all — those are the writes a
+// grant model cannot express today, narrow rung or otherwise.
 const enumerable = [...(w.userHome ?? []), ...(w.outside ?? [])];
-console.log('== writePaths FEASIBILITY (distinct writes outside project/deps) ==');
+console.log('== PATH-GRANT FEASIBILITY (distinct writes outside project/deps) ==');
 console.log(`  count: ${enumerable.length}`);
-enumerable.slice(0, 40).forEach((p) => console.log(`      ${p.startsWith(home) ? p.slice(home.length + 1) : p}`));
+console.log(
+  enumerated.ok
+    ? `  userHome ENUMERATED to ${enumerated.dirs.length} director${enumerated.dirs.length === 1 ? 'y' : 'ies'}: ${JSON.stringify(enumerated.dirs)}`
+    : `  userHome NOT enumerable — ${enumerated.reason}; the whole-scope grant stands`,
+);
+enumerable.slice(0, 40).forEach((p) => console.log(`      ${homeRel(p)}`));
 if (enumerable.length > 40) console.log(`      … and ${enumerable.length - 40} more`);
 
 // The FULL attributed write set, one `WRITE\t<scope>\t<path>` line each, behind an env flag. Off by
