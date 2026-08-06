@@ -23,6 +23,18 @@ NUB="${3:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUNUSER="${SUDO_USER:-$(id -un)}"
 NPM_BIN="$(command -v npm)"
+# nub's global virtual store, resolved the way the ARM will resolve it rather than the way this
+# driver would. The driver runs as root (dtrace needs uid 0) while every arm is dropped back with
+# `sudo -u -H`, whose env_reset drops XDG_CACHE_HOME — so an arm always lands on the invoking user's
+# `~/.cache/nub/pm/{store,tools}`: `aube_store::dirs::cache_dir()` has no macOS `~/Library/Caches`
+# branch, and nub's embedder pins `cache_namespace: "nub/pm"` + `virtual_store_subdir: "store"`
+# (`identity.rs`). Hence the paths are byte-identical to the Linux driver's; only the ANCHOR differs.
+# ⛔ ANCHORING ON THE DRIVER'S OWN `$HOME` WOULD RESOLVE TO /var/root UNDER sudo AND EVICT NOTHING,
+# SILENTLY — the same shape as the scoped-slug bug `measure.sh` records, and just as invisible.
+USER_HOME="$(dscl . -read "/Users/$RUNUSER" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+USER_HOME="${USER_HOME:-/Users/$RUNUSER}"
+STORE="$USER_HOME/.cache/nub/pm/store"
+TOOLS="$USER_HOME/.cache/nub/pm/tools"
 
 # ⛔⛔ HARD STOP — THIS LANE CAN PRODUCE UNDER-GRANTS, WHICH IS THE ONE UNACCEPTABLE DIRECTION.
 #
@@ -135,8 +147,26 @@ if [ "$OBS_RC" -ne 0 ]; then
   exit 0
 fi
 
+# The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
+# arm's own hoisted `node_modules` — MEASURED rather than guessed. Consumed by the per-arm store
+# eviction in `verify()`; see the long note there for why evicting `$PKG` alone leaves a live replay
+# path through a transitive dependency's entry.
+CLOSURE=$(node -e '
+  const fs = require("fs"), path = require("path");
+  const nm = process.argv[1], out = [];
+  let ents; try { ents = fs.readdirSync(nm, { withFileTypes: true }); } catch { process.exit(0); }
+  for (const e of ents) {
+    if (!e.isDirectory() || e.name.startsWith(".")) continue;
+    if (e.name.startsWith("@")) {
+      for (const s of fs.readdirSync(path.join(nm, e.name))) out.push(e.name + "/" + s);
+    } else out.push(e.name);
+  }
+  console.log(out.join("\n"));
+' "$OBS/node_modules" 2>/dev/null)
+echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm   store=$STORE"
+
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "/Users/$RUNUSER" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "$USER_HOME" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
@@ -169,12 +199,22 @@ verify () {
   # passes every time and reports the synthesized grant as sufficient — it inflates the agreement
   # rate rather than breaking anything, which is what makes it the most dangerous false green here.
   printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
-  # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH AND NEITHER IS DROPPING THE MEMO — PROVEN ON THE WINDOWS
-  # DRIVER, which carries both and replayed anyway. The surviving replay source is the GLOBAL
-  # VIRTUAL STORE: a package already materialized there is RELINKED, not reinstalled, so its
-  # scripts never run again. The signature is `materialized …` with no `installed N packages`,
-  # while every precondition stays green. Hence a fresh cache per ARM, not per run.
+  # THREE REPLAY PATHS, THREE GUARDS, AND NO ONE OF THEM SUBSUMES ANOTHER (`measure.sh` proved the
+  # last point directly: with the memo dropped in every arm, the only variable being whether a
+  # transitive store entry was evicted, `@apollo/rover@0.2.1` went rc=0 with an EMPTY `bin/` to rc=1
+  # with `bin/` absent):
+  #
+  #   unique root name      — nub memoises a lifecycle outcome keyed on package identity
+  #   side-effects-cache=no — the memo says "this script already ran, skip it"
+  #   store eviction        — the store says "this package is already materialised, relink it"
   local cache="$v/nubcache"; rm -rf "$cache"
+  # ⛔ A PER-ARM `NUB_CACHE_DIR` DROPS NEITHER THE MEMO NOR THE STORE, AND AN EARLIER REVISION OF
+  # THIS FILE SAID IT DROPPED BOTH. `NUB_CACHE_DIR` governs the resolver PRIMER cache
+  # (`pm_engine/mod.rs`, `config_env("CACHE_DIR")`); the store comes from `aube_store::dirs::
+  # cache_dir()`, and the memo from `side_effects_cache_root()` = `virtual_store_dir()/../
+  # side-effects-v1`, i.e. BOTH live beside the store under the XDG cache and neither moves with it.
+  # So the memo needs its own opt-out, read by `aube_settings::resolved::side_effects_cache`.
+  printf 'side-effects-cache=false\n' > "$v/.npmrc"
   # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
   # default block, which would make the arm VOID and read as "the grant did not work" rather than
   # "the package needs nothing". The override REPLACES the compiled-in table rather than merging
@@ -190,6 +230,66 @@ verify () {
       : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
     fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
+  # ⛔⛔ EVICT THIS PACKAGE **AND ITS CLOSURE** FROM THE MACHINE-GLOBAL STORE. Ported from
+  # `measure.sh`, whose comments carry the measurements; the load-bearing ones, restated because
+  # this lane was hard-disabled for lacking exactly this:
+  #
+  #   * A relinked package runs NO lifecycle script, so the arm PASSES at whatever grant is under
+  #     test — including one NARROWER than the package needs. That is an under-grant, the one
+  #     unacceptable direction, and it presents with every precondition green.
+  #   * `$PKG` ALONE IS NOT ENOUGH. `@apollo/rover@0.2.1`'s postinstall writes into a SIBLING
+  #     package's directory (`binary-install/bin/`), which the jail refuses because
+  #     `store_entry_write_root` grants the package's OWN entry only. Leaving `binary-install`
+  #     populated by a prior arm let a `{"network":true}` arm relink it and pass.
+  #   * TARGETED, NOT `rm -rf` ON THE STORE. It is machine-global and a sibling agent may be
+  #     measuring on the same box. Anchor `<slug>@` with `/`→`+` — the store's own naming
+  #     (`@babel+core@7.29.7-<hash>`); a `tr '/@' '--'` slug matched zero scoped packages, silently.
+  #   * SPARE THE ENTRIES nub'S OWN TOOLING LINKS THROUGH (67c01911). nub bootstraps node-gyp into
+  #     `<cache>/nub/pm/tools/` against this same store, and `semver`/`tar`/`which`/`graceful-fs`
+  #     are ordinary members of a native package's closure — evicting by name leaves a dangling
+  #     symlink and `gyp ERR! Cannot find module 'semver'`, which reads as INSUFFICIENT and inflates
+  #     the grant. Resolve the sparing set by FOLLOWING SYMLINKS, never by matching the link dir's
+  #     name: it is `.store` on one binary and `.nub` on another, so a name match stops matching
+  #     silently. Sparing cannot manufacture a false pass — nub's tool closure is pure-JS library
+  #     code that declares no lifecycle script, so no arm can leave build output in a spared entry.
+  #
+  # Cost: each arm re-materializes the closure. That is the price of independent arms.
+  if [ -d "$STORE" ]; then
+    printf '%s\n' "$PKG" $CLOSURE | sort -u | node -e '
+      const fs=require("fs"), path=require("path");
+      const [store, tools] = process.argv.slice(1);
+      // Every store entry any nub tool project links through, at whatever depth and under whatever
+      // name that project gives its virtual-store dir.
+      const keep = new Set();
+      const walk = (dir, depth) => {
+        if (depth > 6) return;
+        let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+        for (const e of ents) {
+          const p = path.join(dir, e.name);
+          if (e.isSymbolicLink()) {
+            let t; try { t = path.resolve(dir, fs.readlinkSync(p)); } catch { continue; }
+            const rel = path.relative(store, t);
+            if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) keep.add(rel.split(path.sep)[0]);
+          } else if (e.isDirectory()) walk(p, depth + 1);
+        }
+      };
+      walk(tools, 0);
+      const prefixes = [...new Set(fs.readFileSync(0, "utf8").split("\n").filter(Boolean)
+        .map(n => n.replace(/\//g, "+") + "@"))];
+      let removed = 0, spared = 0;
+      let entries; try { entries = fs.readdirSync(store); } catch { entries = []; }
+      for (const e of entries) {
+        if (!prefixes.some(n => e.startsWith(n))) continue;
+        if (keep.has(e)) { spared++; continue; }
+        fs.rmSync(path.join(store, e), { recursive: true, force: true });
+        removed++;
+      }
+      console.log(`  EVICT[${process.argv[3]}] ${removed} store entries removed, ${spared} spared as nub tooling, ${entries.length} in store`);
+    ' "$STORE" "$TOOLS" "$label" ||
+      echo "  ⛔ EVICTION FAILED — this arm may REPLAY a prior arm's build and UNDER-report"
+  else
+    echo "  EVICT[$label] no store at $STORE yet (first arm on this box)"
+  fi
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
@@ -226,11 +326,28 @@ JW
   # so a bare `find -type f` counts ~30 files where the npm control counted 456, and the artifact
   # gate below then fails an arm that installed perfectly.
   files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -name 'trace.txt' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
-  echo "  VERIFY[$label] rc=$rc files=$files OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  # ⛔⛔ `files >= OBS_FILES` WAS THE GATE HERE AND IT IS NOT A SUCCESS GATE. `find -L` follows the
+  # isolated layout's symlinks into the machine-global store, so the number is dominated by the
+  # dependency closure and is nearly insensitive to whether THIS package's script produced anything
+  # — and the eviction above only makes an arm ATTEMPT the work, so it needs a gate that can see
+  # whether the work landed. MEASURED on `@apollo/rover@0.2.1` (Linux): an arm that produced NONE of
+  # the package's three artifacts counted 704 files against a 718-file reference. The per-file
+  # ARTIFACT MANIFEST is the gate in `measure.sh` and on Windows; the three drivers now agree on what
+  # "the arm succeeded" means. `files/OBS_FILES` stays PRINTED for continuity with existing logs.
+  local gate grc
+  gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
+  echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
+  # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
+  # Fall back to the exit code rather than passing an ungated arm off as measured.
+  if [ "$grc" -eq 3 ]; then
+    echo "     NOTE no artifact reference for $PKG — gating on rc alone"
+    [ "$rc" -eq 0 ]; return $?
+  fi
   # Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
-  # failure mode. Compare against what the unjailed OBSERVE arm produced.
-  [ "$rc" -eq 0 ] && [ "$files" -ge "$OBS_FILES" ]
+  # failure mode. Both must hold.
+  [ "$rc" -eq 0 ] && [ "$grc" -eq 0 ]
 }
 
 VERIFIED=0
