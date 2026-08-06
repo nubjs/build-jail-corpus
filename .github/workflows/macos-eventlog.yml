@@ -165,20 +165,28 @@ jobs:
           echo "--- first 5 retained events ---"
           head -6 "$EV" | cut -c1-400
           echo "--- op histogram straight out of the retained log ---"
+          # ⛔ THE SHORT KEYS, NOT THE LONG ONES. This block read `r.kind`/`r.call`/`r.path2`/
+          # `r.lifecycle` after the log moved to `k`/`s`/`g`/the process table, and printed
+          # `by syscall: {}` over a 6,076-event log — a reader would have concluded the retention
+          # was producing nothing. A summariser that cannot fail loudly has to be checked against a
+          # known non-empty log, which is what the assertion at the end does.
           node -e '
             const fs = require("fs");
             const rows = fs.readFileSync(process.argv[1], "utf8").trim().split("\n").map(JSON.parse);
+            const evs = rows.filter((r) => r.k === "e");
+            const life = new Map(rows.filter((r) => r.k === "p").map((p) => [p.pid, p.life === 1]));
             const by = {}, errn = {};
-            for (const r of rows) {
-              if (r.kind !== "event") continue;
-              by[r.call] = (by[r.call] ?? 0) + 1;
-              if (r.ret < 0) errn[r.errno] = (errn[r.errno] ?? 0) + 1;
+            for (const e of evs) {
+              by[e.s] = (by[e.s] ?? 0) + (e.n ?? 1);
+              if (e.r !== 0) errn[e.r] = (errn[e.r] ?? 0) + (e.n ?? 1);
             }
+            console.log("  distinct events:", evs.length, " calls:", evs.reduce((a, e) => a + (e.n ?? 1), 0));
             console.log("  by syscall:", JSON.stringify(by));
             console.log("  by errno on failure:", JSON.stringify(errn));
-            console.log("  two-path events:", rows.filter((r) => r.path2).length);
-            console.log("  lifecycle-attributed:", rows.filter((r) => r.lifecycle).length,
-                        "/", rows.filter((r) => r.kind === "event").length);
+            console.log("  two-path events:", evs.filter((e) => e.g).length);
+            console.log("  tracer-loss records:", rows.filter((r) => r.k === "x").length);
+            console.log("  lifecycle-attributed:", evs.filter((e) => life.get(e.p)).length, "/", evs.length);
+            if (evs.length === 0) { console.log("  ⛔ ZERO EVENTS — the summariser is reading the wrong keys, or the log is empty"); process.exit(1); }
           ' "$EV"
           cp "$EV" /tmp/events.ndjson; cp "$EV.gz" /tmp/events.ndjson.gz
           cp "$R/observe/trace.txt" /tmp/trace.txt

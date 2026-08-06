@@ -109,3 +109,44 @@ for (const [plat, rows] of present) {
     assert.ok(failed.every((e) => /^E[A-Z0-9]+$/.test(e.r)), 'every result is a legible errno symbol');
   });
 }
+
+// ── THE ARCHIVE CLAIM, EXECUTED ───────────────────────────────────────────────────────────────
+// ⛔ This is the one assertion that is NOT advisory, because it is the property the whole retention
+// design rests on: the derived log is REGENERABLE from the archived raw trace. If it is not, then
+// the raw trace is not actually an archive and a decoder bug is still a re-measure.
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { gunzipSync as gunzip } from 'node:zlib';
+
+const RAW = `${HERE}macos-apollo-rover-0.2.1.trace.txt.gz`;
+if (existsSync(RAW)) {
+  test('the derived macOS log regenerates from the archived raw trace, losing nothing', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'regen-'));
+    const trace = join(dir, 'trace.txt');
+    writeFileSync(trace, gunzip(readFileSync(RAW)));
+    const out = join(dir, 'events.ndjson');
+    execFileSync(process.execPath, [
+      `${HERE}../adapters/macos-eventlog.mjs`, trace, '--out', out,
+      '--pkg', '@apollo/rover', '--version', '0.2.1',
+      // The roots come from the ARCHIVED log's own header, which is the point of recording them.
+      '--project', LOGS.macos.find((r) => r.k === 'h').roots.project,
+      '--home', LOGS.macos.find((r) => r.k === 'h').roots.home,
+    ], { encoding: 'utf8' });
+    const key = (e) => `${e.p}|${e.s}|${e.f}|${e.g ?? ''}|${e.r}|${e.n}`;
+    const before = new Set(LOGS.macos.filter((r) => r.k === 'e').map(key));
+    const after = new Set(readFileSync(out, 'utf8').trim().split('\n')
+      .map((l) => JSON.parse(l)).filter((r) => r.k === 'e').map(key));
+
+    // ⛔ SUPERSET, NOT EQUALITY, AND THAT IS DELIBERATE. A decoder is allowed to get BETTER — to
+    // resolve an fd it previously could not, or to learn a syscall it used to skip — and a
+    // byte-equality assertion would make every such improvement a test failure, which trains people
+    // to update the fixture instead of reading the diff. What may never happen is a LOSS: an event
+    // the archive supports that a later decoder stops producing. That is the direction that turns a
+    // re-parse back into a re-measure.
+    const lost = [...before].filter((k) => !after.has(k));
+    assert.deepEqual(lost.slice(0, 5), [], `${lost.length} archived event(s) no longer regenerate`);
+    assert.ok(after.size >= before.size, `regeneration produced ${after.size} of ${before.size}`);
+  });
+}

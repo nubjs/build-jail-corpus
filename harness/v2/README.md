@@ -203,7 +203,17 @@ Every normalized log written in either era would have carried those holes forwar
 
 ⛔ **`capture.json` is not optional metadata.** A trace with no `linkat` records means "`linkat` never fired" under today's adapter and "`linkat` was not subscribed" under this morning's, and *nothing in the byte stream distinguishes them*. The adapter is versioned by content hash rather than by a number someone has to remember to bump.
 
-**Measured on `@apollo/rover@0.2.1`:** archive `trace.txt.gz` **40,870 B** against derived `events.ndjson.gz` 23,623 B — **1.73×**, at the low end of the 2–2.8× Linux measured. Committing both is 64.5 KB/package (~138 MiB per platform at 2,250); archive-only is ~88 MiB.
+**Measured on `@apollo/rover@0.2.1`**, with the adapter subscribing everything dtrace exposes — 13,217 trace lines, 12,644 calls, 6,076 distinct events:
+
+| artifact | raw | gzip -9 |
+| --- | --- | --- |
+| `trace.txt` — **the archive** | 1,904,148 | **69,929** |
+| `events.ndjson` — derived | 999,295 | 40,567 |
+| `driver.out` — all that is published today | 4,216 | — |
+
+Archive-to-derived is **1.72×**, at the low end of the 2–2.8× the Linux lane measured. At 2,250 packages: **~150 MiB per platform archive-only, ~237 MiB for both.** Dropping `ENOENT` would take the derived log from 40,567 to 30,829 gzipped bytes (24%) and 6,076 events to 4,226 — refused, because a failed lookup names a fallback path the script probed for, and 82% of these are the read-side probes that a future read-scope model would be derived from.
+
+⛔ **Both files are committed as fixtures** (`fixtures/macos-apollo-rover-0.2.1.{trace.txt,events.ndjson}.gz`) so the pair is demonstrable rather than described: regenerate the second from the first and diff it.
 
 #### The macOS half — `adapters/macos-eventlog.mjs`
 
