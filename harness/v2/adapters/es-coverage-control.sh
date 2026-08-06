@@ -51,6 +51,23 @@ sleep 1
 # TRACERS. Three eslogger subscriptions of increasing width plus fs_usage as the known-good
 # comparator (it already proved it sees our processes when eslogger did not).
 # ---------------------------------------------------------------------------
+# ⛔⛔ `set -m` IS THE WHOLE EXPERIMENT, NOT A TIDY-UP. `man eslogger`: "eslogger automatically
+# suppresses events for all processes that are part of its process group." A non-interactive shell
+# has NO job control, so every background job it starts inherits the SCRIPT's pgid, and pgid
+# survives fork+exec — so the tracers and all six shapes shared one process group and eslogger
+# discarded every shape BY DESIGN. That is the entire "ES is structurally blind" result: this
+# script was measuring its own suppression. `set -m` turns job control on, which gives each
+# background job its own pgid. MEASURED: with it, a background job gets pgid 89611 against the
+# script's 89578; without it, 89578.
+#
+# ⛔ NOT `setsid` — it does not exist on macOS (util-linux, Linux-only), so the reflexive fix is
+# unavailable. `perl -e 'use POSIX; POSIX::setsid(); exec @ARGV'` is the fallback.
+#
+# The ADAPTER already had this cure via node's `spawn(..., {detached: true})`. This control never
+# did, because `detached` is a Node option and this is a shell script — so the control reproduced
+# the exact bug it was written to rule out.
+set -m
+
 eslogger open \
   > "$OUT/es1.json" 2> "$OUT/es1.err" & P1=$!
 eslogger open create unlink rename exec \
@@ -60,7 +77,27 @@ eslogger open create unlink rename link truncate exec fork exit \
 fs_usage -w -f filesys \
   > "$OUT/fsu.txt" 2> "$OUT/fsu.err" & PF=$!
 
+set +m
+
 say "tracers: es1=$P1 es5=$P5 es9=$P9 fsu=$PF"
+
+# ⛔ THE FIX MUST PROVE IT APPLIED, OR A SECOND BLIND RUN READS EXACTLY LIKE THE FIRST ONE. Every
+# tracer's pgid must differ from this script's. If any matches, that tracer is still suppressing
+# our shapes and its rows are VOID rather than negative.
+SELF_PGID=$(ps -o pgid= -p $$ | tr -d ' ')
+PG_OK=1
+for _p in "$P1" "$P5" "$P9"; do
+  _pg=$(ps -o pgid= -p "$_p" 2>/dev/null | tr -d ' ')
+  say "PGID-CONTROL tracer pid=$_p pgid=${_pg:-GONE} script=$SELF_PGID"
+  { [ -n "$_pg" ] && [ "$_pg" != "$SELF_PGID" ]; } || PG_OK=0
+done
+if [ "$PG_OK" -eq 1 ]; then
+  say "PGID-CONTROL PASS — tracers sit outside the script's process group"
+else
+  say "PGID-CONTROL ⛔ FAIL — a tracer shares this script's process group, so eslogger will"
+  say "PGID-CONTROL ⛔ suppress every shape below. The run is VOID, not a negative result."
+fi
+
 date +%H:%M:%S.%N > "$OUT/t-tracers-started"
 
 # Generous fixed warmup. A readiness poll is what obscured this in an earlier run; a wall-clock wait
