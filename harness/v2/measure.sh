@@ -15,7 +15,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # ⛔ NOT UNDER /tmp. That path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all — it already produced one wrong all-clear.
 ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
-MAX='{"write":"disk","read":"disk","network":true}'
+MAX='{"write":"disk","network":true}'   # ⛔ `read:"disk"` ALONGSIDE `write:"disk"` IS REJECTED by the parser
+# ("`write: \"disk\"` already grants every read; remove `read`"), and a rejected override falls back
+# to the COMPILED-IN catalog — so the arm measures the shipped policy. The VOID assertion caught it.
 echo "### $PKG@$VER   ($ROOT)"
 
 # ── The fixture. Lifted from v1 (`search.mjs:makeFixture`), because every element of it is load-
@@ -93,6 +95,14 @@ node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS/proj" "$OBS/home" "$OSTORE" > "$
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+# ⛔ UNKNOWN IS A VERDICT, NOT A GRANT. The observer refuses to name one when its subtree filter
+# attributed nothing, because an empty observation is indistinguishable from "needs nothing" — the
+# narrowest answer in the lattice — and verifying it would launder an attribution failure into a
+# recorded minimum.
+if [ "$GRANT" = "UNKNOWN" ]; then
+  echo "  => UNKNOWN (no lifecycle subtree attributed; the observer has no evidence, narrow or wide)"
+  exit 0
+fi
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ──
 run_arm () {

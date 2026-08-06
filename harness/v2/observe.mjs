@@ -262,7 +262,14 @@ if (sockets > 0) g.network = true;
 // ⛔ AN EMPTY `default` BLOCK IS REJECTED BY THE PARSER, and a rejected override falls back to the
 // COMPILED-IN catalog with a warning the driver would otherwise read as a passing arm. The
 // narrowest REPRESENTABLE nothing is an explicit `network:false`.
+// ⛔ AN UNKNOWN IS NOT A NARROW GRANT. If no lifecycle shell was found the subtree filter attributed
+// nothing, and "nothing observed" then looks exactly like "needs nothing" — the narrowest possible
+// answer, produced by an attribution failure rather than by evidence. Emitting UNKNOWN instead of a
+// grant is what keeps the driver from verifying, passing, and recording it. An earlier revision
+// printed a warning and emitted {"network":false} anyway, which the driver happily verified; the
+// warning is not the safeguard, refusing to name a grant is.
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
-console.log('  ' + JSON.stringify(Object.keys(g).length ? g : { network: false }));
+if (!lifecycleFound) console.log('  UNKNOWN');
+else console.log('  ' + JSON.stringify(Object.keys(g).length ? g : { network: false }));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs || r.kernelfs) console.log(`  NOTE ${(w.kernelfs ?? []).length} kernel-fs writes / ${(r.kernelfs ?? []).length} reads (/proc,/sys) — a READ floor question, not a write grant`);
