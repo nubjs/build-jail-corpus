@@ -8,10 +8,17 @@
 #   1. KNOWN-ANSWER FIXTURE — N renames whose path strings are provably resident, traced by the PRE
 #      adapter and the FIXED one. The control must lose every destination; the fix must capture
 #      every one. This is the arm that can go RED, and it is the durable regression guard.
-#   2. REAL-WORLD BEFORE/AFTER — the same @apollo/rover@0.2.1 that run 31109041194 traced, measured
-#      twice. This is where the LOSS RATE gets its denominator: under the PRE adapter every rename
-#      still emits its SOURCE record (a separate, infallible clause), so the source count IS the
-#      number of renames, and the destination count is what was lost against it.
+#   2. REAL-WORLD BEFORE/AFTER — the same @apollo/rover@0.2.1 that run 31109041194 traced, over
+#      FOUR alternating arms (pre, post, pre2, post2). This is where the LOSS RATE gets its
+#      denominator: under the PRE adapter every rename still emits its SOURCE record from a
+#      separate, infallible clause, so the PRE record count IS the number of renames, and the
+#      destinations are what was lost against it.
+#
+#      ⛔ THE ARMS ARE NOT INDEPENDENT BY DEFAULT AND THE FIRST VERSION OF THIS JOB WAS INVALID.
+#      Node's V8 compile cache is written on a COLD run only, so arm 1 renamed 541 files into
+#      /tmp/node-compile-cache and arm 2 renamed none — which read as "the fix captured nothing".
+#      run_arm now clears that cache per arm, and pre2/post2 exist to PROVE it worked: if pre and
+#      pre2 disagree, order still leaks and no comparison in this job is readable.
 #
 # ⛔ The job is DIAGNOSTIC-FIRST but not diagnostic-only: step 1 fails the job on a real regression,
 # and it refuses (INCONCLUSIVE, non-zero) rather than passing if its own control fails to go red.
@@ -112,6 +119,14 @@ jobs:
             local L="$1" A="$2"
             cp "$A" harness/v2/adapters/macos-observe.d
             rm -rf /Users/runner/v2m-* 2>/dev/null
+            # ⛔⛔ THE ARMS ARE ORDER-DEPENDENT UNLESS THIS IS CLEARED, AND THE FIRST VERSION OF THIS
+            # JOB WAS INVALID BECAUSE OF IT. Node writes its V8 compile cache on a COLD run only, so
+            # arm 1 performed 541 renames into /tmp/node-compile-cache and arm 2 performed ZERO —
+            # making the fixed adapter look like it had captured nothing when it simply had nothing
+            # to capture. MEASURED on run 31113879486: pre=541 records, post=0, from that cause
+            # alone. Same shape as the 2899-vs-1805 trace-line split across the three arms of run
+            # 31109041194, which is the same confound seen and not named.
+            sudo rm -rf /tmp/node-compile-cache 2>/dev/null
             echo "=================================================================="
             echo "REAL-WORLD ARM: $L"
             sudo -E harness/v2/measure-macos.sh "$P" "$V" > "/tmp/rw-$L.txt" 2>&1
@@ -132,19 +147,38 @@ jobs:
             cp "$R/observe/dtrace.log" "/tmp/dtrace-$L.log" 2>/dev/null
           }
 
-          run_arm pre  harness/v2/probes/macos-observe-PRE-NP2.d
-          run_arm post /tmp/adapter-FIXED.d
+          # FOUR arms, alternating. pre2/post2 are the REPEATABILITY CONTROL: if the cache reset
+          # above is doing its job, pre2 reproduces pre and post2 reproduces post, and only then does
+          # the pre-vs-post difference belong to the adapter rather than to arm order.
+          run_arm pre   harness/v2/probes/macos-observe-PRE-NP2.d
+          run_arm post  /tmp/adapter-FIXED.d
+          run_arm pre2  harness/v2/probes/macos-observe-PRE-NP2.d
+          run_arm post2 /tmp/adapter-FIXED.d
           cp /tmp/adapter-FIXED.d harness/v2/adapters/macos-observe.d
 
+          ren_of () { grep -E '^PATHOP\|' "/tmp/trace-$1.txt" 2>/dev/null \
+                        | awk -F'|' '$5=="rename"' | wc -l | tr -d ' '; }
           echo "=================================================================="
-          echo "THE ARITHMETIC (loss rate = destinations lost / renames observed)"
-          PRE_REN=$(grep -E '^PATHOP\|' /tmp/trace-pre.txt 2>/dev/null | awk -F'|' '$5=="rename"' | wc -l | tr -d ' ')
-          POST_REN=$(grep -E '^PATHOP\|' /tmp/trace-post.txt 2>/dev/null | awk -F'|' '$5=="rename"' | wc -l | tr -d ' ')
-          echo "  PRE  rename records: $PRE_REN   (sources only — every dest faulted)"
-          echo "  POST rename records: $POST_REN   (sources + destinations)"
-          echo "  destinations recovered: $((POST_REN - PRE_REN))"
-          echo "  ⛔ if POST is not materially greater than PRE, the fix captured nothing and the"
+          echo "THE ARITHMETIC"
+          PRE=$(ren_of pre); POST=$(ren_of post); PRE2=$(ren_of pre2); POST2=$(ren_of post2)
+          echo "  rename PATHOP records:  pre=$PRE  post=$POST  pre2=$PRE2  post2=$POST2"
+          echo "  REPEATABILITY: pre vs pre2 = $PRE vs $PRE2   |   post vs post2 = $POST vs $POST2"
+          echo "  ⛔ If pre and pre2 disagree materially, arm order still leaks and NO comparison"
+          echo "     below is readable. That is the failure this control exists to catch."
+          echo
+          echo "  Under the PRE adapter every rename emits its SOURCE record from a separate,"
+          echo "  infallible clause, so PRE record count == number of renames == the DENOMINATOR."
+          echo "  Destination records lost under PRE: $PRE of $PRE ( 100% by construction if the"
+          echo "  fault count matches ), recovered under POST: $((POST - PRE))."
+          echo "  ⛔ If POST is not materially greater than PRE, the fix captured nothing and the"
           echo "     errors merely stopped being PRINTED — which would be worse than the defect."
+          echo
+          echo "  EXECVE (a genuine residency fault, NOT the np2 defect — separate root cause):"
+          for a in pre post pre2 post2; do
+            EA=$(grep -c '^EXECARGV|' "/tmp/trace-$a.txt" 2>/dev/null)
+            EF=$(grep -c 'execve:entry' "/tmp/dtrace-$a.log" 2>/dev/null)
+            echo "    $a: EXECARGV captured=$EA  execve faults=$EF  => $((EA + EF)) execve entries seen"
+          done
 
       - name: 3. Decoder unit tests (RED-on-revert guard)
         if: always()
@@ -160,6 +194,8 @@ jobs:
             /tmp/rw-post.txt
             /tmp/trace-pre.txt
             /tmp/trace-post.txt
+            /tmp/trace-pre2.txt
+            /tmp/trace-post2.txt
             /tmp/dtrace-pre.log
             /tmp/dtrace-post.log
           if-no-files-found: warn
