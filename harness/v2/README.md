@@ -164,6 +164,26 @@ The vocabularies differ, and one pair is a false friend. The POSIX drivers print
 
 `record.test.mjs` runs the parser against fixtures captured verbatim from `macos-v2-measure` run 31088841052, rather than reconstructed from the drivers' own `echo` statements — a reconstructed fixture agrees with a parser that is wrong in exactly the way the reconstruction was.
 
+### The retained event log — `events.ndjson.gz` (Linux, live)
+
+Until now nothing about WHAT a package touched survived a run. `measure.sh` writes the full strace to `$OBS/trace.txt` inside a `mktemp -d` it deletes on exit, and the publisher copies only `driver.out` plus the extracted verdict. So a record answers "which grant" and never "which paths" — and every harness fix has meant RE-MEASURING the corpus (28–121 runner-hours per platform; v1 was ~495) rather than re-parsing it. `adapters/linux.mjs` closes that: it decodes the trace a second time, independently of synthesis, and writes a normalized event stream into the record dir.
+
+⛔ **It stores raw paths and the ROOTS, never scope tags.** A scope tag is derived data that bakes in today's classifier. We were adding a `tmp` scope while writing this; a log carrying only `scope:"outside"` would have forced a re-measure to gain it, where a raw path plus the roots makes it a re-parse. Same argument one level up for attribution: the process table carries `ppid`/`exe`/`cwd`/`life` so a changed attribution RULE is also a re-parse.
+
+| field | why it cannot be dropped |
+| --- | --- |
+| `o` op class + `s` raw syscall | the class is this file's opinion; the syscall name is not |
+| `f`, `g` | a two-path op bills BOTH ends — the macOS lane lost 100% of its rename destinations and nobody noticed |
+| `r` errno, `fl` open flags | a failed access is not a need, and write INTENT lives only in the flags |
+| `n` repeat count | makes dedup lossless rather than merely small |
+| header `roots` | every path is machine-specific (`/home/runner/v2-hNdvB5/…`); without these the stream is a pile of strings |
+
+⛔ **`events.ndjson.gz`, never `events.log`.** The repo's `.gitignore` carries a bare `*.log`, so a file named that is dropped silently at `git add` while looking present on the runner's disk — the same trap `record.mjs` documents for `driver.out`. Verified both ways with `git check-ignore`.
+
+**Cost, measured on four packages, then extrapolated over the 45 existing linux records' actual trace-line distribution:** 2.1 gzipped bytes per trace line; median record 22 KB, mean 101 KB, **~233 MB per platform and ~700 MB for a 2,250-package three-platform corpus**. Deduplication on `(pid, syscall, path, path2, result, flags)` is what makes that affordable — 216,512 calls collapse to 80,329 events on `lmdb-store@2.0.0-alpha2` — and it is lossless for a capability model because `n` keeps the frequency.
+
+⛔ **Nothing is filtered, and dropping `ENOENT` is NOT the free win it looks like.** It buys 1.3–1.75× after dedup, and the argument for it ("the file does not exist, so no grant would change the outcome") holds only on the MEASURING machine. MEASURED on `lmdb-store@2.0.0-alpha2`: 21,142 of its ENOENT probes are outside project and home, and they are the C++ **include search path** — `/usr/include/c++/12/bits/…`, `/usr/local/include/…`. On a box with a different gcc layout those same probes HIT. A future model that wants "grant the read the compiler searched for" is derivable only from the ENOENT set, so filtering it is the under-grant direction. Refusals (`EACCES`/`EPERM`/`EROFS`) are kept for the obvious reason: they are the signal that a grant is missing.
+
 ### One thing v2 broke that v1 could not
 
 ⛔ **Roughly half the corpus synthesizes the empty grant, and `collate.mjs` used to emit an entry for it.** nub rejects an entry that widens nothing — and a rejected catalog is a *silently discarded* one, since `Decision::FellBack` keeps nub running on the compiled-in table and merely prints `REJECTED`. So one such package invalidated the whole catalog while every record beside it was sound. It could not arise under v1, whose needs-nothing records carry `grant: null` and never become a meaningful row; a v2 record carries a *verified* `{}`, which is a stronger statement and a legitimately different value. Measured on the first macOS smoke slice: `git-validate@2.2.4` took the catalog gate down alongside two good records. The collator now omits the package, which is the correct encoding — the override replaces the compiled-in table rather than merging into it, so an absent package runs at the base profile.
