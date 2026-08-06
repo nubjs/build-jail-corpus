@@ -139,6 +139,16 @@ const pkgManifest = (base, pkg, ver) => {
     for (const e of ents) {
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
+      // ⛔ A NESTED `node_modules` IS SOMEONE ELSE'S ARTIFACTS AND MUST NOT ENTER THIS MANIFEST.
+      // npm parks a dependency it cannot hoist INSIDE the package directory, while nub's isolated
+      // layout puts it behind a `.store` junction instead. Walking into it therefore loads the
+      // OBSERVE manifest with thousands of files that are legitimately absent from the nub arm, and
+      // every one is then reported missing -- a false FAILURE, in the direction that manufactures a
+      // wider grant. MEASURED on the Linux lane: an arm read `artifacts=26/13206 missing=13181`,
+      // where 13,181 of the 13,206 were a nested `node_modules` and exactly 25 were the package.
+      // Skipping it is also what the gate already claims to do -- the comment above states that
+      // transitive dependencies are checked by `rc` alone, not file-by-file.
+      if (e.name === 'node_modules') continue;
       let st; try { st = fs.statSync(p); } catch { continue; }
       if (st.isDirectory()) walk(p); else m.set(path.relative(root, p).replace(/\\/g, '/'), st.size);
     }
