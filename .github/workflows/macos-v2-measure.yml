@@ -1,0 +1,126 @@
+# The macOS lane of the v2 measurement loop: OBSERVE unjailed under dtrace -> SYNTHESIZE the
+# narrowest grant -> VERIFY it in the real unprivileged build jail -> NARROW it to measure
+# over-prediction directly.
+#
+# Branch-scoped and no PR: both tracers need uid 0, and the maintainer's Mac is not a place to run
+# `sudo`. A hosted runner reports SIP DISABLED, which is what makes dtrace work here and nowhere
+# locally.
+name: macos-v2-measure
+
+on:
+  push:
+    branches: [probe/macos-v2-measure]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'space-separated pkg@version list'
+        required: false
+        default: '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7'
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: macos-15
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts + dtrace gate
+        run: |
+          set +e
+          sw_vers; uname -m; node --version; npm --version
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          echo "bash: $(/bin/bash --version | head -1)"
+          echo "cmake: $(command -v cmake || echo MISSING)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
+          echo "HELLO_RC=$?"
+
+      # Any cached probe binary from the corpus queue runner will do: the VERIFY arm needs the
+      # `build-jail-catalog-override` feature, not a specific commit, and the arm records which
+      # binary answered. A prefix restore-key is therefore correct and a miss is merely slower.
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/nub/target/release/nub
+          key: nub-bin-v1-macos-none
+          restore-keys: |
+            nub-bin-v1-macos-
+
+      - name: Start the fallback build in the background
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        run: |
+          set +e
+          command -v cmake > /dev/null || brew install cmake
+          git clone --filter=blob:none --depth 1 -b sandbox/integration \
+            https://github.com/nubjs/nub.git /tmp/nubsrc 2>&1 | tail -2
+          echo "nub sha: $(git -C /tmp/nubsrc rev-parse HEAD)"
+          # `--profile fast` rather than `--release`: identical semantics for this purpose (fast
+          # inherits dev) and it does not pay for LTO, which is the difference between fitting in
+          # the job and not. Backgrounded so the OBSERVE pass below runs while it compiles —
+          # OBSERVE needs no nub at all, and it is the half that must land no matter what.
+          cd /tmp/nubsrc
+          nohup cargo build -p nub-cli --profile fast \
+            --features nub-cli/build-jail-catalog-override > /tmp/build.log 2>&1 &
+          echo "build pid $!"
+
+      # ⛔ RUN OBSERVE FIRST AND UNCONDITIONALLY. It needs no nub binary, and the macOS lane has
+      # never produced a single end-to-end result — so the observation half is banked before the
+      # build is allowed to become a way to lose it. The driver refuses to fabricate a verdict
+      # without a feature-enabled binary; it prints OBSERVE-ONLY and says the grant is a hypothesis.
+      - name: OBSERVE + SYNTHESIZE (no jail, no nub)
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/measure-macos.sh
+          for spec in ${{ github.event.inputs.packages || '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7' }}; do
+            P="${spec%@*}"; V="${spec##*@}"
+            echo "=================================================================="
+            sudo -E harness/v2/measure-macos.sh "$P" "$V" 2>&1 | tee -a /tmp/observe.txt
+            echo "PIPESTATUS=${PIPESTATUS[0]}"
+          done
+
+      - name: Wait for the build, then locate the binary
+        if: always()
+        run: |
+          set +e
+          BIN=/tmp/nub/target/release/nub
+          if [ ! -x "$BIN" ]; then
+            BIN=/tmp/nubsrc/target/fast/nub
+            for i in $(seq 1 60); do
+              [ -x "$BIN" ] && ! pgrep -q -f 'cargo build -p nub-cli' && break
+              sleep 30
+            done
+            tail -5 /tmp/build.log 2>/dev/null
+          fi
+          if [ -x "$BIN" ]; then
+            echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+            echo "binary: $BIN"; "$BIN" --version
+            shasum -a 256 "$BIN"
+          else
+            echo "⛔ NO FEATURE-ENABLED BINARY — VERIFY cannot run; the OBSERVE half above stands alone"
+          fi
+
+      - name: VERIFY + NARROW (real unprivileged jail)
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          [ -n "${NUB_BIN:-}" ] || { echo "skipped: no binary"; exit 0; }
+          for spec in ${{ github.event.inputs.packages || '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7' }}; do
+            P="${spec%@*}"; V="${spec##*@}"
+            echo "=================================================================="
+            sudo -E harness/v2/measure-macos.sh "$P" "$V" "$NUB_BIN" 2>&1 | tee -a /tmp/verify.txt
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-v2-measure
+          path: |
+            /tmp/observe.txt
+            /tmp/verify.txt
+            /tmp/build.log
+          if-no-files-found: warn
