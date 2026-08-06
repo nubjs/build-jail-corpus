@@ -51,8 +51,18 @@ const specs = [
   { dir: 'two', name: `nub-wintmp-two-${STAMP}`, label: 'B2' },
 ];
 
+// ⛔ WITHOUT THIS THE JAIL REFUSES THE PACKAGE ITS OWN FILES, AND THE ARM LOOKS LIKE A TEMP
+// FINDING. `is_ci()` selects the PROJECT-LOCAL virtual store, so the package lands under
+// `<proj>/node_modules/.store/...` instead of `%LOCALAPPDATA%\nub\pm\store` -- and
+// `store_entry_write_root`'s grant is guarded on STORE CONTAINMENT, so it is simply not emitted.
+// MEASURED in run 31125933476: both postinstalls ran, confined, and died on
+// `EPERM: operation not permitted, open '...\node_modules\.store\...\probe-tmp.mjs'` -- the
+// package refused a read of a file inside its own directory. An explicit
+// `enableGlobalVirtualStore` is checked BEFORE `is_ci()`, and a real user is not in CI, so forcing
+// it on is also what makes the arm resemble the install being measured.
+const ENV = { ...process.env, npm_config_enable_global_virtual_store: 'true' };
 const run = (exe, args, opts = {}) =>
-  spawnSync(exe, args, { encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT, ...opts });
+  spawnSync(exe, args, { encoding: 'utf8', env: ENV, maxBuffer: 1 << 28, windowsHide: true, timeout: TIMEOUT, ...opts });
 
 const tarballs = [];
 for (const s of specs) {
@@ -112,8 +122,12 @@ console.log(`approve rc=${a.status}${a.error ? ` error=${a.error.message}` : ''}
 
 const logs = (i.stdout ?? '') + (i.stderr ?? '') + (a.stdout ?? '') + (a.stderr ?? '');
 
-// ⛔ THE ARM MUST PROVE A SCRIPT ACTUALLY RAN. nub replays a cached side-effect tree without
-// spawning anything, and a replayed arm is indistinguishable from a real one by exit code.
+// ⛔ THE ARM MUST PROVE A SCRIPT ACTUALLY RAN -- and the RECOVERED FRAMES are that proof, not this
+// line. `running build scripts for` is kept as a diagnostic only: MEASURED in run 31125933476,
+// both postinstalls demonstrably ran under the jail (their stack traces are in `approve.log`) and
+// that string appeared in NEITHER log, because these scripts run under `approve-builds` rather than
+// under `install`. Gating on it would have voided an arm that worked. A frame can only exist if the
+// fixture executed, so `framesRecovered` is both the stronger and the simpler predicate.
 const ranScripts = /running build scripts for/.test(logs);
 // ⛔ AND IT MUST PROVE THE SCRIPT WAS CONFINED. `confines()` announces an UNCONFINED lifecycle
 // spawn in the install output; if that warning is present the jail stood aside and every path
@@ -181,7 +195,7 @@ const verdict = {
   framesRecovered: frames.map((f) => f.label),
   frameParseErrors: parseErrors,
   jailedArmsThatBreachedTheControl: leaks,
-  valid: ranScripts && !unconfined && frames.length === specs.length && leaks.length === 0,
+  valid: !unconfined && frames.length === specs.length && leaks.length === 0,
 };
 
 const detail = frames.map((f) => ({ label: f.label, outsideScan: scanOutside(f.marker), probe: f }));
@@ -191,7 +205,7 @@ console.log('='.repeat(100));
 console.log('ARM B — the real interposed lifecycle build jail (`nub install` + `approve-builds`)');
 console.log('='.repeat(100));
 console.log(`GATE: install rc=${i.status} approve rc=${a.status}`);
-console.log(`GATE: 'running build scripts for' present: ${ranScripts}`);
+console.log(`GATE: 'running build scripts for' present: ${ranScripts}  (diagnostic only)`);
 console.log(`GATE: 'running without the build sandbox' announced: ${unconfined}  (must be false)`);
 console.log(`GATE: probe frames recovered: ${frames.length}/${specs.length} -> ${verdict.framesRecovered.join(',')}`);
 console.log(`GATE: negative-control breaches: ${leaks.length ? leaks.join(',') : 'none'}`);
@@ -230,5 +244,11 @@ for (const d of detail) {
 
 if (!verdict.valid) {
   console.log('⛔ ARM B IS VOID — the rows above are not evidence about the lifecycle jail.');
+  // The logs are what the next iteration is diagnosed from, so print them here rather than leaving
+  // them only in an artifact: a runner that dies before the upload takes the artifact with it.
+  console.log('--- install.log (tail) ---');
+  console.log(((i.stdout ?? '') + (i.stderr ?? '')).slice(-2500));
+  console.log('--- approve.log (tail) ---');
+  console.log(((a.stdout ?? '') + (a.stderr ?? '')).slice(-2500));
   process.exit(1);
 }
