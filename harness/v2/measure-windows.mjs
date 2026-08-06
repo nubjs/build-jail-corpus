@@ -19,6 +19,42 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const [PKG, VER] = positional;
 if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [--nub exe] [--root dir]'); process.exit(2); }
 
+// ⛔⛔ HARD STOP — THIS LANE'S STORE EVICTION IS ROOT-ONLY, WHICH IS THE SHAPE THAT UNDER-GRANTS.
+//
+// It DOES evict, unlike the macOS driver — the `${PKG}@*` entry under `%LOCALAPPDATA%\nub\pm\store`
+// goes per arm, and the long note at `const STORE` gets the mechanism right. What is missing is the
+// TRANSITIVE sweep: measured by content, this file mentions no closure at all while `measure.sh`
+// does so twelve times.
+//
+// That distinction is not cosmetic, and `measure.sh` records the experiment that settles it — three
+// runs on one binary differing only in what was evicted:
+//
+//   evict rover only              {"network":true}                rc=0  bin/ EMPTY   -> false PASS
+//   evict rover + binary-install  {"network":true}                rc=1  bin/ absent  -> correct FAIL
+//   evict rover + binary-install  {"write":{"deps":true},...}     rc=0  bin/ rover,README.md,LICENSE
+//
+// ⇒ Root-only eviction is precisely the arm that FALSELY PASSED. A transitive dependency still
+// materialized in the global store is RELINKED rather than reinstalled, so its lifecycle script
+// never runs, and the arm reports success at a grant narrower than the package truly needs. That is
+// an UNDER-GRANT, which breaks real users' installs — the one direction this project treats as
+// unacceptable. Over-granting merely wastes capability.
+//
+// Narrower than the macOS fault (which has no eviction at all, so any package can replay); here
+// only packages whose closure holds a previously-materialized script-bearing dependency are
+// affected. Narrower is not safe: the failure is silent and in the wrong direction either way.
+//
+// TO LIFT THIS: port the `$CLOSURE` sweep from `measure.sh` — read the dependency closure off the
+// OBSERVE tree and evict each member's store entry, sparing nub's own tooling closure per
+// 67c01911 — then prove it BOTH ways on a real Windows runner: an arm that MUST fail at a
+// too-narrow grant actually fails, and a package still installs at its true minimum.
+if (!process.env.NUB_V2_WINDOWS_EVICTION_VERIFIED) {
+  console.error('!! measure-windows.mjs is DISABLED: store eviction is root-only, so a transitive');
+  console.error('   dependency can replay and the arm reports a false PASS at a too-narrow grant --');
+  console.error('   an UNDER-GRANT. See the note above this check. Any win32-x64 v2 record produced');
+  console.error('   before this guard is SUSPECT in the unsafe direction and must be re-measured.');
+  process.exit(3);
+}
+
 const NUB = flag('--nub', 'C:\\nub-ci.exe');
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const HOME = process.env.USERPROFILE;
