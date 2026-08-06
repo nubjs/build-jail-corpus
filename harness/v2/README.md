@@ -32,6 +32,28 @@ Nothing the harness uses has to be available to the jail. That single permission
 
 Discovery is now O(1) runs; the ladder is a bounded repair step.
 
+## Repeating OBSERVE — `NUB_V2_OBSERVE_RUNS`
+
+OBSERVE runs **once** by default, and a single observation of a script whose behaviour varies run to run misses whatever that run did not do. The grant then omits a capability and a real install breaks — the one direction this system may not take. `NUB_V2_OBSERVE_RUNS=N` runs OBSERVE N times with full eviction between and **unions** the observed write sets; `NUB_V2_OBSERVE_ONLY=1` stops after synthesis, which is what lets a repeat sweep run in a container (VERIFY needs Landlock, OBSERVE needs nothing). The union is over-granting by construction, which is the safe direction.
+
+**The eviction between runs is the load-bearing half, not the repeat.** Two sequential runs are not independent samples: run 1 warms state run 2 then hits, so run 2 observes systematically less and the comparison measures the eviction rather than the package. `observe_once` rebuilds the fixture root, the jail `HOME` (which carries the traced run's npm cache, `~/.cache/node-gyp`, and any per-tool cache the script creates) and a per-run `TMPDIR` — where Node's V8 compile cache lands — before **every** run, run 1 included.
+
+Measured on `lmdb-store@2.0.0-alpha2` in a `node:22` container, the same two-run sequence with and without the eviction:
+
+| | raw trace lines | whole-tree writes | attributed writes | grant |
+| --- | --- | --- | --- | --- |
+| evicted, run 1 | 223 405 | 7857 | 6769 | `{"network":true}` |
+| evicted, run 2 | 223 543 | 7834 (−0.3%) | 6746 | `{"network":true}` |
+| **no eviction**, run 1 | 222 472 | 6775 | 6769 | `{"network":true}` |
+| **no eviction**, run 2 | 9 773 (−95.6%) | 1 (−100%) | 0 | `{}` |
+
+Without the eviction run 2 sees essentially nothing — node-gyp finds the build already done and the header cache already unpacked, so the script never really runs — and the two runs "disagree" completely for a reason that has nothing to do with the package. That is the positive control for the `EVICTION CHECK` line `observe-union.mjs` prints: it fires on the no-eviction arm and passes on the evicted one.
+
+Two properties worth knowing before reading any repeat result:
+
+- **The `TMPDIR` redirect stays under `/tmp`, never under `$ROOT`.** `$ROOT` is under `$HOME`, so a temp write there would classify `userHome` and synthesize a grant the same write does not earn today. Measured: attributed writes and bucket shape are byte-identical with and without the redirect (`6769`, `jailHome=3328 kernelfs=1 outside=3366 ownPkg=74` in both), so the grant is unaffected. The unattributed whole-tree total does move (+1082), which is why the eviction check reads that number and the grant does not.
+- **Repeats catch VARIANCE, never BIAS.** A decoder that resolves a path against the wrong base produces the same phantom path every run; the macOS 32-bit truncation lost 100% of rename destinations perfectly reproducibly. Known-answer fixtures (`probes/syscall-coverage.c`) are what catch those. A high agreement rate means the observer is CONSISTENT, never that it is CORRECT.
+
 ## `--at-grant` — a second mode, for a different question
 
 ```sh
