@@ -52,13 +52,20 @@ Add `venue` (`"vm"` | `"ci"` | `"local"`), `ciEnvSet` (bool), `storeLayout` (`"i
 
 `ciEnvSet` and `storeLayout` are separate fields on purpose and neither implies the other. `is_ci()` is `std::env::var_os("CI").is_some()`, and `install_report.rs` returns the isolated layout when it is set — so CI genuinely measures a different store layout. That difference is **real and must be preserved, not normalised away**; recording it is what turns it from a confound into a covered axis.
 
-### R4 — arm roots are equal length
+### R4 — the artifact gate does not compare sizes of toolchain-generated build files
 
-Two identical successful installs differing only in `$HOME` length moved `config.gypi` by 175 B and `*.target.mk` by 490 B. Generated build files embed absolute paths, so their sizes measure path length, not capability, and an artifact gate comparing sizes across arms reads that as a shortfall.
+⛔ **This requirement REPLACES "arm roots are equal length", which measurement killed.** The original acceptance test — byte-identical `config.gypi` and `*.o.d` between OBSERVE and a passing arm — is not reachable, and the reason is not path length:
 
-The constraint covers **the home the toolchain embeds** — `config.gypi`'s `nodedir` — not only the fixture directory names. Once it holds, the `.d` size exemption in the artifact gate should be reverted rather than extended: the cause is removed, so the symptom needs no excuse.
+- `config.gypi` differs **structurally**. It is node-gyp's dump of WHO INVOKED IT: `npm rebuild` injects npm's whole config surface (~14 keys the jailed arm has no analogue for, plus `user_agent: npm/10.9.3` vs `nub/0.6.0`). No root length adds or removes a key.
+- `*.target.mk` differs because `nodedir` differs in **kind** (downloaded headers vs the Node installation) and because the include path reflects **hoisted vs isolated layout** — which is environment this document forbids normalising.
 
-Acceptance: `config.gypi` and `*.o.d` byte-identical between the OBSERVE tree and a passing arm.
+The earlier stated mechanism was wrong in DIRECTION and is retracted: the jailed home is LONGER (58 chars vs 28) and its file is still SMALLER. What survives is only the narrow measured claim that size tracks embedded path length — true, and not what is happening between these two arms.
+
+⇒ **These files are toolchain-invocation records, not build output the package produced**, so comparing their sizes across two different package managers asks a question the artifact cannot answer. Exclude them from the SIZE comparison. Keep, for every file including these: **absent**, and **empty against a non-empty reference** — neither of which a different generator or layout can produce, and both of which are the download-blocked shape the gate exists to catch.
+
+**The size comparison still applies to everything else, and above all to the linked output.** A truncated `build/Release/*.node` must still fail. Prove that with a test, or the exclusion has widened the gate further than it was justified to.
+
+Retire the `.d` size exemption into this rule rather than keeping two: one mechanism-justified rule, not an extension allowlist.
 
 ### R5 — bytecode caches are dropped, symmetrically
 
@@ -68,6 +75,18 @@ Acceptance: `config.gypi` and `*.o.d` byte-identical between the OBSERVE tree an
 2. CPython falls back to compiling in memory when it cannot write bytecode. That is a language-level guarantee, which is what makes generalising from one measurement sound here where it would not be for an arbitrary refused write.
 
 ⛔ **This does not generalise to "writes the preset already covers".** The compiled policy is a pure allowlist with the deny floor stripped, so grants union — a read-only preset rule does not veto a read-write scope rule on the same path. `Scope::Deps` grants read-write per *declared* dependency resolved through the store, so it reaches the provisioned node-gyp for any package that declares it, and `Scope::UserHome` can cover the interpreter closure whenever the interpreter sits under `$HOME`. Dropping that broader class would discard writes a scope could have satisfied, which is an under-grant. Anything beyond bytecode needs its own refused-and-`rc=0` measurement with a control.
+
+### R7 — OBSERVE runs with FULL USER PERMISSIONS, and asserts it
+
+The traced script must run as an ordinary user with the permissions a real developer has — not root, and not a restricted service account. Assert it at the top of the run and fail loudly rather than measuring under a reduced token.
+
+**Why this is load-bearing rather than tidy.** If OBSERVE is LESS privileged than a real user, a script that tries its primary path, is refused, and falls back gets measured on the fallback — and a real user with the permission takes the primary path and needs a capability we never saw. That is an under-grant, the one direction this project forbids, and it is invisible in the record.
+
+The converse error is safe: a more-privileged OBSERVE measures a path a real user cannot take, which over-grants. So the requirement is an ordinary user, and erring toward more privilege is the tolerable side.
+
+⛔ Do not confuse this with the TRACER's privilege. The tracer may need root (`strace`, `dtrace`, ETW) — that is measuring apparatus. The traced PROCESS is the environment under test and runs as a user.
+
+This also settles a question raised against the Linux tracer: an `EACCES` in an unjailed OBSERVE run is a capability **no grant could supply**, because the jail can only restrict what the OS already permits and never elevate. Under R7 a refusal therefore carries no capability information, and a tracer that cannot observe refused opens loses nothing *in OBSERVE*. Refusals remain the whole signal when tracing a JAILED run to explain a failure.
 
 ### R6 — provenance declares what the harness overrode
 
