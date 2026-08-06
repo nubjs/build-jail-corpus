@@ -31,10 +31,31 @@ const DRIVER = fs.readFileSync(path.join(import.meta.dirname, 'measure-windows.m
 // the first version of this check searched the whole file for `no-network`, which appears in a
 // COMMENT explaining the contract — so renaming the actual variants to the Linux spelling left every
 // assertion green. Caught by running that exact control. Only executable lines count.
+//
+// ⛔ A BARE `startsWith('*')` FOR THE JSDOC CONTINUATION ALSO EATS A SHELL `case` DEFAULT ARM, AND IT
+// HAS ALREADY DONE SO ONCE — in `descent-vocabulary.test.mjs`, where it deleted `measure.sh`'s own
+// `JOINT-NARROW FAILED` emission and then reported it missing. This file reads a `.mjs` driver with no
+// such line, so the bare form was harmless HERE, which is exactly why it would have sat until someone
+// added a `case` arm to `measure-windows.mjs` and a contract test started silently reading a mutilated
+// file. Fixed on discovery rather than documented and left live.
 const CODE = DRIVER.split('\n').filter((l) => {
   const t = l.trim();
-  return !t.startsWith('//') && !t.startsWith('*') && !t.startsWith('/*');
+  const jsdocCont = t === '*' || t.startsWith('* ') || t.startsWith('*/');
+  return !t.startsWith('//') && !jsdocCont && !t.startsWith('/*');
 }).join('\n');
+
+// The regression control for the line above, so the trap cannot be re-armed silently.
+test('INSTRUMENT: the comment stripper does not eat a shell `case` default arm', () => {
+  const strip = (s) => s.split('\n').filter((l) => {
+    const t = l.trim();
+    const jsdocCont = t === '*' || t.startsWith('* ') || t.startsWith('*/');
+    return !t.startsWith('//') && !jsdocCont && !t.startsWith('/*');
+  }).join('\n');
+  assert.match(strip('        *) echo "  => JOINT-NARROW FAILED";;'), /JOINT-NARROW FAILED/,
+    'the stripper eats a `case` default arm, so every emission inside one reads as absent');
+  assert.doesNotMatch(strip(' * a JSDoc continuation naming no-network\n'), /no-network/,
+    'the stripper keeps JSDoc continuations, so a token named only in prose would count as emitted');
+});
 
 // ⛔ VALIDATED FIRST. If this scan silently matched nothing, every assertion below would pass while
 // checking an empty string — the vacuous-green failure this whole file exists to prevent.
