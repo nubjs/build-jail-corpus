@@ -144,6 +144,27 @@ jobs:
           chmod +x harness/v2/prefix.sh
           sudo -E harness/v2/prefix.sh @apollo/rover 0.2.1 "$NUB_BIN" 2>&1 | tee -a /tmp/noevict.txt
 
+      # ⛔ DOES THE EVICTION HAVE ANYTHING TO EVICT? Windows measured `global virtual store
+      # auto-disabled in CI`, which relocates every arm into a project-local `node_modules/.store`
+      # and makes the sweep a silent no-op — arms independent by accident. The macOS EVICT counters
+      # say otherwise; this asserts it directly rather than inferring it from a count.
+      - name: Layout diagnostic — is the machine-global store live on this runner?
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          echo "store entries before: $(ls ~/.cache/nub/pm/store 2>/dev/null | wc -l)"
+          rm -rf /tmp/lay && mkdir -p /tmp/lay && cd /tmp/lay
+          printf '{"name":"lay","version":"1.0.0","dependencies":{"@apollo/rover":"0.2.1"}}\n' > package.json
+          printf '{"install":{"buildJail":true}}\n' > nub.jsonc
+          "$NUB_BIN" install > i.log 2>&1; echo "install rc=$?"
+          grep -iE "linker|virtual store" i.log
+          echo "--- where does node_modules/@apollo/rover point? ---"
+          ls -l node_modules/@apollo/ 2>/dev/null
+          python3 -c "import os;print('realpath:', os.path.realpath('node_modules/@apollo/rover'))" 2>/dev/null
+          echo "project-local .store entries: $(ls node_modules/.store 2>/dev/null | wc -l)"
+          echo "store entries after: $(ls ~/.cache/nub/pm/store 2>/dev/null | wc -l)"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
