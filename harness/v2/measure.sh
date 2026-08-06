@@ -77,6 +77,12 @@ ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)"
 
+# ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
+# Shared with `measure-macos.sh`; `measure-windows.mjs` carries the same key list in JS and
+# `ci-env-scrub.test.mjs` asserts all three agree. The full reasoning lives in the sourced file.
+# shellcheck source=harness/v2/ci-env-scrub.sh
+. "$HERE/ci-env-scrub.sh"
+
 # ── 0. R7 — OBSERVE RUNS WITH FULL USER PERMISSIONS, AND ASSERTS IT ────────────────────────────
 #
 # ⛔ THIS IS FATAL, AND IT IS FATAL BECAUSE THE FAILURE IT PREVENTS IS INVISIBLE IN THE RECORD.
@@ -501,11 +507,19 @@ echo "  VENUE-OVERRIDES $(node -e '
            npm_config_prefix: process.argv[3] + "/npm-prefix",
            PYTHONDONTWRITEBYTECODE: "1",
            NUB_CACHE_DIR: process.argv[4] },
-    unset: [],
-    passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
-                     NODE_ENV: e.NODE_ENV ?? null },
+    // ⛔ THE CI-DETECTION SCRUB IS A NORMALISATION, SO IT IS DECLARED (R6). Normalisation that is
+    // recorded is a covered axis; normalisation that is invisible is a silent bet it did not matter
+    // — and this one changes which code a package runs, so it matters by construction.
+    unset: process.argv[5] ? process.argv[5].trim().split(/\s+/) : [],
+    // ⛔ WHAT THE VENUE ACTUALLY HAD, captured BEFORE the scrub. Reading `process.env` here would
+    // report what this driver left behind and a real CI run would file `CI: null`, which is exactly
+    // backwards: the record would claim the venue was not CI precisely because we removed the proof.
+    passedThrough: Object.fromEntries([["CI", null], ["GITHUB_ACTIONS", null], ["NODE_ENV", e.NODE_ENV ?? null],
+      ...process.argv[6].split("\n").filter(Boolean).map((kv) => {
+        const i = kv.indexOf("="); return [kv.slice(0, i), kv.slice(i + 1)];
+      })]),
   }));
-' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" 2>/dev/null)"
+' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" "$CI_SCRUBBED" "$CI_INHERITED" 2>/dev/null)"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 # ⛔ ROOTS ARE NOT PASSED AS ARGUMENTS ANY MORE — the classifier takes them from `capture.json` and

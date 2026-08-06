@@ -232,6 +232,39 @@ const missingArtifacts = (obs, got) => {
 
 console.log(`### ${PKG}@${VER}   (${ROOT})`);
 
+// ── THE CI-DETECTION SCRUB ────────────────────────────────────────────────────────────────────
+//
+// ⛔ A PACKAGE THAT BRANCHES ON `CI` RUNS LESS CODE ON A RUNNER, SO A CI-MEASURED RECORD OMITS
+// CAPABILITIES A DEVELOPER HITS — an under-grant, the one direction this project forbids. The v1
+// harness has scrubbed this family since its own sweeps; v2 did not.
+//
+// MEASURED: `core-js@3.50.0` writes `$TMPDIR/core-js-banners` with `CI` unset and writes NOTHING
+// with `CI=1`. SCRUBBED rather than forced to a value, because the value semantics are inconsistent
+// — `ci-info` reads `CI=0` as CI-ON while `core-js` reads it as CI-OFF, so only ABSENCE means "not
+// CI" to everyone.
+//
+// ⛔ KEPT IDENTICAL TO `ci-env-scrub.sh`, WHICH THE POSIX DRIVERS SOURCE. `ci-env-scrub.test.mjs`
+// asserts the two lists agree; a family that drifts apart per-driver is the defect class this
+// duplication would otherwise create. Windows cannot source a shell file, so the list is mirrored
+// and the test is what keeps the mirror honest.
+//
+// ⛔ THE AXIS STAYS MEASURABLE: `NUB_CORPUS_CI_ENV=inherit` disables the scrub and measures the real
+// CI path. The two states UNION rather than one replacing the other.
+const CI_KEYS = ['CI', 'CONTINUOUS_INTEGRATION', 'BUILD_NUMBER', 'RUN_ID', 'GITHUB_ACTIONS',
+  'GITLAB_CI', 'CIRCLECI', 'TRAVIS', 'JENKINS_URL', 'TEAMCITY_VERSION', 'BUILDKITE', 'DRONE',
+  'APPVEYOR', 'CODEBUILD_BUILD_ID', 'TF_BUILD'];
+// Captured BEFORE the scrub: `passedThrough` must report what the VENUE had, or a real CI run files
+// `CI: null` and claims it was not CI precisely because we removed the proof.
+const CI_INHERITED = Object.fromEntries(
+  CI_KEYS.filter((k) => process.env[k] != null).map((k) => [k, process.env[k]]));
+const CI_SCRUBBED = [];
+if ((process.env.NUB_CORPUS_CI_ENV ?? 'unset') === 'inherit') {
+  console.log('  CI-ENV inherit -- the CI-detection family is NOT scrubbed (measuring the real CI path)');
+} else {
+  for (const k of CI_KEYS) if (process.env[k] != null) { delete process.env[k]; CI_SCRUBBED.push(k); }
+  if (CI_SCRUBBED.length) console.log(`  CI-ENV scrubbed: ${CI_SCRUBBED.join(' ')}`);
+}
+
 // ── 1. OBSERVE ────────────────────────────────────────────────────────────────────────────────
 // ⛔ THE FETCH IS NOT TRACED, AND THAT IS THE POINT. Tracing `npm install` traces NPM: its registry
 // TLS and its cache writes under the user profile land in the same event stream as the lifecycle
@@ -676,7 +709,8 @@ console.log(`  VENUE-OVERRIDES ${JSON.stringify({
     // falls to `outside`, which is an under-grant.
     TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
   },
-  unset: [],
+  // The CI-detection scrub is a NORMALISATION and is declared (R6).
+  unset: CI_SCRUBBED,
   notRedirected: {
     USERPROFILE: process.env.USERPROFILE ?? null,
     why: 'the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient'
@@ -684,10 +718,11 @@ console.log(`  VENUE-OVERRIDES ${JSON.stringify({
       + ' private jail home to reproduce and redirecting one would measure an environment no'
       + ' confined script sees',
   },
+  // Captured BEFORE the scrub; see CI_INHERITED.
   passedThrough: {
-    CI: process.env.CI ?? null,
-    GITHUB_ACTIONS: process.env.GITHUB_ACTIONS ?? null,
+    CI: null, GITHUB_ACTIONS: null,
     NODE_ENV: process.env.NODE_ENV ?? null,
+    ...CI_INHERITED,
   },
 })}`);
 

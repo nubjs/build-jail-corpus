@@ -123,7 +123,10 @@ test('all-failed arms report NO layout rather than guessing one', () => {
 
 const RETENTION_BLOCK = slice(
   /^gzip -9 -c /,
-  /NUB_CACHE_DIR" 2>\/dev\/null\)"$/,
+  // ⛔ Matches the CLOSE of the `node -e` invocation rather than its last ARGUMENT. Anchoring on a
+  // specific variable name broke the moment the CI-scrub work added two arguments — the guard caught
+  // it loudly, which is the point, but an anchor that survives an argument change is better.
+  /^' .*2>\/dev\/null\)"$/,
   'retention + venue provenance',
 );
 
@@ -142,6 +145,9 @@ const replayRetention = ({ traceBody = 'line\n', captureBody = '{"v":1}' }) => {
     `JAIL_TMP='${obs}/jailtmp'`,
     `JAIL_TOOLS='${obs}/tools'`,
     `NUB_CACHE_DIR='${obs}/nubcache'`,
+    // Set by the CI-detection scrub, which runs earlier in the driver than this region.
+    "CI_SCRUBBED=''",
+    "CI_INHERITED=''",
     RETENTION_BLOCK,
   ].join('\n');
   return sh(script);

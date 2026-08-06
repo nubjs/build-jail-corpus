@@ -101,6 +101,15 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 
+# ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
+# Shared with `measure.sh`; `measure-windows.mjs` carries the same key list in JS and
+# `ci-env-scrub.test.mjs` asserts all three agree. Full reasoning is in the sourced file. The short
+# version: a package that branches on `CI` runs LESS code on a runner, so a CI-measured record omits
+# capabilities a developer hits — an under-grant. `NUB_CORPUS_CI_ENV=inherit` keeps the axis
+# measurable rather than normalising it away.
+# shellcheck source=harness/v2/ci-env-scrub.sh
+. "$HERE/ci-env-scrub.sh"
+
 # ── 0b. fbt PREFLIGHT — a timeboxed probe, folded in rather than given its own runner. ─────────
 #
 # The open question it answers: can an `fbt` probe observe the cwd change that posix_spawn's
@@ -374,11 +383,20 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
              ELECTRON_CACHE: tools + "/electron-cache",
              electron_config_cache: tools + "/electron-cache",
              npm_config_prefix: tools + "/npm-prefix" },
-      unset: ["(sudo env_reset discards the caller environment; every var above is re-set after it)"],
-      passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
-                       NODE_ENV: e.NODE_ENV ?? null },
+      // The CI-detection scrub is a NORMALISATION and is declared (R6): it changes which code a
+      // package runs, so it matters by construction.
+      unset: ["(sudo env_reset discards the caller environment; every var above is re-set after it)"]
+        .concat(process.argv[4] ? process.argv[4].trim().split(/\s+/) : []),
+      // ⛔ WHAT THE VENUE HAD, captured BEFORE the scrub. Reading `process.env` here would report
+      // what the driver left behind, so a real CI run would file `CI: null` — claiming the venue was
+      // not CI precisely because we removed the proof.
+      passedThrough: Object.fromEntries([["CI", null], ["GITHUB_ACTIONS", null],
+        ["NODE_ENV", e.NODE_ENV ?? null],
+        ...process.argv[5].split("\n").filter(Boolean).map((kv) => {
+          const i = kv.indexOf("="); return [kv.slice(0, i), kv.slice(i + 1)];
+        })]),
     }));
-  ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" 2>/dev/null)"
+  ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" "$CI_SCRUBBED" "$CI_INHERITED" 2>/dev/null)"
   echo "  VENUE-OBSERVE-USER $RUNUSER uid=$RUNUID (R7: ordinary non-root user, asserted)"
   # ⛔ FLAG, NEVER FAIL — the package is still measurable; what a flag says is that a GREEN ARM
   # CARRIES NO EVIDENCE for it. `|| true` is deliberate: a detector fault must never cost a record.
