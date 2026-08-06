@@ -304,7 +304,11 @@ jobs:
         continue-on-error: true
         run: |
           $P = 'harness/v2/probes/win-viability'
-          $spec = '${{ inputs.package || ''hugo-extended@0.141.0'' }}'
+          # The `${{ }}` is substituted before PowerShell ever sees the line, so the quoting inside
+          # it is GitHub-expression syntax, not PowerShell's — a doubled '' is not an escape here
+          # and makes the whole workflow file unparseable, which presents as a run that fails in
+          # seconds with no jobs and no annotation.
+          $spec = '${{ inputs.package || 'hugo-extended@0.141.0' }}'
           $i = $spec.LastIndexOf('@'); $pkg = $spec.Substring(0, $i); $ver = $spec.Substring($i + 1)
           $free = (Get-PSDrive -Name C).Free
           Write-Output "free on C: $([math]::Round($free/1GB,1)) GB"
