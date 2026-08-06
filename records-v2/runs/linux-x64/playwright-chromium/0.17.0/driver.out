@@ -1,5 +1,5 @@
-### playwright-chromium@0.17.0   (/home/runner/v2-qHiSrK)
-  OBSERVE   rc=0 files=521 trace=23306 lines
+### playwright-chromium@0.17.0   (/home/runner/v2-jBwver)
+  OBSERVE   rc=0 files=521 trace=23245 lines
   CLOSURE   38 packages evicted per arm
   == ATTRIBUTION == attributed pids: 18
     writes  script 654  /  whole traced tree 1741
@@ -7,11 +7,11 @@
   == WRITES the script actually performed ==
     userHome    653
     jailTmp       1  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obsgcddQy/playwright-download-chromium-linux-764964.zip
+        /tmp/nub-tmp-obsmcl216/playwright-download-chromium-linux-764964.zip
   == NETWORK ==
     AF_INET sockets: 4   distinct peers: 2
         127.0.0.53:53
-        142.250.73.91:443
+        142.251.32.187:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -24,7 +24,7 @@
         .cache/nub/pm/tools
         .cache/nub/pm/tools/ms-playwright
         .cache/nub/pm/tools/ms-playwright/.links
-        .cache/nub/pm/tools/ms-playwright/.links/51d12f4854fea5665ebf81b046d1edd11960df37
+        .cache/nub/pm/tools/ms-playwright/.links/288743bfc460ff510c77fa4dbfa44d7c4dcaabab
         .cache/nub/pm/tools/ms-playwright/chromium-764964
         .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux
         .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/chrome_100_percent.pak
@@ -59,15 +59,15 @@
         .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/bn.pak
         .cache/nub/pm/tools/ms-playwright/chromium-764964/chrome-linux/locales/ar.pak.info
         … and 613 more
-    EVENTS    6838 distinct from 23195 calls (23307 lines, 84 rejoined, 0 unparsed)
+    EVENTS    6833 distinct from 23194 calls (23246 lines, 24 rejoined, 0 unparsed)
     PROCS     25   lifecycle shells 13
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×29 exit×20 setsockopt×17 getsockopt×13 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/runner/work/build-jail-corpus/build-jail-corpus/records-v2/runs/linux-x64/playwright-chromium/0.17.0/events.ndjson.gz (45186 bytes)
+    unsubscribed/unmapped syscalls: getsockname×26 exit×20 setsockopt×17 getsockopt×13 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/work/build-jail-corpus/build-jail-corpus/records-v2/runs/linux-x64/playwright-chromium/0.17.0/events.ndjson.gz (44980 bytes)
   VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
   => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
-  VERIFY[drop-network] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 1585/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
-     ⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  VERIFY[drop-network] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     'network' is NECESSARY — dropping it fails to verify
   VERIFY[drop-writeuserHome] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      'write.userHome' is NECESSARY — dropping it fails to verify
-  => OVER-PREDICTED by: network  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
