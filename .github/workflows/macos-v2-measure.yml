@@ -15,10 +15,16 @@ on:
       packages:
         description: 'space-separated pkg@version list'
         required: false
-        default: '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7'
+        default: '@apollo/rover@0.2.1 sharp@0.32.6'
 
 permissions:
   contents: read
+
+# The proof run for the eviction port. The driver's own guard is what makes the lane inert until an
+# arm that MUST fail at a too-narrow grant has been seen to fail on a real runner; this sets it for
+# exactly that run, and both the variable and the guard go away in the lifting commit.
+env:
+  NUB_V2_MACOS_EVICTION_VERIFIED: 1
 
 jobs:
   measure:
@@ -75,7 +81,7 @@ jobs:
         run: |
           set +e
           chmod +x harness/v2/measure-macos.sh
-          for spec in ${{ github.event.inputs.packages || '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7' }}; do
+          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1 sharp@0.32.6' }}; do
             P="${spec%@*}"; V="${spec##*@}"
             echo "=================================================================="
             sudo -E harness/v2/measure-macos.sh "$P" "$V" 2>&1 | tee -a /tmp/observe.txt
@@ -109,11 +115,29 @@ jobs:
         run: |
           set +e
           [ -n "${NUB_BIN:-}" ] || { echo "skipped: no binary"; exit 0; }
-          for spec in ${{ github.event.inputs.packages || '@nuxt/components@2.1.0 codeceptjs@1.1.3 @apollo/protobufjs@1.2.7' }}; do
+          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1 sharp@0.32.6' }}; do
             P="${spec%@*}"; V="${spec##*@}"
             echo "=================================================================="
             sudo -E harness/v2/measure-macos.sh "$P" "$V" "$NUB_BIN" 2>&1 | tee -a /tmp/verify.txt
           done
+
+      # ⛔ THE FAILING CONTROL. A negative control that fails proves nothing on its own — it has to
+      # PASS when the one variable is removed, or the failure may be incidental to macOS. Same
+      # driver, same warm store (this runs AFTER the pass above, so binary-install is materialized),
+      # memo still dropped, eviction neutered. If the too-narrow arm passes here and fails above,
+      # the eviction is the variable.
+      - name: A/B control — the identical run with the eviction disabled
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          [ -n "${NUB_BIN:-}" ] || { echo "skipped: no binary"; exit 0; }
+          cp harness/v2/measure-macos.sh harness/v2/noevict.sh
+          sed -i '' 's|^  if \[ -d "$STORE" \]; then|  if false; then|' harness/v2/noevict.sh
+          grep -q '^  if false; then' harness/v2/noevict.sh || {
+            echo "⛔ THE NEUTER DID NOT APPLY — this control is VOID, not a pass"; exit 0; }
+          chmod +x harness/v2/noevict.sh
+          sudo -E harness/v2/noevict.sh @apollo/rover 0.2.1 "$NUB_BIN" 2>&1 | tee -a /tmp/noevict.txt
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -123,4 +147,5 @@ jobs:
             /tmp/observe.txt
             /tmp/verify.txt
             /tmp/build.log
+            /tmp/noevict.txt
           if-no-files-found: warn
