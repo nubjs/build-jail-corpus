@@ -255,7 +255,33 @@ const verify = (grant, label) => {
   fs.writeFileSync(path.join(v, 'package.json'),
     JSON.stringify({ name: `r${armSeq++}${Date.now().toString(36)}`, version: '1.0.0', dependencies: { [PKG]: VER } }) + '\n');
   const cat = path.join(v, 'cat.json');
-  fs.writeFileSync(cat, JSON.stringify({ packages: { [PKG]: { default: grant } } }));
+  // ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
+  // MODAL CASE. nub REJECTS a catalog entry that widens nothing -- "`default` widens nothing and
+  // there are no version bands, so the entry grants exactly the base profile; drop it" -- and then
+  // falls back to the COMPILED-IN catalog, so the arm trips the override assertion and comes back
+  // VOID. VOID is not "insufficient", and a caller that cannot tell them apart ladders upward from
+  // a hypothesis it never tested and publishes a spuriously WIDE minimum.
+  //
+  // MEASURED on Windows 2026-08-06: `husky@4.3.8` synthesizes `{}` and came back
+  // `OVERRIDDEN=0 REJECTED=2` -- while husky's COMPILED-IN entry is `{"write":{"project":true}}`,
+  // so the fallback arm measured that rather than the base profile and the record was unusable.
+  // The POSIX driver already carried this fix (`yorkie@2.0.0`,
+  // `@progress/kendo-licensing@1.9.1`: reported
+  // `{"write":{"deps","project","userHome"},"network":true}`, verified `{}`); this driver never got
+  // it. Roughly half the corpus synthesizes the empty grant, so unfixed this turns the modal case
+  // into a near-total grant -- on Windows precisely the packages the junction gate fix was meant
+  // to rescue.
+  //
+  // The fix follows from what the base profile already IS: nothing. The override REPLACES the
+  // compiled-in table wholesale rather than merging into it (`compiler/curated.rs` `curated_table()`
+  // returns a table built entirely from the override; `catalog_override.rs` `v2_grant_for()` is
+  // `packages.get(package)?`, so an ABSENT package yields `None` and runs at the base profile). So
+  // express the empty grant by OMITTING the package under test, and carry a sentinel entry under an
+  // unrelated name purely so the override still engages and the assertion below stays meaningful.
+  const catalog = Object.keys(grant).length
+    ? { packages: { [PKG]: { default: grant } } }
+    : { packages: { __v2_empty_grant_sentinel__: { default: { network: true } } } };
+  fs.writeFileSync(cat, JSON.stringify(catalog));
 
   // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
   // Both were tried and both FAILED to stop an arm replaying its predecessor's result. There are
@@ -313,6 +339,14 @@ const verify = (grant, label) => {
   const got = pkgManifest(v, PKG, VER);
   const missing = missingArtifacts(OBS_PKG, got);
   const rc = i.status === 0 ? (a.status ?? 0) : i.status;
+  // ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
+  // a real one by rc and by every other precondition. `materialized` with no install line is the
+  // replay signature; a genuine first touch downloads and runs. Reported, not fatal -- a package
+  // with no lifecycle script legitimately shows neither.
+  const iLog = fs.readFileSync(path.join(v, 'i.log'), 'utf8');
+  if (/^\s*materialized /m.test(iLog) && !/installed \d+ package/.test(iLog)) {
+    console.log("     !! REPLAY SUSPECTED -- 'materialized' with no install line; the script may not have run");
+  }
   // `files/OBS_FILES` stays printed for continuity with the existing corpus logs, but it is
   // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.
   console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
@@ -325,7 +359,14 @@ const verify = (grant, label) => {
 };
 
 const synth = verify(GRANT, 'synth');
-if (synth.void) { console.log('  => VOID (override never engaged; binary lacks the feature or the catalog was rejected)'); process.exit(1); }
+// ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. A VOID synth arm measured the COMPILED-IN
+// catalog, so falling through to the ladder walks upward from a hypothesis that was never tested and
+// publishes whichever rung happens to pass as this package's MINIMUM.
+if (synth.void) {
+  console.log('  => VOID -- the override did not engage on the verdict arm; NOTHING was measured.');
+  console.log('     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant.');
+  process.exit(1);
+}
 // A timeout is not evidence that the grant was too narrow, so the ladder must NOT be walked from
 // here -- widening after a hang would manufacture a wider "minimum" than the package really needs.
 if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${synth.stage}); no verdict, and the ladder is NOT walked`); process.exit(3); }
@@ -351,7 +392,17 @@ const LADDER = [
 ];
 for (const [i, g] of LADDER.entries()) {
   const r = verify(g, `fb${i}`);
-  if (r.void) continue;
+  // ⛔ A VOID RUNG IS NOT A FAILED RUNG, AND `continue` IS THE BUG. Collapsing the two makes the
+  // ladder CLIMB PAST a grant it never tested and publish the NEXT one as the minimum -- an
+  // over-grant on the strength of no measurement, in the direction we are least able to detect by
+  // other means. The empty-grant construction above removes the commonest route to a VOID arm but
+  // not the others (a malformed grant, a binary built without the override feature, a crash before
+  // the log line), so the ladder still has to refuse to continue rather than assume.
+  if (r.void) {
+    console.log(`  => VOID rung ${i} -- the override did not engage, so NOTHING was measured here.`);
+    console.log('     The ladder cannot continue honestly; not a result, and not evidence of a wider need.');
+    process.exit(3);
+  }
   if (r.timedOut) { console.log(`  => TIMED-OUT on ladder rung ${i} (${r.stage}); the ladder is abandoned rather than continued`); process.exit(3); }
   if (r.ok) {
     console.log(`  => MINIMUM ${JSON.stringify(g)}   (ladder fallback; synthesized grant was insufficient)`);
