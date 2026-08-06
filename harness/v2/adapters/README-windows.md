@@ -46,7 +46,7 @@ disposition = (CreateOptions >>> 24) & 0xFF
 1 OPEN                                                          -> read
 ```
 
-Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete`, `Rename`, `DeletePath`, `RenamePath` and `SetLinkPath` are writes as well.
+Disposition alone under-reports, because a caller may `FILE_OPEN` an existing file and then write to it. So the `Write` event counts as a write too, with its path resolved through the FileObject and FileKey tables that Create and NameCreate build. The mutators `SetInformation`, `SetDelete` and `Rename` are writes as well, and so are `DeletePath`, `RenamePath` and `SetLinkPath` — which resolve their path differently, for the reason below.
 
 ## Destination paths
 
@@ -56,10 +56,22 @@ Events 26, 27 and 28 — `DeletePath`, `RenamePath`, `SetLinkPath` — are the o
 
 **And the decoder preferred the source.** A handle op resolved its path as `nameByObject.get(FileObject) ?? nameByKey.get(FileKey) ?? data.FileName`, and on a `RenamePath` that `FileObject` still names the source. So the source won, the source had already been emitted by the `Rename` event, the dedup set swallowed it, and the destination was absent with nothing in the stream saying so. Measured on the known-answer fixture at both masks: rename destination and hard-link destination absent entirely, identically. Widening the mask alone changed nothing.
 
-For those three events the payload path now wins and the handle tables are a fallback. Two details the fix depends on:
+For those three events the payload path now wins and the handle tables are a fallback. Measured across both arms of [31118563399](https://github.com/nubjs/build-jail-corpus/actions/runs/31118563399):
 
-- **`Rename` and `RenamePath` share one Irp**, and the pending-status map is single-valued and last-writer-wins — so routing the destination through it evicts the source and trades one end of the rename for the other. The destination events get their own list-valued map, leaving the Create/Read/Write pairing untouched. `harness/v2/adapters/windows.test.mjs` pins this; it is the one case a mutation of that map turns red.
-- **The provider publishes no templates**, so the destination field name is read from a candidate list rather than hardcoded. Run `windows.mjs <capture-dir> --dump-dest N` to print the raw payload of the first N of these events against a real trace.
+| capture mask | decoder | rename destination | hard-link destination | storm | decoy | events lost |
+| --- | --- | --- | --- | --- | --- | --- |
+| `0x11F0` | shipped | absent | absent | 500/500 | 0 | 0 |
+| `0x11F0` | fixed | absent | absent | 500/500 | 0 | 0 |
+| `0x1FF0` | shipped | absent | absent | 500/500 | 0 | 0 |
+| `0x1FF0` | fixed | **present** | **present** | 500/500 | 0 | 0 |
+
+Three details the fix depends on:
+
+- **`Rename` and `RenamePath` share one Irp**, and the pending-status map is single-valued and last-writer-wins — so routing the destination through it evicts the source and trades one end of the rename for the other. Visible as the orphan-create count going 6 to 25 the moment the widened mask puts events 26/27/28 into that map, and back to 8 once they get their own list-valued one. `harness/v2/adapters/windows.test.mjs` pins it; it is the one case a mutation of that map turns red.
+- **The provider publishes no templates**, so the destination field name is read from a candidate list rather than hardcoded. Measured on a real trace it is `FilePath`, and every destination arrived as an absolute NT device path — the relative-leaf branch is defensive and unexercised. Run `windows.mjs <capture-dir> --dump-dest N` to print the raw payload of the first N of these events.
+- **`SetLinkPath` needs both ends kept together.** A hard link creates a second name for existing content, so afterwards two live paths reach the same bytes. Both names already reach the stream — the old one as a read from the open that made the link, the new one as a write — but as two unrelated records nothing says which link went with which target, and two interleaved link operations lose the correspondence outright. The event carries both ends at once (`FileObject` resolves to the source, the payload carries the new name), so the destination record keeps the other end as `path2` with a `kind` of `rename`, `hardlink` or `delete`. A delete carries no `path2`, because both ends are the same file.
+
+`path2` and `kind` are additive: `classify.mjs` reads `op`/`path`/`result`/`pid` and `validate-windows.mjs` keys its exact-set on `op|path|result|role`, so neither sees them. The primary `path` stays the destination, which is the end that needs the grant. The Linux retained log bills both ends of a two-path op the same way, as `f`/`g`.
 
 A capture whose `meta.json` records a mask other than `0x1FF0`, or records none at all, is called out on stderr at decode time. A stream captured before this change has no destinations in it and the events themselves cannot say so, so the meta has to.
 
@@ -77,6 +89,8 @@ The adapter expands short to long, never the reverse — contracting would mean 
 - Expansion is skipped entirely when the capture came from another host, because `RUNNER~1` names whatever that machine happens to have. Re-decoding an archived trace elsewhere gets the short spelling back rather than a confident wrong long name. `--no-longpath` forces the same.
 
 When expansion fails the short spelling is kept verbatim and counted in the stderr stats. That over-counts distinct paths, which is the safe direction; guessing a long name would be an invented fact.
+
+The known-answer check is `probes/win-viability/shortname-kaf.mjs`: it writes one file through `%TEMP%`, records the long spelling from `realpathSync.native` as ground truth, and asserts the stream reports the long one and only the long one. On [31118563399](https://github.com/nubjs/build-jail-corpus/actions/runs/31118563399) it passes with the fix and fails on the shipped decoder, which emits the same file under both spellings. Over the fixture run, 30 paths expanded and 0 were kept short. The check reports SKIP rather than a pass when `%TEMP%` on the runner carries no 8.3 component, because an assertion with nothing to expand measures nothing.
 
 Only four NTSTATUS values are refusals: `STATUS_ACCESS_DENIED`, `STATUS_PRIVILEGE_NOT_HELD`, `STATUS_MEDIA_WRITE_PROTECTED`, `STATUS_CANNOT_DELETE`. The Windows near-miss is not a string collision like `AT_EACCESS` — it is the temptation to call every non-zero status a denial. A probe for a file that is not there returns `STATUS_OBJECT_NAME_NOT_FOUND`, which means the operation did not happen; those are omitted, matching the Linux extractor skipping `= -1`. On the fixture trace 379 operations failed for a reason that was not a refusal and exactly one was a refusal.
 

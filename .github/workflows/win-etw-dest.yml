@@ -33,6 +33,9 @@ on:
       storm:
         description: 'known-answer fixture storm file count'
         default: '500'
+      package:
+        description: 'ONE pkg@version to OBSERVE after the fixture verifies — never a list'
+        default: 'hugo-extended@0.141.0'
 
 permissions:
   contents: read
@@ -286,10 +289,57 @@ jobs:
             Tee-Object -FilePath C:\obs\out\shortname-OLD.txt
           Copy-Item C:\obs\short-expect.json C:\obs\out\short-expect.json -Force -ErrorAction SilentlyContinue
 
+      # ── ONE REAL PACKAGE, AND ONLY AFTER THE FIXTURE VERIFIED. The same `hugo-extended@0.141.0`
+      # the viability probe traced, so the numbers are directly comparable against a run that
+      # predates this change: it synthesized {"write":{"deps":true,"userHome":true},"network":true}
+      # with writes userHome 3 / deps 4 / kernelfs 1, and carried 543 paths spelled `RUNNER~1` that
+      # bucketed `outside` when they are genuinely under the user profile.
+      #
+      # ⛔ ALSO THE ONLY PLACE THE VOLUME QUESTION GETS ANSWERED. The widened mask adds events, and
+      # `EventsLost 0` was established on the OLD mask. A fixture is too small to threaten a buffer;
+      # a real build is the arm where loss would show.
+      - name: OBSERVE one real package
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $P = 'harness/v2/probes/win-viability'
+          $spec = '${{ inputs.package || ''hugo-extended@0.141.0'' }}'
+          $i = $spec.LastIndexOf('@'); $pkg = $spec.Substring(0, $i); $ver = $spec.Substring($i + 1)
+          $free = (Get-PSDrive -Name C).Free
+          Write-Output "free on C: $([math]::Round($free/1GB,1)) GB"
+          # A trace runs ~1.3 KB of XML per event, so running out of disk mid-capture yields a SHORT
+          # trace with no error — which reads exactly like a package that touched fewer files.
+          if ($free -lt 12GB) { Write-Output '::warning::skipping — under 12 GB free'; exit 0 }
+          node "$P/observe-pkg.mjs" $pkg $ver --root C:\obs\pkg 2>&1 |
+            Tee-Object -FilePath C:\obs\out\observe-pkg.txt
+          $probe = Get-ChildItem C:\obs\pkg -Filter probe.json -Recurse -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $probe) { Write-Output 'no probe.json'; exit 0 }
+          $j = Get-Content $probe.FullName -Raw | ConvertFrom-Json
+          Copy-Item $probe.FullName C:\obs\out\probe-pkg.json -Force
+          if ($j.status -ne 'OK') { Write-Output "status $($j.status)"; exit 0 }
+          $nd = Join-Path $j.capDir 'events.ndjson'
+          Copy-Item $nd C:\obs\out\events-pkg.ndjson -Force -ErrorAction SilentlyContinue
+          node harness/v2/classify.mjs $nd --project $j.obsDir --home $env:USERPROFILE `
+            --platform win32 --root-pid $j.rootPid --json C:\obs\out\observed-pkg.json 2>&1 |
+            Tee-Object -FilePath C:\obs\out\classify-pkg.txt
+          Write-Output '--- 8.3 spellings left in the real stream (want: none) ---'
+          $short = (Select-String -Path $nd -Pattern '~\d' -AllMatches).Count
+          Write-Output "records still carrying an 8.3 component: $short"
+          Write-Output '--- two-path records in the real stream ---'
+          Select-String -Path $nd -Pattern '"kind":' | ForEach-Object { $_.Line } | Select-Object -First 25 |
+            Tee-Object -FilePath C:\obs\out\pairing-pkg.txt
+          Remove-Item (Join-Path $j.capDir 'trace.etl'), (Join-Path $j.capDir 'trace.xml') -Force -ErrorAction SilentlyContinue
+
       - name: Summary
         if: always()
         shell: pwsh
         run: |
+          Write-Output '===== REAL PACKAGE ====='
+          Get-Content C:\obs\out\classify-pkg.txt -ErrorAction SilentlyContinue
+          Get-Content C:\obs\out\probe-pkg.json   -ErrorAction SilentlyContinue
+          Write-Output ''
           Write-Output '===== THE 2x2 ====='
           foreach ($tag in 'old-mask_old-decode','old-mask_NEW-decode','NEW-mask_old-decode','NEW-mask_NEW-decode') {
             Write-Output "---------------- $tag ----------------"

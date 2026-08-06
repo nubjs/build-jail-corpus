@@ -175,6 +175,9 @@ const MUTATORS = new Set([EV.SET_INFORMATION, EV.SET_DELETE, EV.RENAME]);
 // it can mean; anything else is left alone.
 // ---------------------------------------------------------------------------------------------
 const DEST_PATH_EVENTS = new Set([EV.DELETE_PATH, EV.RENAME_PATH, EV.SET_LINK_PATH]);
+// Keyed on the EVENT, never on InfoClass: one RenamePath in the fixture trace carried
+// FileRenameInformation (10) and another FileRenameInformationEx (65), and a delete arrives as 64.
+const DEST_KIND = { [EV.RENAME_PATH]: 'rename', [EV.SET_LINK_PATH]: 'hardlink', [EV.DELETE_PATH]: 'delete' };
 const DEST_PATH_FIELDS = ['FilePath', 'FileName', 'NewPath', 'TargetName', 'Path'];
 const isAbsoluteish = (s) => /^\\/.test(s) || /^[A-Za-z]:[\\/]/.test(s);
 
@@ -424,10 +427,7 @@ for await (const line of rl) {
     const name = dest ?? source;
     if (!name) { stats.destUnresolved++; continue; }
     if (dest) stats.destResolved++;
-    // Keyed on the EVENT, never on InfoClass: one RenamePath carries FileRenameInformation (10) and
-    // another FileRenameInformationEx (65), both seen in one trace, and a delete arrives as 64.
-    const KIND = { [EV.RENAME_PATH]: 'rename', [EV.SET_LINK_PATH]: 'hardlink', [EV.DELETE_PATH]: 'delete' };
-    const op = { op: 'write', name, pid, pair: { kind: KIND[id], other: source } };
+    const op = { op: 'write', name, pid, pair: { kind: DEST_KIND[id], other: source } };
     if (!data.Irp) { emitFile(op.op, op.name, op.pid, 'ok', op.pair); continue; }
     const list = pendingDest.get(data.Irp);
     if (list) list.push(op); else pendingDest.set(data.Irp, [op]);
