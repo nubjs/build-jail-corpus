@@ -55,6 +55,27 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 
+# ── 0b. fbt PREFLIGHT — a timeboxed probe, folded in rather than given its own runner. ─────────
+#
+# The open question it answers: can an `fbt` probe observe the cwd change that posix_spawn's
+# in-kernel `addchdir_np` performs? If it can, cwd becomes OBSERVED (R2's actual demand) and the cwd
+# guard becomes a backstop instead of the mechanism. If it cannot, the guard is the answer.
+#
+# ⛔ IT MUST NEVER FAIL THE JOB. This is a question, not a gate — a measurement must not be lost to a
+# probe. Every command is `|| true` and the whole block is advisory output only.
+#
+# ⛔ AND IT IS NOT ANSWERABLE FROM DOCUMENTATION. Apple's man page says default SIP forbids D
+# programs "access to kernel address values or kernel memory contents", which reads like a refusal —
+# but the shipped `cwd` inline in /usr/lib/dtrace/darwin.d dereferences curproc->p_fd.fd_cdir->v_name,
+# which IS kernel memory, and this adapter runs fine on this box. So the restriction is demonstrably
+# not total and only a live probe settles it.
+echo "  --- fbt preflight (advisory; never fails the run) ---"
+echo "     csrutil: $(csrutil status 2>&1 | head -1 || true)"
+echo "     fbt probes visible: $(dtrace -l -P fbt 2>/dev/null | wc -l | tr -d ' ' || echo 0)"
+echo "     fbt enable attempt: $(dtrace -n 'fbt:::entry { exit(0); }' -c /usr/bin/true 2>&1 | head -2 | tr '\n' ' ' || true)"
+echo "     cwd builtin value:  $(dtrace -q -n 'syscall::open:entry /pid == $target/ { printf("%s", cwd); exit(0); }' -c /usr/bin/true 2>&1 | head -1 || true)"
+echo "  --- end fbt preflight ---"
+
 # ── 1. OBSERVE ─────────────────────────────────────────────────────────────────────────────────
 # ⛔ THE CAPITAL `O` IS LOAD-BEARING AND MUST NOT BE "TIDIED" TO LOWERCASE. dtrace's `cwd` built-in
 # yields a BASENAME, not a path (`/usr/lib/dtrace/darwin.d:339` — Apple's own comment says they want
