@@ -59,7 +59,22 @@ jobs:
         run: |
           # A decoder that fails its own known-answer tests cannot be trusted to answer the
           # portability question, and finding that out AFTER a 40-minute measurement is a wasted run.
-          $files = @(Get-ChildItem harness/v2/*.test.mjs, harness/v2/adapters/*.test.mjs | % FullName)
+          # This preflight has already earned its keep once: it is what surfaced `record.mjs`'s CLI
+          # guard never firing on Windows, which would have voided the whole win32 lane.
+          #
+          # ⛔ TWO FILES ARE EXCLUDED, AND NOT BECAUSE THEY ARE INCONVENIENT. Both EXECUTE bash
+          # extracted out of `measure.sh` and drive it with POSIX semantics — `chmod`, `umask`, env
+          # scrubbing in a POSIX shell. `measure.sh` has no Windows caller and bash is not the shell
+          # here, so they fail for a reason that says nothing about the Windows decoder, which is the
+          # only thing this preflight is gating. `measure-r7.test.mjs` is already skipped at the file
+          # level for exactly this reason; these two are not yet, and the Linux lane owns them.
+          #
+          # ⛔ THE EXCLUSION IS A NAMED LIST, NEVER A PATTERN. A pattern would silently swallow the
+          # next Windows-relevant test file someone adds, which is how a preflight stops preflighting.
+          $skip = @('ci-env-scrub.test.mjs', 'measure-provenance.test.mjs')
+          $files = @(Get-ChildItem harness/v2/*.test.mjs, harness/v2/adapters/*.test.mjs |
+                     Where-Object { $skip -notcontains $_.Name } | % FullName)
+          Write-Output "running $($files.Count) test files; skipping: $($skip -join ', ')"
           node --test @files
 
       - name: identity (R7)
