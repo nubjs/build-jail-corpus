@@ -59,23 +59,24 @@ const fsOut = fs.openSync(fsLog, 'w');
 // timestamp and the threadid on the command name. Path width still runs out — see checkTruncation.
 const fsu = spawn('/usr/bin/fs_usage', ['-w', '-f', 'filesys', '-f', 'network'], { stdio: ['ignore', fsOut, fsOut] });
 
+// ⛔ THE READINESS CHECK IS POST-HOC, NOT A POLL, AND THAT IS DELIBERATE. Polling the tracer's log
+// for a sentinel cannot work: both tracers write to a FILE, so their stdout is block-buffered, and
+// on an idle machine the first block does not flush for a long time. Measured — an eslogger that
+// went on to capture 8341 records was declared dead by a 30s poll, because nothing had flushed yet.
+//
+// Instead the sentinel BRACKETS the run: a burst before, a burst after. Both must be present in the
+// final captured log, which proves the tracer was live across the whole window rather than merely
+// alive at the start. A tracer that missed either bracket makes the run vacuous and is fatal.
 const sentinelDir = fs.mkdtempSync(path.join(work, 'sentinel-'));
-const waitReady = (label, logFile, needle) => {
-  const deadline = Date.now() + 30_000;
-  let n = 0;
-  while (Date.now() < deadline) {
-    const s = path.join(sentinelDir, `probe-${n++}`);
-    try { fs.writeFileSync(s, 'x'); fs.readFileSync(s); fs.unlinkSync(s); } catch { /* keep poking */ }
-    let body = '';
-    try { body = fs.readFileSync(logFile, 'utf8'); } catch { /* not yet */ }
-    if (body.includes(needle)) return true;
-    spawnSync('/bin/sleep', ['0.2']);
+const SENTINEL = 'nubobsprobe';
+const dropSentinels = (tag) => {
+  for (let i = 0; i < 40; i++) {
+    const s = path.join(sentinelDir, `${SENTINEL}-${tag}-${i}`);
+    try { fs.writeFileSync(s, 'x'); fs.readFileSync(s); fs.unlinkSync(s); } catch { /* best effort */ }
   }
-  fail(`${label} never observed its own sentinel within 30s — the tracer is NOT live and any result would be vacuous`);
-  return false;
 };
-const esReady = waitReady('eslogger', esLog, 'probe-');
-const fsReady = waitReady('fs_usage', fsLog, 'probe-');
+spawnSync('/bin/sleep', ['4']);          // subscription latency, both tracers
+dropSentinels('pre');
 
 // ─── 2. RUN THE COMMAND ───────────────────────────────────────────────────────────────────────
 // Dropped to the invoking (non-root) user when available. The fixture's EACCES check is meaningless
@@ -90,10 +91,17 @@ const DROP = new Set(['SUDO_USER', 'SUDO_UID', 'SUDO_GID', 'SUDO_COMMAND', 'USER
 const forwarded = Object.entries(process.env)
   .filter(([k, v]) => !DROP.has(k) && typeof v === 'string' && !v.includes('\0'))
   .map(([k, v]) => `${k}=${v}`);
-const run = asUser
-  ? spawnSync('/usr/bin/sudo', ['-u', asUser, '/usr/bin/env', ...forwarded, ...cmd], { stdio: 'inherit' })
-  : spawnSync(cmd[0], cmd.slice(1), { stdio: 'inherit' });
-const rootMarkerRc = run.status;
+// `spawn`, not `spawnSync`, purely to learn the CHILD'S PID. That pid is the subtree seed, and
+// seeding from it rather than from this process alone means the closure survives a missing link in
+// the ancestry chain (sudo/env may exec without producing an ES record we subscribed to).
+const [c0, cargs] = asUser
+  ? ['/usr/bin/sudo', ['-u', asUser, '/usr/bin/env', ...forwarded, ...cmd]]
+  : [cmd[0], cmd.slice(1)];
+const child = spawn(c0, cargs, { stdio: 'inherit' });
+const childPid = child.pid;
+const rootMarkerRc = await new Promise((res) => child.on('exit', (code) => res(code)));
+
+dropSentinels('post');
 spawnSync('/bin/sleep', ['2']);           // let the kernel drain both trace buffers before teardown
 es.kill('SIGINT'); fsu.kill('SIGINT');
 spawnSync('/bin/sleep', ['1']);
@@ -109,15 +117,21 @@ const first = (o, paths) => { for (const p of paths) { const v = dig(o, p); if (
 const P_PID = ['process.audit_token.pid', 'process.audit_token.remote_pid', 'process.pid', 'process.ppid'];
 const P_PPID = ['process.ppid', 'process.parent_audit_token.pid', 'process.original_ppid'];
 
+const esBody = fs.readFileSync(esLog, 'utf8');
 const esRecords = [];
 let esBadJson = 0;
-for (const line of fs.readFileSync(esLog, 'utf8').split('\n')) {
+for (const line of esBody.split('\n')) {
   if (!line.trim() || !line.trimStart().startsWith('{')) continue;
   try { esRecords.push(JSON.parse(line)); } catch { esBadJson++; }
 }
 diag.counts.eslogger_records = esRecords.length;
 diag.counts.eslogger_unparsable_lines = esBadJson;
-if (esReady && esRecords.length === 0) fail('eslogger produced no parsable records despite passing its sentinel — schema or invocation is wrong');
+
+// THE POSITIVE CONTROL, evaluated now that everything has flushed. Both brackets must be present or
+// the observation window did not cover the run and no conclusion drawn from it is worth anything.
+const esReady = esBody.includes(`${SENTINEL}-pre`) && esBody.includes(`${SENTINEL}-post`);
+if (!esReady) fail(`eslogger did not capture both sentinel brackets (pre=${esBody.includes(SENTINEL + '-pre')} post=${esBody.includes(SENTINEL + '-post')}) — the run is VACUOUS`);
+if (esRecords.length === 0) fail('eslogger produced no parsable records — schema or invocation is wrong');
 
 // ─── 4. THE PID SUBTREE ───────────────────────────────────────────────────────────────────────
 // Built as a transitive closure over every (pid, ppid) pair ES reports, seeded from our command's
@@ -133,14 +147,15 @@ for (const r of esRecords) {
   const exe = first(r, ['process.executable.path', 'event.exec.target.executable.path']);
   if (typeof exe === 'string') commOf.set(pid, path.basename(exe));
 }
-const selfPid = process.pid;
+// TWO seeds, not one. `selfPid` alone breaks if any link between this process and the fixture
+// produced no ES record we subscribed to; `childPid` re-anchors the closure below that gap.
+const SEEDS = new Set([process.pid, childPid].filter((p) => typeof p === 'number'));
 const inSubtree = (pid) => {
-  // Walk to a root; a pid belongs to us if our own process is an ancestor. Cycle-guarded because a
-  // reused pid inside the window can otherwise close a loop.
+  // Cycle-guarded: a pid reused inside the observation window can otherwise close a loop.
   const seen = new Set();
   let cur = pid;
   for (let i = 0; i < 200 && cur != null && !seen.has(cur); i++) {
-    if (cur === selfPid) return true;
+    if (SEEDS.has(cur)) return true;
     seen.add(cur);
     cur = parentOf.get(cur);
   }
@@ -149,6 +164,13 @@ const inSubtree = (pid) => {
 const subtreePids = new Set([...parentOf.keys()].filter(inSubtree));
 diag.counts.subtree_pids = subtreePids.size;
 diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).filter(Boolean))];
+// When the closure comes back empty the question is always "which link is missing?", and answering
+// it from a re-run costs a full CI cycle. Record the ancestry evidence inline instead.
+diag.seeds = [...SEEDS];
+diag.counts.parent_edges = parentOf.size;
+diag.ancestry_sample = [...parentOf.entries()]
+  .filter(([p]) => /^(sudo|env|bash|sh|zsh|fixture|node|npm|run-fixture\.sh|level1\.sh|level2\.sh)$/.test(commOf.get(p) ?? ''))
+  .slice(0, 40).map(([p, pp]) => `${commOf.get(p) ?? '?'}(${p}) <- ${pp}`);
 
 // ─── 5. eslogger → EVENTS ─────────────────────────────────────────────────────────────────────
 // Write intent is read from the OPEN FLAGS. By the time bytes move the fd hides the path, so an
@@ -243,9 +265,13 @@ const NON_PATH_CALLS = new Set(['exit', 'close', 'close_nocancel', 'read', 'writ
 const AF_INET_SOCKET = /^\d\d:\d\d:\d\d\.\d+\s+socket\s+.*AF_INET/;
 const CONNECT_LINE = /^\d\d:\d\d:\d\d\.\d+\s+connect/;
 
-const fsLines = fs.readFileSync(fsLog, 'utf8').split('\n');
+const fsBody = fs.readFileSync(fsLog, 'utf8');
+const fsLines = fsBody.split('\n');
 diag.counts.fs_usage_lines = fsLines.length;
-if (fsReady && fsLines.length < 5) fail('fs_usage produced almost no output despite passing its sentinel');
+// Same bracketing control as eslogger. fs_usage is the source for refusals, so a window that did
+// not cover the run would report "no refusals" — a clean-looking answer that means nothing.
+const fsReady = fsBody.includes(`${SENTINEL}-pre`) && fsBody.includes(`${SENTINEL}-post`);
+if (!fsReady) fail(`fs_usage did not capture both sentinel brackets (pre=${fsBody.includes(SENTINEL + '-pre')} post=${fsBody.includes(SENTINEL + '-post')}) — refusal results are VACUOUS`);
 
 // fs_usage carries no pid, only `command.threadid`. Attribution is therefore by command NAME, and
 // only when that name is unambiguous within our subtree. Anything else is DROPPED and counted —

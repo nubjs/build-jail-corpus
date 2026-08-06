@@ -1,8 +1,8 @@
 #!/bin/bash
 # Ground truth about the two macOS instruments, harvested in ONE run.
 #
-# The adapter is written against a schema nobody here could verify locally, because both instruments
-# require root and the dev host has no passwordless sudo. So this script does not assume: it drives a
+# The adapter is written against a schema that cannot be verified on an interactive workstation,
+# because both instruments require root. So this script does not assume: it drives a
 # known set of operations and dumps what each tool ACTUALLY prints, including the two format
 # questions that decide whether the adapter is sound at all —
 #

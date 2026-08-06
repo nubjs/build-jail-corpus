@@ -2,8 +2,8 @@
 #
 # Branch-scoped on purpose: no PR is required to run this. The probe needs ROOT on a real macOS host
 # with SIP ENABLED, which is exactly what a GitHub macOS runner is and exactly what the generation
-# harness will eventually be. The maintainer's dev Mac has no passwordless sudo, so this workflow is
-# the only place the adapter can be validated at all.
+# harness will eventually be. An interactive workstation without passwordless sudo cannot run either
+# instrument, so a CI runner is the only place the adapter can be validated at all.
 name: macos-observe-probe
 
 on:
