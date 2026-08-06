@@ -15,7 +15,7 @@ on:
       packages:
         description: 'space-separated pkg@version list'
         required: false
-        default: '@apollo/rover@0.2.1 sharp@0.32.6'
+        default: '@apollo/rover@0.2.1'
 
 permissions:
   contents: read
@@ -81,7 +81,7 @@ jobs:
         run: |
           set +e
           chmod +x harness/v2/measure-macos.sh
-          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1 sharp@0.32.6' }}; do
+          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1' }}; do
             P="${spec%@*}"; V="${spec##*@}"
             echo "=================================================================="
             sudo -E harness/v2/measure-macos.sh "$P" "$V" 2>&1 | tee -a /tmp/observe.txt
@@ -115,29 +115,34 @@ jobs:
         run: |
           set +e
           [ -n "${NUB_BIN:-}" ] || { echo "skipped: no binary"; exit 0; }
-          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1 sharp@0.32.6' }}; do
+          for spec in ${{ github.event.inputs.packages || '@apollo/rover@0.2.1' }}; do
             P="${spec%@*}"; V="${spec##*@}"
             echo "=================================================================="
             sudo -E harness/v2/measure-macos.sh "$P" "$V" "$NUB_BIN" 2>&1 | tee -a /tmp/verify.txt
           done
 
-      # ⛔ THE FAILING CONTROL. A negative control that fails proves nothing on its own — it has to
-      # PASS when the one variable is removed, or the failure may be incidental to macOS. Same
-      # driver, same warm store (this runs AFTER the pass above, so binary-install is materialized),
-      # memo still dropped, eviction neutered. If the too-narrow arm passes here and fails above,
-      # the eviction is the variable.
-      - name: A/B control — the identical run with the eviction disabled
+      # ⛔ THE FAILING CONTROL, AND IT IS THE HALF THAT MAKES THE PASS ABOVE EVIDENCE. A negative
+      # control that fails proves nothing unless the same fixture PASSES once the guards are removed
+      # — otherwise the failure may be incidental to macOS. This is the PRE-FIX driver: eviction and
+      # memo drop both neutered, everything else identical, on a store this job has already warmed.
+      # Expected: the too-narrow `{"network":true}` arm relinks a built `binary-install`, never runs
+      # the script, and comes back OVER-PREDICTED — the under-grant the lane's guard describes.
+      - name: Failing control — the pre-fix driver on the same fixture
         if: always()
         continue-on-error: true
         run: |
           set +e
           [ -n "${NUB_BIN:-}" ] || { echo "skipped: no binary"; exit 0; }
-          cp harness/v2/measure-macos.sh harness/v2/noevict.sh
-          sed -i '' 's|^  if \[ -d "$STORE" \]; then|  if false; then|' harness/v2/noevict.sh
-          grep -q '^  if false; then' harness/v2/noevict.sh || {
+          cp harness/v2/measure-macos.sh harness/v2/prefix.sh
+          sed -i '' 's|^  if \[ -d "$STORE" \]; then|  if false; then|' harness/v2/prefix.sh
+          sed -i '' "s|^  printf 'side-effects-cache=false.*|  : # memo drop neutered|" harness/v2/prefix.sh
+          n=$(grep -c '^  if false; then' harness/v2/prefix.sh)
+          m=$(grep -c '^  : # memo drop neutered' harness/v2/prefix.sh)
+          echo "neuter applied: eviction=$n memo=$m (both must be 1)"
+          [ "$n" = 1 ] && [ "$m" = 1 ] || {
             echo "⛔ THE NEUTER DID NOT APPLY — this control is VOID, not a pass"; exit 0; }
-          chmod +x harness/v2/noevict.sh
-          sudo -E harness/v2/noevict.sh @apollo/rover 0.2.1 "$NUB_BIN" 2>&1 | tee -a /tmp/noevict.txt
+          chmod +x harness/v2/prefix.sh
+          sudo -E harness/v2/prefix.sh @apollo/rover 0.2.1 "$NUB_BIN" 2>&1 | tee -a /tmp/noevict.txt
 
       - uses: actions/upload-artifact@v4
         if: always()
