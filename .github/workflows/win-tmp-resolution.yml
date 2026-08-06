@@ -16,12 +16,18 @@
 # misconfiguration otherwise reports an unconfined `node`'s temp paths with a clean exit code, and
 # nothing else in the output would tell you.
 #
-# ⛔ THE MATRIX LEGS ARE THE CROSS-MACHINE AXIS, NOT REDUNDANCY. Each leg is a fresh runner VM, so
-# `r1` vs `r2` answers "is the path stable across machines" -- the closest reachable stand-in for
-# "after a reboot", since a hosted runner cannot be rebooted and resumed.
+# ⛔ ONE JOB, AND THAT IS A CAPACITY DECISION, NOT A DESIGN PREFERENCE. The two-job shape is better
+# isolated and could not get runners: MEASURED on this repo today, a `windows-latest` job that does
+# not receive a runner within ~15 minutes is CANCELLED (runs 31125232564 and 31125317467, both
+# `runner_name: ""`, both cancelled at 15:00 on the dot), and half a dozen other Windows probes are
+# competing for the same pool. Three slots per attempt meant three chances to lose the whole run;
+# one slot is what actually lands. The isolation is bought back with per-step `timeout-minutes` and
+# with each arm streaming its rows as they land, so a step that hangs is killed by the runner --
+# which then survives to upload -- rather than starving it until it drops off the network.
 #
-# Branch-scoped, no PR: CI is the only Windows path, and `workflow_dispatch` is inert until a
-# workflow file reaches the default branch, so the push trigger is what makes this iterable.
+# Branch-scoped, no PR. ⛔ AND USE `workflow_dispatch`, NOT A PUSH: measured today, `gh workflow run
+# <wf>.yml --ref <branch>` DOES fire for a workflow that exists only on a probe branch, while the
+# push trigger did not fire for one of the two pushes to this branch.
 name: win-tmp-resolution
 
 on:
@@ -32,21 +38,25 @@ on:
       nub_ref:
         description: 'branch of nubjs/nub to build the probe binary from'
         default: 'sandbox/integration'
+      arms:
+        description: 'which arms to run: both | a | b'
+        default: 'both'
 
 permissions:
   contents: read
 
 env:
   NUB_REF: ${{ inputs.nub_ref || 'sandbox/integration' }}
+  ARMS: ${{ inputs.arms || 'both' }}
 
 jobs:
-  build:
+  probe:
     runs-on: windows-latest
     timeout-minutes: 90
-    outputs:
-      sha: ${{ steps.resolve.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
 
       - name: Resolve the nub commit under test
         id: resolve
@@ -85,34 +95,12 @@ jobs:
           mkdir -p /c/nubbin
           cp target/fast/nub.exe /c/nubbin/nub.exe
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nub-exe
-          path: C:/nubbin/nub.exe
-          retention-days: 3
-
-  # ⛔ ONE JOB PER ARM, AND THAT IS NOT COSMETIC. Run 31119799480 put both arms on one runner, the
-  # runner lost communication with the server partway through, and GitHub returned NO log and NO
-  # artifact for it -- so arm B was lost to a failure that had nothing to do with arm B. Separate
-  # jobs also give the cross-MACHINE axis for free: two jobs are two fresh runner VMs, so a temp
-  # path that agrees between them agrees across machines.
-  arm-a:
-    needs: build
-    runs-on: windows-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22' }
-      - uses: actions/download-artifact@v4
-        with: { name: nub-exe, path: C:/nubbin }
-
       - name: Host facts
         shell: pwsh
         run: |
           $id = [Security.Principal.WindowsIdentity]::GetCurrent()
-          Write-Output "job      = arm-a"
-          Write-Output "nub sha  = ${{ needs.build.outputs.sha }}"
+          Write-Output "nub sha  = ${{ steps.resolve.outputs.sha }}"
+          Write-Output "cache hit= ${{ steps.cache.outputs.cache-hit }}"
           Write-Output "whoami   = $($id.Name)"
           Write-Output "sid      = $($id.User.Value)"
           Write-Output "elevated = $(([Security.Principal.WindowsPrincipal]$id).IsInRole(544))"
@@ -126,7 +114,7 @@ jobs:
           # same instrument as Node's env-derived `os.tmpdir()`. Recording both unjailed is what
           # lets a jailed divergence be attributed to one of them.
           Write-Output "GetTempPath() = $([System.IO.Path]::GetTempPath())"
-          Write-Output "Packages dir contents:"
+          Write-Output "Packages dir:"
           Get-ChildItem "$env:LOCALAPPDATA\Packages" -ErrorAction SilentlyContinue |
             Select-Object -ExpandProperty Name | Out-String
           node --version
@@ -135,11 +123,10 @@ jobs:
       # `tee` so the rows reach the job log AS THEY LAND rather than in a `cat` after the driver
       # returns -- the failure mode this probe already hit destroys everything not yet streamed.
       # `PIPESTATUS[0]` is the driver's status; `$?` through the pipe would be tee's.
-      # `timeout-minutes` is the real protection: a hung step gets killed by the runner, which then
-      # survives to upload, instead of being starved until it drops off the network.
       - name: Arm A — `nub run --sandbox build-jail`
+        if: env.ARMS == 'both' || env.ARMS == 'a'
         continue-on-error: true
-        timeout-minutes: 30
+        timeout-minutes: 25
         shell: bash
         run: |
           set -u
@@ -147,47 +134,10 @@ jobs:
             --root 'C:\jail\wintmpA' --out 'C:\jail\wintmpA\out' 2>&1 | tee /c/arm-a.log
           echo "driver EXIT=${PIPESTATUS[0]}"
 
-      - name: Collect
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: win-tmp-arm-a
-          path: |
-            C:/arm-a.log
-            C:/jail/wintmpA/out/**
-          retention-days: 7
-          if-no-files-found: warn
-
-  arm-b:
-    needs: build
-    runs-on: windows-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22' }
-      - uses: actions/download-artifact@v4
-        with: { name: nub-exe, path: C:/nubbin }
-
-      - name: Host facts
-        shell: pwsh
-        run: |
-          Write-Output "job      = arm-b"
-          Write-Output "nub sha  = ${{ needs.build.outputs.sha }}"
-          Write-Output "hostname = $env:COMPUTERNAME"
-          Write-Output "TEMP         = $env:TEMP"
-          Write-Output "TMP          = $env:TMP"
-          Write-Output "USERPROFILE  = $env:USERPROFILE"
-          Write-Output "LOCALAPPDATA = $env:LOCALAPPDATA"
-          Write-Output "GetTempPath() = $([System.IO.Path]::GetTempPath())"
-          Get-ChildItem "$env:LOCALAPPDATA\Packages" -ErrorAction SilentlyContinue |
-            Select-Object -ExpandProperty Name | Out-String
-          node --version
-          & C:\nubbin\nub.exe --version
-
       - name: Arm B — the real interposed lifecycle jail
+        if: always() && (env.ARMS == 'both' || env.ARMS == 'b')
         continue-on-error: true
-        timeout-minutes: 40
+        timeout-minutes: 35
         shell: bash
         run: |
           set -u
@@ -199,9 +149,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: win-tmp-arm-b
+          name: win-tmp-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            C:/arm-a.log
             C:/arm-b.log
+            C:/jail/wintmpA/out/**
             C:/jail/wintmpB/out/**
           retention-days: 7
           if-no-files-found: warn
