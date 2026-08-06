@@ -38,6 +38,15 @@ jobs:
     env:
       PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
       GYP_PKG: ${{ inputs.gyp_pkg || '@pulumi/datadog@0.18.9' }}
+      # ⛔⛔ WITHOUT THIS THE EXPERIMENT MEASURES NOTHING, AND IT LOOKS FINE WHILE DOING SO. MEASURED
+      # in run 31106248877: every arm logged `linker isolated (global virtual store auto-disabled in
+      # CI)` and put its `.store` INSIDE the arm directory, so `%LOCALAPPDATA%\nub\pm\store` never
+      # existed, the eviction skipped in silence, and root-only and transitive eviction were
+      # indistinguishable — four arms, identical verdicts, zero EVICT lines. `is_ci()` picks the
+      # project-local layout (`install_report.rs` `layout_row`), and an explicit
+      # `enableGlobalVirtualStore` is the one thing checked BEFORE it. A real user is not in CI, so
+      # forcing it on is also what makes the arm resemble the install being measured.
+      npm_config_enable_global_virtual_store: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -134,6 +143,21 @@ jobs:
           echo "R0_EXIT=$?" >> "$GITHUB_ENV"
           cat /tmp/r0.log
 
+      # The eviction's precondition, checked directly rather than inferred from a verdict: if the
+      # global store does not exist, every row below is measuring the CI layout and proves nothing.
+      - name: Assert the arms actually used the global virtual store
+        shell: bash
+        run: |
+          set +e
+          grep -h "linker " /c/jail/*/verify-*/i.log | sort -u
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const s = path.join(process.env.XDG_CACHE_HOME || process.env.LOCALAPPDATA, "nub", "pm", "store");
+            const n = fs.existsSync(s) ? fs.readdirSync(s).length : -1;
+            console.log(`store=${s} entries=${n}`);
+            if (n < 1) { console.error("⛔ the global store is empty or absent — the eviction has nothing to act on and the experiment is INERT"); process.exit(1); }
+          '
+
       - name: R1 — the teeth control (ROOT-ONLY eviction; a false PASS is EXPECTED)
         shell: bash
         run: |
@@ -165,7 +189,10 @@ jobs:
         shell: bash
         run: |
           set +e
-          node harness/v2/measure-windows.mjs "${GYP_PKG%@*}" "${GYP_PKG##*@}" --nub "$NUB_BIN" \
+          # `--synth-only`: the positive control asks whether the tooling survives the eviction, not
+          # what this package's minimum is, and the ladder costs three more full installs to answer
+          # a question nobody asked here.
+          node harness/v2/measure-windows.mjs "${GYP_PKG%@*}" "${GYP_PKG##*@}" --nub "$NUB_BIN" --synth-only \
             > /tmp/p.log 2>&1
           echo "P_EXIT=$?" >> "$GITHUB_ENV"
           cat /tmp/p.log
@@ -236,6 +263,12 @@ jobs:
           done
           echo; echo "EVICT lines:"; grep -h "EVICT " /tmp/r*.log /tmp/p.log 2>/dev/null
           echo; echo "CLOSURE lines:"; grep -h "CLOSURE " /tmp/r*.log /tmp/p.log 2>/dev/null
+          echo; echo "arm layouts:"; grep -h "linker " /c/jail/*/verify-*/i.log 2>/dev/null | sort | uniq -c
+          echo; echo "arm failures (first line of each):"
+          for f in /c/jail/*/verify-*/i.log; do
+            printf '%s: %s\n' "$(basename "$(dirname "$(dirname "$f")")")/$(basename "$(dirname "$f")")" \
+              "$(grep -m1 -E 'EPERM|EACCES|Error:|lifecycle script' "$f" 2>/dev/null)"
+          done
           echo
           FAIL=0
           grep -q '=> SUFFICIENT' /tmp/r0.log   || { echo "⛔ R0 did not prime (expected SUFFICIENT)"; FAIL=1; }
