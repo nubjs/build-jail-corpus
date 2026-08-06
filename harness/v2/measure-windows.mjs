@@ -370,12 +370,29 @@ const verify = (grant, label) => {
   const missing = missingArtifacts(OBS_PKG, got);
   const rc = i.status === 0 ? (a.status ?? 0) : i.status;
   // ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
-  // a real one by rc and by every other precondition. `materialized` with no install line is the
-  // replay signature; a genuine first touch downloads and runs. Reported, not fatal -- a package
-  // with no lifecycle script legitimately shows neither.
-  const iLog = fs.readFileSync(path.join(v, 'i.log'), 'utf8');
-  if (/^\s*materialized /m.test(iLog) && !/installed \d+ package/.test(iLog)) {
-    console.log("     !! REPLAY SUSPECTED -- 'materialized' with no install line; the script may not have run");
+  // a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
+  // script; a replay materializes from cache and never spawns it.
+  //
+  // ⛔⛔ THIS CHECK USED TO FALSE-FIRE, AND THE WAY IT FAILED IS INSTRUCTIVE. It required
+  // `installed \d+ package` in `i.log`, and was wrong on two counts:
+  //
+  //   1. THAT IS ONE OF TWO SUMMARY SHAPES, NOT THE SUMMARY. nub prints
+  //      `✓ installed N packages in Xs` for a small install and
+  //      `✓ resolved N · reused N · downloaded N … in Xs` for a larger one, so the predicate held
+  //      or failed on which shape the package COUNT happened to produce rather than on whether
+  //      anything ran. MEASURED on this box: `iedriver` (1 dep) printed `✓ installed 1 package in
+  //      6.5s` and passed; `electron-chromedriver` (70 deps) printed the resolved/reused form and
+  //      was flagged — while its install had demonstrably run (`downloaded 34`, and a
+  //      `running build scripts for electron-chromedriver@33.4.9` line).
+  //   2. IT READ ONLY `i.log`. Lifecycle scripts also run under `approve-builds`, whose output is
+  //      `a.log`, so evidence sitting there was invisible.
+  //
+  // ⛔ THE FALSE POSITIVE WAS NOT HARMLESS: it flagged the ONE arm in that batch whose verified
+  // result refuted a standing prediction, and a reader trusting the warning would have discarded
+  // exactly the measurement that mattered. Keying on a summary line was always indirect; the fix
+  // keys on the line that DIRECTLY evidences a script being invoked, across both logs.
+  if (!/running build scripts for/.test(logs)) {
+    console.log("     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run");
   }
   // `files/OBS_FILES` stays printed for continuity with the existing corpus logs, but it is
   // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.
