@@ -113,13 +113,46 @@ test('an absent package directory fails loudly rather than passing vacuously', (
 // publishes a grant for a package whose install was genuinely broken.
 
 test('the same shortfall digests identically — what lets the driver call a shortfall invariant', () => {
-  const obs = tree('obs-sigsame', { 'index.js': 'x', 'build/out.o.d': 'FULL-DEP-FILE' });
-  const a = gate(obs, tree('arm-sigsame-a', { 'index.js': 'x', 'build/out.o.d': 'SHORT' }));
-  const b = gate(obs, tree('arm-sigsame-b', { 'index.js': 'x', 'build/out.o.d': 'SHORT' }));
+  // ⛔ NOT a `.o.d`. The gate deliberately skips the shorter-but-non-empty comparison for `.d` files,
+  // whose size tracks the length of the header paths they record rather than anything about the
+  // build. This test is about DIGEST STABILITY and needs a file whose size still carries signal; an
+  // object file does. (It used `.o.d` originally because that is the shape the real lmdb-store case
+  // had — which is exactly the shape now excused, so the fixture had to move.)
+  const obs = tree('obs-sigsame', { 'index.js': 'x', 'build/out.o': 'FULL-OBJECT-FILE' });
+  const a = gate(obs, tree('arm-sigsame-a', { 'index.js': 'x', 'build/out.o': 'SHORT' }));
+  const b = gate(obs, tree('arm-sigsame-b', { 'index.js': 'x', 'build/out.o': 'SHORT' }));
   assert.equal(a.code, 1, `the arm must still FAIL the gate — the digest is not a pass:\n${a.out}`);
   const sig = (o) => /shortfall=(\w+)/.exec(o)?.[1];
   assert.ok(sig(a.out), `line 1 must carry a shortfall digest:\n${a.out}`);
   assert.equal(sig(a.out), sig(b.out), 'two arms short by the same file at the same size must agree');
+});
+
+// The lmdb-store@2.0.0-alpha2 case, in miniature. A `.d` records the ABSOLUTE PATH of every header a
+// compilation included, and node-gyp unpacks headers into a randomly-named temp directory — so the
+// same successful build writes a different-LENGTH dep file every run. Comparing those sizes across
+// arms declared the package INSUFFICIENT at every grant INCLUDING the empty one, while the arm had
+// `rc=0`, all 182 artifacts, and a linked native addon.
+test('a `.d` that is merely SHORTER does not fail — its size tracks header paths, not the build', () => {
+  const obs = tree('obs-dshort', { 'index.js': 'x', 'build/out.o.d': 'DEPS-FROM-A-LONG-TMP-PATH' });
+  const r = gate(obs, tree('arm-dshort', { 'index.js': 'x', 'build/out.o.d': 'DEPS-SHORTER' }));
+  assert.equal(r.code, 0, `a shorter-but-present dep file must not be a shortfall:\n${r.out}`);
+  assert.match(r.out, /missing=0 /, `and it must not be counted:\n${r.out}`);
+});
+
+// ⛔ The control that keeps the excusal honest. Without this, "skip `.d` size checks" would silently
+// swallow the truncated-to-nothing shape the gate exists to catch — and no path-length difference can
+// ever produce a zero-byte file, so excusing it would buy nothing and cost the signal.
+test('⛔ a ZERO-BYTE `.d` still FAILS — emptiness is not a path-length artifact', () => {
+  const obs = tree('obs-dempty', { 'index.js': 'x', 'build/out.o.d': 'REAL-DEPS' });
+  const r = gate(obs, tree('arm-dempty', { 'index.js': 'x', 'build/out.o.d': '' }));
+  assert.equal(r.code, 1, `an empty dep file against a non-empty reference must fail:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `and be counted exactly once:\n${r.out}`);
+});
+
+test('⛔ a `.d` that is ABSENT still FAILS — the excusal is about size only, never presence', () => {
+  const obs = tree('obs-dgone', { 'index.js': 'x', 'build/out.o.d': 'REAL-DEPS' });
+  const r = gate(obs, tree('arm-dgone', { 'index.js': 'x' }));
+  assert.equal(r.code, 1, `a missing dep file must still be a shortfall:\n${r.out}`);
 });
 
 test('⛔ two DIFFERENT single-file shortfalls digest differently — `missing=1` is not an identity', () => {

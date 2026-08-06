@@ -139,9 +139,28 @@ if (!obs || obs.size === 0) {
 const got = manifest(ARM);
 const missing = [];
 if (!got) missing.push('<package absent>');
-else for (const [f, size] of obs) {
-  if (!got.has(f)) missing.push(f);
-  else if (got.get(f) < size) missing.push(`${f} (${got.get(f)}B < ${size}B)`);
+// ⛔ A MAKE DEPENDENCY FILE IS SIZED BY WHERE ITS HEADERS LIVED, NOT BY WHETHER THE BUILD WORKED.
+// A `.d` (node-gyp emits them as `<obj>.o.d`) contains nothing but the ABSOLUTE PATH of every header
+// the compilation pulled in. node-gyp unpacks the Node headers into `/tmp/node-gyp-tmp-<random>`, so
+// the same successful compile writes a different-LENGTH file on every run, and comparing sizes across
+// arms asks a question the artifact cannot answer.
+//
+// MEASURED on `lmdb-store@2.0.0-alpha2`: all 16 of its flagged files were `.o.d`, each merely SHORT
+// (`1528B < 1624B`, `12682B < 14305B`), while the arm reported `rc=0 artifacts=182/182` and
+// `SOLINK_MODULE`/`COPY Release/lmdb-store.node` — the addon had compiled and linked. The package was
+// nevertheless declared INSUFFICIENT at every grant INCLUDING the empty one, which is the tell: the
+// identical shortfall digest across a grant range from `{}` upward cannot be a capability gap.
+//
+// TWO SIGNALS ARE DELIBERATELY KEPT. Presence: a `.d` that never appeared is a real shortfall. And
+// EMPTINESS: a zero-byte `.d` against a non-empty reference is the download-blocked/truncated shape
+// this gate exists to catch, and no path-length difference can produce it. Only the "shorter than
+// reference but non-empty" comparison is dropped, and only for this extension.
+const SIZE_VARIES_BY_PATH = /\.d$/;
+for (const [f, size] of got ? obs : []) {
+  if (!got.has(f)) { missing.push(f); continue; }
+  const armSize = got.get(f);
+  if (SIZE_VARIES_BY_PATH.test(f) && armSize > 0) continue;
+  if (armSize < size) missing.push(`${f} (${armSize}B < ${size}B)`);
 }
 // Order the manifest walk produces is filesystem-dependent, so sort before digesting or two arms with
 // the same shortfall can disagree on its identity.
