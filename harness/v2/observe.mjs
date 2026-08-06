@@ -10,23 +10,50 @@
 // and assumes the script is hostile. This file lives entirely on the generation side; nothing it
 // needs is available to — or required by — the jail.
 //
+// ⛔ THE STRACE DECODING LIVES IN `adapters/linux.mjs` AND IS IMPORTED, NOT REIMPLEMENTED HERE.
+// This file used to carry its own regex decoder, and the two drifted: measured against the
+// known-answer fixture `probes/syscall-coverage.c` on 2026-08-06, the local decoder retained 18 of
+// the 26 writes that actually executed, invented one path no process touched, and truncated another
+// — while `adapters/linux.mjs`, written later for log retention, retained all 26. Every one of the
+// eight losses was in the UNDER-GRANT direction, which is the one direction this system may not
+// take. Duplication is what produced that gap, so the duplication is gone: `decode()` is the single
+// strace surface and this file is the CLASSIFIER + SYNTHESIZER on top of it.
+//
+// WHAT THE SHARED DECODER FIXES, each measured on the fixture (see `adapters/linux.mjs`'s header for
+// the mechanism of each):
+//   · `rename`/`link` DESTINATIONS — the old matcher took the first quoted argument, the SOURCE.
+//   · a `*at` syscall with a REAL dirfd (`openat(3,"B")`, `mkdirat`, `unlinkat`, `renameat2`) — the
+//     old matcher required `AT_FDCWD` or a quoted first argument and failed the line WHOLE.
+//   · `fchmodat`/`fchownat`/`mknodat` — glibc rewrites `chmod()`/`chown()` to the `*at` forms, and
+//     the old anchored filter listed `chmod`/`chown` and so matched NEITHER. `mknod` was absent
+//     entirely. Measured live: 725 `fchmodat` + 728 `fchownat` in one `sharp@0.32.6` install.
+//   · `symlinkat(target, dirfd, linkpath)` — the old code resolved `linkpath` against the cwd and
+//     INVENTED a path no process touched, which is worse than missing one: a fabricated path can
+//     widen a grant on evidence that does not exist.
+//   · a path containing a `"` — `"([^"]*)"` stopped at the C escape and truncated it mid-path.
+//
+// ⛔ WHAT IS NOT SHARED, DELIBERATELY: the RETENTION STEP. `measure.sh` still invokes
+// `adapters/linux.mjs` as a separate process AFTER this one, and that invocation still feeds nothing
+// back — a failure there still cannot move a verdict. Sharing a pure `decode()` function is not the
+// same as sharing a step, and it is what stops the two from drifting again.
+//
 //   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name]
 import fs from 'node:fs';
+import { decode } from './adapters/linux.mjs';
 
 const [file, proj, home, jailHome, pkgName] = process.argv.slice(2);
 if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName]'); process.exit(2); }
 // The rebuilt package's OWN directory in the observation layout (plain hoisted `node_modules`).
 // Its jail counterpart is the store entry, which the base profile already grants RW.
 const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
-const lines = fs.readFileSync(file, 'utf8').split('\n');
+const text = fs.readFileSync(file, 'utf8');
+const decoded = decode(text, { project: proj });
 
 // ⛔ ONLY `= -1 EACCES` IS A REFUSAL. A bare `grep EACCES` also matches the FLAG NAME `AT_EACCESS`
 // in faccessat calls, which are ordinary successful probes. Measured on a real trace: the naive
-// pattern reported 26 denials where 11 were real.
-const DENIED = /=\s*-1\s+(EACCES|EPERM|EROFS)\b/;
-// A write intent is visible in the OPEN FLAGS, not in a later write() — by then the fd hides the
-// path. Creating, truncating or appending all count; O_RDONLY does not.
-const WRITE_FLAGS = /O_(WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
+// pattern reported 26 denials where 11 were real. The shared decoder hands us the errno as a field,
+// so the distinction is structural here rather than a pattern that has to be got right.
+const DENIED = /^(EACCES|EPERM|EROFS)$/;
 
 const writes = new Set(), reads = new Set(), denials = new Set(), hosts = new Set();
 let sockets = 0;
@@ -42,117 +69,74 @@ let allSockets = 0;
 // of what its script does, which also makes the per-path question unanswerable. A lifecycle script
 // is always reached through a shell (`npm run-script` execs `sh -c "<script>"`), so the attributed
 // set is the union of the subtrees rooted at those shells.
-const lifecycle = new Set();
-const toolPids = new Set();
-let started = false;
-const SHELL_EXEC = /^execve\("[^"]*\/(?:sh|bash|dash)"[^)]*"-c"/;
+//
+// The rule lives in the shared decoder and is applied there identically; `decode()` returns it
+// per-process rather than stamped on each event, so it stays recomputable. What is new is that the
+// shared decoder rejoins `<unfinished ...>` clone lines, so a subtree whose fork edge was split
+// across a context switch is now attributed instead of silently dropped.
+const lifecycle = new Set(decoded.procs.filter((p) => p.life).map((p) => p.pid));
 
-// ⛔ RESOLVE RELATIVE PATHS OR THEY MATCH NO SCOPE. strace prints the path exactly as the syscall
-// received it, so a script that chdir's into its own package dir and opens "../dist/app.js" yields
-// a string that cannot be prefix-matched against ANY root. MEASURED on dotnet-2.0.0@1.4.4's first
-// real run: four writes landed in the unclassifiable "outside" bucket for this reason alone, and
-// the synthesized grant was wrong as a result. Determinism rule 1 — normalize BEFORE classifying —
-// requires per-pid cwd tracking, inherited across fork.
-const cwds = new Map();
-const abs = (pid, p) => {
-  if (!p) return p;
-  if (p.startsWith('/')) return p;
-  const parts = ((cwds.get(pid) ?? proj ?? '') + '/' + p).split('/');
-  const out = [];
-  for (const seg of parts) {
-    if (seg === '' || seg === '.') continue;
-    if (seg === '..') out.pop();
-    else out.push(seg);
-  }
-  return '/' + out.join('/');
+// ⛔ AN UNRESOLVABLE dirfd YIELDS "UNKNOWN", NEVER A GUESS, AND NEVER A SCOPE. When a `*at` syscall
+// names a dirfd the decoder never saw opened (inherited across an exec it did not witness, or passed
+// over `SCM_RIGHTS`), the only honest output is the raw relative path plus the fact that its base is
+// unknown. The old decoder resolved such a path against the project root, which is how a file
+// created somewhere else entirely became `<project>/H-symlinkat-dirfd` — a FABRICATED path that
+// still classified into a scope and could still widen a grant on evidence that does not exist.
+// These are counted, reported, and excluded from classification. A non-empty count is a decoding
+// gap to close, not a capability to grant.
+const unknownWrites = new Set();
+
+// ⛔ WHICH OF A TWO-PATH CALL'S ENDS IS ACTUALLY MUTATED. The three disagree, and the disagreement
+// is deliberate — each is pinned by its own test so the asymmetry reads as intentional rather than
+// as an oversight someone should tidy up:
+//
+//   rename(old, new)   BOTH. It creates `new` AND unlinks `old`; each needs the grant on its own.
+//   link(old, new)     `new` only. `old` is READ — its link count changes, its contents do not — so
+//                      billing it as a write over-predicts by exactly one scope, and the scope it
+//                      over-predicts into is whatever the source happened to live in.
+//   mount(src, target) `target` only, on the same reasoning as link.
+//
+// `symlink` is absent because the shared decoder already resolves it correctly: `f` is the LINKPATH
+// it creates and `g` is opaque link CONTENT the kernel stores verbatim and never resolves. Anything
+// not listed here bills `f` and ignores `g` entirely, which is what keeps that content out.
+// (Measured on `vanilla-cookieconsent@3.0.0-rc.9`: billing `symlink("../only-allow/bin.js", …)`'s
+// first argument resolved the CONTENT against the cwd and kept `write:{userHome}` alive by itself.)
+const TWO_PATH_ROLES = {
+  rename: { f: 'w', g: 'w' },
+  link: { f: 'r', g: 'w' },
+  mount: { f: 'r', g: 'w' },
 };
 
-// ⛔ `symlink`/`link`'s FIRST ARGUMENT IS NOT THE PATH BEING WRITTEN, AND BILLING IT AS ONE
-// INVENTS A PATH THAT NO PROCESS EVER TOUCHED. `symlink(target, linkpath)` creates `linkpath`;
-// `target` is opaque link CONTENT the kernel stores verbatim and never resolves at creation time.
-// The generic `syscall("<first-quoted-arg>"` matcher above cannot tell the two apart, so it took
-// the target.
-//
-// MEASURED on `vanilla-cookieconsent@3.0.0-rc.9`, and this single line was the whole residual that
-// kept `write:{userHome}` alive after the `jailHome` redirect reclassified the other 51 writes:
-//
-//   symlink("../only-allow/bin.js", "<jailhome>/.npm/_npx/<hash>/node_modules/.bin/only-allow") = 0
-//
-// `../only-allow/bin.js` is relative, so `abs()` resolved it against the cwd fallback (`$OBS`) and
-// produced `$ROOT/only-allow/bin.js` — a path under `$HOME`, outside `$OBS` and outside `$JAIL_HOME`,
-// so it classified as `userHome` and earned a grant. The file the process actually created is the
-// LINKPATH, which is inside the jail's private HOME and already RW-granted (`preset.rs`
-// `private_home_dir` / `NUB_JAIL_HOME_ROOT_PATTERN`, granted through `push_rw_path`).
-//
-// THIS IS A PARSE CORRECTION, NOT AN EXCLUSION. Nothing is filtered by path shape: the linkpath is
-// classified by the same scope function as every other write, so a script that symlinks into the
-// REAL user home still lands in `userHome` and still earns the grant. `only-allow` is `npx
-// only-allow <pm>`, a very common preinstall guard, so this reaches a whole family of packages.
-//
-// `rename(old, new)` is deliberately NOT in here: it UNLINKS `old` as well as creating `new`, so
-// both arguments are genuine writes and taking the first is correct.
-const LINK_TARGET_IS_CONTENT = /^(?:symlink|symlinkat|link|linkat)$/;
-const linkTarget = (call, line) => {
-  if (!LINK_TARGET_IS_CONTENT.test(call)) return null;
-  // Take the LAST quoted argument: `symlink(t, l)`, `symlinkat(t, dirfd, l)`,
-  // `linkat(olddirfd, o, newdirfd, n, flags)` all put the created path last.
-  const quoted = [...line.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((q) => q[1]);
-  return quoted.length >= 2 ? quoted[quoted.length - 1] : null;
-};
-
-for (const raw of lines) {
-  if (!raw) continue;
-  // Keep the pid: cwd is per-process, so stripping it first loses the only key we have.
-  const pidM = raw.match(/^(\d+)\s+/);
-  const pid = pidM ? Number(pidM[1]) : 0;
-  const line = raw.replace(/^\d+\s+/, '');
-
-  const cd = line.match(/^f?chdir\("([^"]+)"\)\s*=\s*0/);
-  if (cd) cwds.set(pid, abs(pid, cd[1]));
-  // A child inherits the parent's cwd at fork; without this every grandchild resolves against the
-  // wrong base, which is the common case since the interesting syscall is usually a grandchild.
-  const cl = line.match(/^(?:clone3?|v?fork)\(.*\)\s*=\s*(\d+)/);
-  if (cl) {
-    if (cwds.has(pid)) cwds.set(Number(cl[1]), cwds.get(pid));
-    // A child of the lifecycle shell IS lifecycle. The clone returns in the parent before the
-    // child's first syscall is emitted, so propagating here is ordering-safe.
-    if (lifecycle.has(pid)) lifecycle.add(Number(cl[1]));
-  }
-  if (SHELL_EXEC.test(line) && !line.includes('= -1')) { lifecycle.add(pid); started = true; }
-  // ⛔ THE clone EDGE IS NOT ALWAYS IN THE TRACE, so a pure parent->child walk under-attributes to
-  // exactly the shell and nothing below it. MEASURED on @nuxt/components@2.1.0: the lifecycle shell
-  // was found, its `yarn` descendants were not, and the parser emitted `{}` — a confident "this
-  // package needs nothing" for a package that does not even install at three grants above that.
-  // glibc's posix_spawn issues CLONE_VM|CLONE_VFORK and libuv takes several spawn paths, so the
-  // edge is missing rather than mis-parsed. FALLBACK, and it is a heuristic, not a derivation: once
-  // the lifecycle shell has exec'd, attribute every pid not already seen as the package manager's.
-  // Sound because npm's own pids all appear during the fetch/link phase that precedes the script.
-  if (!started) toolPids.add(pid);
-  const mine = lifecycle.has(pid) || (started && !toolPids.has(pid));
-
-  const m = line.match(/^([a-z_0-9]+)\((?:AT_FDCWD,\s*)?"([^"]*)"/);
-
-  if (DENIED.test(line) && m) denials.add(`${m[1]} ${abs(pid, linkTarget(m[1], line) ?? m[2])}`);
-
-  if (m && /^(open|openat|creat|mkdir|mkdirat|unlink|unlinkat|rename|renameat2?|link|symlink|truncate|chmod|utimensat)/.test(m[1])) {
-    if (line.includes('= -1')) continue;               // failed calls are not a need
-    const path = abs(pid, linkTarget(m[1], line) ?? m[2]);
-    const isWrite = /^(creat|mkdir|mkdirat|unlink|unlinkat|rename|renameat2?|link|symlink|truncate)/.test(m[1])
-      || WRITE_FLAGS.test(line);
+for (const e of decoded.events) {
+  if (e.o === 'connect') continue;                     // peers are collected below
+  if (DENIED.test(e.r)) denials.add(`${e.s} ${e.f}${e.u ? ` (dirfd ${e.u}, UNRESOLVED)` : ''}`);
+  if (e.r !== 0) continue;                             // failed calls are not a need
+  const roles = TWO_PATH_ROLES[e.o];
+  const parts = [];
+  if (e.f != null) parts.push([e.f, e.u != null, roles ? roles.f === 'w' : e.w === 1]);
+  if (roles && e.g != null) parts.push([e.g, e.u2 != null, roles.g === 'w']);
+  for (const [path, unresolved, isWrite] of parts) {
+    if (unresolved) { if (isWrite) unknownWrites.add(`${e.s} ${path} (dirfd ${e.u ?? e.u2})`); continue; }
     if (isWrite) allWrites.add(path);
-    if (mine) (isWrite ? writes : reads).add(path);
+    if (lifecycle.has(e.p)) (isWrite ? writes : reads).add(path);
   }
+}
 
-  if (/^socket\(AF_INET/.test(line)) { allSockets++; if (mine) sockets++; }
-  // ⛔ THE PORT AND ADDRESS ORDER IS NOT FIXED. strace prints sockaddr members in struct order,
-  // which differs between sin_port/sin_addr and sin6_port/sin6_flowinfo/sin6_addr — and a single
-  // regex assuming one order silently yields port 0 for the other. MEASURED: a real run reported
-  // fifteen peers as `104.16.x.34:0`. Capture the two fields INDEPENDENTLY.
-  if (/^connect\(/.test(line)) {
-    const port = line.match(/sin6?_port=htons\((\d+)\)/);
-    const addr = line.match(/inet6?_addr\("([^"]+)"/);
-    if (addr) hosts.add(`${addr[1]}:${port ? port[1] : '?'}`);
-  }
+// ⛔ THE NETWORK SIGNAL IS COUNTED FROM THE RAW TEXT, NOT FROM THE EVENT STREAM, and deliberately so.
+// The grant's `network` axis keys on `socket(AF_INET…)`, which the shared decoder does not emit —
+// it retains `connect` peers only. Deriving `network` from connects instead would NARROW the signal
+// (a socket opened but never connected, or a connect the decoder failed to rejoin, would stop
+// earning the grant), and narrowing is the direction that breaks installs. So this stays byte-for-
+// byte the predicate it has always been, over the same attributed pid set.
+for (const m of text.matchAll(/^(\d+)?\s*socket\(AF_INET/gm)) {
+  allSockets++;
+  if (lifecycle.has(m[1] ? Number(m[1]) : 0)) sockets++;
+}
+// Peers are REPORT-ONLY and stay unattributed, as they have always been. The shared decoder captures
+// the address and port independently, which is what stops strace's differing sockaddr member order
+// between `sin_port`/`sin6_port` from silently reporting every peer on port 0.
+for (const e of decoded.events) {
+  if (e.o === 'connect' && e.h) hosts.add(`${e.h}:${e.pt ?? '?'}`);
 }
 
 // Classify a path against the scopes the CATALOG can express, so the output maps onto a grant
@@ -214,9 +198,20 @@ const bucket = (set) => {
 };
 
 const w = bucket(writes);
-console.log(`== ATTRIBUTION == lifecycle pids: ${lifecycle.size}`);
+console.log(`== ATTRIBUTION == attributed pids: ${lifecycle.size}`);
 console.log(`  writes  script ${writes.size}  /  whole traced tree ${allWrites.size}`);
 console.log(`  sockets script ${sockets}  /  whole traced tree ${allSockets}`);
+// ⛔ THE DECODER'S OWN SHORTFALLS, PRINTED. A line the decoder could not parse, a syscall it does
+// not map, or an argument strace truncated is a path that may be MISSING from the grant below — and
+// a missing path is an under-grant. These are the numbers that say how much to trust the answer.
+const ds = decoded.stats;
+if (ds.unparsed) console.log(`  ⛔ ${ds.unparsed} trace lines the decoder could not parse`);
+if (ds.truncatedArg) console.log(`  ⛔ ${ds.truncatedArg} arguments strace TRUNCATED — those paths are incomplete`);
+if (unknownWrites.size) {
+  console.log(`  ⛔ ${unknownWrites.size} WRITES with an UNRESOLVED dirfd — base unknown, so NOT classified`);
+  console.log('     and NOT granted. They are a decoding gap, not a capability. Never guessed:');
+  [...unknownWrites].slice(0, 10).forEach((p) => console.log(`      ${p}`));
+}
 if (lifecycle.size === 0) {
   // Not a package with no needs — a parse failure. Saying so beats emitting an empty grant that
   // looks like a confident "needs nothing".
@@ -262,3 +257,13 @@ console.log('== writePaths FEASIBILITY (distinct writes outside project/deps) ==
 console.log(`  count: ${enumerable.length}`);
 enumerable.slice(0, 40).forEach((p) => console.log(`      ${p.startsWith(home) ? p.slice(home.length + 1) : p}`));
 if (enumerable.length > 40) console.log(`      … and ${enumerable.length - 40} more`);
+
+// The FULL attributed write set, one `WRITE\t<scope>\t<path>` line each, behind an env flag. Off by
+// default because the human-readable report above is what a driver log wants — but the report prints
+// a COUNT plus ten examples per bucket, which is exactly why the question "did this decoder change
+// lose a path?" could not be answered against a real package without re-measuring it. With this,
+// two decoders can be diffed on one trace. It is the instrument the 18-of-26 defect was measured
+// with; committing it means the next such question costs a re-run of this script, not a re-install.
+if (process.env.NUB_V2_DUMP_WRITES) {
+  for (const p of [...writes].sort()) console.log(`WRITE\t${scope(p)}\t${p}`);
+}

@@ -22,15 +22,21 @@ const JAIL = '/home/u/root/jailhome';
 // case without one attributes nothing and would pass while asserting nothing.
 const SHELL = '100 execve("/usr/bin/sh", ["sh", "-c", "postinstall"], 0x1 /* 1 vars */) = 0\n';
 
+// `NUB_V2_DUMP_WRITES` is set on every case on purpose. The human report prints a COUNT plus ten
+// examples per bucket, so a case asserting only on the grant cannot tell "the decoder retained this
+// path" from "it retained some other path in the same scope" — and several of the losses below are
+// exactly that shape: a path that is WRONG rather than absent still bills a plausible scope.
 const run = (body, pkg = 'p') => {
   const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
   fs.writeFileSync(f, SHELL + body);
   const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg], {
     encoding: 'utf8',
+    env: { ...process.env, NUB_V2_DUMP_WRITES: '1' },
   });
   return {
     out,
     grant: JSON.parse(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim()),
+    writes: out.split('\n').filter((l) => l.startsWith('WRITE\t')).map((l) => l.split('\t')[2]),
   };
 };
 
@@ -135,4 +141,100 @@ test('a stream with no lifecycle shell reports UNKNOWN rather than an empty gran
     encoding: 'utf8',
   });
   assert.match(out, /NO LIFECYCLE SHELL FOUND/);
+});
+
+// ── The decoding losses, each measured against `probes/syscall-coverage.c` on 2026-08-06 ─────────
+//
+// The old decoder carried its own strace regexes and retained 18 of the 26 writes that fixture
+// actually executed. Each case below pins one mechanism it lost, and each one FAILS against that
+// decoder — verified by running this file against it before the fix. They are grouped by mechanism
+// rather than by syscall on purpose: `mkdirat`/`unlinkat`/`renameat2` all failed for the single
+// reason that their first argument is a number, so they are one case, not three.
+
+test('a rename DESTINATION earns its own grant, not just the source it unlinks', () => {
+  // The old matcher took the FIRST quoted argument. `rename(a, b)` touches BOTH — and when only `a`
+  // is in already-granted space, taking it alone is a silent UNDER-grant. Measured in the wild: 11
+  // rename destinations in lmdb-store@2.0.0-alpha2, 2 in sharp@0.32.6.
+  const { grant, writes } = run('100 rename("/home/u/root/jailhome/tmp", "/home/u/.config/persist") = 0\n');
+  assert.deepStrictEqual(grant, { write: { userHome: true } });
+  assert.ok(writes.includes('/home/u/.config/persist'), `destination missing from ${JSON.stringify(writes)}`);
+});
+
+test("glibc's *at rewrites are decoded: chmod/chown/mknod reach the kernel under another name", () => {
+  // `chmod()` reaches the kernel as `fchmodat` and `chown()` as `fchownat`, so a filter listing
+  // `chmod`/`chown` matches NEITHER. `mknod` was absent from the filter entirely. Measured live: 725
+  // fchmodat + 728 fchownat in one sharp@0.32.6 install. A mode or owner change IS a write.
+  for (const call of [
+    'fchmodat(AT_FDCWD, "/home/u/.ssh/id_rsa", 0600) = 0',
+    'fchownat(AT_FDCWD, "/home/u/.ssh/id_rsa", 0, 0, 0) = 0',
+    'mknodat(AT_FDCWD, "/home/u/.ssh/fifo", S_IFIFO|0644) = 0',
+  ]) {
+    const { grant } = run(`100 ${call}\n`);
+    assert.deepStrictEqual(grant, { write: { userHome: true } }, `${call} did not bill a write`);
+  }
+});
+
+test('a *at syscall with a REAL dirfd resolves against that fd, not the project root', () => {
+  // strace prints a real dirfd as a NUMBER, and the old matcher required `AT_FDCWD` or a quoted
+  // first argument — so it failed the line WHOLE and lost the path. Asserted through a dirfd that
+  // points OUTSIDE the project, which is what makes the failure a real capability rather than a
+  // relabelling: dropping the line loses a `userHome` grant entirely.
+  const open = '100 openat(AT_FDCWD, "/home/u/.local", O_RDONLY|O_DIRECTORY) = 7\n';
+  const { grant, writes } = run(`${open}100 openat(7, "share/x", O_WRONLY|O_CREAT, 0644) = 8\n`);
+  assert.deepStrictEqual(grant, { write: { userHome: true } });
+  assert.ok(writes.includes('/home/u/.local/share/x'), `got ${JSON.stringify(writes)}`);
+});
+
+test('symlinkat under a real dirfd bills the linkpath there — and INVENTS nothing', () => {
+  // The worst of the five losses, because it does not drop a path, it FABRICATES one. The old code
+  // took the last quoted argument and resolved it against the cwd fallback, so a link created inside
+  // the jail's own private home was billed at `<project>/link` — a path no process ever touched,
+  // which still classified into a scope and still earned a grant on evidence that does not exist.
+  const open = '100 openat(AT_FDCWD, "/home/u/root/jailhome/d", O_RDONLY|O_DIRECTORY) = 5\n';
+  const { grant, writes } = run(`${open}100 symlinkat("../../secret", 5, "link") = 0\n`);
+  assert.deepStrictEqual(grant, {}, 'the linkpath is inside the base-granted private home');
+  assert.ok(writes.includes('/home/u/root/jailhome/d/link'), `got ${JSON.stringify(writes)}`);
+  assert.ok(!writes.includes(`${PROJ}/link`), 'resolved the linkpath against the project root — a FABRICATED path');
+});
+
+test('a path containing a double quote is retained whole, not truncated at the C escape', () => {
+  // `"([^"]*)"` stops at the backslash of `\"`, silently and mid-path. The grant does not move here
+  // — both halves classify `userHome` — which is exactly why this asserts on the retained PATH:
+  // a case checking only the grant would pass while the decoder mangled every path it saw.
+  const { writes } = run('100 openat(AT_FDCWD, "/home/u/we\\"ird", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.ok(writes.includes('/home/u/we"ird'), `got ${JSON.stringify(writes)}`);
+});
+
+test('cwd survives a clone edge split across `<unfinished ...>`', () => {
+  // ⛔ THE ONLY ONE OF THESE THAT MOVED A REAL PACKAGE'S GRANT. strace splits a syscall that blocks
+  // into an `<unfinished ...>` / `<... clone resumed>` pair, and the old single-line clone regex
+  // matched neither — MEASURED on lmdb-store@2.0.0-alpha2, 287 of its 363 clone edges (79%) are
+  // split that way. Losing the edge loses the child's inherited cwd, so node-gyp's relative
+  // `./Release/...` writes resolved against the PROJECT ROOT instead of `<pkg>/build`. That
+  // fabricated 70 `project` paths and earned the package a `write:{project:true}` it does not need;
+  // the real files are under the package's own directory, which the base profile already grants.
+  const body =
+    `100 chdir("${PROJ}/node_modules/p") = 0\n`
+    + '100 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID <unfinished ...>\n'
+    + '100 <... clone resumed>)                = 200\n'
+    + '200 chdir("build") = 0\n'
+    + '200 openat(AT_FDCWD, "./Release/out.o", O_WRONLY|O_CREAT, 0644) = 3\n';
+  const { grant, writes } = run(body);
+  assert.ok(
+    writes.includes(`${PROJ}/node_modules/p/build/Release/out.o`),
+    `relative write resolved against the wrong base: ${JSON.stringify(writes)}`,
+  );
+  assert.deepStrictEqual(grant, {}, 'the package own directory is already base-granted');
+});
+
+test('an UNRESOLVABLE dirfd is reported as UNKNOWN and never guessed into a scope', () => {
+  // The honest counterpart to the symlinkat case. When a dirfd was never seen being opened — passed
+  // over SCM_RIGHTS, or inherited across an exec the decoder did not witness — there is no base to
+  // resolve against. The old code's fallback-to-project-root is what turned that into a fabricated
+  // path. A path we cannot place is a DECODING GAP to close, not a capability to grant, so it is
+  // counted and printed rather than classified.
+  const { grant, out, writes } = run('100 openat(9, "mystery", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.match(out, /1 WRITES with an UNRESOLVED dirfd/);
+  assert.deepStrictEqual(grant, {});
+  assert.ok(!writes.some((p) => p.endsWith('/mystery')), `invented a path for an unresolvable dirfd: ${JSON.stringify(writes)}`);
 });
