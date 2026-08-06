@@ -164,7 +164,7 @@ The vocabularies differ, and one pair is a false friend. The POSIX drivers print
 
 `record.test.mjs` runs the parser against fixtures captured verbatim from `macos-v2-measure` run 31088841052, rather than reconstructed from the drivers' own `echo` statements — a reconstructed fixture agrees with a parser that is wrong in exactly the way the reconstruction was.
 
-### The retained event log — `events.ndjson.gz` (Linux, live)
+### The retained event log — `events.ndjson.gz` (Linux and macOS live; Windows pending)
 
 Until now nothing about WHAT a package touched survived a run. `measure.sh` writes the full strace to `$OBS/trace.txt` inside a `mktemp -d` it deletes on exit, and the publisher copies only `driver.out` plus the extracted verdict. So a record answers "which grant" and never "which paths" — and every harness fix has meant RE-MEASURING the corpus (28–121 runner-hours per platform; v1 was ~495) rather than re-parsing it. `adapters/linux.mjs` closes that: it decodes the trace a second time, independently of synthesis, and writes a normalized event stream into the record dir.
 
@@ -183,6 +183,76 @@ Until now nothing about WHAT a package touched survived a run. `measure.sh` writ
 **Cost, measured on four packages, then extrapolated over the 45 existing linux records' actual trace-line distribution:** 2.1 gzipped bytes per trace line; median record 22 KB, mean 101 KB, **~233 MB per platform and ~700 MB for a 2,250-package three-platform corpus**. Deduplication on `(pid, syscall, path, path2, result, flags)` is what makes that affordable — 216,512 calls collapse to 80,329 events on `lmdb-store@2.0.0-alpha2` — and it is lossless for a capability model because `n` keeps the frequency.
 
 ⛔ **Nothing is filtered, and dropping `ENOENT` is NOT the free win it looks like.** It buys 1.3–1.75× after dedup, and the argument for it ("the file does not exist, so no grant would change the outcome") holds only on the MEASURING machine. MEASURED on `lmdb-store@2.0.0-alpha2`: 21,142 of its ENOENT probes are outside project and home, and they are the C++ **include search path** — `/usr/include/c++/12/bits/…`, `/usr/local/include/…`. On a box with a different gcc layout those same probes HIT. A future model that wants "grant the read the compiler searched for" is derivable only from the ENOENT set, so filtering it is the under-grant direction. Refusals (`EACCES`/`EPERM`/`EROFS`) are kept for the obvious reason: they are the signal that a grant is missing.
+
+#### ⛔ The RAW tracer output is the archive; the normalized stream is a derived cache
+
+Maintainer directive, and it corrects the retention design one layer up from the scope tags. A normalized event stream bakes in **today's DECODER** exactly the way a scope tag bakes in today's classifier — and we have two measured instances where that would already have cost us:
+
+- the macOS dtrace adapter lost **100% of rename destinations** for its entire existence, silently;
+- the Linux decoder retained **18 of 27** known writes against a C fixture where its rewrite retains 26 of 26.
+
+Every normalized log written in either era would have carried those holes forward, permanently and invisibly. With the raw kept, a decoder bug is a **re-parse**; without it, a re-measure at best.
+
+⇒ **Per-OS raw formats with per-OS parsers is the shape.** Do NOT canonicalize onto one wire format — a mandatory shared schema is itself a canonicalization, and it would force each lane to trim to the intersection of what all three tracers can express. A field only one tracer exposes is a reason to capture it.
+
+| file in the record dir | role |
+| --- | --- |
+| `trace.txt.gz` | **the archive.** Byte-exact tracer output. If only one file survives, this one. |
+| `capture.json` | what makes the archive re-parseable — exact invocation, a **sha256 of the D script** plus the subscription list it implies, OS/kernel, roots |
+| `events.ndjson.gz` | derived, queryable, regenerable from the two above |
+
+⛔ **`capture.json` is not optional metadata.** A trace with no `linkat` records means "`linkat` never fired" under today's adapter and "`linkat` was not subscribed" under this morning's, and *nothing in the byte stream distinguishes them*. The adapter is versioned by content hash rather than by a number someone has to remember to bump.
+
+**Measured on `@apollo/rover@0.2.1`**, with the adapter subscribing everything dtrace exposes — 13,217 trace lines, 12,644 calls, 6,076 distinct events:
+
+| artifact | raw | gzip -9 |
+| --- | --- | --- |
+| `trace.txt` — **the archive** | 1,904,148 | **69,929** |
+| `events.ndjson` — derived | 999,295 | 40,567 |
+| `driver.out` — all that is published today | 4,216 | — |
+
+Archive-to-derived is **1.72×**, at the low end of the 2–2.8× the Linux lane measured. At 2,250 packages: **~150 MiB per platform archive-only, ~237 MiB for both.** Dropping `ENOENT` would take the derived log from 40,567 to 30,829 gzipped bytes (24%) and 6,076 events to 4,226 — refused, because a failed lookup names a fallback path the script probed for, and 82% of these are the read-side probes that a future read-scope model would be derived from.
+
+⛔ **Both files are committed as fixtures** (`fixtures/macos-apollo-rover-0.2.1.{trace.txt,events.ndjson}.gz`) so the pair is demonstrable rather than described: regenerate the second from the first and diff it.
+
+#### The macOS half — `adapters/macos-eventlog.mjs`
+
+Same schema, same file name in the record dir, same no-scope-tags rule; the differences are the ones dtrace forces, and each is additive so a shared reader that filters on `k` is unaffected.
+
+- **`k:"x"` — the tracer loss ledger.** dtrace aborts a whole clause on a `copyin` fault, so the event is never emitted, and until the adapter grew a `dtrace:::ERROR` clause it happened in total silence — dtrace complains on its own stderr, which the driver captures into a file nothing downstream reads. That is how a 32-bit-truncated `self->np2` lost **100% of rename destinations, every run, for as long as that adapter existed**. A dropped event is a path never seen and therefore a capability never granted, so WHERE the stream has holes belongs in the stream. strace has no analogue, which is why the Linux log has no such record.
+- **`dfd` beside `u`.** The Linux adapter maintains an fd→path table and resolves `*at` dirfds itself; the macOS one does not yet, so it keeps the raw dirfd value — enough for a table added later to resolve what this tracer could not. MEASURED on `@apollo/rover@0.2.1`: **14 relative paths under a real dirfd in a single run**, every one of which the decoder previously resolved against the cwd and turned into a path no process ever touched.
+- **`r` uses Darwin's errno numbering.** The numbers genuinely diverge — 35 is `EAGAIN` here and `ENOTEMPTY`-adjacent nonsense under Linux's table — so the mapping to a symbol happens where the number is still known, and a shared reader only ever sees the symbol.
+
+⛔ **The `*at` family was unsubscribed and that was an under-grant.** MEASURED on macOS 15.7.7 arm64 (run 31116027627), over a workload of the shell utilities and node `fs` calls a lifecycle script really issues: **46 of 86 path-mutating syscalls were invisible**. The number splits, and only one half is fixable by subscribing — 9 are path-taking (`unlinkat`, `setattrlistat`, `linkat`, `clonefileat`, `fchmodat`), while 37 are fd-taking (`fchmod` 22, `ftruncate` 8, `fchown` 4, `fsetattrlist` 3) and name no path for any tracer without an fd→path table. `probes/at-family-fixture.sh` is the known-answer guard: its denominator is a `syscall:::entry` census taken in the same run rather than assumed from its own C source, the pre-fix adapter must capture zero, and the fixed one must capture exactly the number of times each syscall fired. First green run: 10 ops × 64 calls, pre 0, post exact, 64/64 rename pairs matched, 0 phantom paths.
+
+⛔ **Five Darwin syscalls have NO dtrace probe on this kernel at all** — `renamex_np`, `utimensat`, `clonefile`, `lchmod`, `futimens` — proven by compiling each name alone, which is the only safe way to ask (a name the kernel does not publish makes dtrace refuse to run the *whole* script). They are unreachable from the `syscall` provider rather than merely unsubscribed, so a `syscall:::entry` census cannot even count them. `renamex_np` and `utimensat` are the two that matter; closing them needs Endpoint Security, whose `rename` event fires for the VFS operation whichever syscall entered it.
+
+**Cost, measured on `@apollo/rover@0.2.1`** — 3,442 trace lines, 2,869 calls collapsing to 2,716 distinct events:
+
+| artifact | bytes |
+| --- | --- |
+| `trace.txt`, the dtrace source | 504,592 |
+| `events.ndjson` | 483,429 |
+| **`events.ndjson.gz`** | **23,623** (20.5×) |
+| `driver.out`, all that is published today | 3,675 |
+
+That is **8.7 gzipped bytes per distinct event**, against the Linux fixture's 6.21 — the gap is Darwin's longer paths (`/opt/homebrew/Cellar/node@22/…`) plus the `dfd`/`u` fields, and the two agreeing to within a factor of 1.4 is the cross-check that neither is mis-sized. Extrapolated at this package's size, ~51 MiB gzipped per platform for 2,250 packages; ⛔ treat that as ONE package rather than a median — its 541 renames are node's V8 compile cache and dedup only pays 1.05× here against 2.7× on Linux's `lmdb-store`.
+
+Dropping `ENOENT` — 705 of 2,716 events — buys **15% of the gzipped size** (23,623 → 20,029 B). Refused, for the reason the Linux lane refused it: a failed lookup names a fallback path the script probed for, and on a machine where it exists the same script reads it.
+
+#### The claim, executed rather than asserted — `eventlog-query.mjs`
+
+The argument for retention is that a scope set which did not exist at measurement time is still derivable. `harness/v2/eventlog-query.mjs` is that argument as a command: it reads any platform's log with the same code and classifies from raw paths plus the header's roots, including a **`tmp` scope that is in no shipped classifier**.
+
+```
+$ node harness/v2/eventlog-query.mjs harness/v2/fixtures/*.events.ndjson.gz
+linux-arm64   hugo-extended            {"jailHome":4,"ownPkg":8,"tmp":9}
+darwin-arm64  @apollo/rover            {"systemfs":7,"tmp":1625,"userHome":2,"deps":6,"project":2}
+```
+
+Those 1,625 macOS temp writes were `outside` under the classifier that measured them; naming them took a re-parse of a committed log and no runner at all. `--script-only` applies the attribution the process table records, and `--paths <scope>` dumps the distinct paths — which is the corpus-wide question ("what do all the outside-writes look like?") that could not be asked before.
+
+⛔ **Analysis only.** Nothing here feeds grant synthesis, the driver, or the catalog. The moment a retained log can move a verdict, the verdict stops being an independent second opinion on the trace.
 
 ### One thing v2 broke that v1 could not
 

@@ -1,0 +1,127 @@
+# How big is the `*at`-family hole in the macOS OBSERVE adapter, exactly?
+#
+# `adapters/macos-observe.d` subscribes to a hand-written syscall list that omits `linkat`,
+# `renameat`, `renamex_np`, `unlinkat` and `mkdirat`. Every one of those can create or destroy a
+# path, so a miss is an UNDER-GRANT — the one direction that breaks real installs. `ln -f` is
+# already MEASURED to emit no `link` record at all.
+#
+# This job produces the two numbers that turn "a hole exists" into a measurement:
+#
+#   1. which probe names this kernel actually publishes (a name it does not publish makes dtrace
+#      refuse to run the WHOLE script, so the follow-up adapter edit may only use proven names);
+#   2. the blind fraction — path-mutating syscalls a realistic install-script workload issues,
+#      split into what the adapter captures and what it cannot see, over ONE shared workload.
+#
+# Branch-scoped and no PR: dtrace needs uid 0 and the maintainer's Mac has SIP enabled, so a hosted
+# runner (which reports SIP DISABLED) is the only venue.
+name: macos-at-family
+
+# ⛔ workflow_dispatch ONLY, deliberately. The census it exists to take was banked on run
+# 31116027627; re-running it on every push to the branch would burn a macOS runner to re-measure a
+# number that is already recorded in the adapter's own comment. Dispatch it when the workload or the
+# subscription list changes.
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'a real pkg@version to run the census over as well (blank = skip)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts + dtrace gate
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          sw_vers; uname -m; node --version; npm --version
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          echo "filesystem: $(diskutil info / 2>/dev/null | grep -i 'File System Personality' || echo unknown)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
+          echo "HELLO_RC=$?"
+
+      # The whole point of the run. Exits non-zero when the hole is non-empty, which is the
+      # EXPECTED outcome today — a green job here would mean the workload never reached the
+      # unsubscribed calls, which is itself worth knowing but is not the hypothesis.
+      - name: Probe-name existence + blind-fraction census
+        id: census
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          chmod +x harness/v2/probes/at-family-census.sh
+          # ⛔ `sudo env "PATH=$PATH"`, not a bare `sudo`. sudoers resets PATH, and the workload's
+          # `node` arm lives outside secure_path — a bare sudo silently drops the half of the
+          # workload that represents what a JS postinstall actually issues.
+          sudo env "PATH=$PATH" harness/v2/probes/at-family-census.sh /tmp/atw > /tmp/census.txt 2>&1
+          echo "CENSUS_RC=$?" | tee -a /tmp/census.txt
+          cat /tmp/census.txt
+
+      # The synthetic workload is a proxy. This arm runs the census over the thing the driver
+      # really traces — `npm rebuild` of a real package — so the blind fraction has a REAL
+      # denominator as well as a constructed one.
+      - name: Census over a real package's lifecycle scripts
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
+          set +e
+          SPEC='${{ github.event.inputs.package }}'
+          [ -n "$SPEC" ] || SPEC='@apollo/rover@0.2.1'
+          P="${SPEC%@*}"; V="${SPEC##*@}"
+          echo "real-package census: $P@$V"
+          W=/tmp/realw; rm -rf "$W"; mkdir -p "$W/obs"
+          cd "$W/obs" || exit 0
+          printf '{"name":"o","version":"1.0.0","private":true}\n' > package.json
+          npm install --no-audit --no-fund --ignore-scripts "$P@$V" > "$W/fetch.log" 2>&1
+          echo "FETCH_RC=$?"
+          tail -3 "$W/fetch.log"
+
+          cat > "$W/run.sh" <<WRAP
+          cd "$W/obs"
+          $(command -v npm) rebuild --no-audit --no-fund "$P" > "$W/npm.log" 2>&1
+          echo \$? > "$W/rc"
+          WRAP
+          cat > "$W/census.d" <<'DSC'
+          #pragma D option quiet
+          #pragma D option bufsize=64m
+          #pragma D option dynvarsize=256m
+          dtrace:::BEGIN { printf("CENSUS-LIVE|target=%d\n", $target); }
+          syscall:::entry /progenyof($target)/ { @c[probefunc] = count(); }
+          dtrace:::END { printa("SYSCALL %-24s %@d\n", @c); }
+          DSC
+          # ⛔ /bin/bash, never /bin/sh: macOS's /bin/sh is a stub that RE-EXECS bash, and
+          # `dtrace -c` does not survive its target re-execing — the child dies without running.
+          sudo dtrace -q -s "$W/census.d" -o "$W/census.txt" \
+                      -c "/bin/bash $W/run.sh" > "$W/dtrace.log" 2>&1
+          echo "DTRACE_RC=$?  npm_rc=$(cat "$W/rc" 2>/dev/null || echo NONE)"
+          grep -q CENSUS-LIVE "$W/census.txt" || { echo "⛔ tracer never started"; head -20 "$W/dtrace.log"; exit 0; }
+          echo "--- path-mutating syscalls issued by a REAL lifecycle run ---"
+          for n in mkdir mkdirat rmdir unlink unlinkat rename renameat renamex_np renameatx_np \
+                   link linkat symlink symlinkat clonefile clonefileat fclonefileat truncate \
+                   chmod fchmodat lchmod fchownat mknod setattrlist setattrlistat setxattr \
+                   removexattr utimes utimensat copyfile; do
+            c=$(awk -v n="$n" '$1=="SYSCALL" && $2==n {print $3}' "$W/census.txt" | head -1)
+            [ -n "${c:-}" ] && printf '  %-22s %8s\n' "$n" "$c"
+          done
+          cp "$W/census.txt" /tmp/real-census.txt 2>/dev/null
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-at-family
+          path: |
+            /tmp/census.txt
+            /tmp/real-census.txt
+            /tmp/atw/census.txt
+            /tmp/atw/capture.txt
+            /tmp/atw/present.txt
+            /tmp/atw/absent.txt
+            /tmp/atw/hole.txt
+          if-no-files-found: warn

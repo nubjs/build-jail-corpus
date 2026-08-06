@@ -64,10 +64,40 @@ export function parseDriverLog(log) {
     minimality: null,
     overPredictedBy: [],
     notes: [],
+    rawLogPath: null,
+    capturePath: null,
+    eventLogPath: null,
+    eventLog: null,
   };
 
   let synthesizedNext = false;
   for (const l of lines) {
+    // ⛔ THE RETAINED EVENT LOG. The driver writes the file and prints its PATH; this reader only
+    // learns where it is. That keeps the contract at two stdout lines, so a platform adopts
+    // retention by printing them and this file never learns a trace format.
+    // ⛔ THE RAW TRACER OUTPUT IS THE ARTIFACT OF RECORD; the normalized event log below it is a
+    // derived cache. A normalized stream bakes in today's DECODER the way a scope tag bakes in
+    // today's classifier — and both of those decoders have already been measured losing events
+    // silently. With the raw kept, a decoder bug is a re-parse; without it, a permanent hole.
+    const rwf = /RAWLOG-FILE\s+(\S+)/.exec(l);
+    if (rwf) { out.rawLogPath = rwf[1]; continue; }
+    // A raw trace with unknown capture parameters is worth much less than it looks: "no `linkat`
+    // records" means `linkat` never fired under one adapter revision and was never SUBSCRIBED under
+    // another, and nothing in the byte stream tells them apart.
+    const rwc = /RAWLOG-CAPTURE\s+(\S+)/.exec(l);
+    if (rwc) { out.capturePath = rwc[1]; continue; }
+    if (/RAW TRACE NOT RETAINED/.test(l)) out.notes.push('rawlog-missing');
+    const evf = /EVENTLOG-FILE\s+(\S+)/.exec(l);
+    if (evf) { out.eventLogPath = evf[1]; continue; }
+    const evs = /EVENTLOG-STATS\s+(\{.*)/.exec(l);
+    if (evs) {
+      try { out.eventLog = JSON.parse(evs[1]); }
+      catch { out.notes.push('eventlog-stats-unparsable'); }
+      continue;
+    }
+    // A record that carries a verdict and no evidence is the state this whole mechanism exists to
+    // end, so it is NOTED rather than left to be inferred from an absent file.
+    if (/EVENTLOG NOT WRITTEN/.test(l)) out.notes.push('eventlog-missing');
     // The synthesized grant is printed on the line AFTER the banner. macOS restates it on its
     // `### DONE` line, which is the only place it survives an OBSERVE-ONLY run.
     if (/SYNTHESIZED GRANT/.test(l)) { synthesizedNext = true; continue; }
@@ -184,6 +214,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     minimality: parsed.minimality,
     overPredictedBy: parsed.overPredictedBy,
     notes: [...new Set(parsed.notes)],
+    // The event log's own census, inlined so `results.json` states how much evidence sits beside
+    // it — event count, dropped-event count, the errno histogram — without opening the log.
+    eventLog: parsed.eventLog,
     driverRc: rc,
     durationMs: Number(opt('--duration-ms', '0')) || null,
     provenance: {
@@ -211,5 +244,44 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // could never answer. Cost, sized from the captured fixtures: ~5 KB per record, ~35 MB across a
   // full three-platform corpus.
   fs.writeFileSync(path.join(dir, 'driver.out'), log);
+
+  // ⛔ THE EVENT LOG IS COPIED INTO THE RECORD DIR, WHICH IS THE ONLY THING THE PUBLISHER COPIES.
+  // `publish-record-v2.sh` does `cp -R "$REC_DIR/."` and stages the paths in its manifest — so a
+  // file left in the driver's `mktemp -d` fixture root is not "somewhere else", it is GONE the
+  // moment the runner ends. This copy is the whole difference between retention and a log message.
+  //
+  // ⛔ `events.ndjson.gz`, NOT `events.log`. The repo's `.gitignore` carries a bare `*.log`, so a
+  // file named that vanishes at `git add` while looking perfectly present on the runner's disk —
+  // measured on the v1 corpus, where `git ls-files records | grep -c '\.log$'` is 0 against 6,750
+  // records. `driver.out` carries the same scar for the same reason.
+  //
+  // Gzipped rather than plain: the checkout cost is what bounds how long retention stays
+  // affordable, and `gzcat`/`zgrep` keep the corpus-wide query the maintainer asked for ("what do
+  // all the outside-writes look like?") a one-liner. Reversible — the driver writes both.
+  //
+  // ⛔ ORDER IS DELIBERATE: THE RAW TRACE AND ITS CAPTURE HEADER GO FIRST. They are the ARCHIVE —
+  // the normalized `events.ndjson.gz` is a derived cache that can be rebuilt from them. If disk,
+  // a size cap, or a publish policy ever forces one of the three out, the two that must survive are
+  // `trace.txt.gz` and `capture.json`; the third is a re-parse away. Copying them first is what
+  // makes that ordering true in practice rather than only in a comment.
+  const copies = [
+    [parsed.rawLogPath, 'trace.txt.gz', 'rawlog-copy-failed'],
+    [parsed.capturePath, 'capture.json', 'capture-copy-failed'],
+    [parsed.eventLogPath, 'events.ndjson.gz', 'eventlog-copy-failed'],
+  ];
+  let copyFailed = false;
+  for (const [src, name, note] of copies) {
+    if (!src) continue;
+    try {
+      fs.copyFileSync(src, path.join(dir, name));
+    } catch (e) {
+      // Loud, and recorded: retention is additive, so a copy failure must not cost a measured
+      // package — but a record that silently lost its evidence is the state being fixed.
+      rec.notes = [...new Set([...rec.notes, note])];
+      copyFailed = true;
+      console.error(`record.mjs: WARN could not copy ${src}: ${e.message}`);
+    }
+  }
+  if (copyFailed) fs.writeFileSync(path.join(dir, 'results.json'), `${JSON.stringify(rec, null, 2)}\n`);
   console.log(dir);
 }
