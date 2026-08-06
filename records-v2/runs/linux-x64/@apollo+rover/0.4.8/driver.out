@@ -1,0 +1,30 @@
+### @apollo/rover@0.4.8   (/home/runner/v2-oBKNK0)
+  OBSERVE   rc=0 files=239 trace=10752 lines
+  CLOSURE   29 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 4  /  whole traced tree 7
+    sockets script 5  /  whole traced tree 5
+  == WRITES the script actually performed ==
+    deps          4
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 7
+        127.0.0.53:53
+        140.82.113.3:443
+        185.199.109.133:0
+        185.199.110.133:0
+        185.199.111.133:0
+        185.199.108.133:0
+        185.199.109.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 (tree 721/239) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => VERIFIED {"write":{"deps":true},"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=6/6 missing=0 (tree 710/239) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     'network' is NECESSARY — dropping it fails to verify
+  VERIFY[drop-writedeps] rc=1 artifacts=6/6 missing=0 (tree 710/239) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     'write.deps' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"deps":true},"network":true} is independently necessary
