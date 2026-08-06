@@ -86,6 +86,7 @@ export function parseDriverLog(log) {
     // token", and a reader comparing two venues would attribute the second to the first.
     jailRoot: null,
     observeUser: null,
+    ciChild: null,
     nubBinary: null,
   };
 
@@ -127,6 +128,18 @@ export function parseDriverLog(log) {
     // claim rather than trust that the assertion was present in whatever driver revision ran.
     const ou = /VENUE-OBSERVE-USER\s+(.+)$/.exec(l);
     if (ou) { out.observeUser = ou[1].trim(); continue; }
+    // ⛔ WHETHER THE CI SCRUB REACHED THE TRACED CHILD, as opposed to having been performed on the
+    // driver. The distinction is platform-shaped: macOS reaches the child through `sudo … env`, whose
+    // env_reset builds a fresh environment, so an `unset` in the driver proves nothing about what the
+    // script saw. Recorded rather than left in the log because a record claiming a CI normalisation
+    // in `overrides` should also carry the evidence that it took effect.
+    const cc = /VENUE-CI-CHILD\s+(.+)$/.exec(l);
+    if (cc) {
+      out.ciChild = cc[1].trim();
+      if (/^LEAKED/.test(out.ciChild)) out.notes.push('ci-env-leaked-to-child');
+      if (/SELF-CHECK FAILED/.test(l)) out.notes.push('ci-scrub-unverified');
+      continue;
+    }
     // The binary's content hash and detected features. Same two-stdout-line contract as the markers
     // above: the driver measures, this file only learns.
     const nb = /VENUE-NUB-BINARY\s+(\{.*)/.exec(l);
@@ -429,6 +442,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       jailRoot: p.jailRoot ?? null,
       // R7. Null means the driver did not assert it — which is itself the finding, not a pass.
       observeUser: p.observeUser ?? null,
+      // Whether the CI scrub reached the traced CHILD. Null means the driver never checked, which is
+      // distinct from "clean" and must not be read as one.
+      ciChild: p.ciChild ?? null,
       // ⛔ WHICH BINARY, WHICH `nubGitSha` PROVABLY CANNOT ANSWER. Two binaries from the SAME commit
       // behave differently when their feature sets differ. MEASURED 2026-08-06: a `--release` build
       // of the right commit, missing only `build-jail-catalog-override`, VOIDed four measurement
