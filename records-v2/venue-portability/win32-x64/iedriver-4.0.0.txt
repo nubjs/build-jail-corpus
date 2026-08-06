@@ -1,0 +1,33 @@
+== POSITIVE CONTROL — each archive re-decoded on THIS machine (must MATCH its venue) ==
+   decoding host: darwin-arm64
+
+   vm/ci-unset    published {"network":true,"write":{"deps":true}}
+                  re-decoded {"network":true,"write":{"deps":true}}   MATCH
+   vm/ci-set      published {"network":true,"write":{"deps":true}}
+                  re-decoded {"network":true,"write":{"deps":true}}   MATCH
+   ci/ci-unset    published {"network":true,"write":{"deps":true}}
+                  re-decoded {"network":true,"write":{"deps":true}}   MATCH
+   ci/ci-set      published {"network":true,"write":{"deps":true}}
+                  re-decoded {"network":true,"write":{"deps":true}}   MATCH
+
+== NEGATIVE CONTROL — one falsified root (must DIFFER) ==
+   vm/ci-unset    falsified `project` (the root its jailTmp+deps writes sit under)
+                  {"network":true,"write":{"deps":true}} -> {"network":true}   DIFFERS (control has teeth)
+   vm/ci-set      falsified `project` (the root its jailTmp+deps writes sit under)
+                  {"network":true,"write":{"deps":true}} -> {"network":true}   DIFFERS (control has teeth)
+   ci/ci-unset    falsified `project` (the root its jailTmp+deps writes sit under)
+                  {"network":true,"write":{"deps":true}} -> {"network":true}   DIFFERS (control has teeth)
+   ci/ci-set      falsified `project` (the root its jailTmp+deps writes sit under)
+                  {"network":true,"write":{"deps":true}} -> {"network":true}   DIFFERS (control has teeth)
+
+== VENUE PORTABILITY — down each column, same CI state, different machine (must MATCH) ==
+   ci-set     vm={"network":true,"write":{"deps":true}}   ci={"network":true,"write":{"deps":true}}   IDENTICAL
+   ci-unset   vm={"network":true,"write":{"deps":true}}   ci={"network":true,"write":{"deps":true}}   IDENTICAL
+
+== THE CI AXIS — across each row, same machine, CI toggled (a difference is a FINDING) ==
+   ci         ci-unset={"network":true,"write":{"deps":true}}   ci-set={"network":true,"write":{"deps":true}}   same
+   vm         ci-unset={"network":true,"write":{"deps":true}}   ci-set={"network":true,"write":{"deps":true}}   same
+
+== VERDICT ==
+  PASS — 2 column(s) identical across venues, with a positive control that
+  matched and a negative control that DIFFERED on a root the subject actually writes under.

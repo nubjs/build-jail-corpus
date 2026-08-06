@@ -278,6 +278,26 @@ const NPM_CACHE = path.join(ROOT, 'npm-cache');
 // and excludes it from the grant, so the two land together or not at all. All three variables are
 // set because the jail sets all three: Windows tools read `TMP`/`TEMP`, cross-platform ones read
 // `TMPDIR`, and a script that reads the one we skipped would land somewhere neither of us declared.
+// ⛔ AND IT GIVES OBSERVE A COLD TEMP, WHICH IS A REAL CHANGE TO THE ENVIRONMENT UNDER TEST AND IS
+// RECORDED RATHER THAN ASSUMED HARMLESS (VENUE-PORTABILITY R6, and the same treatment the spec
+// demands for a throwaway `$HOME`). MEASURED on iedriver@4.0.0, same package, same box, same
+// declared-root method on both archives:
+//
+//   before the redirect   0 writes under the real %TEMP%   (the script found its payload already
+//                                                           staged from an earlier run on this box)
+//   after                10 writes under the private temp  (it re-downloaded and re-extracted)
+//
+// So the private temp removes temp cache warmth a long-lived machine accumulates, and the script
+// takes its download path instead of its cached path. That direction is SAFE — it over-predicts,
+// and it is the path a real user on a clean machine takes — and it matches what the jail does, which
+// hands every run a fresh directory. The grant was unchanged either way
+// (`{"write":{"deps":true},"network":true}`), because those writes bill nothing.
+//
+// ⛔ IT ALSO MOVED THE 8.3 AXIS OUT OF THIS ARM. With temp under the run root, a GitHub runner's
+// `C:\Users\RUNNER~1\AppData\Local\Temp` no longer appears in the stream at all — measured, the
+// recorded short-name map is empty on both runner cells. The 8.3 machinery is still correct and
+// still unit-tested; it is simply no longer exercised end-to-end by a package that only touches
+// temp and its own package directory.
 const OBS_TMP = path.join(ROOT, 'tmp');
 fs.mkdirSync(OBS_TMP, { recursive: true });
 
