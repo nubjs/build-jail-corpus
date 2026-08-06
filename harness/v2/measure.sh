@@ -15,16 +15,33 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # ⛔ NOT UNDER /tmp. That path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all — it already produced one wrong all-clear.
 ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
+# Per-run cache, so two packages measured concurrently cannot share a store — and so clearing the
+# side-effects memo between arms (below) touches only this run. Without it the memo drop is a
+# global mutation and concurrent runs corrupt each other's arms silently.
+export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)"
 
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
 OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
 printf '{"name":"o","version":"1.0.0"}\n' > package.json
+# ⛔ THE FETCH IS NOT TRACED, AND THAT IS THE WHOLE POINT. Tracing `npm install` traces NPM —
+# its registry TLS connections and its `~/.npm/_cacache` writes land in the same event stream as
+# the lifecycle script's, so EVERY package synthesizes `network:true` + `write:userHome` no matter
+# what its script does. MEASURED: that is over-prediction on 100% of packages and it makes the
+# per-path question (can `writePaths` replace `write:"disk"`?) unanswerable. So: fetch and unpack
+# with `--ignore-scripts` OUTSIDE the trace, then trace `npm rebuild`, which runs the lifecycle
+# scripts and nothing else.
+npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log" 2>&1
+FETCH_RC=$?
+if [ "$FETCH_RC" -ne 0 ]; then
+  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
+fi
+PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-strace -f -e trace=file,network -o "$OBS/trace.txt" \
-  npm install --no-audit --no-fund "$PKG@$VER" > "$OBS/npm.log" 2>&1
+strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
+  npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
-OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' 2>/dev/null | wc -l | tr -d ' ')
+OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 echo "  OBSERVE   rc=$OBS_RC files=$OBS_FILES trace=$(wc -l < "$OBS/trace.txt" | tr -d ' ') lines"
 if [ "$OBS_RC" -ne 0 ]; then
   # An unjailed failure means the package is broken HERE — a jailed result would be meaningless.
@@ -47,7 +64,17 @@ verify () {
   # package identity, so a reused name REPLAYS the previous arm's result with every precondition
   # still green. Measured — the most dangerous failure shape here, because nothing looks wrong.
   local name="v$(basename "$v" | tr -dc 'a-z0-9')"
-  printf '{"name":"r","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$PKG" "$VER" > "$v/package.json"
+  printf '{"name":"%s","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$name" "$PKG" "$VER" > "$v/package.json"
+  # ⛔ STATE THE JAIL EXPLICITLY RATHER THAN INHERITING A DEFAULT. A VERIFY arm that silently ran
+  # UNCONFINED passes every time and reports the synthesized grant as sufficient — the single most
+  # dangerous false green available here, because it inflates the agreement rate rather than
+  # breaking anything. The catalog override engaging is NOT evidence the jail engaged.
+  printf '{"install":{"buildJail":true}}\n' > "$v/nub.jsonc"
+  # ⛔ AND THE UNIQUE NAME IS NOT ENOUGH ON ITS OWN. The memo is keyed on the DEPENDENCY's identity
+  # too, which is identical across arms by construction — so arm N would replay arm 1's outcome
+  # with every precondition still green. Dropping the store's side-effects memo is the only thing
+  # that makes two arms of the SAME package@version independent.
+  rm -rf "$NUB_CACHE_DIR/pm/side-effects-v1" 2>/dev/null
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));

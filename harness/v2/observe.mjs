@@ -27,6 +27,20 @@ const WRITE_FLAGS = /O_(WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
 
 const writes = new Set(), reads = new Set(), denials = new Set(), hosts = new Set();
 let sockets = 0;
+// Everything the WHOLE traced tree did, package manager included. Kept only so the
+// over-attribution can be reported as a number instead of asserted.
+const allWrites = new Set();
+let allSockets = 0;
+
+// ⛔ ATTRIBUTION IS NOT OPTIONAL, AND ITS ABSENCE IS A SILENT 100% OVER-PREDICTION. The trace
+// contains the package manager's own syscalls as well as the lifecycle script's, and path text
+// cannot tell them apart — npm writes `~/.npm/_logs` and opens TLS sockets on every single run.
+// Without a subtree filter EVERY package synthesizes `write:userHome` + `network:true` regardless
+// of what its script does, which also makes the per-path question unanswerable. A lifecycle script
+// is always reached through a shell (`npm run-script` execs `sh -c "<script>"`), so the attributed
+// set is the union of the subtrees rooted at those shells.
+const lifecycle = new Set();
+const SHELL_EXEC = /^execve\("[^"]*\/(?:sh|bash|dash)"[^)]*"-c"/;
 
 // ⛔ RESOLVE RELATIVE PATHS OR THEY MATCH NO SCOPE. strace prints the path exactly as the syscall
 // received it, so a script that chdir's into its own package dir and opens "../dist/app.js" yields
@@ -60,7 +74,14 @@ for (const raw of lines) {
   // A child inherits the parent's cwd at fork; without this every grandchild resolves against the
   // wrong base, which is the common case since the interesting syscall is usually a grandchild.
   const cl = line.match(/^(?:clone3?|v?fork)\(.*\)\s*=\s*(\d+)/);
-  if (cl && cwds.has(pid)) cwds.set(Number(cl[1]), cwds.get(pid));
+  if (cl) {
+    if (cwds.has(pid)) cwds.set(Number(cl[1]), cwds.get(pid));
+    // A child of the lifecycle shell IS lifecycle. The clone returns in the parent before the
+    // child's first syscall is emitted, so propagating here is ordering-safe.
+    if (lifecycle.has(pid)) lifecycle.add(Number(cl[1]));
+  }
+  if (SHELL_EXEC.test(line) && !line.includes('= -1')) lifecycle.add(pid);
+  const mine = lifecycle.has(pid);
 
   const m = line.match(/^([a-z_0-9]+)\((?:AT_FDCWD,\s*)?"([^"]*)"/);
 
@@ -71,10 +92,11 @@ for (const raw of lines) {
     const path = abs(pid, m[2]);
     const isWrite = /^(creat|mkdir|mkdirat|unlink|unlinkat|rename|renameat2?|link|symlink|truncate)/.test(m[1])
       || WRITE_FLAGS.test(line);
-    (isWrite ? writes : reads).add(path);
+    if (isWrite) allWrites.add(path);
+    if (mine) (isWrite ? writes : reads).add(path);
   }
 
-  if (/^socket\(AF_INET/.test(line)) sockets++;
+  if (/^socket\(AF_INET/.test(line)) { allSockets++; if (mine) sockets++; }
   // ⛔ THE PORT AND ADDRESS ORDER IS NOT FIXED. strace prints sockaddr members in struct order,
   // which differs between sin_port/sin_addr and sin6_port/sin6_flowinfo/sin6_addr — and a single
   // regex assuming one order silently yields port 0 for the other. MEASURED: a real run reported
@@ -101,6 +123,15 @@ const bucket = (set) => {
 };
 
 const w = bucket(writes);
+console.log(`== ATTRIBUTION == lifecycle pids: ${lifecycle.size}`);
+console.log(`  writes  script ${writes.size}  /  whole traced tree ${allWrites.size}`);
+console.log(`  sockets script ${sockets}  /  whole traced tree ${allSockets}`);
+if (lifecycle.size === 0) {
+  // Not a package with no needs — a parse failure. Saying so beats emitting an empty grant that
+  // looks like a confident "needs nothing".
+  console.log('  ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant');
+  console.log('     below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.');
+}
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
   console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);
@@ -123,3 +154,13 @@ console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
 console.log('  ' + JSON.stringify(g));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant`);
+
+// Could an ENUMERATION replace a scope grant? Only if the set outside project/deps is small AND
+// stable run to run. A version- or PID-stamped directory name makes it neither, so print the
+// candidate paths — a human reading them can tell a fixed `~/.cache/foo` from a random temp name
+// far more reliably than any heuristic here.
+const enumerable = [...(w.userHome ?? []), ...(w.outside ?? [])];
+console.log('== writePaths FEASIBILITY (distinct writes outside project/deps) ==');
+console.log(`  count: ${enumerable.length}`);
+enumerable.slice(0, 40).forEach((p) => console.log(`      ${p.startsWith(home) ? p.slice(home.length + 1) : p}`));
+if (enumerable.length > 40) console.log(`      … and ${enumerable.length - 40} more`);
