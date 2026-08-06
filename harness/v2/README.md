@@ -51,6 +51,7 @@ Without the eviction run 2 sees essentially nothing — node-gyp finds the build
 
 Two properties worth knowing before reading any repeat result:
 
+- **The V8 compile cache is the real cross-run coupling, and it is live on Linux.** One traced `npm rebuild yorkie@2.0.0` under a fresh `TMPDIR` writes **1084** distinct paths under `<tmp>/node-compile-cache/`; under the ambient `/tmp` it writes **6**, because the untraced fetch already warmed it. That accident is why a single-run harness never noticed. Without the per-run `TMPDIR` the second run would be ~1084 writes quieter than the first — the same mechanism as the macOS lane's 541-renames-then-zero.
 - **The `TMPDIR` redirect stays under `/tmp`, never under `$ROOT`.** `$ROOT` is under `$HOME`, so a temp write there would classify `userHome` and synthesize a grant the same write does not earn today. Measured: attributed writes and bucket shape are byte-identical with and without the redirect (`6769`, `jailHome=3328 kernelfs=1 outside=3366 ownPkg=74` in both), so the grant is unaffected. The unattributed whole-tree total does move (+1082), which is why the eviction check reads that number and the grant does not.
 - **Repeats catch VARIANCE, never BIAS.** A decoder that resolves a path against the wrong base produces the same phantom path every run; the macOS 32-bit truncation lost 100% of rename destinations perfectly reproducibly. Known-answer fixtures (`probes/syscall-coverage.c`) are what catch those. A high agreement rate means the observer is CONSISTENT, never that it is CORRECT.
 

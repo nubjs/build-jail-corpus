@@ -108,6 +108,19 @@ JAIL_HOME="$ROOT/jailhome"
 # ⛔ THE TEMP DIR IS THE V8 COMPILE CACHE'S HOME (`os.tmpdir()/node-compile-cache`), so a per-run
 # TMPDIR is what makes the compile cache cold on every run rather than only the first.
 #
+# MEASURED, not assumed — npm really does enable it, and it is large. One traced `npm rebuild
+# yorkie@2.0.0` under a FRESH TMPDIR writes 1084 distinct paths under
+# `<tmp>/node-compile-cache/v22.23.2-arm64-<hash>-0/`; under the AMBIENT `/tmp` it writes 6, because
+# the untraced fetch above already warmed it. That warm-by-the-fetch accident is why a single-run
+# harness never noticed, and it is exactly the coupling that would make run 2 quieter than run 1:
+# ~1084 writes on the cold run, ~0 on the warm one. It is the same mechanism that produced the macOS
+# lane's 541-renames-then-zero reading.
+#
+# It does NOT reach the grant, and that is checked rather than argued: the compile cache is written
+# by npm's own pids, so it lands in the whole-tree total and never in the attributed set. With and
+# without the redirect, `lmdb-store@2.0.0-alpha2` attributed 6769 writes with the identical bucket
+# shape `jailHome=3328 kernelfs=1 outside=3366 ownPkg=74` and synthesized the identical grant.
+#
 # ⛔ IT MUST STAY UNDER `/tmp`, NOT UNDER `$ROOT`. `$ROOT` is under `$HOME`, so a temp write there
 # would classify `userHome` and SYNTHESIZE A GRANT the same write does not earn today — changing
 # the answer for real runs, which this must not do. `/tmp/...` classifies `outside` exactly as the
