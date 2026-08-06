@@ -237,11 +237,33 @@ verify () {
   # perfectly. MEASURED on @nuxt/components@2.1.0: the write:"disk" arm exited 0 with a complete
   # install and was reported as "NO-STATE-PASSED". Following the links counts the real artifacts.
   files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
-  echo "  VERIFY[$label] rc=$rc files=$files OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  # ⛔⛔ `files >= OBS_FILES` IS NOT A SUCCESS GATE AND MUST NOT BE READ AS ONE. `find -L` follows the
+  # isolated layout's symlinks into the machine-global store, so the number is dominated by the
+  # dependency closure and is nearly insensitive to whether THIS package's script produced anything.
+  # MEASURED on `@apollo/rover@0.2.1`: an arm that produced NONE of the package's three artifacts
+  # counted 704 against a 718-file reference and passed. The direction of that error is the dangerous
+  # one — on a DESCENT arm it reports a capability as droppable when it is necessary, and on the
+  # SYNTH arm it would record an under-predicting grant as VERIFIED.
+  #
+  # The gate is the per-file ARTIFACT MANIFEST, ported from `measure-windows.mjs` so the two drivers
+  # agree on what "the arm succeeded" means. See `artifact-gate.mjs` for why a count gate and a
+  # byte-total gate were both measured and rejected, and for the sibling-package limit that the
+  # transitive store eviction above covers instead. `files/OBS_FILES` stays PRINTED for continuity
+  # with the existing corpus logs, but nothing branches on it any more.
+  local gate grc
+  gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
+  echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
+  printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
+  # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
+  # Fall back to the exit code rather than passing an ungated arm off as measured.
+  if [ "$grc" -eq 3 ]; then
+    echo "     NOTE no artifact reference for $PKG — gating on rc alone"
+    [ "$rc" -eq 0 ]; return $?
+  fi
   # Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
-  # failure mode. Compare against what the unjailed OBSERVE arm produced.
-  [ "$rc" -eq 0 ] && [ "$files" -ge "$OBS_FILES" ]
+  # failure mode. Both must hold.
+  [ "$rc" -eq 0 ] && [ "$grc" -eq 0 ]
 }
 
 # ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. Same three-outcome rule as the descent
