@@ -9,6 +9,7 @@ on:
     branches: [probe/macos-dtrace-attr]
     paths:
       - 'harness/v2/adapters/dtrace-coverage-control.sh'
+      - 'harness/v2/adapters/es-pgroup-control.sh'
       - 'harness/v2/adapters/macos-dtrace.d'
       - '.github/workflows/macos-dtrace.yml'
   workflow_dispatch:
@@ -60,6 +61,16 @@ jobs:
           echo "CONTROL_EXIT=$?"
           cat "$RUNNER_TEMP/dt.log"
 
+      - name: eslogger process-group A/B
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/es-pgroup-control.sh
+          sudo harness/v2/adapters/es-pgroup-control.sh "$RUNNER_TEMP/pg" \
+            > "$RUNNER_TEMP/pg.log" 2>&1
+          echo "PGROUP_EXIT=$?"
+          cat "$RUNNER_TEMP/pg.log"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -67,4 +78,6 @@ jobs:
           path: |
             ${{ runner.temp }}/dt
             ${{ runner.temp }}/dt.log
+            ${{ runner.temp }}/pg
+            ${{ runner.temp }}/pg.log
           if-no-files-found: warn
