@@ -25,7 +25,8 @@
     "no-write-userHome"
   ],
   "notes": [
-    "cwd-unobserved"
+    "cwd-unobserved",
+    "arms-unfalsifiable"
   ],
   "eventLog": {
     "lines": 12235,
@@ -89,5 +90,20 @@
         "NODE_ENV": null
       }
     }
+  },
+  "armsUnfalsifiable": {
+    "note": "⛔ A GREEN ARM FOR THIS PACKAGE IS NOT EVIDENCE. Neither of the two signals the driver gates on could have gone red. The grant is NOT being changed — it is substantively correct — but a reader must not read this record's verdict as a passing measurement.",
+    "detectedBy": "harness/v2/arm-falsifiability.mjs (added after this was found by hand)",
+    "reasons": [
+      {
+        "kind": "gate-vacuous",
+        "detail": "ttf2woff2@1.2.3 publishes 124 files including a working build/Release/addon.node and a 43-entry build/Release/ tree. artifact-gate.mjs keys on every file OBSERVE produced under the package dir, which for this package IS the shipped tarball set — present in every arm before any script runs. The reported artifacts=122/122 therefore passes identically for a working arm and a completely broken one."
+      },
+      {
+        "kind": "rc-vacuous",
+        "detail": "The install script is `(node-gyp rebuild > builderror.log) || (exit 0)`, so rc is 0 whether the build worked or not. MEASURED on the corpus runner: the whole run contained 5 execs — sudo, env, node(npm), sh, env, node(node-gyp) — with no python, clang, make or cc, so node-gyp never reached a compiler. The install still reported rc=0."
+      }
+    ],
+    "whyTheGrantIsStillRight": "The package ships a working prebuilt binary, so a failed node-gyp genuinely costs it nothing and it genuinely needs no capability. The verdict and the truth agree; only the EVIDENCE is missing."
   }
 }

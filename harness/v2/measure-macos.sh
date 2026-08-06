@@ -186,6 +186,12 @@ echo \$? > "$OBS/rc"
 WRAP
 
 PRE=$(find -L "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# ⛔ TAKEN BEFORE THE TRACE, WHICH IS THE ONLY MOMENT IT EXISTS. The fetch above ran with
+# --ignore-scripts, so the package dir right now is exactly what the tarball shipped. After the
+# lifecycle script runs that state is unrecoverable, and it is what decides whether the artifact gate
+# could ever have failed for this package.
+node "$HERE/arm-falsifiability.mjs" --snapshot "$OBS" --pkg "$PKG" --ver "$VER" \
+  --out "$OBS/pre-manifest.json" 2>/dev/null || true
 # `-x` and an unconditional dump of both the wrapper and dtrace's own stderr: the first run of this
 # driver produced a live tracer, a clean dtrace exit, and NO npm.log at all — i.e. the `-c` child
 # exited without executing its body, which is invisible unless the wrapper narrates itself.
@@ -357,6 +363,10 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
     }));
   ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" 2>/dev/null)"
   echo "  VENUE-OBSERVE-USER $RUNUSER uid=$RUNUID (R7: ordinary non-root user, asserted)"
+  # ⛔ FLAG, NEVER FAIL — the package is still measurable; what a flag says is that a GREEN ARM
+  # CARRIES NO EVIDENCE for it. `|| true` is deliberate: a detector fault must never cost a record.
+  node "$HERE/arm-falsifiability.mjs" --obs "$OBS" --pre "$OBS/pre-manifest.json" \
+    --pkg "$PKG" --ver "$VER" 2>/dev/null | sed 's/^/  /' || true
 else
   # ⛔ THIS USED TO BE NON-FATAL AND IT NO LONGER IS — noted here so the change is not rediscovered
   # from a confusing failure downstream. Retention was additive while roots arrived as arguments;
@@ -658,10 +668,20 @@ if [ "$VERIFIED" -eq 1 ]; then
     # package that needs nothing is measurable rather than skipped.
     if verify "$gg" "nar-$nm"; then
       echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
+      ANY_OVER=1
     else
       echo "     narrowing '$nm' fails ⇒ that capability IS necessary"
     fi
   done < "$ROOT/variants.tsv"
+  # ⛔ WITHOUT THIS LINE A FULLY-MINIMAL RECORD CANNOT SAY SO. `record.mjs` sets `minimality` from
+  # `=> MINIMAL` or "grant is already empty"; this driver emitted neither when every narrowing FAILED,
+  # so the strongest possible descent result — every capability independently proven necessary — was
+  # recorded as `minimality: null`, indistinguishable from a descent that never ran. MEASURED on
+  # hugo-extended@0.141.0: its sole narrowing failed with a real shortfall and the record still came
+  # back null. measure.sh has always printed this; the macOS port dropped it.
+  if [ -s "$ROOT/variants.tsv" ] && [ -z "${ANY_OVER:-}" ]; then
+    echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+  fi
 fi
 
 # ── 3c. DIAGNOSE — run the FAILING grant JAILED, under dtrace, and name the refusal. ───────────

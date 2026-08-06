@@ -135,6 +135,13 @@ export function parseDriverLog(log) {
     // PROVEN, not merely suspected. macOS-only today — the cause is posix_spawn addchdir_np.
     if (/CWD-UNOBSERVED/.test(l)) out.notes.push('cwd-unobserved');
     if (/Severity: STALE/.test(l)) out.notes.push('cwd-stale');
+    // ⛔ THE ARMS FOR THIS PACKAGE COULD NOT HAVE FAILED, so a green one is not evidence. Either the
+    // package ships its build output prebuilt — making the artifact gate's manifest the tarball's own
+    // file set, present in every arm before any script runs — or its script ends in a status swallow
+    // (`|| true`, `|| (exit 0)`), so `rc` is 0 whatever happened. The GRANT may still be correct; what
+    // is absent is a signal that could have gone red. Recorded because an unfalsifiable arm filed as a
+    // clean MINIMAL is the shape that erodes trust in a whole corpus. See `arm-falsifiability.mjs`.
+    if (/ARMS-UNFALSIFIABLE/.test(l)) out.notes.push('arms-unfalsifiable');
     if (/events LOST/.test(l)) out.notes.push('events-lost');
     if (/INCONCLUSIVE for/.test(l)) out.notes.push('descent-inconclusive');
     if (/UNDER-PREDICTED/.test(l)) out.notes.push('under-predicted');

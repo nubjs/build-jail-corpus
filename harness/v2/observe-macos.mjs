@@ -68,7 +68,7 @@ if (undeclared.length) {
 //
 // Only these three are destructured, and every use below is null-guarded — a `null` root must never
 // reach `startsWith`, which would match the literal string "null" and silently misclassify.
-const { project: proj, home, ownPkg: ownPkgDir } = roots;
+const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix } = roots;
 const pkgName = capture.pkg ?? null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
@@ -375,8 +375,28 @@ for (const raw of lines) {
 // over-grant on every macOS record plus a redundant arm on the platform with the scarcest runners.
 //
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
+// ⛔ jailHome / jailTmp / npmPrefix ARE TESTED BEFORE `proj` AND `home`, AND THE ORDER IS THE WHOLE
+// POINT. The jail home is a subdirectory of the real `$HOME`, so `p.startsWith(home)` matches it
+// first and bills `userHome` for a directory the base profile already owns. MEASURED on
+// kerberos@7.0.0 immediately after the OBSERVE parity fix landed: the redirect demonstrably worked —
+// the wrapper shows `HOME=/Users/runner/v2m-L0Qfnq/jailhome` and the ROOTS block declares it — and
+// the three `.npm/_prebuilds` writes were STILL billed `userHome`, because this classifier declared
+// the root and never keyed on it. Same shape for the private temp: hugo's download moved correctly to
+// `$JAIL_TMP` and was then bucketed `outside`.
+//
+// That was my own error and it is worth naming precisely: the previous commit justified "eleven roots
+// required, three keyed on" as deliberate, which is right for globalStore/projectStore/interpreter —
+// roots the OBSERVE arm cannot even produce a path under. It was wrong for these three, which the
+// driver CREATES and redirects the script into on purpose. Declaring a root you deliberately route
+// writes into, and then not keying on it, converts a free write into a billed capability.
+//
+// Each maps to a real base-profile grant, exactly as on Linux: private_home_dir/jail_private_home
+// (RW via push_rw_path), make_private_tmp/TmpMode::Private, and redirect_npm_prefix's leaf carve-out.
 const scope = (p) => {
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
+  if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
+  if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
+  if (npmPrefix && (p === npmPrefix || p.startsWith(`${npmPrefix}/`))) return 'npmPrefix';
   if (proj && p.startsWith(proj)) return p.includes('/node_modules/') ? 'deps' : 'project';
   if (home && p.startsWith(home)) return 'userHome';
   // macOS has no /proc. The nearest equivalent read floor is the shared cache and the system
@@ -384,6 +404,8 @@ const scope = (p) => {
   if (/^\/(dev|System|usr\/lib|usr\/share|Library)\b/.test(p)) return 'systemfs';
   return 'outside';
 };
+// Named once so the report and the synthesized grant cannot disagree about which writes are free.
+const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);
@@ -455,7 +477,7 @@ console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
   // Naming the free scopes in the log is what stops a reader reconciling a bucket against the grant
   // and concluding the synthesis dropped a write it deliberately did not bill.
-  const free = k === 'ownPkg' ? '  (base profile already grants this — NOT billed)' : '';
+  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)' : '';
   console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}${free}`);
   if (k === 'outside' || k === 'systemfs') v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
 }
