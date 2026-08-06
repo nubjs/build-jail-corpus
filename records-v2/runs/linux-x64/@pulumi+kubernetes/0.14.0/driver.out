@@ -1,0 +1,46 @@
+### @pulumi/kubernetes@0.14.0   (/home/runner/v2-x1A8JS)
+  OBSERVE   rc=0 files=5721 trace=11295 lines
+  CLOSURE   98 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 10  /  whole traced tree 13
+    sockets script 26  /  whole traced tree 26
+  == WRITES the script actually performed ==
+    userHome      9
+    outside       1
+        /tmp/pulumi-plugin-tar3840490276
+  == NETWORK ==
+    AF_INET sockets: 26   distinct peers: 11
+        127.0.0.53:53
+        18.154.110.112:53
+        18.154.110.67:53
+        18.154.110.63:53
+        18.154.110.70:53
+        18.154.110.112:443
+        140.82.114.4:443
+        140.82.113.6:443
+        104.20.20.220:53
+        172.66.173.242:53
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 10
+        .pulumi
+        .pulumi/logs
+        .pulumi/logs/pulumi-20260806T144254-3357-plugin_install.log
+        .pulumi/plugins
+        .pulumi/plugins/resource-kubernetes-v0.14.0.lock
+        .pulumi/plugins/resource-kubernetes-v0.14.0.partial
+        .pulumi/plugins/resource-kubernetes-v0.14.0
+        .pulumi/plugins/resource-kubernetes-v0.14.0/pulumi-resource-kubernetes
+        .pulumi/.cachedVersionInfo
+        /tmp/pulumi-plugin-tar3840490276
+  VERIFY[synth] rc=0 artifacts=13/13 missing=0 (tree 17777/5721) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=0 artifacts=13/13 missing=0 (tree 17777/5721) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  VERIFY[drop-writeuserHome] rc=0 artifacts=13/13 missing=0 (tree 17777/5721) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'write.userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: network write.userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
