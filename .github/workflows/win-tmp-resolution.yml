@@ -1,0 +1,167 @@
+# WINDOWS TEMP-RESOLUTION PROBE — where does a jailed child's scratch actually go, and is that
+# location STABLE enough for a `temp` grant to name?
+#
+# ⛔ THIS PROBE TOUCHES NO GRANT AND PUBLISHES NO RECORD. `measure-windows.mjs` and its
+# `NUB_V2_WINDOWS_EVICTION_VERIFIED` guard are deliberately not involved, and nothing here writes to
+# `records-v2/`. The question is about path resolution, not about any package's minimum grant.
+#
+# THE ASYMMETRY UNDER TEST, from nub's own source: `compiler/preset.rs` inserts `fs["$tmp"]="rw"`
+# only under `#[cfg(not(windows))]`, and `backend/mod.rs`'s `make_private_tmp` returns `None` unless
+# the mode is `TmpMode::Private`. So on Windows the jail creates NO private temp and repoints
+# nothing -- scratch comes from whatever the OS does with an AppContainer's TEMP. This measures what
+# that is.
+#
+# ⛔ THE NEGATIVE CONTROL IS WHAT MAKES ANY ROW EVIDENCE. Both drivers write a file into the real
+# user profile from inside the jail and VOID themselves if it succeeds: a permissive
+# misconfiguration otherwise reports an unconfined `node`'s temp paths with a clean exit code, and
+# nothing else in the output would tell you.
+#
+# ⛔ THE MATRIX LEGS ARE THE CROSS-MACHINE AXIS, NOT REDUNDANCY. Each leg is a fresh runner VM, so
+# `r1` vs `r2` answers "is the path stable across machines" -- the closest reachable stand-in for
+# "after a reboot", since a hosted runner cannot be rebooted and resumed.
+#
+# Branch-scoped, no PR: CI is the only Windows path, and `workflow_dispatch` is inert until a
+# workflow file reaches the default branch, so the push trigger is what makes this iterable.
+name: win-tmp-resolution
+
+on:
+  push:
+    branches: [probe/win-tmp-resolution]
+  workflow_dispatch:
+    inputs:
+      nub_ref:
+        description: 'branch of nubjs/nub to build the probe binary from'
+        default: 'sandbox/integration'
+
+permissions:
+  contents: read
+
+env:
+  NUB_REF: ${{ inputs.nub_ref || 'sandbox/integration' }}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the nub commit under test
+        id: resolve
+        shell: bash
+        run: |
+          set -eu
+          SHA=$(git ls-remote https://github.com/nubjs/nub.git "refs/heads/$NUB_REF" | cut -f1)
+          test -n "$SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "nub $NUB_REF = $SHA"
+
+      # Keyed on the COMMIT, so an iteration on the harness alone never rebuilds nub, and a moved
+      # `sandbox/integration` never silently reuses a stale binary.
+      - name: Restore the probe binary
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: C:/nubbin/nub.exe
+          key: wintmp-nub-${{ steps.resolve.outputs.sha }}
+
+      - name: Build the probe binary
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -eu
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /c/nubsrc
+          cd /c/nubsrc
+          git checkout --detach '${{ steps.resolve.outputs.sha }}'
+          set +e
+          cargo build -p nub-cli --profile fast > /c/build.log 2>&1
+          EXIT=$?
+          set -e
+          echo "cargo EXIT=$EXIT"
+          tail -60 /c/build.log
+          test "$EXIT" = 0
+          mkdir -p /c/nubbin
+          cp target/fast/nub.exe /c/nubbin/nub.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nub-exe
+          path: C:/nubbin/nub.exe
+          retention-days: 3
+
+  probe:
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        # Two fresh runner VMs, same commit, same harness: the cross-machine stability axis.
+        rep: [r1, r2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - uses: actions/download-artifact@v4
+        with: { name: nub-exe, path: C:/nubbin }
+
+      - name: Host facts
+        shell: pwsh
+        run: |
+          $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+          Write-Output "leg      = ${{ matrix.rep }}"
+          Write-Output "nub sha  = ${{ needs.build.outputs.sha }}"
+          Write-Output "whoami   = $($id.Name)"
+          Write-Output "sid      = $($id.User.Value)"
+          Write-Output "elevated = $(([Security.Principal.WindowsPrincipal]$id).IsInRole(544))"
+          Write-Output "os       = $([System.Environment]::OSVersion.VersionString)"
+          Write-Output "hostname = $env:COMPUTERNAME"
+          Write-Output "TEMP         = $env:TEMP"
+          Write-Output "TMP          = $env:TMP"
+          Write-Output "USERPROFILE  = $env:USERPROFILE"
+          Write-Output "LOCALAPPDATA = $env:LOCALAPPDATA"
+          # `[System.IO.Path]::GetTempPath()` is the Win32 GetTempPathW answer, which is NOT the
+          # same instrument as Node's env-derived `os.tmpdir()`. Recording both unjailed is what
+          # lets a jailed divergence be attributed to one of them.
+          Write-Output "GetTempPath() = $([System.IO.Path]::GetTempPath())"
+          Write-Output "Packages dir contents:"
+          Get-ChildItem "$env:LOCALAPPDATA\Packages" -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty Name | Out-String
+          node --version
+          & C:\nubbin\nub.exe --version
+
+      - name: Arm A — `nub run --sandbox build-jail`
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -u
+          node harness/v2/probes/win-tmp/drive.mjs --nub 'C:\nubbin\nub.exe' \
+            --root 'C:\jail\wintmpA' --out 'C:\jail\wintmpA\out' > /c/arm-a.log 2>&1
+          echo "driver EXIT=$?"
+          cat /c/arm-a.log
+
+      - name: Arm B — the real interposed lifecycle jail
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -u
+          node harness/v2/probes/win-tmp/drive-lifecycle.mjs --nub 'C:\nubbin\nub.exe' \
+            --root 'C:\jail\wintmpB' --out 'C:\jail\wintmpB\out' > /c/arm-b.log 2>&1
+          echo "driver EXIT=$?"
+          cat /c/arm-b.log
+
+      - name: Collect
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-tmp-${{ matrix.rep }}
+          path: |
+            C:/arm-a.log
+            C:/arm-b.log
+            C:/jail/wintmpA/out/**
+            C:/jail/wintmpB/out/**
+          retention-days: 7
+          if-no-files-found: warn
