@@ -150,7 +150,8 @@ echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per ar
 # errno and the process identity, and no scope at all.
 EVENTS="$OBS/events.ndjson"
 node "$HERE/adapters/macos-eventlog.mjs" "$OBS/trace.txt" --out "$EVENTS" \
-     --pkg "$PKG@$VER" --project "$OBS" --home "$USER_HOME" > "$OBS/eventlog-stats.json" 2>&1
+     --pkg "$PKG" --version "$VER" --project "$OBS" --home "$USER_HOME" \
+     > "$OBS/eventlog-stats.json" 2>&1
 EV_RC=$?
 if [ "$EV_RC" -eq 0 ] && [ -s "$EVENTS.gz" ]; then
   # The record writer copies this file into the record dir. A path on stdout is the contract

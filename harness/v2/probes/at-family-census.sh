@@ -31,13 +31,25 @@ mkdir -p "$WORK"
 # shell's. Print the resolution rather than discovering its absence as a silently shorter census.
 echo "census: user=$RUNUSER node=$(command -v node || echo MISSING) PATH=$PATH"
 
-# Every Darwin syscall that can CREATE, DESTROY, RENAME or RE-PERMISSION a path, plus the two
-# read-side path syscalls a future read-scope model would need. Ordered so the report reads as a
-# checklist rather than a dump. `SUBSCRIBED` names what macos-observe.d covers TODAY; everything
-# else in MUTATORS is, by definition, a path the adapter cannot see.
-SUBSCRIBED="open open_nocancel openat openat_nocancel mkdir rmdir unlink rename link symlink truncate chmod chdir connect connect_nocancel execve"
+# Every Darwin syscall that can CREATE, DESTROY, RENAME or RE-PERMISSION a path, plus the read-side
+# path syscalls a future read-scope model would need. Ordered so the report reads as a checklist
+# rather than a dump.
+#
+# ⛔ `SUBSCRIBED` IS READ OUT OF THE ADAPTER, NOT HAND-MAINTAINED HERE. The first version of this
+# file carried a hardcoded list, and the moment the adapter gained the `*at` family the census went
+# on reporting a 53% blind fraction against a list that no longer described anything — an
+# authoritative-looking number measuring an artifact one step removed from the question. Deriving it
+# from the file cannot go stale.
+SUBSCRIBED="$(grep -oE 'syscall::[a-z_0-9]+:entry' "$ADAPTER" | sed 's/syscall:://; s/:entry//' \
+  | sort -u | paste -sd' ' -)"
+echo "census: adapter subscribes $(printf '%s\n' $SUBSCRIBED | grep -c .) syscalls, read from $ADAPTER"
 MUTATORS="mkdir mkdirat rmdir unlink unlinkat rename renameat renamex_np renameatx_np link linkat symlink symlinkat clonefile clonefileat fclonefileat truncate ftruncate chmod fchmod fchmodat lchmod chown lchown fchown fchownat mknod mkfifo undelete exchangedata setattrlist setattrlistat fsetattrlist setxattr fsetxattr removexattr fremovexattr utimes futimes utimensat futimens copyfile openbyid_np"
 READERS="stat stat64 lstat lstat64 fstatat fstatat64 access faccessat readlink readlinkat getattrlist getattrlistat getxattr listxattr open_dprotected_np"
+# ⛔ THE BLIND FRACTION SPLITS IN TWO AND ONLY ONE HALF IS FIXABLE BY SUBSCRIBING. These carry an
+# FD, not a path, so no tracer without an fd->path table can attribute them to anything — counting
+# them alongside the path-taking misses inflates a number that reads as "paths we cannot see" into
+# one that is mostly "operations that name no path at all". Reported separately for that reason.
+FD_ONLY="fchmod fchown ftruncate fsetattrlist fsetxattr fremovexattr futimes"
 
 # ── 1. WHICH PROBE NAMES EXIST ────────────────────────────────────────────────────────────────
 # `dtrace -l -n` lists without enabling; a name the kernel does not publish simply lists nothing.
@@ -153,24 +165,32 @@ count_of () {   # count_of <syscall-name> <census-file>
 echo
 echo "--- PATH-MUTATING syscalls the workload issued, and whether the adapter subscribes ---"
 printf '  %-22s %8s   %s\n' SYSCALL COUNT 'ADAPTER'
-MISSED=0; COVERED=0
+MISSED=0; COVERED=0; FDMISS=0
 : > "$WORK/hole.txt"
 for n in $MUTATORS; do
   c=$(count_of "$n" "$WORK/census.txt")
   [ -n "${c:-}" ] || continue
   case " $SUBSCRIBED " in
-    *" $n "*) printf '  %-22s %8s   subscribed\n' "$n" "$c"; COVERED=$((COVERED + c)) ;;
-    *)        printf '  %-22s %8s   ⛔ UNSUBSCRIBED — every one of these is an invisible path\n' "$n" "$c"
-              printf '%s %s\n' "$n" "$c" >> "$WORK/hole.txt"
-              MISSED=$((MISSED + c)) ;;
+    *" $n "*) printf '  %-22s %8s   subscribed\n' "$n" "$c"; COVERED=$((COVERED + c)); continue ;;
   esac
+  case " $FD_ONLY " in
+    *" $n "*) printf '  %-22s %8s   unsubscribed, but takes an FD — no path to attribute\n' "$n" "$c"
+              FDMISS=$((FDMISS + c)); continue ;;
+  esac
+  printf '  %-22s %8s   ⛔ UNSUBSCRIBED — every one of these is an invisible PATH\n' "$n" "$c"
+  printf '%s %s\n' "$n" "$c" >> "$WORK/hole.txt"
+  MISSED=$((MISSED + c))
 done
-TOTAL=$((COVERED + MISSED))
+TOTAL=$((COVERED + MISSED + FDMISS))
 echo
-echo "  path-mutating syscalls issued : $TOTAL"
-echo "  captured by the adapter today : $COVERED"
-echo "  INVISIBLE to the adapter      : $MISSED"
-[ "$TOTAL" -gt 0 ] && echo "  ⇒ blind fraction: $(( MISSED * 100 / TOTAL ))% of path-mutating calls"
+echo "  path-mutating syscalls issued        : $TOTAL"
+echo "  captured by the adapter              : $COVERED"
+echo "  ⛔ invisible AND path-taking          : $MISSED   <- the under-grant; subscribing fixes it"
+echo "  invisible but FD-taking (no path)    : $FDMISS   <- needs an fd->path table, not a probe"
+if [ "$TOTAL" -gt 0 ]; then
+  echo "  ⇒ path-blind fraction: $(( MISSED * 100 / TOTAL ))%   (all-blind including fd-only:" \
+       "$(( (MISSED + FDMISS) * 100 / TOTAL ))%)"
+fi
 
 echo
 echo "--- READ-side path syscalls (no grant model reads these today; sized for the future) ---"

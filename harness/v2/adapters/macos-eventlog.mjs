@@ -1,65 +1,81 @@
-// dtrace trace.txt -> the RETAINED, platform-neutral event log (NDJSON).
+// dtrace trace.txt -> the RETAINED event log (NDJSON), in the SHARED schema.
 //
 // ⛔ WHY THIS FILE EXISTS. The v2 pipeline captures a complete syscall trace into a `mktemp -d`
 // fixture root, extracts a one-line verdict from it, publishes `driver.out` + `results.json`, and
 // lets the runner evaporate with the trace inside it. A package with 651 script writes publishes
-// ~12 path-looking lines. So a verdict can only ever be RE-MEASURED, never RE-DERIVED — which is
-// why every harness fix invalidates the corpus, and why "what do all the outside-writes look like
-// across the corpus?" is a question nobody can ask.
+// about a dozen path-looking lines. So a verdict can only ever be RE-MEASURED, never RE-DERIVED —
+// which is why every harness fix invalidates the corpus, and why "what do all the outside-writes
+// look like across the corpus?" is a question nobody can ask.
 //
-// ⛔⛔ THE BAR THIS FILE IS HELD TO, AND IT IS NOT "a useful debugging artifact":
+// ⛔⛔ THE BAR, AND IT IS NOT "a useful debugging artifact":
 //
-//     the retained log must contain everything needed to re-derive ANY FUTURE grant model,
-//     without re-running the package.
+//     the retained log must let ANY FUTURE grant model be re-derived, without re-running the
+//     package.
 //
-// Two concrete consequences, and the second is the one that is easy to get wrong:
+// Two consequences, and the second is the one that is easy to get wrong:
 //
 //   1. NOTHING DERIVED IS RETAINED IN PLACE OF ITS INPUT. A path tagged with today's SCOPE
 //      (`deps`/`project`/`userHome`/`outside`) bakes in today's classifier: the `tmp` scope being
-//      added right now did not exist when the corpus was measured, so a scope-tagged log would
-//      need a full RE-MEASURE where a raw log needs a RE-PARSE. That distinction is the whole
-//      point of retention. Scopes are therefore absent from this file by construction.
-//   2. THE RAW SYSCALL NAME SURVIVES ALONGSIDE THE NEUTRAL CLASS. `op` is the cross-platform class
-//      a shared classifier reads; `call` is what the kernel actually saw. A model that later wants
-//      to distinguish `unlink` (destroys) from `mkdir` (creates), or `renamex_np` with RENAME_SWAP
-//      from an ordinary rename, needs `call` — and `op` alone cannot reconstruct it.
+//      added right now did not exist when the corpus was measured, so a scope-tagged log would need
+//      a full RE-MEASURE where a raw log needs a RE-PARSE. That distinction is the whole point.
+//      Scopes are absent here by construction; the header's `roots` are what make every scope —
+//      today's and tomorrow's — recomputable from the file alone.
+//   2. THE RAW SYSCALL SURVIVES ALONGSIDE THE NEUTRAL CLASS. `o` is the cross-platform class a
+//      shared classifier reads; `s` is what the kernel actually saw. A model that later wants to
+//      tell `unlink` (destroys) from `mkdir` (creates), or an atomic `renameatx_np` swap from an
+//      ordinary rename, needs `s`, and `o` alone cannot reconstruct it.
 //
-// ⛔ NO FILTERING BY DEFAULT, AND THAT IS A DECISION RATHER THAN AN OVERSIGHT. Every filter decides
-// what a future model may see, which is the same trap as a scope tag. The one filter that looks
-// unambiguously safe — drop `= -1 ENOENT`, since a file that does not exist needs no grant — is
-// NOT clean on inspection: a failed lookup is the record of a FALLBACK PATH the script probed and
-// did not find, and on a machine where that path exists the same script would read it. So ENOENT
-// records are RETAINED, and `--drop-enoent` exists to size the alternative rather than to be the
-// default. Repetition is handled by gzip, which is what actually pays for retention: measured
-// compression on a real trace is in the 15-30x range because the stream is overwhelmingly repeated
-// prefixes.
+// ⛔ THE SCHEMA IS THE LINUX ADAPTER'S, NOT THIS FILE'S. `adapters/linux.mjs` shipped first and has
+// a committed artifact (`fixtures/linux-hugo-extended-0.141.0.events.ndjson.gz`), so its spelling is
+// the contract and this file matches it key for key: `k`/`v`/`h` header, `k:"p"` process rows,
+// `k:"e"` events with `p` pid, `o` class, `s` syscall, `f`/`g` paths, `r` result, `fl` flags,
+// `w` write intent, `n` repeat count, `u`/`u2` unresolved dirfd. Three adapters emitting three
+// dialects would make the corpus un-re-parseable as one thing, which is the entire value.
 //
-// ⛔ ONE FILTER IS APPLIED UNCONDITIONALLY AND IT REMOVES NO EVENT: records the tracer itself
-// could not produce. `TRACER-ERROR` lines are kept as their own record kind, because a dropped
-// event is a path never seen, and the count of them is what tells a future reader the log is a
-// FLOOR rather than a measurement.
+// ⛔ TWO ADDITIONS THIS PLATFORM NEEDS, both additive so a shared reader that filters on `k` is
+// unaffected:
+//   `k:"x"`  — the TRACER LOSS LEDGER. dtrace aborts a whole clause on a copyin fault, so the event
+//              is dropped; a truncated `self->np2` lost 100% of rename destinations for as long as
+//              the adapter existed, silently, because dtrace's complaint went to a stderr file
+//              nothing read. A dropped event is a path never seen and therefore a capability never
+//              granted, so WHERE the stream has holes has to be in the stream. strace has no
+//              analogue, which is why Linux has no such record.
+//   `dfd`    — the numeric dirfd, kept beside `u` so an fd->path table added later can resolve what
+//              this tracer could not. Linux resolves dirfds from its own fd table and only needs to
+//              report the base; macOS has no fd table yet, so the raw value is the recoverable part.
+//
+// ⛔ NOTHING IS FILTERED, AND THAT IS A DECISION. Every filter decides what a future model may see —
+// the same trap as a scope tag. The one filter that looks unambiguously safe, dropping `ENOENT` on
+// the grounds that a file which does not exist needs no grant, is not clean: a failed lookup records
+// a FALLBACK the script went looking for, and on a machine where that path exists the same script
+// reads it. The Linux lane measured the sharpest version of this — 21,142 of `lmdb-store`'s ENOENT
+// probes are the C++ include search path, which HITS on a box with a different gcc layout. So
+// ENOENT is retained, `--drop-enoent` exists only to SIZE the alternative, and it is REFUSED
+// outright on a jailed trace where an ENOENT can BE the refusal. Repetition is handled by dedup plus
+// gzip, which is what actually pays for retention.
 //
 //   usage: node macos-eventlog.mjs <trace.txt> --out <events.ndjson>
-//                                  [--project <dir>] [--home <dir>] [--pkg <name>] [--jailed]
-//                                  [--drop-enoent] [--stats-only]
+//                                  [--project <dir>] [--home <dir>] [--jail-home <dir>]
+//                                  [--pkg <name>] [--version <v>] [--jailed] [--drop-enoent]
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 
+const EVENT_SCHEMA = 1;
+
 const argv = process.argv.slice(2);
-const val = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
+const val = (f, d = null) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
 const has = (f) => argv.includes(f);
 const file = argv.find((a, i) => !a.startsWith('--') && (i === 0 || !argv[i - 1].startsWith('--')));
 if (!file) {
-  console.error('usage: macos-eventlog.mjs <trace.txt> --out <events.ndjson> [--project d] [--home d]');
+  console.error('usage: macos-eventlog.mjs <trace.txt> --out <events.ndjson> [--project D] [--home D]');
   process.exit(2);
 }
 
-// ── THE WIRE FORMAT ────────────────────────────────────────────────────────────────────────────
-// The adapter emits `|`-delimited records whose PATH IS ALWAYS LAST, because a path is free-form
-// and routinely contains `|`. Everything between the fixed header fields and the path is a
-// `key=value` token, so the adapter can gain a field without renumbering the ones after it — the
-// alternative (fixed positions) is what makes a format change break every downstream reader at
-// once. A path is not mistaken for a token because only these KEYS are recognized.
+// ── THE WIRE FORMAT THIS READS ─────────────────────────────────────────────────────────────────
+// The adapter emits `|`-delimited records whose PATH IS ALWAYS LAST, because a path is free-form and
+// routinely contains `|`. Everything between the fixed header fields and the path is a `key=value`
+// token, so the adapter can gain a field without renumbering the ones after it. A path is never
+// mistaken for a token because only these KEYS are recognised.
 const META_KEYS = new Set(['ret', 'errno', 'flags', 'ev', 'dirfd', 'role', 'mode']);
 const splitMeta = (fields, from) => {
   const meta = {};
@@ -75,70 +91,120 @@ const splitMeta = (fields, from) => {
   return { meta, path: fields.slice(i).join('|') };
 };
 
-// The neutral operation class. ⛔ THIS IS A WIDENING OF THE MAPPING.md `EVENT.op` SET, NOT A
-// REPLACEMENT: that contract's `read`/`write` split is a CLASSIFICATION (it reads the open flags
-// and decides), and a retained log may not ship a classification in place of its input. So the
-// class here names the OPERATION, the raw `call` is kept beside it, and the read/write decision is
-// left to whatever classifier reads this file — including one that does not exist yet.
+// The adapter's END-time aggregations and section headers: DERIVED tallies of opens and execs by
+// execname, recomputable from the events, so not retained. ⛔ MATCHED EXPLICITLY rather than left to
+// fall through to `unparsed`, because `unparsed` is the alarm that says the wire format moved and
+// this reader did not. An alarm that is always non-zero is not an alarm.
+const TRAILER = /^(DTRACE-END$|---|\s{2,}\S+\s+\d+\s*$)/;
+
+// ⛔ THE RESULT IS THE ERRNO SYMBOL, NOT `ok|denied`. `denied` collapses ENOENT, EACCES, EEXIST and
+// ENOTDIR into one word, and they are four different answers about what a grant would have to do.
+// Darwin's numbering is its own — EAGAIN is 35 here and 11 on Linux — so the table is Darwin's, and
+// an unmapped value falls back to `E<n>`, which keeps the number recoverable rather than losing it.
+const ERRNO = {
+  1: 'EPERM', 2: 'ENOENT', 3: 'ESRCH', 4: 'EINTR', 5: 'EIO', 6: 'ENXIO', 7: 'E2BIG', 8: 'ENOEXEC',
+  9: 'EBADF', 10: 'ECHILD', 11: 'EDEADLK', 12: 'ENOMEM', 13: 'EACCES', 14: 'EFAULT', 15: 'ENOTBLK',
+  16: 'EBUSY', 17: 'EEXIST', 18: 'EXDEV', 19: 'ENODEV', 20: 'ENOTDIR', 21: 'EISDIR', 22: 'EINVAL',
+  23: 'ENFILE', 24: 'EMFILE', 25: 'ENOTTY', 26: 'ETXTBSY', 27: 'EFBIG', 28: 'ENOSPC', 29: 'ESPIPE',
+  30: 'EROFS', 31: 'EMLINK', 32: 'EPIPE', 33: 'EDOM', 34: 'ERANGE', 35: 'EAGAIN', 36: 'EINPROGRESS',
+  37: 'EALREADY', 38: 'ENOTSOCK', 39: 'EDESTADDRREQ', 40: 'EMSGSIZE', 41: 'EPROTOTYPE',
+  42: 'ENOPROTOOPT', 43: 'EPROTONOSUPPORT', 45: 'ENOTSUP', 47: 'EAFNOSUPPORT', 48: 'EADDRINUSE',
+  49: 'EADDRNOTAVAIL', 50: 'ENETDOWN', 51: 'ENETUNREACH', 53: 'ECONNABORTED', 54: 'ECONNRESET',
+  55: 'ENOBUFS', 56: 'EISCONN', 57: 'ENOTCONN', 60: 'ETIMEDOUT', 61: 'ECONNREFUSED', 62: 'ELOOP',
+  63: 'ENAMETOOLONG', 65: 'EHOSTUNREACH', 66: 'ENOTEMPTY', 68: 'EUSERS', 69: 'EDQUOT', 70: 'ESTALE',
+  78: 'ENOSYS', 79: 'EFTYPE', 89: 'ECANCELED', 92: 'ENOATTR',
+};
+const errnoName = (n) => (n === 0 ? 0 : (ERRNO[n] ?? `E${n}`));
+
+// Darwin open(2) flags, spelled symbolically to match the Linux lane's `fl`. ⛔ WRITE INTENT LIVES
+// ONLY HERE: by the time write(2) runs the fd has hidden the path, so an open that never writes
+// still establishes the need for a write grant.
+const OFLAGS = [
+  [0x0004, 'O_NONBLOCK'], [0x0008, 'O_APPEND'], [0x0010, 'O_SHLOCK'], [0x0020, 'O_EXLOCK'],
+  [0x0040, 'O_ASYNC'], [0x0080, 'O_SYNC'], [0x0100, 'O_NOFOLLOW'], [0x0200, 'O_CREAT'],
+  [0x0400, 'O_TRUNC'], [0x0800, 'O_EXCL'], [0x8000, 'O_EVTONLY'], [0x20000, 'O_NOCTTY'],
+  [0x100000, 'O_DIRECTORY'], [0x200000, 'O_SYMLINK'], [0x400000, 'O_DSYNC'],
+  [0x1000000, 'O_CLOEXEC'], [0x20000000, 'O_NOFOLLOW_ANY'],
+];
+const flagText = (fl) => {
+  const mode = ['O_RDONLY', 'O_WRONLY', 'O_RDWR'][fl & 0x3] ?? 'O_ACCMODE3';
+  const rest = OFLAGS.filter(([b]) => (fl & b) !== 0).map(([, n]) => n);
+  return [mode, ...rest].join('|');
+};
+const WRITE_FLAG = /O_(WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
+
+// The neutral operation class, spelled as the Linux adapter spells it so one classifier reads both.
 const OP_OF = {
   open: 'open', open_nocancel: 'open', openat: 'open', openat_nocancel: 'open',
   mkdir: 'mkdir', mkdirat: 'mkdir',
   rmdir: 'rmdir',
   unlink: 'unlink', unlinkat: 'unlink',
-  rename: 'rename', renameat: 'rename', renamex_np: 'rename', renameatx_np: 'rename',
+  rename: 'rename', renameat: 'rename', renameatx_np: 'rename',
   link: 'link', linkat: 'link',
   symlink: 'symlink', symlinkat: 'symlink',
-  clonefile: 'clone', clonefileat: 'clone', fclonefileat: 'clone',
+  clonefileat: 'clone', fclonefileat: 'clone', copyfile: 'clone',
   truncate: 'truncate',
-  chmod: 'chmod', fchmodat: 'chmod', lchmod: 'chmod',
+  chmod: 'chmod', fchmodat: 'chmod',
   chown: 'chown', lchown: 'chown', fchownat: 'chown',
-  mknod: 'mknod',
+  mknod: 'mknod', mkfifo: 'mknod',
   undelete: 'undelete', exchangedata: 'exchange',
   setattrlist: 'setattr', setattrlistat: 'setattr',
   setxattr: 'setxattr', removexattr: 'removexattr',
-  utimes: 'utimes', utimensat: 'utimes',
+  utimes: 'utimes',
 };
+// Ops whose very occurrence is a write, independent of any flags word.
+const MUTATING = new Set(['mkdir', 'rmdir', 'unlink', 'rename', 'link', 'symlink', 'clone',
+  'truncate', 'chmod', 'chown', 'mknod', 'undelete', 'exchange', 'setattr', 'setxattr',
+  'removexattr', 'utimes']);
 
-// Darwin. AT_FDCWD is -2, so a relative path under it resolves against the process cwd exactly as
-// a non-`at` call would; any OTHER dirfd means the path is relative to an open directory this
-// tracer cannot name, and saying so is the honest answer. A future model that needs those can add
-// an fd->path table to the adapter; inventing a resolution here would be a confidently wrong path.
-const AT_FDCWD = -2;
+const AT_FDCWD = -2;   // Darwin
 
+// ── DECODE ─────────────────────────────────────────────────────────────────────────────────────
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
 const cwds = new Map();      // pid -> cwd, tracked exactly as the decoder tracks it
-const parent = new Map();    // pid -> ppid
-const lifecycle = new Set(); // pids identified as a lifecycle shell by TODAY's rule
+const ppidOf = new Map();
+const exeOf = new Map();
+const argvOf = new Map();
+const lifecycle = new Set();
+const seenPids = new Set();
+
 const basename = (p) => (p ?? '').split('/').pop();
 const isLifecycleShell = (a0, a1) => /^(sh|bash|dash|zsh)$/.test(basename(a0)) && a1 === '-c';
 const mine = (pid) => {
-  for (let p = pid, i = 0; p && i < 64; p = parent.get(p), i++) if (lifecycle.has(p)) return true;
+  for (let p = pid, i = 0; p && i < 64; p = ppidOf.get(p), i++) if (lifecycle.has(p)) return true;
   return false;
 };
-
-const out = [];
-const stats = {
-  lines: lines.length, records: 0, unparsed: 0, tracerErrors: 0, tracerErrorTotal: null,
-  live: false, byOp: {}, byCall: {}, byErrno: {}, failed: 0, enoent: 0, refusals: 0,
-  attributed: 0, unresolvableDirfd: 0, pairedTwoPath: 0, danglingPair: 0,
+const resolve = (pid, p) => {
+  if (!p) return p;
+  const base = p.startsWith('/') ? p : `${cwds.get(pid) ?? ''}/${p}`;
+  const out = [];
+  for (const s of base.split('/')) { if (!s || s === '.') continue; if (s === '..') out.pop(); else out.push(s); }
+  return `/${out.join('/')}`;
 };
-const bump = (o, k) => { o[k] = (o[k] ?? 0) + 1; };
 
-// Two-path operations arrive as two records sharing an `ev`. They are MERGED into one record so
-// the pairing survives — `rename(a, b)` is one event with two paths, and two independent records
-// lose which `b` went with which `a` the moment two renames interleave on one thread.
-const pending = new Map();   // `${pid}:${ev}` -> the p1 record awaiting its p2
+const stats = {
+  lines: lines.length, parsed: 0, unparsed: 0, live: false,
+  tracerErrors: 0, tracerErrorTotal: null,
+  unresolvedDirfd: 0, pairedTwoPath: 0, danglingPair: 0,
+  failed: 0, enoent: 0, refusals: 0, byErrno: {},
+};
+const events = new Map();    // dedup key -> event, carrying `n`
+const lost = new Map();      // fault signature -> count
+const pending = new Map();   // `${pid}:${ev}` -> the p1 half awaiting its p2
 
-let seq = 0;
-const push = (rec) => { rec.seq = seq++; out.push(rec); stats.records++; };
-
-// The adapter's END-time aggregations and section headers. They are DERIVED counts — a tally of
-// opens and execs by execname — so they are recomputable from the events and are not retained.
-// ⛔ THEY ARE MATCHED EXPLICITLY RATHER THAN FALLING THROUGH TO `unparsed`, because `unparsed` is
-// the alarm that says the wire format moved and this reader did not. An alarm that is always
-// non-zero is not an alarm.
-const TRAILER = /^(DTRACE-END$|TRACER-ERROR-TOTAL\||---|\s{2,}\S+\s+\d+\s*$)/;
+// ⛔ DEDUP IS ON THE IDENTITY OF THE CALL, NOT ON THE PATH. Same process, same syscall, same paths,
+// same result, same flags = the same fact, and `n` keeps the frequency so it stays lossless for a
+// capability model. It is NOT lossless for ORDER, which no grant model reads; the chdir events are
+// emitted individually so path resolution stays replayable.
+const emit = (e) => {
+  const key = `${e.p} ${e.s} ${e.f ?? ''} ${e.g ?? ''} ${e.r} ${e.fl ?? ''}`;
+  const prev = events.get(key);
+  if (prev) { prev.n++; return prev; }
+  e.n = 1;
+  events.set(key, e);
+  return e;
+};
 
 for (const raw of lines) {
   if (!raw) continue;
@@ -151,14 +217,11 @@ for (const raw of lines) {
   if (raw.startsWith('TRACER-ERROR|')) {
     const g = raw.split('|');
     stats.tracerErrors++;
-    // ⛔ RETAINED AS A RECORD, NOT COLLAPSED INTO A COUNT. A tracer fault means a real event was
-    // DROPPED, so a reader of this log must be able to see WHERE in the stream the hole is and
-    // which clause made it — a total alone cannot tell you whether the gap is in the package's
-    // subtree or in npm's.
-    push({
-      kind: 'tracer-error', pid: Number(g[1]), ppid: Number(g[2]), comm: g[3],
-      detail: g.slice(4).join('|'),
-    });
+    const sig = g.slice(4).join('|');
+    const k = `${g[1]} ${sig}`;
+    const prev = lost.get(k);
+    if (prev) prev.n++;
+    else lost.set(k, { k: 'x', p: Number(g[1]), comm: g[3], sig, n: 1 });
     continue;
   }
   if (TRAILER.test(raw)) continue;
@@ -166,164 +229,170 @@ for (const raw of lines) {
   const kind = f[0];
   const pid = Number(f[1]), ppid = Number(f[2]);
   if (!Number.isFinite(pid)) { if (raw.trim()) stats.unparsed++; continue; }
-  if (Number.isFinite(ppid) && ppid > 0) parent.set(pid, ppid);
+  seenPids.add(pid);
+  if (Number.isFinite(ppid) && ppid > 0) { ppidOf.set(pid, ppid); seenPids.add(ppid); }
   if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
 
   if (kind === 'EXECARGV') {
-    const argv0 = f[3] ?? '', argv1 = f[4] ?? '', argv2 = f.slice(5).join('|');
-    if (isLifecycleShell(argv0, argv1)) lifecycle.add(pid);
-    // ⛔ THE FULL ARGV IS WHAT MAKES ATTRIBUTION RECOMPUTABLE. Today's rule is "argv[0] is a shell
-    // and argv[1] is -c". A future rule might key on the script BODY, on npm's own exec of
-    // `node-gyp`, or on a marker npm sets. None of those can be recovered from a boolean, and all
-    // of them can be recovered from this line.
-    push({ kind: 'exec', pid, ppid, argv: [argv0, argv1, argv2], lifecycleShell: lifecycle.has(pid) });
+    const a0 = f[3] ?? '', a1 = f[4] ?? '', a2 = f.slice(5).join('|');
+    // ⛔ THE FULL ARGV IS WHAT MAKES ATTRIBUTION RECOMPUTABLE, and it lives in the PROCESS table
+    // rather than on each event — the same argument as the scope tags, one level up. Today's rule
+    // is "argv[0] is a shell and argv[1] is -c"; a rule that later keys on the script BODY, or on
+    // npm's own exec of node-gyp, replays from this and cannot replay from a boolean.
+    argvOf.set(pid, JSON.stringify([a0, a1, a2]));
+    if (!exeOf.has(pid)) exeOf.set(pid, a0);
+    if (isLifecycleShell(a0, a1)) lifecycle.add(pid);
+    stats.parsed++;
     continue;
   }
-  if (kind === 'EXEC') {
-    push({ kind: 'exec-success', pid, ppid, comm: f[3], psargs: f.slice(4).join('|') });
-    continue;
-  }
+  if (kind === 'EXEC') { exeOf.set(pid, f[3]); stats.parsed++; continue; }
   if (kind === 'CHDIR') {
     const { meta, path } = splitMeta(f, 4);
-    if (meta.ret === 0) {
-      // Resolution mirrors the decoder's, and the RAW path is retained beside the result so a
-      // different resolution rule can be applied later without re-running anything.
-      const base = path.startsWith('/') ? path : `${cwds.get(pid) ?? ''}/${path}`;
-      const parts = [];
-      for (const s of base.split('/')) { if (!s || s === '.') continue; if (s === '..') parts.pop(); else parts.push(s); }
-      cwds.set(pid, `/${parts.join('/')}`);
-    }
-    push({ kind: 'chdir', pid, ppid, comm: f[3], path, ret: meta.ret, cwd: cwds.get(pid) ?? null });
+    const target = resolve(pid, path);
+    if (meta.ret === 0) cwds.set(pid, target);
+    stats.parsed++;
+    emit({ p: pid, o: 'chdir', s: 'chdir', f: target, r: errnoName(meta.errno ?? 0) });
     continue;
   }
   if (kind === 'CONN' || kind === 'CONN-OTHERFAMILY') {
-    const g = Object.fromEntries(f.slice(4).filter((x) => x.includes('='))
+    const kv = Object.fromEntries(f.slice(4).filter((x) => x.includes('='))
       .map((x) => [x.slice(0, x.indexOf('=')), x.slice(x.indexOf('=') + 1)]));
-    push({
-      kind: 'event', op: 'connect', call: 'connect', pid, ppid, comm: f[3],
-      af: Number(g.af ?? 0), host: kind === 'CONN' ? f[5] : null, port: Number(g.port ?? 0),
-      ret: Number(g.ret ?? 0), errno: Number(g.errno ?? 0),
-      lifecycle: mine(pid),
-    });
-    bump(stats.byOp, 'connect');
+    stats.parsed++;
+    // ⛔ A NON-BLOCKING connect() RETURNS EINPROGRESS ON EVERY ARM, INCLUDING TO A CLOSED PORT, so
+    // the return value here is NOT a refusal signal — that needs the later getsockopt(SO_ERROR).
+    // The record's value is the peer and the fact that an AF_INET connect was attempted, which is
+    // exactly what the `network` capability is about.
+    emit({ p: pid, o: 'connect', s: 'connect', h: kind === 'CONN' ? f[5] : null,
+      pt: Number(kv.port ?? 0), af: Number(kv.af ?? 0), r: errnoName(Number(kv.errno ?? 0)) });
     continue;
   }
   if (kind !== 'OPEN' && kind !== 'PATHOP') { if (raw.trim()) stats.unparsed++; continue; }
 
-  // OPEN|pid|ppid|comm|flags=..|ret=..|errno=..|<path>
-  // PATHOP|pid|ppid|comm|<call>|ret=..|errno=..|[ev=..][dirfd=..][role=..]|<path>
-  const call = kind === 'OPEN' ? 'open' : f[4];
-  const { meta, path } = splitMeta(f, kind === 'OPEN' ? 4 : 5);
-  const attributed = mine(pid);
-  const rec = {
-    kind: 'event',
-    op: OP_OF[call] ?? call,
-    call,
-    pid, ppid, comm: f[3],
-    path,
-    // The cwd AT THIS INSTANT. A relative path plus this is losslessly re-resolvable under any
-    // future rule; a pre-resolved absolute path is not, because the rule is baked in.
-    cwd: cwds.get(pid) ?? null,
-    ret: meta.ret ?? null,
-    errno: meta.errno ?? 0,
-    lifecycle: attributed,
-  };
-  if (meta.flags !== undefined) rec.flags = meta.flags;
-  if (meta.mode !== undefined) rec.mode = meta.mode;
-  if (meta.dirfd !== undefined) {
-    rec.dirfd = meta.dirfd;
-    // ⛔ REPORTED, NEVER GUESSED. A relative path under a real dirfd cannot be resolved by this
-    // tracer, and resolving it against the cwd anyway produces a plausible path that no process
-    // ever touched — the same class of defect as billing a symlink's TARGET as a written path.
-    if (meta.dirfd !== AT_FDCWD && !path.startsWith('/')) {
-      rec.pathUnresolvable = true;
-      stats.unresolvableDirfd++;
-    }
-  }
-
-  if (attributed) stats.attributed++;
-  bump(stats.byOp, rec.op);
-  bump(stats.byCall, call);
-  if (rec.ret !== null && rec.ret < 0) {
+  const isOpen = kind === 'OPEN';
+  const call = isOpen ? 'open' : f[4];
+  const { meta, path } = splitMeta(f, isOpen ? 4 : 5);
+  if (!path) continue;
+  stats.parsed++;
+  const errno = meta.errno ?? 0;
+  if (meta.ret !== undefined && meta.ret < 0) {
     stats.failed++;
-    bump(stats.byErrno, String(rec.errno));
-    if (rec.errno === 2) stats.enoent++;
-    if (rec.errno === 1 || rec.errno === 13 || rec.errno === 30) stats.refusals++;
+    stats.byErrno[errnoName(errno)] = (stats.byErrno[errnoName(errno)] ?? 0) + 1;
+    if (errno === 2) stats.enoent++;
+    if (errno === 1 || errno === 13 || errno === 30) stats.refusals++;
   }
 
-  // Merge the two halves of a two-path operation.
-  if (meta.role === 'p1' && meta.ev !== undefined) {
-    pending.set(`${pid}:${meta.ev}`, rec);
-    continue;
+  let op = OP_OF[call] ?? call;
+  if (isOpen) op = WRITE_FLAG.test(flagText(meta.flags ?? 0)) ? 'open-w' : 'open-r';
+
+  const e = { p: pid, o: op, s: call, f: null, r: errnoName(errno) };
+  // ⛔ A RELATIVE PATH UNDER A REAL dirfd IS NOT RESOLVABLE HERE, AND RESOLVING IT ANYWAY INVENTS A
+  // PATH NO PROCESS TOUCHED — the same defect class as billing a symlink's TARGET as a written path,
+  // which kept a whole capability alive once already. The record is KEPT, the raw relative path is
+  // kept, and only the RESOLUTION is withheld: `u` marks it, `dfd` carries the value an fd->path
+  // table could resolve later.
+  if (meta.dirfd !== undefined && meta.dirfd !== AT_FDCWD && !path.startsWith('/')) {
+    e.f = path;
+    e.u = String(meta.dirfd);
+    e.dfd = meta.dirfd;
+    stats.unresolvedDirfd++;
+  } else {
+    e.f = resolve(pid, path);
   }
+  if (isOpen) e.fl = flagText(meta.flags ?? 0);
+  if (MUTATING.has(op) || op === 'open-w') e.w = 1;
+
+  // Two-path operations arrive as two records sharing an `ev`, and are MERGED so the pairing
+  // survives: `rename(a, b)` is ONE event with two paths, and two independent records lose which
+  // `b` went with which `a` the moment two renames interleave on one thread.
+  if (meta.role === 'p1' && meta.ev !== undefined) { pending.set(`${pid}:${meta.ev}`, e); continue; }
   if (meta.role === 'p2' && meta.ev !== undefined) {
     const first = pending.get(`${pid}:${meta.ev}`);
     if (first) {
       pending.delete(`${pid}:${meta.ev}`);
-      first.path2 = path;
-      if (rec.dirfd !== undefined) first.dirfd2 = rec.dirfd;
-      if (rec.pathUnresolvable) first.path2Unresolvable = true;
+      first.g = e.f;
+      if (e.u !== undefined) { first.u2 = e.u; first.dfd2 = e.dfd; }
       stats.pairedTwoPath++;
-      push(first);
+      emit(first);
       continue;
     }
-    // ⛔ A p2 WITH NO p1 IS A DROPPED EVENT, NOT A MALFORMED ONE — and it is exactly the shape the
-    // truncated-`self->np2` defect produced in reverse. It is retained on its own rather than
-    // discarded, and counted, because the count is what says the pairing is incomplete.
+    // ⛔ A p2 WITH NO p1 IS A DROPPED EVENT, NOT A MALFORMED ONE — the exact shape the truncated
+    // `self->np2` produced in reverse. Retained on its own and counted, because the count is what
+    // says the pairing is incomplete.
     stats.danglingPair++;
-    rec.unpaired = true;
-    push(rec);
+    e.unpaired = 1;
+    emit(e);
     continue;
   }
-  push(rec);
+  emit(e);
 }
-// Any p1 still pending never got its p2: the destination record was lost.
-for (const rec of pending.values()) { rec.missingPair = true; stats.danglingPair++; push(rec); }
+// A p1 still pending never got its p2: the destination record was lost.
+for (const e of pending.values()) { e.missingPair = 1; stats.danglingPair++; emit(e); }
 
-// ── OPTIONAL FILTERS, each measured before it is applied ───────────────────────────────────────
+// ── OPTIONAL FILTER, measured before it is applied ─────────────────────────────────────────────
 const dropEnoent = has('--drop-enoent');
 const jailed = has('--jailed');
 if (dropEnoent && jailed) {
   // ⛔ ENOENT IS NOT A SAFE DROP FROM A JAILED TRACE. A confinement layer that HIDES a path reports
-  // it missing rather than refused — Linux mount-namespace hiding and macOS Seatbelt both do this —
-  // so in a jailed run an ENOENT can BE the refusal. The filter is refused rather than silently
-  // narrowed, because a log that quietly dropped the refusals would look complete.
+  // it MISSING rather than refused — Linux mount-namespace hiding and macOS Seatbelt both do — so
+  // there an ENOENT can BE the refusal. Refused loudly rather than silently narrowed, because a log
+  // that quietly dropped the refusals would still look complete.
   console.error('macos-eventlog: --drop-enoent REFUSED on a jailed trace; ENOENT can be a refusal there');
   process.exit(2);
 }
-const kept = dropEnoent ? out.filter((e) => !(e.kind === 'event' && e.ret !== null && e.ret < 0 && e.errno === 2)) : out;
+const all = [...events.values()];
+const kept = dropEnoent ? all.filter((e) => e.r !== 'ENOENT') : all;
 
-const meta = {
-  kind: 'meta',
-  schema: 1,
-  platform: 'darwin',
-  tracer: 'dtrace/macos-observe.d',
-  producer: 'macos-eventlog.mjs',
-  pkg: val('--pkg', null),
-  project: val('--project', null),
-  home: val('--home', null),
-  jailed,
-  // ⛔ THE ROOTS ARE RECORDED, NOT THE SCOPES. Scope assignment is longest-prefix against roots
-  // passed IN (MAPPING.md rule 2), so a reader holding the roots can compute today's scopes AND
-  // tomorrow's — including a `tmp` scope that did not exist when this was measured.
+// ── SERIALIZE ──────────────────────────────────────────────────────────────────────────────────
+const project = val('--project');
+const home = val('--home');
+const pkg = val('--pkg');
+const header = {
+  k: 'h', v: EVENT_SCHEMA,
+  platform: `darwin-${process.arch}`,
+  pkg, version: val('--version'),
+  tracer: 'dtrace -s adapters/macos-observe.d',
+  // ⛔ THE ROOTS ARE THE WHOLE REASON A RE-PARSE IS POSSIBLE. Every path in the stream is
+  // machine-specific (`/Users/runner/v2m-hNdvB5/...`); without these a future classifier cannot tell
+  // a project write from a home write and the log is a pile of strings. The roots are recorded and
+  // the SCOPES are not, which is what keeps a scope set that does not exist yet derivable.
+  roots: { project, home, jailHome: val('--jail-home'),
+    ownPkg: pkg && project ? `${project}/node_modules/${pkg}` : null },
   filters: dropEnoent ? ['drop-enoent'] : [],
-  stats,
+  jailed,
   at: new Date().toISOString(),
+  stats,
 };
 
+// Attribution is stored PER PROCESS, never folded into an event — if the attribution RULE changes a
+// re-parse recomputes it from `ppid` + `exe` + `argv`; stamped on each event it could only ever be
+// re-measured.
+const procs = [...seenPids].sort((a, b) => a - b).map((p) => ({
+  k: 'p', pid: p, ppid: ppidOf.get(p) ?? null, exe: exeOf.get(p) ?? null,
+  argv: argvOf.get(p) ?? null, cwd: cwds.get(p) ?? null, life: mine(p) ? 1 : 0,
+}));
+
+const out = [JSON.stringify(header)];
+for (const p of procs) out.push(JSON.stringify(p));
+for (const x of [...lost.values()].sort((a, b) => b.n - a.n)) out.push(JSON.stringify(x));
+// Sorted by path then pid: adjacent lines share long prefixes, which is most of why this compresses
+// as well as it does.
+for (const e of kept.slice().sort((a, b) =>
+  (a.f ?? '').localeCompare(b.f ?? '') || a.p - b.p || a.o.localeCompare(b.o))) {
+  out.push(JSON.stringify({ k: 'e', ...e }));
+}
+const body = `${out.join('\n')}\n`;
+
 const outPath = val('--out');
-const body = [JSON.stringify(meta), ...kept.map((e) => JSON.stringify(e))].join('\n') + '\n';
-if (outPath && !has('--stats-only')) {
+if (outPath) {
   fs.writeFileSync(outPath, body);
   fs.writeFileSync(`${outPath}.gz`, zlib.gzipSync(Buffer.from(body), { level: 9 }));
 }
-
-const gz = zlib.gzipSync(Buffer.from(body), { level: 9 }).length;
 console.log(JSON.stringify({
   ...stats,
-  emitted: kept.length,
+  procs: procs.length, lifecyclePids: lifecycle.size,
+  distinctEvents: all.length, emitted: kept.length,
+  calls: all.reduce((a, e) => a + e.n, 0),
   bytes: Buffer.byteLength(body),
-  gzipBytes: gz,
-  enoentFraction: stats.records ? +(stats.enoent / stats.records).toFixed(4) : 0,
-  out: outPath ?? null,
+  gzipBytes: zlib.gzipSync(Buffer.from(body), { level: 9 }).length,
+  out: outPath,
 }, null, 2));
