@@ -1,0 +1,64 @@
+### @playwright/browser-chromium@1.61.1   (/home/runner/v2-XVgC8H)
+  OBSERVE   rc=0 files=117 trace=29356 lines
+  CLOSURE   2 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 624  /  whole traced tree 627
+    sockets script 29  /  whole traced tree 29
+  == WRITES the script actually performed ==
+    jailHome    618  (base profile already grants this — NOT billed)
+        /home/runner/v2-XVgC8H/jailhome/.cache
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/__dirlock
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/.links
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/.links/2424d6e29e8592bce305cbcf1445f16cd232fa23
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/ABOUT
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/MEIPreload
+        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/manifest.json
+        … and 608 more
+    outside       6
+        /tmp/playwright-download-8zlprA
+        /tmp/playwright-download-8zlprA/playwright-download-chromium-ubuntu24.04-x64-1228.zip
+        /tmp/playwright-download-yjKhqN
+        /tmp/playwright-download-yjKhqN/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
+        /tmp/playwright-download-SxlO9v
+        /tmp/playwright-download-SxlO9v/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
+  == NETWORK ==
+    AF_INET sockets: 29   distinct peers: 18
+        127.0.0.53:53
+        150.171.109.72:443
+        34.153.2.27:0
+        34.144.171.27:0
+        34.3.0.27:0
+        104.154.124.27:0
+        34.153.3.27:0
+        104.154.125.27:0
+        34.3.1.27:0
+        34.144.170.27:0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    ⛔ 6 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6
+        /tmp/playwright-download-8zlprA
+        /tmp/playwright-download-8zlprA/playwright-download-chromium-ubuntu24.04-x64-1228.zip
+        /tmp/playwright-download-yjKhqN
+        /tmp/playwright-download-yjKhqN/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
+        /tmp/playwright-download-SxlO9v
+        /tmp/playwright-download-SxlO9v/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[synth] rc=1 artifacts=8/8 missing=0 (tree 351/117) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  DIAGNOSE  refused paths under the failing grant (count, path):
+           3 "/proc/self/maps"
+           1 "/proc/version_signature"
+           1 "/proc/self/cgroup"
+     LAST REFUSAL BEFORE A NON-ZERO EXIT (a lead, not proof):
+       36063 <... mkdir resumed>)              = -1 EACCES (Permission denied)
+  synthesized grant did not verify — falling back to a bounded ladder
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb2126003217] rc=0 artifacts=8/8 missing=0 (tree 351/117) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
