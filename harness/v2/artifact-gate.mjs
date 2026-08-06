@@ -139,27 +139,63 @@ if (!obs || obs.size === 0) {
 const got = manifest(ARM);
 const missing = [];
 if (!got) missing.push('<package absent>');
-// ⛔ A MAKE DEPENDENCY FILE IS SIZED BY WHERE ITS HEADERS LIVED, NOT BY WHETHER THE BUILD WORKED.
-// A `.d` (node-gyp emits them as `<obj>.o.d`) contains nothing but the ABSOLUTE PATH of every header
-// the compilation pulled in. node-gyp unpacks the Node headers into `/tmp/node-gyp-tmp-<random>`, so
-// the same successful compile writes a different-LENGTH file on every run, and comparing sizes across
-// arms asks a question the artifact cannot answer.
+// ⛔ A TOOLCHAIN-INVOCATION RECORD IS NOT BUILD OUTPUT, AND COMPARING ITS SIZE ACROSS TWO PACKAGE
+// MANAGERS ASKS A QUESTION THE ARTIFACT CANNOT ANSWER (PORTABILITY R4).
 //
-// MEASURED on `lmdb-store@2.0.0-alpha2`: all 16 of its flagged files were `.o.d`, each merely SHORT
-// (`1528B < 1624B`, `12682B < 14305B`), while the arm reported `rc=0 artifacts=182/182` and
-// `SOLINK_MODULE`/`COPY Release/lmdb-store.node` — the addon had compiled and linked. The package was
-// nevertheless declared INSUFFICIENT at every grant INCLUDING the empty one, which is the tell: the
-// identical shortfall digest across a grant range from `{}` upward cannot be a capability gap.
+// These files are written by node-gyp/gyp to record WHO INVOKED THE BUILD and WHERE ITS INPUTS LIVED
+// — not what the package produced. Both of those legitimately differ between the OBSERVE arm
+// (`npm rebuild`, flat hoisted tree) and a jailed arm (`nub`, isolated store), so a size difference
+// here carries no information about whether the build succeeded.
 //
-// TWO SIGNALS ARE DELIBERATELY KEPT. Presence: a `.d` that never appeared is a real shortfall. And
-// EMPTINESS: a zero-byte `.d` against a non-empty reference is the download-blocked/truncated shape
-// this gate exists to catch, and no path-length difference can produce it. Only the "shorter than
-// reference but non-empty" comparison is dropped, and only for this extension.
-const SIZE_VARIES_BY_PATH = /\.d$/;
+// ⛔ THIS REPLACES THE EARLIER "arm roots are equal length" THEORY, WHICH MEASUREMENT KILLED, and the
+// old mechanism is retracted rather than quietly dropped: it predicted the JAILED file would be
+// LARGER because its root is longer (58 chars vs 28), and the jailed `config.gypi` is SMALLER. Path
+// length was never the mechanism. What is:
+//
+//   * `config.gypi` differs STRUCTURALLY — it is node-gyp's dump of the invoking PM's whole config
+//     surface, so `npm rebuild` injects ~14 keys a jailed `nub` arm has no analogue for, plus
+//     `user_agent: npm/10.9.3` vs `nub/0.6.0`. No root length adds or removes a key.
+//   * `*.target.mk` and `Makefile` differ because `nodedir` differs in KIND (downloaded headers vs
+//     the Node installation) and because the include path reflects hoisted-vs-isolated layout —
+//     which is ENVIRONMENT that VENUE-PORTABILITY.md forbids normalising away.
+//   * a `.d` holds nothing but the ABSOLUTE PATH of every header the compile pulled in, and node-gyp
+//     unpacks headers into `/tmp/node-gyp-tmp-<random>`, so the same successful compile writes a
+//     different-LENGTH file every run. (Formerly its own `/\.d$/` exemption; retired into this one
+//     rule rather than kept as a parallel extension allowlist.)
+//
+// MEASURED on `lmdb-store@2.0.0-alpha2`, linux-x64, the case this rule exists for. Every arm from the
+// synthesized `{"network":true}` up to `write:"disk"` reported `rc=0 artifacts=182/182` with the
+// IDENTICAL shortfall digest `c61b7c0adbd6` — a shortfall invariant under widening cannot be a
+// capability gap — and the package landed `ARTIFACT-GATE-SUSPECT` with its grant left UNVERIFIED:
+//     build/config.gypi           18704B < 19199B
+//     build/lmdb-store.target.mk   5565B <  5939B
+// while `build/Release/lmdb-store.node` was BYTE-IDENTICAL at 429,328 B in both arms. `build/Makefile`
+// also differs (13,847 vs 13,934) and is listed here for the same mechanism; today it happens to
+// differ in the direction the gate ignores, which makes it a trap rather than a non-issue.
+//
+// ⛔ THE LIST IS EXACTLY WHAT MEASUREMENT JUSTIFIES, AND IT IS SCOPED TO `build/`, BECAUSE A TOO-WIDE
+// GATE UNDER-GRANTS. The gate decides whether a REDUCED grant still installed; excusing a file that
+// a denied write really did truncate lets a broken descent arm read as passing, and the catalog then
+// publishes a grant SMALLER than the package needs — the one direction this project forbids. So
+// `binding.Makefile` is deliberately absent: it was measured IDENTICAL (118 B in both arms), and an
+// exclusion with no evidence behind it is exactly the widening this comment is warning about.
+const TOOLCHAIN_GENERATED = [
+  /(^|\/)build\/config\.gypi$/,
+  /(^|\/)build\/Makefile$/,
+  /(^|\/)build\/[^/]+\.target\.mk$/,
+  /(^|\/)build\/.*\.d$/,
+];
+const isToolchainGenerated = (f) => TOOLCHAIN_GENERATED.some((r) => r.test(f));
 for (const [f, size] of got ? obs : []) {
+  // ⛔ ABSENCE IS CHECKED FIRST AND FOR EVERY FILE, TOOLCHAIN-GENERATED INCLUDED. A generator
+  // difference can change a file's CONTENTS; it can never fail to write the file at all.
   if (!got.has(f)) { missing.push(f); continue; }
   const armSize = got.get(f);
-  if (SIZE_VARIES_BY_PATH.test(f) && armSize > 0) continue;
+  // ⛔ ONLY THE "shorter than the reference but NON-EMPTY" COMPARISON IS DROPPED. A zero-byte file
+  // against a non-empty reference falls through to the check below and still fails — that is the
+  // download-blocked/truncated shape the gate exists to catch, and no generator difference and no
+  // layout difference can produce it.
+  if (isToolchainGenerated(f) && armSize > 0) continue;
   if (armSize < size) missing.push(`${f} (${armSize}B < ${size}B)`);
 }
 // Order the manifest walk produces is filesystem-dependent, so sort before digesting or two arms with

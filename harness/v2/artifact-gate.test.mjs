@@ -174,6 +174,111 @@ test('a passing arm reports `shortfall=none` rather than a digest of nothing', (
   assert.match(r.out, /shortfall=none/, `a clean arm must be distinguishable from a shortfall:\n${r.out}`);
 });
 
+// ── R4 — toolchain-generated build files are excused from the SIZE comparison only ────────────────
+//
+// The `lmdb-store@2.0.0-alpha2` case: every arm from the synthesized grant up to `write:"disk"`
+// reported `rc=0 artifacts=182/182` with the identical shortfall digest, and the package landed
+// `ARTIFACT-GATE-SUSPECT` with its grant never descended. The two files responsible were
+// `build/config.gypi` (18704B < 19199B) and `build/lmdb-store.target.mk` (5565B < 5939B) — node-gyp's
+// record of WHO INVOKED IT and WHERE ITS HEADERS LIVED, neither of which says anything about whether
+// the build worked. `build/Release/lmdb-store.node` was byte-identical at 429,328 B in both arms.
+//
+// ⛔ THE DANGEROUS DIRECTION FOR THIS GATE IS TOO WIDE, NOT TOO NARROW. The gate decides whether a
+// REDUCED grant still installed, so excusing a file a denied write genuinely truncated lets a broken
+// descent arm read as passing — and the catalog then publishes a grant SMALLER than the package
+// needs. Every excusal below is therefore pinned in BOTH polarities, and the linked-output control is
+// the one that must never be allowed to rot.
+
+test('⛔ a TRUNCATED `build/Release/*.node` still FAILS — the exclusion must never reach the linked output', () => {
+  // THE control for R4. The whole point of the artifact gate is to catch a build whose output never
+  // materialised; if excusing toolchain files ever reached the linked addon, the gate would pass a
+  // jailed arm that produced no working binary and the descent would publish an under-grant.
+  const obs = tree('obs-node-trunc', {
+    'build/config.gypi': 'THE-INVOKING-PM-CONFIG-SURFACE',
+    'build/Release/lmdb.node': 'A'.repeat(4096),
+  });
+  const r = gate(obs, tree('arm-node-trunc', {
+    'build/config.gypi': 'SHORTER-CONFIG',
+    'build/Release/lmdb.node': 'A'.repeat(64),
+  }));
+  assert.equal(r.code, 1, `a truncated linked addon MUST fail the gate:\n${r.out}`);
+  assert.match(r.out, /lmdb\.node \(64B < 4096B\)/, `the failure must name the addon and its shortfall:\n${r.out}`);
+  assert.doesNotMatch(r.out, /config\.gypi/, `config.gypi must NOT be counted alongside it:\n${r.out}`);
+});
+
+test('the real lmdb-store shape passes: shorter toolchain files, identical addon', () => {
+  // The acceptance case in miniature, with the measured sizes.
+  const obs = tree('obs-lmdb', {
+    'build/config.gypi': 'x'.repeat(19199),
+    'build/lmdb-store.target.mk': 'x'.repeat(5939),
+    'build/Makefile': 'x'.repeat(13934),
+    'build/Release/.deps/Release/obj.target/src/misc.o.d': 'x'.repeat(1624),
+    'build/Release/lmdb-store.node': 'x'.repeat(429328),
+  });
+  const r = gate(obs, tree('arm-lmdb', {
+    'build/config.gypi': 'x'.repeat(18704),
+    'build/lmdb-store.target.mk': 'x'.repeat(5565),
+    'build/Makefile': 'x'.repeat(13847),
+    'build/Release/.deps/Release/obj.target/src/misc.o.d': 'x'.repeat(1528),
+    'build/Release/lmdb-store.node': 'x'.repeat(429328),
+  }));
+  assert.equal(r.code, 0, `the ARTIFACT-GATE-SUSPECT case must now pass:\n${r.out}`);
+  assert.match(r.out, /missing=0 /, `and report a clean manifest:\n${r.out}`);
+});
+
+for (const f of ['build/config.gypi', 'build/lmdb-store.target.mk', 'build/Makefile']) {
+  // Parametrised deliberately and narrowly: these three share ONE mechanism (a gyp-written record of
+  // the invocation) and one rule, so asserting them separately would be three copies of one claim.
+  // The per-file reasoning lives in `artifact-gate.mjs`; what varies here is only the path.
+  test(`\`${f}\` that is merely SHORTER does not fail — it records the invocation, not the build`, () => {
+    const obs = tree(`obs-tc-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'GENERATED-BY-NPM-INVOCATION' });
+    const r = gate(obs, tree(`arm-tc-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'BY-NUB' }));
+    assert.equal(r.code, 0, `a shorter toolchain record must not be a shortfall:\n${r.out}`);
+    assert.match(r.out, /missing=0 /, `and must not be counted:\n${r.out}`);
+  });
+
+  test(`⛔ \`${f}\` that is ABSENT still FAILS — the excusal is about size only`, () => {
+    const obs = tree(`obs-tcg-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'REAL' });
+    const r = gate(obs, tree(`arm-tcg-${f.replace(/\W/g, '')}`, { 'index.js': 'x' }));
+    assert.equal(r.code, 1, `a generator difference can change contents, never omit the file:\n${r.out}`);
+  });
+
+  test(`⛔ a ZERO-BYTE \`${f}\` still FAILS — emptiness is the download-blocked shape`, () => {
+    const obs = tree(`obs-tce-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'REAL' });
+    const r = gate(obs, tree(`arm-tce-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: '' }));
+    assert.equal(r.code, 1, `an empty toolchain file against a non-empty reference must fail:\n${r.out}`);
+    assert.match(r.out, /0B < \d+B/, `and report it as a size shortfall:\n${r.out}`);
+  });
+}
+
+test('⛔ `build/binding.Makefile` is NOT excused — it was measured IDENTICAL, so nothing justifies it', () => {
+  // The control that keeps the list honest. `binding.Makefile` sits beside the three files above and
+  // looks exactly like them, but it measured 118 B in BOTH arms — so excusing it would be widening
+  // the gate on resemblance rather than on evidence, and this gate under-grants when it is too wide.
+  const obs = tree('obs-bmk', { 'index.js': 'x', 'build/binding.Makefile': 'REAL-CONTENTS' });
+  const r = gate(obs, tree('arm-bmk', { 'index.js': 'x', 'build/binding.Makefile': 'SHORT' }));
+  assert.equal(r.code, 1, `binding.Makefile must keep its size comparison:\n${r.out}`);
+  assert.match(r.out, /binding\.Makefile/, `and be named in the shortfall:\n${r.out}`);
+});
+
+test('⛔ the excusal is scoped to `build/` — a `.d` shipped at the package root keeps its size check', () => {
+  // `.d` is also the D-language source extension, and a `.d` outside `build/` was never written by
+  // node-gyp. Scoping keeps a genuine source file's size comparison, which is signal.
+  const obs = tree('obs-dscope', { 'index.js': 'x', 'src/mod.d': 'REAL-D-SOURCE-CONTENTS' });
+  const r = gate(obs, tree('arm-dscope', { 'index.js': 'x', 'src/mod.d': 'TRUNC' }));
+  assert.equal(r.code, 1, `only node-gyp's build/ output is excused, not every .d:\n${r.out}`);
+});
+
+test('⛔ an `.o` object file keeps its size comparison — only the invocation records are excused', () => {
+  // Measured on the same lmdb-store run: several `.o` files DIFFER across arms (33240 vs 33400),
+  // because the embedded paths differ — but they are real compiler output and their size carries
+  // signal, so they stay compared. Today they differ in the direction the gate ignores; that is a
+  // reason to watch them, not a reason to excuse them.
+  const obs = tree('obs-obj', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': 'X'.repeat(33400) });
+  const r = gate(obs, tree('arm-obj', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': 'X'.repeat(33240) }));
+  assert.equal(r.code, 1, `an object file must not be excused as a toolchain record:\n${r.out}`);
+});
+
 test('an empty reference refuses to gate rather than reporting success', () => {
   const obs = fs.mkdtempSync(path.join(os.tmpdir(), 'agate-obs-empty-'));
   const r = gate(obs, tree('arm-forempty', { 'index.js': 'x' }));
