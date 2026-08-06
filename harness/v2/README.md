@@ -68,7 +68,7 @@ Three operating systems means three tracers and three parsers (strace, dtrace, E
 | | tracer | store eviction | parser unit tests | end-to-end evidence |
 | --- | --- | --- | --- | --- |
 | **linux** ✅ RUNNING | `strace -f` | root + transitive, nub tooling spared | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
-| **macos** ✅ RUNNING | dtrace (`macos-observe.d`) | root + transitive, nub tooling spared | **9** (`observe-macos.test.mjs`) | `@apollo/rover@0.2.1` reproduces the Linux control in both directions on `macos-15`; nothing at corpus scale yet |
+| **macos** ✅ RUNNING | dtrace (`macos-observe.d`) | root + transitive, nub tooling spared | **11** (`observe-macos.test.mjs`) | `@apollo/rover@0.2.1` reproduces the Linux control in both directions on `macos-15`; nothing at corpus scale yet |
 | **windows** ⛔ **DISABLED** | ETW (`windows.ps1`) | root + transitive, nub tooling spared — **active but UNPROVEN** | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
 | *shared* | — | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
 

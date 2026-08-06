@@ -171,11 +171,20 @@ echo "=================================================================="
 #   link     NOT EXERCISED. macOS `ln -f` emitted only unlink(dst) — no `link` PATHOP at all, so
 #            it used linkat(2), which this adapter does NOT subscribe to. The kaf-lnk-dst row
 #            below is satisfied by that unlink, NOT by a link record; it is not a link assertion.
-#   rename   HALF SETTLED. rename(2) fired and reported arg0, but the second clause that should
-#            emit arg1 did not appear in the trace. Cause not yet established — do not read the
-#            kaf-ren-new row as a passing assertion.
+#   rename   SETTLED (2026-08-06) — the "cause not yet established" this line used to carry is now
+#            established, and the row passes. `self->np2` holds the rename DESTINATION pointer and
+#            was typed `int` by inference: D takes a thread-local's type from its first assignment
+#            in program text order, and the reset `self->np2 = 0;` in the shared path-op entry
+#            clause preceded `self->np2 = arg1;`. Every 64-bit pointer was therefore truncated to
+#            its low word, which on macOS always lands inside the 4 GiB __PAGEZERO — so `copyinstr`
+#            faulted on EVERY rename rather than intermittently, and the clause aborted before
+#            emitting. Fixed by declaring the pointer thread-locals explicitly in macos-observe.d.
+#            MEASURED, run 31114516278: kaf-ren-new-g7h8 count=1 under ARM new, having been 0 here
+#            on run 31087159355. The isolated known-answer control is probes/rename-dest-fixture.sh
+#            — 0/128 destinations before, 128/128 after, with both path strings provably resident
+#            so a residency fault is excluded by construction.
 #
-# So the adapter has a further UNDER-PREDICTION blind spot beyond the two fixed here: the *at(2)
+# So the adapter has a further UNDER-PREDICTION blind spot beyond the ones settled above: the *at(2)
 # and *_np(2) variants (linkat, renameat, renamex_np, unlinkat, mkdirat, openat is already covered)
 # are unsubscribed, and macOS userland reaches for them. Tracked, not fixed here.
 # Known answer, by construction:
