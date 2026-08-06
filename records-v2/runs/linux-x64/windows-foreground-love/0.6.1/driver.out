@@ -1,0 +1,118 @@
+### windows-foreground-love@0.6.1   (/home/runner/v2-jZiiQj)
+  OBSERVE   rc=0 files=21 trace=91239 lines
+  CLOSURE   1 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 18
+    writes  script 6695  /  whole traced tree 6698
+    sockets script 3  /  whole traced tree 3
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/runner/v2-jZiiQj/jailhome/.cache
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/common.gypi
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/config.gypi
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/allocation.h
+        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/common.h
+        … and 3318 more
+    outside    3343
+        /tmp/node-gyp-tmp-PbVcTl
+        /tmp/node-gyp-tmp-PbVcTl/include
+        /tmp/node-gyp-tmp-PbVcTl/include/node
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-platform.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-local-handle.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-script.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-debug.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-value.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api.h
+        … and 3333 more
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build
+        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/config.gypi
+        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/node_gyp_bins
+        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/node_gyp_bins/python3
+    project      19
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 4
+        127.0.0.53:53
+        104.16.212.131:0
+        104.16.213.131:0
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"project":true},"network":true}
+    ⛔ 3343 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3343
+        /tmp/node-gyp-tmp-PbVcTl
+        /tmp/node-gyp-tmp-PbVcTl/include
+        /tmp/node-gyp-tmp-PbVcTl/include/node
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-platform.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-local-handle.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-script.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-debug.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-value.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/posix.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/threadpool.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/win.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/bsd.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/sunos.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/aix.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/tree.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/os390.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/unix.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/linux.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/errno.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/darwin.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/version.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-array-buffer.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/config.gypi
+        /tmp/node-gyp-tmp-PbVcTl/include/node/zlib.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-embedder-heap.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/zconf.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-locker.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-function-callback.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-cppgc.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-template.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-extension.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api_types.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-statistics.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-context.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-initialization.h
+        /tmp/node-gyp-tmp-PbVcTl/include/node/openssl
+        /tmp/node-gyp-tmp-PbVcTl/include/node/openssl/param_names.h
+        … and 3303 more
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[synth] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
+  DIAGNOSE  refused paths under the failing grant (count, path):
+          21 "/usr/share/locale/locale.alias"
+           5 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/gyp/__pycache__"
+           4 "/proc/mounts"
+           4 "/proc/filesystems"
+           3 "/proc/self/maps"
+           3 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/packaging/__pycache__"
+           2 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/gyp/generator/__pycache__"
+           1 "/proc/version_signature"
+           1 "/proc/self/cgroup"
+  synthesized grant did not verify — falling back to a bounded ladder
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb2126003217] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb3938809772] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
+     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
+  VERIFY[fb2742342390] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
