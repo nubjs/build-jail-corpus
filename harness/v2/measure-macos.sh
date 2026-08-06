@@ -36,39 +36,6 @@ USER_HOME="${USER_HOME:-/Users/$RUNUSER}"
 STORE="$USER_HOME/.cache/nub/pm/store"
 TOOLS="$USER_HOME/.cache/nub/pm/tools"
 
-# ⛔⛔ HARD STOP — THIS LANE CAN PRODUCE UNDER-GRANTS, WHICH IS THE ONE UNACCEPTABLE DIRECTION.
-#
-# This driver has NO store eviction. Verified by content against a positive control: `measure.sh`
-# matches `pm/store` once and `CLOSURE` three times; this file matches both ZERO times.
-#
-# The comment above `local cache="$v/nubcache"` already names the mechanism exactly right — "the
-# surviving replay source is the GLOBAL VIRTUAL STORE: a package already materialized there is
-# RELINKED, not reinstalled, so its scripts never run again" — and then remedies it with a per-arm
-# `NUB_CACHE_DIR`. That remedy is MEASURED-INSUFFICIENT, and `measure.sh` carries its own note
-# saying so after paying for the lesson: the cache dir and the virtual store are resolved by
-# DIFFERENT functions, so pointing the former somewhere private leaves the latter serving the
-# package. ⇒ Right diagnosis, wrong remedy.
-#
-# WHY THAT IS FATAL RATHER THAN MERELY WASTEFUL. A replayed arm runs no lifecycle script, so it
-# PASSES at whatever grant is under test — including a grant NARROWER than the package needs. That
-# is a false PASS, i.e. an UNDER-GRANT, which breaks real users' installs. Contrast the linux
-# defect fixed in 67c01911, which failed arms spuriously and so skewed WIDE: over-granting is safe,
-# under-granting is not. This lane fails in the unsafe direction, and it was live and
-# self-redispatching when this guard was added.
-#
-# TO LIFT THIS: port the transitive store eviction from `measure.sh` (the `$PKG` + `$CLOSURE` sweep
-# over `${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store`, sparing nub's own tooling closure per
-# 67c01911), then prove it BOTH ways on a real macOS runner — an arm that MUST fail at a too-narrow
-# grant actually fails, and a package still installs at its true minimum. Deleting these lines
-# without that evidence re-arms the fault.
-if [ -z "${NUB_V2_MACOS_EVICTION_VERIFIED:-}" ]; then
-  echo "⛔ measure-macos.sh is DISABLED: no store eviction, so an arm can replay and report a" >&2
-  echo "   false PASS at a too-narrow grant — an UNDER-GRANT. See the note above this check." >&2
-  echo "   Any darwin-arm64 v2 record produced before this guard is SUSPECT in the unsafe" >&2
-  echo "   direction and must be re-measured, not trusted." >&2
-  exit 3
-fi
-
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
 ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1

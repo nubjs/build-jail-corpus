@@ -68,11 +68,11 @@ Three operating systems means three tracers and three parsers (strace, dtrace, E
 | | tracer | store eviction | parser unit tests | end-to-end evidence |
 | --- | --- | --- | --- | --- |
 | **linux** ✅ RUNNING | `strace -f` | root + transitive, nub tooling spared | **7** (`observe.test.mjs`) | converged 5/5 MINIMAL, 0 under- and 0 over-prediction; plus 24 packages at `--at-grant`, 19 measurable, 0 under-grants |
-| **macos** ⛔ **DISABLED** | dtrace (`macos-observe.d`) | ⛔ **NONE** | **9** (`observe-macos.test.mjs`) | ⛔ none at corpus scale |
+| **macos** ✅ RUNNING | dtrace (`macos-observe.d`) | root + transitive, nub tooling spared | **9** (`observe-macos.test.mjs`) | `@apollo/rover@0.2.1` reproduces the Linux control in both directions on `macos-15`; nothing at corpus scale yet |
 | **windows** ⛔ **DISABLED** | ETW (`windows.ps1`) | root + transitive, nub tooling spared — **active but UNPROVEN** | **0** | `validate-windows.mjs` — both-directions, with `--selftest` |
 | *shared* | — | — | **8** (`artifact-gate.test.mjs`) | the golden cases |
 
-⛔⛔ **TWO OF THE THREE LANES ARE HARD-DISABLED.** Each driver exits 3 immediately with an explanation; `measure-macos.sh` and `measure-windows.mjs` carry the full reasoning and a lift procedure above their guard. **Linux is the only lane producing trustworthy rows today.** macOS is disabled for the eviction column. **Windows no longer is** — the transitive sweep is ported and measured active (run 31107020153: `EVICT   30 store entries removed, 5 spared as nub tooling` per arm) — but it stays disabled because that eviction is **unproven in the direction that matters**, blocked by the read denial below.
+⛔ **THE WINDOWS LANE IS HARD-DISABLED, AND IT IS NOW THE ONLY ONE.** `measure-windows.mjs` exits 3 immediately and carries the full reasoning and a lift procedure above its guard. Its transitive sweep **is** ported and measured active (run 31107020153: `EVICT   30 store entries removed, 5 spared as nub tooling` per arm) — it stays disabled because that eviction is **unproven in the direction that matters**, blocked by the read denial below. macOS carried the same guard for the same reason; it was lifted once the eviction was ported and the control ran on a real runner (below).
 
 ⛔ **A WINDOWS ARM CURRENTLY FAILS AT EVERY GRANT, ON A READ OF THE PACKAGE'S OWN ENTRY POINT.** Verbatim, from four `@apollo/rover@0.2.1` arms spanning `{"network":true}` to `{"write":{"deps":true},"network":true}`:
 
@@ -91,16 +91,28 @@ evict rover + binary-install  {"network":true}             rc=1  bin/ absent  ->
 evict rover + binary-install  {"write":{"deps":true},...}  rc=0  bin/ rover,README.md,LICENSE
 ```
 
-⇒ **Root-only eviction is precisely the arm that falsely passed**, so Windows' narrower scope makes it rarer, not safer. macOS evicts nothing at all and mitigates with a per-arm `NUB_CACHE_DIR` — a remedy `measure.sh` records as measured-insufficient, because the cache dir and the virtual store are resolved by different functions.
+⇒ **Root-only eviction is precisely the arm that falsely passed**, so Windows' narrower scope makes it rarer, not safer. macOS evicted nothing at all and mitigated with a per-arm `NUB_CACHE_DIR`; that is the wrong remedy on both counts, because `aube_store::dirs::cache_dir()` and `side_effects_cache_root()` (= `virtual_store_dir()/../side-effects-v1`) both land beside the store under the XDG cache and neither moves with `NUB_CACHE_DIR`, which governs the resolver primer cache alone. The macOS driver now carries the same closure sweep as Linux, the same `side-effects-cache=false` opt-out, and the same artifact-manifest gate.
 
-⛔⛔ **AND ON A HOSTED RUNNER THE EVICTION NEVER FIRES AT ALL, WHICH IS NOT THE REASSURANCE IT SOUNDS LIKE.** Under `is_ci()` nub resolves the linker to a **project-local** `node_modules/.store` inside each arm directory rather than the machine-global store (`install_report.rs` `layout_row`; an explicit `enableGlobalVirtualStore` is the one thing resolved before it). So there is no global store to evict, the sweep skips in silence, and arms come out independent by accident. MEASURED on Windows in run 31106248877: four arms, `linker isolated (global virtual store auto-disabled in CI)` in every log, **zero `EVICT` lines**, and root-only and transitive eviction giving identical verdicts. Every v2 `driver.out` in the corpus shows the same shape — 3 of 3 carry a `CLOSURE` line and 0 of 3 an `EVICT` line. Two consequences, in opposite directions:
+⛔⛔ **AND ON A HOSTED RUNNER THE EVICTION MAY NEVER FIRE AT ALL, WHICH IS NOT THE REASSURANCE IT SOUNDS LIKE.** Under `is_ci()` nub can resolve the linker to a **project-local** `node_modules/.store` inside each arm directory rather than the machine-global store (`install_report.rs` `layout_row`; an explicit `enableGlobalVirtualStore` is the one thing resolved before it). Then there is no global store to evict, the sweep skips in silence, and arms come out independent by accident. MEASURED on Windows in run 31106248877: four arms, `linker isolated (global virtual store auto-disabled in CI)` in every log, **zero `EVICT` lines**, and root-only and transitive eviction giving identical verdicts. Every v2 `driver.out` in the corpus shows the same shape — 3 of 3 carry a `CLOSURE` line and 0 of 3 an `EVICT` line. Two consequences, in opposite directions:
 
-- The replay hazard is **not live on the corpus runners today**, so existing rows are not under-granted by *this* mechanism.
+- The replay hazard is **not live on those runners**, so existing rows are not under-granted by *this* mechanism.
 - The corpus is measuring a **layout real users do not get**: outside CI the machine-global store is the default, and the rover case is exactly a write through a link into a *sibling's* store entry, which the project-local layout relocates. Whether a grant measured under one layout transfers to the other is **UNVERIFIED** and worth settling before the next full sweep.
 
-A probe of any eviction code therefore has to set `npm_config_enable_global_virtual_store=true` explicitly, or it measures nothing while looking healthy — which is how the first Windows attempt at this proof passed its own preconditions and proved nothing.
+A probe of any eviction code therefore has to check that it fired, or it measures nothing while looking healthy — which is how the first Windows attempt at this proof passed its own preconditions and proved nothing.
 
-⛔ **Any darwin-arm64 or win32 record written before those guards is suspect in the UNSAFE direction** — re-measure it rather than trusting it. Linux rows written before `67c01911` skew **wide** instead (the node-gyp collision failed arms spuriously), which is safe for users but inflates the headline `write:"disk"` metric.
+⛔ **macOS is NOT in that state, and the eviction counters are what say so.** Run [31108257981](https://github.com/nubjs/build-jail-corpus/actions/runs/31108257981) on `macos-15` reports `EVICT[nar-no-network] 30 store entries removed, 5 spared as nub tooling, 50 in store` against `/Users/runner/.cache/nub/pm/store` — a populated machine-global store, on the same hosted-runner class where Windows saw none. The lift rests on that plus the control pair, `@apollo/rover@0.2.1`, three arms:
+
+```
+VERIFY[synth]             {"write":{"deps":true},"network":true}  rc=0  artifacts=6/6  -> VERIFIED
+VERIFY[nar-no-network]    {"write":{"deps":true}}                 rc=1                 -> necessary
+VERIFY[nar-no-write-deps] {"network":true}                        rc=1                 -> necessary
+```
+
+The same fixture passes at `write.deps` and fails without it, so the failure is attributable to the missing capability rather than to the platform. That is the documented Linux pair, reproduced.
+
+⛔ **But the FAILING control did not reproduce, and it is recorded rather than smoothed over.** Re-running the same fixture on the same warm store with the eviction AND the memo opt-out both neutered — i.e. the pre-fix driver — still returned `rc=1` at `{"network":true}` ([31108595308](https://github.com/nubjs/build-jail-corpus/actions/runs/31108595308)); the arms re-ran the lifecycle script anyway. ⇒ **macOS has not been shown to produce the false pass Linux measured on this package.** The eviction's necessity there rests on the shared mechanism — identical store path, identical relink behaviour — and on the Linux measurement, not on a macOS reproduction. It is a strict tightening either way, so it does not gate the lift; it does mean the macOS lane's freedom from replay is less proven than Linux's.
+
+⛔ **Any darwin-arm64 record written before the guard, or any win32 record, is suspect in the UNSAFE direction** — re-measure it rather than trusting it. Linux rows written before `67c01911` skew **wide** instead (the node-gyp collision failed arms spuriously), which is safe for users but inflates the headline `write:"disk"` metric.
 
 The unit suites are worth their cost because they cover the *same* semantic hazards independently on Linux and macOS — a symlink into the real user home, `rename` billing **both** ends, a failed call not counting as a need, an unattributed run yielding `UNKNOWN` rather than an empty grant. Two parsers agreeing on those, written separately, is most of the cross-parser confidence there is. The artifact gate's suite carries the one assertion nobody may relax: **`.npmrc` is not excused by the packaging-metadata exclusion.**
 
