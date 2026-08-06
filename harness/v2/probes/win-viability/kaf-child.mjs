@@ -137,16 +137,25 @@ for (let i = 0; i < STORM; i++) {
 // Node cannot memory-map a file, and an alternate data stream needs a spelling Node's fs API will
 // not produce. Both are real write mechanisms a package could use, and both are invisible to the
 // ordinary Write path, so they get their own process.
-let grandOk = false;
+let grandOk = false, mmapOk = false;
 if (GRAND) {
   const g = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', GRAND, ROOT],
     { encoding: 'utf8' });
   grandOk = g.status === 0;
-  console.log(`grandchild rc=${g.status}\n${(g.stdout ?? '').trim()}\n${(g.stderr ?? '').trim()}`);
+  // ⛔ THE EXIT CODE IS NOT THE ANSWER, AND BELIEVING IT COST THIS FIXTURE ITS mmap ROW ENTIRELY.
+  // The grandchild sets `$ErrorActionPreference = 'Continue'` and catches its own exception, so it
+  // exits 0 whether the mapping worked or threw. For the whole life of this fixture the mapping
+  // THREW -- PowerShell marshals `$null` for a String parameter as the empty string, which
+  // `MemoryMappedFile.CreateFromFile` rejects -- and the probe reported the resulting absence as a
+  // TRACER blind spot, through two separate investigations, because nothing read this console.
+  // An expectation that can never be satisfied is not an assertion, it is a standing false finding.
+  mmapOk = /MMAP ok/.test(g.stdout ?? '');
+  console.log(`grandchild rc=${g.status} mmapOk=${mmapOk}\n${(g.stdout ?? '').trim()}\n${(g.stderr ?? '').trim()}`);
 }
 if (grandOk) {
-  shape = 'mmap';
-  W(D('work', 'kaf-mmap.bin'));
+  // Expected only when the grandchild verified the bytes actually landed in the file.
+  if (mmapOk) { shape = 'mmap'; W(D('work', 'kaf-mmap.bin')); }
+  else console.log('SKIP mmap: the grandchild did not confirm a memory-mapped write, so requiring one would measure the fixture rather than the tracer');
   // The ADS is deliberately NOT asserted as a required write: the kernel names a stream as
   // `<file>:<stream>:$DATA`, and whether that reaches the normalized stream at all is one of the
   // things being measured. It is reported, never gated.

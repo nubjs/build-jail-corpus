@@ -41,19 +41,33 @@ function New-Target([string]$name) {
   return $p
 }
 
+# ⛔ `$null` IS NOT NULL FOR A .NET `String` PARAMETER. PowerShell marshals it as the EMPTY STRING,
+# and `CreateFromFile` rejects that with "Map name cannot be an empty string." That is precisely how
+# this probe, and the known-answer fixture before it, spent their entire lives never performing a
+# memory-mapped write while reporting the absence as a TRACER gap. `[NullString]::Value` is the
+# marshalling-correct null; the two-argument path overload takes no map name at all and is used
+# wherever a FileStream is not needed, so the question cannot arise there.
 function Invoke-Mmap([string]$path, [int]$settleSec, [bool]$flushHandle) {
-  $fs = [System.IO.File]::Open($path, 'Open', 'ReadWrite', 'ReadWrite')
-  try {
-    $mmf = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile(
-      $fs, $null, 0, [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite,
-      [System.IO.HandleInheritability]::None, $true)
+  if (-not $flushHandle) {
+    # No FileStream needed: the overload with no map name, defaulting to ReadWrite access.
+    $mmf = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile($path, [System.IO.FileMode]::Open)
     $view = $mmf.CreateViewAccessor(0, 4096, [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite)
     for ($i = 0; $i -lt 4096; $i++) { $view.Write($i, [byte]0xAB) }
     $view.Flush(); $view.Dispose(); $mmf.Dispose()
-    # FlushFileBuffers on the underlying handle is the documented way to force the mapped pages out
-    # synchronously. If THIS is what makes the write visible, the gap is a flush-timing one.
-    if ($flushHandle) { [void][NubMmap.MmapFx]::FlushFileBuffers($fs.SafeFileHandle) }
-  } finally { $fs.Dispose() }
+  } else {
+    $fs = [System.IO.File]::Open($path, 'Open', 'ReadWrite', 'ReadWrite')
+    try {
+      $mmf = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile(
+        $fs, [NullString]::Value, 0, [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite,
+        [System.IO.HandleInheritability]::None, $true)
+      $view = $mmf.CreateViewAccessor(0, 4096, [System.IO.MemoryMappedFiles.MemoryMappedFileAccess]::ReadWrite)
+      for ($i = 0; $i -lt 4096; $i++) { $view.Write($i, [byte]0xAB) }
+      $view.Flush(); $view.Dispose(); $mmf.Dispose()
+      # FlushFileBuffers on the underlying handle is the documented way to force the mapped pages
+      # out synchronously. If THIS is what makes the write visible, the gap is a flush-timing one.
+      [void][NubMmap.MmapFx]::FlushFileBuffers($fs.SafeFileHandle)
+    } finally { $fs.Dispose() }
+  }
   if ($settleSec -gt 0) { Start-Sleep -Seconds $settleSec }
 }
 

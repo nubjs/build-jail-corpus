@@ -256,13 +256,20 @@ jobs:
           & logman stop "NT Kernel Logger" -ets 2>&1 | Out-Null
           & logman create trace "NT Kernel Logger" -ets -o C:\obs\kl.etl -bs 1024 -nb 64 320 -max 2048 `
             -p "Windows Kernel Trace" "(process,file,fileinit,disk)" | Out-Null
-          Write-Output "logman create rc=$LASTEXITCODE"
+          $createRc = $LASTEXITCODE
+          Write-Output "logman create rc=$createRc"
+          # ⛔ WITHOUT THIS GATE THE ARM REPORTS A NODE STACK TRACE INSTEAD OF A RESULT. When the
+          # session does not start there is no .etl, tracerpt writes no .xml, and the forensics pass
+          # dies on ENOENT — which reads like a broken probe rather than "no session, no answer".
+          if ($createRc -ne 0) { Write-Output '::warning::NT Kernel Logger did not start; this arm answers nothing'; exit 0 }
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$abs\mmap-variants.ps1" -Root C:\obs\mmapkl 2>&1 |
             Tee-Object -FilePath C:\obs\out\mmap-kernellogger-run.txt
           Start-Sleep -Seconds 8
           & logman stop "NT Kernel Logger" -ets | Out-Null
+          if (-not (Test-Path C:\obs\kl.etl)) { Write-Output '::warning::no .etl was written; this arm answers nothing'; exit 0 }
           & tracerpt C:\obs\kl.etl -o C:\obs\kl.xml -of XML -summary C:\obs\kl-summary.txt -lr -y | Out-Null
           Write-Output "tracerpt rc=$LASTEXITCODE"
+          if (-not (Test-Path C:\obs\kl.xml)) { Write-Output '::warning::tracerpt produced no XML; this arm answers nothing'; exit 0 }
           Get-Content C:\obs\kl-summary.txt -ErrorAction SilentlyContinue | Select-Object -First 25 |
             Tee-Object -FilePath C:\obs\out\mmap-kernellogger-summary.txt
           foreach ($n in 'mmap-A-asfixture.bin','mmap-C-flushbufs.bin','mmap-CONTROL-ordinary.bin') {
