@@ -13,12 +13,25 @@
 # synthesize, verify, then walk. To ask instead "does this package install under EXACTLY this
 # grant?" (e.g. its own v1 record), the ladder is not merely expensive, it is WRONG:
 #
-#   Every ladder rung on Windows carries `network:true`. MEASURED on `electron-prebuilt@0.31.2`:
-#   OBSERVE logged 2417 events with `malformed: 0` and reported `attributedPeers: 0, peers: []`
-#   for a package whose v1 record says `network: true` — the ETW adapter missed the egress
-#   entirely. Such a package fails at its synthesized grant, climbs to a rung that necessarily
-#   includes network, lands WIDER than its v1 record, and the `=> MINIMUM` line then reads as
-#   "v1 UNDER-GRANTED" when the defect is v2's own tracer.
+#   MEASURED on `electron-prebuilt@0.31.2`: OBSERVE logged 2417 events with `malformed: 0` and
+#   reported `attributedPeers: 0, allTreePeers: 0, peers: []` for a package whose v1 record says
+#   `network: true` — the ETW adapter missed the egress entirely. Synthesis under-predicts, the
+#   fallback ladder repairs it by climbing, and `=> MINIMUM` then conflates what the package NEEDS
+#   with what OBSERVE failed to SEE plus what the ladder recovered. Compared against the v1 record,
+#   that reads as "v1 UNDER-GRANTED" when the defect is v2's own tracer.
+#
+#   ⛔ AN EARLIER REVISION OF THIS COMMENT JUSTIFIED THE ABOVE WITH "every ladder rung on Windows
+#   carries network:true". THAT IS FALSE, and it is recorded here because a confidently wrong
+#   rationale outlives the correct conclusion it was attached to. `states.mjs` holds 54 states of
+#   which 22 carry NO network, including {"write":["userHome"],"network":false} at cost 7 —
+#   strictly cheaper than the same grant with network at cost 10. The walk is ascending-cost and
+#   the first passing state is the minimum by construction, so `electron-prebuilt` WAS tested at
+#   the network-free rung, failed there, and only passed with network. v1 MEASURED that egress.
+#
+#   That correction strengthens the case. Two independent instruments say the egress is real and
+#   observable — v1's walk, and this adapter's own validator (`adapters/validate-windows.mjs`
+#   assertions P4/P7, with negative control N4) proving ETW capture works for a raw
+#   TcpClient.Connect AND an Invoke-WebRequest — and OBSERVE still reported none of it.
 #
 # ⇒ A TRACER BLIND SPOT PRESENTS AS A DEFECT IN THE THING BEING MEASURED. `--at-grant` removes
 # that path entirely: no synthesis, so nothing OBSERVE missed can enter the verdict. It runs ONE
