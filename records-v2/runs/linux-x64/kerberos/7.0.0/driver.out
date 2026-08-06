@@ -1,35 +1,60 @@
-### kerberos@7.0.0   (/home/runner/v2-6S9iss)
-  OBSERVE   rc=0 files=355 trace=10963 lines
+### kerberos@7.0.0   (/home/runner/v2-qwz0fY)
+  VENUE-PERMISSIONS {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  ⛔ R5 ASYMMETRY — /tmp/nub/target/release/nub does not carry PYTHONDONTWRITEBYTECODE; OBSERVE suppresses Python
+     bytecode and the jailed arm does not, so the two arms differ in more than enforcement
+  OBSERVE   rc=0 files=355 trace=12019 lines
   CLOSURE   37 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 5  /  whole traced tree 8
+  RAWLOG-FILE /home/runner/v2-qwz0fY/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-qwz0fY/observe/capture.json
+  RAWLOG-BYTES raw=2624196 gz=76259
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-qwz0fY/jailhome","TMPDIR":"/tmp/nub-tmp-obsiI8aPL","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-qwz0fY/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 6  /  whole traced tree 1093
     sockets script 5  /  whole traced tree 5
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-qwz0fY/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-qwz0fY/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-qwz0fY/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsiI8aPL
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-qwz0fY/observe/node_modules/kerberos
   == WRITES the script actually performed ==
-    jailHome      2  (base profile already grants this — NOT billed)
-        /home/runner/v2-6S9iss/jailhome/.npm/_prebuilds
-        /home/runner/v2-6S9iss/jailhome/.npm/_prebuilds/b62bb1-kerberos-v7.0.0-napi-v9-linux-x64.tar.gz.4530-fc88e61c1af9c.tmp
+    jailHome      3  (base profile already grants this — NOT billed)
+        /home/runner/v2-qwz0fY/jailhome/.npm/_prebuilds
+        /home/runner/v2-qwz0fY/jailhome/.npm/_prebuilds/b62bb1-kerberos-v7.0.0-napi-v9-linux-x64.tar.gz.4588-09338a0422827.tmp
+        /home/runner/v2-qwz0fY/jailhome/.npm/_prebuilds/b62bb1-kerberos-v7.0.0-napi-v9-linux-x64.tar.gz
     ownPkg        3  (base profile already grants this — NOT billed)
-        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build
-        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build/Release
-        /home/runner/v2-6S9iss/observe/node_modules/kerberos/build/Release/kerberos.node
+        /home/runner/v2-qwz0fY/observe/node_modules/kerberos/build
+        /home/runner/v2-qwz0fY/observe/node_modules/kerberos/build/Release
+        /home/runner/v2-qwz0fY/observe/node_modules/kerberos/build/Release/kerberos.node
   == NETWORK ==
-    AF_INET sockets: 5   distinct peers: 7
+    AF_INET sockets: 5   distinct peers: 2
         127.0.0.53:53
         140.82.112.4:443
-        185.199.110.133:0
-        185.199.109.133:0
-        185.199.111.133:0
-        185.199.108.133:0
-        185.199.110.133:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  VERIFY[synth] rc=0 artifacts=21/21 missing=0 (tree 1157/355) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+    EVENTS    5014 distinct from 11974 calls (12020 lines, 18 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×22 exit×20 getsockname×17 getsockopt×12 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-qwz0fY/observe/events.ndjson.gz (34578 bytes)
+  EVENTLOG-FILE /home/runner/v2-qwz0fY/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12020,"parsed":11974,"unparsed":0,"unfinished":18,"rejoined":18,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5014,"unknownSyscall":{"getsockname":17,"getsockopt":12,"getcwd":4,"recvmsg":9,"exit":20,"socketpair":3,"setsockopt":22,"shutdown":3,"sendmmsg":2,"exit_group":3,"wait4":3},"out":"/home/runner/v2-qwz0fY/observe/events.ndjson.gz","gzipBytes":34578}
+  EVICT     1 store entries removed, 2 spared as nub tooling
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 1157/355) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  VERIFY[drop-network] rc=1 artifacts=24/21 missing=1 (tree 1164/355) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT     36 store entries removed, 2 spared as nub tooling
+  VERIFY[drop-network] rc=1 artifacts=24/21 missing=1 shortfall=37330a44d5c8 (tree 1164/355) OVERRIDDEN=2 REJECTED=0 grant={}
        missing: build/Release/kerberos.node
      'network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true} is independently necessary
