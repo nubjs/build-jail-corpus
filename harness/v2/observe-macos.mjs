@@ -11,14 +11,55 @@
 // because npm writes `~/.npm/_logs` and opens TLS sockets on every run. dtrace's `progenyof()`
 // already narrowed the stream to the npm subtree; this narrows it to the lifecycle shell's.
 //
-//   usage: node observe-macos.mjs <dtrace-log> <project-root> <home> [pkgName]
+// ⛔ EVERY ROOT COMES FROM `capture.json`, AND NOTHING ELSE MAY SUPPLY ONE (VENUE-PORTABILITY R2).
+// Not the ambient environment, not a hardcoded `~/.cache/nub` pattern, not a root derived from the
+// path being classified. Roots are what turn a machine-specific path into a scope, so a classifier
+// that can obtain one from its surroundings produces a plausible answer on the machine that happens
+// to match and a wrong one everywhere else — and says nothing either way.
+//
+// ⛔ A NEEDED ROOT THAT `capture.json` DOES NOT DECLARE IS A HARD ERROR, NEVER A FALLBACK. A
+// fallback is exactly the mechanism that makes a venue difference SILENT: it keeps running and
+// emits a grant, so the failure surfaces as a wrong catalog entry rather than as a crash.
+//
+// ⛔ ABSENT AND `null` ARE DIFFERENT AND ARE TREATED DIFFERENTLY. `null` is the capture SAYING this
+// platform has no such root, which is an answer; an absent key is the capture failing to say, which
+// is not. Only the latter is fatal — collapsing them would let a stale writer silently opt out.
+//
+// ⛔ `cwd` IS DECLARED LIKE ANY OTHER ROOT, AND ON THIS PLATFORM IT IS ALWAYS `null` — THE NULL IS
+// THE POINT. It is per-process and time-varying rather than one path, but the same rule binds it:
+// observed or declared, never inferred. macOS cannot observe it (posix_spawn `addchdir_np`, see
+// `cwdTrusted` below) and the driver cannot truthfully declare it, because npm chooses it. So the
+// capture says `null`, which is the honest statement that the root is unavailable, and the cwd guard
+// is what stops an unavailable root from being silently guessed anyway.
+//
+//   usage: node observe-macos.mjs <dtrace-log> --capture <capture.json>
 import fs from 'node:fs';
 
-const [file, proj, home, pkgName] = process.argv.slice(2);
-if (!file) { console.error('usage: observe-macos.mjs <log> <projectRoot> <home> [pkgName]'); process.exit(2); }
-// The package's own directory. Its jail counterpart is the store entry, which the base profile
-// already grants RW — see the `ownPkg` note on `scope()` below.
-const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
+const argv = process.argv.slice(2);
+const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
+const file = argv.find((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].startsWith('--')));
+const capturePath = flag('--capture');
+if (!file || !capturePath) {
+  console.error('usage: observe-macos.mjs <log> --capture <capture.json>');
+  process.exit(2);
+}
+// The list lives HERE, not in the driver: this file is what would misclassify without a root, so
+// this is the file that must refuse to run.
+const REQUIRED_ROOTS = ['project', 'home', 'jailHome', 'globalStore', 'projectStore',
+                        'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'ownPkg', 'cwd'];
+let capture;
+try { capture = JSON.parse(fs.readFileSync(capturePath, 'utf8')); }
+catch (e) { console.error(`⛔ cannot read capture.json at ${capturePath}: ${e.message}`); process.exit(3); }
+const roots = capture.roots ?? {};
+const undeclared = REQUIRED_ROOTS.filter((k) => !(k in roots));
+if (undeclared.length) {
+  console.error(`⛔ capture.json does not DECLARE these roots: ${undeclared.join(', ')}`);
+  console.error('   Classification would fall back to ambient state and silently differ by venue.');
+  console.error('   Declare each one, or `null` where this platform genuinely has no such root.');
+  process.exit(3);
+}
+const { project: proj, home, ownPkg: ownPkgDir } = roots;
+const pkgName = capture.pkg ?? null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
 // Darwin open(2) flags. Any of these means the fd may be written through; O_RDONLY is 0x0 and so
@@ -374,6 +415,16 @@ if (lifecycle.size === 0) {
   // that reads as a confident "this package needs nothing".
   console.log('  ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant');
   console.log('     below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.');
+}
+// ⛔ ECHO THE ROOTS THE GRANT WAS COMPUTED AGAINST. Two jobs, and the second is why it is printed
+// rather than merely held: it makes R2 auditable from `driver.out` alone — a reader can see that
+// every root came from the capture, and can tell a `null` (this platform has no such root) from a
+// path. A venue difference then shows up as different ROOTS in the log rather than as an unexplained
+// difference in the grant.
+console.log(`== ROOTS (from ${capturePath}; the classifier reads no other source) ==`);
+for (const k of REQUIRED_ROOTS) {
+  const v = roots[k];
+  console.log(`  ${k.padEnd(13)} ${v === null ? '(null — this platform has no such root)' : v}`);
 }
 console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {

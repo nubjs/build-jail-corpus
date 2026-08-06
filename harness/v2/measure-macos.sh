@@ -35,6 +35,15 @@ USER_HOME="$(dscl . -read "/Users/$RUNUSER" NFSHomeDirectory 2>/dev/null | awk '
 USER_HOME="${USER_HOME:-/Users/$RUNUSER}"
 STORE="$USER_HOME/.cache/nub/pm/store"
 TOOLS="$USER_HOME/.cache/nub/pm/tools"
+# ⛔ DERIVED ONCE, HERE, AND PASSED DOWN — never re-derived inside the classifier (PORTABILITY R2).
+# The shell driver is apparatus and may read the environment; the classifier may not, because it is
+# the thing that would silently produce a venue-specific answer.
+GLOBAL_STORE="$STORE"
+# The interpreter INSTALL ROOT, not the binary: `<root>/bin/node` resolved through any symlink, then
+# up two. That is the tree node-gyp's bundled `gyp/pylib` lives in, and whether it sits inside
+# `$HOME` is exactly the venue difference that made one package synthesize two different grants on
+# Linux. macOS has no `readlink -f`, so the resolution is done with node itself.
+INTERPRETER="$(node -e 'const fs=require("fs"),p=require("path");let n=process.argv[1];try{n=fs.realpathSync(n)}catch{};console.log(p.dirname(p.dirname(n)))' "$(command -v node)" 2>/dev/null)"
 
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
@@ -169,7 +178,8 @@ echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per ar
 CAPTURE="$OBS/capture.json"
 node -e '
   const fs = require("fs"), crypto = require("crypto");
-  const [dscript, trace, obs, home, pkg, ver, sw, kern, argvline] = process.argv.slice(1);
+  const [dscript, trace, obs, home, pkg, ver, sw, kern, argvline, globalStore, toolsDir,
+         interpreter] = process.argv.slice(1);
   const src = fs.readFileSync(dscript);
   const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
   console.log(JSON.stringify({
@@ -188,21 +198,71 @@ node -e '
     os: { product: sw, kernel: kern },
     // Every path in the trace is machine-specific. Without these a future parser has a pile of
     // strings — the same reason the normalized log carries them.
-    roots: { project: obs, home },
+    //
+    // ⛔ EVERY ROOT THE CLASSIFIER KEYS ON IS DECLARED HERE AND NOWHERE ELSE (PORTABILITY R1).
+    // `observe-macos.mjs` reads these and REFUSES TO RUN if one is missing, so this object is the
+    // single definition of what a path means. An absent key is fatal there; `null` is a legitimate
+    // answer meaning this platform has no such root. Never omit a key to express "not applicable".
+    //
+    // ⛔ FOUR OF THESE ARE HONESTLY `null` AND THE NULLS ARE A FINDING, NOT AN OVERSIGHT. Unlike
+    // `measure.sh`, this driver does NOT reproduce the jail environment for the traced run: the
+    // wrapper is `sudo -u <user> -H`, so the script sees the REAL `$HOME`, the real `$TMPDIR`, no
+    // `npm_config_prefix` redirect and no private tmp. So there is no jailHome, no jail temp and no
+    // npm-prefix root to declare, and a write Linux buckets as free `jailHome` buckets here as
+    // billable `userHome`. Declaring `null` makes that asymmetry visible in every record instead of
+    // leaving it to be rediscovered from a grant that differs by platform for no stated reason.
+    // Closing it changes what is measured, so it needs its own evidence rather than riding along.
+    //
+    // `cwd` is `null` on principle, not by omission: it is per-process, macOS cannot observe it
+    // (posix_spawn addchdir_np) and this driver cannot truthfully declare it, because npm chooses
+    // it. The cwd guard in the classifier is what handles the resulting unresolvable paths.
+    roots: { project: obs, home, jailHome: null, temp: null, npmPrefix: null,
+             toolsDir, globalStore, projectStore: `${obs}/node_modules/.store`,
+             interpreter, ownPkg: `${obs}/node_modules/${pkg}`, cwd: null },
     rawBytes: st(trace),
     at: new Date().toISOString(),
   }, null, 2));
 ' "$HERE/adapters/macos-observe.d" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" "$VER" \
   "$(sw_vers -productVersion 2>/dev/null)" "$(uname -a 2>/dev/null)" \
   "dtrace -q -s adapters/macos-observe.d -o trace.txt -c '/bin/bash -x run.sh'" \
+  "$GLOBAL_STORE" "$TOOLS" "$INTERPRETER" \
   > "$CAPTURE" 2>/dev/null
 gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
 if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
   echo "  RAWLOG-FILE $OBS/trace.txt.gz"
   echo "  RAWLOG-CAPTURE $CAPTURE"
   echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
+  echo "  VENUE-INTERPRETER $INTERPRETER"
+  # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
+  # its INHERITED value precisely because the one override that would invalidate the whole venue/CI
+  # acceptance test is touching it. Recording it unchanged is the claim a reader can check.
+  # ⛔ The harness normalises its own APPARATUS, never the environment under test. `CI`,
+  # `GITHUB_ACTIONS` and `NODE_ENV` are passed through verbatim, because an install script reads them
+  # and changes what it downloads or whether it builds from source; flattening them would produce a
+  # catalog that under-grants every CI user.
+  # ⛔ THE `set` LIST IS SHORT HERE AND THAT IS THE HONEST ANSWER, NOT AN OMISSION. This driver
+  # redirects nothing for the traced run — the wrapper is `sudo -u <user> -H env PATH=...`, so the
+  # script sees the real HOME and the real TMPDIR. `measure.sh` rewrites five variables at this
+  # point; the difference is real, and `roots` declares the matching nulls.
+  echo "  VENUE-OVERRIDES $(node -e '
+    const e = process.env;
+    process.stdout.write(JSON.stringify({
+      set: { PATH: "inherited-and-forwarded" },
+      unset: [],
+      passedThrough: { CI: e.CI ?? null, GITHUB_ACTIONS: e.GITHUB_ACTIONS ?? null,
+                       NODE_ENV: e.NODE_ENV ?? null, HOME: "real user home (no jail redirect)",
+                       TMPDIR: "real (no private tmp)" },
+    }));
+  ' 2>/dev/null)"
 else
+  # ⛔ THIS USED TO BE NON-FATAL AND IT NO LONGER IS — noted here so the change is not rediscovered
+  # from a confusing failure downstream. Retention was additive while roots arrived as arguments;
+  # under R2 capture.json is the ONLY source of roots, so a missing capture means the classifier
+  # cannot run and the driver exits SYNTHESIZE FAILED. That is the correct outcome: it is an
+  # INSTRUMENT failure, and record.mjs turns it into HARNESS-ERROR, which returns the queue row to
+  # pending rather than baking a rootless guess into the corpus as if it were a measurement.
   echo "  ⛔ RAW TRACE NOT RETAINED — the archive artifact is missing for this record"
+  echo "     ⛔ AND THIS IS NOW FATAL: capture.json is the only source of classification roots."
 fi
 
 # ── 1c. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────
@@ -258,7 +318,7 @@ fi
 # ⛔ `$PKG` IS LOAD-BEARING, NOT DECORATION. Without it the decoder has no `ownPkg` bucket and bills
 # every write into the package's OWN directory as `write.deps` — a capability the base profile
 # already grants. `measure.sh:194` passes it for the same reason.
-node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe-macos.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }

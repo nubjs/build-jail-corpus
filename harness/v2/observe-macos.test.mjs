@@ -21,13 +21,21 @@ const HERE = new URL('.', import.meta.url).pathname;
 // `pkg` is optional on purpose, mirroring the decoder: every case written before the `ownPkg`
 // bucket existed still exercises the no-package path, which is the path a re-parse of an archive
 // recorded without one has to keep taking.
-const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null } = {}) => {
+// Roots reach the classifier ONLY through a capture.json (portability R2), so every case writes one.
+// `rootsOverride` is how the undeclared-root cases express a capture that fails to say.
+const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null, rootsOverride = null } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'obsmac-'));
   const f = join(dir, 'trace.txt');
   writeFileSync(f, trace.trimStart() + '\n');
-  const args = [join(HERE, 'observe-macos.mjs'), f, proj, home];
-  if (pkg) args.push(pkg);
-  return execFileSync(process.execPath, args, { encoding: 'utf8' });
+  const roots = rootsOverride ?? {
+    project: proj, home, jailHome: null, temp: null, npmPrefix: null, toolsDir: null,
+    globalStore: null, projectStore: null, interpreter: null, cwd: null,
+    ownPkg: pkg ? `${proj}/node_modules/${pkg}` : null,
+  };
+  const cap = join(dir, 'capture.json');
+  writeFileSync(cap, JSON.stringify({ v: 1, kind: 'capture', pkg, roots }));
+  return execFileSync(process.execPath,
+    [join(HERE, 'observe-macos.mjs'), f, '--capture', cap], { encoding: 'utf8' });
 };
 
 const attributed = (out) => Number(/lifecycle pids: (\d+)/.exec(out)?.[1] ?? -1);
@@ -286,12 +294,16 @@ test('a write into a SIBLING dependency is still billed, because the jail genuin
   assert.match(out, /deps\s+1$/m, 'exactly the sibling write lands in deps');
 });
 
-test('with no package name the decoder bills as it always did, so an old archive re-parses unchanged', () => {
-  // Re-parsing is the whole point of retaining the raw trace. A decoder that REQUIRED the package
-  // name would refuse every archive taken before the argument existed.
+test('a capture declaring ownPkg null produces no ownPkg bucket, and says so rather than guessing', () => {
+  // `null` is the capture ANSWERING "this run has no such root" — distinct from an absent key, which
+  // is the capture failing to answer and is fatal. The bucket must then not exist at all.
+  // ⛔ Asserted against the WRITES section, not the whole output: the ROOTS echo prints every root
+  // NAME including the null ones, so a whole-output match here would pass on any decoder.
   const out = decode(OWN_VS_SIBLING);
-  assert.doesNotMatch(out, /ownPkg/, 'no package name means no ownPkg bucket');
-  assert.equal(grant(out), '{"write":{"deps":true}}', 'both writes fall to deps, as before');
+  const writes = out.slice(out.indexOf('== WRITES'), out.indexOf('== READS'));
+  assert.doesNotMatch(writes, /ownPkg/, 'a null ownPkg root means no ownPkg write bucket');
+  assert.match(out, /ownPkg\s+\(null/, 'but the ROOTS echo still declares it, so R2 stays auditable');
+  assert.equal(grant(out), '{"write":{"deps":true}}', 'both writes fall to deps');
 });
 
 // ── 7. THE CWD GUARD ──────────────────────────────────────────────────────────────────────────
@@ -361,4 +373,38 @@ OPEN|3952|3950|bash|flags=0x601|ret=3|errno=0|dirfd=-2|cwd=Observe|builderror.lo
   assert.match(out, /CWD-UNOBSERVED/, 'but the write is still unplaceable');
   assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}',
     'and it still bills the widest scope — a match must never buy a narrower grant');
+});
+
+// ── 8. ROOTS COME ONLY FROM THE CAPTURE (portability R2) ──────────────────────────────────────
+const ONE_WRITE = `
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|node build.js
+EXEC|3950|3900|sh|sh
+PATHOP|3952|3950|node|mkdir|ret=0|errno=0|/proj/node_modules/other/x
+`;
+const ALL_ROOTS = {
+  project: '/proj', home: '/Users/runner', jailHome: null, temp: null, npmPrefix: null,
+  toolsDir: null, globalStore: null, projectStore: null, interpreter: null, cwd: null, ownPkg: null,
+};
+const decodeRaw = (roots) => {
+  try { decode(ONE_WRITE, { rootsOverride: roots }); return { rc: 0, err: '' }; }
+  catch (e) { return { rc: e.status, err: String(e.stderr ?? '') }; }
+};
+
+test('an UNDECLARED root is a hard error, not a silent fallback to ambient state', () => {
+  // RED ON REVERT: make the check a no-op and the decoder happily classifies against `undefined`
+  // roots — producing a plausible grant on the machine whose layout happens to match and a wrong one
+  // everywhere else, with nothing in the record saying which happened.
+  const { interpreter, ...missing } = ALL_ROOTS;
+  const r = decodeRaw(missing);
+  assert.equal(r.rc, 3, 'an undeclared root must exit(3)');
+  assert.match(r.err, /does not DECLARE these roots: interpreter/, 'and must name the one missing');
+});
+
+test('an explicitly null root is ACCEPTED — absent and inapplicable are different answers', () => {
+  // The paired case, and it is what stops the guard above being satisfied by a decoder that rejects
+  // every capture. `null` is the capture SAYING this platform has no such root; that is an answer.
+  const r = decodeRaw(ALL_ROOTS);
+  assert.equal(r.rc, 0, 'every root declared, some null, must run');
 });
