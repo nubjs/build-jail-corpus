@@ -1,0 +1,36 @@
+### cldr-data@36.0.5   (/home/runner/v2-70fN0w)
+  OBSERVE   rc=0 files=13844 trace=46443 lines
+  CLOSURE   69 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 2
+    writes  script 13295  /  whole traced tree 13298
+    sockets script 72  /  whole traced tree 72
+  == WRITES the script actually performed ==
+    ownPkg    13295  (base profile already grants this — NOT billed)
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/.gitattributes
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/.gitignore
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/LICENSE
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/README.md
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/.ignored-bower.json
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/.ignored-package.json
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/availableLocales.json
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/segments
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/segments/de
+        /home/runner/v2-70fN0w/observe/node_modules/cldr-data/defaultContent.json
+        … and 13285 more
+  == NETWORK ==
+    AF_INET sockets: 72   distinct peers: 3
+        127.0.0.53:53
+        140.82.114.4:443
+        140.82.114.10:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=12911/12911 missing=0 (tree 41692/13844) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=7/12911 missing=12905 (tree 2972/13844) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: .ignored-bower.json, .ignored-package.json, LICENSE (1095B < 2931B), availableLocales.json, defaultContent.json, main/af/ca-buddhist.json (+12899)
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
