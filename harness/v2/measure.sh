@@ -6,10 +6,40 @@
 # generation harness may run as root, so it does not have to guess — it watches, then checks.
 #
 #   usage: measure.sh <pkg> <version> [nub-binary]
+#          measure.sh <pkg> <version> [nub-binary] --at-grant '<json>'
+#
+# ⛔ `--at-grant` ANSWERS A DIFFERENT AND SHARPER QUESTION, AND IT EXISTS BECAUSE THE LADDER
+# ANSWERS IT UNSOUNDLY. The default mode asks "what is the minimum this package needs?" — OBSERVE,
+# synthesize, verify, then walk. To ask instead "does this package install under EXACTLY this
+# grant?" (e.g. its own v1 record), the ladder is not merely expensive, it is WRONG:
+#
+#   Every ladder rung on Windows carries `network:true`. MEASURED on `electron-prebuilt@0.31.2`:
+#   OBSERVE logged 2417 events with `malformed: 0` and reported `attributedPeers: 0, peers: []`
+#   for a package whose v1 record says `network: true` — the ETW adapter missed the egress
+#   entirely. Such a package fails at its synthesized grant, climbs to a rung that necessarily
+#   includes network, lands WIDER than its v1 record, and the `=> MINIMUM` line then reads as
+#   "v1 UNDER-GRANTED" when the defect is v2's own tracer.
+#
+# ⇒ A TRACER BLIND SPOT PRESENTS AS A DEFECT IN THE THING BEING MEASURED. `--at-grant` removes
+# that path entirely: no synthesis, so nothing OBSERVE missed can enter the verdict. It runs ONE
+# arm and reports pass/fail against the artifact gate, which is the direct answer.
+#
+# OBSERVE still runs, and must: the artifact gate needs its file manifest as the reference for
+# "did this arm produce what an unjailed install produces". Only OBSERVE's NETWORK attribution is
+# in question here; its file output is unaffected. Cost is still ~4x lower than the full walk.
 set -uo pipefail
-PKG="${1:?usage: measure.sh <pkg> <version> [nub]}"
-VER="${2:?usage: measure.sh <pkg> <version> [nub]}"
+PKG="${1:?usage: measure.sh <pkg> <version> [nub] [--at-grant <json>]}"
+VER="${2:?usage: measure.sh <pkg> <version> [nub] [--at-grant <json>]}"
 NUB="${3:-$HOME/nub/target/fast/nub}"
+AT_GRANT=""
+for i in "$@"; do
+  case "${PREV_ARG:-}" in --at-grant) AT_GRANT="$i" ;; esac
+  PREV_ARG="$i"
+done
+[ -n "$AT_GRANT" ] && case "$AT_GRANT" in
+  '{'*'}') : ;;
+  *) echo "⛔ --at-grant needs a JSON object, got: $AT_GRANT" >&2; exit 2 ;;
+esac
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # ⛔ NOT UNDER /tmp. That path is inside the jail's own private-temp redirect, so a fixture placed
@@ -316,6 +346,26 @@ verify () {
 # exact shape of the largest error this harness has produced (the empty-grant bug), and the
 # construction that fixed that one does not stop a VOID arriving by some other route — a malformed
 # grant, a binary built without the override feature, a crash before the log line.
+# ── DIRECT MODE: one arm at the caller's grant, no synthesis, no ladder. ──────────────────────
+#
+# ⛔ THE VERDICT VOCABULARY IS DELIBERATELY DIFFERENT FROM THE LADDER'S, because the question is.
+# The ladder reports a MINIMUM; this reports whether ONE stated grant SUFFICES. Conflating them is
+# how a wider-than-expected minimum gets read as an under-grant — the exact confusion this mode
+# exists to prevent. VOID stays VOID: an arm whose override did not engage measured nothing, and
+# must never be reported as either outcome.
+if [ -n "$AT_GRANT" ]; then
+  echo "  ── DIRECT: does $PKG@$VER install under EXACTLY $AT_GRANT ?"
+  verify "$AT_GRANT" "at-grant"; ARC=$?
+  case "$ARC" in
+    0) echo "  => SUFFICIENT $AT_GRANT   (installed, artifacts matched OBSERVE)"; exit 0 ;;
+    2) echo "  => ⛔ VOID — the override did not engage; NOTHING was measured."
+       echo "     Not a result. Do NOT record it, and do NOT read it as insufficient."; exit 3 ;;
+    *) echo "  => INSUFFICIENT $AT_GRANT   (the package needs MORE than this grant)"
+       echo "     ⇒ If this grant came from a v1 record, that record UNDER-GRANTS — the direction"
+       echo "        that breaks a real install. Worth a mechanism before it is acted on."; exit 1 ;;
+  esac
+fi
+
 verify "$GRANT" "synth"; SRC=$?
 if [ "$SRC" -eq 2 ]; then
   echo "  => ⛔ VOID — the override did not engage on the verdict arm; NOTHING was measured."
