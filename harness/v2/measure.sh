@@ -64,6 +64,23 @@ if [ "$OBS_RC" -ne 0 ]; then
   exit 0
 fi
 
+# The dependency closure npm actually installed to run this lifecycle script, read off the OBSERVE
+# arm's own hoisted `node_modules`. Consumed by the per-arm store eviction in `verify()` — see the
+# long note there for why evicting `$PKG` alone leaves a live replay path.
+CLOSURE=$(node -e '
+  const fs = require("fs"), path = require("path");
+  const nm = process.argv[1], out = [];
+  let ents; try { ents = fs.readdirSync(nm, { withFileTypes: true }); } catch { process.exit(0); }
+  for (const e of ents) {
+    if (!e.isDirectory() || e.name.startsWith(".")) continue;
+    if (e.name.startsWith("@")) {
+      for (const s of fs.readdirSync(path.join(nm, e.name))) out.push(e.name + "/" + s);
+    } else out.push(e.name);
+  }
+  console.log(out.join("\n"));
+' "$OBS/node_modules" 2>/dev/null)
+echo "  CLOSURE   $(printf '%s\n' $CLOSURE | grep -c . ) packages evicted per arm"
+
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
@@ -134,10 +151,42 @@ verify () {
   # Anchoring on `<slug>@` instead of wrapping in `*…*` also keeps the eviction TARGETED, as the
   # note above requires: the store is machine-global and a sibling agent may be measuring on the
   # same box, so a bare `*yorkie*` would take out an unrelated `yorkie-foo` alongside it.
-  local slug; slug=$(printf '%s' "$PKG" | tr '/' '+')
+  # ⛔⛔ AND EVICTING `$PKG` ALONE IS STILL NOT ENOUGH — THE REPLAY ALSO ARRIVES THROUGH A
+  # TRANSITIVE DEPENDENCY'S STORE ENTRY, AND WHEN IT DOES IT MANUFACTURES A FALSE **OVER**-PREDICTION.
+  #
+  # MEASURED on `@apollo/rover@0.2.1`. Its postinstall writes into a SIBLING package's directory —
+  # `node_modules/binary-install/bin/{rover,README.md,LICENSE}`, not its own — because it delegates to
+  # the `binary-install` package. In the jail that path resolves through a SYMLINK out of rover's own
+  # store entry into `binary-install@0.1.1-<hash>`'s entry, which `preset.rs`'s
+  # `store_entry_write_root` deliberately does NOT grant (it grants the package's own entry root
+  # only). So the write is genuinely refused and `write.deps` is genuinely NECESSARY.
+  #
+  # Evicting `@apollo+rover@*` alone left `binary-install@*` populated by the PREVIOUS arm, so the
+  # descent arm relinked an already-built dependency, never attempted the write, and passed. Two arms
+  # with the same binary, differing only in what was evicted:
+  #
+  #   evict rover only          {"network":true}                       rc=0   bin/ EMPTY  -> false PASS
+  #   evict rover + binary-install  {"network":true}                   rc=1   bin/ absent -> correct FAIL
+  #   evict rover + binary-install  {"write":{"deps":true},...}        rc=0   bin/ rover,README.md,LICENSE
+  #
+  # ⛔ THE DIRECTION MATTERS. A replay in the VERDICT arm inflates agreement; a replay in a DESCENT
+  # arm reports a capability as droppable that is not — an UNDER-prediction, the one direction that
+  # breaks installs. So the descent is only as honest as this eviction is complete.
+  #
+  # The closure comes from the OBSERVE arm's own hoisted `node_modules`, i.e. it is MEASURED rather
+  # than guessed: exactly the packages npm needed to run this lifecycle script.
+  #
+  # ⛔ COST, weighed and accepted. The store is machine-global, so this reaches further than the
+  # single-entry eviction it replaces and a sibling agent measuring a package that SHARES one of
+  # these dependencies pays a re-materialization. That is strictly better than the alternative it
+  # replaces, which was a silent false verdict. Still targeted — exact `<slug>@*` names from this
+  # package's own closure, never a wildcard sweep of the store.
   local store="${XDG_CACHE_HOME:-$HOME/.cache}/nub/pm/store"
   if [ -d "$store" ]; then
-    find "$store" -maxdepth 1 -name "${slug}@*" -exec rm -rf {} + 2>/dev/null
+    printf '%s\n' "$PKG" $CLOSURE | sort -u | while IFS= read -r n; do
+      [ -n "$n" ] || continue
+      find "$store" -maxdepth 1 -name "$(printf '%s' "$n" | tr '/' '+')@*" -exec rm -rf {} + 2>/dev/null
+    done
   fi
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and

@@ -67,6 +67,39 @@ const abs = (pid, p) => {
   return '/' + out.join('/');
 };
 
+// ⛔ `symlink`/`link`'s FIRST ARGUMENT IS NOT THE PATH BEING WRITTEN, AND BILLING IT AS ONE
+// INVENTS A PATH THAT NO PROCESS EVER TOUCHED. `symlink(target, linkpath)` creates `linkpath`;
+// `target` is opaque link CONTENT the kernel stores verbatim and never resolves at creation time.
+// The generic `syscall("<first-quoted-arg>"` matcher above cannot tell the two apart, so it took
+// the target.
+//
+// MEASURED on `vanilla-cookieconsent@3.0.0-rc.9`, and this single line was the whole residual that
+// kept `write:{userHome}` alive after the `jailHome` redirect reclassified the other 51 writes:
+//
+//   symlink("../only-allow/bin.js", "<jailhome>/.npm/_npx/<hash>/node_modules/.bin/only-allow") = 0
+//
+// `../only-allow/bin.js` is relative, so `abs()` resolved it against the cwd fallback (`$OBS`) and
+// produced `$ROOT/only-allow/bin.js` — a path under `$HOME`, outside `$OBS` and outside `$JAIL_HOME`,
+// so it classified as `userHome` and earned a grant. The file the process actually created is the
+// LINKPATH, which is inside the jail's private HOME and already RW-granted (`preset.rs`
+// `private_home_dir` / `NUB_JAIL_HOME_ROOT_PATTERN`, granted through `push_rw_path`).
+//
+// THIS IS A PARSE CORRECTION, NOT AN EXCLUSION. Nothing is filtered by path shape: the linkpath is
+// classified by the same scope function as every other write, so a script that symlinks into the
+// REAL user home still lands in `userHome` and still earns the grant. `only-allow` is `npx
+// only-allow <pm>`, a very common preinstall guard, so this reaches a whole family of packages.
+//
+// `rename(old, new)` is deliberately NOT in here: it UNLINKS `old` as well as creating `new`, so
+// both arguments are genuine writes and taking the first is correct.
+const LINK_TARGET_IS_CONTENT = /^(?:symlink|symlinkat|link|linkat)$/;
+const linkTarget = (call, line) => {
+  if (!LINK_TARGET_IS_CONTENT.test(call)) return null;
+  // Take the LAST quoted argument: `symlink(t, l)`, `symlinkat(t, dirfd, l)`,
+  // `linkat(olddirfd, o, newdirfd, n, flags)` all put the created path last.
+  const quoted = [...line.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((q) => q[1]);
+  return quoted.length >= 2 ? quoted[quoted.length - 1] : null;
+};
+
 for (const raw of lines) {
   if (!raw) continue;
   // Keep the pid: cwd is per-process, so stripping it first loses the only key we have.
@@ -99,11 +132,11 @@ for (const raw of lines) {
 
   const m = line.match(/^([a-z_0-9]+)\((?:AT_FDCWD,\s*)?"([^"]*)"/);
 
-  if (DENIED.test(line) && m) denials.add(`${m[1]} ${abs(pid, m[2])}`);
+  if (DENIED.test(line) && m) denials.add(`${m[1]} ${abs(pid, linkTarget(m[1], line) ?? m[2])}`);
 
   if (m && /^(open|openat|creat|mkdir|mkdirat|unlink|unlinkat|rename|renameat2?|link|symlink|truncate|chmod|utimensat)/.test(m[1])) {
     if (line.includes('= -1')) continue;               // failed calls are not a need
-    const path = abs(pid, m[2]);
+    const path = abs(pid, linkTarget(m[1], line) ?? m[2]);
     const isWrite = /^(creat|mkdir|mkdirat|unlink|unlinkat|rename|renameat2?|link|symlink|truncate)/.test(m[1])
       || WRITE_FLAGS.test(line);
     if (isWrite) allWrites.add(path);
