@@ -1,4 +1,15 @@
 /*
+ * ⛔ FROZEN NEGATIVE CONTROL — DO NOT "FIX" THIS FILE, AND NEVER MEASURE A PACKAGE WITH IT.
+ *
+ * Byte-exact copy of `adapters/macos-observe.d` at commit 8fec3c5e, kept so
+ * `probes/rename-dest-fixture.sh` can run the DEFECT and the FIX side by side in one job. Its
+ * `self->np2` is 32 BITS WIDE — which IS the defect under control — because `self->np2 = 0;` in the
+ * shared path-op entry clause textually precedes `self->np2 = arg1;` in the rename clause, and D
+ * types a thread-local from its FIRST assignment. Repairing it here destroys the control, and every
+ * number the fixture prints then becomes meaningless.
+ *
+ * Original header follows.
+ *
  * macOS OBSERVE adapter — the direct analogue of `strace -f` for harness/v2's measure loop.
  *
  * Differs from the sibling `macos-dtrace.d` (the attribution CONTROL) in exactly one way that
@@ -26,53 +37,8 @@
 #pragma D option dynvarsize=256m
 #pragma D option strsize=1024
 
-/* ── NP2-DECL-BEGIN ────────────────────────────────────────────────────────────────────────────
- * ⛔ EVERY THREAD-LOCAL HOLDING A USER POINTER IS DECLARED HERE, EXPLICITLY. THAT IS NOT STYLE —
- * IT IS THE FIX FOR A 100%-LOSS DEFECT.
- *
- * D gives an undeclared thread-local the type of its FIRST assignment in PROGRAM TEXT ORDER
- * (Oracle/illumos: "thread-local variables are created automatically on their first assignment and
- * assume the type that's used on the right-hand side"). `self->np2`'s first assignment was the
- * RESET `self->np2 = 0;` in the shared path-op entry clause, which textually precedes
- * `self->np2 = arg1;` in the rename clause below — so np2 was typed `int`, i.e. 32 BITS, and every
- * 64-bit path pointer stored into it was silently TRUNCATED to its low word.
- *
- * The truncated value can never be readable: macOS reserves the whole first 4 GiB of every 64-bit
- * process as __PAGEZERO, so a low-32 word always lands inside it. `copyinstr(self->np2)` therefore
- * did not fault occasionally under memory pressure — it faulted EVERY TIME, and the rename
- * DESTINATION path (the path a rename CREATES) was never recorded even once.
- *
- * MEASURED on run 31109041194, @apollo/rover@0.2.1: 26 renames, 26 faults, 0 destinations captured.
- *   dtrace: error on enabled probe ID 31 (ID 425: syscall::rename:return):
- *           invalid address (0x2396f00) in action #6 at DIF offset 24
- * epid 31 is the SECOND `rename:return` clause — counting clause-probe tuples through this file in
- * order puts the np2 clause at 31 and `execve:entry` at 33, matching both ids the run reported —
- * and action #6 is that clause's sixth printf argument, `copyinstr(self->np2)`. The faulting
- * address 0x2396f00 is the low word of a nano-zone pointer shaped exactly like the sibling execve
- * fault's UNtruncated 0x6000020cc190; the two spellings side by side in one log are what named it.
- *
- * ⛔ THIS IS NOT THE copyinstr-AT-ENTRY DEFECT, AND THE STANDARD PRIOR-ART CURE DOES NOT TOUCH IT.
- * Every guide answers "invalid address" with "copy at :return, once the kernel has faulted the page
- * in" — done here since 8fec3c5e, and still 100% lost, because a truncated pointer is WRONG rather
- * than un-resident. A residency fault would have varied with load and with the package; this one
- * cannot, which is also why it hid: it looked like the noise we had already explained.
- *
- * A missed rename destination is an UNDER-prediction — the direction that breaks real installs — so
- * the declarations stay even though np/p/cdp happen to infer correctly today. Their reset lines are
- * one clause reorder away from becoming the first assignment too, and the failure is silent.
- * `probes/rename-dest-fixture.sh` is the known-answer guard; its control is this file with the
- * block below deleted. */
-self uintptr_t cdp;    /* chdir path */
-self uintptr_t p;      /* open path */
-self uintptr_t np;     /* path-op path; rename OLD */
-self uintptr_t np2;    /* rename NEW — the path a rename CREATES */
-/* ── NP2-DECL-END ───────────────────────────────────────────────────────────────────────────── */
-
 dtrace:::BEGIN
 {
-	/* Seeded so END always prints a NUMBER. `printa` on an empty aggregation prints nothing at
-	 * all, and a missing count is indistinguishable from a zero count to whatever reads it. */
-	@tracer_errors = sum(0);
 	printf("DTRACE-LIVE|target=%d\n", $target);
 }
 
@@ -305,33 +271,8 @@ syscall::connect:return, syscall::connect_nocancel:return
 dtrace:::END
 {
 	printf("DTRACE-END\n");
-	printf("TRACER-ERROR-TOTAL|");
-	printa("%@d\n", @tracer_errors);
 	printf("--- all opens by execname (breadth control) ---\n");
 	printa("  %-40s %@d\n", @allopens);
 	printf("--- all execs by execname ---\n");
 	printa("  %-40s %@d\n", @allexecs);
-}
-
-/* ── THE LOSS LEDGER. Declared LAST on purpose: clause-probe tuples take their enabled-probe ids in
- * program order, so appending here leaves every existing epid where it was and keeps a future
- * "probe ID 31" report comparable to the enumeration in the np2 note above.
- *
- * ⛔ A COPY FAULT ABORTS THE WHOLE CLAUSE, SO THE EVENT IS DROPPED — AND UNTIL NOW IT WAS DROPPED
- * SILENTLY. dtrace's own complaint goes to STDERR, which the driver captures into `dtrace.log` and
- * which nothing downstream reads; `trace.txt` showed no gap at all, and the decoder went on to
- * print a confident grant synthesized from a stream it did not know was incomplete. A dropped event
- * is a path never seen, and a path never seen is a capability never granted — an UNDER-prediction,
- * the one direction that breaks real installs. The silence is the defect; the errors are only its
- * symptom. So the census belongs IN the event stream, where the decoder reads it.
- *
- * ERROR-probe args are the documented ones: arg1 epid, arg2 action index, arg3 DIF offset, arg4
- * fault type, arg5 the value that faulted (for a bad address, the address). `pid`/`execname` still
- * describe the thread that faulted, so a loss is attributable to a process. Nothing here can itself
- * fault: every field is kernel-side, with no copyin. */
-dtrace:::ERROR
-{
-	@tracer_errors = sum(1);
-	printf("TRACER-ERROR|%d|%d|%s|epid=%d|action=%d|fault=%d|addr=0x%x\n",
-	    pid, curpsinfo->pr_ppid, execname, (int)arg1, (int)arg2, (int)arg4, arg5);
 }

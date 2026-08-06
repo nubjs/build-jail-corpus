@@ -119,7 +119,46 @@ PATHOP|3958|3950|mv|rename|ret=0|errno=0|./kaf-ren-new-g7h8
   assert.match(out, /writes\s+script 2\b/, 'rename is a write at both paths');
 });
 
-// ── 3. THE FAILURE VALUE ──────────────────────────────────────────────────────────────────────
+// ── 3. THE LOSS LEDGER ────────────────────────────────────────────────────────────────────────
+// RED ON REVERT: drop the TRACER-ERROR branch from observe-macos.mjs. The records then fall through
+// the `kind !== …` filter exactly as they did before the adapter emitted them, no warning prints,
+// and the decoder reports the same confident grant off a stream it knows is incomplete.
+//
+// Shaped on run 31109041194, where a 32-bit-truncated `self->np2` made `copyinstr` fault on EVERY
+// rename destination: 26 renames, 26 faults, 0 destinations recorded, and
+// `{"write":{"deps":true},"network":true}` printed as though nothing were missing.
+const LOST_RENAME_DEST = `
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|mv ./old ./new
+EXEC|3950|3896|sh|sh
+CHDIR|3950|3896|bash|ret=0|/proj
+PATHOP|3958|3950|mv|rename|ret=0|errno=0|./kaf-ren-old-e5f6
+TRACER-ERROR|3958|3950|mv|epid=31|action=6|fault=3|addr=0x2396f00
+TRACER-ERROR-TOTAL|1
+`;
+
+test('a dropped event is reported, because a silent drop can only UNDER-predict the grant', () => {
+  const out = decode(LOST_RENAME_DEST);
+  assert.match(out, /dropped-events=1/, 'the drop must appear in the tracer census');
+  assert.match(out, /THE TRACER DROPPED 1 EVENT/,
+    'a stream with a known gap must say so loudly, not just synthesize from what survived');
+  assert.match(out, /epid=31 action=6/, 'the faulting clause must be named so it can be fixed');
+});
+
+test('a clean run says dropped-events=0 and stays quiet', () => {
+  // The positive control for the case above. Without it, an assertion that fired on ANY run would
+  // read as coverage while proving nothing.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|true
+EXEC|3950|3896|sh|sh
+TRACER-ERROR-TOTAL|0
+`);
+  assert.match(out, /dropped-events=0/);
+  assert.doesNotMatch(out, /THE TRACER DROPPED/, 'no warning may fire on a complete stream');
+});
+
+// ── 4. THE FAILURE VALUE ──────────────────────────────────────────────────────────────────────
 // RED ON REVERT: emit JSON.stringify(g) unconditionally and this returns `{}`, which is
 // indistinguishable from a package that genuinely needs nothing — already a verified real answer
 // on another platform.

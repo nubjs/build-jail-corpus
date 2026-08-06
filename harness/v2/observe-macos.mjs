@@ -38,6 +38,16 @@ const writes = new Set(), reads = new Set(), denials = new Set(), hosts = new Se
 const allWrites = new Set();
 let sockets = 0, allSockets = 0, live = false, events = 0;
 
+// ⛔ DROPPED EVENTS, COUNTED. A copyin/copyinstr fault aborts the whole clause, so the record is
+// never emitted — and a record never emitted is a path never seen, which is a capability never
+// granted. That is an UNDER-prediction, the one direction that breaks real installs, and until the
+// adapter grew its `dtrace:::ERROR` clause it happened in total silence: dtrace complains on its own
+// STDERR, which lands in `dtrace.log` and is read by nobody, while `trace.txt` shows no gap at all.
+// MEASURED on run 31109041194: 26 of 26 rename DESTINATION paths were lost this way, and the run
+// still printed a confident grant. The count below is what makes the next such loss visible.
+const lost = new Map();   // "epid=N action=M fault=F addr=A" -> count
+let lostTotal = null;     // the adapter's own END-time tally, independent of the per-event records
+
 const abs = (pid, p) => {
   if (!p) return p;
   const base = p.startsWith('/') ? p : ((cwds.get(pid) ?? proj ?? '') + '/' + p);
@@ -76,6 +86,17 @@ const isLifecycleShell = (argv0, argv1) =>
 for (const raw of lines) {
   if (!raw) continue;
   if (raw.startsWith('DTRACE-LIVE|')) { live = true; continue; }
+  if (raw.startsWith('TRACER-ERROR-TOTAL|')) {
+    const n = Number(raw.split('|')[1]);
+    if (Number.isFinite(n)) lostTotal = n;
+    continue;
+  }
+  if (raw.startsWith('TRACER-ERROR|')) {
+    const g = raw.split('|');
+    const key = `${g[4] ?? 'epid=?'} ${g[5] ?? 'action=?'} ${g[6] ?? 'fault=?'} ${g[7] ?? 'addr=?'}`;
+    lost.set(key, (lost.get(key) ?? 0) + 1);
+    continue;
+  }
   const f = raw.split('|');
   const kind = f[0];
   if (kind !== 'EXEC' && kind !== 'EXECARGV' && kind !== 'OPEN' && kind !== 'PATHOP'
@@ -164,8 +185,23 @@ const bucket = (set) => {
 };
 const w = bucket(writes), r = bucket(reads);
 
-console.log(`== TRACER == live=${live} decodable-events=${events}`);
+const lostEvents = [...lost.values()].reduce((a, b) => a + b, 0);
+console.log(`== TRACER == live=${live} decodable-events=${events} dropped-events=${lostTotal ?? lostEvents}`);
 if (!live) console.log('  ⛔ NO DTRACE-LIVE MARKER — the tracer never started. Nothing below is a measurement.');
+// The two counters come from different places on purpose — per-event records vs the adapter's own
+// END-time aggregation — so a disagreement means records were lost on the way OUT (a full principal
+// buffer), which is its own reason to distrust the census rather than to average the two.
+if (lostTotal !== null && lostTotal !== lostEvents) {
+  console.log(`  ⛔ LOSS LEDGER DISAGREES: END says ${lostTotal}, ${lostEvents} per-event records survived`);
+}
+if (lostEvents > 0 || (lostTotal ?? 0) > 0) {
+  console.log(`  ⛔ THE TRACER DROPPED ${lostTotal ?? lostEvents} EVENT(S). A dropped event is a path never`);
+  console.log('     seen, so the grant below can only be too NARROW — the direction that breaks installs.');
+  console.log('     Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:');
+  for (const [k, n] of [...lost.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10)) {
+    console.log(`       ${String(n).padStart(5)} x  ${k}`);
+  }
+}
 console.log(`== ATTRIBUTION == lifecycle pids: ${lifecycle.size}`);
 console.log(`  writes  script ${writes.size}  /  whole traced subtree ${allWrites.size}`);
 console.log(`  sockets script ${sockets}  /  whole traced subtree ${allSockets}`);
