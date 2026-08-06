@@ -145,7 +145,11 @@ foreach ($ch in [char[]]([char]'A'..[char]'Z')) {
 & logman stop $Session -ets 2>&1 | Out-Null
 & logman create trace $Session -ets -o $etl -bs 1024 -nb 64 320 -max $MaxMB | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "logman create trace failed with $LASTEXITCODE" }
-& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    0x1FF0 5 | Out-Null
+# ONE literal, used by the session AND by the meta that claims what the session enabled. Two copies
+# would let the recorded provenance drift away from the actual mask, and a meta that lies about its
+# mask is worse than one that omits it -- the whole point of recording it is to be trusted later.
+$fileMask = '0x1FF0'
+& logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-File'    $fileMask 5 | Out-Null
 $fileMaskExit = $LASTEXITCODE
 & logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Network' 0x30   5 | Out-Null
 & logman update trace $Session -ets -p 'Microsoft-Windows-Kernel-Process' 0x10   5 | Out-Null
@@ -213,7 +217,7 @@ $meta = [ordered]@{
   # and 0x11F0 vs 0x1FF0 is the difference between having rename/hardlink destinations and silently
   # not having them. A retained record whose meta does not name its mask cannot be re-read later
   # with any confidence about what it is missing.
-  fileMask      = '0x1FF0'
+  fileMask      = $fileMask
   fileMaskExit  = $fileMaskExit
 }
 $meta | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $OutDir 'meta.json') -Encoding Ascii
