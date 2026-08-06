@@ -227,6 +227,42 @@ test('cwd survives a clone edge split across `<unfinished ...>`', () => {
   assert.deepStrictEqual(grant, {}, 'the package own directory is already base-granted');
 });
 
+// ── The private-tmp redirect (`TmpMode::Private`) ────────────────────────────────────────────────
+
+// The private per-run tmp `measure.sh` creates and exports as `TMPDIR`, mirroring
+// `backend/mod.rs::make_private_tmp` + `backend/linux.rs::apply_landlock`.
+const JTMP = '/tmp/nub-tmp-obsAb12Cd';
+const runTmp = (body, pkg = 'p') => {
+  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'obs-test-')), 'trace.txt');
+  fs.writeFileSync(f, SHELL + body);
+  return execFileSync('node', [path.join(HERE, 'observe.mjs'), f, PROJ, HOME, JAIL, pkg, JTMP], {
+    encoding: 'utf8',
+  });
+};
+
+test('a write under the private per-run TMPDIR is base-granted, not an unclassifiable `outside`', () => {
+  // ⛔ THE GRANT CANNOT CARRY THIS ASSERTION, so it asserts on the BUCKET. An `outside` write earns
+  // no scope either, so both the broken and the fixed classifier emit `{}` — the difference is that
+  // the broken one files the path under `outside` and prints "writes OUTSIDE project/home — no scope
+  // covers these", which is a standing false alarm on every package that stages a download through
+  // `os.tmpdir()`. MEASURED on `playwright-chromium@0.17.0`, whose sole such warning was
+  // `/tmp/playwright-download-chromium-linux-764964.zip` — a path the jail grants read-write and
+  // points TMPDIR at.
+  const out = runTmp(`100 openat(AT_FDCWD, "${JTMP}/dl.zip", O_WRONLY|O_CREAT, 0644) = 3\n`);
+  assert.match(out, /jailTmp\s+1/, `the private tmp write was not billed to jailTmp:\n${out}`);
+  assert.doesNotMatch(out, /writes OUTSIDE/, `a base-granted tmp write raised the OUTSIDE alarm:\n${out}`);
+});
+
+test('the SHARED /tmp stays `outside` — the Landlock arm grants the per-run dir, never /tmp', () => {
+  // The control that stops the case above from degenerating into "anything under /tmp is free".
+  // There is no mount namespace on the Landlock arm, so `/tmp` itself is bound by nothing and a
+  // script hardcoding `/tmp/foo` is genuinely refused. Reporting it is the honest output; absorbing
+  // it into a base-covered bucket would be an UNDER-prediction with no rung that repairs it.
+  const out = runTmp('100 openat(AT_FDCWD, "/tmp/hardcoded.lock", O_WRONLY|O_CREAT, 0644) = 3\n');
+  assert.match(out, /outside\s+1/, `a hardcoded /tmp write was not reported as outside:\n${out}`);
+  assert.match(out, /writes OUTSIDE/, `the OUTSIDE alarm was suppressed for a genuinely refused path:\n${out}`);
+});
+
 test('an UNRESOLVABLE dirfd is reported as UNKNOWN and never guessed into a scope', () => {
   // The honest counterpart to the symlinkat case. When a dirfd was never seen being opened — passed
   // over SCM_RIGHTS, or inherited across an exec the decoder did not witness — there is no base to

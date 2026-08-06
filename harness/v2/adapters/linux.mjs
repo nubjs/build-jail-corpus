@@ -388,7 +388,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const file = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
-  if (!file) { console.error('usage: linux.mjs <trace> --project D --home D [--jail-home D] [--out F]'); process.exit(2); }
+  if (!file) { console.error('usage: linux.mjs <trace> --project D --home D [--jail-home D] [--jail-tmp D] [--out F]'); process.exit(2); }
   const project = val('--project'), home = val('--home');
   const decoded = decode(fs.readFileSync(file, 'utf8'), { project });
   const text = serialize(decoded, {
@@ -398,7 +398,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     // ⛔ THE ROOTS ARE THE WHOLE REASON A RE-PARSE IS POSSIBLE. Every path in the stream is
     // machine-specific (`/home/runner/v2-hNdvB5/...`); without these a future classifier cannot tell
     // a project write from a home write, and the log is a pile of strings.
-    roots: { project, home, jailHome: val('--jail-home'), ownPkg: val('--pkg') && project ? `${project}/node_modules/${val('--pkg')}` : null },
+    roots: { project, home, jailHome: val('--jail-home'), jailTmp: val('--jail-tmp'), ownPkg: val('--pkg') && project ? `${project}/node_modules/${val('--pkg')}` : null },
     at: new Date().toISOString(),
   });
   const out = val('--out');

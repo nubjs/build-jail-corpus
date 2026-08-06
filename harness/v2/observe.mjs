@@ -37,12 +37,12 @@
 // back — a failure there still cannot move a verdict. Sharing a pure `decode()` function is not the
 // same as sharing a step, and it is what stops the two from drifting again.
 //
-//   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name]
+//   usage: node observe.mjs <trace-file> <project-root> <home> [jail-home] [package-name] [jail-tmp]
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
 
-const [file, proj, home, jailHome, pkgName] = process.argv.slice(2);
-if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName]'); process.exit(2); }
+const [file, proj, home, jailHome, pkgName, jailTmp] = process.argv.slice(2);
+if (!file) { console.error('usage: observe.mjs <trace> <projectRoot> <home> [jailHome] [pkgName] [jailTmp]'); process.exit(2); }
 // The rebuilt package's OWN directory in the observation layout (plain hoisted `node_modules`).
 // Its jail counterpart is the store entry, which the base profile already grants RW.
 const ownPkgDir = proj && pkgName ? `${proj}/node_modules/${pkgName}` : null;
@@ -165,10 +165,21 @@ for (const e of decoded.events) {
 //                 package's own directory resolves into granted space. A write to a SIBLING
 //                 dependency does NOT, and stays `deps`.
 //
+//   `jailTmp`   — `TmpMode::Private`. `backend/mod.rs::make_private_tmp` creates a fresh per-run
+//                 dir under the OS temp root, `backend/linux_landlock.rs` grants it READ-WRITE, and
+//                 `backend/linux.rs::apply_landlock` points the child's `TMPDIR` at it. `measure.sh`
+//                 reproduces both halves, so this bucket is the set of writes that follow `TMPDIR`.
+//                 ⛔ IT IS NOT "anything under /tmp". The shared `/tmp` is NOT granted on the
+//                 Landlock arm — there is no mount namespace to rebind it — so a script that
+//                 HARDCODES `/tmp/foo` is refused in the jail and must stay in `outside`, where it
+//                 is reported rather than silently absorbed. Only the per-run dir this driver
+//                 created and exported is free, which is exactly the jail's own rule.
+//
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
+  if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
   // ⛔ THE `/node_modules/` TEST RUNS ON THE SUFFIX AFTER `proj`, NEVER ON THE WHOLE PATH, and
   // MAPPING.md rule 2 names this exact anti-pattern: "A rule like 'contains `/node_modules/`' is
   // not deterministic: it depends on where the fixture happened to live." Testing `p` whole is
@@ -190,7 +201,7 @@ const scope = (p) => {
 };
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
-const BASE_COVERED = ['ownPkg', 'jailHome'];
+const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);
