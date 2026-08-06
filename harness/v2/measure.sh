@@ -77,6 +77,75 @@ ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)"
 
+# ── 0. R7 — OBSERVE RUNS WITH FULL USER PERMISSIONS, AND ASSERTS IT ────────────────────────────
+#
+# ⛔ THIS IS FATAL, AND IT IS FATAL BECAUSE THE FAILURE IT PREVENTS IS INVISIBLE IN THE RECORD.
+# If OBSERVE is LESS privileged than a real developer, a script that tries its primary path, is
+# refused, and falls back gets measured ON THE FALLBACK. A real user with the permission takes the
+# primary path and needs a capability we never saw — an UNDER-GRANT, the one direction this project
+# forbids, and one that looks exactly like a clean measurement. A warning would be read past.
+#
+# ⛔ DO NOT CONFUSE THIS WITH THE TRACER'S PRIVILEGE. `strace` is measuring APPARATUS and may need
+# whatever it needs; the traced PROCESS is the environment under test and runs as an ordinary user.
+# On Linux the two coincide (ptracing your own child needs no privilege), so this checks the one
+# identity that runs both.
+#
+# ⛔ THE CONVERSE ERROR IS NOT SAFE HERE, WHICH IS WHY ROOT IS REFUSED RATHER THAN TOLERATED. The
+# spec calls extra privilege "the tolerable side" because it over-grants, and over-granting is safe
+# — but root is not simply "more privileged". npm DE-ESCALATES to the owning uid when it runs as
+# root, so the lifecycle script executes as a different user than the one measured, and root also
+# bypasses the permission checks a real user hits, so a write that would be REFUSED for a developer
+# silently succeeds. That is a behaviour change in both directions, not a superset.
+assert_real_user() {
+  local fail=0 probe
+  if [ "$(id -u)" -eq 0 ]; then
+    echo "⛔ R7: OBSERVE must not run as root — uid 0, user $(id -un)." >&2
+    echo "   npm de-escalates to the owning uid under root, so the traced script runs as a" >&2
+    echo "   different user than the one measured, and root bypasses refusals a developer hits." >&2
+    fail=1
+  fi
+  # A restricted service account characteristically has no usable home. Every OBSERVE arm redirects
+  # HOME into the fixture, but this is the REAL home the redirect is derived from, and `$ROOT` — the
+  # whole run — is created inside it.
+  if [ ! -d "$HOME" ] || [ ! -w "$HOME" ]; then
+    echo "⛔ R7: the real HOME ($HOME) is missing or not writable — this is not an ordinary user." >&2
+    fail=1
+  fi
+  # ⛔ EXECUTABILITY IS CHECKED, NOT ASSUMED, AND IT IS THE CHECK MOST LIKELY TO EARN ITS KEEP. A
+  # `noexec` mount is the textbook R7 failure: it does not stop a script running, it makes a script
+  # that downloads and runs a prebuilt binary fall back to BUILDING FROM SOURCE — which needs a
+  # completely different capability set. Both the run root and the OS temp root are probed, because
+  # node-gyp unpacks and executes out of the temp root while the fixture lives under the run root.
+  for d in "$ROOT" "${TMPDIR:-/tmp}"; do
+    probe="$d/.r7-exec-probe.$$"
+    printf '#!/bin/sh\necho R7OK\n' > "$probe" 2>/dev/null
+    chmod +x "$probe" 2>/dev/null
+    if [ "$("$probe" 2>/dev/null)" != "R7OK" ]; then
+      echo "⛔ R7: cannot create and execute a file under $d — a build that stages a binary there" >&2
+      echo "   would fall back to compiling from source, and the fallback is what we would measure." >&2
+      fail=1
+    fi
+    rm -f "$probe" 2>/dev/null
+  done
+  [ "$fail" -eq 0 ] || { echo "⛔ R7 FAILED — refusing to measure under reduced permissions." >&2; exit 3; }
+}
+assert_real_user
+# Recorded rather than asserted, deliberately. A reduced capability bounding set or `NoNewPrivs` is
+# the signature of a restricted container, but neither changes what an unprivileged install script
+# can do, so failing on them would manufacture false failures for no measurement benefit. Recording
+# makes it a covered axis a reviewer can check (R6) instead of a silent assumption.
+# (No apostrophes in this block: it lives inside a single-quoted `node -e` script.)
+echo "  VENUE-PERMISSIONS $(node -e '
+  const fs = require("fs");
+  let status = "";
+  try { status = fs.readFileSync("/proc/self/status", "utf8"); } catch { status = ""; }
+  const field = (k) => (new RegExp("^" + k + ":\\s*(\\S+)", "m").exec(status) || [])[1] ?? null;
+  process.stdout.write(JSON.stringify({
+    uid: process.getuid(), user: process.argv[1], umask: process.argv[2],
+    capBnd: field("CapBnd"), noNewPrivs: field("NoNewPrivs"),
+  }));
+' "$(id -un)" "$(umask)" 2>/dev/null)"
+
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
 OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
 printf '{"name":"o","version":"1.0.0"}\n' > package.json
