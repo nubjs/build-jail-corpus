@@ -163,6 +163,21 @@ echo "VERDICT: the source that carries both '-c' and $TOKEN is the one the match
 echo "=================================================================="
 
 # ── D. symlink/link/rename path selection: OLD adapter vs NEW ─────────────────────────────────
+#
+# MEASURED, run 31087159355 — read the expectations below with these three results in hand:
+#
+#   symlink  SETTLED. old reported KAFSYMTGT_9c1d (a target nothing ever created — a proven
+#            phantom path); new reports ./kaf-sym-link-4e2b. The control went red.
+#   link     NOT EXERCISED. macOS `ln -f` emitted only unlink(dst) — no `link` PATHOP at all, so
+#            it used linkat(2), which this adapter does NOT subscribe to. The kaf-lnk-dst row
+#            below is satisfied by that unlink, NOT by a link record; it is not a link assertion.
+#   rename   HALF SETTLED. rename(2) fired and reported arg0, but the second clause that should
+#            emit arg1 did not appear in the trace. Cause not yet established — do not read the
+#            kaf-ren-new row as a passing assertion.
+#
+# So the adapter has a further UNDER-PREDICTION blind spot beyond the two fixed here: the *at(2)
+# and *_np(2) variants (linkat, renameat, renamex_np, unlinkat, mkdirat, openat is already covered)
+# are unsubscribed, and macOS userland reaches for them. Tracked, not fixed here.
 # Known answer, by construction:
 #   symlink -> kaf-sym-link-4e2b   MUST appear;  KAFSYMTGT_9c1d MUST NOT (nothing ever created it)
 #   link    -> kaf-lnk-dst-c3d4    MUST appear
