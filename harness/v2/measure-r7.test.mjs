@@ -10,13 +10,28 @@
 // time rather than transcribed, and the extractor asserts it found its block so a drifted anchor
 // fails loudly instead of silently testing the empty string.
 
-import { test } from 'node:test';
+import { test as nodeTest } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// ⛔ SKIPPED ON WINDOWS, WITH A REASON, RATHER THAN LEFT TO FAIL THERE. This file extracts a bash
+// function out of `measure.sh` and drives it with POSIX permission bits — `chmod 0500` for an
+// unwritable HOME, a `noexec` mount for the exec check. `measure.sh` has no Windows caller, `bash`
+// is not the shell there, and `chmod` is a no-op on NTFS, so on Windows the guard PASSES every
+// negative case and the tests fail for a reason that says nothing about R7. The Windows lane asserts
+// R7 in `measure-windows.mjs` against the ETW capture's own recorded identity and privilege drop,
+// which is the same requirement expressed in the terms that platform actually has.
+//
+// ⛔ A SKIP IS NOT A PASS, so it is spelled as one: `node --test` reports these as skipped with this
+// reason attached, where deleting them or loosening the assertions would have read as coverage.
+const SKIP = process.platform === 'win32'
+  ? 'POSIX-only: drives a bash guard with chmod/noexec, neither of which means anything on Windows'
+  : false;
+const test = (name, fn) => nodeTest(name, { skip: SKIP }, fn);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8').split('\n');

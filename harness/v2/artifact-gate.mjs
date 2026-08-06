@@ -123,7 +123,13 @@ const manifest = (base) => {
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
       let st; try { st = fs.statSync(p); } catch { continue; }
-      if (st.isDirectory()) walk(p); else m.set(path.relative(root, p), st.size);
+      // ⛔ MANIFEST KEYS ARE FORWARD-SLASHED ON EVERY PLATFORM, AND THAT IS LOAD-BEARING RATHER THAN
+      // TIDY. `path.relative` yields `build\config.gypi` on Windows, and every R4 exclusion pattern
+      // below is written with `/` — so on Windows NONE of them matched and the gate billed
+      // node-gyp's toolchain-invocation records as a shortfall, failing arms for a difference R4
+      // exists to say is meaningless. `measure-windows.mjs` already normalises its own manifest the
+      // same way; this file did not, so the two disagreed about the same tree.
+      if (st.isDirectory()) walk(p); else m.set(path.relative(root, p).replace(/\\/g, '/'), st.size);
     }
   };
   walk(root);
