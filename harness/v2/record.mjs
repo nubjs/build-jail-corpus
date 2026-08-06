@@ -142,7 +142,23 @@ export function parseDriverLog(log) {
     // is absent is a signal that could have gone red. Recorded because an unfalsifiable arm filed as a
     // clean MINIMAL is the shape that erodes trust in a whole corpus. See `arm-falsifiability.mjs`.
     if (/ARMS-UNFALSIFIABLE/.test(l)) out.notes.push('arms-unfalsifiable');
-    if (/events LOST/.test(l)) out.notes.push('events-lost');
+    // ⛔ EACH DRIVER SPELLS EVENT LOSS DIFFERENTLY, AND KEYING ON ONE SPELLING SILENTLY EXEMPTS THE
+    // OTHERS. `events LOST` is the WINDOWS wording (`measure-windows.mjs`) and it is live there — so
+    // this note was never dead, which is exactly what made the defect hard to see: it fired on the
+    // one platform it was written against. macOS and Linux say it in their own words and were
+    // therefore never noted at all. MEASURED: both darwin records dropped an event, `notes: []`.
+    //
+    //   windows  `!! N events LOST -- exact-set claims are not supported by this trace`
+    //   macos    `⛔ THE TRACER DROPPED N EVENT(S).`  and  `⛔ LOSS LEDGER DISAGREES: …`
+    //   linux    `⛔ N trace lines the decoder could not parse`
+    //
+    // A dropped event is a path never seen, which UNDER-predicts the grant — so this note is the
+    // record's only warning that its own evidence is incomplete, and a note that fires on one venue
+    // of three is worse than absent, because its silence reads as a clean trace. `out.notes` is
+    // de-duplicated below, so a driver tripping two of these (macOS emits both) still yields one.
+    if (/events LOST|THE TRACER DROPPED|LOSS LEDGER DISAGREES|trace lines the decoder could not parse/.test(l)) {
+      out.notes.push('events-lost');
+    }
     if (/INCONCLUSIVE for/.test(l)) out.notes.push('descent-inconclusive');
     if (/UNDER-PREDICTED/.test(l)) out.notes.push('under-predicted');
   }
