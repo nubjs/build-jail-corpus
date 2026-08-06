@@ -1,0 +1,174 @@
+# Does a write to the jail's temp dir need a write grant, or is `outside` on those paths an
+# artifact of OBSERVE running unjailed?
+#
+# THE SETUP. `observe.mjs` buckets any write under no catalog-expressible scope as `outside`. On the
+# 45 linux-x64 v2 records, 10 carry that flag and every listed path is under `/tmp`. OBSERVE is the
+# UNJAILED arm, so its `os.tmpdir()` is the real shared `/tmp`; the jailed arm's is not, because
+# `build_jail_surface` inserts `$tmp: rw` (`compiler/preset.rs`) = `TmpMode::Private`, which
+# `backend/linux.rs` implements as bubblewrap `--bind <per-run-dir> /tmp` + `insert_tmp_env(…,"/tmp")`.
+#
+# ⛔ THIS RUNS TWO INSTRUMENTS, NOT ONE, BECAUSE THEY ANSWER DIFFERENT QUESTIONS AND THE SECOND IS
+# THE ONE THAT CAN EMBARRASS THE FIRST.
+#
+#   FIXTURE  a synthetic package with four independent write targets and a KNOWN answer for two of
+#            them. It isolates the temp axis with no download, no network and no toolchain, and it
+#            carries its own negative controls — a real-home write and a `/var/tmp` write that MUST
+#            be refused. Without those, "the temp write succeeded" is equally consistent with the
+#            jail never engaging.
+#   REAL     `measure.sh --at-grant` on corpus packages, which is where a mechanism that is true in
+#            isolation gets to be irrelevant in practice. `playwright-chromium@0.17.0` is the case
+#            the hypothesis names: one `/tmp` write, and a recorded MINIMUM of
+#            `{"write":{deps,project,userHome},"network":true}` reached by ladder fallback.
+#
+# ⛔ THE `read:"disk"` ARM IS THE POINT OF THE REAL HALF, AND THE LADDER CANNOT ASK IT. The v2
+# fallback ladder's FIRST rung is already `{"write":{deps,project,userHome},"network":true}` — there
+# is no `deps`-alone or `project`-alone rung — so ANY synth failure lands on the widest write grant
+# regardless of cause. `{"read":"disk","network":true}` widens READS ONLY. If the package passes
+# there, its recorded write grant was never earned and the cause was never a write at all.
+#
+# Linux only, on purpose: the redirect is a bind MOUNT here and an env redirect plus SBPL denies on
+# macOS, so the hardcoded-`/tmp` row is expected to diverge and needs its own run to say so.
+
+name: tmp-redirect-probe
+
+on:
+  push:
+    branches: [probe/tmp-redirect]
+  workflow_dispatch:
+    inputs:
+      at_grant_specs:
+        description: "space-separated pkg@version:grant-json triples for the --at-grant arms"
+        type: string
+        default: ""
+
+concurrency:
+  group: tmp-redirect-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Install strace and prove it traces
+        shell: bash
+        run: |
+          set -eux
+          sudo apt-get update -qq && sudo apt-get install -y -qq strace
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+
+      - name: Resolve the native path of the probe binary
+        shell: bash
+        run: echo "NUB_BIN_CACHE_PATH=/tmp/nub/target/release/nub" >> "$GITHUB_ENV"
+
+      # Any cached corpus-probe binary will do — the arm needs the FEATURE, not a commit — so a
+      # prefix restore-key is correct and a miss is merely slower.
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-linux-
+          restore-keys: |
+            nub-bin-v1-linux-
+
+      - name: Build the probe binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          SHA=$(git rev-parse origin/sandbox/integration)
+          git checkout --detach "$SHA"
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub" >> "$GITHUB_ENV"
+
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub
+          chmod +x "$BIN" 2>/dev/null || true
+          "$BIN" --version
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ THE GATE CHECKS ITSELF FIRST. A malformed catalog must be REJECTED before a well-formed
+      # one is allowed to prove anything — otherwise a binary that never read the variable reads as
+      # success, and every arm below silently measures the COMPILED-IN policy.
+      - name: Assert the binary honours NUB_BUILD_JAIL_CATALOG
+        shell: bash
+        run: |
+          set -uo pipefail
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__probe__":{"default":{"network":true}}}}'       > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$NUB_BIN" --version 2>&1 || true)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused" ;;
+            *) echo "⛔ GATE IS INERT. Saw: ${BAD:-<none>}" >&2; exit 1 ;;
+          esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *OVERRIDDEN*) echo "override engages: $GOOD" ;;
+            *) echo "⛔ no OVERRIDDEN banner — binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      # ── INSTRUMENT 1: the synthetic known-answer fixture. Non-fatal on a REFUTED result — a
+      # refutation is the finding, not a broken job — but FATAL when a negative control passes,
+      # because then nothing downstream is readable either.
+      - name: FIXTURE — four write targets under the empty grant
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod +x harness/v2/probes/tmp-write-fixture.sh
+          harness/v2/probes/tmp-write-fixture.sh /tmp/tmpfix "$NUB_BIN" > /tmp/fixture.out 2>&1
+          echo "FIXTURE_EXIT=$?"
+          cat /tmp/fixture.out
+          if grep -q 'A NEGATIVE CONTROL PASSED' /tmp/fixture.out; then
+            echo "⛔ the jail did not enforce — no row in this run is readable" >&2; exit 1
+          fi
+
+      # ── INSTRUMENT 2: the real corpus packages, one arm per stated grant.
+      #
+      # ⛔ EACH LINE IS `pkg@version:grant`. `measure.sh` still runs OBSERVE (the artifact gate needs
+      # its manifest as the reference for "did this arm produce what an unjailed install produces"),
+      # then ONE jailed arm at exactly the stated grant — no synthesis, no ladder. Its three-outcome
+      # vocabulary is preserved verbatim in the log: SUFFICIENT / INSUFFICIENT / VOID.
+      - name: REAL — --at-grant arms
+        shell: bash
+        run: |
+          set -uo pipefail
+          SPECS="${{ inputs.at_grant_specs }}"
+          # ⛔ SPACE-separated, and a grant JSON therefore must carry no spaces. Stated rather than
+          # assumed because a grant that DOES contain one splits into two specs and the second half
+          # measures a package named `true}` — which fails in a way that reads like a jail result.
+          [ -z "$SPECS" ] && SPECS='playwright-chromium@0.17.0:{"network":true} playwright-chromium@0.17.0:{"read":"disk","network":true} hugo-extended@0.141.0:{"network":true}'
+          chmod +x harness/v2/measure.sh
+          mkdir -p /tmp/arms
+          n=0
+          for spec in $SPECS; do
+            n=$((n+1))
+            PV="${spec%%:*}"; GRANT="${spec#*:}"
+            PKG="${PV%@*}"; VER="${PV##*@}"
+            echo "═══════════════════════════════════════════════════════════════"
+            echo "ARM $n  $PKG@$VER  at  $GRANT"
+            harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant "$GRANT" > "/tmp/arms/arm-$n.out" 2>&1
+            echo "ARM_EXIT=$?"
+            cat "/tmp/arms/arm-$n.out"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tmp-redirect-probe
+          path: |
+            /tmp/fixture.out
+            /tmp/arms/
+          if-no-files-found: warn
