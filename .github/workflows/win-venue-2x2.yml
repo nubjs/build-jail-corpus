@@ -1,0 +1,145 @@
+# The CI half of the win32-x64 venue-portability 2x2 (VENUE-PORTABILITY.md, "The acceptance test").
+#
+# ⛔ THIS RUNS THE SAME COMMAND THE VM RUNS, AND THAT IS THE ENTIRE POINT. The acceptance test asks
+# whether a record depends on the machine that produced it, so any difference between the two venues'
+# INVOCATIONS would be a confound sitting exactly where the finding is supposed to be. One driver,
+# one flag set, two machines.
+#
+# ⛔ IT IS `--observe-only`, AND THAT IS A REAL LIMIT ON WHAT THIS PROVES. Every Windows VERIFY arm
+# currently fails at every grant on an EPERM reading the package's own store entry (see the note at
+# the top of `measure-windows.mjs`), so a run that required a verified minimum would be unanswerable
+# for a reason that has nothing to do with venue portability. What is compared here is the
+# SYNTHESIZED grant plus the roots it was classified against — which is precisely what R1 and R2
+# govern. It is not a claim that the jail behaves identically on both venues; nothing here tests that.
+#
+# ⛔ `CI` IS TOGGLED, NEVER FLATTENED. Setting `CI=1` on the VM or unsetting it on a runner would
+# make the venues agree immediately and would silently leave one store layout unmeasured — the
+# harness may normalise its own apparatus and may not normalise the environment under test. The
+# `unset` arm uses a real `Remove-Item Env:CI`, not `CI=""`: `is_ci()` is
+# `env::var_os("CI").is_some()`, so a blanked value still reads as CI and that cell would duplicate
+# its neighbour while looking like a measurement.
+#
+#   gh workflow run win-venue-2x2.yml --ref <branch> -f ci_env=inherit
+#   gh workflow run win-venue-2x2.yml --ref <branch> -f ci_env=unset
+
+name: win-venue-2x2
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: package to measure
+        type: string
+        default: iedriver
+      version:
+        description: version to measure
+        type: string
+        default: 4.0.0
+      ci_env:
+        description: "inherit = CI stays set (a runner sets it); unset = remove it entirely"
+        type: choice
+        options: [inherit, unset]
+        default: inherit
+  push:
+    branches: [probe/win-venue-2x2]
+
+jobs:
+  observe:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.15.0'   # pinned to the VM's Node, so the interpreter is not a variable
+
+      - name: harness unit tests
+        shell: pwsh
+        run: |
+          # A decoder that fails its own known-answer tests cannot be trusted to answer the
+          # portability question, and finding that out AFTER a 40-minute measurement is a wasted run.
+          $files = @(Get-ChildItem harness/v2/*.test.mjs, harness/v2/adapters/*.test.mjs | % FullName)
+          node --test @files
+
+      - name: identity (R7)
+        shell: pwsh
+        run: |
+          # ⛔ PRINTED FIRST AND ASSERTED, NOT ASSUMED. A run as SYSTEM has different privileges and a
+          # different os.homedir(), and has already produced one false validation on this project.
+          # The driver refuses it too; this is the earlier, louder copy so a bad runner image is
+          # visible before anything is measured.
+          $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+          Write-Output "whoami=$($id.Name)  sid=$($id.User.Value)"
+          Write-Output "elevated=$(([Security.Principal.WindowsPrincipal]$id).IsInRole(544))"
+          Write-Output "COMPUTERNAME=$env:COMPUTERNAME  USERPROFILE=$env:USERPROFILE  TEMP=$env:TEMP"
+          Write-Output "CI=[$env:CI]  GITHUB_ACTIONS=[$env:GITHUB_ACTIONS]"
+          if ($id.User.Value -eq 'S-1-5-18') { throw 'refusing to measure as SYSTEM' }
+
+      - name: measure (OBSERVE only)
+        shell: pwsh
+        env:
+          NUB_CORPUS_VENUE: ci
+        run: |
+          $ErrorActionPreference = 'Continue'
+          # ⛔ NOT UNDER C:\Users\<user>. Any jail root inside a Windows user profile fails before a
+          # script runs — "could not evaluate ALL APPLICATION PACKAGES rights on ...: The access
+          # control list (ACL) structure is invalid. (os error 1336)" — because that home carries
+          # seven inheritable S-1-15-2-... AppContainer package SIDs. Pre-existing and out of scope
+          # here; the root is chosen to avoid it, and the record names the root it used.
+          $root = 'C:\jailv'
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+
+          # ⛔ A REAL UNSET, IN THE SAME BLOCK AS THE MEASUREMENT. `CI=""` still satisfies
+          # `env::var_os("CI").is_some()`, so it would leave this cell measuring the same thing as
+          # its neighbour while every log line said otherwise. Removing it here rather than in a
+          # separate step is what makes it reach the driver at all — each `run:` block is its own
+          # shell.
+          if ('${{ inputs.ci_env }}' -eq 'unset') {
+            Remove-Item Env:CI -ErrorAction SilentlyContinue
+            Write-Output "CI removed; now [$env:CI]"
+          } else {
+            Write-Output "CI inherited; [$env:CI]"
+          }
+
+          node harness/v2/measure-windows.mjs '${{ inputs.package }}' '${{ inputs.version }}' `
+            --observe-only --root $root 2>&1 | Tee-Object -FilePath "$root\driver.out"
+          Write-Output "driver exit=$LASTEXITCODE"
+
+      - name: stage the cell
+        if: always()
+        shell: pwsh
+        run: |
+          # The capture directory is what the comparison reads, and it is the only thing that
+          # survives this runner. `trace.xml` is excluded by size: the acceptance test compares
+          # GRANTS and re-decodes from `events.ndjson` plus `capture.json`, and the full ETW XML runs
+          # to hundreds of megabytes. Retention of the raw is `windows-retain.mjs`'s job on a real
+          # measuring run, not this probe's.
+          $cell = 'C:\cell'
+          New-Item -ItemType Directory -Force -Path $cell | Out-Null
+          $run = Get-ChildItem C:\jailv -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'observed.json') } |
+                 Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $run) { Write-Output 'no run directory with observed.json'; exit 1 }
+          Copy-Item (Join-Path $run.FullName 'observed.json') $cell -Force
+          Copy-Item (Join-Path $run.FullName 'observed.txt')  $cell -Force -ErrorAction SilentlyContinue
+          Copy-Item 'C:\jailv\driver.out' $cell -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path "$cell\cap" | Out-Null
+          foreach ($f in 'capture.json','shortnames.json','events.ndjson','meta.json') {
+            Copy-Item (Join-Path $run.FullName "cap\$f") "$cell\cap" -Force -ErrorAction SilentlyContinue
+          }
+          Write-Output '--- staged ---'
+          Get-ChildItem $cell -Recurse -File | ForEach-Object { "{0,10}  {1}" -f $_.Length, $_.FullName }
+          Write-Output '--- grant ---'
+          (Get-Content "$cell\observed.json" -Raw | ConvertFrom-Json).grant | ConvertTo-Json -Compress
+          Write-Output '--- 8.3 map ---'
+          if (Test-Path "$cell\cap\shortnames.json") {
+            $m = Get-Content "$cell\cap\shortnames.json" -Raw | ConvertFrom-Json
+            Write-Output "components: $(($m.entries.PSObject.Properties | Measure-Object).Count)  host: $($m.host)"
+          } else { Write-Output 'none' }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cell-ci-${{ inputs.ci_env }}
+          path: C:\cell
+          retention-days: 7

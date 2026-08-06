@@ -427,6 +427,19 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
     whoami: meta.whoami ?? null, sid: meta.sid ?? null,
     elevated: meta.elevated ?? null, privDropped: meta.privDropped ?? null,
   },
+  // ⛔ `rootPid` IS A CLASSIFIER INPUT, NOT DECORATION, SO IT BELONGS IN THE ARCHIVE. Attribution is
+  // structural on Windows: a lifecycle shell is every `cmd.exe` that is NOT the traced root, and the
+  // attributed set is the union of the subtrees rooted at them. Re-decode this archive without the
+  // root pid and the root's OWN cmd.exe counts as a lifecycle shell, so npm's registry TLS and its
+  // cache writes under the user profile enter the grant — a 100% over-prediction that looks entirely
+  // plausible. A capture must carry every input the grant depends on, or a re-parse is not
+  // reproducing the measurement, it is making a different one.
+  run: {
+    command: meta.command ?? null, workDir: meta.workDir ?? null,
+    rootPid: meta.rootPid ?? null, launcherPid: meta.launcherPid ?? null,
+    exitCode: meta.exitCode ?? null,
+    startedUtc: meta.startedUtc ?? null, endedUtc: meta.endedUtc ?? null,
+  },
   roots: {
     project: OBS,
     home: HOME,
