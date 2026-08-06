@@ -70,11 +70,15 @@ jobs:
           [System.IO.File]::WriteAllBytes("ctl/etw-raw.xml.gz", $bytes)
           Write-Output '--- on disk, all three present and byte-identical ---'
           Get-ChildItem ctl | ForEach-Object { Write-Output "  $($_.Name)  $($_.Length) B" }
-          git add -Af ctl 2>&1 | Out-Null
+          # ⛔ A PLAIN `git add`, NEVER `-f`. `git add -Af` FORCES ignored files in, which stages
+          # events.log and makes the control assert the opposite of what it is for. It did exactly
+          # that on the first run of this workflow, and the step correctly went red over it.
           git add ctl 2>&1 | Out-Null
           $staged = (git diff --cached --name-only) -join "`n"
           Write-Output '--- what git actually staged ---'
           Write-Output $staged
+          Write-Output '--- and the rule git says it applied ---'
+          git check-ignore -v ctl/events.log
           git reset 2>&1 | Out-Null
           $ok = $true
           if ($staged -match 'ctl/events\.log') { Write-Output '!! events.log WAS staged - the .gitignore rule is not firing, so the naming premise is wrong'; $ok = $false }
