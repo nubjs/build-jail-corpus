@@ -248,7 +248,24 @@ const inSubtree = (pid) => {
   }
   return false;
 };
-const subtreePids = new Set([...parentOf.keys()].filter(inSubtree));
+// ⛔ THE SAMPLER MUST NOT OBSERVE ITSELF. The `ps` sampler is a child of this process, so its own
+// pid subtree satisfies `inSubtree` and every `/bin/ps` and `/bin/sleep` it spawns — two per 50ms —
+// lands in the event stream along with each one's dyld and libsystem reads. That is the observer
+// effect in its most literal form: a measurable fraction of a long install's events would be the
+// instrument. It cannot fabricate a WRITE (the sampler writes nothing outside the adapter's own
+// tmpdir), so no grant widens, but it inflates the read set and buries the package's real activity.
+const viaSampler = (pid) => {
+  const seen = new Set();
+  let cur = pid;
+  for (let i = 0; i < 200 && cur != null && !seen.has(cur); i++) {
+    if (cur === psSampler.pid) return true;
+    seen.add(cur);
+    cur = parentOf.get(cur);
+  }
+  return false;
+};
+const subtreePids = new Set([...parentOf.keys()].filter((p) => inSubtree(p) && !viaSampler(p)));
+diag.counts.sampler_pids_excluded = [...parentOf.keys()].filter((p) => inSubtree(p) && viaSampler(p)).length;
 diag.counts.subtree_pids = subtreePids.size;
 diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).filter(Boolean))];
 // When the closure comes back empty the question is always "which link is missing?", and answering
