@@ -47,7 +47,21 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 
 # ── 1. OBSERVE ─────────────────────────────────────────────────────────────────────────────────
-OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
+# ⛔ THE CAPITAL `O` IS LOAD-BEARING AND MUST NOT BE "TIDIED" TO LOWERCASE. dtrace's `cwd` built-in
+# yields a BASENAME, not a path (`/usr/lib/dtrace/darwin.d:339` — Apple's own comment says they want
+# `vn_getpath()` and cannot have it because it takes `namecache_rw_lock`), so the decoder's
+# staleness detector can only ever compare basenames. A lowercase `observe` COLLIDES with the real
+# npm package of that name, and a colliding basename makes a wrong resolution look verified — an
+# error in the under-grant direction, which is the one this project forbids. npm has refused
+# uppercase in package names since 2017, so a basename carrying one cannot be a package directory:
+# the collision becomes unrepresentable rather than merely unlikely. Asserted, not just intended.
+OBS="$ROOT/Observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
+case "$(basename "$OBS")" in
+  *[A-Z]*) ;;
+  *) echo "  ⛔ observation dir '$(basename "$OBS")' carries no uppercase letter, so its basename"
+     echo "     could collide with an npm package name and make a stale-cwd resolution read as"
+     echo "     verified. Refusing rather than measuring something that cannot be checked."; exit 1 ;;
+esac
 printf '{"name":"o","version":"1.0.0","private":true}\n' > package.json
 # ⛔ THE FETCH IS NOT TRACED AND THAT IS THE WHOLE POINT. Tracing `npm install` traces NPM: its
 # registry TLS and its `~/.npm/_cacache` writes land in the same event stream as the lifecycle

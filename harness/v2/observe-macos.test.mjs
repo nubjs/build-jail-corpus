@@ -293,3 +293,72 @@ test('with no package name the decoder bills as it always did, so an old archive
   assert.doesNotMatch(out, /ownPkg/, 'no package name means no ownPkg bucket');
   assert.equal(grant(out), '{"write":{"deps":true}}', 'both writes fall to deps, as before');
 });
+
+// ── 7. THE CWD GUARD ──────────────────────────────────────────────────────────────────────────
+//
+// macOS spawns lifecycle scripts with posix_spawn's in-kernel `addchdir_np`, so no `chdir` syscall
+// fires and the decoder's inherited cwd is silently stale. Resolving a relative path against it
+// invents one. These cases pin the guard AND the two properties that keep it honest: a pid that
+// really did chdir is still resolved normally, and the basename detector may never upgrade a
+// resolution to "verified".
+const REL_WRITE = `
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|node-gyp rebuild > builderror.log
+EXEC|3950|3900|sh|sh
+OPEN|3952|3950|bash|flags=0x601|ret=3|errno=0|dirfd=-2|builderror.log
+`;
+
+test('a relative write from a lifecycle pid that never chdir\'d is not billed to the inherited cwd', () => {
+  // RED ON REVERT: drop the guard and `builderror.log` resolves to `/proj/builderror.log` — a path
+  // no process touched — and bills `write.project`. MEASURED on ttf2woff2@1.2.3, whose real file is
+  // `/proj/node_modules/ttf2woff2/builderror.log`, exactly where Linux recorded it.
+  const out = decode(REL_WRITE, { pkg: 'ttf2woff2' });
+  assert.doesNotMatch(out, /\/proj\/builderror\.log/, 'the invented absolute path must not appear');
+  assert.match(out, /CWD-UNOBSERVED/, 'and the record must be flagged');
+});
+
+test('an unplaceable write WIDENS the grant rather than dropping it', () => {
+  // Dropping an observed write is an under-grant, the one forbidden direction. We know a write
+  // happened and not where, so the grant must cover everywhere it could have landed.
+  const out = decode(REL_WRITE, { pkg: 'ttf2woff2' });
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}');
+});
+
+test('a pid that DID chdir is resolved normally — the guard is not a blanket drop', () => {
+  // The positive control. Without it both assertions above are satisfied by a decoder that has
+  // simply stopped resolving relative paths at all, which would flag every package on the platform.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|node build.js
+EXEC|3950|3900|sh|sh
+CHDIR|3950|3900|bash|ret=0|/proj/node_modules/kaf/sub
+OPEN|3950|3900|bash|flags=0x601|ret=3|errno=0|dirfd=-2|out.txt
+`, { pkg: 'kaf' });
+  assert.doesNotMatch(out, /CWD-UNOBSERVED/, 'an observed cwd must not trip the guard');
+  assert.match(out, /ownPkg\s+1/, 'and the path resolves into the package dir, which is free');
+  assert.equal(grant(out), '{}', 'so nothing is billed');
+});
+
+test('a cwd basename MISMATCH proves the inherited cwd wrong and raises severity to STALE', () => {
+  const out = decode(REL_WRITE.replace('|dirfd=-2|builderror.log', '|dirfd=-2|cwd=ttf2woff2|builderror.log'), { pkg: 'ttf2woff2' });
+  assert.match(out, /Severity: STALE/, 'a mismatch against the believed basename is proof');
+});
+
+test('a cwd basename MATCH never downgrades billing — it is "not disproven", not "verified"', () => {
+  // ⛔ THE SOUNDNESS PROPERTY. `/a/Observe` and `/b/Observe` share a basename, so a match is equally
+  // consistent with a resolution that is still wrong — and that error runs in the under-grant
+  // direction. The detector may set severity and may never decide billing.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj/Observe
+EXECARGV|3950|3900|sh|-c|node-gyp rebuild > builderror.log
+EXEC|3950|3900|sh|sh
+OPEN|3952|3950|bash|flags=0x601|ret=3|errno=0|dirfd=-2|cwd=Observe|builderror.log
+`, { proj: '/proj/Observe', pkg: 'ttf2woff2' });
+  assert.doesNotMatch(out, /Severity: STALE/, 'a match is not a mismatch');
+  assert.match(out, /CWD-UNOBSERVED/, 'but the write is still unplaceable');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}',
+    'and it still bills the widest scope — a match must never buy a narrower grant');
+});

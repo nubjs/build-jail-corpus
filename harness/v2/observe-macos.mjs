@@ -34,9 +34,65 @@ const REFUSAL_ERRNO = new Set([1, 13, 30]);
 // The adapter's `key=value` tokens, recognised by NAME so a free-form path can never be read as
 // one. Adding a key here is what makes a new adapter field visible; omitting it makes the scan stop
 // at that field and treat it as the start of the path, which is the safe direction.
-const META_KEYS = new Set(['ret', 'errno', 'flags', 'ev', 'dirfd', 'role', 'mode']);
+// `cwd` carries dtrace's built-in, which on Darwin is a BASENAME rather than a path — see the
+// `cwdTrusted` note. Recognised here so the adapter can start emitting it without shifting the
+// path field; absent from every archive taken before that, which the guard handles as "unproven".
+const META_KEYS = new Set(['ret', 'errno', 'flags', 'ev', 'dirfd', 'role', 'mode', 'cwd']);
 const AT_FDCWD = -2;   // Darwin
 let unresolvableDirfd = 0;
+// ⛔ THE LIFECYCLE SCRIPT'S CWD IS NOT OBSERVABLE ON THIS PLATFORM, AND THE DECODER USED TO INVENT
+// ONE. npm runs a lifecycle script with the cwd set to the package directory. On Linux libuv does
+// that with fork(2) + chdir(2) — a real syscall, which is why `observe.mjs` resolves these paths
+// correctly. On macOS libuv takes the posix_spawn path and calls
+// `posix_spawn_file_actions_addchdir_np` (`deps/uv/src/unix/process.c:565`, resolved by `dlsym` at
+// `:436`); the directory change happens INSIDE the kernel as part of the spawn, so no `chdir`
+// syscall ever fires. MEASURED: across BOTH darwin-arm64 archives ever taken, the only `CHDIR`
+// records belong to this driver's own wrapper — never to a lifecycle shell.
+//
+// The consequence was silent and it ran in both directions. `ttf2woff2@1.2.3` opens `builderror.log`
+// relative; the decoder resolved it against the INHERITED wrapper cwd and produced
+// `<project>/builderror.log`, a path no process touched, billing `write.project`. The real file is
+// `<project>/node_modules/ttf2woff2/builderror.log`, which Linux recorded and which the `ownPkg`
+// bucket grants for free. Over-prediction there — but a script that chdirs into a temp or home
+// directory and writes relatively would have had those writes attributed to the project root, which
+// HIDES a real capability. That is an under-grant, the one direction this project forbids.
+//
+// ⛔ "CATCH THE CHDIR" CANNOT WORK — there is no chdir to catch. And dtrace's built-in `cwd` does not
+// close it either: `/usr/lib/dtrace/darwin.d:339` defines it as `curproc->p_fd.fd_cdir->v_name`,
+// the vnode's NAME — a single path COMPONENT, not a path. Apple's comment on the line above says
+// they want `vn_getpath()` and cannot have it because it takes `namecache_rw_lock`. So `cwd` can
+// tell us our belief is STALE (basename mismatch) but cannot tell us the truth.
+//
+// ⇒ So the rule here is the same one the dirfd guard already applies: a path we cannot resolve is
+// never given a fabricated absolute form. It is counted, reported with its RAW text, and — because
+// a write really did happen and we do not know where — the grant is WIDENED to cover anywhere it
+// could have landed. Over-granting is safe; a silent attribution to the wrong scope is not.
+//
+// ⛔ THE `cwd=` DETECTOR SETS SEVERITY, NEVER BILLING, AND THE ASYMMETRY IS THE WHOLE POINT. When the
+// adapter supplies dtrace's `cwd` (a BASENAME — see above), a MISMATCH against the basename we
+// believe proves our resolution wrong. A MATCH proves nothing: `/a/observe` and `/b/observe` share a
+// basename, so a match is consistent with a resolution that is still wrong, and that error runs in
+// the under-grant direction. So a match downgrades the flag to "not disproven" and NEVER upgrades it
+// to "verified" — both severities still bill the widest scope. Over-firing costs extra jailed arms;
+// under-firing breaks installs.
+//
+// The one collision we can eliminate outright, we do: `measure-macos.sh` names its observation
+// directory with an UPPERCASE letter and asserts it. npm package names may not contain uppercase
+// (npm has refused them since 2017), and the actual cwd of a lifecycle script is overwhelmingly a
+// package directory — so a basename collision between our fixture and the real cwd is not merely
+// unlikely, it is unrepresentable.
+// ⛔ TRUST IS INHERITED, AND THE LIFECYCLE SHELL IS WHERE IT IS BROKEN — NOT EVERY PROCESS THAT DID
+// NOT chdir ITSELF. An ordinary fork/exec child (`mkdir`, `mv`, `ln` under the script) inherits its
+// parent's cwd through a path this tracer CAN see, so its belief is as good as the parent's.
+// Requiring an own chdir instead flagged all of those and broke five existing cases — the tell that
+// the rule was wrong, caught by the suite rather than in production. What npm actually does
+// invisibly is set the cwd of the lifecycle SHELL, so trust is cleared exactly there and restored
+// the moment that shell performs a chdir this tracer can observe.
+const cwdTrusted = new Set();      // pids whose cwd belief traces back to an OBSERVED chdir
+const cwdName = new Map();         // pid -> basename of the cwd dtrace observed, when the adapter emits it
+const cwdUnresolved = [];          // { pid, raw, write, severity } for the report
+let cwdUnobservedWrite = false;    // any WRITE we could not place ⇒ widen the grant
+let cwdProvenStale = false;        // a basename mismatch: our belief is DISPROVEN, not merely unproven
 
 // ⛔ EVERY PATH-MUTATING CALL THE ADAPTER SUBSCRIBES TO MUST BE HERE, OR ITS PATH IS BILLED AS A
 // READ. The `*at` family and the Darwin-specific forms were added to the adapter after a census
@@ -128,9 +184,10 @@ for (const raw of lines) {
   if (kind === 'EXECARGV') {
     const argv0 = f[3] ?? '', argv1 = f[4] ?? '';
     const argv2 = f.slice(5).join('|');   // free-form script body; may itself contain `|`
-    if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
+    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
     if (isLifecycleShell(argv0, argv1)) {
       lifecycle.add(pid);
+      cwdTrusted.delete(pid);   // npm set this shell's cwd in-kernel; the inherited belief is stale
       psargs.set(pid, `${argv0} ${argv1} ${argv2}`);
     }
     continue;
@@ -141,14 +198,18 @@ for (const raw of lines) {
     if (!psargs.has(pid)) psargs.set(pid, args);
     // A child inherits the parent's cwd; the exec record is the first time we see the pid, so this
     // is where the inheritance has to be applied or every grandchild resolves against the wrong base.
-    if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
+    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
     continue;
   }
-  if (!cwds.has(pid) && cwds.has(ppid)) cwds.set(pid, cwds.get(ppid));
+  if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
 
   if (kind === 'CHDIR') {
     const ret = Number((f[4] ?? '').replace('ret=', ''));
-    if (ret === 0) cwds.set(pid, abs(pid, f.slice(5).join('|')));
+    // ⛔ ONLY A SUCCESSFUL chdir BY THIS PID MAKES ITS CWD *OBSERVED*. Inheritance — the three
+    // `cwds.set` lines above — propagates a BELIEF, and on macOS that belief is exactly what
+    // posix_spawn's in-kernel addchdir_np invalidates without a trace. Conflating the two is the
+    // defect this guard exists for, so the two are tracked in different structures.
+    if (ret === 0) { cwds.set(pid, abs(pid, f.slice(5).join('|'))); cwdTrusted.add(pid); }
     continue;
   }
 
@@ -187,6 +248,7 @@ for (const raw of lines) {
     meta[k] = /^0x/.test(raw) ? parseInt(raw, 16) : (/^-?\d+$/.test(raw) ? Number(raw) : raw);
   }
   const rawPath = f.slice(i).join('|');
+  if (meta.cwd !== undefined) cwdName.set(pid, String(meta.cwd));
   const flags = isOpen ? (meta.flags ?? 0) : 0;
   const op = isOpen ? 'open' : f[4];
   const ret = meta.ret ?? NaN;
@@ -210,6 +272,21 @@ for (const raw of lines) {
     continue;   // a call that failed is not a need
   }
   const w = isOpen ? isWriteFlags(flags) : PATH_MUTATOR.test(op);
+  // ⛔ THE CWD GUARD. See the long note on `cwdTrusted`. A relative path from a lifecycle process
+  // whose OWN cwd was never observed cannot be placed, so it is never given the fabricated absolute
+  // form `abs()` just computed. Restricted to `mine(pid)` because only the lifecycle subtree is
+  // spawned by npm with a cwd override, and only its paths reach the grant.
+  if (!rawPath.startsWith('/') && mine(pid) && !cwdTrusted.has(pid)) {
+    // The detector, when the adapter supplies it. Severity ONLY — see the note: a match is "not
+    // disproven", never "verified", and both severities bill the same.
+    const believed = (cwds.get(pid) ?? proj ?? '').split('/').pop();
+    const seen = cwdName.get(pid);
+    const severity = seen && seen !== '<unknown>' && seen !== believed ? 'stale' : 'unproven';
+    if (severity === 'stale') cwdProvenStale = true;
+    if (w) cwdUnobservedWrite = true;
+    cwdUnresolved.push({ pid, raw: rawPath, write: w, severity });
+    continue;
+  }
   if (w) allWrites.add(path);
   if (mine(pid)) (w ? writes : reads).add(path);
 }
@@ -257,6 +334,22 @@ if (unresolvableDirfd > 0) {
   // building.
   console.log(`  NOTE ${unresolvableDirfd} relative path(s) under a non-AT_FDCWD dirfd were not`);
   console.log('     scope-assigned: resolving them against the cwd would invent a path.');
+}
+if (cwdUnresolved.length > 0) {
+  // The marker string is the contract with `record.mjs`, which turns it into a record note. Printed
+  // with the RAW relative text and the pid, because the whole point is that no absolute form of
+  // these paths is trustworthy — showing a resolved one would re-commit the error being reported.
+  const nw = cwdUnresolved.filter((c) => c.write).length;
+  console.log(`  ⛔ CWD-UNOBSERVED ${cwdUnresolved.length} relative path(s) (${nw} write(s)) came from a lifecycle`);
+  console.log(`     process whose own cwd was never observed${cwdProvenStale ? ' — AND A BASENAME MISMATCH PROVES' : ''}`);
+  if (cwdProvenStale) console.log('     THE INHERITED CWD WRONG. Severity: STALE.');
+  console.log('     macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and');
+  console.log('     emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT');
+  console.log('     scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.');
+  for (const c of cwdUnresolved.slice(0, 10)) {
+    console.log(`       pid=${c.pid} ${c.write ? 'WRITE' : 'read '} ${c.severity.padEnd(8)} ${c.raw}`);
+  }
+  if (cwdUnresolved.length > 10) console.log(`       … and ${cwdUnresolved.length - 10} more`);
 }
 if (!live) console.log('  ⛔ NO DTRACE-LIVE MARKER — the tracer never started. Nothing below is a measurement.');
 // The two counters come from different places on purpose — per-event records vs the adapter's own
@@ -312,6 +405,14 @@ const g = {};
 if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
 if (w.project) g.write = { ...(g.write ?? {}), project: true };
 if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
+// ⛔ AN UNPLACEABLE WRITE WIDENS THE GRANT TO EVERY WRITE SCOPE. We know a write happened and we do
+// not know where, so the only sound grant is one covering everywhere it could have been. This is
+// deliberately NOT `write:"disk"` — `classify.mjs` rule 3 is that an unmappable path is reported,
+// never rounded up to disk — and it is not a drop either: dropping it would be an under-grant, the
+// direction that breaks installs. The union of the three real scopes is the widest thing the v2
+// vocabulary can express, and the NARROW arms then descend from it with real jailed runs, which is
+// what recovers the true minimum. The cost is one extra arm per scope on affected packages.
+if (cwdUnobservedWrite) g.write = { ...(g.write ?? {}), deps: true, project: true, userHome: true };
 if (sockets > 0) g.network = true;
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 // ⛔ `{}` IS A REAL, VERIFIABLE ANSWER — a package whose script genuinely needs nothing. It has been

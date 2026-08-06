@@ -129,6 +129,12 @@ export function parseDriverLog(log) {
       out.synthesized ??= firstObject(l.slice(l.indexOf('synthesized=')));
     }
     if (/REPLAY SUSPECTED/.test(l)) out.notes.push('replay-suspected');
+    // ⛔ THE GRANT WAS WIDENED BECAUSE A WRITE COULD NOT BE PLACED, not because the package needed
+    // the width. A reader comparing this record against another platform's has to be able to see
+    // that from the record alone; the `STALE` variant additionally says the wrong resolution was
+    // PROVEN, not merely suspected. macOS-only today — the cause is posix_spawn addchdir_np.
+    if (/CWD-UNOBSERVED/.test(l)) out.notes.push('cwd-unobserved');
+    if (/Severity: STALE/.test(l)) out.notes.push('cwd-stale');
     if (/events LOST/.test(l)) out.notes.push('events-lost');
     if (/INCONCLUSIVE for/.test(l)) out.notes.push('descent-inconclusive');
     if (/UNDER-PREDICTED/.test(l)) out.notes.push('under-predicted');
