@@ -21,6 +21,32 @@
 #
 # Branch-scoped, no PR: CI is the only Windows path here.
 #
+# ── TWO CI FACTS THIS PROBE PAID FOR, BOTH OF WHICH MISLEAD IN A SPECIFIC DIRECTION ─────────────
+#
+# ⛔ A WINDOWS JOB THAT NEVER GOT A RUNNER REPORTS AS A FAILED MEASUREMENT. Under runner starvation
+# a `windows-latest` job is cancelled after ~15 minutes with `runner_name` EMPTY and ZERO steps
+# executed; the RUN then reports `conclusion=failure` with no artifacts. That is indistinguishable
+# at a glance from a probe that ran and failed, and it is not one — nothing executed. Measured five
+# times here in one afternoon, with several agents' Windows probes competing. ALWAYS check
+# `runner_name` and the step count before believing a Windows failure:
+#
+#   gh api /repos/nubjs/build-jail-corpus/actions/runs/<id>/jobs \
+#     --jq '.jobs[]|{conclusion,runner_name,steps:(.steps|length)}'
+#
+# ⛔ AND WHAT DECIDES WHETHER `workflow_dispatch` WORKS IS REGISTRATION, NOT THE BRANCH. A workflow
+# whose NAME has never been on the default branch answers `gh workflow run --ref <branch>` with
+# HTTP 404 "not found on the default branch". Once the name has been on `main` ONCE it stays
+# dispatchable per-branch forever, even if the file later leaves `main` — registration is sticky.
+# The trap in between: a branch push made BEFORE registration fires RETROACTIVELY, so the window
+# looks like a dead trigger and is not (measured: a push produced nothing, the file reached `main`
+# ~4 minutes later, and GitHub then created push runs for that same older commit). The tell for
+# "not registered" is no `github-actions` check suite on the commit.
+#
+# ⛔ DISPATCH-ONLY, DELIBERATELY, AND NOT BECAUSE PUSH DOES NOT WORK. This name is registered, so
+# both triggers fire. Windows runners in this org are the scarce resource and several probes
+# compete for them, so an accidental run on every commit to this branch spends a slot that a
+# higher-priority probe needs. Ask for a run when you want one.
+#
 # ⛔ NO GITHUB EXPRESSION APPEARS INSIDE ANY `run:` BLOCK HERE — the one input is read through the
 # job-level `env:` instead. A run block is a string GitHub scans end to end, so a leading `#` does
 # NOT protect an expression written in a comment inside one, and an unparseable one takes the WHOLE
@@ -31,8 +57,6 @@
 name: win-etw-retain
 
 on:
-  push:
-    branches: [harness/win-etw-retain]
   workflow_dispatch:
     inputs:
       package:
