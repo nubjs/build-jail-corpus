@@ -76,7 +76,10 @@ if (AT_GRANT && !/^\{[\s\S]*\}$/.test(AT_GRANT.trim())) {
 }
 
 const NUB = flag('--nub', 'C:\\nub-ci.exe');
-const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+// `import.meta.dirname` rather than the hand-rolled `pathname.replace(/^\/([A-Za-z]:)/, ...)`
+// this used to carry: that strips the leading slash Windows adds but not the URL
+// percent-encoding, so a checkout under a path containing a space still resolved to `%20`.
+const HERE = import.meta.dirname;
 const HOME = process.env.USERPROFILE;
 
 // ⛔ NOT UNDER %TEMP%. That path is inside the jail's own private-temp redirect, so a fixture

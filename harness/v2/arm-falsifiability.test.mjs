@@ -11,7 +11,12 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const HERE = new URL('.', import.meta.url).pathname;
+// ⛔ `import.meta.dirname`, NEVER `new URL(...).pathname`. On Windows that yields
+// `/D:/a/repo/harness/v2/`, and `join`ing it produces `D:\D:\a\...` — a doubled drive
+// letter, so every test in this file died with MODULE_NOT_FOUND the first time the suite ran
+// on a windows-latest runner. It is wrong on POSIX too, just invisibly: `.pathname` keeps URL
+// percent-encoding, so a checkout under a path with a space resolves to `%20` and fails there.
+const HERE = import.meta.dirname;
 const TOOL = join(HERE, 'arm-falsifiability.mjs');
 const run = (a) => execFileSync(process.execPath, [TOOL, ...a], { encoding: 'utf8' });
 

@@ -13,7 +13,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+// ⛔ `import.meta.dirname`, NEVER `new URL(...).pathname`. On Windows that yields
+// `/D:/a/repo/harness/v2/`, and `join`ing it produces `D:\D:\a\...` — a doubled drive
+// letter, so every test in this file died with MODULE_NOT_FOUND the first time the suite ran
+// on a windows-latest runner. It is wrong on POSIX too, just invisibly: `.pathname` keeps URL
+// percent-encoding, so a checkout under a path with a space resolves to `%20` and fails there.
+const HERE = import.meta.dirname;
 const PROJ = '/home/u/root/observe';
 const HOME = '/home/u';
 const JAIL = '/home/u/root/jailhome';
