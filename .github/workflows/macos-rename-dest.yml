@@ -1,0 +1,165 @@
+# Does the macOS OBSERVE tracer actually RECORD a rename's destination path?
+#
+# Branch-scoped, no PR: dtrace needs uid 0 and the maintainer's Mac has SIP enabled, so a hosted
+# runner (which reports SIP DISABLED) is the only venue.
+#
+# Two independent pieces of evidence in ONE job, because a second push costs a queue:
+#
+#   1. KNOWN-ANSWER FIXTURE — N renames whose path strings are provably resident, traced by the PRE
+#      adapter and the FIXED one. The control must lose every destination; the fix must capture
+#      every one. This is the arm that can go RED, and it is the durable regression guard.
+#   2. REAL-WORLD BEFORE/AFTER — the same @apollo/rover@0.2.1 that run 31109041194 traced, measured
+#      twice. This is where the LOSS RATE gets its denominator: under the PRE adapter every rename
+#      still emits its SOURCE record (a separate, infallible clause), so the source count IS the
+#      number of renames, and the destination count is what was lost against it.
+#
+# ⛔ The job is DIAGNOSTIC-FIRST but not diagnostic-only: step 1 fails the job on a real regression,
+# and it refuses (INCONCLUSIVE, non-zero) rather than passing if its own control fails to go red.
+name: macos-rename-dest
+
+on:
+  push:
+    branches: [probe/macos-rename-dest]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'pkg@version for the real-world arm'
+        required: false
+        default: '@apollo/rover@0.2.1'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts + dtrace gate
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user, not by sudo
+          set +e
+          sw_vers; uname -m; node --version; npm --version
+          echo "SIP-VERBATIM: $(csrutil status 2>&1)"
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
+          echo "HELLO_RC=$?"
+
+      # ⛔ COMPILE THE FIXED ADAPTER BEFORE ANYTHING DEPENDS ON IT. `self uintptr_t np2;` is the
+      # whole fix, and if macOS dtrace rejects that spelling every arm below fails for a reason that
+      # has nothing to do with the defect. `-e` compiles and exits without enabling anything.
+      - name: Does the fixed adapter compile at all?
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user, not by sudo
+          set +e
+          sudo dtrace -e -s harness/v2/adapters/macos-observe.d -c /usr/bin/true > /tmp/compile.log 2>&1
+          echo "COMPILE_RC=$?"
+          sed 's/^/     /' /tmp/compile.log | head -20
+
+      - name: 1. KNOWN-ANSWER FIXTURE — control must lose every destination
+        id: kaf
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user, not by sudo
+          set +e
+          chmod +x harness/v2/probes/rename-dest-fixture.sh
+          sudo harness/v2/probes/rename-dest-fixture.sh /tmp/rdw > /tmp/kaf.txt 2>&1
+          KAF_RC=$?
+          cat /tmp/kaf.txt
+          echo "KAF_RC=$KAF_RC" | tee -a /tmp/kaf.txt
+          # ⛔ PROPAGATED ON PURPOSE. The fixture already returns non-zero for exactly the two cases
+          # worth a red job — the fix failed, or the CONTROL failed to go red so no arm means
+          # anything. Every later step carries `if: always()`, so the diagnostic data still lands.
+          exit "$KAF_RC"
+
+      # The denominator. Both arms trace the SAME package the original finding came from, so the
+      # before/after is comparable to run 31109041194 rather than to a fixture.
+      - name: 2. REAL-WORLD BEFORE/AFTER on the package the finding came from
+        if: always()
+        run: |
+          # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user, not by sudo
+          set +e
+          SPEC='${{ github.event.inputs.package || '@apollo/rover@0.2.1' }}'
+          P="${SPEC%@*}"; V="${SPEC##*@}"
+          chmod +x harness/v2/measure-macos.sh
+          cp harness/v2/adapters/macos-observe.d /tmp/adapter-FIXED.d
+
+          count () {   # count <label> <tracefile> <dtracelog>
+            local L="$1" T="$2" D="$3"
+            if [ ! -s "$T" ]; then echo "  $L: NO TRACE FILE at $T"; return; fi
+            local ren src ex ea flt led tot
+            ren=$(grep -E '^PATHOP\|' "$T" | awk -F'|' '$5=="rename"' | wc -l | tr -d ' ')
+            src=$(grep -E '^PATHOP\|' "$T" | awk -F'|' '$5=="rename"{print $NF}' | sort -u | wc -l | tr -d ' ')
+            ex=$(grep -c '^EXEC|' "$T")
+            ea=$(grep -c '^EXECARGV|' "$T")
+            flt=$(grep -c 'invalid address' "$D" 2>/dev/null)
+            led=$(grep -c '^TRACER-ERROR|' "$T")
+            tot=$(grep '^TRACER-ERROR-TOTAL|' "$T" | head -1)
+            echo "  == $L =="
+            echo "    rename PATHOP records : $ren      (one per rename END captured)"
+            echo "    distinct rename paths : $src"
+            echo "    EXEC / EXECARGV       : $ex / $ea"
+            echo "    stderr faults         : $flt"
+            echo "    in-band TRACER-ERROR  : $led"
+            echo "    END total             : $tot"
+            echo "    rename dest names seen (a rename dest is the path CREATED):"
+            grep -E '^PATHOP\|' "$T" | awk -F'|' '$5=="rename"{print $NF}' | sort | uniq -c \
+              | sort -rn | head -8 | sed 's/^/       /'
+            grep 'invalid address' "$D" 2>/dev/null | sort | uniq -c | sed 's/^/       /' | head -4
+          }
+
+          run_arm () {   # run_arm <label> <adapter>
+            local L="$1" A="$2"
+            cp "$A" harness/v2/adapters/macos-observe.d
+            rm -rf /Users/runner/v2m-* 2>/dev/null
+            echo "=================================================================="
+            echo "REAL-WORLD ARM: $L"
+            sudo -E harness/v2/measure-macos.sh "$P" "$V" > "/tmp/rw-$L.txt" 2>&1
+            echo "  driver_rc=$?"
+            grep -E 'OBSERVE |== TRACER ==|dropped-events|THE TRACER DROPPED|SYNTHESIZED|OBSERVE-ONLY|=> ' \
+              "/tmp/rw-$L.txt" | sed 's/^/  /'
+            # The arm's own root, found by glob rather than by parsing `ls`: run_arm removes every
+            # v2m-* before the driver runs, so exactly one exists and "newest" never has to be
+            # decided. A stale sibling root is the failure this avoids — it would silently score
+            # the PREVIOUS arm's trace and report the two arms as identical.
+            local R T
+            R=""
+            for d in /Users/runner/v2m-*; do [ -d "$d" ] && R="$d"; done
+            if [ -z "$R" ]; then echo "  $L: NO v2m-* ROOT — the driver never got started"; return; fi
+            T="$R/observe/trace.txt"
+            count "$L" "$T" "$R/observe/dtrace.log"
+            cp "$T" "/tmp/trace-$L.txt" 2>/dev/null
+            cp "$R/observe/dtrace.log" "/tmp/dtrace-$L.log" 2>/dev/null
+          }
+
+          run_arm pre  harness/v2/probes/macos-observe-PRE-NP2.d
+          run_arm post /tmp/adapter-FIXED.d
+          cp /tmp/adapter-FIXED.d harness/v2/adapters/macos-observe.d
+
+          echo "=================================================================="
+          echo "THE ARITHMETIC (loss rate = destinations lost / renames observed)"
+          PRE_REN=$(grep -E '^PATHOP\|' /tmp/trace-pre.txt 2>/dev/null | awk -F'|' '$5=="rename"' | wc -l | tr -d ' ')
+          POST_REN=$(grep -E '^PATHOP\|' /tmp/trace-post.txt 2>/dev/null | awk -F'|' '$5=="rename"' | wc -l | tr -d ' ')
+          echo "  PRE  rename records: $PRE_REN   (sources only — every dest faulted)"
+          echo "  POST rename records: $POST_REN   (sources + destinations)"
+          echo "  destinations recovered: $((POST_REN - PRE_REN))"
+          echo "  ⛔ if POST is not materially greater than PRE, the fix captured nothing and the"
+          echo "     errors merely stopped being PRINTED — which would be worse than the defect."
+
+      - name: 3. Decoder unit tests (RED-on-revert guard)
+        if: always()
+        run: node --test harness/v2/observe-macos.test.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-rename-dest
+          path: |
+            /tmp/kaf.txt
+            /tmp/rw-pre.txt
+            /tmp/rw-post.txt
+            /tmp/trace-pre.txt
+            /tmp/trace-post.txt
+            /tmp/dtrace-pre.log
+            /tmp/dtrace-post.log
+          if-no-files-found: warn
