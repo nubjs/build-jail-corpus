@@ -128,8 +128,15 @@ echo "  --- end fbt preflight ---"
 # uppercase in package names since 2017, so a basename carrying one cannot be a package directory:
 # the collision becomes unrepresentable rather than merely unlikely. Asserted, not just intended.
 OBS="$ROOT/Observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
+# ⛔ `[[:upper:]]`, NEVER `[A-Z]` — THE OBVIOUS SPELLING MAKES THIS ASSERTION VACUOUS ON THE EXACT
+# SHELL THIS FILE RUNS UNDER. bash 3.2 (macOS /bin/bash) does RANGE COLLATION under a UTF-8 locale, so
+# `[A-Z]` matches lowercase. MEASURED on this Mac, single-variable across both axes:
+#     bash 3.2.57  LC_ALL=C            [A-Z] correct     [[:upper:]] correct
+#     bash 3.2.57  LC_ALL=en_US.UTF-8  [A-Z] MATCHES     [[:upper:]] correct   <- the guard never fires
+#     bash 5.2.12  either              [A-Z] correct     [[:upper:]] correct
+# GitHub macOS runners set LANG=en_US.UTF-8, which is precisely the failing cell.
 case "$(basename "$OBS")" in
-  *[A-Z]*) ;;
+  *[[:upper:]]*) ;;
   *) echo "  ⛔ observation dir '$(basename "$OBS")' carries no uppercase letter, so its basename"
      echo "     could collide with an npm package name and make a stale-cwd resolution read as"
      echo "     verified. Refusing rather than measuring something that cannot be checked."; exit 1 ;;
@@ -578,6 +585,20 @@ JW
   # the package's three artifacts counted 704 files against a 718-file reference. The per-file
   # ARTIFACT MANIFEST is the gate in `measure.sh` and on Windows; the three drivers now agree on what
   # "the arm succeeded" means. `files/OBS_FILES` stays PRINTED for continuity with existing logs.
+  # ⛔ OBSERVED FROM THE ARM TREE, NEVER INFERRED FROM `CI`. Deriving the layout from the env var
+  # would encode the very rule this field exists to let us CHECK, and would then agree with itself
+  # forever. R3 names this the sharp axis, and `record.mjs` reads the marker; without it every darwin
+  # record carries storeLayout null. It also matters for `ownPkg`: `store_entry_write_root` is gated
+  # on the package dir's parent being a store, i.e. the ISOLATED layout — under a hoisted arm that
+  # drop would be an under-grant, and a null field cannot tell you which regime ran.
+  if [ -z "${STORE_LAYOUT_REPORTED:-}" ]; then
+    if [ -d "$v/node_modules/.store" ] || [ -L "$v/node_modules/$PKG" ]; then
+      echo "  VENUE-STORE-LAYOUT isolated"
+    else
+      echo "  VENUE-STORE-LAYOUT hoisted"
+    fi
+    STORE_LAYOUT_REPORTED=1
+  fi
   local gate grc
   gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
   echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"

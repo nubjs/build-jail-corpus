@@ -235,7 +235,7 @@ for (const raw of lines) {
   if (kind === 'EXECARGV') {
     const argv0 = f[3] ?? '', argv1 = f[4] ?? '';
     const argv2 = f.slice(5).join('|');   // free-form script body; may itself contain `|`
-    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
+    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid) && !lifecycle.has(pid)) cwdTrusted.add(pid); }
     if (isLifecycleShell(argv0, argv1)) {
       lifecycle.add(pid);
       cwdTrusted.delete(pid);   // npm set this shell's cwd in-kernel; the inherited belief is stale
@@ -249,10 +249,10 @@ for (const raw of lines) {
     if (!psargs.has(pid)) psargs.set(pid, args);
     // A child inherits the parent's cwd; the exec record is the first time we see the pid, so this
     // is where the inheritance has to be applied or every grandchild resolves against the wrong base.
-    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
+    if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid) && !lifecycle.has(pid)) cwdTrusted.add(pid); }
     continue;
   }
-  if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid)) cwdTrusted.add(pid); }
+  if (!cwds.has(pid) && cwds.has(ppid)) { cwds.set(pid, cwds.get(ppid)); if (cwdTrusted.has(ppid) && !lifecycle.has(pid)) cwdTrusted.add(pid); }
 
   if (kind === 'CHDIR') {
     const ret = Number((f[4] ?? '').replace('ret=', ''));
@@ -260,7 +260,22 @@ for (const raw of lines) {
     // `cwds.set` lines above — propagates a BELIEF, and on macOS that belief is exactly what
     // posix_spawn's in-kernel addchdir_np invalidates without a trace. Conflating the two is the
     // defect this guard exists for, so the two are tracked in different structures.
-    if (ret === 0) { cwds.set(pid, abs(pid, f.slice(5).join('|'))); cwdTrusted.add(pid); }
+    // ⛔ A RELATIVE chdir DOES NOT ESTABLISH TRUST, AND TREATING IT AS IF IT DID RE-OPENED THIS BUG
+    // THROUGH A SIDE DOOR. `abs()` resolves the target against the pid's CURRENT base — which, for a
+    // lifecycle shell, is exactly the untrusted inherited value this guard exists to distrust. So
+    // `cd build` produced a fabricated absolute path AND promoted it to "observed", after which every
+    // later relative path was billed against an invented base with no flag raised. REPRODUCED on the
+    // fixture below: `sh -c 'cd build && node gen.js'` yielded {"write":{"project":true}} unflagged.
+    // `cd build && …` is one of the commonest idioms in a native install script.
+    //
+    // The rule: an ABSOLUTE target is self-describing and always establishes trust. A RELATIVE target
+    // is only as good as the base it resolves against, so it preserves trust rather than creating it.
+    if (ret === 0) {
+      const target = f.slice(5).join('|');
+      const wasTrusted = cwdTrusted.has(pid);
+      cwds.set(pid, abs(pid, target));
+      if (target.startsWith('/') || wasTrusted) cwdTrusted.add(pid); else cwdTrusted.delete(pid);
+    }
     continue;
   }
 

@@ -408,3 +408,53 @@ test('an explicitly null root is ACCEPTED — absent and inapplicable are differ
   const r = decodeRaw(ALL_ROOTS);
   assert.equal(r.rc, 0, 'every root declared, some null, must run');
 });
+
+// ── 9. RELATIVE chdir DOES NOT ESTABLISH TRUST ────────────────────────────────────────────────
+//
+// A fresh-eyes review found the cwd guard re-opened through a side door: `abs()` resolved a relative
+// chdir against the untrusted inherited base and then marked the fabricated result OBSERVED. No case
+// covered it, which is why the suite stayed green — `cd build && …` is one of the commonest idioms
+// in a native install script.
+const REL_CHDIR = `
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|cd build && node gen.js
+EXEC|3950|3900|sh|sh
+CHDIR|3950|3900|bash|ret=0|build
+OPEN|3950|3900|bash|flags=0x601|ret=3|errno=0|dirfd=-2|out.txt
+`;
+
+test('a RELATIVE chdir does not make a fabricated cwd count as observed', () => {
+  // RED ON REVERT: restore the unconditional `cwdTrusted.add(pid)` in the CHDIR branch and this
+  // yields an unflagged {"write":{"project":true}} billed against the invented /proj/build/out.txt.
+  const out = decode(REL_CHDIR, { pkg: 'kaf' });
+  assert.match(out, /CWD-UNOBSERVED/, 'the shell chdir\'d relative to a base we never trusted');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}');
+});
+
+test('an ABSOLUTE chdir DOES establish trust — the fix is not a blanket distrust of chdir', () => {
+  // The positive control. Without it the case above is satisfied by a decoder that stopped trusting
+  // chdir entirely, which would flag every package that legitimately changes directory.
+  const out = decode(REL_CHDIR.replace('ret=0|build', 'ret=0|/proj/node_modules/kaf/build'),
+                     { pkg: 'kaf' });
+  assert.doesNotMatch(out, /CWD-UNOBSERVED/, 'an absolute target is self-describing');
+  assert.match(out, /ownPkg\s+1/, 'and resolves into the package dir, which is free');
+  assert.equal(grant(out), '{}');
+});
+
+test('a relative chdir PRESERVES trust once the base is known', () => {
+  // The third cell, and the reason the rule is "absolute establishes, relative preserves" rather
+  // than "relative is always untrusted": after an absolute chdir the base IS known, so a subsequent
+  // relative one resolves correctly and must not re-flag.
+  const out = decode(`
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|cd /proj/node_modules/kaf && cd build && node gen.js
+EXEC|3950|3900|sh|sh
+CHDIR|3950|3900|bash|ret=0|/proj/node_modules/kaf
+CHDIR|3950|3900|bash|ret=0|build
+OPEN|3950|3900|bash|flags=0x601|ret=3|errno=0|dirfd=-2|out.txt
+`, { pkg: 'kaf' });
+  assert.doesNotMatch(out, /CWD-UNOBSERVED/, 'the base was established absolutely first');
+  assert.match(out, /ownPkg\s+1/, 'so /proj/node_modules/kaf/build/out.txt resolves correctly');
+});
