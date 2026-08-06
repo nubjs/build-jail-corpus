@@ -168,14 +168,47 @@ syscall::rename:return
 	self->np2 = 0;
 }
 
-/* ── EXEC. psargs is the only place the lifecycle shell's `-c <script>` text appears, and that
- * text is what separates the package's script from npm's own subtree. ─────────────────────── */
+/* ── EXEC. Two records per exec, because neither one alone is sufficient on macOS.
+ *
+ * EXEC (proc:::exec-success) rebuilds the PROCESS TREE — pid, ppid, and the post-exec execname.
+ * It is the only one of the two that fires for the new image, so parentage comes from here.
+ *
+ * ⛔ IT CANNOT IDENTIFY THE LIFECYCLE SHELL. `curpsinfo->pr_psargs` on macOS carries only the
+ * COMMAND NAME, never the argv. MEASURED on run 31087159355 over a real `npm rebuild`: of 9 EXEC
+ * records, ZERO contained a space at all — `sudo -u runner -H env PATH=<400 chars> …` came out as
+ * the four characters `sudo`, and the lifecycle shell `sh -c "<script>"` came out as `sh`. So the
+ * decoder's `psargs =~ / -c /` test could never match for any process on this platform, which is
+ * why every macOS arm reported `lifecycle pids: 0`. This is a SEPARATE macOS fact from the
+ * /bin/sh stub re-exec that broke `dtrace -c`; the re-exec is visible here (one pid, two EXEC
+ * records, `sh` then `bash`) but harmless, since both names pass the shell-name test anyway.
+ *
+ * EXECARGV supplies the argv the tree cannot. copyin at ENTRY is safe here — and only here —
+ * because the CALLER has just written the pointer array and the strings, so they are resident;
+ * contrast the path argument of open(2), which the caller may never have touched, and which is the
+ * copyinstr-at-entry defect fixed above. posix_spawn was measured as the weaker alternative: it
+ * reports the PARENT's pid rather than the shell's, and faulted 5x against execve's 1x.
+ *
+ * Three argv slots is deliberate: `sh -c <script>` needs exactly [0], [1], [2], and copying only
+ * what is needed keeps a short argv from reading past the array's NULL terminator.
+ *
+ * FIELD ORDER: the script body is LAST because it is free-form and routinely contains `|`. The
+ * decoder rejoins everything from field 5 on. ──────────────────────────────────────────────── */
 
 proc:::exec-success
 /progenyof($target)/
 {
 	printf("EXEC|%d|%d|%s|%s\n", pid, curpsinfo->pr_ppid, execname, curpsinfo->pr_psargs);
 	@allexecs[execname] = count();
+}
+
+syscall::execve:entry
+/progenyof($target)/
+{
+	this->v = (user_addr_t *)copyin(arg1, sizeof(user_addr_t) * 3);
+	printf("EXECARGV|%d|%d|%s|%s|%s\n", pid, curpsinfo->pr_ppid,
+	    this->v[0] != 0 ? copyinstr(this->v[0]) : "",
+	    this->v[1] != 0 ? copyinstr(this->v[1]) : "",
+	    this->v[2] != 0 ? copyinstr(this->v[2]) : "");
 }
 
 /* ── CONNECT. The sockaddr is copied at ENTRY because the kernel may have consumed it by return.

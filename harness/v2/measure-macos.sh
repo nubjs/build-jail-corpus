@@ -107,6 +107,13 @@ node "$HERE/observe-macos.mjs" "$OBS/trace.txt" "$OBS" "/Users/$RUNUSER" > "$ROO
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+# ⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. The decoder emits this token
+# instead of `{}` when the subtree filter matched nothing, precisely so the two cannot be confused.
+if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
+  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
+  echo "     measurement here. This is NOT a package that needs nothing.)"
+  exit 0
+fi
 
 if [ -z "$NUB" ] || [ ! -x "$NUB" ]; then
   echo "  => OBSERVE-ONLY: $GRANT"
@@ -135,9 +142,20 @@ verify () {
   # scripts never run again. The signature is `materialized …` with no `installed N packages`,
   # while every precondition stays green. Hence a fresh cache per ARM, not per run.
   local cache="$v/nubcache"; rm -rf "$cache"
+  # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
+  # default block, which would make the arm VOID and read as "the grant did not work" rather than
+  # "the package needs nothing". The override REPLACES the compiled-in table rather than merging
+  # into it, so OMITTING the package makes it run at the base profile, which IS the empty grant. A
+  # throwaway sentinel entry keeps the file non-empty so the override still engages and the
+  # OVERRIDDEN>=1 / REJECTED==0 assertion below stays meaningful. Ported from measure.sh; the
+  # Windows lane took husky@4.3.8 from write:"disk" to a verified {} on exactly this construction.
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
-    fs.writeFileSync(r+"/cat.json",JSON.stringify({packages:{[p]:{default:JSON.parse(g)}}}));
+    const grant=JSON.parse(g);
+    const cat = Object.keys(grant).length
+      ? {packages:{[p]:{default:grant}}}
+      : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
+    fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
@@ -215,13 +233,10 @@ if [ "$VERIFIED" -eq 1 ]; then
   fi
   while IFS=$'\t' read -r nm gg; do
     [ -n "${nm:-}" ] || continue
-    # ⛔ An empty `default` block is REJECTED by the parser, which would make the arm VOID and read
-    # as a failure. That is not the same answer as "the narrower grant did not work", so say so.
-    if [ "$gg" = "{}" ]; then
-      echo "  NARROW[$nm] grant is empty — the catalog cannot express an empty default block, so"
-      echo "     this variant is UNTESTABLE rather than failing. Reported, not counted."
-      continue
-    fi
+    # An empty variant used to be UNTESTABLE here, because the parser rejects an empty `default`
+    # block and the arm came back VOID. `verify` now expresses it the way measure.sh does — omit the
+    # package so it runs at the base profile — so the fully-narrowed variant is a real arm, and a
+    # package that needs nothing is measurable rather than skipped.
     if verify "$gg" "nar-$nm"; then
       echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
     else
