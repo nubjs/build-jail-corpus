@@ -1,0 +1,255 @@
+# Does `lmdb-store@2.0.0-alpha2` install in a REAL unprivileged jail at the NARROWED grant?
+#
+# `harness/decoder-losses` (6c2390d9) narrows this package from
+# `{"write":{"project":true},"network":true}` to `{"network":true}` on the grounds that 287 of its
+# 363 `clone` edges are split across `<unfinished ...>`, so node-gyp's relative `./Release/...`
+# writes were billed to the PROJECT ROOT — 70 paths that do not exist on disk after the install.
+#
+# ⛔ THAT ANALYSIS WAS NEVER RUN IN A JAIL. "The paths were fabricated" and "the narrower grant
+# actually installs" are DIFFERENT CLAIMS, and only the first was established. A narrowing that
+# ships on the first claim alone is an UNDER-GRANT, the one direction that breaks a user's install.
+# This workflow answers the second claim and nothing else. It publishes no record and touches no
+# queue.
+#
+# THREE ARMS, all on the one package:
+#   A  {"network":true}                              THE QUESTION — must PASS for the narrowing to be safe
+#   B  {"write":{"project":true},"network":true}     CONTROL — the OLD grant; must also PASS, or the
+#                                                    comparison is broken and neither arm is readable
+#   C  {}                                            NEGATIVE CONTROL — base profile only. A FAILURE
+#                                                    here is the positive proof that this runner's
+#                                                    jail can refuse something at all.
+name: lmdb-jail-verify
+
+on:
+  push:
+    # Branch-scoped: `workflow_dispatch` is inert until the file reaches the default branch, so a
+    # push to this branch is the only trigger that fires.
+    branches: [probe/lmdb-jail-verify]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PKG: lmdb-store
+      VER: 2.0.0-alpha2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # ⛔ THE HIGHEST-VALUE STEP IN THE FILE, AND IT RUNS FIRST. Lifted verbatim in intent from
+      # `jail-security-probe.yml`: on a kernel without Landlock, nub degrades to NO filesystem
+      # confinement, so EVERY arm passes and the narrow arm's pass would mean nothing at all. That
+      # is exactly the false green this probe exists to rule out.
+      - name: Verify the kernel can actually enforce
+        run: |
+          set -eu
+          echo "kernel: $(uname -r)"
+          echo "lsm   : $(cat /sys/kernel/security/lsm 2>/dev/null || echo '(unreadable)')"
+          cat > /tmp/lltest.c <<'EOF'
+          #include <linux/landlock.h>
+          #include <sys/syscall.h>
+          #include <unistd.h>
+          #include <stdio.h>
+          #include <errno.h>
+          int main(void) {
+            long r = syscall(SYS_landlock_create_ruleset, NULL, 0,
+                             LANDLOCK_CREATE_RULESET_VERSION);
+            if (r < 0) { printf("LANDLOCK UNAVAILABLE errno=%d\n", errno); return 1; }
+            printf("LANDLOCK ABI v%ld\n", r); return 0;
+          }
+          EOF
+          gcc -o /tmp/lltest /tmp/lltest.c
+          /tmp/lltest || { echo "⛔ NO LANDLOCK ON THIS RUNNER — a pass would not distinguish 'the narrow grant suffices' from 'nothing was ever enforced'. Refusing to measure."; exit 1; }
+
+      - name: Install strace and prove it traces
+        run: |
+          set -eux
+          sudo apt-get update -qq && sudo apt-get install -y -qq strace
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+
+      - name: Resolve the native path of the probe binary
+        run: |
+          set -eu
+          echo "NUB_BIN_CACHE_PATH=/tmp/nub/target/release/nub" >> "$GITHUB_ENV"
+
+      # Any feature-enabled binary will do — the arm needs the FEATURE, not a commit. The
+      # `nub-bin-v1-linux-` caches are saved on `refs/heads/main`, so a probe branch can restore them.
+      - name: Restore a feature-enabled nub binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-linux-none
+          restore-keys: |
+            nub-bin-v1-linux-
+
+      - name: Build the probe binary (only on a cache miss)
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          SHA=$(git rev-parse origin/sandbox/integration)
+          git checkout --detach "$SHA"
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub" >> "$GITHUB_ENV"
+
+      - name: Point at the restored binary
+        if: steps.nubbin.outputs.cache-matched-key != ''
+        run: |
+          set -eu
+          BIN=/tmp/nub/target/release/nub
+          chmod +x "$BIN"
+          "$BIN" --version
+          echo "restored from cache key: ${{ steps.nubbin.outputs.cache-matched-key }}"
+          echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
+
+      # ⛔ SELF-CHECKING: the MALFORMED catalog must be REJECTED before a well-formed one is allowed
+      # to prove anything. Without that control, a binary that never read the variable at all reads
+      # as success — the shape of a check that passes forever while testing nothing.
+      - name: Assert the binary honours NUB_BUILD_JAIL_CATALOG
+        run: |
+          set -uo pipefail
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/cat-bad.json
+          printf '{"packages":{"__v2_probe__":{"default":{"network":true}}}}'    > /tmp/cat-good.json
+          BAD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-bad.json "$NUB_BIN" --version 2>&1 || true)
+          case "$BAD" in
+            *REJECTED*) echo "control ok — a malformed catalog is refused: $BAD" ;;
+            *) echo "⛔ GATE IS INERT: no REJECTED banner. Saw: ${BAD:-<none>}" >&2; exit 1 ;;
+          esac
+          GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1 || true)
+          case "$GOOD" in
+            *OVERRIDDEN*) echo "override engages: $GOOD" ;;
+            *) echo "⛔ no OVERRIDDEN banner — this binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
+          esac
+
+      - name: Assert the binary carries the build jail
+        run: |
+          set -eu
+          N=$(grep -ac 'build-jail' "$NUB_BIN" || true)
+          echo "build-jail string hits: $N"
+          test "${N:-0}" -gt 0 || { echo "⛔ no build-jail strings — this binary cannot be jailing anything" >&2; exit 1; }
+
+      - name: Prep the harness
+        run: chmod +x harness/v2/*.sh
+
+      # ── ARM A — the question. ────────────────────────────────────────────────────────────────
+      - name: 'ARM A — narrowed grant {"network":true}'
+        if: always()
+        run: |
+          set -uo pipefail
+          bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant '{"network":true}' > /tmp/armA.log 2>&1
+          echo "ARM_A_EXIT=$?" | tee -a "$GITHUB_ENV"
+          cat /tmp/armA.log
+
+      # ── ARM B — the control at the OLD grant. ────────────────────────────────────────────────
+      - name: 'ARM B (control) — old grant {"write":{"project":true},"network":true}'
+        if: always()
+        run: |
+          set -uo pipefail
+          bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant '{"write":{"project":true},"network":true}' > /tmp/armB.log 2>&1
+          echo "ARM_B_EXIT=$?" | tee -a "$GITHUB_ENV"
+          cat /tmp/armB.log
+
+      # ── ARM C — negative control: base profile only. ─────────────────────────────────────────
+      - name: 'ARM C (negative control) — empty grant {}'
+        if: always()
+        run: |
+          set -uo pipefail
+          bash harness/v2/measure.sh "$PKG" "$VER" "$NUB_BIN" --at-grant '{}' > /tmp/armC.log 2>&1
+          echo "ARM_C_EXIT=$?" | tee -a "$GITHUB_ENV"
+          cat /tmp/armC.log
+
+      # Re-derives the fabrication finding on a FRESH trace taken on this runner, rather than
+      # trusting the prior agent's numbers. `measure.sh` leaves `$ROOT` under `$HOME/v2-XXXXXX`.
+      - name: Re-check the fabrication claim against a fresh trace
+        if: always()
+        run: |
+          set -uo pipefail
+          for d in "$HOME"/v2-*; do
+            T="$d/observe/trace.txt"
+            [ -f "$T" ] || continue
+            echo "=== $T ($(wc -l < "$T") lines)"
+            PROJ="$d/observe"
+            echo "  absolute <proj>/Release occurrences        : $(grep -c "\"$PROJ/Release" "$T" || true)"
+            echo "  node_modules/$PKG/build/Release occurrences: $(grep -c "node_modules/$PKG/build/Release" "$T" || true)"
+            echo "  clone lines total                          : $(grep -cE '\bclone[0-9]*\(' "$T" || true)"
+            echo "  clone lines split at <unfinished           : $(grep -cE '\bclone[0-9]*\(.*<unfinished' "$T" || true)"
+            echo "  --- does <proj>/Release exist on disk? ---"
+            ls -la "$PROJ" 2>&1 | head -20
+            ls -la "$PROJ/Release" 2>&1 | head -3
+            break
+          done
+
+      - name: Collect the refusals each arm actually took
+        if: always()
+        run: |
+          set -uo pipefail
+          for a in A B C; do
+            L=/tmp/arm$a.log
+            [ -f "$L" ] || continue
+            echo "===== ARM $a ====="
+            grep -nE '=> (SUFFICIENT|INSUFFICIENT|VOID)|VERIFY\[|EVICT|running build scripts|REPLAY SUSPECTED' "$L" || true
+          done
+          echo "===== per-arm install logs: real EACCES/EPERM refusals ====="
+          for d in "$HOME"/v2-*; do
+            for f in "$d"/verify-*/*.log; do
+              [ -f "$f" ] || continue
+              n=$(grep -cE '= -1 (EACCES|EPERM)' "$f" || true)
+              [ "$n" = "0" ] && continue
+              echo "--- $f : $n refusals"
+              grep -E '= -1 (EACCES|EPERM)' "$f" | head -10
+            done
+          done
+
+      - name: Did the native addon genuinely rebuild?
+        if: always()
+        run: |
+          set -uo pipefail
+          for d in "$HOME"/v2-*; do
+            for v in "$d"/verify-*; do
+              [ -d "$v" ] || continue
+              echo "=== $v"
+              find -L "$v" -path "*$PKG*" -name '*.node' -printf '%p  %s bytes  %TY-%Tm-%Td %TH:%TM:%TS\n' 2>/dev/null | head -10
+              echo "  --- gyp evidence in the arm logs:"
+              grep -hoE 'gyp info (ok|it worked)[^ ]*|Release/obj\.target|make: Leaving directory[^ ]*|building.*node-gyp' "$v"/*.log 2>/dev/null | sort -u | head -8
+            done
+          done
+
+      - name: Upload every log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lmdb-jail-verify-logs
+          # ⛔ ABSOLUTE, NOT `~`. upload-artifact resolves its paths in NODE, which does not expand a
+          # leading tilde — the glob would match nothing and the step would warn rather than fail.
+          path: |
+            /tmp/arm*.log
+            /home/runner/v2-*/observe/npm.log
+            /home/runner/v2-*/observe/fetch.log
+            /home/runner/v2-*/observed.txt
+            /home/runner/v2-*/verify-*/*.log
+            /home/runner/v2-*/verify-*/cat.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verdict
+        if: always()
+        run: |
+          set -uo pipefail
+          echo "ARM A  {\"network\":true}                            exit=${ARM_A_EXIT:-?}   (0=SUFFICIENT 1=INSUFFICIENT 3=VOID)"
+          echo "ARM B  {\"write\":{\"project\":true},\"network\":true}  exit=${ARM_B_EXIT:-?}"
+          echo "ARM C  {}                                          exit=${ARM_C_EXIT:-?}"
+          # ⛔ NO GATE HERE ON ARM C. A negative control that FAILS is the wanted outcome, so
+          # failing the job on it would sit permanently red over a correct result. The verdict is
+          # read, not asserted.
+          [ "${ARM_A_EXIT:-9}" = "3" ] && { echo "⛔ ARM A VOID — nothing was measured"; exit 1; }
+          [ "${ARM_B_EXIT:-9}" = "3" ] && { echo "⛔ ARM B VOID — nothing was measured"; exit 1; }
+          exit 0
