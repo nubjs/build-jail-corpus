@@ -1,0 +1,111 @@
+# macOS god-mode observation adapter — recon, known-answer validation, and a real package.
+#
+# Branch-scoped on purpose: no PR is required to run this. The probe needs ROOT on a real macOS host
+# with SIP ENABLED, which is exactly what a GitHub macOS runner is and exactly what the generation
+# harness will eventually be. An interactive workstation without passwordless sudo cannot run either
+# instrument, so a CI runner is the only place the adapter can be validated at all.
+name: macos-observe-probe
+
+on:
+  push:
+    branches: [probe/macos-observe]
+    paths:
+      - 'harness/v2/adapters/**'
+      - '.github/workflows/macos-observe-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Host facts
+        run: |
+          sw_vers; uname -m
+          echo "SIP: $(csrutil status 2>&1)"
+          echo "uid=$(id -u) user=$(whoami)"
+          sudo -n true && echo "passwordless sudo: YES" || echo "passwordless sudo: NO"
+
+      # STAGE 1 — RECON. Harvests the real eslogger JSON schema and the real fs_usage truncation
+      # threshold. The adapter was written without ever having seen either (both need root), so this
+      # stage is what turns its assumptions into measurements. It must never fail the job: a negative
+      # answer here is the deliverable.
+      # ⛔ `set +e` IS LOAD-BEARING IN EVERY STEP BELOW. GitHub runs `run:` under `bash -e`, so the
+      # step aborts on the first non-zero command — which in run 1 meant a failing probe killed the
+      # step BEFORE the `cat` that would have shown why, and `continue-on-error` does not help
+      # because it governs the JOB's verdict, not the shell's. Capture the rc on its own line and
+      # print the log unconditionally.
+      - name: Recon — what do the two instruments actually emit?
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/recon-macos.sh
+          sudo harness/v2/adapters/recon-macos.sh "$RUNNER_TEMP/recon" > "$RUNNER_TEMP/recon.log" 2>&1
+          echo "RECON_EXIT=$?"
+          tail -400 "$RUNNER_TEMP/recon.log"
+
+      - name: Recon — full schema dump
+        continue-on-error: true
+        run: |
+          set +e
+          echo "=========== eslogger schema ==========="; cat "$RUNNER_TEMP/recon/es-schema.txt" 2>&1 | head -300
+          echo "=========== fs_usage analysis ==========="; cat "$RUNNER_TEMP/recon/fsu-analysis.txt" 2>&1 | head -200
+          echo "=========== raw eslogger sample ==========="; head -3 "$RUNNER_TEMP/recon/es-raw.json" 2>&1
+          echo "=========== raw fs_usage sample ==========="; sed -n '1,40p' "$RUNNER_TEMP/recon/fsu-raw.txt" 2>&1
+
+      # STAGE 2 — the known-answer validation, both directions.
+      - name: Validate the adapter against a fixture whose answer we control
+        id: validate
+        continue-on-error: true
+        run: |
+          set +e
+          chmod +x harness/v2/adapters/validate-macos.sh
+          # sudo resets PATH to secure_path, which has no node on a hosted runner. Hand the
+          # resolved interpreter across the privilege boundary explicitly.
+          sudo NODE="$(command -v node)" harness/v2/adapters/validate-macos.sh > "$RUNNER_TEMP/validate.log" 2>&1
+          echo "VALIDATE_EXIT=$?"
+          cat "$RUNNER_TEMP/validate.log"
+
+      # STAGE 3 — a real package. esbuild's postinstall downloads a platform binary, so it exercises
+      # network plus a write into the materialized package dir, through a lifecycle script that is a
+      # grandchild of npm. Never fails the job; it is an observation, not an assertion.
+      - name: Observe a real package end to end
+        continue-on-error: true
+        run: |
+          set +e
+          OBS="$HOME/obs"; mkdir -p "$OBS"; cd "$OBS"
+          printf '{"name":"o","version":"1.0.0"}\n' > package.json
+          sudo "$(command -v node)" "$GITHUB_WORKSPACE/harness/v2/adapters/macos.mjs" \
+            --out "$OBS/events.ndjson" --diag "$OBS/diag.json" \
+            -- /bin/sh -c "cd $OBS && npm install --no-audit --no-fund --foreground-scripts esbuild@0.21.5"
+          echo "OBSERVE_EXIT=$?"
+          echo "=== diag ==="; cat "$OBS/diag.json"
+          echo "=== events: total $(wc -l < "$OBS/events.ndjson") ==="
+          echo "--- by op ---"; awk -F'"op":"' '{split($2,a,"\""); print a[1]}' "$OBS/events.ndjson" | sort | uniq -c | sort -rn
+          echo "--- writes, first 40 ---"; grep '"op":"write"' "$OBS/events.ndjson" | head -40
+          echo "--- denied ---"; grep '"result":"denied"' "$OBS/events.ndjson" | head -20
+          echo "--- distinct pids ---"; awk -F'"pid":' '{split($2,a,","); print a[1]}' "$OBS/events.ndjson" | sort -u | tr '\n' ' '
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-observe-probe
+          path: |
+            ${{ runner.temp }}/recon
+            ${{ runner.temp }}/*.log
+            ~/obs/events.ndjson
+            ~/obs/diag.json
+          if-no-files-found: warn
+
+      # The job's verdict is the VALIDATION arm only. Recon and the real-package run are
+      # observations; a red job must mean "the adapter failed its known answer", nothing else.
+      - name: Verdict
+        run: |
+          grep -q 'BOTH ARMS PASSED' "$RUNNER_TEMP/validate.log" \
+            && echo "VALIDATED" \
+            || { echo "adapter did NOT pass both-directions validation"; exit 1; }
