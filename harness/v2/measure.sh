@@ -38,8 +38,21 @@ if [ "$FETCH_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
+# ⛔ OBSERVE WITH THE SAME `HOME` THE JAIL WILL GIVE THE SCRIPT, OR EVERY npm-CACHE WRITE IS BILLED
+# AS A CAPABILITY THE PACKAGE DOES NOT NEED. The jail redirects `HOME`/`USERPROFILE` to a per-package
+# private home (`preset.rs` `private_home_dir`, RW-granted by the base profile), so inside the jail
+# `$HOME/.npm/_cacache/...` lands in already-granted space. Observing under the AMBIENT `$HOME` put
+# those same writes under the real home and synthesized `write:{userHome}` — measured on
+# `vanilla-cookieconsent@3.0.0-rc.9`, 51 of its 52 writes were npm's own cache.
+#
+# ⛔ THE REDIRECT IS THE POINT, AND A `$HOME`-PREFIX EXCLUSION WOULD NOT DO. Filtering the paths
+# afterwards would silently swallow a script that hardcodes a real-home path — an UNDER-prediction,
+# the one direction that breaks installs. Redirecting instead makes `jailHome` a MEASUREMENT of
+# which writes actually follow `$HOME`: a hardcoded path still lands in `userHome` and still earns
+# the grant.
+JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
+HOME="$JAIL_HOME" strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
 OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
@@ -52,7 +65,7 @@ if [ "$OBS_RC" -ne 0 ]; then
 fi
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
-node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" > "$ROOT/observed.txt" 2>&1
+node "$HERE/observe.mjs" "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$PKG" > "$ROOT/observed.txt" 2>&1
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
@@ -182,7 +195,20 @@ verify () {
   [ "$rc" -eq 0 ] && [ "$files" -ge "$OBS_FILES" ]
 }
 
-if verify "$GRANT" "synth"; then
+# ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. Same three-outcome rule as the descent
+# below, and here the cost of collapsing them is the whole record: a VOID synth arm measured the
+# COMPILED-IN catalog, so falling through to the ladder walks upward from a hypothesis that was
+# never tested and publishes whichever rung happens to pass as this package's MINIMUM. That is the
+# exact shape of the largest error this harness has produced (the empty-grant bug), and the
+# construction that fixed that one does not stop a VOID arriving by some other route — a malformed
+# grant, a binary built without the override feature, a crash before the log line.
+verify "$GRANT" "synth"; SRC=$?
+if [ "$SRC" -eq 2 ]; then
+  echo "  => ⛔ VOID — the override did not engage on the verdict arm; NOTHING was measured."
+  echo "     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant."
+  exit 3
+fi
+if [ "$SRC" -eq 0 ]; then
   echo "  => VERIFIED $GRANT   (observed, then verified)"
 
   # ── 3a. DESCEND — is the verified grant actually MINIMAL, or did OBSERVE over-predict? ────────
@@ -214,7 +240,18 @@ if verify "$GRANT" "synth"; then
   if [ -z "$CAPS" ]; then
     echo "  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction."
   else
-    NARROWER=""
+    # ⛔⛔ `verify` HAS THREE OUTCOMES AND THIS LOOP MUST NOT COLLAPSE THEM TO TWO. rc 0 = the narrower
+    # grant passed, rc 1 = it was genuinely insufficient, rc 2 = the arm was VOID (the override did
+    # not engage, so nub silently ran the COMPILED-IN catalog and nothing about `$SUB` was measured).
+    # An `if verify …; else NECESSARY; fi` reads VOID as necessity — it manufactures evidence that a
+    # capability is needed out of an arm that measured nothing, and it does so in the direction that
+    # HIDES over-prediction, which is the direction we are least able to detect by other means.
+    #
+    # MEASURED, and it fired on the control package: `wordpos@2.1.0`'s `drop-writedeps` arm came back
+    # `REJECTED=2` / VOID and the driver printed `'write.deps' is NECESSARY` anyway, so that package's
+    # `MINIMAL` verdict was never earned. Reported rather than fatal — the other capabilities' arms
+    # are still valid, so the run yields a partial answer instead of none.
+    NARROWER=""; INCONCLUSIVE=""
     for cap in $CAPS; do
       SUB=$(node -e '
         const [g0, cap] = process.argv.slice(1); const g = JSON.parse(g0);
@@ -224,15 +261,19 @@ if verify "$GRANT" "synth"; then
                if (!Object.keys(g.write).length) delete g.write; }
         console.log(JSON.stringify(g));
       ' "$GRANT" "$cap")
-      if verify "$SUB" "drop-$(printf '%s' "$cap" | tr -d '.')"; then
-        echo "     ⛔ OVER-PREDICTED: dropping '$cap' STILL VERIFIES — $SUB is sufficient"
-        NARROWER="$NARROWER $cap"
-      else
-        echo "     '$cap' is NECESSARY — dropping it fails to verify"
-      fi
+      verify "$SUB" "drop-$(printf '%s' "$cap" | tr -d '.')"; drc=$?
+      case "$drc" in
+        0) echo "     ⛔ OVER-PREDICTED: dropping '$cap' STILL VERIFIES — $SUB is sufficient"
+           NARROWER="$NARROWER $cap" ;;
+        2) echo "     ⛔ INCONCLUSIVE for '$cap' — the arm was VOID, so nothing was measured; NOT evidence of necessity"
+           INCONCLUSIVE="$INCONCLUSIVE $cap" ;;
+        *) echo "     '$cap' is NECESSARY — dropping it fails to verify" ;;
+      esac
     done
     if [ -n "$NARROWER" ]; then
       echo "  => OVER-PREDICTED by:$NARROWER  (synthesized $GRANT; each named capability drops on its own)"
+    elif [ -n "$INCONCLUSIVE" ]; then
+      echo "  => DESCENT INCOMPLETE — no capability dropped, but$INCONCLUSIVE was never measured; MINIMALITY IS UNPROVEN"
     else
       echo "  => MINIMAL — every capability in $GRANT is independently necessary"
     fi
@@ -302,7 +343,11 @@ for g in \
   '{"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}' \
   '{"write":"disk","network":true}'
 do
-  if verify "$g" "fb$(echo "$g" | cksum | cut -d' ' -f1)"; then
+  verify "$g" "fb$(echo "$g" | cksum | cut -d' ' -f1)"; frc=$?
+  # A VOID rung is not a failed rung. Collapsing them makes the ladder CLIMB PAST a grant it never
+  # tested and publish the next one as the minimum — over-granting on the strength of no measurement.
+  [ "$frc" -eq 2 ] && { echo "     ⛔ VOID rung — override did not engage; the ladder cannot continue honestly"; exit 3; }
+  if [ "$frc" -eq 0 ]; then
     echo "  => MINIMUM $g   (ladder fallback; synthesized grant was insufficient)"
     echo "  ⛔ OBSERVE UNDER-PREDICTED — the gap between $GRANT and $g is worth reading"
     exit 0
