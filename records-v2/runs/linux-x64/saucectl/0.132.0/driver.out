@@ -1,0 +1,31 @@
+### saucectl@0.132.0   (/home/runner/v2-59htU9)
+  OBSERVE   rc=0 files=606 trace=10796 lines
+  CLOSURE   42 packages evicted per arm
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 2  /  whole traced tree 5
+    sockets script 5  /  whole traced tree 5
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-59htU9/observe/node_modules/saucectl/bin
+        /home/runner/v2-59htU9/observe/node_modules/saucectl/bin/saucectl
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 7
+        127.0.0.53:53
+        140.82.114.4:443
+        185.199.108.133:0
+        185.199.111.133:0
+        185.199.110.133:0
+        185.199.109.133:0
+        185.199.108.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 (tree 2129/606) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  VERIFY[drop-network] rc=1 artifacts=6/7 missing=1 (tree 2124/606) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/saucectl
+     'network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
