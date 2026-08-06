@@ -184,7 +184,24 @@ const OBS = path.join(ROOT, 'observe');
 fs.mkdirSync(OBS, { recursive: true });
 fs.writeFileSync(path.join(OBS, 'package.json'), JSON.stringify({ name: 'o', version: '1.0.0' }) + '\n');
 
-const fetch = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: OBS });
+// ⛔ THE OBSERVE ARM MUST NOT SHARE THE HOST'S npm CACHE, OR IT UNDER-PREDICTS `network` SILENTLY.
+// A lifecycle script that fetches its payload finds it already present when npm's cache is warm, so
+// the trace records NO connect events and the synthesized grant omits `network` -- correct for that
+// run, and wrong for the cold machine a real user installs on. An under-prediction breaks installs,
+// which is the direction that matters.
+//
+// MEASURED on purescript@0.15.9: `purs.bin` was WRITTEN at 60,475,904 B during OBSERVE while the
+// whole trace held 15 Kernel-Network records (5 send / 7 recv) and ZERO connect events with the
+// subtree filter removed, npm's `cacache` get/read modules loaded, and
+// `%LOCALAPPDATA%\npm-cache\_cacache` populated. The synthesized grant was `{"write":{"deps":true}}`
+// -- no network -- and every jailed arm then failed to produce that file.
+//
+// The verify arms already evict the nub store per arm for exactly this reason; OBSERVE had no
+// equivalent. A per-run cache directory gives the arm the same cold start a user gets, and is
+// passed to the traced rebuild as well as the fetch since the lifecycle script runs under rebuild.
+const NPM_CACHE = path.join(ROOT, 'npm-cache');
+const obsEnv = { ...process.env, npm_config_cache: NPM_CACHE };
+const fetch = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: OBS, env: obsEnv });
 fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stderr ?? ''));
 if (fetch.status !== 0) {
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=${fetch.status}; nothing to measure)`);
@@ -201,7 +218,10 @@ const CAP = path.join(ROOT, 'cap');
 // `cmd /c foo.cmd` also runs the wrapper in that same cmd.exe, so this adds no process level and
 // the "lifecycle shell = a cmd.exe that is not rootPid" rule is unaffected.
 const WRAP = path.join(ROOT, 'rebuild.cmd');
-fs.writeFileSync(WRAP, `@echo off\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
+// `set` inside the wrapper rather than an env option on the powershell call: the capture script
+// spawns the command through its own cmd.exe, so this is the one place guaranteed to be in scope
+// for the lifecycle script itself.
+fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
 // ⛔ THE ETW SESSION NAME MUST BE UNIQUE PER RUN. windows.ps1 defaults to the fixed name `nubobs`
 // and unconditionally `logman stop`s it before creating it, so a second concurrent driver SILENTLY
 // KILLS the first one's live trace -- the victim reports a short or empty capture with no error.
