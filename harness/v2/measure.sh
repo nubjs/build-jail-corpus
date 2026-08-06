@@ -130,12 +130,19 @@ assert_real_user() {
   [ "$fail" -eq 0 ] || { echo "⛔ R7 FAILED — refusing to measure under reduced permissions." >&2; exit 3; }
 }
 assert_real_user
-# Recorded rather than asserted, deliberately. A reduced capability bounding set or `NoNewPrivs` is
-# the signature of a restricted container, but neither changes what an unprivileged install script
-# can do, so failing on them would manufacture false failures for no measurement benefit. Recording
-# makes it a covered axis a reviewer can check (R6) instead of a silent assumption.
+# ⛔ `VENUE-OBSERVE-USER` IS THE SHARED R7 MARKER AND LINUX USES IT RATHER THAN A SECOND SPELLING.
+# `measure-windows.mjs` emits this name and `record.mjs` already parses it into `observeUser`; a
+# Linux-only marker would have been parsed by nothing, so the assertion would have been invisible in
+# a record on exactly the platform that measures most of the corpus. R7 is a claim about the run, so
+# it belongs in the record and not only in this log — a reader can then CHECK the claim instead of
+# trusting that the assertion existed in whatever driver revision ran.
+#
+# The capability bounding set and `NoNewPrivs` ride along RECORDED rather than asserted. Each is a
+# signature of a restricted container, but neither changes what an unprivileged install script can
+# do, so failing on them would manufacture false failures for no measurement benefit. Recording makes
+# it an axis a reviewer can check (R6) instead of a silent assumption.
 # (No apostrophes in this block: it lives inside a single-quoted `node -e` script.)
-echo "  VENUE-PERMISSIONS $(node -e '
+echo "  VENUE-OBSERVE-USER $(node -e '
   const fs = require("fs");
   let status = "";
   try { status = fs.readFileSync("/proc/self/status", "utf8"); } catch { status = ""; }
@@ -159,6 +166,25 @@ echo "  VENUE-PERMISSIONS $(node -e '
 if [ -f "$NUB" ] && ! grep -qa PYTHONDONTWRITEBYTECODE "$NUB" 2>/dev/null; then
   echo "  ⛔ R5 ASYMMETRY — $NUB does not carry PYTHONDONTWRITEBYTECODE; OBSERVE suppresses Python"
   echo "     bytecode and the jailed arm does not, so the two arms differ in more than enforcement"
+fi
+# ⛔ THE OVERRIDE FEATURE IS CHECKED BEFORE ANY WORK, NOT AFTER — AND `nubGitSha` CANNOT SUBSTITUTE.
+# A nub built without `build-jail-catalog-override` refuses `NUB_BUILD_JAIL_CATALOG`, so every arm
+# reports `OVERRIDDEN=0` and the run ends `⛔ VOID`. The verdict is honest and nothing is
+# mis-recorded, but it costs a full OBSERVE plus a jail arm to discover, and a batch pointed at such
+# a binary produces zero usable records while looking busy.
+#
+# MEASURED, 2026-08-06: a `--release` build of the RIGHT commit, missing only this feature, took four
+# 2x2 cells to VOID. Two binaries from one commit behaved differently, so the commit sha in
+# `provenance` could not have told them apart — which is why this keys on the ARTIFACT and why a
+# feature list belongs beside `nubGitSha` in the record.
+#
+# ⛔ Fatal, unlike the R5 check above, and the asymmetry is deliberate: an R5 mismatch cannot change
+# an arm's outcome, whereas this one makes every arm meaningless.
+if [ -f "$NUB" ] && ! grep -qa build-jail-catalog-override "$NUB" 2>/dev/null; then
+  echo "⛔ $NUB was not built with \`build-jail-catalog-override\`; every arm would report" >&2
+  echo "   OVERRIDDEN=0 and the run would end VOID. Rebuild with:" >&2
+  echo "   cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override" >&2
+  exit 3
 fi
 
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
