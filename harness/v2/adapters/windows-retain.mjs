@@ -66,8 +66,13 @@
 //   * ALTERNATE DATA STREAMS, which arrive as `file:stream:$DATA` — a path shape POSIX cannot form.
 //
 //   usage: node adapters/windows-retain.mjs <capture-dir> --raw-out FILE.gz --out FILE.ndjson.gz
+//                                           --capture capture.json [--pkg N] [--version V]
+//                                           [--no-longpath] [--shortnames F] [--summary]
 //                                           [--project D] [--home D] [--jail-home D]
-//                                           [--pkg N] [--version V] [--no-longpath] [--summary]
+//
+// `--capture` is the single definition of what a path means and is what the driver passes; the
+// `--project`/`--home`/`--jail-home` trio remains only for re-parsing an archive taken before
+// `capture.json` existed, and the header records which of the two supplied its roots.
 //
 // `--out` / `--raw-out` ending in `.gz` are gzipped. Prefer it, and never name either `*.log`: the
 // repo's `.gitignore` carries a bare `*.log`, so a file named that is dropped SILENTLY at `git add`
@@ -557,14 +562,27 @@ export function buildHeader({ meta, capDir, opts, rawFile, rawBytes, rawGzBytes,
       eventsLost: meta.eventsLost ?? null,
       lostFrom: "tracerpt summary 'Total Events Lost'",
     },
-    roots: {
+    // ⛔ TAKEN FROM `capture.json` WHEN THERE IS ONE, SO THE ARCHIVE AND THE CLASSIFIER CANNOT
+    // DISAGREE ABOUT WHAT A PATH MEANT (PORTABILITY R1). This block used to compose its own roots
+    // from `opts` with `meta` fallbacks, which made it a SECOND definition of the same five paths —
+    // and it declared five where the classifier keys on a set of ten, so an archive could not say
+    // what a re-parse would need. `--capture` is the single definition; the older `--project`/
+    // `--home`/`--jail-home` flags remain for a standalone re-parse of an archive that predates it,
+    // and are recorded as such rather than silently blended.
+    roots: opts.captureRoots ?? {
       project: opts.project ?? meta.workDir ?? null,
       home: opts.home ?? meta.userProfile ?? null,
       jailHome: opts.jailHome ?? null,
+      globalStore: null,
+      projectStore: null,
+      interpreter: null,
+      toolsDir: null,
       temp: meta.temp ?? null,
+      npmPrefix: null,
       ownPkg: opts.pkg && (opts.project ?? meta.workDir)
         ? `${opts.project ?? meta.workDir}\\node_modules\\${opts.pkg.replace(/\//g, '\\')}` : null,
     },
+    rootsFrom: opts.captureRoots ? 'capture.json' : 'cli flags + meta.json (no capture.json supplied)',
     devmap: meta.devmap ?? null,
     raw: {
       file: rawFile, bytes: rawBytes, gzBytes: rawGzBytes, sha256: rawSha,
@@ -649,11 +667,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const flags = new Set(['--out', '--raw-out', '--header-out', '--project', '--home',
-    '--jail-home', '--pkg', '--version', '--shortnames']);
+    '--jail-home', '--pkg', '--version', '--shortnames', '--capture']);
   const dir = args.find((a, i) => !a.startsWith('--') && !(i > 0 && flags.has(args[i - 1])));
   if (!dir) {
     console.error('usage: windows-retain.mjs <capture-dir> --raw-out F.gz --out F.ndjson.gz'
-      + ' [--header-out F.json] [--project D] [--home D] [--jail-home D] [--pkg N] [--version V]');
+      + ' [--header-out F.json] [--capture capture.json] [--pkg N] [--version V]'
+      + ' [--project D] [--home D] [--jail-home D]   (the last three only for an archive'
+      + ' that predates capture.json)');
     process.exit(2);
   }
 
@@ -695,8 +715,19 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const shortNames = shortNameMode({ dir, args, val });
   const expandShort = shortNames.mode !== 'off';
 
+  // One definition of what a path means, shared with the classifier. A capture that cannot be read
+  // is loud rather than silently ignored: falling back to the CLI flags would reproduce the drift
+  // this is here to remove, at the one moment it matters.
+  let captureRoots = null;
+  const capFile = val('--capture');
+  if (capFile) {
+    try { captureRoots = JSON.parse(fs.readFileSync(capFile, 'utf8')).roots ?? null; }
+    catch (e) { console.error(`windows-retain.mjs: cannot read --capture ${capFile}: ${e.message}`); process.exit(2); }
+    if (!captureRoots) { console.error(`windows-retain.mjs: ${capFile} declares no roots`); process.exit(2); }
+  }
+
   const opts = {
-    meta, expandShort,
+    meta, expandShort, captureRoots,
     resolveComponent: expandShort ? componentResolver(shortNames) : null,
     shortNameSource: shortNames.reason,
     project: val('--project'), home: val('--home'), jailHome: val('--jail-home'),

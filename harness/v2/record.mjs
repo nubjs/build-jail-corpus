@@ -74,6 +74,17 @@ export function parseDriverLog(log) {
     storeLayout: null,
     interpreterPath: null,
     overrides: null,
+    // ⛔ WHERE THE JAILED ARMS RAN. Two records from different venues can agree on every other field
+    // and still have been measured under filesystem roots with different ACLs — and on Windows that
+    // is not hypothetical: any jail root under `C:\Users\<user>` fails before a single script runs
+    // with "could not evaluate ALL APPLICATION PACKAGES rights on …: The access control list (ACL)
+    // structure is invalid. (os error 1336)", because that home carries seven inheritable
+    // `S-1-15-2-…` AppContainer package SIDs. MEASURED: only the root path changed between the
+    // failing and passing runs. So a record that does not name its jail root cannot distinguish
+    // "this package needs a wider grant" from "this run was rooted somewhere the jail cannot build a
+    // token", and a reader comparing two venues would attribute the second to the first.
+    jailRoot: null,
+    observeUser: null,
   };
 
   let synthesizedNext = false;
@@ -99,8 +110,21 @@ export function parseDriverLog(log) {
     // driver measures, this file only learns. A platform adopts these by printing them.
     const sl = /VENUE-STORE-LAYOUT\s+(isolated|hoisted)/.exec(l);
     if (sl) { out.storeLayout = sl[1]; continue; }
-    const ip = /VENUE-INTERPRETER\s+(\S+)/.exec(l);
-    if (ip) { out.interpreterPath = ip[1]; continue; }
+    // ⛔ `(.+)$` AND NOT `(\S+)`, AND ON WINDOWS THAT IS THE DIFFERENCE BETWEEN A PATH AND A LIE.
+    // The stock Windows Node is `C:\Program Files\nodejs\node.exe`, so `(\S+)` records
+    // `C:\Program` — a path that does not exist, silently, in the field whose entire job is to say
+    // where the interpreter lives. `interpreterInsideHome` is then computed against that truncation
+    // too. Caught by a test, before any Windows record carried it: this marker is new on that lane.
+    // The trailing `.trim()` is load-bearing for the same platform, because a driver writing CRLF
+    // leaves a `\r` that `(.+)$` would otherwise take as part of the path.
+    const ip = /VENUE-INTERPRETER\s+(.+)$/.exec(l);
+    if (ip) { out.interpreterPath = ip[1].trim(); continue; }
+    const jr = /VENUE-JAIL-ROOT\s+(.+)$/.exec(l);
+    if (jr) { out.jailRoot = jr[1].trim(); continue; }
+    // R7. The driver asserts it; this only learns what was asserted, so a reader can check the
+    // claim rather than trust that the assertion was present in whatever driver revision ran.
+    const ou = /VENUE-OBSERVE-USER\s+(.+)$/.exec(l);
+    if (ou) { out.observeUser = ou[1].trim(); continue; }
     const ov = /VENUE-OVERRIDES\s+(\{.*)/.exec(l);
     if (ov) {
       try { out.overrides = JSON.parse(ov[1]); }
@@ -258,7 +282,28 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // driver reports what the arm tree actually contained; absent that, `null` — never a guess.
   // (MEASURED, and the reason this matters: a `CI`-unset install on the VM still produced a
   // `node_modules/.store`, so the "CI implies isolated" rule is not a biconditional.)
-  const venueProvenance = (p) => {
+  // ⛔ CONTAINMENT IS PER-PLATFORM, AND THE POSIX-ONLY TEST WAS SILENTLY WRONG ON WINDOWS FOR EVERY
+  // RECORD. The old form was `interpreterPath.startsWith(`${home}/`)` — a FORWARD slash, and a
+  // case-SENSITIVE compare. On win32 the separator is `\` and the filesystem is case-insensitive, so
+  // that expression is unsatisfiable there: `interpreterInsideHome` has been `false` on every win32
+  // record regardless of where Node actually lives. `false` is a claim, not an absence, so nothing
+  // downstream could tell it apart from a genuine measurement — which is exactly the failure R3
+  // exists to prevent, arriving through the field meant to prevent it.
+  //
+  // The two POSIX-visible differences are both real: Windows folds case (`C:\Users\NUB` and
+  // `c:\users\nub` are one directory) and separates with `\`. Both are normalised before comparing,
+  // and the boundary check stays a SEPARATOR-terminated prefix on every platform so `/home/nubbins`
+  // is never read as being inside `/home/nub`.
+  const insideHome = (child, home, platform) => {
+    if (!child || !home) return null;
+    const win = platform.startsWith('win32');
+    const fold = (s) => (win ? s.replace(/\//g, '\\').toLowerCase() : s).replace(/[\\/]+$/, '');
+    const sep = win ? '\\' : '/';
+    const c = fold(child), h = fold(home);
+    return c === h || c.startsWith(h + sep);
+  };
+
+  const venueProvenance = (p, platform) => {
     const env = process.env;
     const home = env.HOME ?? env.USERPROFILE ?? '';
     const interpreterPath = p.interpreterPath ?? null;
@@ -269,8 +314,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       ciEnvSet: env.CI !== undefined,
       storeLayout: p.storeLayout ?? null,
       interpreterPath,
-      interpreterInsideHome:
-        interpreterPath && home ? interpreterPath.startsWith(`${home}/`) : null,
+      interpreterInsideHome: insideHome(interpreterPath, home, platform),
+      // R3, and the reason is in `parseDriverLog`: a Windows jail root under `C:\Users\<user>` fails
+      // to build a token at all, so a record has to name where its arms ran or a venue comparison
+      // will read an environment failure as a capability finding.
+      jailRoot: p.jailRoot ?? null,
+      // R7. Null means the driver did not assert it — which is itself the finding, not a pass.
+      observeUser: p.observeUser ?? null,
       // R6. Normalisation that is RECORDED is a covered axis; normalisation that is invisible is a
       // silent bet that it did not matter. The driver names each variable it set, unset or
       // redirected, so a reader can tell whether `CI` was touched — the one override that would
@@ -283,6 +333,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // reaches a `=>`, must land in the `HARNESS-*` bucket so the queue reopens the row rather than
   // recording an absence as a result.
   if (!parsed.verdict) parsed.verdict = rc === 124 || rc === 137 ? 'HARNESS-TIMEOUT' : 'HARNESS-ERROR';
+
+  // ⛔ RESOLVED ONCE, ABOVE THE RECORD, BECAUSE `interpreterInsideHome` NEEDS IT. Reading it out of
+  // `rec.provenance` while `rec` is still being built would evaluate to `undefined`, and the
+  // containment test would then silently take its POSIX branch on Windows — the same class of
+  // silent-wrong-answer the test itself was written to end.
+  const platform = opt('--platform', `${process.platform}-${process.arch}`);
 
   const rec = {
     pkg,
@@ -304,14 +360,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     driverRc: rc,
     durationMs: Number(opt('--duration-ms', '0')) || null,
     provenance: {
-      platform: opt('--platform', `${process.platform}-${process.arch}`),
+      platform,
       harness: opt('--driver', ''),
       nubGitSha: opt('--nub-sha', '') || null,
       nubVersion: opt('--nub-version', '') || null,
       corpusGitSha: opt('--corpus-sha', '') || null,
       node: process.version,
       at: new Date().toISOString(),
-      ...venueProvenance(parsed),
+      ...venueProvenance(parsed, platform),
     },
   };
 

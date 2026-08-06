@@ -339,7 +339,12 @@ jobs:
           if ($j.status -ne 'OK') { Write-Output "status $($j.status)"; exit 0 }
           $nd = Join-Path $j.capDir 'events.ndjson'
           Copy-Item $nd C:\obs\out\events-pkg.ndjson -Force -ErrorAction SilentlyContinue
-          node harness/v2/classify.mjs $nd --project $j.obsDir --home $env:USERPROFILE `
+          # classify.mjs takes every root from capture.json and refuses to run when one is
+          # undeclared (VENUE-PORTABILITY R2), so a probe declares them too rather than passing
+          # --home from this runner's ambient environment.
+          node harness/v2/make-capture.mjs --out C:\obs\out\capture-pkg.json `
+            --project $j.obsDir --home $env:USERPROFILE --temp $env:TEMP --interpreter (Get-Command node).Source
+          node harness/v2/classify.mjs $nd --capture C:\obs\out\capture-pkg.json `
             --platform win32 --root-pid $j.rootPid --json C:\obs\out\observed-pkg.json 2>&1 |
             Tee-Object -FilePath C:\obs\out\classify-pkg.txt
           Write-Output '--- 8.3 spellings left in the real stream (want: none) ---'

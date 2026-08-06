@@ -221,7 +221,10 @@ jobs:
             $nd = Join-Path $j.capDir 'events.ndjson'
             if (Test-Path $nd) {
               Copy-Item $nd "C:\obs\out\events-$slug.ndjson" -Force
-              node harness/v2/classify.mjs $nd --project $j.obsDir --home $env:USERPROFILE `
+              # Roots come from capture.json and nowhere else (VENUE-PORTABILITY R2).
+              node harness/v2/make-capture.mjs --out "C:\obs\out\capture-$slug.json" `
+                --project $j.obsDir --home $env:USERPROFILE --temp $j.temp --interpreter (Get-Command node).Source
+              node harness/v2/classify.mjs $nd --capture "C:\obs\out\capture-$slug.json" `
                 --platform win32 --root-pid $j.rootPid --json "C:\obs\out\observed-$slug.json" 2>&1 |
                 Tee-Object -FilePath "C:\obs\out\classify-$slug.txt"
               node "$P/retain.mjs" $nd --project $j.obsDir --home $env:USERPROFILE --temp $j.temp `

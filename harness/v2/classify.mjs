@@ -6,7 +6,7 @@
 // half after the arrow. This file is that half, written against EVENT alone -- it never looks at
 // a trace format, so the Linux adapter can be pointed at it later without changing a line here.
 //
-//   usage: node classify.mjs <events.ndjson> --project <dir> --home <dir> [--platform win32]
+//   usage: node classify.mjs <events.ndjson> --capture <capture.json> [--platform win32]
 //                            [--json out.json]
 //
 // Determinism rules 1-5 (MAPPING.md) are the whole specification. Where this file departs from
@@ -14,22 +14,63 @@
 //
 //  * rule 1  normalize BEFORE classifying. Windows and macOS case-fold, Linux does not; the
 //            kernel emits both `C:\d` and `C:\d\` for one directory. Both are handled once, here.
-//  * rule 2  scope is LONGEST-PREFIX against roots passed IN, never a substring like
-//            "contains node_modules". Roots are ordered longest-first so the package dir nested
-//            inside the project resolves the same way every time.
+//  * rule 2  scope is LONGEST-PREFIX against roots taken from `capture.json`, never a substring
+//            like "contains node_modules". Roots are ordered longest-first so the package dir
+//            nested inside the project resolves the same way every time.
 //  * rule 3  a path that maps to no scope is REPORTED, never rounded up to write:"disk".
+//
+// ⛔ EVERY ROOT COMES FROM `capture.json`, AND NOTHING ELSE MAY SUPPLY ONE (VENUE-PORTABILITY R2).
+// This used to take `--project`/`--home` as arguments, and the Windows driver filled `--home` from
+// `process.env.USERPROFILE` — an AMBIENT read of whatever machine happened to be classifying. Two
+// records produced on different venues were then indistinguishable in the record AND classified
+// against different roots, so a divergence between them could be neither detected nor attributed.
+//
+// ⛔ A NEEDED ROOT THAT `capture.json` DOES NOT DECLARE IS A HARD ERROR, NEVER A FALLBACK. A
+// fallback is exactly what makes a venue difference silent: it keeps running and emits a grant, so
+// the failure surfaces as a wrong catalog entry rather than as a crash. Absent and `null` are
+// different and are treated differently — `null` is the capture SAYING this platform has no such
+// root, which is an answer; an absent key is the capture failing to say, which is not.
 import fs from 'node:fs';
 
 const args = process.argv.slice(2);
 const val = (f, d) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
 const file = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')))[0];
-const project = val('--project');
-const home = val('--home');
+const capturePath = val('--capture');
 const platform = val('--platform', process.platform);
 const jsonOut = val('--json');
-if (!file || !project || !home) {
-  console.error('usage: classify.mjs <events.ndjson> --project <dir> --home <dir> [--platform p] [--json f]');
+if (!file || !capturePath) {
+  console.error('usage: classify.mjs <events.ndjson> --capture <capture.json> [--platform p] [--json f]');
   process.exit(2);
+}
+
+// The list lives HERE, not in the driver: this file is what would misclassify without a root, so
+// this is the file that must refuse to run. Ten roots are REQUIRED; three are keyed on below. That
+// is deliberate and matches the Linux and macOS classifiers — a root re-derived later is a root
+// re-derived from ambient state, and changing which bucket a path lands in is a grant-semantics
+// change that needs its own evidence rather than arriving as a side effect of declaring a root.
+const REQUIRED_ROOTS = ['project', 'home', 'jailHome', 'globalStore', 'projectStore',
+                        'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'ownPkg'];
+let capture;
+try { capture = JSON.parse(fs.readFileSync(capturePath, 'utf8')); }
+catch (e) { console.error(`⛔ cannot read capture.json at ${capturePath}: ${e.message}`); process.exit(3); }
+const roots = capture.roots ?? {};
+const undeclared = REQUIRED_ROOTS.filter((k) => !(k in roots));
+if (undeclared.length) {
+  console.error(`⛔ capture.json does not DECLARE these roots: ${undeclared.join(', ')}`);
+  console.error('   Classification would fall back to ambient state and silently differ by venue.');
+  console.error('   Declare each one, or `null` where this platform genuinely has no such root.');
+  process.exit(3);
+}
+const project = roots.project;
+const home = roots.home;
+// The two that ARE keyed on must be real paths, not `null`. A `null` reaching `startsWith` below
+// would match the literal string "null" and silently misclassify — the failure mode the macOS
+// classifier documents and guards the same way.
+for (const k of ['project', 'home']) {
+  if (typeof roots[k] !== 'string' || !roots[k]) {
+    console.error(`⛔ capture.json declares \`${k}\` as ${JSON.stringify(roots[k])}; this classifier keys on it and cannot proceed`);
+    process.exit(3);
+  }
 }
 
 const WIN = platform === 'win32';
@@ -165,6 +206,13 @@ if (peers.size > 0) grant.network = true;
 
 const report = {
   events: n, malformed: bad,
+  // ⛔ THE RECORD SAYS WHAT IT WAS CLASSIFIED AGAINST. A grant is only interpretable against the
+  // roots that produced it, and comparing two venues' grants means being able to see that they were
+  // classified against correspondingly-shaped roots (the absolute paths necessarily differ).
+  // Without this the acceptance test can tell you two grants disagree and never why.
+  rootsFrom: capturePath,
+  roots: Object.fromEntries(REQUIRED_ROOTS.map((k) => [k, roots[k] ?? null])),
+  keyedOn: ROOTS.map((r) => r.name),
   lifecyclePids: lifecycle.size,
   attributedWrites: writes.size, allTreeWrites: allWrites.size,
   attributedPeers: peers.size, allTreePeers: allPeers.size,
@@ -184,6 +232,11 @@ const report = {
   grant,
 };
 
+console.log('== ROOTS (from capture.json — R2: no ambient reads) ==');
+for (const k of REQUIRED_ROOTS) {
+  const keyed = ROOTS.some((r) => r.path === norm(roots[k] ?? '\0'));
+  console.log(`  ${k.padEnd(13)} ${roots[k] ?? '(null — declared inapplicable)'}${keyed ? '   [keyed on]' : ''}`);
+}
 console.log(`== ATTRIBUTION == lifecycle pids: ${lifecycle.size} (root ${rootPid || 'UNSET'})`);
 console.log(`  writes  script ${writes.size}  /  whole traced tree ${allWrites.size}`);
 console.log(`  peers   script ${peers.size}  /  whole traced tree ${allPeers.size}`);

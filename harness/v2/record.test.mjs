@@ -152,3 +152,78 @@ test('a driver that trips TWO loss lines still yields exactly one note', () => {
   assert.equal(r.notes.filter((n) => n === 'events-lost').length, 1,
     `one loss must produce one note:\n${JSON.stringify(r.notes)}`);
 });
+
+// ── Venue provenance (R3) ───────────────────────────────────────────────────────────────────────
+
+test('the venue markers are learned from stdout, and absent markers stay null', () => {
+  const r = parseDriverLog([
+    '  VENUE-OBSERVE-USER NUB-WIN3\\nub elevated=True privDropped={"SeBackupPrivilege":"removed"}',
+    '  VENUE-JAIL-ROOT C:\\jailv\\m-thing-abc',
+    '  VENUE-INTERPRETER C:\\Program Files\\nodejs\\node.exe',
+    '  VENUE-STORE-LAYOUT hoisted',
+    '  => MINIMUM {"write":{"deps":true}}   (observed, then verified)',
+  ].join('\n'));
+  assert.equal(r.observeUser, 'NUB-WIN3\\nub elevated=True privDropped={"SeBackupPrivilege":"removed"}');
+  // ⛔ THE JAIL ROOT MUST SURVIVE A SPACE. `(\S+)` would truncate `C:\Program Files\...` to
+  // `C:\Program` and record a root that never existed — and this field exists precisely because a
+  // path-dependent ACL failure is what it has to let a reader diagnose.
+  assert.equal(r.jailRoot, 'C:\\jailv\\m-thing-abc');
+  assert.equal(r.interpreterPath, 'C:\\Program Files\\nodejs\\node.exe');
+  assert.equal(r.storeLayout, 'hoisted');
+
+  const bare = parseDriverLog('  => MINIMUM {}   (observed, then verified)');
+  assert.equal(bare.jailRoot, null, 'an unreported jail root must be null, never a guess');
+  assert.equal(bare.observeUser, null, 'an unasserted R7 identity must be null — that IS the finding');
+});
+
+test('a jail root containing a space is recorded whole', () => {
+  const r = parseDriverLog('  VENUE-JAIL-ROOT C:\\Program Files\\jail\\m-x\n');
+  assert.equal(r.jailRoot, 'C:\\Program Files\\jail\\m-x');
+});
+
+// ⛔ THIS IS A REGRESSION TEST FOR A FIELD THAT WAS SILENTLY FALSE ON EVERY WINDOWS RECORD. The
+// containment test was `interpreterPath.startsWith(`${home}/`)` — a forward slash, case-sensitive —
+// which is unsatisfiable on win32 where the separator is `\` and the filesystem folds case. `false`
+// is a claim rather than an absence, so nothing downstream could tell it from a measurement.
+//
+// `insideHome` is not exported (record.mjs is a script with a CLI tail), so this drives the CLI,
+// which is also the only way to prove the platform actually reaches the comparison.
+test('interpreterInsideHome is computed with the RECORD platform\'s path rules', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const os = await import('node:os');
+  const REC = path.join(path.dirname(fileURLToPath(import.meta.url)), 'record.mjs');
+
+  const run = (platform, interpreter, home) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rec-'));
+    const log = path.join(dir, 'd.txt');
+    fs.writeFileSync(log, `  VENUE-INTERPRETER ${interpreter}\n  => MINIMUM {}   (observed, then verified)\n`);
+    const r = spawnSync(process.execPath, [REC, '--log', log, '--pkg', 'p', '--version', '1.0.0',
+      '--out', dir, '--platform', platform], {
+      encoding: 'utf8',
+      // The home is read from the environment, so the two platforms' conventions are supplied the
+      // way each really arrives.
+      env: { ...process.env, HOME: platform.startsWith('win32') ? undefined : home, USERPROFILE: home },
+    });
+    assert.equal(r.status, 0, r.stderr);
+    const rec = JSON.parse(fs.readFileSync(path.join(r.stdout.trim(), 'results.json'), 'utf8'));
+    fs.rmSync(dir, { recursive: true, force: true });
+    return rec.provenance;
+  };
+
+  // The exact shape that used to report `false`: Node under the user profile, backslashes, and a
+  // capital `Users` the kernel may spell either way.
+  const win = run('win32-x64', 'C:\\Users\\nub\\AppData\\Local\\nodejs\\node.exe', 'C:\\Users\\nub');
+  assert.equal(win.interpreterInsideHome, true,
+    'a Windows interpreter under the user profile must be recognised as inside the home');
+  const winFolded = run('win32-x64', 'c:\\users\\NUB\\scoop\\node.exe', 'C:\\Users\\nub');
+  assert.equal(winFolded.interpreterInsideHome, true, 'Windows containment must fold case');
+  const winOut = run('win32-x64', 'C:\\Program Files\\nodejs\\node.exe', 'C:\\Users\\nub');
+  assert.equal(winOut.interpreterInsideHome, false, 'a system-wide Node must NOT read as inside the home');
+
+  // POSIX is unchanged, including the boundary that a prefix match without a separator gets wrong.
+  const posix = run('linux-x64', '/home/nub/.nvm/versions/node/v22.15.0/bin/node', '/home/nub');
+  assert.equal(posix.interpreterInsideHome, true);
+  const sibling = run('linux-x64', '/home/nubbins/bin/node', '/home/nub');
+  assert.equal(sibling.interpreterInsideHome, false,
+    '/home/nubbins must not read as inside /home/nub — the separator boundary is load-bearing');
+});
