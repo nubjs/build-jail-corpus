@@ -15,9 +15,15 @@
 
 #pragma D option quiet
 #pragma D option switchrate=10hz
-#pragma D option bufsize=32m
-#pragma D option dynvarsize=32m
-#pragma D option strsize=2048
+#pragma D option bufsize=64m
+// MEASURED (run 31078241875, macos-14): at dynvarsize=32m the 4-way-filesystem-load arm produced
+// 2700-6100 "dynamic variable drops with non-empty dirty list" per report and the shape under load
+// was MISSED entirely, while macos-15 — same script, less contention — caught it. The thread-local
+// path string is what consumes the space, so the fix is more dynvar space and a shorter string,
+// not a narrower subscription. This is a TUNABLE limit; it is not the structural blindness that
+// made eslogger unusable.
+#pragma D option dynvarsize=256m
+#pragma D option strsize=1024
 
 dtrace:::BEGIN
 {
@@ -83,7 +89,10 @@ syscall::connect:entry, syscall::connect_nocancel:entry
 {
 	self->sa = (uint8_t *)copyin(arg1, 16);
 	self->fam = self->sa[1];
-	self->pt = (self->sa[2] << 8) | self->sa[3];
+	/* MEASURED: `(self->sa[2] << 8) | self->sa[3]` reported port 187 for a connect to :443. D does
+	 * the shift in the operand's own uint8_t width, so the high byte is truncated away before the
+	 * OR and only 0xBB survives. The cast to uint16_t is what makes the shift meaningful. */
+	self->pt = ((uint16_t)self->sa[2] << 8) | (uint16_t)self->sa[3];
 	self->b0 = self->sa[4];
 	self->b1 = self->sa[5];
 	self->b2 = self->sa[6];
@@ -91,13 +100,29 @@ syscall::connect:entry, syscall::connect_nocancel:entry
 	self->cn = 1;
 }
 
+/* AF_INET (2) is the only family whose bytes 4..7 ARE an IPv4 address. The first run decoded an
+ * AF_LOCAL sockaddr as "97.114.47.114:118" — a path's characters read as octets. That is exactly
+ * the fabricated field the EVENT contract forbids, so every other family is reported as itself
+ * with no host at all rather than guessed at. */
 syscall::connect:return, syscall::connect_nocancel:return
-/self->cn/
+/self->cn && self->fam == 2/
 {
 	printf("CONN|%d|%d|%s|af=%d|%d.%d.%d.%d|port=%d|ret=%d|errno=%d\n",
 	    pid, curpsinfo->pr_ppid, execname, self->fam,
 	    self->b0, self->b1, self->b2, self->b3, self->pt,
 	    (int)arg0, (int)arg0 < 0 ? errno : 0);
+}
+
+syscall::connect:return, syscall::connect_nocancel:return
+/self->cn && self->fam != 2/
+{
+	printf("CONN-OTHERFAMILY|%d|%d|%s|af=%d|host=UNAVAILABLE|port=%d|ret=%d|errno=%d\n",
+	    pid, curpsinfo->pr_ppid, execname, self->fam, self->pt,
+	    (int)arg0, (int)arg0 < 0 ? errno : 0);
+}
+
+syscall::connect:return, syscall::connect_nocancel:return
+{
 	self->cn = 0;
 }
 

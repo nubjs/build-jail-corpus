@@ -136,12 +136,15 @@ sleep 2
 
 # B — long-lived shell STARTED AFTER the tracer was live
 (
-  echo "$BASHPID" > "$DIR/shapeB.pid"
   sleep 1
   echo x > "$DIR/B-postlived-$TAG.txt"
   sleep 20
 ) &
 SHAPE_B_BG=$!
+# NOT $BASHPID: macOS ships bash 3.2 and BASHPID arrived in bash 4.0, so the subshell wrote an
+# EMPTY pid file on both prior runs and shape B scored SEEN-WRONGPID against a ground truth that
+# did not exist. `$!` is the subshell's pid and works everywhere.
+echo "$SHAPE_B_BG" > "$DIR/shapeB.pid"
 sleep 3
 
 # C — short-lived `/bin/sh -c` as ROOT. THE shape an npm lifecycle script takes.
@@ -198,10 +201,13 @@ sleep 1
 
 # (3) TCP PEER. A real outbound connect to a known address, plus a connect that is REFUSED, so the
 # host/port fields and the connect errno are both exercised.
-/bin/sh -c "printf '' | nc -w 3 -G 3 1.1.1.1 443 >/dev/null 2>&1"
-/bin/sh -c "printf '' | nc -w 2 -G 2 127.0.0.1 9 >/dev/null 2>&1"
-/usr/bin/curl -s -m 5 -o /dev/null https://registry.npmjs.org/ 2>/dev/null
-sleep 2
+# curl to a literal IP:443 removes DNS from the picture, so a decoded peer can be checked against
+# a number that was written down HERE rather than one resolved at run time.
+/bin/sh -c "/usr/bin/curl -s -m 5 -o /dev/null https://1.1.1.1/ 2>/dev/null"
+/bin/sh -c "/usr/bin/curl -s -m 5 -o /dev/null https://registry.npmjs.org/ 2>/dev/null"
+# port 9 (discard) on loopback is closed on a runner, so this is the REFUSED arm: ECONNREFUSED(61).
+/bin/sh -c "/usr/bin/curl -s -m 3 -o /dev/null http://127.0.0.1:9/ 2>/dev/null"
+sleep 3
 
 date +%H:%M:%S.%N > "$OUT/t-quiet-done"
 
