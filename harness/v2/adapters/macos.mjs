@@ -97,15 +97,36 @@ const forwarded = Object.entries(process.env)
 const [c0, cargs] = asUser
   ? ['/usr/bin/sudo', ['-u', asUser, '/usr/bin/env', ...forwarded, ...cmd]]
   : [cmd[0], cmd.slice(1)];
+const cmdStartedAt = new Date().toISOString();
 const child = spawn(c0, cargs, { stdio: 'inherit' });
 const childPid = child.pid;
 const rootMarkerRc = await new Promise((res) => child.on('exit', (code) => res(code)));
+const cmdEndedAt = new Date().toISOString();
 
 dropSentinels('post');
 spawnSync('/bin/sleep', ['2']);           // let the kernel drain both trace buffers before teardown
-es.kill('SIGINT'); fsu.kill('SIGINT');
-spawnSync('/bin/sleep', ['1']);
-es.kill('SIGKILL'); fsu.kill('SIGKILL');
+
+// ⛔ THE TEARDOWN MUST AWAIT A NORMAL EXIT, NOT SIGKILL AFTER A FIXED SLEEP. Both tracers write to a
+// FILE, so their stdout is fully buffered by libc, and a buffer is flushed by `exit()` — never by
+// SIGKILL. The previous `SIGINT; sleep 1; SIGKILL` lost whatever had not flushed in that one second,
+// which is measured, not theoretical: run 2 captured 8341 eslogger records yet resolved a subtree of
+// ZERO pids, because the tail of the log holding the traced command's own window was discarded with
+// the buffer. Wait for the process to actually exit; SIGKILL only as a last resort after a long
+// grace period, and record which path was taken so a future empty trace is not re-diagnosed blind.
+const stopTracer = async (proc, label, graceMs) => {
+  if (proc.exitCode !== null || proc.signalCode !== null) return `${label}:already-exited`;
+  proc.kill('SIGINT');
+  const outcome = await Promise.race([
+    new Promise((res) => proc.on('exit', () => res(`${label}:clean-exit`))),
+    new Promise((res) => setTimeout(() => res(null), graceMs)),
+  ]);
+  if (outcome) return outcome;
+  proc.kill('SIGKILL');
+  await new Promise((res) => { proc.on('exit', res); setTimeout(res, 3000); });
+  return `${label}:SIGKILL-after-${graceMs}ms-BUFFER-MAY-BE-LOST`;
+};
+diag.teardown = [await stopTracer(es, 'eslogger', 25000), await stopTracer(fsu, 'fs_usage', 25000)];
+for (const t of diag.teardown) if (t.includes('SIGKILL')) diag.warnings.push(`teardown ${t}`);
 fs.closeSync(esOut); fs.closeSync(fsOut);
 
 // ─── 3. PARSE eslogger ────────────────────────────────────────────────────────────────────────
@@ -129,6 +150,19 @@ diag.counts.eslogger_unparsable_lines = esBadJson;
 
 // THE POSITIVE CONTROL, evaluated now that everything has flushed. Both brackets must be present or
 // the observation window did not cover the run and no conclusion drawn from it is worth anything.
+// The bracket test answers "did the window cover the run?" as a boolean. When it says NO the very
+// next question is "how far did it get?", and answering that from a re-run costs a full CI cycle.
+// The record timestamps answer it inline: a log whose last record predates the traced command is a
+// TRUNCATED capture (a flush that never happened), which is a completely different defect from a
+// tracer that never subscribed — and the two have identical symptoms downstream.
+const esTimes = esRecords.map((r) => r.time).filter((t) => typeof t === 'string').sort();
+diag.window = {
+  es_first_record: esTimes[0] ?? null,
+  es_last_record: esTimes[esTimes.length - 1] ?? null,
+  command_started: cmdStartedAt,
+  command_ended: cmdEndedAt,
+  now: new Date().toISOString(),
+};
 const esReady = esBody.includes(`${SENTINEL}-pre`) && esBody.includes(`${SENTINEL}-post`);
 if (!esReady) fail(`eslogger did not capture both sentinel brackets (pre=${esBody.includes(SENTINEL + '-pre')} post=${esBody.includes(SENTINEL + '-post')}) — the run is VACUOUS`);
 if (esRecords.length === 0) fail('eslogger produced no parsable records — schema or invocation is wrong');
@@ -167,6 +201,14 @@ diag.subtree_commands = [...new Set([...subtreePids].map((p) => commOf.get(p)).f
 // When the closure comes back empty the question is always "which link is missing?", and answering
 // it from a re-run costs a full CI cycle. Record the ancestry evidence inline instead.
 diag.seeds = [...SEEDS];
+// Which link is missing is decidable from the map itself. A seed that appears as no pid AND as no
+// ppid means ES never emitted a single record naming it, so the closure had nothing to anchor to —
+// distinct from a seed that IS present but whose descendants were never recorded.
+diag.seed_presence = [...SEEDS].map((s) => ({
+  pid: s,
+  appears_as_child: parentOf.has(s),
+  appears_as_parent: [...parentOf.values()].includes(s),
+}));
 diag.counts.parent_edges = parentOf.size;
 diag.ancestry_sample = [...parentOf.entries()]
   .filter(([p]) => /^(sudo|env|bash|sh|zsh|fixture|node|npm|run-fixture\.sh|level1\.sh|level2\.sh)$/.test(commOf.get(p) ?? ''))
@@ -361,5 +403,9 @@ if (diagPath) fs.writeFileSync(diagPath, JSON.stringify(diag, null, 2));
 diag.raw = { eslogger: esLog, fs_usage: fsLog };
 console.error(`macos.mjs: ${events.length} events -> ${outPath}`);
 console.error(JSON.stringify(diag.counts));
+console.error(`macos.mjs: teardown=${JSON.stringify(diag.teardown)}`);
+console.error(`macos.mjs: window=${JSON.stringify(diag.window)}`);
+console.error(`macos.mjs: seeds=${JSON.stringify(diag.seed_presence)} subtree_commands=${JSON.stringify(diag.subtree_commands)}`);
+if (diag.ancestry_sample?.length) console.error(`macos.mjs: ancestry=${JSON.stringify(diag.ancestry_sample)}`);
 for (const w of diag.warnings) console.error(`macos.mjs: WARN ${w}`);
 process.exit(diag.errors.length ? 1 : 0);
