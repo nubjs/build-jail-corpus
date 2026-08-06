@@ -28,6 +28,10 @@ on:
         description: 'pkg@version for the end-to-end retention arm'
         required: false
         default: '@apollo/rover@0.2.1'
+      publish_proof:
+        description: 'commit one record to the branch to re-prove it survives git add (already proven on run 31117508467)'
+        required: false
+        default: 'no'
 
 permissions:
   contents: write
@@ -99,6 +103,10 @@ jobs:
           node --test harness/v2/observe-macos.test.mjs; echo "DECODER_RC=$?"
           node --test harness/v2/adapters/macos-eventlog.test.mjs; echo "EVENTLOG_RC=$?"
           node --test harness/v2/record.test.mjs; echo "RECORD_RC=$?"
+          # ⛔ THE ONLY TEST THAT READS MORE THAN ONE PLATFORM'S OUTPUT. Each adapter's own suite
+          # passes against its own spelling, so nothing anywhere notices when two of them drift —
+          # and the whole value of retention is that the corpus re-parses as ONE thing.
+          node --test harness/v2/fixtures/schema-contract.test.mjs; echo "CONTRACT_RC=$?"
 
       # ── THE RETENTION ARM ────────────────────────────────────────────────────────────────────
       - name: 4. ONE package, end to end, with the event log retained
@@ -172,8 +180,12 @@ jobs:
       # that evaporates the same way would be strictly worse than none, so the file is written
       # through `record.mjs`, committed, and pushed here; reading it back from the remote is the
       # only check that cannot be fooled by a working tree.
+      # ⛔ OPT-IN, because it COMMITS. Left on by default it appends a record to the branch on every
+      # run, which both accumulates junk and would carry `probe-records/` into `main` if this branch
+      # were ever merged. The proof it exists to produce is a one-off and is banked on run
+      # 31117508467: staged, pushed, and the blob read back out of the remote's object store.
       - name: 5. Prove the published file survives a real commit
-        if: always()
+        if: always() && github.event.inputs.publish_proof == 'yes'
         run: |
           # shellcheck disable=SC2024  # every redirect target is /tmp, opened by the runner user
           set +e

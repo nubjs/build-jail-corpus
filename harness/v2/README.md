@@ -196,7 +196,18 @@ Same schema, same file name in the record dir, same no-scope-tags rule; the diff
 
 ⛔ **Five Darwin syscalls have NO dtrace probe on this kernel at all** — `renamex_np`, `utimensat`, `clonefile`, `lchmod`, `futimens` — proven by compiling each name alone, which is the only safe way to ask (a name the kernel does not publish makes dtrace refuse to run the *whole* script). They are unreachable from the `syscall` provider rather than merely unsubscribed, so a `syscall:::entry` census cannot even count them. `renamex_np` and `utimensat` are the two that matter; closing them needs Endpoint Security, whose `rename` event fires for the VFS operation whichever syscall entered it.
 
-**Cost, measured on `@apollo/rover@0.2.1` (3,442 trace lines):** 842 KB raw, **36 KB gzipped — 23×**, against a 3.7 KB `driver.out`. Extrapolated at that per-package size, ~78 MiB gzipped per platform for 2,250 packages. Dropping `ENOENT` would buy **20% of the gzipped size** (36,358 → 29,152 B) at the cost of the fallback-path evidence, which is the same trade the Linux lane refused for the same reason.
+**Cost, measured on `@apollo/rover@0.2.1`** — 3,442 trace lines, 2,869 calls collapsing to 2,716 distinct events:
+
+| artifact | bytes |
+| --- | --- |
+| `trace.txt`, the dtrace source | 504,592 |
+| `events.ndjson` | 483,429 |
+| **`events.ndjson.gz`** | **23,623** (20.5×) |
+| `driver.out`, all that is published today | 3,675 |
+
+That is **8.7 gzipped bytes per distinct event**, against the Linux fixture's 6.21 — the gap is Darwin's longer paths (`/opt/homebrew/Cellar/node@22/…`) plus the `dfd`/`u` fields, and the two agreeing to within a factor of 1.4 is the cross-check that neither is mis-sized. Extrapolated at this package's size, ~51 MiB gzipped per platform for 2,250 packages; ⛔ treat that as ONE package rather than a median — its 541 renames are node's V8 compile cache and dedup only pays 1.05× here against 2.7× on Linux's `lmdb-store`.
+
+Dropping `ENOENT` — 705 of 2,716 events — buys **15% of the gzipped size** (23,623 → 20,029 B). Refused, for the reason the Linux lane refused it: a failed lookup names a fallback path the script probed for, and on a machine where it exists the same script reads it.
 
 ### One thing v2 broke that v1 could not
 
