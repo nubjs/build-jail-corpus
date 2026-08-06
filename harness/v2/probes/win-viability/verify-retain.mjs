@@ -76,6 +76,12 @@ check(hdr.raw?.etlRetained === false && hdr.raw?.etlBytes > 0,
   `states the ETL was NOT retained and how big it was (${hdr.raw?.etlBytes} B)`);
 check(hdr.raw?.sha256 === (rawXml ? sha(rawXml) : null),
   'binds itself to the raw by sha256, so the pair is verifiably matched rather than merely adjacent');
+// ⛔ AN ARCHIVE THAT DOES NOT STATE ITS LIMITS GETS READ AS IF IT HAD NONE. The first of these is
+// the one that matters most: Create carries no DesiredAccess, so the Linux lane's soundness
+// argument — the open's flags prove the fd is writable — does not transfer to Windows.
+for (const lim of ['createHasNoDesiredAccess', 'noRundownForPreOpenHandles', 'hardlinkDestNeeds0x800']) {
+  check(!!hdr.limits?.[lim], `states the limit '${lim}' rather than leaving it to be rediscovered`);
+}
 
 // ── 3. THE DERIVED VIEW ────────────────────────────────────────────────────────────────────────
 console.log('== DERIVED ==');

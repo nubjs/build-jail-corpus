@@ -120,6 +120,31 @@ test('a relative rename destination is anchored to the SOURCE directory, or left
   assert.strictEqual(orphan.stats.destUnresolved, 1, 'and the drop is counted');
 });
 
+test('a destination path comes from FilePath, which OUTRANKS FileName on events 26/27/28', async () => {
+  // ⛔ MEASURED TWICE, BY TWO AGENTS ON TWO HARNESSES, ON REAL `windows-latest` RUNS. Every other
+  // Kernel-File event names its path field `FileName`; 26/27/28 name theirs `FilePath`. A decoder
+  // that ends in `?? data.FileName` therefore reads the WRONG path — or undefined — on exactly the
+  // three events that carry a destination, even when the mask is delivering them correctly. This
+  // fixture puts both fields on one event with different values so the precedence is pinned rather
+  // than incidentally satisfied by a fixture that only ever sets one.
+  const d = await decode([
+    ...file(12, 100, { Irp: '0x70', FileObject: '0xAA', FileName: `${VOL}\\proj\\src.tmp`, CreateOptions: '0x01000000' }),
+    ...file(24, 100, { Irp: '0x70', Status: '0x0' }),
+    ...file(28, 100, { Irp: '0x71', FileObject: '0xAA',
+      FilePath: `${VOL}\\proj\\the-real-destination`, FileName: `${VOL}\\proj\\a-decoy` }),
+    ...file(24, 100, { Irp: '0x71', Status: '0x0' }),
+  ]);
+  const link = find(d, (e) => e.kind === 'hardlink');
+  assert.strictEqual(link.length, 1, 'the hardlink is paired');
+  assert.strictEqual(link[0].f, 'C:\\proj\\the-real-destination', 'FilePath wins');
+  assert.strictEqual(find(d, (e) => e.f === 'C:\\proj\\a-decoy').length, 0, 'FileName must not win');
+  // ⛔ AND THE HARDLINK CASE IS THE ONE THAT IS UNRECOVERABLE IF LOST. NTFS emits no NameCreate for
+  // a second name on an existing FileKey, so event 28 at keyword 0x800 is the SOLE carrier of this
+  // path — unlike a rename destination, which also shows up as its own NameCreate. A narrow-mask
+  // archive is permanently missing it; no re-parse can bring it back.
+  assert.strictEqual(link[0].g, 'C:\\proj\\src.tmp', 'and the link target rides along');
+});
+
 test('the create DISPOSITION survives as a number, not as a read/write boolean', async () => {
   // windows.mjs collapses the disposition to op read-or-write, which is what a grant needs. The
   // number is what the kernel said, and OPEN_IF vs OVERWRITE_IF vs SUPERSEDE are different facts a

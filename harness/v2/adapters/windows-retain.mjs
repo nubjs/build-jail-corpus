@@ -47,9 +47,11 @@
 //     spelling, and the last one is load-bearing on this harness (see windows.ps1's privilege drop).
 //   * THE INFOCLASS on a SetInformation. windows.mjs lumps every mutator into `write`; the InfoClass
 //     is what separates a rename from a delete from a timestamp touch from an EOF truncation.
-//   * PER-OPERATION I/O SIZE AND OFFSET. `linux.mjs` states plainly that per-operation history is
-//     NOT recoverable there — `-e trace=file` never subscribes to `write` — so writes are inferred
-//     from an open's flags. ETW delivers the byte count of every read and write.
+//   * PER-OPERATION I/O SIZE. `linux.mjs` states plainly that per-operation history is NOT
+//     recoverable there — `-e trace=file` never subscribes to `write` — so writes are inferred from
+//     an open's flags. ETW delivers the byte count of every read and write as its own event.
+//     ⛔ The flip side, and it is in the header's `limits`: Create carries no DesiredAccess, so the
+//     Linux argument ("the open's flags prove the fd is writable") does NOT transfer to Windows.
 //   * IRP CORRELATION. Request and completion are separate events joined by an Irp pointer, so an
 //     operation's outcome is a fact rather than an assumption. strace's unfinished/resumed pair is
 //     the nearest analogue and the Linux adapter joins and discards it.
@@ -578,6 +580,48 @@ export function buildHeader({ meta, capDir, opts, rawFile, rawBytes, rawGzBytes,
       // decodes off-Windows with any XML reader. Its size and digest are recorded so a future
       // reader knows exactly what was declined and can compare against a fresh capture.
       etlBytes: sizeOf(etlPath), etlRetained: false,
+    },
+    // ── WHAT THIS ARCHIVE STRUCTURALLY CANNOT ANSWER ─────────────────────────────────────────
+    //
+    // ⛔ WRITTEN INTO THE HEADER RATHER THAN LEFT TO BE REDISCOVERED. An archive that does not
+    // state its limits gets read as if it had none, and every item here is one a re-parser would
+    // otherwise assume away. Each was MEASURED on a real `windows-latest` runner.
+    limits: {
+      // ⛔ THE ONE THAT BREAKS THE LINUX SOUNDNESS ARGUMENT. `linux.mjs` can call a capability
+      // model sound because an fd is only writable if it was opened with write flags and the open
+      // is retained WITH those flags. That does not transfer: Kernel-File's Create event carries
+      // NO DesiredAccess at all, so read-vs-write INTENT is not in the event. The `d`/`open-r`/
+      // `open-w` split here is the CreateDisposition — a statement about what the caller was
+      // prepared to do to the file's contents, not about the access it asked for. A `FILE_OPEN`
+      // create can still be written through, which is why the Write event (16) is retained
+      // separately and carries the byte count. Treat every Create as write-CAPABLE.
+      createHasNoDesiredAccess: 'Create (12) carries no DesiredAccess; `d` is the CreateDisposition, '
+        + 'not the requested access. `open-r` means disposition FILE_OPEN, NOT proof of read-only '
+        + 'intent — a FILE_OPEN handle can be written through. Writes are evidenced by event 16.',
+      // The name tables are built from Create (12) and NameCreate (10) as the session observes
+      // them, so a file ALREADY OPEN when the session started has no entry and its handle ops
+      // cannot be named. The documented fix is a separate rundown session before the traced
+      // command; this capture does not run one. `stats.unresolvedHandle` is the size of the gap.
+      noRundownForPreOpenHandles: 'the FileObject/FileKey name tables hold nothing for a file '
+        + 'already open when the session started (no rundown session is run); those handle ops are '
+        + 'counted in stats.unresolvedHandle and are unnameable, not missing',
+      // ⛔ AND THE ASYMMETRY THAT DECIDES WHETHER A NARROW-MASK ARCHIVE IS RECOVERABLE AT ALL.
+      // Measured with an abandoned-destination control (targets never opened again, so no later
+      // incidental Create can leak the path): a RENAME destination is independently present at the
+      // old 0x11F0 mask as its own NameCreate (10) — what the narrow mask loses is the rename
+      // RELATION, not the path. A HARDLINK destination is TOTALLY ABSENT, because NTFS emits no
+      // NameCreate for a second name on an existing FileKey, and event 28 SetLinkPath at keyword
+      // 0x800 is its SOLE carrier. A path no event ever names cannot be recovered by any re-parse,
+      // so an archive captured below 0x1FF0 is permanently missing its hardlink destinations. This
+      // capture is at 0x1FF0; the recorded provider mask above is how a reader checks that.
+      hardlinkDestNeeds0x800: 'a hardlink destination is carried ONLY by event 28 (keyword 0x800) — '
+        + 'NTFS emits no NameCreate for a second name on an existing FileKey, so below 0x1FF0 it is '
+        + 'unrecoverable by re-parse rather than merely unrelated. A rename destination by contrast '
+        + 'also appears as its own NameCreate, so a narrow mask loses only the source-to-dest relation.',
+      // Read by numeric EventID throughout. Named here because the rendered name actively misleads:
+      // event 27 RenamePath renders its RenderingInfo/Task as `NameDelete`.
+      taskNamesAreMisleading: 'events are keyed on the numeric EventID; event 27 (RenamePath) '
+        + 'renders RenderingInfo/Task as `NameDelete`, so a task-name-keyed reader will be wrong',
     },
     derived: {
       file: 'events.ndjson.gz',
