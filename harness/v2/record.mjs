@@ -253,8 +253,86 @@ export function parseDriverLog(log) {
   }
   out.notes = [...new Set(out.notes)];
   out.overPredictedBy = [...new Set(out.overPredictedBy)];
+  applyGrantSourceRule(out, lines);
   return out;
 }
+
+// ⛔ WHICH VALUE THE CATALOG GETS, AND WHY IT IS NOT SIMPLY "THE NARROWEST ONE".
+//
+// `collate.mjs` keys on `grant`, and `grant` was the SYNTHESIZED value — so on every over-predicting
+// record the descent's narrower, jail-VERIFIED minimum was computed and then thrown away. That
+// contradicts the point of the catalog (grant the narrowest set that still installs), systematically
+// and on every platform.
+//
+// The reason it was not simply changed to "always take the descended value" is a real tension: the
+// descended value is narrower and therefore better, but it rests on ARMS PASSING — and an arm can
+// pass for the wrong reason. The synthesized value is wider and dumber but cannot be flattered. So
+// the rule uses the falsifiability instrument as its gate:
+//
+//   grant = the DESCENDED minimum when the arms that justified it COULD have failed,
+//           the SYNTHESIZED value otherwise.
+//
+// ⛔⛔ AND A SECOND GUARD THE OBVIOUS IMPLEMENTATION GETS WRONG: THE DESCENT IS LEAVE-ONE-OUT, SO
+// DROPPING TWO CAPABILITIES AT ONCE WAS NEVER MEASURED. `measure.sh:824` says so in its own summary —
+// "each named capability drops on its own". Each of N over-predicted capabilities has an arm proving
+// IT is droppable individually; nothing proves they are jointly droppable, and the joint grant is
+// strictly narrower than any arm that ran. Narrowing to it would be an INFERENCE presented as a
+// measurement, in the under-grant direction. With N >= 2 the record therefore keeps the synthesized
+// value unless the driver ran an explicit JOINT-NARROW arm — and either way it says which.
+const applyGrantSourceRule = (out, lines) => {
+  if (out.verdict !== 'MINIMUM' || !out.grant) return;
+  const n = out.overPredictedBy.length;
+  // ⛔ ABSENCE OF THE FLAG IS NOT EVIDENCE OF FALSIFIABILITY — it is usually evidence the CHECK NEVER
+  // RAN. Every record taken before `arm-falsifiability.mjs` existed has no flag and no check, and
+  // treating those as falsifiable would retroactively narrow the whole existing corpus on the
+  // strength of a test that was never performed. Same distinction as an absent vs a null root, and
+  // the same direction of harm. The detector prints an `ARM-FALSIFIABILITY` line unconditionally, so
+  // that line — not the absence of the flag — is what says the question was asked.
+  const checked = lines.some((l) => /ARM-FALSIFIABILITY\s/.test(l));
+  const unfalsifiable = out.notes.includes('arms-unfalsifiable');
+  // The synthesized grant minus every capability an arm proved droppable. Keyed on the driver's own
+  // variant names, so this cannot drift from what was actually run.
+  const descended = JSON.parse(JSON.stringify(out.grant));
+  for (const name of out.overPredictedBy) {
+    if (name === 'no-network') delete descended.network;
+    const w = /^no-write-(.+)$/.exec(name);
+    if (w && descended.write) {
+      delete descended.write[w[1]];
+      if (!Object.keys(descended.write).length) delete descended.write;
+    }
+  }
+  const jointVerified = lines.some((l) => /JOINT-NARROW\s+VERIFIED/.test(l));
+  out.descendedGrant = descended;
+
+  let source, reason;
+  if (n === 0) {
+    source = 'synthesized'; reason = 'no capability was droppable — synthesized IS the minimum';
+  } else if (unfalsifiable) {
+    // Tested BEFORE `!checked`: the flag is itself positive evidence the check ran, so a log
+    // carrying the flag must never be mistaken for one that predates the detector.
+    source = 'synthesized';
+    reason = 'the descent narrowed, but this package\'s arms could not have failed '
+      + '(arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant';
+  } else if (!checked) {
+    source = 'synthesized';
+    reason = 'the descent narrowed, but this record predates the falsifiability check — no '
+      + 'ARM-FALSIFIABILITY line, so whether a passing arm is evidence was never established';
+  } else if (n === 1) {
+    source = 'descended';
+    reason = `one capability (${out.overPredictedBy[0]}) was dropped and the resulting grant was `
+      + 'verified in the real jail by a single arm';
+  } else if (jointVerified) {
+    source = 'descended';
+    reason = `${n} capabilities were dropped and the JOINT grant was explicitly verified`;
+  } else {
+    source = 'synthesized';
+    reason = `${n} capabilities each drop on their own, but the descent is leave-one-out and the `
+      + 'JOINT drop was never run — narrowing to it would be an inference, not a measurement';
+  }
+  out.grantSource = source;
+  out.grantSourceReason = reason;
+  if (source === 'descended') out.grant = descended;
+};
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
 if (import.meta.url === `file://${process.argv[1]}`) {

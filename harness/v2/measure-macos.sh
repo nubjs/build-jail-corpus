@@ -669,6 +669,7 @@ if [ "$VERIFIED" -eq 1 ]; then
     if verify "$gg" "nar-$nm"; then
       echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
       ANY_OVER=1
+      echo "$nm" >> "$ROOT/dropped.txt"
     else
       echo "     narrowing '$nm' fails ⇒ that capability IS necessary"
     fi
@@ -681,6 +682,32 @@ if [ "$VERIFIED" -eq 1 ]; then
   # back null. measure.sh has always printed this; the macOS port dropped it.
   if [ -s "$ROOT/variants.tsv" ] && [ -z "${ANY_OVER:-}" ]; then
     echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+  fi
+  # ⛔ THE JOINT ARM. The descent is LEAVE-ONE-OUT, so N droppable capabilities give N arms proving
+  # each drops ON ITS OWN and nothing proving they drop TOGETHER. The joint grant is strictly
+  # narrower than any arm that ran, so publishing it off the individual results would be an inference
+  # dressed as a measurement — in the under-grant direction. One extra arm converts it into a real
+  # one, and only when there is something to convert: N<2 needs no joint arm because the single
+  # leave-one-out arm IS the joint case.
+  DROPPED=$(grep -c . "$ROOT/dropped.txt" 2>/dev/null || echo 0)
+  if [ "$DROPPED" -ge 2 ]; then
+    JOINT=$(node -e '
+      const g = JSON.parse(process.argv[1]);
+      for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
+        if (n === "no-network") delete g.network;
+        const w = /^no-write-(.+)$/.exec(n);
+        if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
+      }
+      console.log(JSON.stringify(g));
+    ' "$GRANT" "$(tr '\n' ' ' < "$ROOT/dropped.txt")" 2>/dev/null)
+    if [ -n "${JOINT:-}" ]; then
+      if verify "$JOINT" "joint-narrow"; then
+        echo "  => JOINT-NARROW VERIFIED $JOINT — all $DROPPED capabilities drop TOGETHER, measured"
+      else
+        echo "  => JOINT-NARROW FAILED $JOINT — each capability drops alone but not together;"
+        echo "     the record keeps the wider synthesized grant, which is the honest answer"
+      fi
+    fi
   fi
 fi
 

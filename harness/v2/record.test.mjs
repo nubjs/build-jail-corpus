@@ -227,3 +227,74 @@ test('interpreterInsideHome is computed with the RECORD platform\'s path rules',
   assert.equal(sibling.interpreterInsideHome, false,
     '/home/nubbins must not read as inside /home/nub — the separator boundary is load-bearing');
 });
+
+// ── THE grant-SOURCE RULE ─────────────────────────────────────────────────────────────────────
+//
+// `collate.mjs` keys on `grant`, so this decides what the shipped catalog contains for every record
+// on every platform. The branches that REFUSE to narrow carry the weight: narrowing is the
+// under-grant direction, and a rule that always narrowed would satisfy every "narrows" assertion.
+const drv = (lines) => parseDriverLog(lines.join('\n'));
+
+test('a single dropped capability narrows the grant — one arm verified exactly that grant', () => {
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  VERIFY[synth] rc=0 grant={"write":{"userHome":true},"network":true}',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'descended');
+  assert.deepEqual(r.grant, { network: true });
+  assert.deepEqual(r.descendedGrant, { network: true });
+});
+
+test('TWO dropped capabilities do NOT narrow — leave-one-out never measured the joint drop', () => {
+  // ⛔ THE GUARD THAT THE OBVIOUS IMPLEMENTATION MISSES. Each capability has an arm proving it drops
+  // ALONE; the joint grant is strictly narrower than any arm that ran. measure.sh says as much in its
+  // own summary — "each named capability drops on its own".
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"project":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower x also verifies; 'no-network' was not needed",
+    "     ⛔ OVER-PREDICTED — the strictly narrower y also verifies; 'no-write-project' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { write: { project: true }, network: true }, 'keeps the WIDE grant');
+  assert.deepEqual(r.descendedGrant, {}, 'but still records what the descent pointed at');
+  assert.match(r.grantSourceReason, /never run/);
+});
+
+test('two dropped capabilities DO narrow once a JOINT-NARROW arm verifies them together', () => {
+  // The positive control for the guard above: it must be possible to earn the narrow grant, or the
+  // guard is just a permanent refusal wearing a reason.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"project":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower x also verifies; 'no-network' was not needed",
+    "     ⛔ OVER-PREDICTED — the strictly narrower y also verifies; 'no-write-project' was not needed",
+    '  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured',
+  ]);
+  assert.equal(r.grantSource, 'descended');
+  assert.deepEqual(r.grant, {});
+});
+
+test('an unfalsifiable package never narrows, however many arms passed', () => {
+  // A passing narrow arm for a package whose arms could not have failed is not evidence.
+  const r = drv([
+    '  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:',
+    '  => VERIFIED {"write":{"deps":true}}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { write: { deps: true } }, 'the wide grant survives');
+  assert.match(r.grantSourceReason, /could not have failed/);
+});
+
+test('a MINIMAL record is unaffected — there is nothing to narrow', () => {
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"network":true}',
+    '  => MINIMAL — every capability in {"network":true} is independently necessary',
+  ]);
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { network: true });
+});
