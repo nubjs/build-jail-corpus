@@ -866,13 +866,25 @@ if [ "$VERIFIED" -eq 1 ]; then
     # block and the arm came back VOID. `verify` now expresses it the way measure.sh does — omit the
     # package so it runs at the base profile — so the fully-narrowed variant is a real arm, and a
     # package that needs nothing is measurable rather than skipped.
-    if verify "$gg" "nar-$nm"; then
-      echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
-      ANY_OVER=1
-      echo "$nm" >> "$ROOT/dropped.txt"
-    else
-      echo "     narrowing '$nm' fails ⇒ that capability IS necessary"
-    fi
+    # ⛔ THREE OUTCOMES, NOT TWO — `if verify` COLLAPSED VOID INTO "NECESSARY". `verify` returns 2 when
+    # the override did not engage, i.e. NOTHING was measured. In shell, 2 is falsy, so the old
+    # `if/else` read it as "the narrowing failed ⇒ that capability is necessary" and the descent went
+    # on to print `=> MINIMAL` having proven nothing. Silent, and in the direction that OVERSTATES
+    # what the record attests: the grant stays wide (safe), but `minimality: MINIMAL` is unearned.
+    #
+    # `measure.sh` has always branched three ways here. This is a straight port of its `case`, and
+    # `record.mjs` ALREADY consumes both spellings — `INCONCLUSIVE for` becomes the
+    # `descent-inconclusive` note, `=> DESCENT INCOMPLETE` becomes `minimality: UNPROVEN`. A consumer
+    # with no producer, which is this session's recurring defect running backwards.
+    verify "$gg" "nar-$nm"; nrc=$?
+    case "$nrc" in
+      0) echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
+         ANY_OVER=1
+         echo "$nm" >> "$ROOT/dropped.txt" ;;
+      2) echo "     ⛔ INCONCLUSIVE for '$nm' — the arm was VOID, so nothing was measured; NOT evidence of necessity"
+         INCONCLUSIVE="${INCONCLUSIVE:-} $nm" ;;
+      *) echo "     narrowing '$nm' fails ⇒ that capability IS necessary" ;;
+    esac
   done < "$ROOT/variants.tsv"
   # ⛔ WITHOUT THIS LINE A FULLY-MINIMAL RECORD CANNOT SAY SO. `record.mjs` sets `minimality` from
   # `=> MINIMAL` or "grant is already empty"; this driver emitted neither when every narrowing FAILED,
@@ -881,7 +893,13 @@ if [ "$VERIFIED" -eq 1 ]; then
   # hugo-extended@0.141.0: its sole narrowing failed with a real shortfall and the record still came
   # back null. measure.sh has always printed this; the macOS port dropped it.
   if [ -s "$ROOT/variants.tsv" ] && [ -z "${ANY_OVER:-}" ]; then
-    echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+    # ⛔ AN UNMEASURED CAPABILITY IS NOT A NECESSARY ONE. If any arm came back VOID, "no capability
+    # dropped" is not evidence of minimality — it is evidence that the question was never put.
+    if [ -n "${INCONCLUSIVE:-}" ]; then
+      echo "  => DESCENT INCOMPLETE — no capability dropped, but$INCONCLUSIVE was never measured; MINIMALITY IS UNPROVEN"
+    else
+      echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+    fi
   fi
   # ⛔ THE JOINT ARM. The descent is LEAVE-ONE-OUT, so N droppable capabilities give N arms proving
   # each drops ON ITS OWN and nothing proving they drop TOGETHER. The joint grant is strictly

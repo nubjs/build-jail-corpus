@@ -229,3 +229,53 @@ test('⭑ the joint arm is gated at N>=2 and reads all THREE verify outcomes', (
   assert.ok(joint, 'the joint arm no longer calls `verify` and branches on its status');
   assert.match(joint, /^\s*2\)/m, 'the joint arm does not handle rc 2 (VOID) separately — it reads an unmeasured arm as a failure');
 });
+
+// ── the macOS descent's THIRD outcome ──────────────────────────────────────────────────────────────
+//
+// ⛔ `measure-macos.sh` USED `if verify …`, SO VOID COLLAPSED INTO "NECESSARY". `verify` returns 2 when
+// the override did not engage — nothing was measured — and 2 is falsy in shell, so the old two-way
+// branch read it as "the narrowing failed ⇒ that capability is necessary" and the descent went on to
+// print `=> MINIMAL` having proven nothing. `measure.sh` has always branched three ways.
+//
+// The GRANT stayed safe (a kept capability is an over-grant), but `minimality: MINIMAL` is the field
+// that claims the minimum was PROVEN, and it was being emitted unearned. `record.mjs` already parsed
+// both sentences — a consumer with no producer — so the fix was a port, and this is its round trip.
+const macosDescentLog = (verdict, lines = []) => [
+  '  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}',
+  '  => MINIMUM {"network":true}   (observed, then verified)',
+  ...lines,
+  verdict,
+].join('\n');
+
+test('⭑ a VOID macOS narrowing yields UNPROVEN, not MINIMAL', () => {
+  const r = parseDriverLog(macosDescentLog(
+    '  => DESCENT INCOMPLETE — no capability dropped, but network was never measured; MINIMALITY IS UNPROVEN',
+    ["     ⛔ INCONCLUSIVE for 'network' — the arm was VOID, so nothing was measured; NOT evidence of necessity"],
+  ));
+  assert.equal(r.minimality, 'UNPROVEN',
+    'an unmeasured capability is not a necessary one — "no capability dropped" is not evidence of minimality here');
+  assert.ok(r.notes.includes('descent-inconclusive'),
+    'the per-capability line must also mark the record, so the reason survives without the verdict line');
+});
+
+test('⭑ the CONTROL: a macOS descent with no VOID arm still reports MINIMAL', () => {
+  // Without this, a change that made everything UNPROVEN would satisfy the test above while
+  // destroying the verdict it exists to protect — the same shape as a harness that refuses everything.
+  const r = parseDriverLog(macosDescentLog(
+    '  => MINIMAL — every capability in {"network":true} is independently necessary',
+    ["     narrowing 'network' fails ⇒ that capability IS necessary"],
+  ));
+  assert.equal(r.minimality, 'MINIMAL');
+  assert.ok(!r.notes.includes('descent-inconclusive'), 'nothing was inconclusive, so nothing should say so');
+});
+
+test('⭑ DRIFT GUARD: measure-macos.sh emits the three-way vocabulary this pins', () => {
+  // The producer half. `record.mjs` parsed these sentences for months while the macOS driver emitted
+  // neither, so asserting the consumer alone proves nothing about what darwin records actually say.
+  const src = fs.readFileSync(path.join(HERE, DRIVERS.macos), 'utf8');
+  for (const re of [/INCONCLUSIVE for /, /=> DESCENT INCOMPLETE/, /the arm was VOID/]) {
+    assert.match(src, re, `measure-macos.sh no longer emits what these tests pin: ${re}`);
+  }
+  assert.doesNotMatch(src, /if verify "\$gg" "nar-\$nm"; then/,
+    'the two-way branch is what collapsed VOID into "necessary" — it must not come back');
+});
