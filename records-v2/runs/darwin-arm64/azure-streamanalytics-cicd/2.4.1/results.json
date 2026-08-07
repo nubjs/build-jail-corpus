@@ -1,0 +1,117 @@
+{
+  "pkg": "azure-streamanalytics-cicd",
+  "version": "2.4.1",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "userHome": true
+    },
+    "network": true
+  },
+  "synthesized": {
+    "network": true
+  },
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-project"
+  ],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "write": {
+      "userHome": true
+    },
+    "network": true
+  },
+  "notes": [
+    "cwd-unobserved",
+    "events-lost",
+    "under-predicted"
+  ],
+  "eventLog": {
+    "lines": 15866,
+    "parsed": 15846,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 39,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 541,
+    "danglingPair": 0,
+    "failed": 6334,
+    "enoent": 6029,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 5,
+      "ENOENT": 6029,
+      "EEXIST": 300
+    },
+    "procs": 7,
+    "lifecyclePids": 3,
+    "distinctEvents": 7560,
+    "emitted": 7560,
+    "calls": 15283,
+    "bytes": 1468198,
+    "gzipBytes": 49221,
+    "out": "/Users/runner/v2m-1ZXvKq/Observe/events.ndjson"
+  },
+  "driverRc": 0,
+  "durationMs": 77470,
+  "provenance": {
+    "platform": "darwin-arm64",
+    "harness": "measure-macos.sh",
+    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "9827aaea8b50d10ca3bd6b2f3b97cbb98d9a7823",
+    "node": "v22.23.1",
+    "at": "2026-08-07T20:14:38.198Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
+    "ciChild": "clean (no CI-detection variable reaches the traced script)",
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4",
+      "bytes": 94103896,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-1ZXvKq/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdEHroj",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}
