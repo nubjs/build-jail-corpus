@@ -1,0 +1,76 @@
+### node-libcurl@4.1.0   (/home/runner/v2-hRs0NZ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2067 trace=14601 lines
+  CLOSURE   114 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":296,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-hRs0NZ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-hRs0NZ/observe/capture.json
+  RAWLOG-BYTES raw=3106914 gz=93197
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-hRs0NZ/jailhome","TMPDIR":"/tmp/nub-tmp-obsY9qA34","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-hRs0NZ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 34
+    writes  script 3  /  whole traced tree 1091
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-hRs0NZ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-hRs0NZ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-hRs0NZ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsY9qA34
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-hRs0NZ/observe/node_modules/node-libcurl
+  == WRITES the script actually performed ==
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-hRs0NZ/observe/node_modules/node-libcurl/lib
+        /home/runner/v2-hRs0NZ/observe/node_modules/node-libcurl/lib/binding
+        /home/runner/v2-hRs0NZ/observe/node_modules/node-libcurl/lib/binding/node_libcurl.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        140.82.116.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6289 distinct from 14361 calls (14602 lines, 193 rejoined, 0 unparsed)
+    PROCS     41   lifecycle shells 29
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×53 getsockname×42 exit×30 getsockopt×25 recvmsg×11 socketpair×10 wait4×9 shutdown×8
+    wrote /home/runner/v2-hRs0NZ/observe/events.ndjson.gz (41657 bytes)
+  EVENTLOG-FILE /home/runner/v2-hRs0NZ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14602,"parsed":14361,"unparsed":0,"unfinished":193,"rejoined":193,"unresolvedDirfd":3,"truncatedArg":0,"procs":41,"lifecyclePids":29,"distinctEvents":6289,"unknownSyscall":{"getsockname":42,"getsockopt":25,"getcwd":6,"recvmsg":11,"exit":30,"setsockopt":53,"sendmmsg":3,"socketpair":10,"shutdown":8,"exit_group":7,"wait4":9},"out":"/home/runner/v2-hRs0NZ/observe/events.ndjson.gz","gzipBytes":41657}
+  EVICT     70 store entries removed, 15 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VERIFY[synth] rc=1 artifacts=ABSENT/295 missing=1 shortfall=7f7367677a90 (tree 3/2067) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: <package absent>
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     0 store entries removed, 15 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VERIFY[fb2126003217] rc=1 artifacts=ABSENT/295 missing=1 shortfall=7f7367677a90 (tree 3/2067) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 15 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VERIFY[fb3938809772] rc=1 artifacts=ABSENT/295 missing=1 shortfall=7f7367677a90 (tree 3/2067) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 15 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VERIFY[fb2742342390] rc=1 artifacts=ABSENT/295 missing=1 shortfall=7f7367677a90 (tree 3/2067) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: <package absent>
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
+     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
+     an under-grant: do not widen the catalog. This is a nub install defect to chase.
