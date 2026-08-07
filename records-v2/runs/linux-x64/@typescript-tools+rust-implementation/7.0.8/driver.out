@@ -1,0 +1,73 @@
+### @typescript-tools/rust-implementation@7.0.8   (/home/runner/v2-lso0X5)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=782 trace=12185 lines
+  CLOSURE   39 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-lso0X5/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-lso0X5/observe/capture.json
+  RAWLOG-BYTES raw=2652521 gz=78847
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-lso0X5/jailhome","TMPDIR":"/tmp/nub-tmp-obsUxLTHu","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-lso0X5/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 3  /  whole traced tree 1091
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-lso0X5/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-lso0X5/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-lso0X5/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsUxLTHu
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-lso0X5/observe/node_modules/@typescript-tools/rust-implementation
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-lso0X5/observe/node_modules/@typescript-tools/rust-implementation/bin/monorepo
+        /home/runner/v2-lso0X5/observe/node_modules/@typescript-tools/rust-implementation/bin
+    deps          1
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        20.29.134.23:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5099 distinct from 12108 calls (12186 lines, 50 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×45 getsockname×30 exit×20 getsockopt×13 recvmsg×11 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-lso0X5/observe/events.ndjson.gz (35137 bytes)
+  EVENTLOG-FILE /home/runner/v2-lso0X5/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12186,"parsed":12108,"unparsed":0,"unfinished":50,"rejoined":50,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5099,"unknownSyscall":{"getsockname":30,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":45,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-lso0X5/observe/events.ndjson.gz","gzipBytes":35137}
+  EVICT     38 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @typescript-tools/rust-implementation
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 2495/782) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     41 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @typescript-tools/rust-implementation
+  VERIFY[fb2126003217] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 2495/782) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  EVICT     41 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @typescript-tools/rust-implementation
+  VERIFY[fb3938809772] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 2495/782) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  EVICT     41 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @typescript-tools/rust-implementation
+  VERIFY[fb2742342390] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 2495/782) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
+     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
+     an under-grant: do not widen the catalog. This is a nub install defect to chase.
