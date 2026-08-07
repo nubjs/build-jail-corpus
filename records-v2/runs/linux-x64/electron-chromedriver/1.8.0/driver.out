@@ -1,0 +1,75 @@
+### electron-chromedriver@1.8.0   (/home/runner/v2-iizePH)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1036 trace=15072 lines
+  CLOSURE   94 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-iizePH/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-iizePH/observe/capture.json
+  RAWLOG-BYTES raw=3210230 gz=92746
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-iizePH/jailhome","TMPDIR":"/tmp/nub-tmp-obsJ1SD5X","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-iizePH/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 9  /  whole traced tree 1097
+    sockets script 10  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-iizePH/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-iizePH/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-iizePH/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsJ1SD5X
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-iizePH/observe/node_modules/electron-chromedriver
+  == WRITES the script actually performed ==
+    userHome      5
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-iizePH/observe/node_modules/electron-chromedriver/bin
+        /home/runner/v2-iizePH/observe/node_modules/electron-chromedriver/bin/LICENSE
+        /home/runner/v2-iizePH/observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /home/runner/v2-iizePH/observe/node_modules/electron-chromedriver/bin/chromedriver
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        140.82.113.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    5 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 5
+        .cache/nub/pm/tools/electron-cache
+        .cache/nub/pm/tools/electron-cache/tmp-54584-0-chromedriver-v1.8.0-linux-x64.zip
+        .cache/nub/pm/tools/electron-cache/chromedriver-v1.8.0-linux-x64.zip
+        .cache/nub/pm/tools/electron-cache/tmp-54584-1-SHASUMS256.txt-1.8.0
+        .cache/nub/pm/tools/electron-cache/SHASUMS256.txt-1.8.0
+    EVENTS    6224 distinct from 14963 calls (15073 lines, 82 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×41 setsockopt×27 exit×20 getsockopt×19 recvmsg×15 shutdown×7 getcwd×5 sendmmsg×5
+    wrote /home/runner/v2-iizePH/observe/events.ndjson.gz (40732 bytes)
+  EVENTLOG-FILE /home/runner/v2-iizePH/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15073,"parsed":14963,"unparsed":0,"unfinished":82,"rejoined":82,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":6224,"unknownSyscall":{"getsockname":41,"getsockopt":19,"getcwd":5,"recvmsg":15,"exit":20,"setsockopt":27,"sendmmsg":5,"socketpair":3,"shutdown":7,"exit_group":3,"wait4":3},"out":"/home/runner/v2-iizePH/observe/events.ndjson.gz","gzipBytes":40732}
+  EVICT     96 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 3169/1036) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     100 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-network] rc=1 artifacts=6/9 missing=3 shortfall=cf2df2529553 (tree 3158/1036) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+       missing: bin/LICENSE, bin/LICENSES.chromium.html, bin/chromedriver
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     100 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=11/9 missing=0 shortfall=none (tree 3175/1036) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
