@@ -1,0 +1,86 @@
+### electron@31.7.7   (/home/runner/v2-zky60Z)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=925 trace=14121 lines
+  CLOSURE   68 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":83,"filesTheScriptProduced":75,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-zky60Z/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-zky60Z/observe/capture.json
+  RAWLOG-BYTES raw=2967618 gz=85254
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-zky60Z/jailhome","TMPDIR":"/tmp/nub-tmp-obs1ueNSg","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-zky60Z/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 85  /  whole traced tree 1173
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-zky60Z/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-zky60Z/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-zky60Z/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs1ueNSg
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-zky60Z/observe/node_modules/electron
+  == WRITES the script actually performed ==
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs1ueNSg/electron-download-3JgWkR
+        /tmp/nub-tmp-obs1ueNSg/electron-download-3JgWkR/electron-v31.7.7-linux-x64.zip
+        /tmp/nub-tmp-obs1ueNSg/electron-download-0dBhdP
+        /tmp/nub-tmp-obs1ueNSg/electron-download-0dBhdP/SHASUMS256.txt
+    userHome      3
+    ownPkg       78  (base profile already grants this — NOT billed)
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/zh-CN.pak
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/icudtl.dat
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/libffmpeg.so
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/vi.pak
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/ar.pak
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/es.pak
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/ja.pak
+        /home/runner/v2-zky60Z/observe/node_modules/electron/dist/locales/ta.pak
+        … and 68 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.7.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    3 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        .cache/nub/pm/tools/electron-cache
+        .cache/nub/pm/tools/electron-cache/c94f2fc32e1fb05767f75322ea533eeb9828155f017ec184140930a3ec825e81
+        .cache/nub/pm/tools/electron-cache/c94f2fc32e1fb05767f75322ea533eeb9828155f017ec184140930a3ec825e81/electron-v31.7.7-linux-x64.zip
+    EVENTS    5446 distinct from 13993 calls (14122 lines, 101 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×36 setsockopt×33 exit×20 getsockopt×18 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-zky60Z/observe/events.ndjson.gz (37425 bytes)
+  EVENTLOG-FILE /home/runner/v2-zky60Z/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14122,"parsed":13993,"unparsed":0,"unfinished":101,"rejoined":101,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5446,"unknownSyscall":{"getsockname":36,"getsockopt":18,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"getpeername":2,"exit_group":3,"wait4":3},"out":"/home/runner/v2-zky60Z/observe/events.ndjson.gz","gzipBytes":37425}
+  EVICT     53 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=83/83 missing=0 shortfall=none (tree 3083/925) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     67 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron
+  VERIFY[drop-no-network] rc=1 artifacts=8/83 missing=75 shortfall=b426b4c087be (tree 2856/925) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/chrome-sandbox, dist/chrome_100_percent.pak, dist/chrome_200_percent.pak, dist/chrome_crashpad_handler (+69)
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     67 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=8/83 missing=75 shortfall=b426b4c087be (tree 2856/925) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/chrome-sandbox, dist/chrome_100_percent.pak, dist/chrome_200_percent.pak, dist/chrome_crashpad_handler (+69)
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
