@@ -1,0 +1,77 @@
+### node-jq@4.4.0   (/home/runner/v2-i7S0dJ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1132 trace=15467 lines
+  CLOSURE   141 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":39,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-i7S0dJ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-i7S0dJ/observe/capture.json
+  RAWLOG-BYTES raw=3298255 gz=103577
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-i7S0dJ/jailhome","TMPDIR":"/tmp/nub-tmp-obsCPAM4c","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-i7S0dJ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 188  /  whole traced tree 1186
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-i7S0dJ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-i7S0dJ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-i7S0dJ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsCPAM4c
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-i7S0dJ/observe/node_modules/node-jq
+  == WRITES the script actually performed ==
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-i7S0dJ/jailhome/.npm/_logs/2026-08-07T20_43_17_634Z-debug-0.log
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-i7S0dJ/observe/node_modules/node-jq/bin
+        /home/runner/v2-i7S0dJ/observe/node_modules/node-jq/bin/jq-linux-amd64
+        /home/runner/v2-i7S0dJ/observe/node_modules/node-jq/bin/jq
+    jailTmp     184  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e901b9c5.LwwVNs
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e901b9c5
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/6c0a4a17.fStcvw
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/6c0a4a17
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/f3939c37.VL39O1
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/f3939c37
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd1e55a6.eYNUDg
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd1e55a6
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/1d60fb6c.3kelzX
+        /tmp/nub-tmp-obsCPAM4c/node-compile-cache/v22.23.1-x64-9ac5647c-1001/1d60fb6c
+        … and 174 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7102 distinct from 15239 calls (15468 lines, 187 rejoined, 0 unparsed)
+    PROCS     37   lifecycle shells 25
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×45 exit×29 getsockopt×26 setsockopt×25 recvmsg×16 getcwd×7 wait4×6 exit_group×5
+    wrote /home/runner/v2-i7S0dJ/observe/events.ndjson.gz (45845 bytes)
+  EVENTLOG-FILE /home/runner/v2-i7S0dJ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15468,"parsed":15239,"unparsed":0,"unfinished":187,"rejoined":187,"unresolvedDirfd":3,"truncatedArg":0,"procs":37,"lifecyclePids":25,"distinctEvents":7102,"unknownSyscall":{"getsockname":45,"getsockopt":26,"getcwd":7,"recvmsg":16,"exit":29,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-i7S0dJ/observe/events.ndjson.gz","gzipBytes":45845}
+  EVICT     98 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-jq
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=39/39 missing=0 shortfall=none (tree 4426/1132) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     148 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-jq
+  VERIFY[drop-no-network] rc=1 artifacts=38/39 missing=1 shortfall=3acf0cb28de4 (tree 4421/1132) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: bin/jq
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
