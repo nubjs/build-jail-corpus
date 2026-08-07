@@ -23,6 +23,20 @@
 //     --runs <dir>            where the record lands (default: a private temp dir)
 //     --budget <seconds>      per-driver budget, passed to the batch runner
 //
+//   exit codes:
+//     0  the install stage RAN and the package installed under the pipeline's own catalog
+//     1  a stage failed (or the negative control passed, which is a failure of this tool)
+//     2  usage
+//     4  ⛔ every stage that COULD run passed, but the install stage did not run — either this
+//        platform cannot run it, or `--skip-install` asked for that. The product is UNVERIFIED.
+//
+// ⛔ 4 EXISTS BECAUSE 0 WOULD BE A LIE ON macOS AND WINDOWS, AND IT IS THE LIE THIS TOOL WAS BUILT TO
+// REMOVE. `--at-catalog` is implemented in `measure.sh` only — verified by search, it appears in no
+// other driver — so `stageInstall` returns `unavailable` off Linux. Every OTHER stage is the harness
+// reading its own output back, so a plain 0 there would certify a pipeline against itself and say
+// nothing whatever about whether the grant installs. A caller gating on `rc === 0` now gets that
+// distinction for free; one gating on `rc !== 1` opts out of it deliberately.
+//
 // ⛔ THE MEASUREMENT IS NOT REIMPLEMENTED HERE — IT SHELLS OUT TO `run-batch-v2.mjs` WITH A
 // ONE-LINE WORKLIST. That is deliberate and it is the whole answer to "could this tool and the
 // batch runner disagree about a package?". They cannot: the verdict comes from the batch runner
@@ -135,6 +149,11 @@ const summary = {
 let exitCode = 0;
 const finish = (code) => {
   summary.ok = code === 0;
+  summary.exitCode = code;
+  // A JSON consumer must be able to ask "did the product check run?" without pattern-matching the
+  // stage table. `ok` alone cannot answer it: `ok:false` covers both "the grant does not install"
+  // and "nobody checked", and those call for opposite reactions.
+  summary.productChecked = stages.some((s) => s.name === 'install' && (s.status === 'ok' || s.status === 'fail'));
   // ⛔ RE-HASHED AT THE END, AND THIS IS NOT BELT-AND-BRACES. The binary path is shared mutable
   // state: `~/nub/target/release/nub` was rebuilt mid-sweep without the override feature and every
   // measurement after that point went VOID, with `nubGitSha` IDENTICAL across the good and the bad
@@ -452,8 +471,17 @@ function render() {
   const L = [];
   const b = summary.binary;
   const control = stages.some((s) => s.status === 'control-failed-as-intended');
-  L.push(`═══ e2e  ${PKG}@${VER}  ${PLATFORM}  `
-    + `${control ? 'CONTROL REFUSED AS INTENDED' : summary.ok ? 'OK' : 'FAILED'} ═══`);
+  // Three outcomes, not two. "PIPELINE OK, PRODUCT UNCHECKED" is the honest name for a run whose
+  // install stage could not execute: neither a pass to quote nor a failure to debug.
+  //
+  // Keyed on the EXIT CODE rather than on the stage's status, because `skip` is overloaded — DIRECT
+  // mode also marks the install stage `skip`, and there the real install genuinely ran and IS the
+  // verdict. Only the paths that chose 4 are unchecked.
+  const unchecked = summary.exitCode === 4;
+  const banner = control ? 'CONTROL REFUSED AS INTENDED'
+    : unchecked ? '⛔ PIPELINE OK, PRODUCT UNCHECKED'
+      : summary.ok ? 'OK' : 'FAILED';
+  L.push(`═══ e2e  ${PKG}@${VER}  ${PLATFORM}  ${banner} ═══`);
   if (b) {
     L.push(`binary    ${b.path}`);
     L.push(`          ${b.version || '(no --version)'}  sha256:${(b.sha256 ?? '').slice(0, 16)}  `
@@ -559,10 +587,16 @@ if (summary.record.verdict !== 'MINIMUM') {
 }
 if (stageCatalog().status !== 'ok') finish(1);
 if (SKIP_INSTALL) {
+  // Also 4, not 0. The exit code describes WHAT HAPPENED, not whether the caller consented to it:
+  // "you asked me to skip the product check" and "this platform cannot run it" leave the caller in
+  // exactly the same position — holding a result that attests to the pipeline and nothing else.
   done(stage('install'), 'skip', '--skip-install');
-  finish(0);
+  finish(4);
 }
 const inst = stageInstall();
-exitCode = inst.status === 'ok' || inst.status === 'unavailable' ? 0 : 1;
+// `unavailable` is NOT success — see the exit-code table in the header. It means the one stage that
+// checks the PRODUCT never ran, so it gets its own code rather than borrowing the one that means
+// "the grant installs".
+exitCode = inst.status === 'ok' ? 0 : inst.status === 'unavailable' ? 4 : 1;
 finish(exitCode);
 
