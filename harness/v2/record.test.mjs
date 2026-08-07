@@ -414,10 +414,45 @@ test('⭑ a record with NO --corpus-sha still names the harness that produced it
     return JSON.parse(fs.readFileSync(path.join(out, 'results.json'), 'utf8'));
   };
 
-  assert.equal(emit([]).provenance.corpusGitSha, head,
-    'without the flag the sha must be DERIVED from the checkout, not left null');
+  // ⛔ STATE-AWARE, and that is not a weakening. The rule is "never name a commit the harness did
+  // not come from". On a CLEAN tree that commit is HEAD; with uncommitted harness edits there is no
+  // such commit, and `null` is the only honest answer. Asserting HEAD unconditionally would demand
+  // the very false attestation the sibling test forbids.
+  let clean = true;
+  try { execFileSync('git', ['-C', here, 'diff', '--quiet', 'HEAD', '--', here], { stdio: 'ignore' }); }
+  catch { clean = false; }
+  assert.equal(emit([]).provenance.corpusGitSha, clean ? head : null,
+    clean ? 'on a clean tree the sha must be DERIVED, not left null'
+          : 'with uncommitted harness edits the sha must be null, never a stale HEAD');
 
   // …and an explicit flag still WINS, so a CI job that checked out a specific ref is not second-guessed.
   assert.equal(emit(['--corpus-sha', 'deadbeef']).provenance.corpusGitSha, 'deadbeef',
     'an explicitly passed sha must override the derived one');
+});
+
+// ⛔⛔ A WRONG SHA IS WORSE THAN NO SHA. A measuring box is updated with
+// `git checkout origin/main -- harness/`, a PATHSPEC checkout that does NOT move HEAD — which is
+// exactly what makes it safe on a box whose record tree must not be touched. Reading HEAD there
+// names an OLDER commit than the code that ran: `null` says "I cannot tell you", a stale sha
+// asserts something false and nothing downstream can catch it. Observed on `nub-corpus-linux`,
+// HEAD `e546d433` while its harness was `04ed4365`.
+test('⭑ the derived sha is null when the harness does NOT match HEAD, rather than naming HEAD', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  // Simulate the pathspec-checkout state: harness content differs from HEAD.
+  const probe = path.join(here, '__sha_probe__.tmp');
+  fs.writeFileSync(probe, '// transient probe file to make harness/ differ from HEAD\n');
+  try {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sha-dirty-'));
+    const log = path.join(d, 'log.txt');
+    fs.writeFileSync(log, '  => NO-STATE-PASSED even at write:disk\n');
+    const out = execFileSync(process.execPath, [path.join(here, 'record.mjs'),
+      '--log', log, '--pkg', 'demo', '--version', '1.0.0', '--out', path.join(d, 'r'),
+      '--platform', 'linux-x64', '--driver', 'measure.sh', '--rc', '0', '--duration-ms', '1'],
+      { encoding: 'utf8' }).trim().split('\n').pop();
+    const rec = JSON.parse(fs.readFileSync(path.join(out, 'results.json'), 'utf8'));
+    assert.equal(rec.provenance.corpusGitSha, null,
+      'with harness/ differing from HEAD the sha must be null, never a stale HEAD');
+  } finally {
+    fs.rmSync(probe, { force: true });
+  }
 });

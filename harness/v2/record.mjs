@@ -55,11 +55,22 @@ export const firstObject = (line) => {
 // The flag still WINS when passed — a caller that knows better (a CI job checking out a specific
 // ref) is not second-guessed. This only fills the gap where the answer was `null`.
 function corpusShaFromCheckout() {
+  const git = (args) => execFileSync('git', ['-C', import.meta.dirname, ...args],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   try {
-    return execFileSync('git', ['-C', import.meta.dirname, 'rev-parse', 'HEAD'],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null;
+    // ⛔⛔ HEAD IS NOT THE HARNESS unless the harness matches it. A measuring box is updated with
+    // `git checkout origin/main -- harness/`, a PATHSPEC checkout that deliberately does NOT move
+    // HEAD — that is precisely what makes it safe to run on a box whose record tree must not be
+    // touched. Reading HEAD there would name an OLDER commit than the code that actually ran, and a
+    // wrong sha is worse than no sha: `null` says "I cannot tell you", a stale sha asserts something
+    // false and nothing downstream can detect it. Caught 2026-08-07 on `nub-corpus-linux`, whose
+    // HEAD said `e546d433` while its harness was `04ed4365`.
+    git(['diff', '--quiet', 'HEAD', '--', import.meta.dirname]);
+    return git(['rev-parse', 'HEAD']) || null;
   } catch {
-    return null; // not a checkout, or no git — honest null, same as before
+    // Either not a checkout / no git, or `diff --quiet` exited non-zero meaning the harness differs
+    // from HEAD. Both are honestly "I cannot name the commit that produced this".
+    return null;
   }
 }
 
