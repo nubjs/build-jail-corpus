@@ -1,0 +1,77 @@
+### electron-prebuilt@0.27.3   (/home/runner/v2-bQ3SaG)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1422 trace=16081 lines
+  CLOSURE   140 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":79,"filesTheScriptProduced":70,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-bQ3SaG/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-bQ3SaG/observe/capture.json
+  RAWLOG-BYTES raw=3426872 gz=94561
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-bQ3SaG/jailhome","TMPDIR":"/tmp/nub-tmp-obsjVNc3a","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-bQ3SaG/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 142  /  whole traced tree 1230
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-bQ3SaG/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-bQ3SaG/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-bQ3SaG/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsjVNc3a
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-bQ3SaG/jailhome/.electron
+        /home/runner/v2-bQ3SaG/jailhome/.electron/electron-v0.27.3-linux-x64.zip
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsjVNc3a/electron-tmp-download-28545-1786132038283
+        /tmp/nub-tmp-obsjVNc3a/electron-tmp-download-28545-1786132038283/electron-v0.27.3-linux-x64.zip
+    ownPkg      138  (base profile already grants this — NOT billed)
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/path.txt
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/electron
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/libffmpegsumo.so
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/snapshot_blob.bin
+        /home/runner/v2-bQ3SaG/observe/node_modules/electron-prebuilt/dist/LICENSE
+        … and 128 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6223 distinct from 15843 calls (16082 lines, 211 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×33 exit×20 getsockopt×16 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-bQ3SaG/observe/events.ndjson.gz (41312 bytes)
+  EVENTLOG-FILE /home/runner/v2-bQ3SaG/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16082,"parsed":15843,"unparsed":0,"unfinished":211,"rejoined":211,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":6223,"unknownSyscall":{"getsockname":33,"getsockopt":16,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-bQ3SaG/observe/events.ndjson.gz","gzipBytes":41312}
+  EVICT     137 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=78/78 missing=0 shortfall=none (tree 4563/1422) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+  => VERIFIED {"network":true,"writePaths":[".electron"]}   (observed, then verified)
+  EVICT     145 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VERIFY[drop-no-network] rc=1 artifacts=8/78 missing=70 shortfall=7a48d0011230 (tree 4195/1422) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".electron"]}
+       missing: dist/LICENSE, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpegsumo.so, dist/libgcrypt.so.11 (+64)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".electron"]} is independently necessary
