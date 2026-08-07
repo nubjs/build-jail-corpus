@@ -17,7 +17,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, delimiter } from 'node:path';
 
 // ⛔ `import.meta.dirname`, NOT `new URL('.', import.meta.url).pathname`: on Windows the latter
 // yields `/C:/…`, a path that exists nowhere, so the driver never spawned and all four cases below
@@ -35,8 +35,13 @@ for (const c of ['dtrace', 'sudo', 'npm', 'dscl', 'sw_vers', 'csrutil', 'chown']
   writeFileSync(join(STUB, c), '#!/bin/sh\nexit 0\n', { mode: 0o755 });
 }
 const run = (...args) => {
+  // `delimiter`, not a hardcoded ':'. On Windows the separator is ';', so `${STUB}:${PATH}` fused
+  // the stub dir and the FIRST real PATH entry into one invalid entry. That entry held Git's bin,
+  // so `bash` became unfindable, spawnSync returned `status: null` with ENOENT, and four tests read
+  // that null as "the driver returned the wrong exit code" — a spawn failure wearing the costume of
+  // a contract violation. MEASURED: ':' gives status=null/ENOENT, `delimiter` gives status=2.
   const r = spawnSync('bash', [DRIVER, ...args], {
-    encoding: 'utf8', env: { ...process.env, PATH: `${STUB}:${process.env.PATH}`, HOME: STUB },
+    encoding: 'utf8', env: { ...process.env, PATH: `${STUB}${delimiter}${process.env.PATH}`, HOME: STUB },
   });
   return { rc: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
 };
