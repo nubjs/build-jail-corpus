@@ -81,6 +81,33 @@ function osvMalicious(specs) {
   return flagged;
 }
 
+/** Build the distinct spec list, REFUSING any row that does not carry the keys this screen reads.
+ *
+ *  ⛔ THIS IS THE FAIL-OPEN THIS SCREEN IS MOST EXPOSED TO, and it was live: a row keyed `package`
+ *  instead of `pkg` yields the string `undefined@<version>`, OSV answers "no advisory" for a package
+ *  that does not exist, and the screen prints `PRESCREEN: ok` having queried nothing at all. Every
+ *  other refusal here is loud; this one is silent and lands on the safe-looking side.
+ *
+ *  So an unreadable row is a REFUSAL, never a skip and never a coerced string. The error names the
+ *  keys the row DOES carry, because the whole failure mode is a near-miss key.
+ *
+ *  Note what is deliberately NOT checked: that the distinct-spec count equals the row count. The
+ *  queue holds each package-version once per OS, so N < rows is the normal, correct shape — a
+ *  count-equality guard would fire on every real queue. */
+function specsFromRows(rows) {
+  const bad = [];
+  for (const [i, r] of rows.entries()) {
+    const ok = (v) => typeof v === 'string' && v.length > 0;
+    if (!ok(r?.pkg) || !ok(r?.version)) bad.push(`  row ${i}: keys [${Object.keys(r ?? {}).join(', ')}]`);
+  }
+  if (bad.length) {
+    throw new Error(`${bad.length} of ${rows.length} queue row(s) lack a usable \`pkg\`/\`version\` — `
+      + `refusing, because such a row screens as \`undefined@<version>\` and passes vacuously:\n`
+      + `${bad.slice(0, 5).join('\n')}${bad.length > 5 ? `\n  … and ${bad.length - 5} more` : ''}`);
+  }
+  return [...new Set(rows.map((r) => `${r.pkg}@${r.version}`))];
+}
+
 // ⛔ PROVE THE INSTRUMENT CAN ALARM BEFORE BELIEVING ITS ALL-CLEAR. @ctrl/tinycolor@4.1.2 is a real
 // Shai-Hulud compromise carrying MAL-2025-47141. If this stops firing, OSV's schema or the MAL-
 // prefix convention has moved and every "clean" verdict below is meaningless.
@@ -114,20 +141,43 @@ if (argv.includes('--self-test')) {
   console.log(`  ${known} at index ${at} of a ${CHUNK_SIZE}-query batch -> ${foundInBulk ? 'FOUND' : 'LOST'}`);
   console.log(`  filler packages flagged: ${[...bulk.keys()].filter((k) => k !== known).length} (want 0)`);
 
-  if (alarmed && quiet && foundInBulk && noFalsePositives) {
+  // ⛔ THIRD CONTROL: THE SHAPE GUARD REFUSES A WRONG-KEY ROW.
+  //
+  // The two controls above prove the screen can alarm on a package it was ASKED about. This one
+  // proves it cannot be talked out of asking. A wrong-key queue passed vacuously for a full day
+  // while reporting `ok`, so the guard against it is worth no more than its own proof that it fires.
+  let rejectsWrongKey = false;
+  try { specsFromRows([{ package: '@ctrl/tinycolor', version: '4.1.2' }]); } catch { rejectsWrongKey = true; }
+  let acceptsRightKey = false;
+  try {
+    acceptsRightKey = specsFromRows([{ pkg: 'lodash', version: '4.17.21' }])[0] === 'lodash@4.17.21';
+  } catch { /* stays false */ }
+  console.log(`  wrong-key row (\`package\`) -> ${rejectsWrongKey ? 'REFUSED' : 'ACCEPTED — fails open!'}`);
+  console.log(`  right-key row (\`pkg\`)     -> ${acceptsRightKey ? 'accepted, spec correct' : 'MISREAD'}`);
+
+  if (alarmed && quiet && foundInBulk && noFalsePositives && rejectsWrongKey && acceptsRightKey) {
     console.log('SELF-TEST: ok — the screen alarms on a known-malicious version, stays quiet on a clean one, '
-      + 'and still finds the positive at the correct index in a full-size batch');
+      + 'still finds the positive at the correct index in a full-size batch, and refuses a queue row it '
+      + 'cannot read rather than screening it vacuously');
     process.exit(0);
   }
   console.error('SELF-TEST FAILED: the screen cannot be trusted to alarm, so its all-clears are worthless.');
   if (!foundInBulk) console.error('  the positive was LOST in a full-size batch — results are truncated or misaligned.');
   if (!noFalsePositives) console.error('  a filler package was flagged — results are misaligned, so hits name the WRONG package.');
+  if (!rejectsWrongKey) console.error('  a wrong-key row was ACCEPTED — such a queue screens as undefined@<v> and passes vacuously.');
+  if (!acceptsRightKey) console.error('  a well-formed row was misread — the guard is rejecting valid queues.');
   process.exit(1);
 }
 
 const rows = fs.readFileSync(QUEUE, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
 // One query per DISTINCT package-version; the queue holds each one once per OS.
-const specs = [...new Set(rows.map((r) => `${r.pkg}@${r.version}`))];
+let specs;
+try {
+  specs = specsFromRows(rows);
+} catch (e) {
+  console.error(`PRESCREEN REFUSED: ${e.message}`);
+  process.exit(2);
+}
 console.error(`screening ${specs.length} distinct package-version(s) from ${rows.length} queue row(s)`);
 
 const flagged = osvMalicious(specs);
