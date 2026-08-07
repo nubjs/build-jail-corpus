@@ -1,0 +1,82 @@
+### @prisma/engines@5.22.0   (/home/runner/v2-bqodS4)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=103 trace=11356 lines
+  CLOSURE   5 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":2,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-bqodS4/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-bqodS4/observe/capture.json
+  RAWLOG-BYTES raw=2477111 gz=74701
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-bqodS4/jailhome","TMPDIR":"/tmp/nub-tmp-obsRWjwGH","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-bqodS4/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 22  /  whole traced tree 1110
+    sockets script 14  /  whole traced tree 18
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-bqodS4/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-bqodS4/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-bqodS4/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsRWjwGH
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines
+  == WRITES the script actually performed ==
+    ownPkg        5  (base profile already grants this — NOT billed)
+        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines/download-lock
+        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines/libquery_engine-debian-openssl-3.0.x.so.node.tmp50005
+        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines/libquery_engine-debian-openssl-3.0.x.so.node
+        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines/schema-engine-debian-openssl-3.0.x.tmp50005
+        /home/runner/v2-bqodS4/observe/node_modules/@prisma/engines/schema-engine-debian-openssl-3.0.x
+    jailHome     13  (base profile already grants this — NOT billed)
+        /home/runner/v2-bqodS4/jailhome/.cache
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/libquery-engine.tmp50005
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/libquery-engine
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/libquery-engine.sha256
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/libquery-engine.gz.sha256
+        /home/runner/v2-bqodS4/jailhome/.cache/prisma/master/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/schema-engine.tmp50005
+        … and 3 more
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsRWjwGH/357f14cdfbe3fd71d589784d75b78d9b
+        /tmp/nub-tmp-obsRWjwGH/eaa1d6fc9c2cd6077cb5af337d7003ea
+        /tmp/nub-tmp-obsRWjwGH/eaa1d6fc9c2cd6077cb5af337d7003ea/partial
+        /tmp/nub-tmp-obsRWjwGH/357f14cdfbe3fd71d589784d75b78d9b/partial
+  == NETWORK ==
+    AF_INET sockets: 14   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        172.66.156.100:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/prisma"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 13
+        .cache/prisma
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4590 distinct from 11235 calls (11357 lines, 94 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×43 setsockopt×43 getsockopt×22 exit×20 recvmsg×15 getcwd×5 sendmmsg×5 socketpair×3
+    wrote /home/runner/v2-bqodS4/observe/events.ndjson.gz (32734 bytes)
+  EVENTLOG-FILE /home/runner/v2-bqodS4/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11357,"parsed":11235,"unparsed":0,"unfinished":94,"rejoined":94,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4590,"unknownSyscall":{"getsockname":43,"getsockopt":22,"getcwd":5,"recvmsg":15,"exit":20,"setsockopt":43,"sendmmsg":5,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-bqodS4/observe/events.ndjson.gz","gzipBytes":32734}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @prisma/engines
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 359/103) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/prisma"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/prisma"]}   (observed, then verified)
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @prisma/engines
+  VERIFY[drop-no-network] rc=0 artifacts=10/12 missing=2 shortfall=db32d3c6b70f (tree 353/103) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/prisma"]}
+       missing: libquery_engine-debian-openssl-3.0.x.so.node, schema-engine-debian-openssl-3.0.x
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/prisma"]} is independently necessary
