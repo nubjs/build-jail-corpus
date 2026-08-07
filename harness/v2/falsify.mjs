@@ -90,6 +90,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { driverInvocation } from './driver-invocation.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -106,9 +107,11 @@ const NUB = opt('--nub', '');
 // same dispatch and says why — and on Windows there is no `bash` at ALL: MEASURED on the corpus VM,
 // `where bash` finds nothing and Git-for-Windows is absent. So the one platform whose records are
 // gated on this control was the one platform where it could not run.
-const DEFAULT_DRIVER = process.platform === 'win32' ? 'measure-windows.mjs'
-  : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh';
-const DRIVER = path.resolve(opt('--driver', path.join(HERE, DEFAULT_DRIVER)));
+// ⛔ AND THE DEFAULT NOW COMES FROM `driver-invocation.mjs` RATHER THAN A COPY OF THE MAP. `--driver`
+// still overrides the FILE, which is what it always meant; `cmd`/`pre` come from the module either
+// way, because a caller pointing at an alternate darwin script still needs `sudo -E` to run it.
+const { cmd: DRIVER_CMD, pre: DRIVER_PRE, file: DEFAULT_DRIVER } = driverInvocation();
+const DRIVER = path.resolve(opt('--driver', DEFAULT_DRIVER));
 const ONLY = opt('--case', '');
 const JSON_OUT = opt('--json', '');
 // Drops the `wrong-warm` arm. Halves the cost and gives up the one check that no amount of eviction
@@ -281,18 +284,20 @@ const runArm = (kase, grant, label) => {
   // which reads as "the harness cannot detect a bad grant" when the truth is "the driver never ran".
   // An instrument failure wearing the costume of the finding it exists to make.
   //
-  // ⛔ `-E` IS LOAD-BEARING, and `run-batch-v2.mjs:198` carries the same note: the driver reads
-  // `SUDO_USER` to drop every measured process back to the invoking user (R7), and it needs the
-  // ambient PATH to find npm, which a bare `sudo` strips. Mirrored rather than re-derived so the two
-  // callers cannot drift into invoking the same driver two different ways.
-  const posixArgs = [DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
+  // ⛔ THE `sudo -E` REASONING NOW LIVES IN `driver-invocation.mjs` AND IS NO LONGER MIRRORED HERE.
+  // Mirroring is what produced this defect: three callers each carried the invocation, and the copy
+  // in this file omitted `sudo` entirely. One module, one copy, and its test asserts both terms by
+  // name. Only the ARGV SHAPE stays here, because it genuinely differs — win32 names the binary with
+  // `--nub`, the POSIX drivers take it positionally.
+  // ⛔ `DRIVER`, NOT the module's file: `--driver` overrides it, and a flag that is parsed, validated
+  // for existence and then ignored is the exact defect that shipped a driver's parser with no
+  // dispatch this morning. `cmd`/`pre` still come from the module — an alternate darwin script needs
+  // `sudo -E` just as much as the default one does.
   const opts = { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS };
-  const r = process.platform === 'win32'
-    ? spawnSync(process.execPath, [DRIVER, kase.pkg, kase.version, '--nub', NUB,
-      '--at-grant', JSON.stringify(grant)], opts)
-    : process.platform === 'darwin'
-      ? spawnSync('sudo', ['-E', 'bash', ...posixArgs], opts)
-      : spawnSync('bash', posixArgs, opts);
+  const args = process.platform === 'win32'
+    ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant)]
+    : [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
+  const r = spawnSync(DRIVER_CMD, args, opts);
   const out = (r.stdout ?? '') + (r.stderr ?? '');
   const rc = r.status ?? (r.error ? -1 : 1);
   const grab = (re, i = 1) => { const m = out.match(re); return m ? m[i] : null; };

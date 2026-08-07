@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { driverInvocation } from './driver-invocation.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -192,19 +193,17 @@ for (const spec of specs) {
   }
   const t0 = Date.now();
   let r;
-  if (process.platform === 'win32') {
-    r = sh(process.execPath, [path.join(HERE, 'measure-windows.mjs'), pkg, version,
-      ...(NUB ? ['--nub', NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
-  } else if (process.platform === 'darwin') {
-    // ⛔ `sudo -E`, AND THE `-E` IS LOAD-BEARING. dtrace needs uid 0, and the driver reads
-    // `SUDO_USER` to drop every measured process back to the invoking user — but it also needs the
-    // ambient PATH to find npm, which a bare `sudo` strips.
-    r = sh('sudo', ['-E', 'bash', path.join(HERE, 'measure-macos.sh'), pkg, version,
-      ...(NUB ? [NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
-  } else {
-    r = sh('bash', [path.join(HERE, 'measure.sh'), pkg, version,
-      ...(NUB ? [NUB] : []), ...DRIVER_ARGS], BUDGET_MS);
-  }
+  // ⛔ THE INVOCATION COMES FROM `driver-invocation.mjs`. This file's copy was the CORRECT one — it
+  // has always known darwin needs `sudo -E` — and the two callers that grew their own copies each
+  // omitted it, so `falsify.mjs` reported "the harness cannot detect a bad grant" about a driver that
+  // never ran. Being right is not a reason to keep a private copy; being the only right one is how
+  // the others drifted unnoticed.
+  //
+  // What stays here is the ARGV SHAPE, which genuinely differs: win32 names the binary with `--nub`,
+  // the POSIX drivers take it positionally.
+  const { cmd, pre, file } = driverInvocation();
+  const nubArgs = NUB ? (process.platform === 'win32' ? ['--nub', NUB] : [NUB]) : [];
+  r = sh(cmd, [...pre, file, pkg, version, ...nubArgs, ...DRIVER_ARGS], BUDGET_MS);
   const ms = Date.now() - t0;
   slowestMs = Math.max(slowestMs, ms);
 

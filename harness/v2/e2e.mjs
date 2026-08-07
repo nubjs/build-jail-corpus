@@ -75,6 +75,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { driverInvocation } from './driver-invocation.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '..', '..');
@@ -415,17 +416,21 @@ const stripNotes = (e) => {
 // `── DIRECT:` banner, so the stage reports `unavailable` forever and darwin's collated-catalog
 // round trip silently never runs — which is what wiring darwin was meant to fix.
 //
-// `-E` is load-bearing, per `run-batch-v2.mjs:198`: the driver reads `SUDO_USER` to drop every
-// measured process back to the invoking user (R7), and needs the ambient PATH to find npm, which a
-// bare `sudo` strips.
-const DRIVER_FOR_PLATFORM = {
-  linux: { file: 'measure.sh', run: 'bash', pre: [] },
-  darwin: { file: 'measure-macos.sh', run: 'sudo', pre: ['-E', 'bash'] },
-};
+// ⛔ THE INVOCATION COMES FROM `driver-invocation.mjs`, AND THAT MODULE EXISTS BECAUSE OF THIS LINE.
+// A local copy of the map stood here and omitted darwin's `sudo -E`, so the driver died in ~3s with
+// `DTrace requires additional privileges`. The `── DIRECT:` banner check below caught it and reported
+// `unavailable` — safe, but darwin's collated-catalog round trip would then have silently never run,
+// which is the whole reason darwin was wired. `falsify.mjs` had the identical omission independently.
+//
+// Worse, this copy was added under a comment noting three copies already existed. The lesson is the
+// one the batch runner's capability list already taught: do not add a corrected copy, delete the
+// duplication. WHICH platforms have a direct mode is a separate question, and it is answered by the
+// banner rather than by any table.
+const DIRECT_MODE_PLATFORMS = new Set(['linux', 'darwin']);
 
 function stageInstall() {
   const s = stage('install');
-  const driver = DRIVER_FOR_PLATFORM[process.platform];
+  const driver = DIRECT_MODE_PLATFORMS.has(process.platform) ? driverInvocation() : null;
   if (!driver) {
     return done(s, 'unavailable', `no direct-mode driver is wired for ${process.platform} — `
       + '`measure-windows.mjs` has no `--at-catalog`. Not skipped quietly: the stage is MISSING here, '
@@ -451,10 +456,10 @@ function stageInstall() {
     fs.writeFileSync(cat, `${JSON.stringify(doc, null, 2)}\n`);
     summary.install = { negativeControl: g };
   }
-  const args = [...(driver.pre ?? []), path.join(HERE, driver.file), PKG, VER, NUB, '--at-catalog', cat];
-  const r = sh(driver.run, args);
+  const args = [...driver.pre, driver.file, PKG, VER, NUB, '--at-catalog', cat];
+  const r = sh(driver.cmd, args);
   const log = path.join(WORK, 'install.out');
-  const text = `$ ${driver.run} ${args.join(' ')}\n\n${r.stdout ?? ''}${r.stderr ?? ''}`;
+  const text = `$ ${driver.cmd} ${args.join(' ')}\n\n${r.stdout ?? ''}${r.stderr ?? ''}`;
   fs.writeFileSync(log, text);
   s.log = log;
   const m = /^### .*\((.+)\)\s*$/m.exec(text);
@@ -472,7 +477,7 @@ function stageInstall() {
   const engaged = /^\s*──\s*DIRECT:/m.test(text);
   summary.install = { ...(summary.install ?? {}), catalog: cat, rc: r.status, terminal, engaged };
   if (!engaged) {
-    return done(s, 'unavailable', `${driver.file} printed no \`── DIRECT:\` banner, so --at-catalog did `
+    return done(s, 'unavailable', `${path.basename(driver.file)} printed no \`── DIRECT:\` banner, so --at-catalog did `
       + `NOT engage (it exited ${r.status}). The flag was accepted and ignored, or this driver's direct `
       + 'mode is absent — either way NOTHING about the collated catalog was checked, and this is not '
       + 'an install failure. Read the log before believing any exit code from it.', log);
