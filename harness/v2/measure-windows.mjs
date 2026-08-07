@@ -379,18 +379,45 @@ fs.mkdirSync(OBS_TMP, { recursive: true });
 // on the corpus VM. Neither is under the home, so bytecode written beside it classifies
 // `outside`/`systemfs` and can never reach the `userHome` bucket that made this a security finding.
 //
-// ⛔ WHAT IS NOT ESTABLISHED, SO THIS IS NOT A CLOSED QUESTION: no win32 package has yet been traced
-// that ACTUALLY runs node-gyp's Python. `@pulumi/datadog` does not — its trace holds five process
-// events (`node.exe`, `cmd.exe`, `pulumi.exe`) and no `python.exe` — and `cpu-features@0.0.10`, the
-// package the macOS finding came from, returns `BROKEN-WITHOUT-JAIL-TOO` on `windows-latest` because
-// its unjailed rebuild fails there. Until a compiling package is traced, "win32 emits no bytecode"
-// is supported only for the non-compiling case plus the layout argument above.
+// ⇒ SETTLED 2026-08-07 by win-bytecode-probe run 31135495106, WITH THE POSITIVE CONTROL THE FIRST
+// ROUND LACKED. Round 1 was a non-answer wearing the shape of an answer: it found zero bytecode, but
+// its package never ran Python, so the zero meant nothing. This round traced `npm rebuild` through
+// the adapters directly rather than through this driver — which exits at `BROKEN-WITHOUT-JAIL-TOO`
+// before the retention hook, discarding exactly the failed-build population the question lives in —
+// and forced `npm_config_build_from_source`, since a package that downloads a prebuild never invokes
+// node-gyp at all.
 //
-// ⇒ Do not publish a native-build win32 record until that trace exists. Setting the variable is
-// cheap and would align OBSERVE with production — nub already sets it inside the jail via
-// `BUILD_JAIL_BASELINE_ENV` in `crates/nub-sandbox/src/compiler/preset.rs`, so an unset OBSERVE
-// over-predicts relative to what production actually does — but setting it BEFORE that trace exists
-// destroys the evidence needed to tell which bucket win32's bytecode lands in.
+//   package                   python spawned   bytecode events   op       under the home
+//   cpu-features@0.0.10       YES              12                ALL read      0
+//   segfault-handler@1.3.0    YES              12                ALL read      0
+//   deasync@0.1.30            no                0                —             0
+//   integer@4.0.3            no                0                —             0
+//
+// The two YES rows spawned `python.exe` AND `py.exe` alongside `cl.exe`/`csc.exe`/`cvtres.exe`, so a
+// real node-gyp configure and a real MSVC toolchain both ran. That is the control: a zero-write
+// result now means something.
+//
+// ⛔ AND THE DECISIVE DETAIL IS THE OP COLUMN, NOT THE COUNT. All 24 bytecode events across both
+// rows are READS. CPython is reading PRE-BUILT stdlib `.pyc` out of
+// `C:\hostedtoolcache\windows\Python\3.x\x64\Lib\…\__pycache__\`; it writes none. There are
+// ZERO bytecode WRITES anywhere in either trace, so there is nothing for `PYTHONDONTWRITEBYTECODE`
+// to suppress and nothing for a classifier drop to drop.
+//
+// Two independent reasons the macOS mechanism cannot transfer, either sufficient on its own: the
+// runner's Python ships its stdlib already compiled, so nothing needs caching; and gyp's own
+// `pylib` sits outside the home, so bytecode written beside it could only ever bucket
+// `outside`/`systemfs`, never `userHome`.
+//
+// ⛔ THE ONE VENUE CAVEAT WORTH CARRYING, because it is where this could stop being true: a
+// DEVELOPER's Windows box commonly installs Python under `%LOCALAPPDATA%\Programs\Python`, i.e.
+// INSIDE the home, and a stdlib there whose `__pycache__` is not pre-built would put these writes
+// straight into `userHome`. This corpus measures on runners, so its records describe the runner. If
+// a win32 venue ever ships a home-local Python, re-run that probe before trusting a record from it —
+// do not assume this result carries.
+//
+// Both native builds FAILED here (capture `exit=1`) despite the full toolchain running, which is a
+// second finding worth knowing before planning a win32 sweep: the successfully-compiling native
+// population on `windows-latest` is thin.
 const obsEnv = {
   ...process.env,
   npm_config_cache: NPM_CACHE,
