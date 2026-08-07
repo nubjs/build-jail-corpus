@@ -1,0 +1,62 @@
+### cloudflared@0.3.5   (/home/runner/v2-aUdSEX)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=18 trace=11324 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":14,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-aUdSEX/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-aUdSEX/observe/capture.json
+  RAWLOG-BYTES raw=2446351 gz=73919
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-aUdSEX/jailhome","TMPDIR":"/tmp/nub-tmp-obsurLd3c","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-aUdSEX/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 33
+    writes  script 2  /  whole traced tree 1090
+    sockets script 7  /  whole traced tree 13
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-aUdSEX/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-aUdSEX/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-aUdSEX/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsurLd3c
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-aUdSEX/observe/node_modules/cloudflared
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-aUdSEX/observe/node_modules/cloudflared/bin
+        /home/runner/v2-aUdSEX/observe/node_modules/cloudflared/bin/cloudflared
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 3
+        127.0.0.53:53
+        104.16.4.34:443
+        20.29.134.23:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4481 distinct from 11225 calls (11325 lines, 47 rejoined, 0 unparsed)
+    PROCS     40   lifecycle shells 28
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×35 setsockopt×30 exit×25 getsockopt×17 recvmsg×13 wait4×8 tgkill×7 getcwd×6
+    wrote /home/runner/v2-aUdSEX/observe/events.ndjson.gz (31860 bytes)
+  EVENTLOG-FILE /home/runner/v2-aUdSEX/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11325,"parsed":11225,"unparsed":0,"unfinished":47,"rejoined":47,"unresolvedDirfd":3,"truncatedArg":0,"procs":40,"lifecyclePids":28,"distinctEvents":4481,"unknownSyscall":{"getsockname":35,"getsockopt":17,"getcwd":6,"recvmsg":13,"exit":25,"setsockopt":30,"sendmmsg":4,"socketpair":3,"shutdown":3,"exit_group":6,"wait4":8,"tgkill":7},"out":"/home/runner/v2-aUdSEX/observe/events.ndjson.gz","gzipBytes":31860}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cloudflared
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=14/14 missing=0 shortfall=none (tree 51/18) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cloudflared
+  VERIFY[drop-no-network] rc=1 artifacts=13/14 missing=1 shortfall=ea84a8546e0c (tree 48/18) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/cloudflared
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
