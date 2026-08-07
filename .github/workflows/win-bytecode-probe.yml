@@ -1,0 +1,136 @@
+# WHERE do win32's `userHome` writes on a native build actually come from?
+#
+# The macOS lane measured that 39 of 39 `userHome` writes on `cpu-features@0.0.10` were
+# `__pycache__`/`.pyc` beside node-gyp's bundled gyp, so the synthesized grant carried
+# `write.userHome` — the persistence capability — manufactured entirely by CPython. `measure.sh` has
+# suppressed that since its own bring-up; `measure-windows.mjs` has ZERO references and `classify.mjs`
+# has no bytecode drop, so win32 looks exposed to the same defect.
+#
+# ⛔ BUT THE MECHANISM MAY NOT TRANSFER, AND ADDING THE VARIABLE DEFENSIVELY WOULD HIDE THAT. On this
+# platform node-gyp's `gyp/pylib` is NOT under the user home — MEASURED on the corpus VM at
+# `C:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\gyp\pylib`, which classifies
+# `systemfs`/`outside`, never `userHome`. And the win32 evidence already in hand does not settle it
+# either way: `@pulumi/datadog@0.18.9` from win-evict-probe run 31132145179 shows
+# `WRITES userHome 9` and a synthesized `{"write":{"userHome":true},"network":true}` — the same
+# symptom as macOS — but `observed.json` serialises only the `outside` and `systemfs` path lists, so
+# those 9 paths are counts with no names. A different cause with an identical count is exactly what
+# a defensive fix would paper over: node-gyp's own header cache lives at `%LOCALAPPDATA%\node-gyp`,
+# which IS under the home and is NOT a declared root.
+#
+# ⇒ This probe exists to NAME those writes. It runs OBSERVE only, retains the decoded event stream
+# and the capture header, and uploads both so the buckets can be re-derived off-runner with
+# `classify.mjs` itself rather than re-implemented here.
+#
+# ⛔ NO nub BINARY IS BUILT OR RESTORED, DELIBERATELY. `--observe-only` returns before `verify()`,
+# which is the only consumer of `--nub`, so the ~20-minute cold Rust build every other Windows
+# workflow here pays buys nothing for this question. It also keeps the probe honest: nothing it
+# reports can depend on which nub was cached.
+name: win-bytecode-probe
+
+on:
+  push:
+    branches: [probe/win-bytecode]
+  workflow_dispatch:
+    inputs:
+      pkgs:
+        description: 'space-separated pkg@version list of native builds to trace'
+        default: '@pulumi/datadog@0.18.9 cpu-features@0.0.10'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      PKGS: ${{ inputs.pkgs || '@pulumi/datadog@0.18.9 cpu-features@0.0.10' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # The layout facts the whole question turns on, recorded rather than assumed. If `gyp/pylib`
+      # is not under the home here, bytecode CANNOT be what fills the `userHome` bucket, and that is
+      # a finding rather than a reason to add the variable anyway.
+      - name: Host layout facts
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          node --version; npm --version
+          echo "USERPROFILE=$USERPROFILE"
+          echo "LOCALAPPDATA=$LOCALAPPDATA"
+          echo "--- python ---"
+          where python; where python3; where py; python --version 2>&1
+          echo "--- node-gyp gyp/pylib location (is it under the home?) ---"
+          find "$(dirname "$(which node)")" -path '*node-gyp/gyp/pylib*' -name '*.py' 2>/dev/null | head -3
+          npm root -g 2>/dev/null
+          echo "--- node-gyp header cache (under the home, and NOT a declared root) ---"
+          ls -d "$LOCALAPPDATA/node-gyp" 2>/dev/null || echo "absent before the run"
+
+      - name: OBSERVE each package, retaining the decoded event stream
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          mkdir -p /c/out
+          for spec in $PKGS; do
+            pkg="${spec%@*}"; ver="${spec##*@}"
+            slug=$(echo "$spec" | tr -c 'A-Za-z0-9.' '-')
+            echo "════════════════════════ $spec ════════════════════════"
+            NUB_V2_EVENTS_OUT="C:/out/$slug.events.ndjson.gz" \
+              node harness/v2/measure-windows.mjs "$pkg" "$ver" --root C:\\jail --observe-only \
+              > "/c/out/$slug.driver.out" 2>&1
+            echo "exit=$?"
+            tail -30 "/c/out/$slug.driver.out"
+            # `RAWLOG-CAPTURE` is the driver's own announcement of where the roots header landed;
+            # copying it by that line rather than by a reconstructed path is the same contract
+            # `record.mjs` uses, so this cannot drift from where the driver actually wrote it.
+            cap=$(grep -m1 'RAWLOG-CAPTURE' "/c/out/$slug.driver.out" | sed 's/.*RAWLOG-CAPTURE //' | tr -d '\r')
+            [ -n "$cap" ] && cp "$cap" "/c/out/$slug.capture.json"
+            root=$(dirname "$(dirname "$cap")")
+            [ -f "$root/observed.json" ] && cp "$root/observed.json" "/c/out/$slug.observed.json"
+            [ -f "$root/observed.txt" ]  && cp "$root/observed.txt"  "/c/out/$slug.observed.txt"
+          done
+          ls -la /c/out
+
+      # A first cut on the runner, so the answer is visible in the log even if the artifact is never
+      # downloaded. The authoritative bucketing is still `classify.mjs` re-run off the artifact — this
+      # only counts how many attributed writes look like bytecode versus the node-gyp header cache.
+      - name: Name the writes
+        if: always()
+        shell: bash --noprofile --norc {0}
+        run: |
+          set +e
+          node -e '
+            const fs = require("fs"), zlib = require("zlib"), path = require("path");
+            for (const f of fs.readdirSync("C:/out").filter((x) => x.endsWith(".events.ndjson.gz"))) {
+              const slug = f.replace(".events.ndjson.gz", "");
+              let lines;
+              try { lines = zlib.gunzipSync(fs.readFileSync(path.join("C:/out", f))).toString().split("\n"); }
+              catch (e) { console.log(slug + ": UNREADABLE " + e.message); continue; }
+              const writes = [];
+              for (const l of lines) {
+                if (!l.trim()) continue;
+                let e; try { e = JSON.parse(l); } catch { continue; }
+                const p = e.path || e.file || "";
+                if (!p) continue;
+                if (/write|create|rename|unlink|delete|setinfo|mkdir/i.test(e.op || e.kind || e.event || "")) writes.push(p);
+              }
+              const bc = writes.filter((p) => /__pycache__|\.py[co]$/i.test(p));
+              const gypcache = writes.filter((p) => /[\\\/]node-gyp[\\\/]/i.test(p));
+              console.log("── " + slug);
+              console.log("   write-ish events: " + writes.length
+                + "   bytecode: " + bc.length + "   node-gyp path: " + gypcache.length);
+              for (const p of [...new Set(bc)].slice(0, 8)) console.log("     BYTECODE  " + p);
+              for (const p of [...new Set(gypcache)].slice(0, 8)) console.log("     NODE-GYP  " + p);
+            }
+          '
+
+      - name: Upload the archives for off-runner re-parsing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-bytecode-probe-${{ github.run_id }}
+          path: C:/out/**
+          if-no-files-found: warn
+          retention-days: 14
