@@ -1,0 +1,82 @@
+### truffle@5.11.5   (/home/runner/v2-79sZqz)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=27385 trace=15916 lines
+  CLOSURE   680 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":492,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (492) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-79sZqz/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-79sZqz/observe/capture.json
+  RAWLOG-BYTES raw=3085903 gz=98397
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-79sZqz/jailhome","TMPDIR":"/tmp/nub-tmp-obsTT3d31","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-79sZqz/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 26
+    writes  script 6  /  whole traced tree 1094
+    sockets script 3  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-79sZqz/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-79sZqz/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-79sZqz/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsTT3d31
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-79sZqz/observe/node_modules/truffle
+  == WRITES the script actually performed ==
+    userHome      6
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.10.34:443
+        104.20.47.207:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    6 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6
+        .config/truffle-nodejs
+        .config/truffle-nodejs/config.json.tmp-6127887623168aac
+        .config/truffle-nodejs/config.json
+        .config/truffle-nodejs/compilers
+        .config/truffle-nodejs/compilers/node_modules
+        .config/truffle-nodejs/compilers/node_modules/solc-emscripten-wasm32-v0.5.16+commit.9c3226ce.js
+    EVENTS    7046 distinct from 13861 calls (15917 lines, 2018 rejoined, 0 unparsed)
+    PROCS     33   lifecycle shells 21
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×87 getsockopt×72 setsockopt×56 exit×25 recvmsg×9 getcwd×6 socketpair×6 wait4×6
+    wrote /home/runner/v2-79sZqz/observe/events.ndjson.gz (49092 bytes)
+  EVENTLOG-FILE /home/runner/v2-79sZqz/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15917,"parsed":13861,"unparsed":0,"unfinished":2018,"rejoined":2018,"unresolvedDirfd":3,"truncatedArg":0,"procs":33,"lifecyclePids":21,"distinctEvents":7046,"unknownSyscall":{"getsockname":87,"getsockopt":72,"getcwd":6,"recvmsg":9,"exit":25,"setsockopt":56,"sendmmsg":2,"socketpair":6,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-79sZqz/observe/events.ndjson.gz","gzipBytes":49092}
+  EVICT     343 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for truffle
+  scaffold: 10 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=491/491 missing=0 shortfall=none (tree 91052/27385) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     783 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for truffle
+  scaffold: 10 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-network] rc=0 artifacts=491/491 missing=0 shortfall=none (tree 91052/27385) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  EVICT     783 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for truffle
+  scaffold: 10 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=491/491 missing=0 shortfall=none (tree 91052/27385) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     783 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for truffle
+  scaffold: 10 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[joint-narrow] rc=0 artifacts=491/491 missing=0 shortfall=none (tree 91052/27385) OVERRIDDEN=1 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
