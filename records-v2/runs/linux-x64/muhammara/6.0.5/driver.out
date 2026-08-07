@@ -1,0 +1,60 @@
+### muhammara@6.0.5   (/home/nub/v2-4lIkN6)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1912 trace=9406 lines
+  CLOSURE   13 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1266,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-4lIkN6/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-4lIkN6/observe/capture.json
+  RAWLOG-BYTES raw=1846971 gz=67950
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-4lIkN6/jailhome","TMPDIR":"/tmp/nub-tmp-obsQlGzAb","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-4lIkN6/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 2  /  whole traced tree 1180
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-4lIkN6/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-4lIkN6/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-4lIkN6/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsQlGzAb
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-4lIkN6/observe/node_modules/muhammara
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/nub/v2-4lIkN6/observe/node_modules/muhammara/binding
+        /home/nub/v2-4lIkN6/observe/node_modules/muhammara/binding/muhammara.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5129 distinct from 9349 calls (9407 lines, 32 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×29 exit×18 getsockopt×13 recvmsg×10 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/nub/v2-4lIkN6/observe/events.ndjson.gz (35705 bytes)
+  EVENTLOG-FILE /home/nub/v2-4lIkN6/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9407,"parsed":9349,"unparsed":0,"unfinished":32,"rejoined":32,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5129,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":10,"setsockopt":29,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-4lIkN6/observe/events.ndjson.gz","gzipBytes":35705}
+  EVICT     8 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for muhammara
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1266/1266 missing=0 shortfall=none (tree 5736/1912) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     13 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for muhammara
+  VERIFY[drop-no-network] rc=0 artifacts=2039/1266 missing=0 shortfall=none (tree 8058/1912) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

@@ -1,0 +1,94 @@
+### ibm_db@4.0.1   (/home/nub/v2-AcDkXR)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2238 trace=77721 lines
+  CLOSURE   75 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":350,"filesTheScriptProduced":151,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-AcDkXR/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-AcDkXR/observe/capture.json
+  RAWLOG-BYTES raw=10696634 gz=322710
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-AcDkXR/jailhome","TMPDIR":"/tmp/nub-tmp-obsB9DxO3","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-AcDkXR/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 142
+    writes  script 3535  /  whole traced tree 4713
+    sockets script 6  /  whole traced tree 12
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-AcDkXR/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-AcDkXR/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-AcDkXR/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsB9DxO3
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db
+  == WRITES the script actually performed ==
+    ownPkg      199  (base profile already grants this — NOT billed)
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/linuxx64_odbc_cli.tar.gz
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2dsdcfgfill
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2cli
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2diag
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2level
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2support
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2ldcfg
+        /home/nub/v2-AcDkXR/observe/node_modules/ibm_db/installer/clidriver/bin/db2lddrg
+        … and 189 more
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-AcDkXR/jailhome/.cache
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-AcDkXR/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    jailTmp       7  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsB9DxO3/ccoSRSbA.s
+        /tmp/nub-tmp-obsB9DxO3/ccdEUpWi.s
+        /tmp/nub-tmp-obsB9DxO3/ccd9qjqF.s
+        /tmp/nub-tmp-obsB9DxO3/ccmsqs54.s
+        /tmp/nub-tmp-obsB9DxO3/ccTf5NnV.res
+        /tmp/nub-tmp-obsB9DxO3/cczydzeN.cdtor.c
+        /tmp/nub-tmp-obsB9DxO3/ccikfYPj.cdtor.o
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 4
+        127.0.0.53:53
+        104.16.2.34:443
+        170.225.126.18:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    32541 distinct from 76518 calls (77722 lines, 1008 rejoined, 0 unparsed)
+    PROCS     148   lifecycle shells 137
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×131 getcwd×128 exit_group×112 setsockopt×95 getsockname×52 getsockopt×36 exit×32 socketpair×15
+    wrote /home/nub/v2-AcDkXR/observe/events.ndjson.gz (170337 bytes)
+  EVENTLOG-FILE /home/nub/v2-AcDkXR/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":77722,"parsed":76518,"unparsed":0,"unfinished":1008,"rejoined":1008,"unresolvedDirfd":3,"truncatedArg":0,"procs":148,"lifecyclePids":137,"distinctEvents":32541,"unknownSyscall":{"getsockname":52,"getsockopt":36,"getcwd":128,"recvmsg":10,"setsockopt":95,"sendmmsg":3,"socketpair":15,"shutdown":12,"exit_group":112,"wait4":131,"exit":32},"out":"/home/nub/v2-AcDkXR/observe/events.ndjson.gz","gzipBytes":170337}
+  EVICT     85 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ibm_db
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=350/350 missing=0 shortfall=none (tree 7214/2238) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     76 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ibm_db
+  VERIFY[drop-no-network] rc=0 artifacts=201/350 missing=151 shortfall=4d8f8b68ec8f (tree 6767/2238) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/odbc_bindings/src/odbc.o.d, build/Release/.deps/Release/obj.target/odbc_bindings/src/odbc_connection.o.d, build/Release/.deps/Release/obj.target/odbc_bindings/src/odbc_result.o.d, build/Release/.deps/Release/obj.target/odbc_bindings/src/odbc_statement.o.d, build/Release/.deps/Release/obj.target/odbc_bindings.node.d (+145)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

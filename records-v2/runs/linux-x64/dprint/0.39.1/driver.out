@@ -1,0 +1,55 @@
+### dprint@0.39.1   (/home/nub/v2-7nsICv)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=14 trace=8830 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-7nsICv/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-7nsICv/observe/capture.json
+  RAWLOG-BYTES raw=1725185 gz=64001
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-7nsICv/jailhome","TMPDIR":"/tmp/nub-tmp-obskfRFV5","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-7nsICv/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 16
+    writes  script 2  /  whole traced tree 1180
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-7nsICv/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-7nsICv/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-7nsICv/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obskfRFV5
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-7nsICv/observe/node_modules/dprint
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/nub/v2-7nsICv/observe/node_modules/dprint/dprint.e03b76f4
+        /home/nub/v2-7nsICv/observe/node_modules/dprint/dprint
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.8.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4783 distinct from 8781 calls (8831 lines, 22 rejoined, 0 unparsed)
+    PROCS     22   lifecycle shells 11
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×22 exit×14 recvmsg×10 wait4×8 getsockopt×7 socketpair×6 exit_group×6
+    wrote /home/nub/v2-7nsICv/observe/events.ndjson.gz (33793 bytes)
+  EVENTLOG-FILE /home/nub/v2-7nsICv/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8831,"parsed":8781,"unparsed":0,"unfinished":22,"rejoined":22,"unresolvedDirfd":3,"truncatedArg":0,"procs":22,"lifecyclePids":11,"distinctEvents":4783,"unknownSyscall":{"getsockname":22,"getsockopt":7,"getcwd":5,"recvmsg":10,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"exit_group":6,"wait4":8,"exit":14},"out":"/home/nub/v2-7nsICv/observe/events.ndjson.gz","gzipBytes":33793}
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dprint
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 48/14) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

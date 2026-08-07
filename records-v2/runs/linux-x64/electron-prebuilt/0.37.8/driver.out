@@ -1,0 +1,76 @@
+### electron-prebuilt@0.37.8   (/home/nub/v2-iPel25)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1371 trace=11843 lines
+  CLOSURE   140 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":78,"filesTheScriptProduced":67,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-iPel25/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-iPel25/observe/capture.json
+  RAWLOG-BYTES raw=2295299 gz=81316
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-iPel25/jailhome","TMPDIR":"/tmp/nub-tmp-obsqnU8Du","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-iPel25/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 74  /  whole traced tree 1252
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-iPel25/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-iPel25/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-iPel25/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsqnU8Du
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/nub/v2-iPel25/jailhome/.electron
+        /home/nub/v2-iPel25/jailhome/.electron/electron-v0.37.8-linux-x64.zip
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsqnU8Du/electron-tmp-download-415259-1786090048705
+        /tmp/nub-tmp-obsqnU8Du/electron-tmp-download-415259-1786090048705/electron-v0.37.8-linux-x64.zip
+    ownPkg       70  (base profile already grants this — NOT billed)
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/path.txt
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/electron
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/libffmpeg.so
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/snapshot_blob.bin
+        /home/nub/v2-iPel25/observe/node_modules/electron-prebuilt/dist/LICENSE
+        … and 60 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        140.82.112.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6275 distinct from 11781 calls (11844 lines, 37 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×34 setsockopt×25 exit×18 getsockopt×16 recvmsg×10 shutdown×5 getcwd×4 sendmmsg×3
+    wrote /home/nub/v2-iPel25/observe/events.ndjson.gz (41539 bytes)
+  EVENTLOG-FILE /home/nub/v2-iPel25/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11844,"parsed":11781,"unparsed":0,"unfinished":37,"rejoined":37,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":6275,"unknownSyscall":{"getsockname":34,"getsockopt":16,"getcwd":4,"recvmsg":10,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":5,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-iPel25/observe/events.ndjson.gz","gzipBytes":41539}
+  EVICT     144 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=77/77 missing=0 shortfall=none (tree 4413/1371) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+  => VERIFIED {"network":true,"writePaths":[".electron"]}   (observed, then verified)
+  EVICT     145 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VERIFY[drop-no-network] rc=1 artifacts=10/77 missing=67 shortfall=f34832628708 (tree 4210/1371) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".electron"]}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpeg.so (+61)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".electron"]} is independently necessary

@@ -1,0 +1,68 @@
+### @cubejs-backend/cubestore@1.7.9   (/home/nub/v2-PtBsSE)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=3448 trace=12804 lines
+  CLOSURE   173 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":30,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-PtBsSE/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-PtBsSE/observe/capture.json
+  RAWLOG-BYTES raw=2453970 gz=90246
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-PtBsSE/jailhome","TMPDIR":"/tmp/nub-tmp-obsrur9cI","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-PtBsSE/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 6  /  whole traced tree 1184
+    sockets script 7  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-PtBsSE/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-PtBsSE/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-PtBsSE/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsrur9cI
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-PtBsSE/observe/node_modules/@cubejs-backend/cubestore
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/nub/v2-PtBsSE/observe/node_modules/@cubejs-backend/cubestore/downloaded
+        /home/nub/v2-PtBsSE/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest
+        /home/nub/v2-PtBsSE/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest/bin
+        /home/nub/v2-PtBsSE/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest/bin/cubestored
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsrur9cI/6c7e47e6e94455afbf4b0615564b79fd
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7197 distinct from 12647 calls (12805 lines, 120 rejoined, 0 unparsed)
+    PROCS     28   lifecycle shells 17
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×54 getsockname×34 exit×18 getsockopt×17 recvmsg×12 wait4×10 socketpair×9 exit_group×6
+    wrote /home/nub/v2-PtBsSE/observe/events.ndjson.gz (46574 bytes)
+  EVENTLOG-FILE /home/nub/v2-PtBsSE/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12805,"parsed":12647,"unparsed":0,"unfinished":120,"rejoined":120,"unresolvedDirfd":3,"truncatedArg":0,"procs":28,"lifecyclePids":17,"distinctEvents":7197,"unknownSyscall":{"getsockname":34,"getsockopt":17,"getcwd":4,"recvmsg":12,"setsockopt":54,"sendmmsg":4,"socketpair":9,"shutdown":5,"exit_group":6,"wait4":10,"exit":18},"out":"/home/nub/v2-PtBsSE/observe/events.ndjson.gz","gzipBytes":46574}
+  EVICT     168 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @cubejs-backend/cubestore
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=30/30 missing=0 shortfall=none (tree 13399/3448) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     186 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @cubejs-backend/cubestore
+  VERIFY[drop-no-network] rc=1 artifacts=29/30 missing=1 shortfall=42c4af2b10bf (tree 13394/3448) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: downloaded/latest/bin/cubestored
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

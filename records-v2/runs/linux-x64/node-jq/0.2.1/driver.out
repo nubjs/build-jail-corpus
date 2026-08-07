@@ -1,0 +1,70 @@
+### node-jq@0.2.1   (/home/nub/v2-c2zg5V)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2541 trace=11866 lines
+  CLOSURE   159 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (11) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-c2zg5V/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-c2zg5V/observe/capture.json
+  RAWLOG-BYTES raw=2277532 gz=86476
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-c2zg5V/jailhome","TMPDIR":"/tmp/nub-tmp-obsxKy6OM","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-c2zg5V/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 25
+    writes  script 191  /  whole traced tree 1275
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-c2zg5V/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-c2zg5V/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-c2zg5V/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsxKy6OM
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-c2zg5V/observe/node_modules/node-jq
+  == WRITES the script actually performed ==
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/nub/v2-c2zg5V/jailhome/.npm/_logs/2026-08-07T09_00_38_544Z-debug-0.log
+    jailTmp     190  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/7cde1131.r08mnC
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/7cde1131
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/349c2e45.FuYEEa
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/349c2e45
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/0dbbdf0a.QO3JiS
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/0dbbdf0a
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/a075ba47.oWX43D
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/a075ba47
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/5d5cedaa.lqQ2GM
+        /tmp/nub-tmp-obsxKy6OM/node-compile-cache/v22.20.0-x64-9de703df-1001/5d5cedaa
+        … and 180 more
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.11.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6784 distinct from 11671 calls (11867 lines, 160 rejoined, 0 unparsed)
+    PROCS     31   lifecycle shells 20
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×39 getsockopt×24 setsockopt×23 exit×23 recvmsg×10 getcwd×6 wait4×6 exit_group×5
+    wrote /home/nub/v2-c2zg5V/observe/events.ndjson.gz (44731 bytes)
+  EVENTLOG-FILE /home/nub/v2-c2zg5V/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11867,"parsed":11671,"unparsed":0,"unfinished":160,"rejoined":160,"unresolvedDirfd":3,"truncatedArg":0,"procs":31,"lifecyclePids":20,"distinctEvents":6784,"unknownSyscall":{"getsockname":39,"getsockopt":24,"getcwd":6,"recvmsg":10,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":23,"exit_group":5,"wait4":6},"out":"/home/nub/v2-c2zg5V/observe/events.ndjson.gz","gzipBytes":44731}
+  EVICT     170 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-jq
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 8718/2541) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

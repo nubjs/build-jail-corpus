@@ -1,0 +1,62 @@
+### node-libcurl@5.1.2   (/home/nub/v2-kIDfI0)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2000 trace=10781 lines
+  CLOSURE   73 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":358,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-kIDfI0/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-kIDfI0/observe/capture.json
+  RAWLOG-BYTES raw=2049555 gz=78239
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-kIDfI0/jailhome","TMPDIR":"/tmp/nub-tmp-obsVPFGLv","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-kIDfI0/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 41
+    writes  script 3  /  whole traced tree 1181
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-kIDfI0/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-kIDfI0/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-kIDfI0/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsVPFGLv
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-kIDfI0/observe/node_modules/node-libcurl
+  == WRITES the script actually performed ==
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/nub/v2-kIDfI0/observe/node_modules/node-libcurl/lib
+        /home/nub/v2-kIDfI0/observe/node_modules/node-libcurl/lib/binding
+        /home/nub/v2-kIDfI0/observe/node_modules/node-libcurl/lib/binding/node_libcurl.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.4.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5865 distinct from 10554 calls (10782 lines, 172 rejoined, 0 unparsed)
+    PROCS     47   lifecycle shells 36
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×65 getsockname×44 exit×33 getsockopt×26 socketpair×12 wait4×12 shutdown×11 recvmsg×10
+    wrote /home/nub/v2-kIDfI0/observe/events.ndjson.gz (39766 bytes)
+  EVENTLOG-FILE /home/nub/v2-kIDfI0/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10782,"parsed":10554,"unparsed":0,"unfinished":172,"rejoined":172,"unresolvedDirfd":3,"truncatedArg":0,"procs":47,"lifecyclePids":36,"distinctEvents":5865,"unknownSyscall":{"getsockname":44,"getsockopt":26,"getcwd":8,"recvmsg":10,"setsockopt":65,"sendmmsg":3,"socketpair":12,"shutdown":11,"exit":33,"exit_group":9,"wait4":12},"out":"/home/nub/v2-kIDfI0/observe/events.ndjson.gz","gzipBytes":39766}
+  EVICT     80 store entries removed, 20 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=358/358 missing=0 shortfall=none (tree 6285/2000) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     64 store entries removed, 20 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-libcurl
+  VERIFY[drop-no-network] rc=1 artifacts=358/358 missing=1 shortfall=803adda13fd4 (tree 6283/2000) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: lib/binding/node_libcurl.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

@@ -1,0 +1,60 @@
+### @matrix-org/matrix-sdk-crypto-nodejs@0.4.0   (/home/nub/v2-cAfClZ)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=54 trace=8902 lines
+  CLOSURE   6 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-cAfClZ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-cAfClZ/observe/capture.json
+  RAWLOG-BYTES raw=1747115 gz=65038
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-cAfClZ/jailhome","TMPDIR":"/tmp/nub-tmp-obsXlJAAF","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-cAfClZ/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 1  /  whole traced tree 1179
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-cAfClZ/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-cAfClZ/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-cAfClZ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXlJAAF
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-cAfClZ/observe/node_modules/@matrix-org/matrix-sdk-crypto-nodejs
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/nub/v2-cAfClZ/observe/node_modules/@matrix-org/matrix-sdk-crypto-nodejs/matrix-sdk-crypto.linux-x64-gnu.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.4.34:443
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4786 distinct from 8853 calls (8903 lines, 24 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×35 setsockopt×25 exit×18 getsockopt×17 recvmsg×14 getcwd×5 shutdown×4 sendmmsg×3
+    wrote /home/nub/v2-cAfClZ/observe/events.ndjson.gz (33700 bytes)
+  EVENTLOG-FILE /home/nub/v2-cAfClZ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8903,"parsed":8853,"unparsed":0,"unfinished":24,"rejoined":24,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":4786,"unknownSyscall":{"getsockname":35,"getsockopt":17,"getcwd":5,"recvmsg":14,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":4,"getpeername":1,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-cAfClZ/observe/events.ndjson.gz","gzipBytes":33700}
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @matrix-org/matrix-sdk-crypto-nodejs
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 159/54) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     6 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @matrix-org/matrix-sdk-crypto-nodejs
+  VERIFY[drop-no-network] rc=0 artifacts=9/10 missing=1 shortfall=4b4e622cfd2a (tree 156/54) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: matrix-sdk-crypto.linux-x64-gnu.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

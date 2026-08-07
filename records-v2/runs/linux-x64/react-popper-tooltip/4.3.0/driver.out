@@ -1,0 +1,58 @@
+### react-popper-tooltip@4.3.0   (/home/nub/v2-ukXeup)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=667 trace=8534 lines
+  CLOSURE   11 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (12) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-ukXeup/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-ukXeup/observe/capture.json
+  RAWLOG-BYTES raw=1686922 gz=59522
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-ukXeup/jailhome","TMPDIR":"/tmp/nub-tmp-obsiB0jO1","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-ukXeup/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 1178
+    sockets script 0  /  whole traced tree 6
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-ukXeup/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-ukXeup/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-ukXeup/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsiB0jO1
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-ukXeup/observe/node_modules/react-popper-tooltip
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.5.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4623 distinct from 8517 calls (8535 lines, 6 rejoined, 0 unparsed)
+    PROCS     11   lifecycle shells 0
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×18 setsockopt×11 exit×9 recvmsg×6 getsockopt×4 getcwd×2 sendmmsg×1 exit_group×1
+    wrote /home/nub/v2-ukXeup/observe/events.ndjson.gz (32520 bytes)
+  EVENTLOG-FILE /home/nub/v2-ukXeup/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8535,"parsed":8517,"unparsed":0,"unfinished":6,"rejoined":6,"unresolvedDirfd":3,"truncatedArg":0,"procs":11,"lifecyclePids":0,"distinctEvents":4623,"unknownSyscall":{"getsockname":18,"getsockopt":4,"getcwd":2,"recvmsg":6,"setsockopt":11,"sendmmsg":1,"exit":9,"exit_group":1},"out":"/home/nub/v2-ukXeup/observe/events.ndjson.gz","gzipBytes":32520}
+  EVICT     8 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for react-popper-tooltip
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 1714/667) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
