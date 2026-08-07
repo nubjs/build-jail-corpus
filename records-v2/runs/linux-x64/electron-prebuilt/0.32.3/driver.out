@@ -1,0 +1,77 @@
+### electron-prebuilt@0.32.3   (/home/runner/v2-sPkmWo)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1370 trace=15097 lines
+  CLOSURE   140 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":79,"filesTheScriptProduced":69,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-sPkmWo/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-sPkmWo/observe/capture.json
+  RAWLOG-BYTES raw=3205212 gz=91125
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-sPkmWo/jailhome","TMPDIR":"/tmp/nub-tmp-obsyKDE6z","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-sPkmWo/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 77  /  whole traced tree 1165
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-sPkmWo/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-sPkmWo/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-sPkmWo/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsyKDE6z
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-sPkmWo/jailhome/.electron
+        /home/runner/v2-sPkmWo/jailhome/.electron/electron-v0.32.3-linux-x64.zip
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsyKDE6z/electron-tmp-download-12427-1786125736945
+        /tmp/nub-tmp-obsyKDE6z/electron-tmp-download-12427-1786125736945/electron-v0.32.3-linux-x64.zip
+    ownPkg       73  (base profile already grants this — NOT billed)
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/path.txt
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/electron
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/snapshot_blob.bin
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/LICENSE
+        /home/runner/v2-sPkmWo/observe/node_modules/electron-prebuilt/dist/version
+        … and 63 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        140.82.112.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6081 distinct from 14926 calls (15098 lines, 144 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×33 exit×20 getsockopt×16 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-sPkmWo/observe/events.ndjson.gz (40407 bytes)
+  EVENTLOG-FILE /home/runner/v2-sPkmWo/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15098,"parsed":14926,"unparsed":0,"unfinished":144,"rejoined":144,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":6081,"unknownSyscall":{"getsockname":33,"getsockopt":16,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-sPkmWo/observe/events.ndjson.gz","gzipBytes":40407}
+  EVICT     64 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=78/78 missing=0 shortfall=none (tree 4410/1370) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+  => VERIFIED {"network":true,"writePaths":[".electron"]}   (observed, then verified)
+  EVICT     145 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VERIFY[drop-no-network] rc=1 artifacts=9/78 missing=69 shortfall=d6d8a06f3ecf (tree 4201/1370) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".electron"]}
+       missing: dist/LICENSE, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libgcrypt.so.11, dist/libnode.so (+63)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".electron"]} is independently necessary
