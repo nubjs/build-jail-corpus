@@ -1,0 +1,96 @@
+### eccrypto@0.9.9   (C:\jail\m-eccrypto-msjfieec)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=1676 exit=0 events=111222 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 9 files  (C:\jail\m-eccrypto-msjfieec\observe\node_modules\eccrypto)
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `install` ends in a status-swallowing construct (`node-gyp rebuild || exit 0`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 12 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-eccrypto-msjfieec\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-eccrypto-msjfieec\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-eccrypto-msjfieec\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-eccrypto-msjfieec\observe\node_modules\eccrypto
+  == ATTRIBUTION == lifecycle pids: 10 (root 1676)
+    writes  script 92  /  whole traced tree 97
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          1
+    systemfs     66
+        c:\windows\syswow64\propsys.dll:wofcompresseddata
+        c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+    userHome      8
+    kernelfs      1
+    jailTmp      16
+  == READS ==
+    deps          2
+    outside     527
+    project       1
+    systemfs    698
+    userHome     56
+    jailTmp      17
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 3
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true}}
+    NOTE 16 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 66 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  141640703 B xml -> 1982784 B gz (71.4x)  sha256 4cf3eeb57e7c9127…
+  HEADER    etw-header.json (5065 bytes)
+  DERIVED   21907 distinct from 40598 kept ops (111222 xml events, 1598 out of subtree)
+  PROCS     12   thread-reattributed 0
+  ⛔ 5 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 3 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (274611 bytes)
+  RAWLOG-CAPTURE C:\jail\m-eccrypto-msjfieec\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-eccrypto-msjfieec
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-eccrypto-msjfieec\\npm-cache","TMP":"C:\\jail\\m-eccrypto-msjfieec\\tmp","TEMP":"C:\\jail\\m-eccrypto-msjfieec\\tmp","TMPDIR":"C:\\jail\\m-eccrypto-msjfieec\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-eccrypto-msjfieec\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=16/9 missing=0 shortfall=none (tree 6080/295) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+  => MINIMUM {"write":{"deps":true,"userHome":true}}   (observed, then verified)
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-eccrypto-msjfieec\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=16/9 missing=0 shortfall=none (tree 6080/295) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-write-deps' was not needed
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-eccrypto-msjfieec\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=16/9 missing=0 shortfall=none (tree 6080/295) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-write-userHome' was not needed
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-eccrypto-msjfieec\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=16/9 missing=0 shortfall=none (tree 6080/295) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
