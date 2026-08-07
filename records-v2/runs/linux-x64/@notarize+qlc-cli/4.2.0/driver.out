@@ -1,0 +1,62 @@
+### @notarize/qlc-cli@4.2.0   (/home/runner/v2-RiOqTr)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1758 trace=10942 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-RiOqTr/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-RiOqTr/observe/capture.json
+  RAWLOG-BYTES raw=2399104 gz=71447
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-RiOqTr/jailhome","TMPDIR":"/tmp/nub-tmp-obseC6JZ2","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-RiOqTr/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 20
+    writes  script 2  /  whole traced tree 1090
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-RiOqTr/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-RiOqTr/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-RiOqTr/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obseC6JZ2
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-RiOqTr/observe/node_modules/@notarize/qlc-cli
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-RiOqTr/observe/node_modules/@notarize/qlc-cli/qlc-4.2.0-x86_64-unknown-linux-musl.tar.gz
+        /home/runner/v2-RiOqTr/observe/node_modules/@notarize/qlc-cli/bin/qlc
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4508 distinct from 10891 calls (10943 lines, 20 rejoined, 0 unparsed)
+    PROCS     27   lifecycle shells 15
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×29 exit×20 getsockopt×13 recvmsg×11 exit_group×5 wait4×5 getcwd×4
+    wrote /home/runner/v2-RiOqTr/observe/events.ndjson.gz (32013 bytes)
+  EVENTLOG-FILE /home/runner/v2-RiOqTr/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10943,"parsed":10891,"unparsed":0,"unfinished":20,"rejoined":20,"unresolvedDirfd":3,"truncatedArg":0,"procs":27,"lifecyclePids":15,"distinctEvents":4508,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":29,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":5,"wait4":5},"out":"/home/runner/v2-RiOqTr/observe/events.ndjson.gz","gzipBytes":32013}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @notarize/qlc-cli
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 10504/1758) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @notarize/qlc-cli
+  VERIFY[drop-no-network] rc=1 artifacts=10/10 missing=1 shortfall=a07d5b7a5610 (tree 10502/1758) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: bin/qlc (0B < 6652760B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
