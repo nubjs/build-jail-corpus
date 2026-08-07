@@ -1,0 +1,149 @@
+### node@24.18.0   (/Users/runner/v2m-Locnnq)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-Locnnq/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-Locnnq/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "node" > "/Users/runner/v2m-Locnnq/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-Locnnq/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-Locnnq/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-Locnnq/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund node
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003fd4000) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=2755 (pre=12) trace=70816 lines
+  CLOSURE   2 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-Locnnq/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-Locnnq/Observe/capture.json
+  RAWLOG-BYTES raw=13234386 gz=387483
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-Locnnq/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":1,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-Locnnq/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":70817,"parsed":70799,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":33,"unresolvedFd":0,"pairedTwoPath":1097,"danglingPair":0,"failed":32335,"enoent":11903,"refusals":0,"byErrno":{"ENXIO":4,"ENOENT":11903,"EEXIST":20428},"procs":6,"lifecyclePids":2,"distinctEvents":17618,"emitted":17618,"calls":69675,"bytes":3879244,"gzipBytes":92321,"out":"/Users/runner/v2m-Locnnq/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=30047 dropped-events=1
+    NOTE 22 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 5 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=23740 read  unproven .
+         pid=23740 read  unproven .
+         pid=23741 read  unproven .
+         pid=23741 read  unproven .
+         pid=23740 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600003fd4000
+  == ATTRIBUTION == lifecycle pids: 2
+    writes  script 4490  /  whole traced subtree 5042
+    sockets script 3  /  whole traced subtree 4
+  == ROOTS (from /Users/runner/v2m-Locnnq/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-Locnnq/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-Locnnq/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-Locnnq/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-Locnnq/Observe/node_modules/node
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    jailHome     34  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_logs/2026-08-07T19_24_21_317Z-debug-0.log
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/tmp
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/tmp/99ef3391
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/content-v2
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/content-v2/sha512
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/content-v2/sha512/aa
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/content-v2/sha512/aa/f1
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/content-v2/sha512/aa/f1/9b72c4689fd9b0fbb58b1525748c2f30fbf1555aa9b02ca05636bde1a49c2d0bf1b7471ac4109e85886b4bcfe3f05ff8f10bbc15ba9d58bdc4e08f696bb6
+        /Users/runner/v2m-Locnnq/jailhome/.npm/_cacache/index-v5
+        … and 24 more
+    ownPkg     3351  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-darwin-arm64
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-setup
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-setup/index.js
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-darwin-arm64/share
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-darwin-arm64/share/doc
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-darwin-arm64/share/doc/node
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-setup/package.json
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-setup/.github
+        /Users/runner/v2m-Locnnq/Observe/node_modules/node/node_modules/node-bin-darwin-arm64/share/doc/node/gdbinit
+        … and 3341 more
+    jailTmp    1104  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2.n8eDYM
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/cbd15df0.yvQZQR
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/cbd15df0
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/670fb76f.xqcEkf
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/670fb76f
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/db41c153.h5LWBp
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/db41c153
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/736a3408.6p7IY3
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obscZk8Qi/node-compile-cache/v22.23.1-arm64-2b4477fa-501/736a3408
+        … and 1094 more
+  == READS the script performed, by scope ==
+    outside      10
+    systemfs     13
+    userHome    682
+    ownPkg        6
+    deps          2
+    project       1
+    jailHome      1
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /bin/sh
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 3   distinct peers: 1
+        104.16.9.34:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 34
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 1046 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=3/4 missing=1 shortfall=d7e3e91e0f42 (tree 25/2755) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: bin/node
+  !! OBSERVE UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+     The bounded ladder below is the repair; the terminal verdict waits on its outcome.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 1159217
+     refused paths under the failing grant (count, path):
+       37014 System/Cryptexes/OS
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT[fb903772438] 2 store entries removed, 0 spared as nub tooling, 1048 in store
