@@ -1,0 +1,88 @@
+### @aws-amplify/cli@8.5.1   (/home/runner/v2-USImSx)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=228 trace=12732 lines
+  CLOSURE   26 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":25,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (25) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-USImSx/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-USImSx/observe/capture.json
+  RAWLOG-BYTES raw=2689764 gz=82672
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-USImSx/jailhome","TMPDIR":"/tmp/nub-tmp-obskIQk7y","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-USImSx/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 28
+    writes  script 145  /  whole traced tree 1233
+    sockets script 6  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-USImSx/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-USImSx/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-USImSx/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obskIQk7y
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-USImSx/observe/node_modules/@aws-amplify/cli
+  == WRITES the script actually performed ==
+    jailHome    142  (base profile already grants this — NOT billed)
+        /home/runner/v2-USImSx/jailhome/.amplify
+        /home/runner/v2-USImSx/jailhome/.amplify/bin
+        /home/runner/v2-USImSx/jailhome/.amplify/bin/amplify
+        /home/runner/v2-USImSx/jailhome/.amplify/logs
+        /home/runner/v2-USImSx/jailhome/.amplify/logs/amplify-cli-2026-08-07.log
+        /home/runner/v2-USImSx/jailhome/.amplify/logs/.log-audit
+        /home/runner/v2-USImSx/jailhome/.amplify/logs/.log-audit/log-audit-amplify.json
+        /home/runner/v2-USImSx/jailhome/.amplify/lib
+        /home/runner/v2-USImSx/jailhome/.amplify/lib/amplify-dynamodb-simulator
+        /home/runner/v2-USImSx/jailhome/.amplify/lib/amplify-frontend-ios
+        … and 132 more
+    userHome      3
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 4
+        127.0.0.53:53
+        104.16.11.34:443
+        13.224.187.93:443
+        13.224.187.83:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 142
+        .amplify
+    3 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        .config/configstore/update-notifier-@aws-amplify
+        .config/configstore/update-notifier-@aws-amplify/cli-internal.json.2317629178
+        .config/configstore/update-notifier-@aws-amplify/cli-internal.json
+    EVENTS    5346 distinct from 12567 calls (12733 lines, 127 rejoined, 0 unparsed)
+    PROCS     35   lifecycle shells 23
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×63 getsockopt×42 setsockopt×37 exit×29 recvmsg×11 getcwd×6 exit_group×4 wait4×4
+    wrote /home/runner/v2-USImSx/observe/events.ndjson.gz (37420 bytes)
+  EVENTLOG-FILE /home/runner/v2-USImSx/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12733,"parsed":12567,"unparsed":0,"unfinished":127,"rejoined":127,"unresolvedDirfd":1,"truncatedArg":0,"procs":35,"lifecyclePids":23,"distinctEvents":5346,"unknownSyscall":{"getsockname":63,"getsockopt":42,"getcwd":6,"recvmsg":11,"exit":29,"setsockopt":37,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":4,"wait4":4},"out":"/home/runner/v2-USImSx/observe/events.ndjson.gz","gzipBytes":37420}
+  EVICT     26 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 734/228) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}
+  => VERIFIED {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}   (observed, then verified)
+  EVICT     26 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  VERIFY[drop-no-network] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 734/228) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"writePaths":[".amplify"]}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true},"writePaths":[".amplify"]} is sufficient
+  EVICT     26 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 734/228) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".amplify"]}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true,"writePaths":[".amplify"]} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}; each named capability drops on its own)
+  EVICT     26 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  VERIFY[joint-narrow] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 734/228) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".amplify"]}
+  => JOINT-NARROW VERIFIED {"writePaths":[".amplify"]} — all 2 capabilities drop TOGETHER, measured
