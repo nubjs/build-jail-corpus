@@ -17,6 +17,17 @@ import path from 'node:path';
 
 const RECORD_DIR = { linux: 'linux-x64', macos: 'darwin-arm64', windows: 'win32-x64' };
 
+// ⛔ A SCOPED SPEC IS NOT ITS OWN PATH. `@sitespeed.io/chromedriver@84.0.4147-30` lives at
+// `@sitespeed.io+chromedriver/84.0.4147-30/` — the scope slash becomes `+`, so the record is one
+// directory deep, not two. MEASURED on shakeout round 1: the first version of this reader used the
+// spec verbatim and reported 4 of 10 specs "not measured" while the batch log said 10 recorded.
+// The mismatch was visible only because the run printed its own count; a reader that under-finds
+// records makes a DIRTY round look INCOMPLETE and an incomplete one look clean.
+export const recordPath = (spec) => {
+  const at = spec.lastIndexOf('@');
+  return [spec.slice(0, at).replace('/', '+'), spec.slice(at + 1)];
+};
+
 // mulberry32 — small, seedable, and good enough for choosing packages. `Math.random()` would make
 // the manifest a record of nothing.
 function rng(seed) {
@@ -84,12 +95,21 @@ export const TRIPWIRES = {
   T3_noState: (r) => (r.verdict === 'NO-STATE-PASSED' ? 'NO-STATE-PASSED' : null),
   T4_ladder: (r) => (r.verifiedBy === 'ladder' || /^ladder/.test(r.grantSource || '')
     ? `fell back to the ladder (verifiedBy=${r.verifiedBy}, grantSource=${r.grantSource})` : null),
+  // ⛔ ATTRIBUTABLE MEANS "I CAN TELL WHICH BINARY PRODUCED THIS", NOT "one specific field is set".
+  // The first version demanded `nubGitSha` and flagged 6 of 10 records in shakeout round 1 — but
+  // those records carry `nubBinary.sha256`, a hash of the exact bytes that ran, which pins the
+  // binary MORE precisely than a git sha does (a git sha does not tell you what was compiled from
+  // it). `nubGitSha` is null there for a good reason: the binary was copied onto the box, so there
+  // is no checkout to ask. Either identifier satisfies this; neither is the real defect.
   T5_provenance: (r) => {
     const p = r.provenance || {};
-    const missing = [];
-    if (!p.nubGitSha) missing.push('nubGitSha');
-    if (!p.venue || p.venue === 'unknown') missing.push('venue');
-    return missing.length ? `unattributable: missing ${missing.join(', ')}` : null;
+    const id = p.nubGitSha || p.nubBinary?.sha256;
+    if (!id) return 'unattributable: no nubGitSha and no nubBinary.sha256 — cannot tell which binary ran';
+    // Venue is a SEPARATE, weaker question (which machine class), and it is a known gap tracked as
+    // task 2.8. Kept as a tripwire because an unknown venue makes a cross-venue comparison unsound,
+    // but reported distinctly so it is never confused with "we do not know what binary ran".
+    if (!p.venue || p.venue === 'unknown') return 'venue is unknown — set NUB_CORPUS_VENUE on the runner';
+    return null;
   },
   T6_truncated: (r) => (r.grantSource === 'descended-incomplete' || r.verdict === 'UNPROVEN'
     ? `budget-truncated (grantSource=${r.grantSource}, verdict=${r.verdict})` : null),
@@ -113,8 +133,7 @@ function judge() {
     const findings = [];
     let missing = 0;
     for (const spec of specs) {
-      const at = spec.lastIndexOf('@');
-      const p = path.join(recordsRoot, dir, spec.slice(0, at), spec.slice(at + 1), 'results.json');
+      const p = path.join(recordsRoot, dir, ...recordPath(spec), 'results.json');
       if (!fs.existsSync(p)) { missing++; continue; }
       let r; try { r = JSON.parse(fs.readFileSync(p, 'utf8')); }
       catch (e) { findings.push(`${spec}: UNPARSEABLE results.json (${e.message})`); continue; }

@@ -11,7 +11,19 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { TRIPWIRES } from './shakeout.mjs';
+import { TRIPWIRES, recordPath } from './shakeout.mjs';
+
+// ⛔ THE SCOPED-SPEC CASE, which the first version of the reader got wrong and which cost a whole
+// shakeout round its verdict: it reported 4 of 10 specs "not measured" while the batch had recorded
+// all 10. A reader that under-finds records turns a DIRTY round into an INCOMPLETE one.
+test('⭑ a scoped spec resolves to the `@scope+name/version` record path, not `@scope/name/version`', () => {
+  assert.deepEqual(recordPath('@sitespeed.io/chromedriver@84.0.4147-30'),
+    ['@sitespeed.io+chromedriver', '84.0.4147-30']);
+  assert.deepEqual(recordPath('taiko@0.8.0'), ['taiko', '0.8.0']);
+  // a prerelease version carries its own `-`, and the SPLIT is on the LAST `@`
+  assert.deepEqual(recordPath('@fission-ai/openspec@1.6.0'), ['@fission-ai+openspec', '1.6.0']);
+  assert.deepEqual(recordPath('foo@0.0.1-dev.1556840842'), ['foo', '0.0.1-dev.1556840842']);
+});
 
 // A record that SHOULD trip nothing: narrow grant, attributable, verified by synthesis.
 const CLEAN = {
@@ -34,7 +46,7 @@ const DIRTY = {
   T2_disk: { grant: { write: 'disk', network: true } },
   T3_noState: { verdict: 'NO-STATE-PASSED' },
   T4_ladder: { verifiedBy: 'ladder' },
-  T5_provenance: { provenance: { nubGitSha: null, venue: 'vm' } },
+  T5_provenance: { provenance: { nubGitSha: null, venue: 'vm' } }, // no sha256 either -> unattributable
   T6_truncated: { grantSource: 'descended-incomplete' },
   T7_rc: { driverRc: 3221225477 },
 };
@@ -51,6 +63,22 @@ for (const [name, patch] of Object.entries(DIRTY)) {
 
 test('⭑ read:"disk" trips T2 as well as write:"disk" — both are the disabled-confinement case', () => {
   assert.ok(TRIPWIRES.T2_disk({ ...CLEAN, grant: { read: 'disk' } }));
+});
+
+// ⛔ THE CASE THAT MADE T5 A FALSE POSITIVE IN SHAKEOUT ROUND 1. Linux records carry a null
+// `nubGitSha` (the binary is copied onto the box, so there is no checkout to ask) but a full
+// `nubBinary.sha256`. The first T5 demanded the git sha and flagged 6 of 10 healthy records.
+test('⭑ a binary sha256 IS attribution — T5 must not demand the git sha when the hash is present', () => {
+  const byHash = { ...CLEAN, provenance: { nubGitSha: null, venue: 'vm', nubBinary: { sha256: '0698559949ffbc' } } };
+  assert.equal(TRIPWIRES.T5_provenance(byHash), null,
+    'a record naming the exact bytes that ran is attributable, however the git sha is spelled');
+});
+
+test('T5 still fires when NEITHER identifier is present, and says so distinctly from the venue case', () => {
+  const noId = { ...CLEAN, provenance: { nubGitSha: null, venue: 'vm' } };
+  assert.match(TRIPWIRES.T5_provenance(noId), /cannot tell which binary ran/);
+  const noVenue = { ...CLEAN, provenance: { nubGitSha: 'abc123', venue: 'unknown' } };
+  assert.match(TRIPWIRES.T5_provenance(noVenue), /venue is unknown/);
 });
 
 test('T7 does not fire on the budget timeout, which T6 already names', () => {
