@@ -475,6 +475,22 @@ const judgeRight = (kase, arm) => {
 };
 
 // ── run ───────────────────────────────────────────────────────────────────────────────────────
+
+// ⛔ A CAPABILITY PROBE, AND IT EXISTS BECAUSE THE ANSWER WAS BEING KEPT IN TWO PLACES.
+// `run-batch-v2.mjs` has to decide whether to run this control before it starts a slice. It decided
+// with its own hardcoded `process.platform !== 'linux'`, which went stale the moment win32 gained a
+// case here: the case was grounded on measured arms, verified in BOTH directions, wired in — and
+// then skipped by a batch runner still printing "no case table for win32 yet". A second copy of a
+// list is a copy that drifts, and this one drifted silently while reading as deliberate.
+//
+// Deliberately ABOVE the `--nub`/`--driver` checks: the question is "does a case EXIST for this
+// platform", not "can it run right now". A caller deciding whether to bother must not need a binary.
+if (argv.includes('--has-case')) {
+  const n = CASES.filter((c) => c.platform === process.platform).length;
+  console.log(`${n} falsification case(s) grounded on ${process.platform}`);
+  process.exit(n > 0 ? 0 : 1);
+}
+
 if (!NUB) { console.error('falsify.mjs: --nub <binary> is required'); process.exit(2); }
 if (!fs.existsSync(NUB)) { console.error(`falsify.mjs: no such nub binary: ${NUB}`); process.exit(2); }
 if (!fs.existsSync(DRIVER)) { console.error(`falsify.mjs: no such driver: ${DRIVER}`); process.exit(2); }

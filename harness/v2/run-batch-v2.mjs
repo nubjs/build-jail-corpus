@@ -83,8 +83,19 @@ const DRIVER_ARGS = process.env.NUB_V2_DRIVER_ARGS ? JSON.parse(process.env.NUB_
 // ⛔ EVERY PATH THROUGH THIS BLOCK PRINTS ITS OUTCOME, INCLUDING THE SKIPS. A gate that can be
 // silently absent is not a gate: a reader of a slice log has to be able to tell "the control passed"
 // from "the control never ran", and the two look identical if the skip is quiet.
-if (process.platform !== 'linux') {
-  console.log(`falsify: SKIPPED — no case table for ${process.platform} yet (linux-only for now)`);
+// ⛔ ASK `falsify.mjs` WHETHER IT HAS A CASE; DO NOT KEEP A SECOND LIST HERE. This was
+// `process.platform !== 'linux'`, and it went stale the moment win32 gained a case: the case was
+// grounded on measured arms and verified in both directions, and this line skipped it anyway while
+// printing "no case table for win32 yet" — a message that had become false. The one platform gated
+// on the control was the one silently not running it.
+//
+// The probe needs no binary and no driver, so a platform with no evidence still SKIPS loudly rather
+// than refusing, and a platform gains coverage the instant its case lands — with no edit here.
+const hasCase = spawnSync(process.execPath, [path.join(HERE, 'falsify.mjs'), '--has-case'],
+  { encoding: 'utf8' });
+if (hasCase.status !== 0) {
+  console.log(`falsify: SKIPPED — ${(hasCase.stdout ?? '').trim() || `no case is grounded on ${process.platform}`}`
+    + ', so this slice is NOT covered by the falsification control');
 } else if (argv.includes('--no-falsify')) {
   console.log('falsify: SKIPPED by --no-falsify — this slice is NOT covered by the falsification control');
 } else if (!NUB) {
