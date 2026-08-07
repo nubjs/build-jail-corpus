@@ -162,9 +162,24 @@ jobs:
 
       # ⛔⛔ THE VERIFY ARM IS INERT WITHOUT `build-jail-catalog-override`, AND NOT SILENTLY — a
       # binary lacking the feature does not ignore `NUB_BUILD_JAIL_CATALOG`, it ERRORS, so every arm
-      # comes back VOID and the whole slice records nothing. Any cached corpus-probe binary will do:
-      # the arm needs the FEATURE, not a specific commit, and each record names the binary that
-      # answered it. A prefix restore-key is therefore correct and a miss is merely slower.
+      # comes back VOID and the whole slice records nothing.
+      #
+      # ⛔⛔ THIS BLOCK USED TO ARGUE THAT ANY CACHED BINARY WILL DO — "the arm needs the FEATURE, not
+      # a specific commit, and each record names the binary that answered it" — and BOTH halves of
+      # that are false. MEASURED across the whole corpus:
+      #
+      #   linux-x64      119/119 records carry `provenance.nubBinary` (a sha256)
+      #   darwin-arm64     0/120
+      #   win32-x64        0/1
+      #
+      # Only `measure.sh` emits the `VENUE-NUB-BINARY` marker `record.mjs` learns that hash from, so
+      # on two of three platforms a record names NOTHING about the binary that produced it — and
+      # `provenance.nubGitSha` is null on all 240 records besides. The premise held on exactly one
+      # lane.
+      #
+      # And "the FEATURE, not a specific commit" fails too: `4bd4687521` is a correctness fix, not a
+      # feature flag. A binary predating it cannot run a Windows jailed arm at all, feature present
+      # or not, which is how run 31145732202 measured nothing while reporting cleanly.
       # ⛔ THE CACHE PATH MUST BE NATIVE, AND ON WINDOWS `/tmp/...` IS NOT. `actions/cache` runs in
       # NODE: a bash step sees `/tmp/nub/...` correctly because Git-bash maps `/tmp`, while Node on
       # Windows resolves that same string against the Windows filesystem, where it does not exist.
@@ -248,6 +263,25 @@ jobs:
           # between fitting in the job and not.
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
           echo "NUB_BIN=/tmp/nubsrc/target/fast/nub${{ env.OS_NAME == 'windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+          # Stage it at the path the cache is keyed on, so the save below and the restore above agree
+          # on one spelling. The restore's own comment records what disagreeing costs: a save that
+          # stores nothing while reporting success.
+          mkdir -p /tmp/nub/target/release
+          cp "/tmp/nubsrc/target/fast/nub${{ env.OS_NAME == 'windows' && '.exe' || '' }}" \
+             "/tmp/nub/target/release/nub${{ env.OS_NAME == 'windows' && '.exe' || '' }}"
+
+      # ⛔ WITHOUT THIS THE PREFIX-FALLBACK REMOVAL WOULD COST A REBUILD ON *EVERY* RUN, not once per
+      # SHA. This workflow only ever RESTORED — there was no save step anywhere in it — because the
+      # prefix fallback let it live off binaries other workflows happened to mint. Take that away and
+      # nothing replenishes the exact key, so each run misses and rebuilds. Saving is what makes the
+      # amortisation real: one ~20-minute build per SHA, against the hundreds of packages a sweep
+      # measures at that SHA.
+      - name: Save the built binary under its exact SHA
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
 
       - name: Point at the restored binary
         if: steps.nubbin.outputs.cache-matched-key != ''
@@ -263,7 +297,10 @@ jobs:
           # surfaces much later, inside the first measurement, as a confusing failure.
           "$BIN" --version
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
-          echo "NUB_GIT_SHA=${{ inputs.nub_sha }}" >> "$GITHUB_ENV"
+          # ⛔ NUB_GIT_SHA IS NOT RE-EXPORTED HERE. This used to write `${{ inputs.nub_sha }}`, which
+          # is EMPTY on a scheduled run — so on the cache-HIT path it overwrote the resolved SHA with
+          # nothing, and every record from a warm runner carried `nubGitSha: null`. The resolve step
+          # above already set it, correctly, for both paths.
 
       # ⛔ THE ONE CHECK THAT SEPARATES A REAL SLICE FROM A SLICE OF VOIDs, AND IT CHECKS ITSELF
       # FIRST. A deliberately malformed catalog must be REJECTED before a well-formed one is allowed
