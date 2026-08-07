@@ -492,6 +492,7 @@ const fetch = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-sc
 fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stderr ?? ''));
 if (fetch.status !== 0) {
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=${fetch.status}; nothing to measure)`);
+  emitBinaryProvenance();
   process.exit(0);
 }
 
@@ -587,7 +588,11 @@ if (badPriv.length) {
 console.log(`  VENUE-OBSERVE-USER ${OBSERVE_USER} elevated=${meta.elevated} privDropped=${JSON.stringify(meta.privDropped ?? null)}`);
 
 if (meta.eventsLost > 0) console.log(`  !! ${meta.eventsLost} events LOST -- exact-set claims are not supported by this trace`);
-if (meta.exitCode !== 0) { console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed rebuild rc=${meta.exitCode})`); process.exit(0); }
+if (meta.exitCode !== 0) {
+  console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed rebuild rc=${meta.exitCode})`);
+  emitBinaryProvenance();
+  process.exit(0);
+}
 
 const isLog = (p) => /\.(log|xml|etl|txt)$|meta\.json$|cat\.json$/i.test(p);
 const OBS_FILES = countFiles(OBS, isLog);
@@ -848,7 +853,28 @@ console.log(`  RAWLOG-CAPTURE ${CAPTURE}`);
 //
 // The bytecode env name IS a real string constant (`BUILD_JAIL_BASELINE_ENV` in `preset.rs`), so a
 // content search answers that one honestly.
-{
+// ⛔ A HOISTED, IDEMPOTENT FUNCTION, BECAUSE THE EARLY EXITS NEED THIS TOO. This was an inline block
+// here — which is AFTER both `BROKEN-WITHOUT-JAIL-TOO` exits — so every record taking one of those
+// paths named NO binary at all. MEASURED on win32 shakeout round 1: `react-signature-pad-wrapper@1.3.1`
+// and `@intlify/vue-router-bridge@0.1.0` both carry `nubGitSha: null` and no `nubBinary` key, while
+// the control `ref-napi@3.0.3` (MINIMUM, full path) carries a full sha256.
+//
+// ⛔ AND THIS IS THE VERDICT WHERE ATTRIBUTION MATTERS MOST, which is what makes it worse than
+// bookkeeping. `BROKEN-WITHOUT-JAIL-TOO` asserts "nub cannot build this at all" — true only OF A
+// PARTICULAR BINARY. `ctrlc-windows@0.1.9` sat in exactly this bucket until the tarball symlink fix
+// and installs cleanly after it. Without the hash you cannot tell which side of a fix a record was
+// taken on, so the records most likely to FLIP were the ones least able to say what produced them.
+//
+// Only the binary identity is hoisted. `RAWLOG-CAPTURE` stays at its original site because `CAPTURE`
+// is not defined until the arms have run, and an early-exit record has no capture to name.
+// ⛔ THE FLAG LIVES ON THE FUNCTION, NOT IN A `let` BESIDE IT. A `function` declaration hoists
+// fully, but a `let` in the same scope does NOT — it stays in the temporal dead zone until this
+// line executes, which is ~370 lines BELOW the first call site. A module-scope `let` guard here
+// would therefore throw `ReferenceError` on exactly the early-exit path this function exists to
+// serve, and never on the normal path — a fix that breaks only the case it was written for.
+function emitBinaryProvenance() {
+  if (emitBinaryProvenance.done) return;
+  emitBinaryProvenance.done = true;
   const probeCat = path.join(ROOT, 'nub-binary-probe.json');
   fs.writeFileSync(probeCat, '{"packages":{"__override_probe__":{"default":{"network":true}}}}');
   const pr = run(NUB, ['--version'], { env: { ...process.env, NUB_BUILD_JAIL_CATALOG: probeCat } });
@@ -878,8 +904,9 @@ console.log(`  RAWLOG-CAPTURE ${CAPTURE}`);
     bytes,
     features: { buildJailCatalogOverride: hasOverride, pythonDontWriteBytecodeEnv: hasBytecodeEnv },
   })}`);
+  console.log(`  VENUE-INTERPRETER ${NODE}`);
 }
-console.log(`  VENUE-INTERPRETER ${NODE}`);
+emitBinaryProvenance();
 // ⛔ WHERE THE JAILED ARMS RAN, BECAUSE ON THIS PLATFORM THE ROOT PATH CAN DECIDE THE OUTCOME BY
 // ITSELF. Any jail root under `C:\Users\<user>` fails before a single script runs — "could not
 // evaluate ALL APPLICATION PACKAGES rights on …: The access control list (ACL) structure is
