@@ -95,6 +95,33 @@ jobs:
       # default resolves to `/var/folders/…/T/`, not `/tmp` — so writer and reader would silently
       # resolve DIFFERENT paths and the commit would fall back to stashing the whole tree.
       NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
+      # ⛔⛔ A `/tmp` PATH IS FINE AS AN ARGUMENT OR AN ENV VALUE, AND BROKEN INSIDE A `node -e` BODY.
+      # THAT IS THE WHOLE RULE, AND IT IS WHY THIS FILE MUST NOT BE `/tmp`-SWEPT WHOLESALE.
+      #
+      # Every step here runs under Git-bash, whose msys2 runtime rewrites POSIX-looking ARGUMENTS and
+      # ENV-VAR VALUES into Windows paths whenever it spawns a NATIVE child (node.exe, nub.exe,
+      # git.exe). MEASURED, run 31145732202 — the first Windows run this lane ever had:
+      #
+      #   `--nub /tmp/nub/target/release/nub.exe`  reached node.exe as
+      #       `C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe`
+      #   `NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json`  reached nub.exe as
+      #       `C:/Users/RUNNER~1/AppData/Local/Temp/cat-good.json`  (it printed the path it loaded)
+      #
+      # So the ~30 `/tmp` uses in this file are overwhelmingly CORRECT and must be LEFT ALONE.
+      #
+      # What msys2 cannot rewrite is a path buried inside a LONGER STRING. A `node -e` program body is
+      # a single argument that does not look like a path, so `fs.writeFileSync("/tmp/verdicts.ndjson")`
+      # arrived verbatim and Node resolved it DRIVE-RELATIVE to the workspace drive —
+      # `ENOENT: no such file or directory, open 'D:\tmp\verdicts.ndjson'`, which is what killed that
+      # run. Worse than the crash is the near miss: had `D:\tmp` happened to exist, a bash WRITER and
+      # a node-`-e` READER of the same `/tmp/x` spelling would have silently used two different files.
+      #
+      # ⇒ THE RULE: never bake a path into a `node -e` program. Pass it as an argument, or run a real
+      # script from `harness/`. `harness/v2/no-inline-tmp-path.test.mjs` enforces this.
+      #
+      # `RUNNER_TEMP` was considered and NOT adopted: on Windows it is `D:\a\_temp`, a BACKSLASH path,
+      # and introducing a second spelling alongside `/tmp` is what creates writer/reader divergence in
+      # the first place. One spelling that msys2 rewrites consistently is the smaller surface.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -329,18 +356,13 @@ jobs:
         if: inputs.packages == '' && env.DRAINED != '1'
         shell: bash
         run: |
-          node -e '
-            const fs=require("fs"),path=require("path");const out=[];
-            (function walk(d){let e;try{e=fs.readdirSync(d,{withFileTypes:true})}catch{return}
-              for(const x of e){const f=path.join(d,x.name);
-                if(x.isDirectory()){walk(f);continue}
-                if(x.name!=="results.json")continue;
-                try{const r=JSON.parse(fs.readFileSync(f,"utf8"));
-                  out.push(JSON.stringify({pkg:r.pkg,version:r.version,verdict:r.verdict}))}catch{}}
-            })("records-v2");
-            fs.writeFileSync("/tmp/verdicts.ndjson",out.join("\n")+"\n");
-            console.error(`collected ${out.length} verdict(s)`);
-          '
+          set -eu
+          # ⛔ THE SHARED SCRIPT, NOT AN INLINE `node -e` COPY. The inline version this replaces was a
+          # line-for-line duplicate of `harness/collect-verdicts.mjs` that had drifted in exactly one
+          # respect — it wrote to a `/tmp` path baked into its own program text, which msys2 cannot
+          # rewrite (see the `/tmp` note in the job's `env:` block), so the Windows lane died here on
+          # its first ever run. The v1 runner has always called this same script; only v2 grew a copy.
+          node harness/collect-verdicts.mjs --runs records-v2 --out /tmp/verdicts.ndjson
           node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
           node harness/claim-slice.mjs --queue queue-v2.ndjson --reconcile --records records-v2
 
