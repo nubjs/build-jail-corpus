@@ -1,0 +1,76 @@
+### @prisma/engines@7.8.0   (/home/runner/v2-CbiT0v)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=103 trace=11201 lines
+  CLOSURE   5 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-CbiT0v/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-CbiT0v/observe/capture.json
+  RAWLOG-BYTES raw=2454401 gz=73479
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-CbiT0v/jailhome","TMPDIR":"/tmp/nub-tmp-obsA2smiV","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-CbiT0v/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 14  /  whole traced tree 1102
+    sockets script 6  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-CbiT0v/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-CbiT0v/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-CbiT0v/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsA2smiV
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-CbiT0v/observe/node_modules/@prisma/engines
+  == WRITES the script actually performed ==
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-CbiT0v/observe/node_modules/@prisma/engines/download-lock
+        /home/runner/v2-CbiT0v/observe/node_modules/@prisma/engines/schema-engine-debian-openssl-3.0.x.tmp11954
+        /home/runner/v2-CbiT0v/observe/node_modules/@prisma/engines/schema-engine-debian-openssl-3.0.x
+    jailHome      9  (base profile already grants this — NOT billed)
+        /home/runner/v2-CbiT0v/jailhome/.cache
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a/debian-openssl-3.0.x
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a/debian-openssl-3.0.x/schema-engine.tmp11954
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a/debian-openssl-3.0.x/schema-engine
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a/debian-openssl-3.0.x/schema-engine.sha256
+        /home/runner/v2-CbiT0v/jailhome/.cache/prisma/master/3c6e192761c0362d496ed980de936e2f3cebcd3a/debian-openssl-3.0.x/schema-engine.gz.sha256
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsA2smiV/584b9b2286b0d2ed11f12ae670354633
+        /tmp/nub-tmp-obsA2smiV/584b9b2286b0d2ed11f12ae670354633/partial
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        104.20.43.103:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/prisma"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 9
+        .cache/prisma
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4551 distinct from 11132 calls (11202 lines, 42 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×37 setsockopt×33 getsockopt×20 exit×20 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-CbiT0v/observe/events.ndjson.gz (32390 bytes)
+  EVENTLOG-FILE /home/runner/v2-CbiT0v/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11202,"parsed":11132,"unparsed":0,"unfinished":42,"rejoined":42,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4551,"unknownSyscall":{"getsockname":37,"getsockopt":20,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-CbiT0v/observe/events.ndjson.gz","gzipBytes":32390}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @prisma/engines
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 361/103) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/prisma"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/prisma"]}   (observed, then verified)
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @prisma/engines
+  VERIFY[drop-no-network] rc=0 artifacts=10/11 missing=1 shortfall=041df611b56b (tree 358/103) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/prisma"]}
+       missing: schema-engine-debian-openssl-3.0.x
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/prisma"]} is independently necessary
