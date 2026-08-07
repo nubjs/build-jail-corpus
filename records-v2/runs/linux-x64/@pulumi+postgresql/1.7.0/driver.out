@@ -1,0 +1,86 @@
+### @pulumi/postgresql@1.7.0   (/home/runner/v2-cJmJFd)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=10311 trace=12552 lines
+  CLOSURE   188 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":51,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (51) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-cJmJFd/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-cJmJFd/observe/capture.json
+  RAWLOG-BYTES raw=2587536 gz=82699
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-cJmJFd/jailhome","TMPDIR":"/tmp/nub-tmp-obsHOAMQV","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-cJmJFd/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 6  /  whole traced tree 1094
+    sockets script 26  /  whole traced tree 30
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-cJmJFd/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-cJmJFd/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-cJmJFd/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsHOAMQV
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-cJmJFd/observe/node_modules/@pulumi/postgresql
+  == WRITES the script actually performed ==
+    userHome      5
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsHOAMQV/pulumi-plugin-tar1072795939
+  == NETWORK ==
+    AF_INET sockets: 26   distinct peers: 6
+        127.0.0.53:53
+        104.16.4.34:443
+        13.226.238.103:443
+        140.82.112.4:443
+        140.82.114.5:443
+        172.66.173.242:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    5 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 5
+        .pulumi/logs/pulumi-20260807T193307-35890-plugin_install.log
+        .pulumi/plugins/resource-postgresql-v1.7.0.lock
+        .pulumi/plugins/resource-postgresql-v1.7.0.partial
+        .pulumi/plugins/resource-postgresql-v1.7.0
+        .pulumi/plugins/resource-postgresql-v1.7.0/pulumi-resource-postgresql
+    EVENTS    5491 distinct from 12054 calls (12553 lines, 366 rejoined, 0 unparsed)
+    PROCS     29   lifecycle shells 17
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: tgkill×100 setsockopt×69 getsockname×40 getpeername×19 getsockopt×16 exit×15 recvmsg×7 getcwd×4
+    wrote /home/runner/v2-cJmJFd/observe/events.ndjson.gz (38944 bytes)
+  EVENTLOG-FILE /home/runner/v2-cJmJFd/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12553,"parsed":12054,"unparsed":0,"unfinished":366,"rejoined":366,"unresolvedDirfd":3,"truncatedArg":0,"procs":29,"lifecyclePids":17,"distinctEvents":5491,"unknownSyscall":{"getsockname":40,"getsockopt":16,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":69,"sendmmsg":1,"socketpair":3,"shutdown":3,"tgkill":100,"listen":1,"accept4":1,"getpeername":19,"exit_group":4,"wait4":4},"out":"/home/runner/v2-cJmJFd/observe/events.ndjson.gz","gzipBytes":38944}
+  EVICT     181 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/postgresql
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=51/51 missing=0 shortfall=none (tree 44881/10311) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/postgresql
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-network] rc=0 artifacts=51/51 missing=0 shortfall=none (tree 44881/10311) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/postgresql
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=51/51 missing=0 shortfall=none (tree 44881/10311) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/postgresql
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[joint-narrow] rc=0 artifacts=51/51 missing=0 shortfall=none (tree 44881/10311) OVERRIDDEN=1 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
