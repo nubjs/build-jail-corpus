@@ -1,0 +1,62 @@
+### jpeg-recompress-bin@4.0.0   (/home/runner/v2-tRCWRE)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1484 trace=14992 lines
+  CLOSURE   202 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-tRCWRE/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-tRCWRE/observe/capture.json
+  RAWLOG-BYTES raw=3168056 gz=95425
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-tRCWRE/jailhome","TMPDIR":"/tmp/nub-tmp-obsgwASwx","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-tRCWRE/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 2  /  whole traced tree 1090
+    sockets script 7  /  whole traced tree 13
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-tRCWRE/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-tRCWRE/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-tRCWRE/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsgwASwx
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-tRCWRE/observe/node_modules/jpeg-recompress-bin
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-tRCWRE/observe/node_modules/jpeg-recompress-bin/vendor
+        /home/runner/v2-tRCWRE/observe/node_modules/jpeg-recompress-bin/vendor/jpeg-recompress
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        185.199.109.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6751 distinct from 14654 calls (14993 lines, 309 rejoined, 0 unparsed)
+    PROCS     26   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×45 getsockname×35 exit×20 getsockopt×13 recvmsg×11 socketpair×6 getcwd×5 shutdown×5
+    wrote /home/runner/v2-tRCWRE/observe/events.ndjson.gz (43516 bytes)
+  EVENTLOG-FILE /home/runner/v2-tRCWRE/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14993,"parsed":14654,"unparsed":0,"unfinished":309,"rejoined":309,"unresolvedDirfd":3,"truncatedArg":0,"procs":26,"lifecyclePids":14,"distinctEvents":6751,"unknownSyscall":{"getsockname":35,"getsockopt":13,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":45,"sendmmsg":3,"socketpair":6,"shutdown":5,"exit_group":4,"wait4":4},"out":"/home/runner/v2-tRCWRE/observe/events.ndjson.gz","gzipBytes":43516}
+  EVICT     317 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for jpeg-recompress-bin
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5577/1484) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     215 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for jpeg-recompress-bin
+  VERIFY[drop-no-network] rc=0 artifacts=7/8 missing=1 shortfall=031d9306d7c2 (tree 5574/1484) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: vendor/jpeg-recompress
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
