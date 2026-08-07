@@ -30,12 +30,22 @@
 //     4  ⛔ every stage that COULD run passed, but the install stage did not run — either this
 //        platform cannot run it, or `--skip-install` asked for that. The product is UNVERIFIED.
 //
-// ⛔ 4 EXISTS BECAUSE 0 WOULD BE A LIE ON macOS AND WINDOWS, AND IT IS THE LIE THIS TOOL WAS BUILT TO
-// REMOVE. `--at-catalog` is implemented in `measure.sh` only — verified by search, it appears in no
-// other driver — so `stageInstall` returns `unavailable` off Linux. Every OTHER stage is the harness
-// reading its own output back, so a plain 0 there would certify a pipeline against itself and say
-// nothing whatever about whether the grant installs. A caller gating on `rc === 0` now gets that
-// distinction for free; one gating on `rc !== 1` opts out of it deliberately.
+// ⛔ 4 EXISTS BECAUSE 0 WOULD BE A LIE WHEREVER THE INSTALL STAGE CANNOT RUN, AND IT IS THE LIE THIS
+// TOOL WAS BUILT TO REMOVE. Every OTHER stage is the harness reading its own output back, so a plain
+// 0 there would certify a pipeline against itself and say nothing whatever about whether the grant
+// installs. A caller gating on `rc === 0` gets that distinction for free; one gating on `rc !== 1`
+// opts out of it deliberately.
+//
+// ⛔⛔ AND WHICH PLATFORMS THOSE ARE IS NO LONGER ASSERTED FROM A SEARCH — IT IS ASKED OF THE RUN.
+// This comment used to say `--at-catalog` "is implemented in `measure.sh` only, verified by search".
+// That was true when written, went false when `measure-macos.sh` gained the flag, and the METHOD was
+// unsound either way: a driver commit landed with the flag's PARSER and no dispatch, so `--at-catalog`
+// was accepted, silently ignored, and every arm ran the same catalog — which would have published an
+// empty grant as a measured minimum. A search for the flag name matches the parser, not the feature.
+//
+// So the stage now requires the driver to PROVE the mode engaged, by printing its `── DIRECT:` banner.
+// No banner means the mode did not run, whatever the exit code said, and the stage reports
+// `unavailable` rather than a pass. That is the one check a parser-without-a-dispatch cannot satisfy.
 //
 // ⛔ THE MEASUREMENT IS NOT REIMPLEMENTED HERE — IT SHELLS OUT TO `run-batch-v2.mjs` WITH A
 // ONE-LINE WORKLIST. That is deliberate and it is the whole answer to "could this tool and the
@@ -392,11 +402,23 @@ const stripNotes = (e) => {
 // inherits the four replay guards, the explicit `buildJail`, the override assertion and the artifact
 // gate. An install that exits 0 having produced nothing is the normal failure shape in a jail, and
 // only the artifact manifest catches it.
+// ⛔ THE PER-PLATFORM DRIVER, SPELLED THE SAME WAY `run-batch-v2.mjs` AND `falsify.mjs` SPELL IT.
+// A fourth copy of this map would be a fourth thing to go stale; there are already three, and the
+// batch runner's second copy of a *capability* list is exactly what silently skipped win32's
+// falsification control. Kept here only because the drivers take different argv shapes, which is the
+// same reason `run-batch-v2.mjs` keeps its own dispatch.
+const DRIVER_FOR_PLATFORM = {
+  linux: { file: 'measure.sh', run: 'bash' },
+  darwin: { file: 'measure-macos.sh', run: 'bash' },
+};
+
 function stageInstall() {
   const s = stage('install');
-  if (process.platform !== 'linux') {
-    return done(s, 'unavailable', `--at-catalog is implemented in measure.sh only; ${process.platform} `
-      + 'drivers build their arm catalog inline. Not skipped quietly — the stage is missing here.');
+  const driver = DRIVER_FOR_PLATFORM[process.platform];
+  if (!driver) {
+    return done(s, 'unavailable', `no direct-mode driver is wired for ${process.platform} — `
+      + '`measure-windows.mjs` has no `--at-catalog`. Not skipped quietly: the stage is MISSING here, '
+      + 'so nothing has checked that the collated catalog actually installs on this platform.');
   }
   let cat = summary.catalog.file;
   if (INSTALL_GRANT) {
@@ -418,16 +440,32 @@ function stageInstall() {
     fs.writeFileSync(cat, `${JSON.stringify(doc, null, 2)}\n`);
     summary.install = { negativeControl: g };
   }
-  const args = [path.join(HERE, 'measure.sh'), PKG, VER, NUB, '--at-catalog', cat];
-  const r = sh('bash', args);
+  const args = [path.join(HERE, driver.file), PKG, VER, NUB, '--at-catalog', cat];
+  const r = sh(driver.run, args);
   const log = path.join(WORK, 'install.out');
-  const text = `$ bash ${args.join(' ')}\n\n${r.stdout ?? ''}${r.stderr ?? ''}`;
+  const text = `$ ${driver.run} ${args.join(' ')}\n\n${r.stdout ?? ''}${r.stderr ?? ''}`;
   fs.writeFileSync(log, text);
   s.log = log;
   const m = /^### .*\((.+)\)\s*$/m.exec(text);
   if (m) roots.push(m[1]);
   const terminal = (text.match(/^\s*=>.*$/m) ?? [''])[0].trim();
-  summary.install = { ...(summary.install ?? {}), catalog: cat, rc: r.status, terminal };
+  // ⛔ THE MODE MUST PROVE IT ENGAGED, BEFORE ANY EXIT CODE IS INTERPRETED. Both direct-mode drivers
+  // announce themselves with `── DIRECT:` before running the arm; a driver that ACCEPTED `--at-catalog`
+  // and ignored it prints no such line and then exits 0 off the ordinary ladder — which this stage
+  // would otherwise read as "the grant installs". That is not hypothetical: a driver commit landed
+  // carrying the flag's parser and no dispatch, and the failure mode was every arm running the same
+  // catalog with every narrowing "verified" — an empty grant published as a measured minimum.
+  //
+  // Checking the BANNER rather than the flag is the whole point: a parser can satisfy a search for
+  // the flag name, and cannot satisfy this.
+  const engaged = /^\s*──\s*DIRECT:/m.test(text);
+  summary.install = { ...(summary.install ?? {}), catalog: cat, rc: r.status, terminal, engaged };
+  if (!engaged) {
+    return done(s, 'unavailable', `${driver.file} printed no \`── DIRECT:\` banner, so --at-catalog did `
+      + `NOT engage (it exited ${r.status}). The flag was accepted and ignored, or this driver's direct `
+      + 'mode is absent — either way NOTHING about the collated catalog was checked, and this is not '
+      + 'an install failure. Read the log before believing any exit code from it.', log);
+  }
   // measure.sh's DIRECT vocabulary: 0 SUFFICIENT, 1 INSUFFICIENT, 3 VOID. VOID is neither — the
   // override did not engage, so nothing was measured and it must not be read as a refusal.
   if (r.status === 3) {
