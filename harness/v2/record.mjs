@@ -266,11 +266,18 @@ export function parseDriverLog(log) {
       continue;
     }
     // ⛔ macOS's `=> UNDER-PREDICTED` IS A REAL FINDING, NOT AN INSTRUMENT FAILURE — and it has no
-    // grant, because that driver has no ladder to repair one with. It gets its own verdict so the
-    // collator excludes it from the catalog (there is no measured minimum) while the queue still
-    // closes the row: re-running it would produce the same answer, and `HARNESS-*` would put it in
-    // an endless retry loop. The Linux/Windows spelling of the same event carries no `=>` — it
-    // annotates a ladder MINIMUM — so it lands in `notes` there instead.
+    // grant, because no state the harness can express installed the package. It gets its own verdict
+    // so the collator excludes it from the catalog (there is no measured minimum) while the queue
+    // still closes the row: re-running it would produce the same answer, and `HARNESS-*` would put it
+    // in an endless retry loop.
+    //
+    // ⛔ THE `=>` IS THE WHOLE DISCRIMINATOR, AND IT USED TO MEAN SOMETHING WEAKER. Before macOS had
+    // a ladder, this line fired the moment the SYNTHESIZED grant failed — so a package the ladder
+    // would have repaired was filed as having no minimum, and `collate.mjs` gave it no catalog entry,
+    // dropping it to the base profile at install time. `measure-macos.sh` now emits the bare
+    // `!! OBSERVE UNDER-PREDICTED` for that intermediate state, which lands in `notes` here exactly
+    // as the Linux and Windows spellings do, and reserves the `=>` form for "every rung up to
+    // write:\"disk\" failed". All three drivers therefore now mean the same thing by it.
     if (/=>\s*UNDER-PREDICTED/.test(l)) { out.verdict = 'UNDER-PREDICTED'; continue; }
     for (const [v, re] of Object.entries(VERDICTS)) {
       if (re.test(l)) { out.verdict = v; break; }

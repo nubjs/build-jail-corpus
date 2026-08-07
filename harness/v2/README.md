@@ -148,13 +148,15 @@ The unit suites are worth their cost because they cover the *same* semantic haza
 
 None of the three drivers writes a file — they were built to be read by a human on a probe branch, so every v2 result so far has lived in a workflow log that expires. `record.mjs` parses a driver's terminal vocabulary into a record shaped like a v1 one, which is what lets `collate.mjs --runs records-v2/runs` and `claim-slice.mjs --reconcile --records records-v2` read it with no changes.
 
-The vocabularies differ, and one pair is a false friend. The POSIX drivers print `=> VERIFIED <grant>` where the Windows driver prints `=> MINIMUM <grant> (observed, then verified)` for the **same** outcome — and `=> MINIMUM <grant> (ladder fallback)` for a materially different one, where OBSERVE under-predicted and the ladder repaired it. Keying on the word `MINIMUM` alone merges the arm that proves synthesis works with the arm that proves it failed, so the record carries `verifiedBy: synth | ladder`.
+The vocabularies differ, and one pair is a false friend. The POSIX drivers print `=> VERIFIED <grant>` where the Windows driver prints `=> MINIMUM <grant> (observed, then verified)` for the **same** outcome — and all three print `=> MINIMUM <grant> (ladder fallback)` for a materially different one, where OBSERVE under-predicted and the ladder repaired it. Keying on the word `MINIMUM` alone merges the arm that proves synthesis works with the arm that proves it failed, so the record carries `verifiedBy: synth | ladder`.
+
+macOS was the last driver without a ladder, and the cost was an absent catalog entry rather than a wide one: `collate.mjs` drops every non-`MINIMUM` verdict, so each terminal `UNDER-PREDICTED` left its package with no entry and therefore on the restrictive base profile at install time — a broken install, in the one direction this project forbids. Measured at the time of the port: 5 of 64 darwin-arm64 records, against zero records on any platform carrying `verifiedBy: ladder`. All three drivers now walk the same three rungs, and the winning rung **descends** — a rung is a bundle (rung 0 alone grants `deps` + `project` + `userHome`), so publishing one un-narrowed would hand out three capabilities because one arm passed.
 
 | driver says | record verdict | grant |
 | --- | --- | --- |
 | `=> VERIFIED <g>` / `=> MINIMUM <g> (observed, then verified)` | `MINIMUM`, `verifiedBy: synth` | `<g>` |
 | `=> MINIMUM <g> (ladder fallback)` | `MINIMUM`, `verifiedBy: ladder` | `<g>` |
-| `=> UNDER-PREDICTED` (macOS, which has no ladder) | `UNDER-PREDICTED` | none — nothing was verified |
+| `=> UNDER-PREDICTED` (macOS, once every rung has failed) | `UNDER-PREDICTED` | none — nothing was verified |
 | `=> BROKEN-WITHOUT-JAIL-TOO`, `=> NO-STATE-PASSED`, `=> VOID` | the same word | none |
 | nothing at all | `HARNESS-ERROR` / `HARNESS-TIMEOUT` | none |
 

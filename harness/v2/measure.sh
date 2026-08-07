@@ -1196,13 +1196,12 @@ if [ "$SRC" -eq 0 ]; then
     # needs no joint arm because the single leave-one-out arm IS the joint case. `record.mjs` keeps
     # the wider synthesized value for N>=2 unless it sees `JOINT-NARROW VERIFIED`.
     #
-    # ⛔ THREE OUTCOMES, NOT TWO — the same rule the loop above is built around, and the reason this
-    # is not a byte-for-byte copy of the macOS arm. macOS spells it `if verify …; then VERIFIED; else
-    # FAILED; fi`, which reads a VOID arm (rc 2, the override did not engage, nothing was measured) as
-    # a genuine joint failure. That direction is merely conservative here — a VOID joint arm keeps the
-    # wide grant either way — so it costs no correctness, but it files a measurement that never
-    # happened as evidence that the capabilities do not drop together. `INCONCLUSIVE` is the honest
-    # label and `record.mjs` already parses it; only macOS still needs this fix.
+    # ⛔ THREE OUTCOMES, NOT TWO — the same rule the loop above is built around. A VOID arm (rc 2: the
+    # override did not engage, so nothing was measured) read as a genuine joint FAILURE is merely
+    # conservative — the wide grant is kept either way — but it files a measurement that never happened
+    # as evidence that the capabilities do not drop together. `INCONCLUSIVE` is the honest label.
+    # macOS spelled this `if verify …; then VERIFIED; else FAILED; fi` and now carries the same `case`;
+    # Windows distinguishes VOID from TIMED-OUT in its own equivalent. All three branch three ways.
     DROPPED_N=$(printf '%s\n' $NARROWER | grep -c . || true)
     if [ "${DROPPED_N:-0}" -ge 2 ]; then
       JOINT=$(node -e '

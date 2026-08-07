@@ -180,7 +180,10 @@ test('⭑ DRIFT GUARD: the driver emits the exact sentences these cases pin', ()
   // case would keep passing while the real descent went unparsed — the same failure, one level up.
   const emits = [
     /OVER-PREDICTED — the strictly narrower \$\{JSON\.stringify\(sub\)\} also verifies; '\$\{name\}' was not needed/,
-    /=> MINIMAL — every capability in \$\{JSON\.stringify\(GRANT\)\} is independently necessary/,
+    // ⛔ `g0`, NOT `GRANT`. `0f1aeecf2` made the Windows descent a FUNCTION taking the grant to
+    // descend from, precisely so the ladder path could call it — and this guard, whose whole job is
+    // to notice that kind of drift, went red and stayed red instead of being updated with it.
+    /=> MINIMAL — every capability in \$\{JSON\.stringify\(g0\)\} is independently necessary/,
     /=> DESCENT INCOMPLETE — no capability dropped, but \$\{inconclusive\.join\(' '\)\} was never measured/,
     /=> JOINT-NARROW VERIFIED \$\{JSON\.stringify\(joint\)\}/,
     /INCONCLUSIVE for '\$\{name\}' — the arm was VOID/,

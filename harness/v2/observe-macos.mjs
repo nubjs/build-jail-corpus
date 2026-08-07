@@ -589,18 +589,32 @@ console.log(`  distinct: ${denials.size}`);
 // READ SCOPES ARE DELIBERATELY NOT SYNTHESIZED FROM THE READ CENSUS. Every process reads dyld's
 // shared cache and its own binary, so a read-derived grant would be `read:"disk"` for every package
 // on the platform — which is the widest grant available and would make the read axis meaningless.
-// ⛔ AND ON THIS PLATFORM NOTHING ESCALATES IT. This comment used to claim the driver "escalates the
-// read axis explicitly" when the write+network grant fails to verify. MEASURED: `measure.sh:1289`
-// and `measure-windows.mjs:1274` do carry a `read:"disk"` rung, in the bounded LADDER fallback —
-// `measure-macos.sh` has no ladder and no read rung anywhere, which `record.mjs` already states in
-// as many words ("it has no grant, because that driver has no ladder to repair one with"). So an
-// UNDER-PREDICTED is TERMINAL here where the other two platforms would walk a rung and might still
-// reach a MINIMUM. That asymmetry is deliberate; the sentence describing an escalation that does not
-// exist was not. Prose near a definition states intent, and only the call sites state behaviour.
+// ⛔ NOTHING IN THIS FILE ESCALATES IT EITHER. An earlier revision claimed the driver "escalates the
+// read axis explicitly" when the write+network grant fails to verify. It does not: `read` is widened
+// only by the DRIVER's bounded ladder, whose middle rung is
+// `{"write":{deps,project,userHome},"read":"disk","network":true}` — carried by `measure.sh`,
+// `measure-windows.mjs`, and now `measure-macos.sh` too. Synthesis emits no `read` key on any
+// platform.
+//
+// ⛔ AND THE SENTENCE THAT REPLACED IT WAS ALSO WRONG, WHICH IS WHY THE CORRECTION IS SPELT OUT
+// RATHER THAN QUIETLY DROPPED. It said macOS had no ladder and that "that asymmetry is deliberate".
+// The absence was real; the deliberateness was invented. MEASURED against the history: the two
+// commits that created `measure-macos.sh` (`25e6433e`, `34d79627`) mention ladder, fallback or rung
+// NOWHERE in their messages, and the only ladder-adjacent text in either diff is the line criticising
+// a v1 record as "the output of a blind pass/fail ladder" — which appears verbatim in `measure.sh`
+// and `measure-windows.mjs` as well, both of which HAVE a ladder. A criticism every driver shares
+// cannot be the reason one of them lacked the fallback.
+//
+// It was an omission, and it cost catalog entries rather than merely tidiness: `collate.mjs` drops
+// every non-`MINIMUM` verdict, so each terminal `UNDER-PREDICTED` left its package with no entry and
+// therefore on the restrictive base profile at install time — a BROKEN install, in the one direction
+// this project forbids. MEASURED on the committed corpus at the time of the port: 5 of 64
+// darwin-arm64 records, against zero records on any platform carrying `verifiedBy: "ladder"`. The
+// ladder is ported and its winning rung descends, so the asymmetry is gone.
 //
 // What the census above is for, then, is telling a human WHY a verification failed and whether the
-// reads were project-local or genuinely disk-wide — the input to a HUMAN decision, not to an
-// automatic escalation this driver does not perform.
+// reads were project-local or genuinely disk-wide — the input to a HUMAN decision, and to reading a
+// ladder repair afterwards, not to an automatic escalation this file performs.
 const g = {};
 if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
 if (w.project) g.write = { ...(g.write ?? {}), project: true };
