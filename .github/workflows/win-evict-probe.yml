@@ -1,19 +1,39 @@
-# The both-directions proof for the Windows driver's per-arm store eviction.
+# The proof for the Windows driver's per-arm store eviction: R0 primes, R2 must refuse a too-narrow
+# grant, R3 must still accept the true minimum, P checks the tooling sparing survives.
 #
-# ⛔ THE NEGATIVE CONTROL IS THE DELIVERABLE, NOT THE POSITIVE ONE. An eviction that is too NARROW
-# reintroduces the false PASS — an arm succeeding at a grant narrower than the package needs, i.e. an
-# UNDER-GRANT, which breaks real users' installs. A positive control cannot detect that: a driver
-# that evicts nothing at all passes every positive control there is. So this runs the recorded
-# three-row experiment, and row R1 exists purely to prove R2/R3 have teeth — it drives a copy of the
-# driver mutated back to ROOT-ONLY eviction and EXPECTS the false pass. If R1 behaves like R2, the
-# control is not exercising the eviction and neither row means anything.
+# ⛔⛔ THE R1 "TEETH CONTROL" WAS RETIRED 2026-08-07 AFTER BEING MEASURED NON-DISCRIMINATING HERE.
+# Recorded so nobody re-derives it as an oversight and adds it back.
+#
+# R1 drove a copy of the driver mutated back to ROOT-ONLY eviction and REQUIRED a false PASS, so that
+# deep eviction could be shown to be the thing preventing one. It never produced that false pass.
+# MEASURED on two venues — run 31132145179 on `windows-latest`, and the same rows re-run on the
+# corpus VM — R1 and R2 came back IDENTICAL at `rc=1 artifacts=6/6 missing=0`, differing only in
+# `EVICT 1` vs `EVICT 30`.
+#
+# The reason is mechanical, not a gap in the experiment, and no amount of retrying or of picking
+# another package could fix it: both arms fail on a WRITE refused at the grant boundary
+# (`EPERM … mkdir …\binary-install@0.1.1-<hash>\…\bin`), and that refusal fires whether or not the
+# entry was evicted. Eviction DEPTH is therefore not the discriminating variable on win32, so the
+# experiment has no positive control available to it. A control that cannot distinguish its two arms
+# proves nothing about either, and keeping it would have meant gating win32 records on a check that
+# was structurally incapable of failing — the exact defect class this corpus keeps finding.
+#
+# ⇒ WHAT REPLACED IT. The question worth answering was never "is deep eviction load-bearing" but
+# "can the win32 verify arm detect an under-grant", and `falsify.mjs` answers that directly, from
+# measured arms rather than a synthetic eviction manipulation, on the same instrument Linux and macOS
+# use. The win32 case there is grounded on rows R0/R3 and R1/R2 of this very run.
+#
+# ⛔ AND THE VERDICT USED TO BE UNABLE TO FAIL ON R1. The R1 check was an `echo`'d `!!` warning with
+# no `FAIL=1`, so a GREEN run never meant the criterion had been met — while run 31132145179 was
+# simultaneously marked RED by an unrelated apostrophe in a later step. The badge inverted in both
+# directions at once. Every remaining row below sets `FAIL=1`; keep it that way.
 #
 # Branch-scoped and no PR: CI is the only Windows path here, and `workflow_dispatch` is inert until a
 # workflow file reaches the default branch, so a push trigger is the only way to iterate on this one.
 #
 # ⛔ SEQUENTIAL, AND THE ROW ORDER IS LOAD-BEARING. Four concurrent Windows workers were measured to
-# stall at process creation with zero writes; and R1's false pass can only exist once R0 has left
-# `binary-install`'s store entry POPULATED, which is precisely what a replay relinks.
+# stall at process creation with zero writes, and R2/R3 are only meaningful once R0 has left
+# `binary-install`'s store entry POPULATED.
 name: win-evict-probe
 
 on:
@@ -147,21 +167,6 @@ jobs:
             *) echo "⛔ no OVERRIDDEN banner — this binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
           esac
 
-      # One substitution, and it must be VERIFIED TO HAVE APPLIED: a silent no-op here would make R1
-      # a second copy of R2 — two agreeing rows that prove nothing.
-      - name: Build the ROOT-ONLY control copy of the driver
-        shell: bash
-        run: |
-          set -eu
-          node -e '
-            const fs = require("fs");
-            const s = fs.readFileSync("harness/v2/measure-windows.mjs", "utf8");
-            const needle = "const prefixes = [...new Set([PKG, ...CLOSURE]";
-            if (!s.includes(needle)) { console.error("⛔ MUTATION TARGET ABSENT — the control cannot be built"); process.exit(1); }
-            fs.writeFileSync("harness/v2/measure-windows-ROOTONLY.mjs", s.replace(needle, "const prefixes = [...new Set([PKG]"));
-          '
-          diff harness/v2/measure-windows.mjs harness/v2/measure-windows-ROOTONLY.mjs || true
-
       - name: R0 — prime the store at the wide grant
         shell: bash
         run: |
@@ -185,15 +190,6 @@ jobs:
             console.log(`store=${s} entries=${n}`);
             if (n < 1) { console.error("⛔ the global store is empty or absent — the eviction has nothing to act on and the experiment is INERT"); process.exit(1); }
           '
-
-      - name: R1 — the teeth control (ROOT-ONLY eviction; a false PASS is EXPECTED)
-        shell: bash
-        run: |
-          set +e
-          node harness/v2/measure-windows-ROOTONLY.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
-            --at-grant '{"network":true}' > /tmp/r1.log 2>&1
-          echo "R1_EXIT=$?" >> "$GITHUB_ENV"
-          cat /tmp/r1.log
 
       - name: R2 — THE NEGATIVE CONTROL (transitive eviction; must be INSUFFICIENT)
         shell: bash
@@ -302,7 +298,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          for r in R0 R1 R2 R3 P; do
+          for r in R0 R2 R3 P; do
             v="${r}_EXIT"; f="/tmp/$(echo "$r" | tr A-Z a-z).log"
             printf '%-3s exit=%-4s %s\n' "$r" "${!v:-?}" "$(grep -E '=> ' "$f" 2>/dev/null | tail -1 | sed 's/^ *//')"
           done
@@ -319,8 +315,6 @@ jobs:
           grep -q '=> SUFFICIENT' /tmp/r0.log   || { echo "⛔ R0 did not prime (expected SUFFICIENT)"; FAIL=1; }
           grep -q '=> INSUFFICIENT' /tmp/r2.log || { echo "⛔ R2 IS THE DELIVERABLE AND IT DID NOT FAIL — the eviction does not stop the replay"; FAIL=1; }
           grep -q '=> SUFFICIENT' /tmp/r3.log   || { echo "⛔ R3 did not verify at the true minimum — the eviction may be over-broad"; FAIL=1; }
-          grep -q '=> SUFFICIENT' /tmp/r1.log \
-            || echo "!! R1 (root-only) did NOT falsely pass, so R2 proves nothing about the eviction on this package. Find another transitive case before believing the control."
           if grep -q "Cannot find module" /tmp/p.log; then echo "⛔ positive control hit a missing module — the tooling sparing did not hold"; FAIL=1; fi
           exit $FAIL
 

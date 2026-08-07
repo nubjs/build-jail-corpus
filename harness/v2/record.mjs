@@ -87,6 +87,8 @@ export function parseDriverLog(log) {
     jailRoot: null,
     observeUser: null,
     ciChild: null,
+    cwdUnplaceableWrites: null,
+    cwdResolved: null,
     nubBinary: null,
   };
 
@@ -182,6 +184,14 @@ export function parseDriverLog(log) {
     // PROVEN, not merely suspected. macOS-only today — the cause is posix_spawn addchdir_np.
     if (/CWD-UNOBSERVED/.test(l)) out.notes.push('cwd-unobserved');
     if (/Severity: STALE/.test(l)) out.notes.push('cwd-stale');
+    // ⛔ WHICH WRITES THE GUARD COULD NOT PLACE, BY NAME. The grant covers them with `deps`+`project`
+    // — a calibrated guess, not a measurement. If a macOS install ever breaks because one landed
+    // somewhere else, the fix is a single catalog line, but only if the record says WHICH paths were
+    // in doubt; otherwise the next person must re-measure to learn it and the run is long gone.
+    const up = /CWD-UNPLACEABLE-WRITES\s+(\[.*\])\s*$/.exec(l);
+    if (up) { try { out.cwdUnplaceableWrites = JSON.parse(up[1]); } catch { out.notes.push('cwd-unplaceable-unparsable'); } continue; }
+    const cr = /CWD-RESOLVED\s+(\d+)/.exec(l);
+    if (cr) { out.cwdResolved = Number(cr[1]); continue; }
     // ⛔ THE ARMS FOR THIS PACKAGE COULD NOT HAVE FAILED, so a green one is not evidence. Either the
     // package ships its build output prebuilt — making the artifact gate's manifest the tarball's own
     // file set, present in every arm before any script runs — or its script ends in a status swallow
@@ -475,6 +485,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       // Whether the CI scrub reached the traced CHILD. Null means the driver never checked, which is
       // distinct from "clean" and must not be read as one.
       ciChild: p.ciChild ?? null,
+      // The cwd guard's own accounting: how many relative paths were PLACED against the package dir
+      // and confirmed by an artifact, and which writes remain unplaceable. Null means the driver did
+      // not report — distinct from zero, and must not be read as "none".
+      cwdResolved: p.cwdResolved ?? null,
+      cwdUnplaceableWrites: p.cwdUnplaceableWrites ?? null,
       // ⛔ WHICH BINARY, WHICH `nubGitSha` PROVABLY CANNOT ANSWER. Two binaries from the SAME commit
       // behave differently when their feature sets differ. MEASURED 2026-08-06: a `--release` build
       // of the right commit, missing only `build-jail-catalog-override`, VOIDed four measurement

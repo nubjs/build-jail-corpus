@@ -18,6 +18,14 @@ for c in dtrace sudo npm dscl sw_vers csrutil chown; do
   printf '#!/bin/sh\nexit 0\n' > "$BIN/$c"; chmod +x "$BIN/$c"
 done
 printf '#!/bin/sh\necho /Users/%s\n' "$(id -un)" > "$BIN/dscl"; chmod +x "$BIN/dscl"
+# ⛔ SYNTAX FIRST, AND THIS PROBE DID NOT USED TO CHECK IT. It greps the driver's OUTPUT for
+# "unbound variable", so a SYNTAX error — which bash reports in different words — sailed straight
+# through and the probe printed ok. Verified by appending a deliberate `if [ then`: the probe passed.
+# A gate has to be shown able to fail on each fault class it claims, not just the one it was written
+# for. `bash -n` parses without executing, which is exactly the missing class.
+if ! syn="$(bash -n "$DRIVER" 2>&1)"; then
+  echo "FAIL — the driver does not parse:"; printf '%s\n' "$syn" | head -3; exit 1
+fi
 out="$(PATH="$BIN:$PATH" bash "$DRIVER" some-pkg 1.0.0 2>&1)"; rc=$?
 if printf '%s' "$out" | grep -qE 'unbound variable|command not found: *$'; then
   echo "FAIL — the driver has an unbound-variable ordering fault:"

@@ -113,14 +113,18 @@ test('an absent package directory fails loudly rather than passing vacuously', (
 // publishes a grant for a package whose install was genuinely broken.
 
 test('the same shortfall digests identically — what lets the driver call a shortfall invariant', () => {
-  // ⛔ NOT a `.o.d`. The gate deliberately skips the shorter-but-non-empty comparison for `.d` files,
-  // whose size tracks the length of the header paths they record rather than anything about the
-  // build. This test is about DIGEST STABILITY and needs a file whose size still carries signal; an
-  // object file does. (It used `.o.d` originally because that is the shape the real lmdb-store case
-  // had — which is exactly the shape now excused, so the fixture had to move.)
-  const obs = tree('obs-sigsame', { 'index.js': 'x', 'build/out.o': 'FULL-OBJECT-FILE' });
-  const a = gate(obs, tree('arm-sigsame-a', { 'index.js': 'x', 'build/out.o': 'SHORT' }));
-  const b = gate(obs, tree('arm-sigsame-b', { 'index.js': 'x', 'build/out.o': 'SHORT' }));
+  // ⛔ THE FIXTURE HAS NOW MOVED TWICE, FOR THE SAME REASON BOTH TIMES, SO IT HAS MOVED SOMEWHERE
+  // STABLE. This test is about DIGEST STABILITY and needs a file whose size still carries signal.
+  // It began as a `.o.d` — the real lmdb-store shape — which R4 then excused; it moved to a `build/`
+  // `.o`, which R4 has now also excused (see the reversal below). Both times the fixture was a file
+  // the gate had just stopped comparing, which makes the test vacuous rather than wrong.
+  //
+  // `build/Release/*.node` is the linked addon: the ONE file R4 states it must never excuse, at any
+  // width. Anchoring here means a future exclusion cannot quietly hollow this test out without
+  // failing the explicit truncated-addon controls first.
+  const obs = tree('obs-sigsame', { 'index.js': 'x', 'build/Release/fixture.node': 'FULL-LINKED-ADDON' });
+  const a = gate(obs, tree('arm-sigsame-a', { 'index.js': 'x', 'build/Release/fixture.node': 'SHORT' }));
+  const b = gate(obs, tree('arm-sigsame-b', { 'index.js': 'x', 'build/Release/fixture.node': 'SHORT' }));
   assert.equal(a.code, 1, `the arm must still FAIL the gate — the digest is not a pass:\n${a.out}`);
   const sig = (o) => /shortfall=(\w+)/.exec(o)?.[1];
   assert.ok(sig(a.out), `line 1 must carry a shortfall digest:\n${a.out}`);
@@ -226,7 +230,22 @@ test('the real lmdb-store shape passes: shorter toolchain files, identical addon
   assert.match(r.out, /missing=0 /, `and report a clean manifest:\n${r.out}`);
 });
 
-for (const f of ['build/config.gypi', 'build/lmdb-store.target.mk', 'build/Makefile']) {
+// ⛔ THE NESTED `.target.mk` IS THE ONE THE IMPLEMENTATION MISSED, AND IT IS NOT AN EDGE CASE.
+// R4 names `*.target.mk`, but the pattern required the file DIRECTLY under `build/`. Any package
+// that vendors a dependency emits its sub-targets at `build/deps/<lib>/<lib>.target.mk` — which is
+// most real native builds — so they fell through and were size-compared.
+//
+// MEASURED on `cpu-features@0.0.10`, darwin-arm64: `rc=0`, all 156 artifacts PRESENT, and the arm
+// scored UNDER-PREDICTED on three files that were merely smaller —
+//     build/deps/cpu_features/cpu_features.target.mk  6315B < 6553B
+//     build/gyp-mac-tool                             30502B < 30515B
+//     build/Release/obj.target/cpufeatures/src/binding.o  314200B < 314288B
+// `gyp-mac-tool` is emitted only by gyp's mac generator, which is why linux never surfaced it; a
+// `.o` embeds the absolute path of every translation unit, so its size tracks path length exactly
+// as a `.d` does. All three are gyp recording the invocation, not the package's output.
+for (const f of ['build/config.gypi', 'build/lmdb-store.target.mk', 'build/Makefile',
+  'build/deps/cpu_features/cpu_features.target.mk', 'build/gyp-mac-tool',
+  'build/Release/obj.target/cpufeatures/src/binding.o']) {
   // Parametrised deliberately and narrowly: these three share ONE mechanism (a gyp-written record of
   // the invocation) and one rule, so asserting them separately would be three copies of one claim.
   // The per-file reasoning lives in `artifact-gate.mjs`; what varies here is only the path.
@@ -269,14 +288,39 @@ test('⛔ the excusal is scoped to `build/` — a `.d` shipped at the package ro
   assert.equal(r.code, 1, `only node-gyp's build/ output is excused, not every .d:\n${r.out}`);
 });
 
-test('⛔ an `.o` object file keeps its size comparison — only the invocation records are excused', () => {
-  // Measured on the same lmdb-store run: several `.o` files DIFFER across arms (33240 vs 33400),
-  // because the embedded paths differ — but they are real compiler output and their size carries
-  // signal, so they stay compared. Today they differ in the direction the gate ignores; that is a
-  // reason to watch them, not a reason to excuse them.
+// ⛔ REVERSED 2026-08-06, BY THE EVENT THE PREVIOUS RULE ASKED US TO WATCH FOR — recorded rather
+// than quietly replaced, because the earlier decision was deliberate and correct on its evidence.
+//
+// This test used to assert the OPPOSITE: that an `.o` keeps its size comparison. Its reasoning was
+// that on lmdb-store several `.o` files differed across arms (33240 vs 33400) from embedded paths,
+// but "today they differ in the direction the gate ignores; that is a reason to WATCH them, not a
+// reason to excuse them." That is exactly what happened. On `cpu-features@0.0.10`, darwin-arm64, an
+// `.o` differed by 88 B in the direction the gate CATCHES — arm smaller than reference — on a build
+// with `rc=0` and all 156 artifacts present. Same mechanism, opposite sign, and the outcome was a
+// false `UNDER-PREDICTED`.
+//
+// So the excusal now covers `.o` SIZE, and the safety argument is structural rather than statistical:
+// a denied write that truncated an object file fails the LINK, so `build/Release/*.node` is then
+// ABSENT — and absence is checked for every file, toolchain-generated included. The two controls
+// below are what keep that true, and they are the reason this is not a widening on resemblance.
+test('⛔ a ZERO-BYTE `.o` still FAILS — the excusal covers shorter-by-path-length, never empty', () => {
   const obs = tree('obs-obj', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': 'X'.repeat(33400) });
-  const r = gate(obs, tree('arm-obj', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': 'X'.repeat(33240) }));
-  assert.equal(r.code, 1, `an object file must not be excused as a toolchain record:\n${r.out}`);
+  const r = gate(obs, tree('arm-obj', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': '' }));
+  assert.equal(r.code, 1, `an empty object file is a real shortfall, not a path-length artifact:\n${r.out}`);
+});
+
+test('⛔ an ABSENT `.o` still FAILS — excusing size never excuses omission', () => {
+  const obs = tree('obs-objabs', { 'index.js': 'x', 'build/Release/obj.target/src/misc.o': 'X'.repeat(33400) });
+  const r = gate(obs, tree('arm-objabs', { 'index.js': 'x' }));
+  assert.equal(r.code, 1, `a compile that never ran leaves no object file:\n${r.out}`);
+});
+
+test('⛔ the `.o` excusal is scoped to `build/` — an object shipped in the package keeps its check', () => {
+  // Same scoping argument as `.d`: a prebuilt `.o` shipped in the tarball is a real artifact nobody
+  // generated at install time, so its size is signal.
+  const obs = tree('obs-objscope', { 'index.js': 'x', 'vendor/prebuilt.o': 'REAL-SHIPPED-OBJECT' });
+  const r = gate(obs, tree('arm-objscope', { 'index.js': 'x', 'vendor/prebuilt.o': 'TRUNC' }));
+  assert.equal(r.code, 1, `only node-gyp's build/ output is excused, not every .o:\n${r.out}`);
 });
 
 test('an empty reference refuses to gate rather than reporting success', () => {
@@ -284,4 +328,45 @@ test('an empty reference refuses to gate rather than reporting success', () => {
   const r = gate(obs, tree('arm-forempty', { 'index.js': 'x' }));
   assert.equal(r.code, 3, `no reference must be its own outcome, not a pass:\n${r.out}`);
   assert.match(r.out, /NO-REFERENCE/);
+});
+
+// ⛔ THE WIDENED EXCLUSION MUST NOT REACH THE LINKED OUTPUT — the constraint R4 states on itself.
+// Broadening `.target.mk` to any depth and admitting `.o` moves the boundary closer to
+// `build/Release/*.node`, so the guard against it is re-asserted against the WIDENED list rather
+// than assumed to still hold from the narrower one. Without this, a regexp that accidentally
+// matched `build/Release/foo.node` would pass every other test in this file.
+test('⛔ a truncated addon still FAILS alongside the newly-excused nested and object files', () => {
+  const obs = tree('obs-r4wide', {
+    'index.js': 'x',
+    'build/deps/cpu_features/cpu_features.target.mk': 'x'.repeat(6553),
+    'build/gyp-mac-tool': 'x'.repeat(30515),
+    'build/Release/obj.target/cpufeatures/src/binding.o': 'x'.repeat(314288),
+    'build/Release/cpufeatures.node': 'x'.repeat(4096),
+  });
+  const r = gate(obs, tree('arm-r4wide', {
+    'index.js': 'x',
+    'build/deps/cpu_features/cpu_features.target.mk': 'x'.repeat(6315),
+    'build/gyp-mac-tool': 'x'.repeat(30502),
+    'build/Release/obj.target/cpufeatures/src/binding.o': 'x'.repeat(314200),
+    'build/Release/cpufeatures.node': 'x'.repeat(64),
+  }));
+  assert.equal(r.code, 1, `the addon shortfall must still gate:\n${r.out}`);
+  assert.match(r.out, /cpufeatures\.node \(64B < 4096B\)/, `and must name it:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `EXACTLY one — the three excused files must not be counted:\n${r.out}`);
+});
+
+// ⛔ A ZERO-BYTE OBJECT FILE IS NOT A PATH-LENGTH ARTIFACT. `.o` size tracks embedded paths, which
+// can only ever make it shorter by a few dozen bytes; emptiness is the truncated/denied-write shape
+// and must still fail. Same reasoning as the `.d` case above, re-asserted because `.o` is newly
+// excused and an exclusion that swallowed a zero-byte file would hide exactly what the gate is for.
+test('⛔ a ZERO-BYTE `.o` still FAILS — the excusal covers shorter, never empty', () => {
+  const obs = tree('obs-r4zero', {
+    'index.js': 'x',
+    'build/Release/obj.target/cpufeatures/src/binding.o': 'x'.repeat(314288),
+  });
+  const r = gate(obs, tree('arm-r4zero', {
+    'index.js': 'x',
+    'build/Release/obj.target/cpufeatures/src/binding.o': '',
+  }));
+  assert.equal(r.code, 1, `an empty object file is a real shortfall:\n${r.out}`);
 });

@@ -21,7 +21,46 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const [PKG, VER] = positional;
 if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [--nub exe] [--root dir]'); process.exit(2); }
 
-// ⛔⛔ STILL HARD-STOPPED — BUT NO LONGER FOR THE EVICTION. The transitive closure sweep is ported
+// ── THE `NUB_V2_WINDOWS_EVICTION_VERIFIED` HARD STOP WAS LIFTED 2026-08-07. ────────────────────
+//
+// It blocked every jailed arm because every jailed arm failed at every grant on a read of the
+// package's OWN entry point — `EPERM: operation not permitted, open '…\@apollo\rover\install.js'`.
+// Both halves of that are now settled, so the guard is deleted rather than defaulted.
+//
+// 1. THE READ DENIAL IS FIXED, in nub. `4bd4687521` makes the linker COPY instead of hardlinking for
+//    a Windows-jailed install: a hard link is a second name for an existing file OBJECT and Windows
+//    attaches the security descriptor to the object, so a store file linked into the jail kept the
+//    descriptor it was born with and the jail's inheritable grant never reached it. MEASURED
+//    red→green on two venues. On `windows-latest` (`win-jail-copy-verify` runs 31128469258 and
+//    31127907595): pre-fix `658e49ac36` gives rc=1 with that EPERM and 5 hard-link names; the fix
+//    gives rc=0 and ONE name, i.e. a private copy. Independently on the corpus VM, interleaved to
+//    rule out ordering, with the binaries identified by sha256 rather than by path or mtime:
+//    pre-fix rc=1 6/7 artifacts HARDLINKED, `sandbox/integration` rc=0 7/7 COPY, twice each.
+//
+// 2. THE PROOF OBLIGATION MOVED, because the experiment it named was measured non-discriminating
+//    here. The old text required `win-evict-probe`'s R1 to produce a FALSE PASS under a root-only
+//    eviction. It never does on win32 — R1 and R2 come back identical at `rc=1 artifacts=6/6`,
+//    differing only in `EVICT 1` vs `EVICT 30`, because both fail on a WRITE refused at the grant
+//    boundary and that refusal fires whether or not the entry was evicted. Eviction DEPTH is simply
+//    not the discriminating variable on this platform, so no amount of retrying could have satisfied
+//    the criterion. R1 is retired in the workflow with the measurement recorded there.
+//
+//    What replaced it is stronger and is the instrument the other two platforms already use:
+//    `falsify.mjs` now carries a win32 case, and it is verified in BOTH directions — against the
+//    real driver `wrong-cold` is INSUFFICIENT with the refusal and the ran-evidence both seen while
+//    `right` is SUFFICIENT (exit 0), and against a driver deliberately mutated to report every arm
+//    ok it raises the P0 and exits 1. Plus `501c11d2`, which turns the side-effects memo off in each
+//    arm's `.npmrc` as both POSIX drivers already did — measured masking a refused artifact into a
+//    too-narrow arm at `7/6`, identical to the wide-grant arm, with only `rc` between it and a false
+//    pass.
+//
+// ⛔ WHAT IS STILL OPEN, AND IT GATES PUBLISHING RATHER THAN RUNNING: the Python-bytecode
+// suppression `measure.sh` carries is still absent here, and whether win32 needs it is UNRESOLVED —
+// see the note in the arm environment below. Run the driver freely; do not publish a native-build
+// record until that is settled.
+//
+// Historical note, kept because it is the reason this file was blocked for so long: the transitive
+// closure sweep is ported
 // (see `evictClosure`) and MEASURED ACTIVE on a real runner: win-evict-probe run 31107020153 logged
 // `EVICT   30 store entries removed, 5 spared as nub tooling` per arm, against a 20-entry node-gyp
 // tool closure of which ZERO declare a lifecycle script. What is missing is the PROOF, and the
@@ -45,26 +84,10 @@ if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [-
 // alone would be exactly the shape this project treats as inadmissible: an eviction that is too
 // narrow passes every positive control there is.
 //
-// TO LIFT THIS: fix the read denial, then re-run `.github/workflows/win-evict-probe.yml` on
-// `probe/win-evict` and require R1 SUFFICIENT (false pass under root-only), R2 INSUFFICIENT, R3
-// SUFFICIENT. The workflow already asserts all three and fails otherwise. ⛔ Setting this variable
-// to get a green run defeats the only thing it is for.
-//
-// ⛔ THE GUARD IS ABOUT JAILED ARMS, SO `--observe-only` IS OUT OF ITS SCOPE — and narrowing it is
-// not a way round it. Everything above is a statement about a VERIFY arm falsely passing because a
-// store entry replayed. An observe-only run walks no ladder, evicts nothing and produces no verify
-// arm at all; its output is explicitly a hypothesis (`OBSERVE-ONLY`, which `collate.mjs` keeps out
-// of the catalog). There is no verdict for a stale store to corrupt, so there is nothing here for
-// the guard to protect. Any run that CAN reach a jailed arm still stops.
+// `--observe-only` was always outside the guard's scope and still needs no special handling: it
+// walks no ladder and produces no verify arm, so its output is explicitly a hypothesis
+// (`OBSERVE-ONLY`, which `collate.mjs` keeps out of the catalog).
 const OBSERVE_ONLY = argv.includes('--observe-only');
-if (!OBSERVE_ONLY && !process.env.NUB_V2_WINDOWS_EVICTION_VERIFIED) {
-  console.error('!! measure-windows.mjs is DISABLED: the transitive store eviction is ported and');
-  console.error('   measured active, but UNPROVEN -- every Windows arm fails at every grant on an');
-  console.error('   EPERM reading the package\'s own install script, so no arm can falsely pass and');
-  console.error('   the negative control has nothing to detect. See the note above this check. Any');
-  console.error('   win32-x64 v2 record produced before this guard is SUSPECT and must be re-measured.');
-  process.exit(3);
-}
 
 // DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
 // ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers
@@ -334,6 +357,40 @@ const NPM_CACHE = path.join(ROOT, 'npm-cache');
 const OBS_TMP = path.join(ROOT, 'tmp');
 fs.mkdirSync(OBS_TMP, { recursive: true });
 
+// ⛔ `PYTHONDONTWRITEBYTECODE` IS DELIBERATELY *NOT* SET HERE YET, AND THE ABSENCE IS A MEASUREMENT
+// RATHER THAN AN OVERSIGHT. `measure.sh` sets it in 8 places and `measure-macos.sh` in 4, because on
+// macOS 39 of 39 `userHome` writes on a native build were `__pycache__`/`.pyc` beside node-gyp's
+// bundled gyp — so the synthesized grant carried `write.userHome`, the PERSISTENCE capability,
+// manufactured entirely by CPython. Mirroring that here was the obvious move.
+//
+// MEASURED on win32 instead, by re-parsing a retained archive (win-bytecode-probe run 31134429426,
+// `@pulumi/datadog@0.18.9` on `windows-latest`):
+//
+//   events touching `__pycache__` or `.pyc` anywhere in the trace   0
+//   writes under the home root                                      all `C:\Users\runneradmin\.pulumi\…`
+//     — `plugins\resource-datadog-v0.18.9\pulumi-resource-datadog.exe`, `logs\…`, `.cachedVersionInfo`
+//
+// So this package's `write.userHome` is its install script fetching its own plugin payload into
+// `~/.pulumi`. A REAL need, not a bytecode artefact, and suppressing bytecode would not narrow it by
+// one capability.
+//
+// The macOS MECHANISM also cannot arise here as stated, for a layout reason: node-gyp's `gyp/pylib`
+// sits at `C:\hostedtoolcache\windows\node\<ver>\x64\…` on the runner and `C:\Program Files\nodejs\…`
+// on the corpus VM. Neither is under the home, so bytecode written beside it classifies
+// `outside`/`systemfs` and can never reach the `userHome` bucket that made this a security finding.
+//
+// ⛔ WHAT IS NOT ESTABLISHED, SO THIS IS NOT A CLOSED QUESTION: no win32 package has yet been traced
+// that ACTUALLY runs node-gyp's Python. `@pulumi/datadog` does not — its trace holds five process
+// events (`node.exe`, `cmd.exe`, `pulumi.exe`) and no `python.exe` — and `cpu-features@0.0.10`, the
+// package the macOS finding came from, returns `BROKEN-WITHOUT-JAIL-TOO` on `windows-latest` because
+// its unjailed rebuild fails there. Until a compiling package is traced, "win32 emits no bytecode"
+// is supported only for the non-compiling case plus the layout argument above.
+//
+// ⇒ Do not publish a native-build win32 record until that trace exists. Setting the variable is
+// cheap and would align OBSERVE with production — nub already sets it inside the jail via
+// `BUILD_JAIL_BASELINE_ENV` in `crates/nub-sandbox/src/compiler/preset.rs`, so an unset OBSERVE
+// over-predicts relative to what production actually does — but setting it BEFORE that trace exists
+// destroys the evidence needed to tell which bucket win32's bytecode lands in.
 const obsEnv = {
   ...process.env,
   npm_config_cache: NPM_CACHE,

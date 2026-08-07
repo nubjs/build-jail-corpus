@@ -185,11 +185,32 @@ if (!got) missing.push('<package absent>');
 // publishes a grant SMALLER than the package needs — the one direction this project forbids. So
 // `binding.Makefile` is deliberately absent: it was measured IDENTICAL (118 B in both arms), and an
 // exclusion with no evidence behind it is exactly the widening this comment is warning about.
+//
+// ⛔ THE `.target.mk` PATTERN WAS NARROWER THAN R4'S OWN WORDING, AND THAT COST A FALSE VERDICT.
+// R4 names `*.target.mk`; `build\/[^/]+\.target\.mk$` required the file DIRECTLY under `build/`. gyp
+// emits a sub-target per vendored dependency at `build/deps/<lib>/<lib>.target.mk`, so every package
+// that vendors anything — most real native builds — had its sub-targets size-compared. Widened to any
+// depth, which is what the rule said in the first place.
+//
+// MEASURED on `cpu-features@0.0.10`, darwin-arm64: `rc=0`, all 156 artifacts PRESENT, verdict
+// UNDER-PREDICTED on three files that were merely smaller —
+//     build/deps/cpu_features/cpu_features.target.mk      6315B <  6553B
+//     build/gyp-mac-tool                                 30502B < 30515B
+//     build/Release/obj.target/cpufeatures/src/binding.o 314200B < 314288B
+//
+//   * `gyp-mac-tool` is written only by gyp's mac generator, which is why linux never surfaced it.
+//   * an `.o` embeds the absolute path of its translation unit and of every header in its debug
+//     info, so its size tracks path length exactly as a `.d` does. Excusing its SIZE is safe for a
+//     reason worth stating: a denied write that truncated an object file fails the LINK, so the
+//     `.node` is then absent — and absence is checked for every file, toolchain-generated included.
+//     The linked output itself is never excused.
 const TOOLCHAIN_GENERATED = [
   /(^|\/)build\/config\.gypi$/,
   /(^|\/)build\/Makefile$/,
-  /(^|\/)build\/[^/]+\.target\.mk$/,
+  /(^|\/)build\/.*\.target\.mk$/,
   /(^|\/)build\/.*\.d$/,
+  /(^|\/)build\/gyp-mac-tool$/,
+  /(^|\/)build\/.*\.o$/,
 ];
 const isToolchainGenerated = (f) => TOOLCHAIN_GENERATED.some((r) => r.test(f));
 for (const [f, size] of got ? obs : []) {
