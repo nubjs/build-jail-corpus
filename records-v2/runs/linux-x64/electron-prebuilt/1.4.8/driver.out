@@ -1,0 +1,79 @@
+### electron-prebuilt@1.4.8   (/home/runner/v2-WGViJM)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1114 trace=15858 lines
+  CLOSURE   108 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":83,"filesTheScriptProduced":71,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-WGViJM/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-WGViJM/observe/capture.json
+  RAWLOG-BYTES raw=3349218 gz=94729
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-WGViJM/jailhome","TMPDIR":"/tmp/nub-tmp-obstPPIEC","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-WGViJM/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 80  /  whole traced tree 1168
+    sockets script 10  /  whole traced tree 14
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-WGViJM/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-WGViJM/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-WGViJM/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obstPPIEC
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt
+  == WRITES the script actually performed ==
+    jailHome      3  (base profile already grants this — NOT billed)
+        /home/runner/v2-WGViJM/jailhome/.electron
+        /home/runner/v2-WGViJM/jailhome/.electron/electron-v1.4.8-linux-x64.zip
+        /home/runner/v2-WGViJM/jailhome/.electron/SHASUMS256.txt-1.4.8
+    jailTmp       3  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obstPPIEC/electron-tmp-download-20338-1786133753960
+        /tmp/nub-tmp-obstPPIEC/electron-tmp-download-20338-1786133753960/electron-v1.4.8-linux-x64.zip
+        /tmp/nub-tmp-obstPPIEC/electron-tmp-download-20338-1786133753960/SHASUMS256.txt
+    ownPkg       74  (base profile already grants this — NOT billed)
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/path.txt
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/electron
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/libffmpeg.so
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/blink_image_resources_200_percent.pak
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/content_resources_200_percent.pak
+        /home/runner/v2-WGViJM/observe/node_modules/electron-prebuilt/dist/ui_resources_200_percent.pak
+        … and 64 more
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 3
+        127.0.0.53:53
+        104.16.10.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6291 distinct from 15640 calls (15859 lines, 191 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×40 setsockopt×27 exit×20 getsockopt×19 recvmsg×15 shutdown×7 getcwd×5 sendmmsg×5
+    wrote /home/runner/v2-WGViJM/observe/events.ndjson.gz (41217 bytes)
+  EVENTLOG-FILE /home/runner/v2-WGViJM/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15859,"parsed":15640,"unparsed":0,"unfinished":191,"rejoined":191,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":6291,"unknownSyscall":{"getsockname":40,"getsockopt":19,"getcwd":5,"recvmsg":15,"exit":20,"setsockopt":27,"sendmmsg":5,"socketpair":3,"shutdown":7,"exit_group":3,"wait4":3},"out":"/home/runner/v2-WGViJM/observe/events.ndjson.gz","gzipBytes":41217}
+  EVICT     113 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=82/82 missing=0 shortfall=none (tree 3587/1114) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+  => VERIFIED {"network":true,"writePaths":[".electron"]}   (observed, then verified)
+  EVICT     112 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VERIFY[drop-no-network] rc=1 artifacts=11/82 missing=71 shortfall=be829483886a (tree 3372/1114) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".electron"]}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/blink_image_resources_200_percent.pak, dist/content_resources_200_percent.pak, dist/content_shell.pak, dist/electron (+65)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".electron"]} is independently necessary
