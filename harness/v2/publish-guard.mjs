@@ -47,7 +47,11 @@ import fs from 'node:fs';
 // ⛔ `write` AND `read` ARE EACH EITHER AN OBJECT OF SCOPES OR THE STRING `"disk"`, AND MISSING THE
 // STRING FORM MAKES THE LARGEST POSSIBLE NARROWING READ AS A NO-OP. The ladder's top rungs in
 // `measure.sh` are `{"write":{…},"read":"disk","network":true}` and `{"write":"disk","network":true}`,
-// and `record.mjs` records a ladder MINIMUM verbatim. An earlier revision of this file gated on
+// and BOTH STRING FORMS STILL REACH THE RECORD INTACT NOW THAT THE WINNING RUNG DESCENDS — not by
+// luck, but because the two carve-outs that make the descent safe are exactly the two that preserve
+// them: `write:"disk"` is never descended at all (`Object.keys("disk")` would fabricate arms), and
+// `read` is never enumerated as droppable (`record.mjs` has no `no-read` case). An earlier
+// revision of this file gated on
 // `typeof w === 'object'`, so `{"write":"disk","network":true}` flattened to `{"network"}` alone —
 // and a re-measure narrowing that to `{"network":true}` reported "does not narrow" and would have
 // published whole-disk-write → nothing as though it changed nothing. Caught in review before any v2

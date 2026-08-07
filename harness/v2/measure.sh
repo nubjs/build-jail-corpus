@@ -1106,11 +1106,29 @@ if [ "$SRC" -eq 2 ]; then
   echo "     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant."
   exit 3
 fi
-if [ "$SRC" -eq 0 ]; then
-  echo "  => VERIFIED $GRANT   (observed, then verified)"
-
-  # ── 3a. DESCEND — is the verified grant actually MINIMAL, or did OBSERVE over-predict? ────────
-  #
+# ── 3a. DESCEND — is a verified grant actually MINIMAL, or did OBSERVE over-predict? ──────────
+#
+# ⛔⛔ A FUNCTION, AND CALLED FROM THE LADDER PATH TOO — THAT IS WHY IT IS ONE. This block used to sit
+# inline under `if [ "$SRC" -eq 0 ]`, so it could only ever narrow a SYNTHESIZED grant, and the ladder
+# at step 4 published whichever rung passed exactly as it stood. A rung is a BUNDLE by construction —
+# rung 0 alone grants `deps` + `project` + `userHome`, and `userHome` is the PERSISTENCE capability —
+# so publishing one un-narrowed hands out three capabilities because ONE arm passed. The descent can
+# only ever narrow to something that still verifies in the real jail, so it cannot under-grant. Same
+# repair Windows took in `0f1aeecf2` and macOS in `89599dd9b`; Linux was the last driver whose ladder
+# published without descending.
+#
+# ⛔ `$1` IS THE GRANT TO DESCEND FROM, NOT `$GRANT`. On the ladder path the two DIFFER — `$GRANT` is
+# the synthesized value that FAILED — and reading the global here would narrow against a hypothesis no
+# arm ever verified. The provenance argument only changes the WORDING of the messages naming the grant
+# being kept; calling a rung "synthesized" in a log someone is using to audit a `write.userHome` entry
+# would misdescribe where that grant came from.
+descend () {
+  local g0="$1" provenance="$2"
+  # ⛔ `ARM_LEDGER` AND `STORE_LAYOUT_REPORTED` ARE DELIBERATELY ABSENT FROM THIS LIST. `verify`
+  # appends to both, and bash `local` is DYNAMICALLY scoped — declaring them here would make every
+  # descent arm's ledger entry and the venue's store layout vanish the moment this function returned.
+  local kept CAPS NARROWER INCONCLUSIVE cap SUB drc DROPPED_N JOINT jrc
+  case "$provenance" in ladder) kept="ladder-rung" ;; *) kept="synthesized" ;; esac
   # ⛔ THIS IS THE ONLY HONEST OVER-PREDICTION MEASUREMENT AVAILABLE, AND IT NEEDS NO ORACLE.
   # Comparing a synthesized grant against a v1 corpus record does not answer the question. A v1
   # record is the output of a blind pass/fail ladder that can only ever report "this grant was
@@ -1137,17 +1155,21 @@ if [ "$SRC" -eq 0 ]; then
   # all five Linux records carrying an over-prediction re-parse with `descendedGrant === grant`.
   # macOS and Windows already use the `no-*` spelling; Linux was the odd one out.
   #
-  # ⛔ `read` IS DELIBERATELY NOT ENUMERATED. No grant in any record on any platform carries a `read`
-  # key and `classify.mjs` never emits one, so the old `if (g.read)` branch was dead code for a
-  # capability that does not exist — and `record.mjs` has no `no-read` case, so had it ever fired it
-  # would have reproduced this very defect. If `read` becomes real it must land in BOTH files at once;
-  # the unknown-name guard in `applyGrantSourceRule` is what makes that failure loud instead of silent.
+  # ⛔ `read` IS DELIBERATELY NOT ENUMERATED, AND A `read` KEY IS NO LONGER HYPOTHETICAL HERE.
+  # `classify.mjs` still never synthesizes one, but LADDER RUNG 1 carries `read:"disk"` literally, and
+  # this function is now called from the ladder path — so the reason has to be the CONSEQUENCE rather
+  # than the absence. `record.mjs`'s `applyGrantSourceRule` has no `no-read` case, so a droppable
+  # `read` lands in `unparsedNames`, and that forces the WHOLE record back to the wide grant,
+  # discarding the network and write narrowings that DID parse. Leaving `read` un-enumerated grants it
+  # unquestioned on the one rung that carries it, which is the over-granting direction and therefore
+  # the safe one. Making it droppable means teaching `record.mjs` `no-read` in the same change, never
+  # here alone; the unknown-name guard is what keeps that failure loud instead of silent.
   CAPS=$(node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
     if (g.network) out.push("no-network");
     for (const k of Object.keys(g.write ?? {})) out.push("no-write-" + k);
     console.log(out.join(" "));
-  ' "$GRANT")
+  ' "$g0")
   if [ -z "$CAPS" ]; then
     echo "  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction."
   else
@@ -1170,7 +1192,7 @@ if [ "$SRC" -eq 0 ]; then
         else { const k = /^no-write-(.+)$/.exec(cap)[1]; delete g.write[k];
                if (!Object.keys(g.write).length) delete g.write; }
         console.log(JSON.stringify(g));
-      ' "$GRANT" "$cap")
+      ' "$g0" "$cap")
       verify "$SUB" "drop-$(printf '%s' "$cap" | tr -d '.')"; drc=$?
       case "$drc" in
         0) echo "     ⛔ OVER-PREDICTED: dropping '$cap' STILL VERIFIES — $SUB is sufficient"
@@ -1181,11 +1203,11 @@ if [ "$SRC" -eq 0 ]; then
       esac
     done
     if [ -n "$NARROWER" ]; then
-      echo "  => OVER-PREDICTED by:$NARROWER  (synthesized $GRANT; each named capability drops on its own)"
+      echo "  => OVER-PREDICTED by:$NARROWER  ($kept $g0; each named capability drops on its own)"
     elif [ -n "$INCONCLUSIVE" ]; then
       echo "  => DESCENT INCOMPLETE — no capability dropped, but$INCONCLUSIVE was never measured; MINIMALITY IS UNPROVEN"
     else
-      echo "  => MINIMAL — every capability in $GRANT is independently necessary"
+      echo "  => MINIMAL — every capability in $g0 is independently necessary"
     fi
 
     # ⛔ THE JOINT ARM. The descent is LEAVE-ONE-OUT, so N droppable capabilities give N arms proving
@@ -1212,17 +1234,22 @@ if [ "$SRC" -eq 0 ]; then
           if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
         }
         console.log(JSON.stringify(g));
-      ' "$GRANT" "$NARROWER")
+      ' "$g0" "$NARROWER")
       verify "$JOINT" "joint-narrow"; jrc=$?
       case "$jrc" in
         0) echo "  => JOINT-NARROW VERIFIED $JOINT — all $DROPPED_N capabilities drop TOGETHER, measured" ;;
         2) echo "  => JOINT-NARROW INCONCLUSIVE — the arm was VOID, so the joint drop is unmeasured;"
-           echo "     the record keeps the wider synthesized grant, which is the honest answer" ;;
+           echo "     the record keeps the wider $kept grant, which is the honest answer" ;;
         *) echo "  => JOINT-NARROW FAILED $JOINT — each capability drops alone but not together;"
-           echo "     the record keeps the wider synthesized grant, which is the honest answer" ;;
+           echo "     the record keeps the wider $kept grant, which is the honest answer" ;;
       esac
     fi
   fi
+}
+
+if [ "$SRC" -eq 0 ]; then
+  echo "  => VERIFIED $GRANT   (observed, then verified)"
+  descend "$GRANT" synth
   exit 0
 fi
 
@@ -1282,6 +1309,18 @@ diagnose
 
 # ── 4. FALL BACK — the ladder, retained, but walked UPWARD FROM the synthesized grant. ─────────
 # This is the ladder's real job: repairing a hypothesis, over a handful of states rather than 55.
+#
+# ⛔⛔ AND THE RUNG IT LANDS ON IS THEN DESCENDED, WHICH IT WAS NOT FOR THE WHOLE LIFE OF THIS LADDER.
+# Every rung is a BUNDLE — rung 0 alone grants `deps` + `project` + `userHome` + `network`, and
+# `userHome` is the PERSISTENCE capability, write access to `~/.ssh` and every shell profile — so
+# publishing the first passing rung verbatim hands out four capabilities on the strength of ONE arm.
+# That is a far wider catalog entry than the package earned, and the record said `verifiedBy: ladder`
+# beside it with no `minimality` at all, so nothing downstream could tell the difference.
+#
+# The descent below can only ever narrow to a grant that STILL VERIFIES in the same real jail, so it
+# cannot under-grant — which is what makes widening-then-narrowing the right repair rather than a
+# trade. Windows took this repair in `0f1aeecf2` and macOS in `89599dd9b`; this was the last driver
+# whose ladder published un-narrowed.
 echo "  synthesized grant did not verify — falling back to a bounded ladder"
 for g in \
   '{"write":{"deps":true,"project":true,"userHome":true},"network":true}' \
@@ -1295,6 +1334,17 @@ do
   if [ "$frc" -eq 0 ]; then
     echo "  => MINIMUM $g   (ladder fallback; synthesized grant was insufficient)"
     echo "  ⛔ OBSERVE UNDER-PREDICTED — the gap between $GRANT and $g is worth reading"
+    # ⛔ NOT DESCENDED FROM `write:"disk"`, AND THE GUARD IS THE RUNG'S SHAPE, NOT ITS POSITION.
+    # `write` is a STRING on that rung, and the variant generator above does `Object.keys(g.write)` —
+    # which on `"disk"` yields `["0","1","2","3"]` and would manufacture four `no-write-<digit>` arms.
+    # `record.mjs` can parse none of them, so they land in `unparsedNames` and the record carries
+    # `descent-name-unparsed` off a measurement of four states that mean nothing. It is also the
+    # ABSENCE of confinement rather than a path grant with droppable terms, so a leave-one-out over it
+    # has nothing to leave out.
+    case "$g" in
+      *'"write":"disk"'*) echo "  !! top rung is write:\"disk\" — no droppable terms, so no descent" ;;
+      *) descend "$g" ladder ;;
+    esac
     exit 0
   fi
 done
@@ -1317,11 +1367,13 @@ done
 # gate verdicts; it does not soften any one of them, and nothing here can make an arm pass that did not.
 #
 # ⛔ THE VERDICT IS `SUSPECT`, NOT `VERIFIED`, AND THE DIFFERENCE IS THE POINT. Grant-independence
-# proves the shortfall is not a capability gap; it does not prove the install was good, and this path
-# never runs the leave-one-out DESCENT that every genuine `VERIFIED` carries — so minimality is
-# unproven and the grant is a CANDIDATE. The record keeps it so the package is triageable instead of
-# discarded; `collate.mjs` keeps it out of the catalog, because publishing an unverified NARROW grant
-# is the under-granting direction and that is the one that breaks a real install.
+# proves the shortfall is not a capability gap; it does not prove the install was good, and this is
+# now the ONLY path that publishes a grant without a leave-one-out DESCENT behind it — `=> VERIFIED`
+# descends from the synthesized grant and `=> MINIMUM (ladder fallback)` descends from the rung it
+# landed on, so minimality here is unproven and the grant is a CANDIDATE. The record keeps it so the
+# package is triageable instead of discarded; `collate.mjs` keeps it out of the catalog, because
+# publishing an unverified NARROW grant is the under-granting direction and that is the one that
+# breaks a real install.
 INV=$(printf '%s' "$ARM_LEDGER" | node "$HERE/shortfall-invariance.mjs" --arms 4); IRC=$?
 if [ "$IRC" -eq 0 ]; then
   MISS_N=$(printf '%s' "$INV" | cut -d' ' -f2)
