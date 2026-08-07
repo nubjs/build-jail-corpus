@@ -1,0 +1,74 @@
+### redis-memory-server@0.16.1   (C:\jail\m-redismemoryserver-msje6kv0)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8332 exit=0 events=48695 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 42 files  (C:\jail\m-redismemoryserver-msje6kv0\observe\node_modules\redis-memory-server)
+  ARM-FALSIFIABILITY {"manifestFiles":42,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (42) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 72 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-redismemoryserver-msje6kv0\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-redismemoryserver-msje6kv0\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-redismemoryserver-msje6kv0\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-redismemoryserver-msje6kv0\observe\node_modules\redis-memory-server
+  == ATTRIBUTION == lifecycle pids: 3 (root 8332)
+    writes  script 40  /  whole traced tree 51
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps         36
+    systemfs      4
+        c:\windows\system32\msiexec.exe:wofcompresseddata
+        c:\windows\system32\aclayers.dll:wofcompresseddata
+        c:\windows\system32\msimsg.dll:wofcompresseddata
+        c:\windows\system32\en-us\msimsg.dll.mui:wofcompresseddata
+  == READS ==
+    deps        157
+    outside       6
+    project       2
+    systemfs     80
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        172.66.40.82:443
+        18.161.156.88:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    !! 4 writes into system dirs -- an unprivileged user would be refused these
+  RAW       etw-raw.xml.gz  62469423 B xml -> 895457 B gz (69.8x)  sha256 a52183dc78cc114a…
+  HEADER    etw-header.json (5138 bytes)
+  DERIVED   6507 distinct from 9542 kept ops (48695 xml events, 9855 out of subtree)
+  PROCS     5   thread-reattributed 30
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 10 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (83472 bytes)
+  RAWLOG-CAPTURE C:\jail\m-redismemoryserver-msje6kv0\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-redismemoryserver-msje6kv0
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-redismemoryserver-msje6kv0\\npm-cache","TMP":"C:\\jail\\m-redismemoryserver-msje6kv0\\tmp","TEMP":"C:\\jail\\m-redismemoryserver-msje6kv0\\tmp","TMPDIR":"C:\\jail\\m-redismemoryserver-msje6kv0\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-redismemoryserver-msje6kv0\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 6935/1350) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at C:\jail\m-redismemoryserver-msje6kv0\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 6936/1350) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at C:\jail\m-redismemoryserver-msje6kv0\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 6936/1350) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at C:\jail\m-redismemoryserver-msje6kv0\verify-fb2\.cache
+  VERIFY[fb2] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 6947/1350) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
