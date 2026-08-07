@@ -1,0 +1,118 @@
+### iedriver@4.0.0   (/Users/runner/v2m-UI2h5n)   nub=/tmp/nub/target/release/nub
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-UI2h5n/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-UI2h5n/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "iedriver" > "/Users/runner/v2m-UI2h5n/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-UI2h5n/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-UI2h5n/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-UI2h5n/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund iedriver
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001334090) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=877 (pre=873) trace=15061 lines
+  CLOSURE   82 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-UI2h5n/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-UI2h5n/Observe/capture.json
+  RAWLOG-BYTES raw=2469709 gz=78276
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-UI2h5n/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":2,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-UI2h5n/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15062,"parsed":15044,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":5970,"enoent":5960,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5960,"EEXIST":7},"procs":5,"lifecyclePids":1,"distinctEvents":7003,"emitted":7003,"calls":14491,"bytes":1330547,"gzipBytes":45250,"out":"/Users/runner/v2m-UI2h5n/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3567 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 3 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=93285 read  unproven .
+         pid=93285 read  unproven .
+         pid=93285 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600001334090
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 15  /  whole traced subtree 1105
+    sockets script 2  /  whole traced subtree 3
+  == ROOTS (from /Users/runner/v2m-UI2h5n/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-UI2h5n/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-UI2h5n/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-UI2h5n/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    jailTmp       8  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver64
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver64/1786068952107.tmp
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver64/IEDriverServer_x64_4.0.0.zip
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver64/IEDriverServer.exe
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver/1786068952579.tmp
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver/IEDriverServer_Win32_4.0.0.zip
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUtHL20/iedriver/IEDriverServer.exe
+    ownPkg        6  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver64
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver64/IEDriverServer.exe
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver64/IEDriverServer_x64_4.0.0.zip
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver/IEDriverServer.exe
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver/IEDriverServer_Win32_4.0.0.zip
+        /Users/runner/v2m-UI2h5n/Observe/node_modules/iedriver/lib/iedriver
+  == READS the script performed, by scope ==
+    outside       5
+    systemfs      9
+    userHome      2
+    ownPkg        5
+    deps        301
+    jailTmp       6
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 2
+        20.29.134.23:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 77 store entries removed, 4 spared as nub tooling, 1096 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=8/10 missing=2 shortfall=80c8cb6ac827 (tree 2695/877) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: lib/iedriver64/IEDriverServer.exe, lib/iedriver64/IEDriverServer_x64_4.0.0.zip
+  => UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 10144
+     refused paths under the failing grant (count, path):
+          3 System/Cryptexes/OS
+          2 /Users/runner/.CFUserTextEncoding
+          1 /Users/runner/.cache/nub/pm/tools/npm-prefix
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+### DONE iedriver@4.0.0  synthesized={"network":true} verified=0
