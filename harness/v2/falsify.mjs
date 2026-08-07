@@ -225,6 +225,39 @@ const CASES = [
     ranEvidence: /Downloading release from|binary-install[/\\]index\.js/,
     mustDetect: ['rc'],
   },
+  // ⛔ THE ONLY CASE GROUNDED ON DARWIN, AND ITS SCOPE IS PRINTED WITH EVERY VERDICT. See the
+  // scope-limit block near the bottom: hugo is caught by rc AND the gate, so a green darwin control
+  // proves at least one detector is live and CANNOT say which. The rover axis — an artifact landing
+  // in a SIBLING package the gate deliberately does not walk, catchable by the exit code alone — is
+  // uncovered here. A one-case control is worth far more than none, but only if its limit travels
+  // with its verdict rather than living in a report nobody re-reads.
+  {
+    name: 'network',
+    platform: 'darwin',
+    pkg: 'hugo-extended',
+    version: '0.141.0',
+    // records-v2/runs/darwin-arm64/hugo-extended/0.141.0/results.json — MINIMUM, MINIMAL.
+    // MINIMAL means the descent removed each capability in turn and found it necessary, so
+    // `insufficient` is this corpus's own darwin answer with its one term deleted, not a guess.
+    sufficient: { network: true },
+    insufficient: {},
+    removed: 'network',
+    // ⛔ MEASURED on darwin-arm64: the nar-no-network arm returned rc=1 with
+    // `artifacts=9/12 missing=3` — vendor/hugo, vendor/LICENSE, vendor/README.md, i.e. exactly the
+    // three files the download produces — and shortfall digest 219cbefac624. Both detectors fired,
+    // which is what `mustDetect` below records and what the scope limit is about.
+    //
+    // ⛔ INFERRED, NOT MEASURED: the refusal TEXT. The published record carries the arm's verdict
+    // line, not its install log, and I have no darwin arm log to read. The terms below are the Linux
+    // case's, which is defensible because the postinstall is platform-independent JS fetching the
+    // same host — but it is an inference. If the first darwin run FAILS on the refusal terms
+    // specifically, that is this pattern being wrong, NOT the harness losing the ability to detect;
+    // the per-term hit/MISS breakdown in the failure message is what tells them apart. Failing
+    // closed here is the right direction: it blocks a batch rather than passing one.
+    refusal: [/EAI_AGAIN|ENETUNREACH|ECONNREFUSED|EHOSTUNREACH|EPERM[^]{0,200}connect/, /github\.com/],
+    ranEvidence: /Hugo install(ed successfully|ation failed)/,
+    mustDetect: ['rc', 'gate'],
+  },
 ];
 
 // ── driver invocation + output parsing ────────────────────────────────────────────────────────
@@ -627,6 +660,30 @@ for (const kase of selected) {
 const overall = failed ? 'FAIL' : inconclusive ? 'INCONCLUSIVE' : 'PASS';
 console.log(`\nfalsify: ${overall} — ${selected.length - failed - inconclusive}/${selected.length} case(s) detected their wrong grant`
   + `${failed ? `, ${failed} FAILED` : ''}${inconclusive ? `, ${inconclusive} inconclusive` : ''}`);
+// ⛔ THE SCOPE OF A GREEN CONTROL, PRINTED WITH EVERY VERDICT AND NEVER ONLY IN A REPORT. A control
+// whose limits live somewhere else becomes, within days, a control that "passed" — and the limit
+// that matters is not how MANY cases ran but which DETECTOR each one isolates.
+//
+// A case listing a single detector in `mustDetect` ISOLATES it: that detector alone stood between a
+// narrowed grant and a false SUFFICIENT, so its liveness is proven independently. A case listing two
+// proves at least one of them is live and cannot say which — if the exit-code detector were broken
+// and only the gate were working, such a case still passes, and every rover-shaped under-grant (an
+// artifact landing in a sibling package the gate does not walk) would go unnoticed. That asymmetry
+// is exactly why validating this control on a single case was refused on linux, and it binds here.
+const DETECTORS = ['rc', 'gate'];
+const isolated = DETECTORS.filter((d) => selected.some((c) => c.mustDetect.length === 1 && c.mustDetect[0] === d));
+const jointOnly = DETECTORS.filter((d) => !isolated.includes(d) && selected.some((c) => c.mustDetect.includes(d)));
+const untouched = DETECTORS.filter((d) => !isolated.includes(d) && !jointOnly.includes(d));
+console.log(`   scope: ${selected.length} case(s) on ${process.platform} — `
+  + selected.map((c) => `${c.pkg}@${c.version} [${c.mustDetect.join('+')}]`).join(', '));
+console.log(`   isolated detector(s): ${isolated.join(', ') || 'NONE'}`
+  + `${jointOnly.length ? `; proven only JOINTLY: ${jointOnly.join(', ')}` : ''}`
+  + `${untouched.length ? `; UNCOVERED: ${untouched.join(', ')}` : ''}`);
+if (!isolated.length) {
+  console.log('   ⛔ NO detector is isolated here: a green verdict proves at least one is live and');
+  console.log('      cannot say which. A broken rc detector would still pass, and the class only rc');
+  console.log('      catches — an artifact written into a SIBLING package — would go undetected.');
+}
 if (failed) {
   console.log('⛔ The harness could not be shown capable of rejecting a known-insufficient grant.');
   console.log('   Do NOT start a sweep. A silent under-grant is the one error this corpus may not make.');
