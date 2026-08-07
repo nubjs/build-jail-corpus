@@ -826,6 +826,43 @@ if (process.env.NUB_V2_EVENTS_OUT || process.env.NUB_V2_ETW_RAW_OUT) {
 // exist to end. The Windows raw trace is published separately by `windows-retain.mjs` through
 // `NUB_V2_ETW_RAW_OUT`, so only the capture header is announced here.
 console.log(`  RAWLOG-CAPTURE ${CAPTURE}`);
+// ⛔ WHICH BINARY ANSWERED THIS RECORD — the identity `nubGitSha` provably cannot give, and which
+// win32 was not emitting at all. MEASURED across the corpus before adding this: linux-x64 carries
+// `provenance.nubBinary` on 119/119 records, darwin-arm64 on 0/120, win32-x64 on 0/1, because only
+// `measure.sh` emitted the marker `record.mjs` learns it from. `provenance.nubGitSha` is null on all
+// 240 besides, so a win32 record named NOTHING about the binary that produced it.
+//
+// That is not bookkeeping. `corpus-v2-runner.yml` argued its prefix cache fallback was safe because
+// "each record names the binary that answered it" — true on one lane, false on this one — and a
+// pre-fix binary then measured a whole Windows run into unattributability (run 31145732202).
+//
+// ⛔ THE OVERRIDE FEATURE IS PROBED BY EXERCISING IT, NEVER BY GREPPING FOR ITS NAME, and
+// `measure.sh` records why in full: Rust does not embed feature names, and the literal
+// `build-jail-catalog-override` appears only in the error a binary built WITHOUT the feature prints.
+// A content search therefore matches the BROKEN binary and misses the WORKING one — strictly worse
+// than no check. Same inversion trap this lane has already been bitten by twice.
+//
+// The bytecode env name IS a real string constant (`BUILD_JAIL_BASELINE_ENV` in `preset.rs`), so a
+// content search answers that one honestly.
+{
+  const probeCat = path.join(ROOT, 'nub-binary-probe.json');
+  fs.writeFileSync(probeCat, '{"packages":{"__override_probe__":{"default":{"network":true}}}}');
+  const pr = run(NUB, ['--version'], { env: { ...process.env, NUB_BUILD_JAIL_CATALOG: probeCat } });
+  const hasOverride = pr.status === 0;
+  let sha256 = null; let bytes = null; let hasBytecodeEnv = false;
+  try {
+    const b = fs.readFileSync(NUB);
+    sha256 = crypto.createHash('sha256').update(b).digest('hex');
+    bytes = b.length;
+    hasBytecodeEnv = b.includes('PYTHONDONTWRITEBYTECODE');
+  } catch { /* an identity we cannot read is reported as null, never guessed */ }
+  console.log(`  VENUE-NUB-BINARY ${JSON.stringify({
+    path: NUB,
+    sha256,
+    bytes,
+    features: { buildJailCatalogOverride: hasOverride, pythonDontWriteBytecodeEnv: hasBytecodeEnv },
+  })}`);
+}
 console.log(`  VENUE-INTERPRETER ${NODE}`);
 // ⛔ WHERE THE JAILED ARMS RAN, BECAUSE ON THIS PLATFORM THE ROOT PATH CAN DECIDE THE OUTCOME BY
 // ITSELF. Any jail root under `C:\Users\<user>` fails before a single script runs — "could not
