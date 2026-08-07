@@ -1,0 +1,146 @@
+### @hyperjump/json-schema@0.18.5   (/Users/runner/v2m-YOkrlq)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-YOkrlq/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-YOkrlq/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "@hyperjump/json-schema" > "/Users/runner/v2m-YOkrlq/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-YOkrlq/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-YOkrlq/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-YOkrlq/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund @hyperjump/json-schema
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002314090) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=301 (pre=323) trace=26921 lines
+  CLOSURE   13 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-YOkrlq/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-YOkrlq/Observe/capture.json
+  RAWLOG-BYTES raw=4669026 gz=152271
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-YOkrlq/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":85,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (85) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  EVENTLOG-FILE /Users/runner/v2m-YOkrlq/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":26922,"parsed":26904,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":36,"unresolvedFd":0,"pairedTwoPath":1109,"danglingPair":0,"failed":10583,"enoent":9727,"refusals":0,"byErrno":{"ENXIO":4,"ENOENT":9727,"EEXIST":851,"ENOTEMPTY":1},"procs":6,"lifecyclePids":2,"distinctEvents":11926,"emitted":11926,"calls":25746,"bytes":2448117,"gzipBytes":74868,"out":"/Users/runner/v2m-YOkrlq/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=7845 dropped-events=1
+    NOTE 24 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 4 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=94453 read  unproven .
+         pid=94453 read  unproven .
+         pid=94453 read  unproven .
+         pid=94493 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600002314090
+  == ATTRIBUTION == lifecycle pids: 2
+    writes  script 1715  /  whole traced subtree 2266
+    sockets script 10  /  whole traced subtree 11
+  == ROOTS (from /Users/runner/v2m-YOkrlq/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-YOkrlq/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-YOkrlq/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-YOkrlq/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    jailHome    593  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_logs/2026-08-07T20_14_48_985Z-debug-0.log
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/tmp
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/tmp/2eeed57e
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/content-v2
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/content-v2/sha512
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/content-v2/sha512/96
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/content-v2/sha512/96/33
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/content-v2/sha512/96/33/61c035306713d7684094d001ac1734258bad49f60f0959b417abe29ec5b3e35c549ec146d1ddfca9b09f8485ac9886e8b882055dff62951e0fa7ecbcc304
+        /Users/runner/v2m-YOkrlq/jailhome/.npm/_cacache/index-v5
+        … and 583 more
+    ownPkg       25  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-amd.js
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-amd.js.map
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-amd.min.js
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-cjs.js
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-amd.min.js.map
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-cjs.min.js.map
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-esm.js
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-cjs.min.js
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-cjs.js.map
+        /Users/runner/v2m-YOkrlq/Observe/node_modules/@hyperjump/json-schema/dist/json-schema-esm.min.js.map
+        … and 15 more
+    jailTmp    1096  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2.34iTjY
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/865b8eda.hfSldQ
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/865b8eda
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/b9602ae9.Boj9Bh
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/b9602ae9
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/c488ed50.OyD5y1
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/c488ed50
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/efea0cc6.hxIwDM
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsEtCP7i/node-compile-cache/v22.23.1-arm64-2b4477fa-501/efea0cc6
+        … and 1086 more
+  == READS the script performed, by scope ==
+    outside      10
+    systemfs     13
+    userHome    681
+    project       1
+    jailHome     36
+    ownPkg        2
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /bin/sh
+  == NETWORK ==
+    AF_INET connects: 10   distinct peers: 1
+        104.16.7.34:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 593
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  EVICT[synth] 7 store entries removed, 0 spared as nub tooling, 1193 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=85/85 missing=0 shortfall=none (tree 662/301) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  EVICT[nar-no-network] 14 store entries removed, 0 spared as nub tooling, 1200 in store
+  VERIFY[nar-no-network] rc=1 artifacts=109/85 missing=0 shortfall=none (tree 734/301) OVERRIDDEN=2 REJECTED=0 grant={}
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  => MINIMAL — every capability in {"network":true} is independently necessary
+### DONE @hyperjump/json-schema@0.18.5  synthesized={"network":true} verified=1
