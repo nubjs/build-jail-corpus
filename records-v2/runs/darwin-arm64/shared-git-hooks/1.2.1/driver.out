@@ -1,0 +1,43 @@
+### shared-git-hooks@1.2.1   (/Users/runner/v2m-8X3Gls)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-8X3Gls/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-8X3Gls/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9sV3lG"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "shared-git-hooks" > "/Users/runner/v2m-8X3Gls/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-8X3Gls/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-8X3Gls/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-8X3Gls/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9sV3lG NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund shared-git-hooks
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000664000) in action #1 at DIF offset 20
+     + echo 1
+  OBSERVE   rc=1 dtrace_rc=0 files=12 (pre=10) trace=12017 lines
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
+     npm error   pid: 24723,
+     npm error   stdout: Buffer(0) [Uint8Array] [],
+     npm error   stderr: Buffer(69) [Uint8Array] [
+     npm error     102,  97, 116,  97, 108,  58,  32, 110, 111, 116,  32,
+     npm error      97,  32, 103, 105, 116,  32, 114, 101, 112, 111, 115,
+     npm error     105, 116, 111, 114, 121,  32,  40, 111, 114,  32,  97,
+     npm error     110, 121,  32, 111, 102,  32, 116, 104, 101,  32, 112,
+     npm error      97, 114, 101, 110, 116,  32, 100, 105, 114, 101,  99,
+     npm error     116, 111, 114, 105, 101, 115,  41,  58,  32,  46, 103,
+     npm error     105, 116,  10
+     npm error   ]
+     npm error }
+     npm error
+     npm error Node.js v22.23.1
+     npm notice
+     npm notice New major version of npm available! 10.9.8 -> 12.0.2
+     npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+     npm notice To update run: npm install -g npm@12.0.2
+     npm notice
+     npm error A complete log of this run can be found in: /Users/runner/v2m-8X3Gls/jailhome/.npm/_logs/2026-08-07T23_46_17_811Z-debug-0.log
