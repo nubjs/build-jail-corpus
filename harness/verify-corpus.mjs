@@ -15,6 +15,7 @@
 // Run it after every slice. A green run that produces nothing is the thing to be afraid of.
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -200,7 +201,10 @@ if (junkNames.length) {
 // Collate to a temp file and assert the OUTPUT carries substance. Doing this here rather than
 // trusting the collator's own summary is the point: its summary counted packages, which stayed
 // correct while every capability silently vanished.
-const tmp = path.join(process.env.RUNNER_TEMP || '/tmp', `corpus-verify-${process.pid}.json`);
+// ⛔ `os.tmpdir()`, never `RUNNER_TEMP || '/tmp'`: the fallback is a POSIX path that does not exist on
+// Windows, so this line worked on a GitHub runner (which sets RUNNER_TEMP) and threw ENOENT on any
+// other Windows box. `os.tmpdir()` already honours TMPDIR/TEMP/TMP, so it covers the runner too.
+const tmp = path.join(os.tmpdir(), `corpus-verify-${process.pid}.json`);
 const { spawnSync } = await import('node:child_process');
 const col = spawnSync(process.execPath, [path.join(here, 'collate.mjs'), '--runs', RECORDS, '--out', tmp], {
   encoding: 'utf8',

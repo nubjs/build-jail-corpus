@@ -8,6 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { judgeSlice, countSpecs } from './assert-slice-measured.mjs';
@@ -90,7 +91,7 @@ test('countSpecs matches how the batch driver counts its own worklist', () => {
 // an exit code, and a pure-function test cannot observe one. `cli-guard.test.mjs` covers the Windows
 // entry-guard spelling; this covers that the guard's body actually runs and exits non-zero.
 test('the CLI exits non-zero on a lost slice and zero on a partial one', (t) => {
-  const dir = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP || '/tmp', 'slice-gate-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-gate-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const slice = path.join(dir, 'slice.txt');
   fs.writeFileSync(slice, 'a@1\nb@2\nc@3\n');
