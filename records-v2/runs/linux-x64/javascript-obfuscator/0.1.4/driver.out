@@ -1,0 +1,65 @@
+### javascript-obfuscator@0.1.4   (/home/runner/v2-apj8pt)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=203 trace=11230 lines
+  CLOSURE   14 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":70,"filesTheScriptProduced":21,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-apj8pt/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-apj8pt/observe/capture.json
+  RAWLOG-BYTES raw=2445063 gz=71012
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-apj8pt/jailhome","TMPDIR":"/tmp/nub-tmp-obsJLFBEE","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-apj8pt/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 42  /  whole traced tree 1130
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-apj8pt/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-apj8pt/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-apj8pt/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsJLFBEE
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator
+  == WRITES the script actually performed ==
+    ownPkg       42  (base profile already grants this — NOT billed)
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/enums/AppendState.js.map
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/enums/AppendState.js
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INode.js.map
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INode.js
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INodeObfuscator.js.map
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INodeObfuscator.js
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INodesGroup.js.map
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/interfaces/INodesGroup.js
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/nodes/Node.js.map
+        /home/runner/v2-apj8pt/observe/node_modules/javascript-obfuscator/src/nodes/Node.js
+        … and 32 more
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.0.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4643 distinct from 11196 calls (11231 lines, 12 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-apj8pt/observe/events.ndjson.gz (32570 bytes)
+  EVENTLOG-FILE /home/runner/v2-apj8pt/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11231,"parsed":11196,"unparsed":0,"unfinished":12,"rejoined":12,"unresolvedDirfd":4,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4643,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-apj8pt/observe/events.ndjson.gz","gzipBytes":32570}
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for javascript-obfuscator
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=69/69 missing=0 shortfall=none (tree 638/203) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
