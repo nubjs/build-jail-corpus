@@ -1,0 +1,71 @@
+### azure-functions-core-tools@4.9.0   (/home/runner/v2-bvLnZU)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=8832 trace=157424 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8258,"filesTheScriptProduced":8251,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-bvLnZU/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-bvLnZU/observe/capture.json
+  RAWLOG-BYTES raw=25942637 gz=421335
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-bvLnZU/jailhome","TMPDIR":"/tmp/nub-tmp-obswh0EBP","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-bvLnZU/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 9685  /  whole traced tree 10773
+    sockets script 3  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-bvLnZU/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-bvLnZU/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-bvLnZU/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obswh0EBP
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools
+  == WRITES the script actually performed ==
+    ownPkg     9685  (base profile already grants this — NOT billed)
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Functions.Cli.linux-x64.4.9.0.zip
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/AccentedCommandLineParser.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Autofac.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Core.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Data.Tables.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Identity.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Monitor.OpenTelemetry.Exporter.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Security.KeyVault.Secrets.dll
+        /home/runner/v2-bvLnZU/observe/node_modules/azure-functions-core-tools/bin/Azure.Storage.Blobs.dll
+        … and 9675 more
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        150.171.110.210:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    25404 distinct from 157365 calls (157425 lines, 32 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×28 exit×20 getsockopt×18 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-bvLnZU/observe/events.ndjson.gz (178436 bytes)
+  EVENTLOG-FILE /home/runner/v2-bvLnZU/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":157425,"parsed":157365,"unparsed":0,"unfinished":32,"rejoined":32,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":25404,"unknownSyscall":{"getsockname":33,"getsockopt":18,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":28,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-bvLnZU/observe/events.ndjson.gz","gzipBytes":178436}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for azure-functions-core-tools
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8258/8258 missing=0 shortfall=none (tree 26583/8832) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for azure-functions-core-tools
+  VERIFY[drop-no-network] rc=1 artifacts=7/8258 missing=8251 shortfall=3bd2a2c0c826 (tree 1828/8832) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: bin/AccentedCommandLineParser.dll, bin/Autofac.dll, bin/Azure.Core.dll, bin/Azure.Data.Tables.dll, bin/Azure.Identity.dll, bin/Azure.Monitor.OpenTelemetry.Exporter.dll (+8245)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
