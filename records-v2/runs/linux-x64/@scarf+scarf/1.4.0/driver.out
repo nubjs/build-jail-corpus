@@ -1,0 +1,71 @@
+### @scarf/scarf@1.4.0   (/home/runner/v2-RCZzZd)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=8 trace=21401 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-RCZzZd/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-RCZzZd/observe/capture.json
+  RAWLOG-BYTES raw=4725947 gz=133191
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-RCZzZd/jailhome","TMPDIR":"/tmp/nub-tmp-obsA6iFrl","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-RCZzZd/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 27
+    writes  script 1085  /  whole traced tree 1633
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-RCZzZd/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-RCZzZd/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-RCZzZd/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsA6iFrl
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-RCZzZd/observe/node_modules/@scarf/scarf
+  == WRITES the script actually performed ==
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-RCZzZd/jailhome/.npm/_logs/2026-08-07T19_06_43_157Z-debug-0.log
+    jailTmp    1084  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/14275c91.enlTim
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/14275c91
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/0ec0b8fa.vUryMC
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/0ec0b8fa
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/a70dc951.RUlqz8
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/a70dc951
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e46ebee5.indSkr
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e46ebee5
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/554fbb65.VUiQ4Z
+        /tmp/nub-tmp-obsA6iFrl/node-compile-cache/v22.23.1-x64-9ac5647c-1001/554fbb65
+        … and 1074 more
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.0.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8703 distinct from 21278 calls (21402 lines, 85 rejoined, 0 unparsed)
+    PROCS     34   lifecycle shells 22
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×42 setsockopt×35 getsockopt×28 exit×26 recvmsg×12 getcwd×6 socketpair×6 wait4×6
+    wrote /home/runner/v2-RCZzZd/observe/events.ndjson.gz (53951 bytes)
+  EVENTLOG-FILE /home/runner/v2-RCZzZd/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":21402,"parsed":21278,"unparsed":0,"unfinished":85,"rejoined":85,"unresolvedDirfd":3,"truncatedArg":0,"procs":34,"lifecyclePids":22,"distinctEvents":8703,"unknownSyscall":{"getsockname":42,"getsockopt":28,"getcwd":6,"recvmsg":12,"exit":26,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":5,"exit_group":5,"wait4":6},"out":"/home/runner/v2-RCZzZd/observe/events.ndjson.gz","gzipBytes":53951}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @scarf/scarf
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 20/8) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
