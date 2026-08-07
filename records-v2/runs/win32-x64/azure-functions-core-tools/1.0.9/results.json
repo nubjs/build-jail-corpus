@@ -1,0 +1,80 @@
+{
+  "pkg": "azure-functions-core-tools",
+  "version": "1.0.9",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
+  "synthesized": {
+    "write": {
+      "deps": true
+    },
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
+  "notes": [],
+  "eventLog": null,
+  "driverRc": 0,
+  "durationMs": 93873,
+  "provenance": {
+    "platform": "win32-x64",
+    "harness": "measure-windows.mjs",
+    "nubGitSha": "20c0695880bd20dcf011c67a8b0036bdeca5592f",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "33b02438426e3f08749df96054800781652f01d5",
+    "node": "v22.23.1",
+    "at": "2026-08-07T06:35:03.883Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "hoisted",
+    "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.1\\x64\\node.exe",
+    "interpreterInsideHome": false,
+    "jailRoot": "C:\\jail\\m-azurefunctionscoretools-msikjixq",
+    "observeUser": "runnervmhisb5\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "C:/Users/RUNNER~1/AppData/Local/Temp/nubsrc/target/fast/nub.exe",
+      "sha256": "1d973ced3f55975d0961021bee7927459830e4e9d372431ea2acb1b4852d836f",
+      "bytes": 68893696,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "overrides": {
+      "set": {
+        "npm_config_cache": "C:\\jail\\m-azurefunctionscoretools-msikjixq\\npm-cache",
+        "TMP": "C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp",
+        "TEMP": "C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp",
+        "TMPDIR": "C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp"
+      },
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "notRedirected": {
+        "USERPROFILE": "C:\\Users\\runneradmin",
+        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
+      },
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}

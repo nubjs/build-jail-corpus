@@ -1,0 +1,61 @@
+### azure-functions-core-tools@1.0.9   (C:\jail\m-azurefunctionscoretools-msikjixq)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervmhisb5\runneradmin elevated=True rootPid=844 exit=0 events=50045 lost=0
+  VENUE-OBSERVE-USER runnervmhisb5\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 168 files  (C:\jail\m-azurefunctionscoretools-msikjixq\observe\node_modules\azure-functions-core-tools)
+  ARM-FALSIFIABILITY {"manifestFiles":168,"filesTheScriptProduced":164,"reasons":[]}
+  CLOSURE 45 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmhisb5, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-azurefunctionscoretools-msikjixq\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-azurefunctionscoretools-msikjixq\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-azurefunctionscoretools-msikjixq\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-azurefunctionscoretools-msikjixq\observe\node_modules\azure-functions-core-tools
+  == ATTRIBUTION == lifecycle pids: 2 (root 844)
+    writes  script 171  /  whole traced tree 188
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps        171
+  == READS ==
+    deps        158
+    outside       6
+    project       1
+    systemfs     28
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 1
+        150.171.109.69:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  64634523 B xml -> 1028325 B gz (62.9x)  sha256 b9c399a2a46e7b9c…
+  HEADER    etw-header.json (5186 bytes)
+  DERIVED   6687 distinct from 17203 kept ops (50045 xml events, 3485 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 17 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmhisb5)]
+  wrote events.ndjson.gz (88930 bytes)
+  RAWLOG-CAPTURE C:\jail\m-azurefunctionscoretools-msikjixq\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nubsrc/target/fast/nub.exe","sha256":"1d973ced3f55975d0961021bee7927459830e4e9d372431ea2acb1b4852d836f","bytes":68893696,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-azurefunctionscoretools-msikjixq
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-azurefunctionscoretools-msikjixq\\npm-cache","TMP":"C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp","TEMP":"C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp","TMPDIR":"C:\\jail\\m-azurefunctionscoretools-msikjixq\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-azurefunctionscoretools-msikjixq\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=168/168 missing=0 shortfall=none (tree 6401/576) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-azurefunctionscoretools-msikjixq\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=4/168 missing=164 shortfall=5520fa154f28 (tree 6234/576) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/ARMClient.Authentication.dll, bin/ARMClient.Library.dll, bin/Autofac.dll, bin/Autofac.Integration.WebApi.dll, bin/azurefunctions/functions.js, bin/azurefunctions/http/request.js (+158)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-azurefunctionscoretools-msikjixq\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=168/168 missing=0 shortfall=none (tree 6401/576) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed

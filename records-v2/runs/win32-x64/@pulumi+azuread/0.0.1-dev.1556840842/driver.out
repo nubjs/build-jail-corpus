@@ -1,0 +1,78 @@
+### @pulumi/azuread@0.0.1-dev.1556840842   (C:\jail\m-pulumiazuread-msik3t9s)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervmhisb5\runneradmin elevated=True rootPid=5224 exit=0 events=50922 lost=0
+  VENUE-OBSERVE-USER runnervmhisb5\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 52 files  (C:\jail\m-pulumiazuread-msik3t9s\observe\node_modules\@pulumi\azuread)
+  ARM-FALSIFIABILITY {"manifestFiles":52,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (52) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 196 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmhisb5, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-pulumiazuread-msik3t9s\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-pulumiazuread-msik3t9s\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-pulumiazuread-msik3t9s\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-pulumiazuread-msik3t9s\observe\node_modules\@pulumi\azuread
+  == ATTRIBUTION == lifecycle pids: 3 (root 5224)
+    writes  script 10  /  whole traced tree 17
+    peers   script 4  /  whole traced tree 4
+  == WRITES ==
+    userHome      9
+    jailTmp       1
+  == READS ==
+    deps          6
+    outside       6
+    project       1
+    systemfs     51
+    userHome      6
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 4
+        18.245.104.63:443
+        140.82.112.3:443
+        140.82.112.5:443
+        104.20.20.220:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  66034624 B xml -> 904908 B gz (73.0x)  sha256 ff6313a279fa96f2…
+  HEADER    etw-header.json (5121 bytes)
+  DERIVED   5965 distinct from 18879 kept ops (50922 xml events, 3552 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmhisb5)]
+  wrote events.ndjson.gz (76990 bytes)
+  RAWLOG-CAPTURE C:\jail\m-pulumiazuread-msik3t9s\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nubsrc/target/fast/nub.exe","sha256":"1d973ced3f55975d0961021bee7927459830e4e9d372431ea2acb1b4852d836f","bytes":68893696,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-pulumiazuread-msik3t9s
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-pulumiazuread-msik3t9s\\npm-cache","TMP":"C:\\jail\\m-pulumiazuread-msik3t9s\\tmp","TEMP":"C:\\jail\\m-pulumiazuread-msik3t9s\\tmp","TMPDIR":"C:\\jail\\m-pulumiazuread-msik3t9s\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-pulumiazuread-msik3t9s\verify-synth\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[synth] rc=0 artifacts=52/52 missing=0 shortfall=none (tree 16231/11710) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-pulumiazuread-msik3t9s\verify-nar-no-network\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[nar-no-network] rc=0 artifacts=52/52 missing=0 shortfall=none (tree 17133/11710) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  STORE   isolated virtual store at C:\jail\m-pulumiazuread-msik3t9s\verify-nar-no-write-userHome\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=52/52 missing=0 shortfall=none (tree 16231/11710) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-pulumiazuread-msik3t9s\verify-joint-narrow\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[joint-narrow] rc=0 artifacts=52/52 missing=0 shortfall=none (tree 16231/11710) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
