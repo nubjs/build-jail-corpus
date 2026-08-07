@@ -44,6 +44,7 @@ import path from 'node:path';
 // module does NOT run its CLI: its main-module guard resolves the invoked script's path to a URL and
 // compares it against its own, and under this import that path is THIS file.
 import { shortfallDigest } from './shortfall-invariance.mjs';
+import { excusesSizeDifference } from './artifact-excusal.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -225,20 +226,10 @@ if (!got) missing.push('<package absent>');
 // ZERO writes outside the arm root: nothing was refused. The identical shortfall digest at every
 // rung then published a spurious `write:"disk"` off that comparison alone.
 //
-// Same safety envelope as the toolchain entries — SIZE only. An ABSENT lockfile still fails and a
-// ZERO-BYTE one still fails: a resolver difference changes a lockfile's contents, it can never fail
-// to write it at all.
-const TOOLCHAIN_GENERATED = [
-  /(^|\/)build\/config\.gypi$/,
-  /(^|\/)build\/Makefile$/,
-  /(^|\/)build\/.*\.target\.mk$/,
-  /(^|\/)build\/.*\.d$/,
-  /(^|\/)build\/gyp-mac-tool$/,
-  /(^|\/)build\/.*\.o$/,
-  /(^|\/)npm-shrinkwrap\.json$/,
-  /(^|\/)package-lock\.json$/,
-];
-const isToolchainGenerated = (f) => TOOLCHAIN_GENERATED.some((r) => r.test(f));
+// ⛔ THE LIST AND ITS SAFETY ENVELOPE NOW LIVE IN `artifact-excusal.mjs`, imported above. They were
+// inline here, and because `measure-windows.mjs` cannot invoke this file as a CLI it hand-copied the
+// size comparison WITHOUT any excusal — so the shrinkwrap case diagnosed directly above went on
+// being counted as shortfall on the one platform that measured it. Keep the decision importable.
 for (const [f, size] of got ? obs : []) {
   // ⛔ ABSENCE IS CHECKED FIRST AND FOR EVERY FILE, TOOLCHAIN-GENERATED INCLUDED. A generator
   // difference can change a file's CONTENTS; it can never fail to write the file at all.
@@ -248,7 +239,7 @@ for (const [f, size] of got ? obs : []) {
   // against a non-empty reference falls through to the check below and still fails — that is the
   // download-blocked/truncated shape the gate exists to catch, and no generator difference and no
   // layout difference can produce it.
-  if (isToolchainGenerated(f) && armSize > 0) continue;
+  if (excusesSizeDifference(f, armSize)) continue;
   if (armSize < size) missing.push(`${f} (${armSize}B < ${size}B)`);
 }
 const shortfall = shortfallDigest(missing);

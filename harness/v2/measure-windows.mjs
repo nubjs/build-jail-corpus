@@ -14,10 +14,18 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-// The digest is defined once, beside the predicate that compares digests across arms, so this
-// driver's inline gate and `artifact-gate.mjs` cannot drift apart. Importing that module does NOT run
-// its CLI -- its main-module guard resolves the invoked script's path to a URL and compares it
-// against its own, and under this import that path is THIS file.
+// The digest is defined once, beside the predicate that compares digests across arms. Importing that
+// module does NOT run its CLI -- its main-module guard resolves the invoked script's path to a URL and
+// compares it against its own, and under this import that path is THIS file.
+//
+// ⛔⛔ THIS COMMENT USED TO CLAIM THE SHARED DIGEST MEANT THIS DRIVER'S INLINE GATE AND
+// `artifact-gate.mjs` "CANNOT DRIFT APART". THEY DID. A shared digest makes two shortfalls
+// COMPARABLE; it says nothing about which files each side counts as shortfall in the first place.
+// This driver's `missingArtifacts` had NO toolchain excusal while both POSIX drivers had one, so
+// every Windows record counted the node-gyp output family and every regenerated lockfile as a real
+// shortfall -- which is what published the corpus's only `write:"disk"` grant. The excusal now lives
+// in `artifact-excusal.mjs` and both sides import it; `artifact-excusal.test.mjs` fails if either
+// grows its own again. A reassuring comment is not a mechanism.
 //
 // ⛔ THE EXPRESSION IS DESCRIBED RATHER THAN QUOTED, AND THAT IS NOT PEDANTRY. `cli-guard.test.mjs`
 // scans for files that CALL the URL-resolving form and requires each to carry the import-safety guard
@@ -25,6 +33,7 @@ import { spawnSync } from 'node:child_process';
 // then fails naming a defect that does not exist. Measured twice while writing this comment.
 import { shortfallDigest } from './shortfall-invariance.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
+import { excusesSizeDifference } from './artifact-excusal.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
@@ -313,8 +322,15 @@ const missingArtifacts = (obs, got) => {
   if (!got) return ['<package absent>'];
   const out = [];
   for (const [f, size] of obs) {
-    if (!got.has(f)) out.push(f);
-    else if (got.get(f) < size) out.push(`${f} (${got.get(f)}B < ${size}B)`);
+    // ⛔ ABSENCE IS CHECKED FIRST AND FOR EVERY FILE, TOOLCHAIN-GENERATED INCLUDED. A generator
+    // difference can change a file's CONTENTS; it can never fail to write the file at all. Only the
+    // "shorter but NON-EMPTY" comparison is excusable, and `artifact-excusal.mjs` owns that decision
+    // for this driver and `artifact-gate.mjs` alike -- see the note at the head of this file for the
+    // drift that cost the corpus its only `write:"disk"` grant.
+    if (!got.has(f)) { out.push(f); continue; }
+    const armSize = got.get(f);
+    if (excusesSizeDifference(f, armSize)) continue;
+    if (armSize < size) out.push(`${f} (${armSize}B < ${size}B)`);
   }
   return out;
 };
