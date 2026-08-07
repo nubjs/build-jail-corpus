@@ -1,0 +1,136 @@
+{
+  "pkg": "ttf2woff2",
+  "version": "7.0.0",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "deps": true,
+      "project": true
+    },
+    "network": true
+  },
+  "synthesized": {
+    "write": {
+      "deps": true,
+      "project": true
+    },
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network",
+    "no-write-deps",
+    "no-write-project"
+  ],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable",
+    "cwd-unobserved",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 141817,
+    "parsed": 141725,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 45,
+    "tracerErrorTotal": 45,
+    "unresolvedDirfd": 1866,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 561,
+    "danglingPair": 0,
+    "failed": 46765,
+    "enoent": 25316,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 196,
+      "ENOENT": 25316,
+      "EINVAL": 4,
+      "EEXIST": 20648,
+      "ENOTEMPTY": 601
+    },
+    "procs": 382,
+    "lifecyclePids": 194,
+    "distinctEvents": 84372,
+    "emitted": 84372,
+    "calls": 140197,
+    "bytes": 16607341,
+    "gzipBytes": 425560,
+    "out": "/Users/runner/v2m-mSVq9Q/Observe/events.ndjson"
+  },
+  "driverRc": 0,
+  "durationMs": 132292,
+  "provenance": {
+    "platform": "darwin-arm64",
+    "harness": "measure-macos.sh",
+    "nubGitSha": null,
+    "nubVersion": "v0.6.0",
+    "corpusGitSha": "067a3d5333dffaa72f30b3fc4c0734e977797c96",
+    "node": "v22.23.1",
+    "at": "2026-08-07T02:35:55.756Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
+    "ciChild": "clean (no CI-detection variable reaches the traced script)",
+    "cwdResolved": 94,
+    "cwdUnplaceableWrites": [
+      "./Release/.deps/Release/obj.target/addon/csrc/addon.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/backward_references.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/block_splitter.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/brotli_bit_stream.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/encode.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/encode_parallel.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/entropy_encode.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/histogram.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/literal_cost.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/metablock.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/enc/streams.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/font.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/glyph.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/normalize.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/table_tags.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/transform.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/variable_length.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/woff2_common.o.d.raw",
+      "./Release/.deps/Release/obj.target/addon/csrc/woff2/woff2_enc.o.d.raw",
+      "Release",
+      "Release/obj.target",
+      "Release/obj.target/addon",
+      "Release/obj.target/addon/csrc",
+      "Release/obj.target/addon/csrc/enc",
+      "Release/obj.target/addon/csrc/woff2"
+    ],
+    "nubBinary": null,
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-mSVq9Q/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obskmGOFc",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}
