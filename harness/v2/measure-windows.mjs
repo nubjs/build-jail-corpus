@@ -160,6 +160,14 @@ fs.mkdirSync(ROOT, { recursive: true });
 // thing it tests. That arm is safe from the defect above for a different reason: it inherits a
 // WHOLE store, never a partially-evicted one.
 const CACHE_HOME = flag('--cache-home', '');
+// ⛔ PER-ARM ISOLATION COSTS DISK, WHICH THE WALL-CLOCK COST MEASUREMENT DID NOT COVER. Each arm now
+// materialises its own virtual store, and they accumulate: MEASURED on the corpus VM, free space went
+// 62 GB -> 38 GB over one session of driver work. A sweep that discovers this at package 60 has
+// already lost the run, so the arm cache is swept as the arm finishes rather than at the end.
+// `--keep-arm-cache` retains them for forensics on a specific package. The SHARED cache passed via
+// `--cache-home` is never swept here — it lives outside the arm directory and its owner
+// (`falsify.mjs`'s wrong-warm pair) decides its lifetime.
+const KEEP_ARM_CACHE = argv.includes('--keep-arm-cache');
 
 // ⛔ A STRAY nub.jsonc ABOVE THE FIXTURE poisons every run under it -- nub walks UP from the cwd,
 // so a file three directories up silently supplies an `install.buildJail` the driver never chose.
@@ -1060,6 +1068,18 @@ const verify = (grant, label) => {
   try { priorEntries = fs.readdirSync(armStore).length; } catch { priorEntries = 0; }
   console.log(`  STORE   ${priorEntries === 0 ? 'isolated' : `shared (${priorEntries} entries carried in)`}`
     + ` virtual store at ${armCache}`);
+  // Swept once the arm has a verdict, never before: the arm's own logs and artifact tree stay for
+  // inspection, only the materialised store goes. Skipped entirely for a shared cache, whose next
+  // reader is another arm.
+  //
+  // ⛔ A TIMED-OUT ARM IS DELIBERATELY NOT SWEPT. `spawnSync`'s deadline kills the direct child only,
+  // so a jailed grandchild can still be running and holding handles under this directory — deleting
+  // it would race a live process, and a hang is exactly the case whose leftovers someone needs to
+  // look at. Those return paths skip the sweep for that reason, not by omission.
+  const sweepArmCache = () => {
+    if (KEEP_ARM_CACHE || CACHE_HOME) return;
+    try { fs.rmSync(armCache, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* a sweep failure must never cost a verdict */ }
+  };
   const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache };
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
@@ -1114,7 +1134,8 @@ const verify = (grant, label) => {
   // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.
   console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
   if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
-  if (!(ovr >= 1 && rej === 0)) { console.log('     !! override did not engage -- arm is VOID'); return { ok: false, void: true, files, rc }; }
+  if (!(ovr >= 1 && rej === 0)) { console.log('     !! override did not engage -- arm is VOID'); sweepArmCache(); return { ok: false, void: true, files, rc }; }
+  sweepArmCache();
   // Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
   // failure mode. Compare the MEASURED PACKAGE's artifact manifest against what the unjailed
   // OBSERVE arm produced for that same package.
