@@ -49,7 +49,16 @@ const run = (...args) => {
 test('a malformed --at-grant is refused before anything is measured', () => {
   // RED ON REVERT: drop the JSON shape check and the driver proceeds to build a catalog from a
   // string that is not an object, producing an arm whose failure says nothing about the package.
-  for (const bad of ['notjson', 'deps', 'write.deps', '[]']) {
+  // `[]` is asserted on POSIX only. MEASURED on nub-win3: passing it through Node -> msys bash
+  // crashes the bash process with exit 3221225477 (0xC0000005, an access violation) BEFORE the
+  // driver's own check runs, while the other three values return 2 correctly on the identical
+  // invocation. So this is the msys command-line runtime, not a gap in the driver's validation —
+  // and `measure-macos.sh` never runs on Windows in production anyway. Narrowing to this one value
+  // keeps the other three asserting on Windows rather than skipping the whole contract there.
+  const bads = process.platform === 'win32'
+    ? ['notjson', 'deps', 'write.deps']
+    : ['notjson', 'deps', 'write.deps', '[]'];
+  for (const bad of bads) {
     const { rc, out } = run('p', '1.0.0', '/bin/nub', '--at-grant', bad);
     assert.equal(rc, 2, `\`${bad}\` must be refused: ${out}`);
     assert.match(out, /--at-grant needs a JSON object/);
