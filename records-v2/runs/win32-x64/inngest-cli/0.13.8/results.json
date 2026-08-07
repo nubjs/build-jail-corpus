@@ -1,0 +1,79 @@
+{
+  "pkg": "inngest-cli",
+  "version": "0.13.8",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
+  "synthesized": {
+    "write": {
+      "deps": true
+    },
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
+  "notes": [
+    "replay-suspected"
+  ],
+  "eventLog": null,
+  "driverRc": 0,
+  "durationMs": 71621,
+  "provenance": {
+    "platform": "win32-x64",
+    "harness": "measure-windows.mjs",
+    "nubGitSha": null,
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "e6bc00812e8c19982f62f4b58d4404eee8482a0c",
+    "node": "v22.15.0",
+    "at": "2026-08-07T08:47:01.546Z",
+    "venue": "vm ",
+    "ciEnvSet": false,
+    "storeLayout": "hoisted",
+    "interpreterPath": "C:\\Program Files\\nodejs\\node.exe",
+    "interpreterInsideHome": false,
+    "jailRoot": "C:\\jail\\m-inngestcli-msip9pf9",
+    "observeUser": "NUB-WIN3\\nub elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "C:\\nub-ci.exe",
+      "sha256": "3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c",
+      "bytes": 43440128,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": false
+      }
+    },
+    "overrides": {
+      "set": {
+        "npm_config_cache": "C:\\jail\\m-inngestcli-msip9pf9\\npm-cache",
+        "TMP": "C:\\jail\\m-inngestcli-msip9pf9\\tmp",
+        "TEMP": "C:\\jail\\m-inngestcli-msip9pf9\\tmp",
+        "TMPDIR": "C:\\jail\\m-inngestcli-msip9pf9\\tmp"
+      },
+      "unset": [],
+      "notRedirected": {
+        "USERPROFILE": "C:\\Users\\nub",
+        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
+      },
+      "passedThrough": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "NODE_ENV": null
+      }
+    }
+  }
+}

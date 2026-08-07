@@ -1,0 +1,78 @@
+{
+  "pkg": "ref-napi",
+  "version": "3.0.3",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "deps": true
+    }
+  },
+  "synthesized": {
+    "write": {
+      "deps": true
+    }
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable"
+  ],
+  "eventLog": null,
+  "driverRc": 0,
+  "durationMs": 67107,
+  "provenance": {
+    "platform": "win32-x64",
+    "harness": "measure-windows.mjs",
+    "nubGitSha": null,
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "e6bc00812e8c19982f62f4b58d4404eee8482a0c",
+    "node": "v22.15.0",
+    "at": "2026-08-07T08:21:23.592Z",
+    "venue": "vm ",
+    "ciEnvSet": false,
+    "storeLayout": "hoisted",
+    "interpreterPath": "C:\\Program Files\\nodejs\\node.exe",
+    "interpreterInsideHome": false,
+    "jailRoot": "C:\\jail\\m-refnapi-msiocu7a",
+    "observeUser": "NUB-WIN3\\nub elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "C:\\nub-ci.exe",
+      "sha256": "3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c",
+      "bytes": 43440128,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": false
+      }
+    },
+    "overrides": {
+      "set": {
+        "npm_config_cache": "C:\\jail\\m-refnapi-msiocu7a\\npm-cache",
+        "TMP": "C:\\jail\\m-refnapi-msiocu7a\\tmp",
+        "TEMP": "C:\\jail\\m-refnapi-msiocu7a\\tmp",
+        "TMPDIR": "C:\\jail\\m-refnapi-msiocu7a\\tmp"
+      },
+      "unset": [],
+      "notRedirected": {
+        "USERPROFILE": "C:\\Users\\nub",
+        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
+      },
+      "passedThrough": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "NODE_ENV": null
+      }
+    }
+  }
+}

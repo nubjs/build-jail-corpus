@@ -1,0 +1,72 @@
+### electron-prebuilt@0.33.9   (C:\jail\m-electronprebuilt-msinmjm8)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=708 exit=0 events=146486 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 86 files  (C:\jail\m-electronprebuilt-msinmjm8\observe\node_modules\electron-prebuilt)
+  ARM-FALSIFIABILITY {"manifestFiles":87,"filesTheScriptProduced":77,"reasons":[]}
+  CLOSURE 140 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-electronprebuilt-msinmjm8\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-electronprebuilt-msinmjm8\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-electronprebuilt-msinmjm8\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-electronprebuilt-msinmjm8\observe\node_modules\electron-prebuilt
+  == ATTRIBUTION == lifecycle pids: 2 (root 708)
+    writes  script 84  /  whole traced tree 95
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    jailTmp       2
+    userHome      1
+    deps         81
+  == READS ==
+    deps        456
+    outside       3
+    project       1
+    systemfs     35
+    kernelfs      1
+    userHome      2
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.113.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true},"network":true}
+    NOTE 2 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  188430717 B xml -> 2954106 B gz (63.8x)  sha256 652a31d5ecc1fdee…
+  HEADER    etw-header.json (5024 bytes)
+  DERIVED   12437 distinct from 50143 kept ops (146486 xml events, 10192 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 70 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (171712 bytes)
+  RAWLOG-CAPTURE C:\jail\m-electronprebuilt-msinmjm8\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-electronprebuilt-msinmjm8
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-electronprebuilt-msinmjm8\\npm-cache","TMP":"C:\\jail\\m-electronprebuilt-msinmjm8\\tmp","TEMP":"C:\\jail\\m-electronprebuilt-msinmjm8\\tmp","TMPDIR":"C:\\jail\\m-electronprebuilt-msinmjm8\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-electronprebuilt-msinmjm8\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=87/86 missing=0 shortfall=none (tree 7745/1420) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-electronprebuilt-msinmjm8\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=11/86 missing=76 shortfall=f3b8f3b53614 (tree 7665/1420) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+     missing artifacts: dist/content_resources_200_percent.pak, dist/content_shell.pak, dist/d3dcompiler_47.dll, dist/electron.exe, dist/icudtl.dat, dist/libEGL.dll (+70)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-electronprebuilt-msinmjm8\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=87/86 missing=0 shortfall=none (tree 7745/1420) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at C:\jail\m-electronprebuilt-msinmjm8\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=87/86 missing=0 shortfall=none (tree 7745/1420) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-electronprebuilt-msinmjm8\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=87/86 missing=0 shortfall=none (tree 7745/1420) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => JOINT-NARROW VERIFIED {"network":true} — all 2 capabilities drop TOGETHER, measured

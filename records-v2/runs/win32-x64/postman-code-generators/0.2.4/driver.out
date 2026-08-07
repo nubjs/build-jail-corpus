@@ -1,0 +1,87 @@
+### postman-code-generators@0.2.4   (C:\jail\m-postmancodegenerators-msiof28m)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=2656 exit=0 events=1879635 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 379 files  (C:\jail\m-postmancodegenerators-msiof28m\observe\node_modules\postman-code-generators)
+  ARM-FALSIFIABILITY {"manifestFiles":375,"filesTheScriptProduced":21,"reasons":[]}
+  CLOSURE 73 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-postmancodegenerators-msiof28m\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-postmancodegenerators-msiof28m\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-postmancodegenerators-msiof28m\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-postmancodegenerators-msiof28m\observe\node_modules\postman-code-generators
+  == ATTRIBUTION == lifecycle pids: 144 (root 2656)
+    writes  script 787  /  whole traced tree 793
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    jailTmp     105
+    deps        177
+    outside     505
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_13_030z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_14_656z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_16_187z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_17_751z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_19_318z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_20_943z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_logs\2026-08-07t08_22_22_461z-debug-0.log
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_cacache\tmp\7babda6a
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_cacache\tmp\9a44fd94
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_cacache\index-v5\b0\4a\c18a99a2710b49b5a3a1121226be4940f623f8ba056f8108a634ed347da9
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_cacache\index-v5\f3\2c\80267cf9b394a43404ccabe3e574f5fd89b769b43be625b75ff9b1b4a2ee
+        c:\jail\m-postmancodegenerators-msiof28m\npm-cache\_cacache\tmp\6cf1911a
+  == READS ==
+    deps        297
+    outside     392
+    project       2
+    systemfs   1089
+    jailTmp     707
+    kernelfs      2
+  == NETWORK ==
+    distinct peers: 1
+        104.16.11.34:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 105 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 505 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  2402173495 B xml -> 36556501 B gz (65.7x)  sha256 655c82fd794f5529…
+  HEADER    etw-header.json (5080 bytes)
+  DERIVED   235362 distinct from 620536 kept ops (1879635 xml events, 113341 out of subtree)
+  PROCS     146   thread-reattributed 0
+  ⛔ 559 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (3305602 bytes)
+  RAWLOG-CAPTURE C:\jail\m-postmancodegenerators-msiof28m\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-postmancodegenerators-msiof28m
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-postmancodegenerators-msiof28m\\npm-cache","TMP":"C:\\jail\\m-postmancodegenerators-msiof28m\\tmp","TEMP":"C:\\jail\\m-postmancodegenerators-msiof28m\\tmp","TMPDIR":"C:\\jail\\m-postmancodegenerators-msiof28m\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-postmancodegenerators-msiof28m\verify-synth\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[synth] rc=1 artifacts=375/379 missing=25 shortfall=c95fb03d816a (tree 11056/4692) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: codegens/csharp-restsharp/npm-shrinkwrap.json (96B < 339B), codegens/curl/npm-shrinkwrap.json (84B < 315B), codegens/golang/npm-shrinkwrap.json (86B < 319B), codegens/http/npm-shrinkwrap.json (84B < 315B), codegens/java-okhttp/npm-shrinkwrap.json (91B < 329B), codegens/java-unirest/npm-shrinkwrap.json (92B < 331B) (+19)
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at C:\jail\m-postmancodegenerators-msiof28m\verify-fb0\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[fb0] rc=1 artifacts=375/379 missing=25 shortfall=c95fb03d816a (tree 11056/4692) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     missing artifacts: codegens/csharp-restsharp/npm-shrinkwrap.json (96B < 339B), codegens/curl/npm-shrinkwrap.json (84B < 315B), codegens/golang/npm-shrinkwrap.json (86B < 319B), codegens/http/npm-shrinkwrap.json (84B < 315B), codegens/java-okhttp/npm-shrinkwrap.json (91B < 329B), codegens/java-unirest/npm-shrinkwrap.json (92B < 331B) (+19)
+  STORE   isolated virtual store at C:\jail\m-postmancodegenerators-msiof28m\verify-fb1\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[fb1] rc=1 artifacts=375/379 missing=25 shortfall=c95fb03d816a (tree 11056/4692) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     missing artifacts: codegens/csharp-restsharp/npm-shrinkwrap.json (96B < 339B), codegens/curl/npm-shrinkwrap.json (84B < 315B), codegens/golang/npm-shrinkwrap.json (86B < 319B), codegens/http/npm-shrinkwrap.json (84B < 315B), codegens/java-okhttp/npm-shrinkwrap.json (91B < 329B), codegens/java-unirest/npm-shrinkwrap.json (92B < 331B) (+19)
+  STORE   isolated virtual store at C:\jail\m-postmancodegenerators-msiof28m\verify-fb2\.cache
+     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run
+  VERIFY[fb2] rc=0 artifacts=379/379 missing=0 shortfall=none (tree 11066/4692) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here

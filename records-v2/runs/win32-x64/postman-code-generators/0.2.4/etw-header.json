@@ -1,0 +1,132 @@
+{
+  "k": "h",
+  "v": 1,
+  "platform": "win32-x64",
+  "pkg": "postman-code-generators",
+  "version": "0.2.4",
+  "at": "2026-08-07T08:26:24.067Z",
+  "tracer": {
+    "kind": "etw",
+    "capture": "harness/v2/adapters/windows.ps1",
+    "captureScriptSha256": "0791258ef5aaa597ab2be67ebfcc7006986f74c72bfcb99815f3e51f2edb0335",
+    "captureSchema": "nub-obs-win/1",
+    "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
+    "tracerptExit": 0,
+    "session": {
+      "name": "nubobs_5492_msiof8ft",
+      "bufferSizeKB": 1024,
+      "minBuffers": 64,
+      "maxBuffers": 320,
+      "maxFileMB": 8192,
+      "mode": "sequential",
+      "settleMs": 1200
+    },
+    "providers": [
+      {
+        "name": "Microsoft-Windows-Kernel-File",
+        "keywords": "0x1FF0",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Network",
+        "keywords": "0x30",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Process",
+        "keywords": "0x10",
+        "level": 5,
+        "exit": 0
+      }
+    ]
+  },
+  "os": {
+    "version": "Microsoft Windows NT 10.0.20348.0",
+    "host": "NUB-WIN3",
+    "arch": "x64"
+  },
+  "identity": {
+    "whoami": "NUB-WIN3\\nub",
+    "sid": "S-1-5-21-1994189214-170099399-1991151175-1000",
+    "elevated": true,
+    "privDropped": {
+      "SeBackupPrivilege": "removed",
+      "SeRestorePrivilege": "removed",
+      "SeTakeOwnershipPrivilege": "removed"
+    }
+  },
+  "run": {
+    "command": "C:\\jail\\m-postmancodegenerators-msiof28m\\rebuild.cmd",
+    "workDir": "C:\\jail\\m-postmancodegenerators-msiof28m\\observe",
+    "rootPid": 2656,
+    "launcherPid": 4824,
+    "exitCode": 0,
+    "startedUtc": "2026-08-07T08:22:10.4468784Z",
+    "endedUtc": "2026-08-07T08:22:54.1006751Z"
+  },
+  "integrity": {
+    "eventsTotal": 1879635,
+    "eventsLost": 0,
+    "lostFrom": "tracerpt summary 'Total Events Lost'"
+  },
+  "roots": {
+    "project": "C:\\jail\\m-postmancodegenerators-msiof28m\\observe",
+    "home": "C:\\Users\\nub",
+    "jailHome": null,
+    "globalStore": "C:\\Users\\nub\\AppData\\Local\\nub\\pm\\store",
+    "projectStore": "C:\\jail\\m-postmancodegenerators-msiof28m\\observe\\node_modules\\.store",
+    "interpreter": "C:\\Program Files\\nodejs\\node.exe",
+    "toolsDir": "C:\\Users\\nub\\AppData\\Local\\nub\\pm\\tools",
+    "temp": "C:\\jail\\m-postmancodegenerators-msiof28m\\tmp",
+    "npmPrefix": null,
+    "ownPkg": "C:\\jail\\m-postmancodegenerators-msiof28m\\observe\\node_modules\\postman-code-generators",
+    "cwd": null
+  },
+  "rootsFrom": "capture.json",
+  "devmap": {
+    "\\Device\\HarddiskVolume3": "C:"
+  },
+  "raw": {
+    "file": "etw-raw.xml.gz",
+    "bytes": 2402173495,
+    "gzBytes": 36556501,
+    "sha256": "655c82fd794f55296216db156a011347e64e54de2e79cb695ece29b459f17458",
+    "of": "trace.xml",
+    "etlBytes": 270532608,
+    "etlRetained": false
+  },
+  "limits": {
+    "createHasNoDesiredAccess": "Create (12) carries no DesiredAccess; `d` is the CreateDisposition, not the requested access. `open-r` means disposition FILE_OPEN, NOT proof of read-only intent — a FILE_OPEN handle can be written through. Writes are evidenced by event 16.",
+    "noRundownForPreOpenHandles": "the FileObject/FileKey name tables hold nothing for a file already open when the session started (no rundown session is run); those handle ops are counted in stats.unresolvedHandle and are unnameable, not missing",
+    "hardlinkDestNeeds0x800": "a hardlink destination is carried ONLY by event 28 (keyword 0x800) — NTFS emits no NameCreate for a second name on an existing FileKey, so below 0x1FF0 it is unrecoverable by re-parse rather than merely unrelated. A rename destination by contrast also appears as its own NameCreate, so a narrow mask loses only the source-to-dest relation.",
+    "taskNamesAreMisleading": "events are keyed on the numeric EventID; event 27 (RenamePath) renders RenderingInfo/Task as `NameDelete`, so a task-name-keyed reader will be wrong"
+  },
+  "derived": {
+    "file": "events.ndjson.gz",
+    "filter": "subtree of rootPid 2656 (out-of-subtree events are in the raw only)",
+    "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on NUB-WIN3))"
+  },
+  "stats": {
+    "xmlEvents": 1879635,
+    "kept": 620536,
+    "distinct": 235362,
+    "byProvider": {
+      "Microsoft-Windows-Kernel-File": 1878791,
+      "Microsoft-Windows-Kernel-Process": 318,
+      "Microsoft-Windows-Kernel-Network": 524
+    },
+    "unknownFileEvent": {},
+    "unresolvedHandle": 1,
+    "unsettled": 559,
+    "reattributedByThread": 0,
+    "outOfSubtree": 113341,
+    "destResolved": 407,
+    "destUnresolved": 0,
+    "shortExpanded": 0,
+    "shortUnexpanded": 0,
+    "shortUnmapped": 0
+  }
+}

@@ -1,0 +1,55 @@
+### hugo-extended@0.157.0   (C:\jail\m-hugoextended-msioujcz)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=4992 exit=0 events=78765 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 23 files  (C:\jail\m-hugoextended-msioujcz\observe\node_modules\hugo-extended)
+  ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":3,"reasons":[]}
+  CLOSURE 8 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-hugoextended-msioujcz\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-hugoextended-msioujcz\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-hugoextended-msioujcz\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-hugoextended-msioujcz\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 4992)
+    writes  script 6  /  whole traced tree 19
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          5
+    kernelfs      1
+  == READS ==
+    deps         42
+    outside       3
+    project       1
+    systemfs     51
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.3:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  100700136 B xml -> 1545874 B gz (65.1x)  sha256 196586a6ae1e6005…
+  HEADER    etw-header.json (4990 bytes)
+  DERIVED   10180 distinct from 24870 kept ops (78765 xml events, 5542 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 9 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (137702 bytes)
+  RAWLOG-CAPTURE C:\jail\m-hugoextended-msioujcz\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-hugoextended-msioujcz
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-hugoextended-msioujcz\\npm-cache","TMP":"C:\\jail\\m-hugoextended-msioujcz\\tmp","TEMP":"C:\\jail\\m-hugoextended-msioujcz\\tmp","TMPDIR":"C:\\jail\\m-hugoextended-msioujcz\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-hugoextended-msioujcz\verify-synth\.cache
+  VERIFY[synth] TIMED-OUT in `approve-builds` after 600000 ms -- no verdict; check for surviving children
+  => TIMED-OUT at the synthesized grant (approve-builds); no verdict, and the ladder is NOT walked
