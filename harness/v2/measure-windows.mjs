@@ -1140,21 +1140,33 @@ if (AT_GRANT) {
   process.exit(1);
 }
 
-const synth = verify(GRANT, 'synth');
-// ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. A VOID synth arm measured the COMPILED-IN
-// catalog, so falling through to the ladder walks upward from a hypothesis that was never tested and
-// publishes whichever rung happens to pass as this package's MINIMUM.
-if (synth.void) {
-  console.log('  => VOID -- the override did not engage on the verdict arm; NOTHING was measured.');
-  console.log('     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant.');
-  process.exit(1);
-}
-// A timeout is not evidence that the grant was too narrow, so the ladder must NOT be walked from
-// here -- widening after a hang would manufacture a wider "minimum" than the package really needs.
-if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${synth.stage}); no verdict, and the ladder is NOT walked`); process.exit(3); }
-if (synth.ok) {
-  console.log(`  => MINIMUM ${JSON.stringify(GRANT)}   (observed, then verified)`);
-
+// ── 3a. DESCEND — is the VERIFIED grant MINIMAL, or was it wider than the package needs? ──────
+//
+// ⛔⛔ CALLED FROM THE LADDER PATH TOO, AND THAT IS THE POINT OF EXTRACTING IT. This ran only under
+// `if (synth.ok)`, so a record reached via the LADDER was published at whichever rung happened to
+// pass, with `minimality` unproven by construction. The ladder rungs are BUNDLES — rung 0 is
+// `write:{deps,project,userHome}` — so that record granted three capabilities on the strength of
+// one arm that could not say which of them was needed. MEASURED on the first win32 record ever
+// produced, `iedriver@4.0.0`: synth `{"write":{"deps":true},"network":true}` failed 9/11 artifacts,
+// rung 0 passed 15/11, and the record carried `write.userHome` — the PERSISTENCE capability — with
+// nothing in the run saying whether it was one of the three.
+//
+// ⛔ AND EXCLUDING SUCH A RECORD IS THE WRONG REPAIR, in the direction this project forbids. A
+// ladder grant is WIDE; publishing it means the install works with minimality unproven, while
+// dropping it leaves the package with no entry at all, running at the base profile — a BROKEN
+// install, and precisely for the packages OBSERVE cannot predict. Over-granting is safe;
+// under-granting breaks installs. So the ladder descends instead of being withheld.
+//
+// `verifiedBy` stays the discriminator between the two provenances: `record.mjs` reads
+// `ladder fallback` off the verdict line, and `applyGrantSourceRule` narrows from `out.grant` —
+// which for a ladder record IS the rung, not the synthesized value — so the recomputation is
+// already correct for this path with no change on that side.
+const descend = (g0, provenance) => {
+  // The word the fall-back messages use for "the grant we keep when a narrowing is unproven". On the
+  // synth path that is the synthesized value; on the ladder path it is the RUNG, and calling a rung
+  // "synthesized" in a log a reader is using to audit a `write.userHome` grant would misdescribe
+  // where it came from.
+  const kept = provenance === 'ladder' ? 'ladder-rung' : 'synthesized';
   // ── 3a. DESCEND — is the verified grant MINIMAL, or did OBSERVE over-predict? ────────────────
   //
   // ⛔ THE DESCENT MATTERS MORE ON WINDOWS THAN ANYWHERE ELSE, because win32 OBSERVE is the least
@@ -1181,17 +1193,17 @@ if (synth.ok) {
   // identical to the synthesized one, so the record would claim it narrowed while publishing the wide
   // value. Same spelling as `measure-macos.sh`.
   const variants = [];
-  if (GRANT.network) variants.push(['no-network', (g) => { delete g.network; }]);
-  for (const k of Object.keys(GRANT.write ?? {})) {
+  if (g0.network) variants.push(['no-network', (g) => { delete g.network; }]);
+  for (const k of Object.keys(g0.write ?? {})) {
     variants.push([`no-write-${k}`, (g) => {
       delete g.write[k];
       if (!Object.keys(g.write).length) delete g.write;
     }]);
   }
-  if (GRANT.read) variants.push(['no-read', (g) => { delete g.read; }]);
+  if (g0.read) variants.push(['no-read', (g) => { delete g.read; }]);
 
   const narrow = (drop) => {
-    const g = JSON.parse(JSON.stringify(GRANT));
+    const g = JSON.parse(JSON.stringify(g0));
     for (const name of drop) variants.find(([n]) => n === name)[1](g);
     return g;
   };
@@ -1232,7 +1244,7 @@ if (synth.ok) {
     if (!dropped.length && inconclusive.length) {
       console.log(`  => DESCENT INCOMPLETE — no capability dropped, but ${inconclusive.join(' ')} was never measured; MINIMALITY IS UNPROVEN`);
     } else if (!dropped.length) {
-      console.log(`  => MINIMAL — every capability in ${JSON.stringify(GRANT)} is independently necessary`);
+      console.log(`  => MINIMAL — every capability in ${JSON.stringify(g0)} is independently necessary`);
     }
   }
 
@@ -1248,14 +1260,31 @@ if (synth.ok) {
     const r = verify(joint, 'joint-narrow');
     if (r.void || r.timedOut) {
       console.log(`  => JOINT-NARROW INCONCLUSIVE — the arm was ${r.void ? 'VOID' : 'TIMED-OUT'}, so the joint drop is unmeasured;`);
-      console.log('     the record keeps the wider synthesized grant, which is the safe direction.');
+      console.log(`     the record keeps the wider ${kept} grant, which is the safe direction.`);
     } else if (r.ok) {
       console.log(`  => JOINT-NARROW VERIFIED ${JSON.stringify(joint)} — all ${dropped.length} capabilities drop TOGETHER, measured`);
     } else {
       console.log(`  => JOINT-NARROW FAILED ${JSON.stringify(joint)} — each capability drops alone but not together;`);
-      console.log('     the leave-one-out results stand and the record keeps the synthesized grant.');
+      console.log(`     the leave-one-out results stand and the record keeps the ${kept} grant.`);
     }
   }
+};
+
+const synth = verify(GRANT, 'synth');
+// ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. A VOID synth arm measured the COMPILED-IN
+// catalog, so falling through to the ladder walks upward from a hypothesis that was never tested and
+// publishes whichever rung happens to pass as this package's MINIMUM.
+if (synth.void) {
+  console.log('  => VOID -- the override did not engage on the verdict arm; NOTHING was measured.');
+  console.log('     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant.');
+  process.exit(1);
+}
+// A timeout is not evidence that the grant was too narrow, so the ladder must NOT be walked from
+// here -- widening after a hang would manufacture a wider "minimum" than the package really needs.
+if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${synth.stage}); no verdict, and the ladder is NOT walked`); process.exit(3); }
+if (synth.ok) {
+  console.log(`  => MINIMUM ${JSON.stringify(GRANT)}   (observed, then verified)`);
+  descend(GRANT, 'synth');
   process.exit(0);
 }
 
@@ -1292,6 +1321,16 @@ for (const [i, g] of LADDER.entries()) {
     console.log(`  => MINIMUM ${JSON.stringify(g)}   (ladder fallback; synthesized grant was insufficient)`);
     console.log(`  !! OBSERVE UNDER-PREDICTED -- the gap between ${JSON.stringify(GRANT)} and this is what the trace missed`);
     if (g.write === 'disk') console.log('  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here');
+    // ⛔ THE RUNG IS A BUNDLE, SO IT MUST BE DESCENDED — this is where a ladder record used to be
+    // published un-narrowed. Rung 0 alone grants `deps` + `project` + `userHome`, and `userHome` is
+    // the persistence capability; without a descent the record hands out all three because ONE arm
+    // passed. The descent is what says which of them the package actually needs.
+    //
+    // ⛔ NOT DESCENDED FROM `write:"disk"`. That rung declines the AppContainer token altogether, so
+    // it is not a path grant with droppable terms — it is the absence of confinement, and a
+    // leave-one-out over it would be measuring nothing. A record that only passes there already
+    // carries the `NO CONFINEMENT` warning above.
+    if (g.write !== 'disk') descend(g, 'ladder');
     process.exit(0);
   }
 }
