@@ -3,76 +3,89 @@
   "version": "2.0.0-alpha2",
   "harnessVersion": 2,
   "verdict": "MINIMUM",
-  "grant": {
-    "network": true
-  },
+  "grant": {},
   "synthesized": {
     "network": true
   },
   "verifiedBy": "synth",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "network"
+    "no-network"
   ],
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {},
   "notes": [],
   "eventLog": {
-    "lines": 224258,
-    "parsed": 214777,
+    "lines": 158171,
+    "parsed": 155558,
     "unparsed": 0,
-    "unfinished": 8999,
-    "rejoined": 8999,
-    "unresolvedDirfd": 4,
+    "unfinished": 2134,
+    "rejoined": 2134,
+    "unresolvedDirfd": 3,
     "truncatedArg": 0,
-    "procs": 364,
-    "lifecyclePids": 352,
-    "distinctEvents": 80731,
+    "procs": 362,
+    "lifecyclePids": 351,
+    "distinctEvents": 63934,
     "unknownSyscall": {
-      "getsockname": 34,
-      "getsockopt": 31,
+      "getsockname": 50,
+      "getsockopt": 34,
       "getcwd": 296,
-      "recvmsg": 7,
-      "exit": 35,
+      "recvmsg": 8,
+      "setsockopt": 70,
+      "sendmmsg": 2,
       "socketpair": 12,
-      "setsockopt": 59,
       "shutdown": 11,
+      "exit": 33,
       "exit_group": 324,
-      "wait4": 373,
-      "sendmmsg": 1
+      "wait4": 373
     },
-    "out": "/home/runner/v2-DpKSBx/observe/events.ndjson.gz",
-    "gzipBytes": 398462
+    "out": "/home/nub/v2-aGHzC1/observe/events.ndjson.gz",
+    "gzipBytes": 305378
   },
   "driverRc": 0,
-  "durationMs": 116007,
+  "durationMs": 107653,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "a8eb8c9928f1de66c5557681fa4c0426accb9d2a",
+    "nubGitSha": null,
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "52ea0ccb69d2780f119bde08f8fd4580a8fc3216",
-    "node": "v22.23.2",
-    "at": "2026-08-06T22:41:24.796Z",
-    "venue": "ci",
-    "ciEnvSet": true,
+    "corpusGitSha": "f4fc2925a2b1d2651c7209fab5b284140f84a500",
+    "node": "v22.20.0",
+    "at": "2026-08-07T00:08:43.000Z",
+    "venue": "vm",
+    "ciEnvSet": false,
     "storeLayout": "isolated",
-    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
-    "interpreterInsideHome": false,
+    "interpreterPath": "/home/nub/node",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "{\"uid\":1001,\"user\":\"nub\",\"umask\":\"0002\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "ciChild": null,
+    "nubBinary": {
+      "path": "/home/nub/nub-catalog-override.bin",
+      "sha256": "0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd",
+      "bytes": 49587440,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/runner/v2-DpKSBx/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsKYQ1kL",
+        "HOME": "/home/nub/v2-aGHzC1/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsR0OGZG",
         "NODE_COMPAT": "1",
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
-        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
-        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
-        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/runner/v2-DpKSBx/nubcache"
+        "NUB_CACHE_DIR": "/home/nub/v2-aGHzC1/nubcache"
       },
       "unset": [],
       "passedThrough": {
-        "CI": "true",
-        "GITHUB_ACTIONS": "true",
+        "CI": null,
+        "GITHUB_ACTIONS": null,
         "NODE_ENV": null
       }
     }
