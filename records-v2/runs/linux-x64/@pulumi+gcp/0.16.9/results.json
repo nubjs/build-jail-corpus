@@ -18,41 +18,98 @@
   "verifiedBy": "synth",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "network",
-    "write.userHome"
+    "no-network",
+    "no-write-userHome"
   ],
-  "notes": [],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable"
+  ],
+  "eventLog": {
+    "lines": 13049,
+    "parsed": 12195,
+    "unparsed": 0,
+    "unfinished": 573,
+    "rejoined": 573,
+    "unresolvedDirfd": 3,
+    "truncatedArg": 0,
+    "procs": 29,
+    "lifecyclePids": 17,
+    "distinctEvents": 5483,
+    "unknownSyscall": {
+      "getsockname": 40,
+      "getsockopt": 16,
+      "getcwd": 4,
+      "recvmsg": 7,
+      "exit": 15,
+      "setsockopt": 69,
+      "sendmmsg": 1,
+      "socketpair": 3,
+      "shutdown": 3,
+      "tgkill": 248,
+      "listen": 1,
+      "accept4": 1,
+      "getpeername": 19,
+      "exit_group": 4,
+      "wait4": 4
+    },
+    "out": "/home/runner/v2-AmM2Iy/observe/events.ndjson.gz",
+    "gzipBytes": 38939
+  },
   "driverRc": 0,
-  "durationMs": 528545,
+  "durationMs": 648397,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
     "nubGitSha": null,
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "4bb67537c02468baf3ab2aec1f5d9701b45c9e80",
-    "node": "v22.23.2",
-    "at": "2026-08-06T12:55:59.786Z"
-  },
-  "withheldRemeasure": {
-    "at": "2026-08-07T00:52:00Z",
-    "venue": "vm",
-    "host": "nub-corpus-linux",
-    "harnessCorpusGitSha": "c842f37c4c44fa94cc7eee426f0cb93b9ba0eb0b",
-    "missingPrecondition": "the pulumi CLI is not on PATH on the measuring host",
-    "remeasuredVerdict": "MINIMUM",
-    "remeasuredGrant": {},
-    "remeasuredNotes": [
-      "arms-unfalsifiable"
-    ],
-    "whyWithheld": "SILENT no-op. scripts/install-pulumi-plugin.js spawns pulumi, catches the ENOENT and calls process.exit(0) unconditionally, so the install script exits 0 having done nothing. OBSERVE attributed 0 writes and 0 sockets to the script, every arm is gate-vacuous, and the synthesized grant collapses to {}. Publishing {} over the prior grant would be an under-grant for every user who does have pulumi installed.",
-    "evidence": "MEASURED in the OBSERVE strace: 19 execve attempts for a pulumi basename across the whole PATH, every one = -1 ENOENT, last /snap/bin/pulumi.",
-    "keptGrant": {
-      "write": {
-        "userHome": true
-      },
-      "network": true
+    "corpusGitSha": "b1efbb16ffe41c724c24295c5059d46d1aa0c916",
+    "node": "v22.23.1",
+    "at": "2026-08-07T04:33:01.567Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.1/x64",
+    "interpreterInsideHome": false,
+    "jailRoot": null,
+    "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "9355b7544f6dfcc8859e1c1cd457f155b5900d0764f7675d9c4259b612f09d2a",
+      "bytes": 48797872,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": false
+      }
     },
-    "owed": "Re-measure on a host that HAS the pulumi CLI. Until then this record keeps its 2026-08-06 grant on purpose: the re-measure could not exercise the install script, so it is not evidence that the grant is wrong.",
-    "doNotFix": "Do NOT install pulumi on the measuring host to clear this. A measuring host that accumulates per-package tools silently changes what every other package measures."
+    "overrides": {
+      "set": {
+        "HOME": "/home/runner/v2-AmM2Iy/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsIEhAMS",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NUB_CACHE_DIR": "/home/runner/v2-AmM2Iy/nubcache"
+      },
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
