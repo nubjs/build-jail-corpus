@@ -457,8 +457,12 @@ jobs:
           # rewrite (see the `/tmp` note in the job's `env:` block), so the Windows lane died here on
           # its first ever run. The v1 runner has always called this same script; only v2 grew a copy.
           node harness/collect-verdicts.mjs --runs records-v2 --out /tmp/verdicts.ndjson
+          # This --complete marks the LOCAL queue, which the commit step discards on its `git reset
+          # --hard origin` and re-derives with its own --complete. Kept only for its retry-accounting
+          # diagnostic ("completed N rows"). The former `--reconcile --records records-v2` line here
+          # was removed: its whole-tree walk (~20s) is likewise discarded by that reset, so it was
+          # pure per-run waste — the self-heal it provided is delegated to `--reclaim-stale`.
           node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
-          node harness/claim-slice.mjs --queue queue-v2.ndjson --reconcile --records records-v2
 
       # ⛔ `if: always()` IS THE WHOLE POINT: this must run precisely when a later step FAILS. A slice
       # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
@@ -518,7 +522,7 @@ jobs:
             echo "::warning::no publish manifest — stashing the whole records-v2 tree"
             mkdir -p "$STASH/records-v2"; cp -R records-v2/. "$STASH/records-v2/" 2>/dev/null || true
           fi
-          for i in 1 2 3 4 5; do
+          for i in $(seq 1 12); do
             git reset -q --hard HEAD
             git fetch -q origin "$GITHUB_REF_NAME"
             git reset -q --hard "origin/$GITHUB_REF_NAME"
@@ -530,15 +534,27 @@ jobs:
             else
               mkdir -p records-v2; cp -R "$STASH/records-v2/." records-v2/ 2>/dev/null || true
             fi
-            node harness/claim-slice.mjs --queue queue-v2.ndjson --reconcile --records records-v2
+            # ⛔ FAST PATH, NOT `--reconcile`. `--reconcile` walks the WHOLE records tree (~4000
+            # results.json, ~20s) on every retry, and that 20s fetch→push window is what loses the
+            # race: under N concurrent runners the branch takes a push every ~2-3s, so a 20s window
+            # can essentially never win — the run exhausts its 5 retries, exits 1, and LOSES its
+            # measured records while STRANDING its claim. `--complete` marks only THIS run's claimed
+            # rows from the already-built verdict file (no tree walk, ~0.1s), collapsing the window to
+            # ~1-2s so the push lands. Self-healing of other runs' stranded rows is delegated to
+            # `--reclaim-stale` (it re-measures), which does not need to sit in this hot loop.
+            node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
             git add records-v2 queue-v2.ndjson
-            git diff --cached --quiet && { echo "already up to date after reconcile"; exit 0; }
+            git diff --cached --quiet && { echo "already up to date — records already landed"; exit 0; }
             git commit -q -m "corpus-v2($OS_NAME): slice of $SLICE_N [run ${{ github.run_id }}]"
             git push -q && exit 0
             echo "push $i rejected — another runner landed first; rebuilding on the new head" >&2
-            sleep $((i * 5))
+            # Jittered backoff: a FIXED backoff wakes every loser at the same offset so they collide
+            # again. The random term decorrelates the herd; the linear term (capped at 12s) keeps the
+            # total bounded well under the job cap even at 12 attempts.
+            back=$((i * 2)); [ "$back" -gt 12 ] && back=12
+            sleep $((back + RANDOM % 5))
           done
-          echo "could not push after 5 attempts" >&2; exit 1
+          echo "could not push after 12 attempts" >&2; exit 1
 
       - name: Report v2 queue status
         if: inputs.packages == ''
