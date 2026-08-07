@@ -1,19 +1,39 @@
-# The both-directions proof for the Windows driver's per-arm store eviction.
+# The proof for the Windows driver's per-arm store eviction: R0 primes, R2 must refuse a too-narrow
+# grant, R3 must still accept the true minimum, P checks the tooling sparing survives.
 #
-# ⛔ THE NEGATIVE CONTROL IS THE DELIVERABLE, NOT THE POSITIVE ONE. An eviction that is too NARROW
-# reintroduces the false PASS — an arm succeeding at a grant narrower than the package needs, i.e. an
-# UNDER-GRANT, which breaks real users' installs. A positive control cannot detect that: a driver
-# that evicts nothing at all passes every positive control there is. So this runs the recorded
-# three-row experiment, and row R1 exists purely to prove R2/R3 have teeth — it drives a copy of the
-# driver mutated back to ROOT-ONLY eviction and EXPECTS the false pass. If R1 behaves like R2, the
-# control is not exercising the eviction and neither row means anything.
+# ⛔⛔ THE R1 "TEETH CONTROL" WAS RETIRED 2026-08-07 AFTER BEING MEASURED NON-DISCRIMINATING HERE.
+# Recorded so nobody re-derives it as an oversight and adds it back.
+#
+# R1 drove a copy of the driver mutated back to ROOT-ONLY eviction and REQUIRED a false PASS, so that
+# deep eviction could be shown to be the thing preventing one. It never produced that false pass.
+# MEASURED on two venues — run 31132145179 on `windows-latest`, and the same rows re-run on the
+# corpus VM — R1 and R2 came back IDENTICAL at `rc=1 artifacts=6/6 missing=0`, differing only in
+# `EVICT 1` vs `EVICT 30`.
+#
+# The reason is mechanical, not a gap in the experiment, and no amount of retrying or of picking
+# another package could fix it: both arms fail on a WRITE refused at the grant boundary
+# (`EPERM … mkdir …\binary-install@0.1.1-<hash>\…\bin`), and that refusal fires whether or not the
+# entry was evicted. Eviction DEPTH is therefore not the discriminating variable on win32, so the
+# experiment has no positive control available to it. A control that cannot distinguish its two arms
+# proves nothing about either, and keeping it would have meant gating win32 records on a check that
+# was structurally incapable of failing — the exact defect class this corpus keeps finding.
+#
+# ⇒ WHAT REPLACED IT. The question worth answering was never "is deep eviction load-bearing" but
+# "can the win32 verify arm detect an under-grant", and `falsify.mjs` answers that directly, from
+# measured arms rather than a synthetic eviction manipulation, on the same instrument Linux and macOS
+# use. The win32 case there is grounded on rows R0/R3 and R1/R2 of this very run.
+#
+# ⛔ AND THE VERDICT USED TO BE UNABLE TO FAIL ON R1. The R1 check was an `echo`'d `!!` warning with
+# no `FAIL=1`, so a GREEN run never meant the criterion had been met — while run 31132145179 was
+# simultaneously marked RED by an unrelated apostrophe in a later step. The badge inverted in both
+# directions at once. Every remaining row below sets `FAIL=1`; keep it that way.
 #
 # Branch-scoped and no PR: CI is the only Windows path here, and `workflow_dispatch` is inert until a
 # workflow file reaches the default branch, so a push trigger is the only way to iterate on this one.
 #
 # ⛔ SEQUENTIAL, AND THE ROW ORDER IS LOAD-BEARING. Four concurrent Windows workers were measured to
-# stall at process creation with zero writes; and R1's false pass can only exist once R0 has left
-# `binary-install`'s store entry POPULATED, which is precisely what a replay relinks.
+# stall at process creation with zero writes, and R2/R3 are only meaningful once R0 has left
+# `binary-install`'s store entry POPULATED.
 name: win-evict-probe
 
 on:
@@ -27,6 +47,9 @@ on:
       gyp_pkg:
         description: 'the node-gyp-tooling package for the positive control'
         default: '@pulumi/datadog@0.18.9'
+      nub_ref:
+        description: 'nubjs/nub ref to build and measure'
+        default: 'sandbox/integration'
 
 permissions:
   contents: read
@@ -38,6 +61,10 @@ jobs:
     env:
       PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
       GYP_PKG: ${{ inputs.gyp_pkg || '@pulumi/datadog@0.18.9' }}
+      # ⛔ THE REF IS AN INPUT AND THE RESOLVED SHA IS PRINTED, because "which nub did this measure"
+      # is the question a stale cache answers wrongly and silently. Defaulting to the branch rather
+      # than to a SHA keeps the probe pointed at the code the corpus lane would actually ship on.
+      NUB_REF: ${{ inputs.nub_ref || 'sandbox/integration' }}
       # ⛔⛔ WITHOUT THIS THE EXPERIMENT MEASURES NOTHING, AND IT LOOKS FINE WHILE DOING SO. MEASURED
       # in run 31106248877: every arm logged `linker isolated (global virtual store auto-disabled in
       # CI)` and put its `.store` INSIDE the arm directory, so `%LOCALAPPDATA%\nub\pm\store` never
@@ -65,22 +92,33 @@ jobs:
           echo "XDG_CACHE_HOME=${XDG_CACHE_HOME:-<unset>}"
           powershell.exe -NoProfile -Command 'whoami'
 
-      - name: Resolve the native path of the probe binary
+      # ⛔⛔ THE CACHE IS KEYED ON THE RESOLVED SHA WITH NO `restore-keys` PREFIX, AND THAT IS THE
+      # DIFFERENCE BETWEEN A RESULT AND A FICTION. This step used to key `nub-bin-v1-windows-none`
+      # behind a `nub-bin-v1-windows-` prefix fallback, which matches whatever binary the corpus
+      # fleet cached LAST. MEASURED 2026-08-06 with `gh cache list`: the newest such entry is
+      # `nub-bin-v1-windows-bb9a1036…`, saved 07:33Z — fourteen hours BEFORE `4bd4687521`, the
+      # hardlink fix every jailed arm below now depends on. Run unchanged, this workflow would have
+      # restored a PRE-FIX binary, watched every arm die on the very EPERM that fix removes, and
+      # filed it as the eviction's verdict. `win-jail-copy-verify.yml` reached the same conclusion
+      # about `win-acl-probe`; the prefix fallback is a repeat offender in this repo.
+      - name: Resolve the nub commit under test
         shell: bash
         run: |
           set -eu
-          P=/tmp/nub/target/release/nub.exe
+          SHA=$(git ls-remote https://github.com/nubjs/nub.git "$NUB_REF" | cut -f1)
+          [ -n "$SHA" ] || { echo "⛔ could not resolve ref $NUB_REF" >&2; exit 1; }
+          echo "NUB_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "measuring nubjs/nub $NUB_REF @ $SHA"
+          P=/tmp/nubsrc/target/fast/nub.exe
           if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
           echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
 
-      - name: Restore a feature-enabled nub binary
+      - name: Restore a nub built from THIS commit
         id: nubbin
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-windows-none
-          restore-keys: |
-            nub-bin-v1-windows-
+          key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
 
       - name: Build the probe binary
         if: steps.nubbin.outputs.cache-matched-key == ''
@@ -89,17 +127,23 @@ jobs:
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
           cd /tmp/nubsrc
-          SHA=$(git rev-parse origin/sandbox/integration)
-          git checkout --detach "$SHA"
+          git checkout --detach "$NUB_SHA"
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
-          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
 
-      - name: Point at the restored binary
-        if: steps.nubbin.outputs.cache-matched-key != ''
+      - name: Save the built binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
+
+      - name: Name the binary under test
         shell: bash
         run: |
           set -eu
-          BIN=/tmp/nub/target/release/nub.exe
+          BIN=/tmp/nubsrc/target/fast/nub.exe
+          [ -f "$BIN" ] || { echo "⛔ NO BINARY at $BIN" >&2; exit 1; }
+          echo "commit under test: $NUB_SHA"
           "$BIN" --version
           echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
 
@@ -122,21 +166,6 @@ jobs:
             *OVERRIDDEN*) echo "override engages: $GOOD" ;;
             *) echo "⛔ no OVERRIDDEN banner — this binary lacks build-jail-catalog-override. Saw: ${GOOD:-<none>}" >&2; exit 1 ;;
           esac
-
-      # One substitution, and it must be VERIFIED TO HAVE APPLIED: a silent no-op here would make R1
-      # a second copy of R2 — two agreeing rows that prove nothing.
-      - name: Build the ROOT-ONLY control copy of the driver
-        shell: bash
-        run: |
-          set -eu
-          node -e '
-            const fs = require("fs");
-            const s = fs.readFileSync("harness/v2/measure-windows.mjs", "utf8");
-            const needle = "const prefixes = [...new Set([PKG, ...CLOSURE]";
-            if (!s.includes(needle)) { console.error("⛔ MUTATION TARGET ABSENT — the control cannot be built"); process.exit(1); }
-            fs.writeFileSync("harness/v2/measure-windows-ROOTONLY.mjs", s.replace(needle, "const prefixes = [...new Set([PKG]"));
-          '
-          diff harness/v2/measure-windows.mjs harness/v2/measure-windows-ROOTONLY.mjs || true
 
       - name: R0 — prime the store at the wide grant
         shell: bash
@@ -161,15 +190,6 @@ jobs:
             console.log(`store=${s} entries=${n}`);
             if (n < 1) { console.error("⛔ the global store is empty or absent — the eviction has nothing to act on and the experiment is INERT"); process.exit(1); }
           '
-
-      - name: R1 — the teeth control (ROOT-ONLY eviction; a false PASS is EXPECTED)
-        shell: bash
-        run: |
-          set +e
-          node harness/v2/measure-windows-ROOTONLY.mjs "${PKG%@*}" "${PKG##*@}" --nub "$NUB_BIN" \
-            --at-grant '{"network":true}' > /tmp/r1.log 2>&1
-          echo "R1_EXIT=$?" >> "$GITHUB_ENV"
-          cat /tmp/r1.log
 
       - name: R2 — THE NEGATIVE CONTROL (transitive eviction; must be INSUFFICIENT)
         shell: bash
@@ -278,7 +298,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          for r in R0 R1 R2 R3 P; do
+          for r in R0 R2 R3 P; do
             v="${r}_EXIT"; f="/tmp/$(echo "$r" | tr A-Z a-z).log"
             printf '%-3s exit=%-4s %s\n' "$r" "${!v:-?}" "$(grep -E '=> ' "$f" 2>/dev/null | tail -1 | sed 's/^ *//')"
           done
@@ -295,8 +315,6 @@ jobs:
           grep -q '=> SUFFICIENT' /tmp/r0.log   || { echo "⛔ R0 did not prime (expected SUFFICIENT)"; FAIL=1; }
           grep -q '=> INSUFFICIENT' /tmp/r2.log || { echo "⛔ R2 IS THE DELIVERABLE AND IT DID NOT FAIL — the eviction does not stop the replay"; FAIL=1; }
           grep -q '=> SUFFICIENT' /tmp/r3.log   || { echo "⛔ R3 did not verify at the true minimum — the eviction may be over-broad"; FAIL=1; }
-          grep -q '=> SUFFICIENT' /tmp/r1.log \
-            || echo "!! R1 (root-only) did NOT falsely pass, so R2 proves nothing about the eviction on this package. Find another transitive case before believing the control."
           if grep -q "Cannot find module" /tmp/p.log; then echo "⛔ positive control hit a missing module — the tooling sparing did not hold"; FAIL=1; fi
           exit $FAIL
 
