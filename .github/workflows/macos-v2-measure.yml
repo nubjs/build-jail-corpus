@@ -37,25 +37,59 @@ jobs:
           sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1
           echo "HELLO_RC=$?"
 
-      # Any cached probe binary from the corpus queue runner will do: the VERIFY arm needs the
-      # `build-jail-catalog-override` feature, not a specific commit, and the arm records which
-      # binary answered. A prefix restore-key is therefore correct and a miss is merely slower.
+      # ⛔⛔ THIS BLOCK USED TO ARGUE THAT ANY CACHED PROBE BINARY WILL DO — "the VERIFY arm needs the
+      # `build-jail-catalog-override` feature, not a specific commit, and the arm records which binary
+      # answered" — and BOTH halves were false. `corpus-v2-runner.yml` carried the same argument and
+      # what it cost is MEASURED: on run 31145732202 the prefix fallback served a Windows binary
+      # created 2026-08-06T07:33:54Z, ~13.5 h older than the jail fix `4bd4687521` (committed
+      # 2026-08-06T21:04:55Z) that the run existed to exercise. Every arm died on the pre-fix EPERM,
+      # including the KNOWN-SUFFICIENT control, and the whole run was unattributable. A correctness
+      # fix is not a feature flag, so "the FEATURE, not a specific commit" does not hold.
+      #
+      # "The arm records which binary answered" did not hold on this lane either. MEASURED across the
+      # corpus at the time of this change: `provenance.nubBinary` was present on 119/119 linux-x64
+      # records and 0/120 darwin-arm64, because only `measure.sh` emitted the `VENUE-NUB-BINARY`
+      # marker. `measure-macos.sh` now emits it too, so a darwin driver log names its binary by
+      # content hash — but that makes a stale binary DETECTABLE after the fact, not harmless, and the
+      # exact key below is what stops it being served in the first place.
+      #
+      # ⛔ THE SHA IS RESOLVED IN ITS OWN STEP, BEFORE THE RESTORE. It used to be read only inside the
+      # build step, which runs on a cache MISS — so on a HIT nothing recorded which commit was
+      # measured. Resolving first makes the key and the reported commit true on both paths and unable
+      # to disagree. `key` alone with no `restore-keys` means a miss is a REBUILD, never a substitute.
+      - name: Resolve the nub commit under test
+        run: |
+          set -eu
+          REF=sandbox/integration
+          # `git ls-remote` rather than a clone: the clone below is backgrounded and must not be on
+          # the critical path of the cache key. The clone then reuses this answer instead of
+          # resolving a second time and risking a different one.
+          SHA=$(git ls-remote https://github.com/nubjs/nub.git "$REF" | cut -f1)
+          [ -n "$SHA" ] || { echo "⛔ could not resolve nub ref '$REF'" >&2; exit 1; }
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "nub commit under test: $REF -> $SHA"
+
       - name: Restore a feature-enabled nub binary
         id: nubbin
         uses: actions/cache/restore@v4
         with:
           path: /tmp/nub/target/release/nub
-          key: nub-bin-v1-macos-none
-          restore-keys: |
-            nub-bin-v1-macos-
+          key: nub-bin-v1-macos-${{ env.NUB_GIT_SHA }}
 
       - name: Start the fallback build in the background
         if: steps.nubbin.outputs.cache-matched-key == ''
         run: |
           set +e
           command -v cmake > /dev/null || brew install cmake
-          git clone --filter=blob:none --depth 1 -b sandbox/integration \
+          # ⛔ CHECKED OUT BY THE RESOLVED SHA, NOT BY BRANCH NAME. `--depth 1 -b <branch>` takes
+          # whatever the branch points at when the clone runs, which is not necessarily what the
+          # cache key was computed from moments earlier — so the binary could be saved under a key
+          # naming a different commit than the one it was built from, which is the attributability
+          # hole reintroduced from the other end. `--no-checkout` then `checkout --detach <sha>` is
+          # what `corpus-v2-runner.yml` does, for this reason.
+          git clone --filter=blob:none --no-checkout \
             https://github.com/nubjs/nub.git /tmp/nubsrc 2>&1 | tail -2
+          git -C /tmp/nubsrc checkout --detach "$NUB_GIT_SHA"
           echo "nub sha: $(git -C /tmp/nubsrc rev-parse HEAD)"
           # `--profile fast` rather than `--release`: identical semantics for this purpose (fast
           # inherits dev) and it does not pay for LTO, which is the difference between fitting in
@@ -83,17 +117,25 @@ jobs:
           done
 
       - name: Wait for the build, then locate the binary
+        id: locate
         if: always()
         run: |
           set +e
           BIN=/tmp/nub/target/release/nub
           if [ ! -x "$BIN" ]; then
-            BIN=/tmp/nubsrc/target/fast/nub
+            BUILT=/tmp/nubsrc/target/fast/nub
             for i in $(seq 1 60); do
-              [ -x "$BIN" ] && ! pgrep -q -f 'cargo build -p nub-cli' && break
+              [ -x "$BUILT" ] && ! pgrep -q -f 'cargo build -p nub-cli' && break
               sleep 30
             done
             tail -5 /tmp/build.log 2>/dev/null
+            # ⛔ STAGED AT THE PATH THE CACHE IS KEYED ON, so the save below and the restore above
+            # agree on one spelling. A save/restore path disagreement is the failure that stores
+            # nothing while reporting success, and it stays invisible until the next run misses.
+            if [ -x "$BUILT" ]; then
+              mkdir -p /tmp/nub/target/release
+              cp "$BUILT" "$BIN" && echo "staged=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
           if [ -x "$BIN" ]; then
             echo "NUB_BIN=$BIN" >> "$GITHUB_ENV"
@@ -102,6 +144,22 @@ jobs:
           else
             echo "⛔ NO FEATURE-ENABLED BINARY — VERIFY cannot run; the OBSERVE half above stands alone"
           fi
+
+      # ⛔ WITHOUT THIS, REMOVING THE PREFIX FALLBACK WOULD COST A ~20-MINUTE REBUILD ON *EVERY* RUN
+      # rather than once per SHA. This workflow only ever RESTORED — there was no save step anywhere
+      # in it — because the prefix fallback let it live off binaries other workflows happened to mint,
+      # which is what made that fallback load-bearing rather than merely convenient. Take it away and
+      # nothing replenishes the exact key. Saving is what makes the amortisation argument true.
+      #
+      # Gated on `steps.locate.outputs.staged`, not merely on the cache miss: the build here is
+      # BACKGROUNDED and may still have failed, and `actions/cache/save` on a path that does not
+      # exist fails the job over an optimisation.
+      - name: Save the built binary under its exact SHA
+        if: always() && steps.locate.outputs.staged == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nub/target/release/nub
+          key: nub-bin-v1-macos-${{ env.NUB_GIT_SHA }}
 
       - name: VERIFY + NARROW (real unprivileged jail)
         if: always()
