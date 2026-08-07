@@ -1,0 +1,86 @@
+### electron-chromedriver@20.0.0   (/home/runner/v2-zUcxvX)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1934 trace=13018 lines
+  CLOSURE   73 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":14,"filesTheScriptProduced":5,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-zUcxvX/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-zUcxvX/observe/capture.json
+  RAWLOG-BYTES raw=2810085 gz=82811
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-zUcxvX/jailhome","TMPDIR":"/tmp/nub-tmp-obsIor3W5","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-zUcxvX/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 18  /  whole traced tree 1106
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-zUcxvX/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-zUcxvX/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-zUcxvX/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsIor3W5
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver
+  == WRITES the script actually performed ==
+    jailTmp       5  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsIor3W5/electron-download-F3puTi
+        /tmp/nub-tmp-obsIor3W5/electron-download-F3puTi/chromedriver-v20.0.0-linux-x64.zip
+        /tmp/nub-tmp-obsIor3W5/electron-download-AWUnRk
+        /tmp/nub-tmp-obsIor3W5/electron-download-IceQfh
+        /tmp/nub-tmp-obsIor3W5/electron-download-IceQfh/SHASUMS256.txt
+    userHome      4
+    ownPkg        9  (base profile already grants this — NOT billed)
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/chromedriver.debug
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/chromedriver
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/LICENSE
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/gen
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/gen/electron
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags
+        /home/runner/v2-zUcxvX/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags/buildflags.h
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        140.82.112.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    4 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 4
+        .cache/nub/pm/tools/electron-cache
+        .cache/nub/pm/tools/electron-cache/42e857164e2d2cade5c57576469193f4f173db57dd742f020b978b65a46e86e5
+        .cache/nub/pm/tools/electron-cache/42e857164e2d2cade5c57576469193f4f173db57dd742f020b978b65a46e86e5/SHASUMS256.txt
+        .cache/nub/pm/tools/electron-cache/42e857164e2d2cade5c57576469193f4f173db57dd742f020b978b65a46e86e5/chromedriver-v20.0.0-linux-x64.zip
+    EVENTS    5399 distinct from 12898 calls (13019 lines, 93 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×36 setsockopt×33 exit×20 getsockopt×18 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-zUcxvX/observe/events.ndjson.gz (37142 bytes)
+  EVENTLOG-FILE /home/runner/v2-zUcxvX/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13019,"parsed":12898,"unparsed":0,"unfinished":93,"rejoined":93,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5399,"unknownSyscall":{"getsockname":36,"getsockopt":18,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-zUcxvX/observe/events.ndjson.gz","gzipBytes":37142}
+  EVICT     67 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=14/14 missing=0 shortfall=none (tree 6038/1934) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     73 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-network] rc=1 artifacts=9/14 missing=5 shortfall=090c996c72c5 (tree 6021/1934) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+       missing: bin/LICENSE, bin/LICENSES.chromium.html, bin/chromedriver, bin/chromedriver.debug, bin/gen/electron/buildflags/buildflags.h
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     73 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=9/14 missing=5 shortfall=090c996c72c5 (tree 6021/1934) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+       missing: bin/LICENSE, bin/LICENSES.chromium.html, bin/chromedriver, bin/chromedriver.debug, bin/gen/electron/buildflags/buildflags.h
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
