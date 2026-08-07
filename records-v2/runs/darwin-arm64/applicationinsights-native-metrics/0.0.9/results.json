@@ -1,0 +1,112 @@
+{
+  "pkg": "applicationinsights-native-metrics",
+  "version": "0.0.9",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {},
+  "synthesized": {
+    "write": {
+      "deps": true,
+      "project": true
+    },
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network",
+    "no-write-deps",
+    "no-write-project"
+  ],
+  "grantSource": "descended",
+  "grantSourceReason": "3 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {},
+  "notes": [
+    "cwd-unobserved",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 112114,
+    "parsed": 112032,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 35,
+    "tracerErrorTotal": 35,
+    "unresolvedDirfd": 474,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 546,
+    "danglingPair": 0,
+    "failed": 37601,
+    "enoent": 16498,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 46,
+      "ENOENT": 16498,
+      "ENOTEMPTY": 602,
+      "EINVAL": 4,
+      "EEXIST": 20451
+    },
+    "procs": 97,
+    "lifecyclePids": 44,
+    "distinctEvents": 58140,
+    "emitted": 58140,
+    "calls": 111225,
+    "bytes": 12110049,
+    "gzipBytes": 303621,
+    "out": "/Users/runner/v2m-Y9SSMV/Observe/events.ndjson"
+  },
+  "driverRc": 0,
+  "durationMs": 36066,
+  "provenance": {
+    "platform": "darwin-arm64",
+    "harness": "measure-macos.sh",
+    "nubGitSha": null,
+    "nubVersion": "v0.6.0",
+    "corpusGitSha": "067a3d5333dffaa72f30b3fc4c0734e977797c96",
+    "node": "v22.23.1",
+    "at": "2026-08-07T01:44:04.331Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
+    "ciChild": "clean (no CI-detection variable reaches the traced script)",
+    "cwdResolved": 35,
+    "cwdUnplaceableWrites": [
+      "./Release/.deps/Release/obj.target/native_metrics/src/GcProfiler.o.d.raw",
+      "./Release/.deps/Release/obj.target/native_metrics/src/LoopProfiler.o.d.raw",
+      "./Release/.deps/Release/obj.target/native_metrics/src/ResourceProfiler.o.d.raw",
+      "./Release/.deps/Release/obj.target/native_metrics/src/native_metrics.o.d.raw",
+      "Release",
+      "Release/obj.target",
+      "Release/obj.target/native_metrics",
+      "Release/obj.target/native_metrics/src"
+    ],
+    "nubBinary": null,
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-Y9SSMV/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsAuim63",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}
