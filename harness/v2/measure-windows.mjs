@@ -24,6 +24,10 @@ import { spawnSync } from 'node:child_process';
 // beside it. Quoting the call in prose puts a file with no CLI guard at all on that list, and the test
 // then fails naming a defect that does not exist. Measured twice while writing this comment.
 import { shortfallDigest } from './shortfall-invariance.mjs';
+// Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
+// shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
+// CLI, so importing it runs nothing.
+import { overrideProbeSaysHonoured } from './override-probe.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -848,7 +852,19 @@ console.log(`  RAWLOG-CAPTURE ${CAPTURE}`);
   const probeCat = path.join(ROOT, 'nub-binary-probe.json');
   fs.writeFileSync(probeCat, '{"packages":{"__override_probe__":{"default":{"network":true}}}}');
   const pr = run(NUB, ['--version'], { env: { ...process.env, NUB_BUILD_JAIL_CATALOG: probeCat } });
-  const hasOverride = pr.status === 0;
+  // ⛔⛔ POSITIVE EVIDENCE, NEVER SILENCE — the same predicate the two shell drivers carry, kept
+  // identical on purpose (`override-probe-parity.test.mjs` asserts all three agree). This read
+  // `pr.status === 0`, which infers the capability from the ABSENCE of an error and so reports
+  // "present" for any binary that has never heard of the variable. MEASURED 2026-08-06 on eleven
+  // binaries: a feature-ON nub prints `…catalog OVERRIDDEN from …` at rc=0, an aware-but-disabled
+  // one exits 1 naming the feature, and nine binaries predating the seam exit 0 byte-identically to
+  // a run with NO variable set. Only the marker separates the first from the last.
+  //
+  // A REJECTED banner counts as proof too: the file read fails before any schema parsing, so it
+  // proves the feature is COMPILED IN without coupling this check to the catalog grammar. On this
+  // driver the answer is provenance rather than a gate, but a false `true` here is what lets a
+  // record claim it measured under an override it never had.
+  const hasOverride = overrideProbeSaysHonoured(`${pr.stdout ?? ''}${pr.stderr ?? ''}`);
   let sha256 = null; let bytes = null; let hasBytecodeEnv = false;
   try {
     const b = fs.readFileSync(NUB);

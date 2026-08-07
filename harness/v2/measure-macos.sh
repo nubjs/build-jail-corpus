@@ -187,15 +187,36 @@ echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 # exported `NUB_CACHE_DIR` would be a root-owned obstacle in the arms' own cache. Pointing the probe
 # somewhere disposable means the identity question cannot perturb the measurement that follows.
 if [ -f "$NUB" ]; then
-  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX.json")"
+  # ⛔ NO SUFFIX AFTER THE `X`s, AND THIS DRIVER IS WHERE IT MATTERED. MEASURED on macOS: BSD mktemp
+  # substitutes the template only when it ENDS in `X`s, so `…-XXXXXX.json` created a file named
+  # literally `…-XXXXXX.json` and the NEXT call failed `mkstemp failed: File exists` with rc=1 and
+  # empty stdout. The probe then ran with `NUB_BUILD_JAIL_CATALOG=` — an empty value, which nub
+  # REFUSES — so a feature-enabled binary was recorded as featureless. Nothing reads the extension:
+  # nub opens the path it is given and detects the schema from the document's own keys.
+  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX")"
   printf '{"packages":{"__override_probe__":{"default":{"network":true}}}}' > "$NUB_PROBE_CAT"
   NUB_PROBE_CACHE="$(mktemp -d "${TMPDIR:-/tmp}/nub-probe-cache-XXXXXX")"
+  NUB_PROBE_OUT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-out-XXXXXX")"
   NUB_HAS_OVERRIDE=false
-  if NUB_CACHE_DIR="$NUB_PROBE_CACHE" NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" \
-     "$NUB" --version >/dev/null 2>&1; then
+  # ⛔⛔ POSITIVE EVIDENCE, NEVER SILENCE — the same predicate `measure.sh` carries, kept identical on
+  # purpose (`override-probe-parity.test.mjs` asserts all three drivers agree). This read `rc == 0`,
+  # which infers the capability from the ABSENCE of an error and so reports "present" for any binary
+  # that has never heard of the variable. MEASURED 2026-08-06 on eleven binaries: a feature-ON nub
+  # prints "…catalog OVERRIDDEN from …" at rc=0, an aware-but-disabled one exits 1 naming the
+  # feature, and nine binaries predating the seam exit 0 byte-identically to a run with NO variable
+  # set. Only the marker separates the first from the last.
+  #
+  # A REJECTED banner counts as proof too: the file read fails before any schema parsing, so it
+  # proves the feature is COMPILED IN without coupling this check to the catalog grammar. On this
+  # driver the answer is provenance rather than a gate, but a false true here is what lets a record
+  # claim it measured under an override it never had.
+  NUB_CACHE_DIR="$NUB_PROBE_CACHE" NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" \
+    "$NUB" --version > "$NUB_PROBE_OUT" 2>&1
+  if grep -q 'build-jail catalog OVERRIDDEN from' "$NUB_PROBE_OUT" \
+     || grep -q 'build-jail catalog override at .* was REJECTED' "$NUB_PROBE_OUT"; then
     NUB_HAS_OVERRIDE=true
   fi
-  rm -rf "$NUB_PROBE_CAT" "$NUB_PROBE_CACHE"
+  rm -rf "$NUB_PROBE_CAT" "$NUB_PROBE_CACHE" "$NUB_PROBE_OUT"
   # (No apostrophes in this block: it lives inside a single-quoted `node -e` script.)
   echo "  VENUE-NUB-BINARY $(node -e '
     const fs = require("fs"), crypto = require("crypto");

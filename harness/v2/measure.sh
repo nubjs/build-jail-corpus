@@ -194,7 +194,7 @@ echo "  VENUE-OBSERVE-USER $(node -e '
 # `~/nub/target/<profile>/nub` can swap the artifact MID-BATCH — a preflight that passed twenty
 # minutes ago proves nothing about the arm running now — so the hash is what lets a reader tell a
 # batch measured against one binary from a batch measured against two.
-NUB_HAS_OVERRIDE=false; NUB_HAS_BYTECODE_ENV=false
+NUB_HAS_OVERRIDE=false; NUB_HAS_BYTECODE_ENV=false; NUB_OVERRIDE_CLASS=absent; NUB_OVERRIDE_NOTE=
 if [ -f "$NUB" ]; then
   # ⛔⛔ THE OVERRIDE CHECK IS BEHAVIOURAL, AND A STRING SEARCH FOR THE FEATURE NAME IS EXACTLY
   # INVERTED. Rust does not embed feature names in a binary. The literal
@@ -208,12 +208,53 @@ if [ -f "$NUB" ]; then
   # A grep-based preflight would therefore have refused every correct binary and admitted every
   # broken one — strictly worse than no check. This is the whole reason a capability is asked of the
   # ARTIFACT by exercising it, rather than inferred from something that merely correlates with it.
-  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX.json")"
+  #
+  # ⛔⛔⛔ BUT EXERCISING IT IS NOT ENOUGH — THE ANSWER MUST BE POSITIVE EVIDENCE, NEVER SILENCE.
+  # This probe read `rc == 0` and inferred the capability from the ABSENCE of an error, which
+  # reports "present" for any binary that has never heard of the question. There are THREE classes,
+  # and rc alone collapses the two that matter — MEASURED 2026-08-06 on eleven real binaries:
+  #
+  #   worktrees/integ/target/fast/nub    feature ON       rc=0, stderr "…catalog OVERRIDDEN from …"
+  #   worktrees/integ/target/debug/nub   AWARE, off       rc=1, "…not built with the `…-override` feature"
+  #   9x shared-target-*/{fast,debug}    feature ABSENT   rc=0, byte-identical to running with NO var
+  #
+  # Class 1 and class 3 are indistinguishable by exit code, so the old predicate passed all nine
+  # class-3 binaries — every nub on the host — and the gate below could not fire in the direction it
+  # exists for. The marker is what separates them: `catalog_override::decide()` returns `Err` before
+  # `load()` is ever reached, so NEITHER banner can be produced by a class-2 or class-3 binary.
+  #
+  # ⛔ A REJECTED BANNER COUNTS AS PROOF, AND THAT IS DELIBERATE. `fs::read_to_string` fails before
+  # any schema parsing, so `FellBack` proves the feature is COMPILED IN independently of whether the
+  # probe document still matches the catalog grammar. Requiring OVERRIDDEN alone would couple a
+  # FATAL gate to the v2 schema, and a grammar change would then block every measurement — the one
+  # failure here that is worse than the defect being fixed. VERIFIED by feeding the feature-on binary
+  # three documents its parser refuses: all three still resolved to `true`, and the same documents
+  # did not rescue a class-2 or class-3 binary.
+  # ⛔ NO SUFFIX AFTER THE `X`s. MEASURED on macOS: BSD mktemp substitutes the template only when it
+  # ENDS in `X`s, so `…-XXXXXX.json` creates a file named literally `…-XXXXXX.json` and the NEXT call
+  # fails `mkstemp failed: File exists` with rc=1 and empty stdout. The probe then runs with
+  # `NUB_BUILD_JAIL_CATALOG=` — an empty value, which nub REFUSES — so a perfectly good binary reads
+  # as featureless. GNU mktemp accepts the suffix, which is why this survived on the Linux driver;
+  # `measure-macos.sh` carried the same template onto the platform where it does not.
+  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX")"
+  NUB_PROBE_OUT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-out-XXXXXX")"
   printf '{"packages":{"__override_probe__":{"default":{"network":true}}}}' > "$NUB_PROBE_CAT"
-  if NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" "$NUB" --version >/dev/null 2>&1; then
-    NUB_HAS_OVERRIDE=true
+  # Combined stdout+stderr to a FILE, never a pipe: the rc is read on its own line, and the banner
+  # is never echoed into the transcript, where a stray `REJECTED` could be miscounted by the arm
+  # tally further down.
+  NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" "$NUB" --version > "$NUB_PROBE_OUT" 2>&1
+  NUB_PROBE_RC=$?
+  if grep -q 'build-jail catalog OVERRIDDEN from' "$NUB_PROBE_OUT"; then
+    NUB_HAS_OVERRIDE=true; NUB_OVERRIDE_CLASS=honoured
+  elif grep -q 'build-jail catalog override at .* was REJECTED' "$NUB_PROBE_OUT"; then
+    NUB_HAS_OVERRIDE=true; NUB_OVERRIDE_CLASS=honoured
+    NUB_OVERRIDE_NOTE="the probe document no longer parses; the feature IS present"
+  elif [ "$NUB_PROBE_RC" -ne 0 ] && grep -q 'build-jail-catalog-override' "$NUB_PROBE_OUT"; then
+    NUB_OVERRIDE_CLASS=disabled
+  else
+    NUB_OVERRIDE_CLASS=absent
   fi
-  rm -f "$NUB_PROBE_CAT"
+  rm -f "$NUB_PROBE_CAT" "$NUB_PROBE_OUT"
   # The bytecode env name IS a genuine string constant (`BUILD_JAIL_BASELINE_ENV` in preset.rs), so a
   # content search answers this one honestly. Positively controlled against a binary carrying the
   # commit (match) and negatively against one predating it (no match).
@@ -244,6 +285,13 @@ if [ -f "$NUB" ] && [ "$NUB_HAS_BYTECODE_ENV" != true ]; then
   echo "  ⛔ R5 ASYMMETRY — $NUB does not carry PYTHONDONTWRITEBYTECODE; OBSERVE suppresses Python"
   echo "     bytecode and the jailed arm does not, so the two arms differ in more than enforcement"
 fi
+# Reported, not fatal. The gate below is satisfied — a REJECTED banner still proves the feature is
+# compiled in — but the probe document has stopped parsing, so the preflight is running on its
+# fallback evidence and the catalog grammar has moved out from under it.
+if [ -n "$NUB_OVERRIDE_NOTE" ]; then
+  echo "  ⛔ OVERRIDE PROBE DEGRADED — $NUB_OVERRIDE_NOTE. The gate still holds, but update the"
+  echo "     probe document in this preflight so it exercises the parse path again."
+fi
 # ⛔ THE OVERRIDE FEATURE IS CHECKED BEFORE ANY WORK, NOT AFTER — AND `nubGitSha` CANNOT SUBSTITUTE.
 # A nub built without `build-jail-catalog-override` refuses `NUB_BUILD_JAIL_CATALOG`, so every arm
 # reports `OVERRIDDEN=0` and the run ends `⛔ VOID`. The verdict is honest and nothing is
@@ -257,13 +305,27 @@ fi
 #
 # ⛔ The detection above is BEHAVIOURAL for a reason recorded there: the first version of this
 # preflight grepped the binary for the feature NAME and was exactly inverted, because that string
-# lives only in the refusal message a FEATURELESS build prints.
+# lives only in the refusal message a FEATURELESS build prints. The second version asked the binary
+# but accepted SILENCE as a yes, which admitted every binary predating the feature — see the
+# three-class measurement above.
 #
 # ⛔ Fatal, unlike the R5 check above, and the asymmetry is deliberate: an R5 mismatch cannot change
 # an arm's outcome, whereas this one makes every arm meaningless.
+#
+# The two refusals are separated because they call for different actions: `disabled` is a rebuild of
+# the same tree with one flag, `absent` means the checkout predates the seam entirely and no flag
+# will produce it.
 if [ -f "$NUB" ] && [ "$NUB_HAS_OVERRIDE" != true ]; then
-  echo "⛔ $NUB was not built with \`build-jail-catalog-override\`; every arm would report" >&2
-  echo "   OVERRIDDEN=0 and the run would end VOID. Rebuild with:" >&2
+  if [ "$NUB_OVERRIDE_CLASS" = disabled ]; then
+    echo "⛔ $NUB knows \`build-jail-catalog-override\` but was not built with it: it REFUSED" >&2
+    echo "   NUB_BUILD_JAIL_CATALOG outright. Every arm would report OVERRIDDEN=0 and the run" >&2
+    echo "   would end VOID. Rebuild with:" >&2
+  else
+    echo "⛔ $NUB IGNORED NUB_BUILD_JAIL_CATALOG — it neither honoured nor refused it, so it was" >&2
+    echo "   built from a tree predating the override seam. Every arm would silently measure the" >&2
+    echo "   COMPILED-IN catalog, report OVERRIDDEN=0, and the run would end VOID. Build a nub" >&2
+    echo "   that carries the seam, with:" >&2
+  fi
   echo "   cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override" >&2
   exit 3
 fi

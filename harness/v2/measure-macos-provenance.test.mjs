@@ -69,24 +69,49 @@ const parseMarker = (out) => {
 };
 
 /**
- * Two stand-in binaries that DIFFER in every field the marker reports: whether they accept
+ * Stand-in binaries that DIFFER in every field the marker reports: whether they act on
  * `NUB_BUILD_JAIL_CATALOG`, whether they contain the bytecode env constant, and their bytes.
  * Executable stubs rather than real nub builds because a test may not assume a feature-enabled nub
  * is present on the machine running it — the discrimination claim is about the EMITTER.
+ *
+ * ⛔ THERE ARE THREE CLASSES, NOT TWO, AND THE THIRD IS THE ONE THAT WAS MISSING. `off` REFUSES the
+ * variable (built from a tree carrying the feature, without enabling it); `absent` IGNORES it
+ * (built from a tree predating the seam entirely). Those two are indistinguishable by exit code —
+ * MEASURED 2026-08-06, nine of the eleven nub binaries on the dev host were `absent`, and every one
+ * of them satisfied a probe that read `rc == 0`. `absent` is what makes this file guard the defect
+ * rather than only its neighbour.
+ *
+ * ⛔ THE `on` STUB EMITS THE REAL BANNER, VERBATIM, AND USED NOT TO. It printed
+ * `catalog OVERRIDDEN from …`, which no nub ever prints — the true text carries a `build-jail `
+ * prefix and goes to STDERR. A stub that invents its own wording tests the stub: it would keep
+ * passing against a driver searching for a string no binary produces. Captured from a nub built
+ * with the feature.
  */
 const stubs = (dir) => {
   const off = path.join(dir, 'nub-nofeature');
   const on = path.join(dir, 'nub-feature');
+  const absent = path.join(dir, 'nub-preseam');
   fs.writeFileSync(off, '#!/bin/sh\n'
-    + 'if [ -n "$NUB_BUILD_JAIL_CATALOG" ]; then echo "not built with the override" >&2; exit 1; fi\n'
+    + 'if [ -n "$NUB_BUILD_JAIL_CATALOG" ]; then\n'
+    + '  echo "Error: NUB_BUILD_JAIL_CATALOG is set, but this binary was not built with the'
+    + ' \\`build-jail-catalog-override\\` feature, so it cannot honour it." >&2\n'
+    + '  exit 1\n'
+    + 'fi\n'
     + 'echo v0.0.0-nofeature\n');
   // The literal constant, so the content search has something true to find. Kept on one line so the
   // file also differs from its sibling in length.
   fs.writeFileSync(on, '#!/bin/sh\n# BUILD_JAIL_BASELINE_ENV: PYTHONDONTWRITEBYTECODE\n'
-    + 'echo "catalog OVERRIDDEN from $NUB_BUILD_JAIL_CATALOG"\n');
+    + 'echo "warning: build-jail catalog OVERRIDDEN from $NUB_BUILD_JAIL_CATALOG'
+    + ' (v2: 1 packages, 1 grants, 0 baseline paths, 0 env)'
+    + ' — development-only, not a shipped configuration" >&2\n'
+    + 'echo v0.0.0-feature\n');
+  // Predates the seam: the variable is not merely unhonoured, it is unknown. Byte-identical output
+  // whether or not it is set, which is exactly why an exit code cannot see it.
+  fs.writeFileSync(absent, '#!/bin/sh\necho v0.0.0-preseam\n');
   fs.chmodSync(off, 0o755);
   fs.chmodSync(on, 0o755);
-  return { off, on };
+  fs.chmodSync(absent, 0o755);
+  return { off, on, absent };
 };
 
 test('INSTRUMENT: the block extractor finds a real emission in the shipped driver', () => {
@@ -137,6 +162,24 @@ test('both feature flags DISCRIMINATE, and the override is decided by EXERCISING
   assert.equal(a.features.pythonDontWriteBytecodeEnv, false);
   assert.equal(b.features.pythonDontWriteBytecodeEnv, true,
     'the bytecode env constant is present in the binary but was not detected');
+});
+
+test('a binary that IGNORES the catalog is not credited with the feature', () => {
+  // ⛔ THE CASE EXIT CODE CANNOT SEE, and the reason this file needed a third stub. A binary
+  // predating the seam neither honours nor refuses the variable: it exits 0 with output identical
+  // to a run where the variable was never set. Asking `rc == 0` therefore credits it with the
+  // feature, which is how nine binaries on the dev host passed a check built to refuse them.
+  const dir = tmp();
+  const { on, absent } = stubs(dir);
+  assert.equal(parseMarker(emit(absent)).features.buildJailCatalogOverride, false,
+    'a binary that ignored NUB_BUILD_JAIL_CATALOG entirely was reported as honouring it — the probe '
+    + 'is reading silence as consent');
+
+  // ⛔ THE POSITIVE CONTROL, IN THE SAME CASE. Without it "we detect the feature" is satisfiable by
+  // reporting false for everything, which would pass the assertion above and fail every real run.
+  assert.equal(parseMarker(emit(on)).features.buildJailCatalogOverride, true,
+    'the feature-enabled stub was refused — the probe now rejects good binaries, which is the more '
+    + 'expensive direction of this bug');
 });
 
 test('no binary means NO marker, never a fabricated identity', () => {
