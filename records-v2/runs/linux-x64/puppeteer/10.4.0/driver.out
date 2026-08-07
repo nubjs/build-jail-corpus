@@ -1,0 +1,71 @@
+### puppeteer@10.4.0   (/home/runner/v2-AIPKSM)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1153 trace=14780 lines
+  CLOSURE   56 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":635,"filesTheScriptProduced":138,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-AIPKSM/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-AIPKSM/observe/capture.json
+  RAWLOG-BYTES raw=3049988 gz=84425
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-AIPKSM/jailhome","TMPDIR":"/tmp/nub-tmp-obsmwPr1c","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-AIPKSM/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 150  /  whole traced tree 1238
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-AIPKSM/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-AIPKSM/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-AIPKSM/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsmwPr1c
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer
+  == WRITES the script actually performed ==
+    ownPkg      150  (base profile already grants this — NOT billed)
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/chrome-linux.zip
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/chrome
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/nacl_helper
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/ClearKeyCdm
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/ClearKeyCdm/_platform_specific
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64
+        /home/runner/v2-AIPKSM/observe/node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/libclearkeycdm.so
+        … and 140 more
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        142.251.215.219:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5284 distinct from 14688 calls (14781 lines, 65 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×46 setsockopt×28 getsockopt×21 exit×20 recvmsg×9 getcwd×5 socketpair×3 shutdown×3
+    wrote /home/runner/v2-AIPKSM/observe/events.ndjson.gz (36560 bytes)
+  EVENTLOG-FILE /home/runner/v2-AIPKSM/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14781,"parsed":14688,"unparsed":0,"unfinished":65,"rejoined":65,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5284,"unknownSyscall":{"getsockname":46,"getsockopt":21,"getcwd":5,"recvmsg":9,"exit":20,"setsockopt":28,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-AIPKSM/observe/events.ndjson.gz","gzipBytes":36560}
+  EVICT     50 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for puppeteer
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=635/635 missing=0 shortfall=none (tree 3555/1153) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     56 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for puppeteer
+  VERIFY[drop-no-network] rc=1 artifacts=497/635 missing=138 shortfall=37f2aa38a7ad (tree 3139/1153) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: .local-chromium/linux-901912/chrome-linux/ClearKeyCdm/_platform_specific/linux_x64/libclearkeycdm.so, .local-chromium/linux-901912/chrome-linux/MEIPreload/manifest.json, .local-chromium/linux-901912/chrome-linux/MEIPreload/preloaded_data.pb, .local-chromium/linux-901912/chrome-linux/chrome, .local-chromium/linux-901912/chrome-linux/chrome-wrapper, .local-chromium/linux-901912/chrome-linux/chrome_100_percent.pak (+132)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
