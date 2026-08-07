@@ -66,16 +66,38 @@ jobs:
         shell: bash
         run: echo "NUB_BIN_CACHE_PATH=/tmp/nub/target/release/nub" >> "$GITHUB_ENV"
 
-      # Any cached corpus-probe binary will do — the arm needs the FEATURE, not a commit — so a
-      # prefix restore-key is correct and a miss is merely slower.
+      # ⛔⛔ THIS USED TO ARGUE "ANY CACHED CORPUS-PROBE BINARY WILL DO — the arm needs the FEATURE,
+      # not a commit — so a prefix restore-key is correct and a miss is merely slower." Both halves
+      # are false and `corpus-v2-runner.yml` has already paid for it. MEASURED, run 31145732202: the
+      # prefix fallback served a binary created 2026-08-06T07:33:54Z, ~13.5 h older than the jail fix
+      # `4bd4687521` (2026-08-06T21:04:55Z) the run existed to exercise; every arm died on the
+      # pre-fix behaviour and the whole run was unattributable. A correctness fix is not a feature
+      # flag, so a binary that HAS the feature can still be the wrong binary.
+      #
+      # ⛔ AND THE EXACT KEY HERE COULD NEVER MATCH ANYTHING. It was the literal `nub-bin-v1-linux-`
+      # — the prefix itself — while every real save is `nub-bin-v1-linux-<sha>`. So the fallback was
+      # not a fallback at all; it was the only path this step ever took.
+      #
+      # ⛔ THE SHA IS RESOLVED BEFORE THE RESTORE, NOT INSIDE THE BUILD. The build runs only on a
+      # MISS, so on a HIT `NUB_GIT_SHA` was never set and nothing recorded which commit answered.
+      - name: Resolve the nub commit under test
+        shell: bash
+        run: |
+          set -eu
+          REF=sandbox/integration
+          # `git ls-remote` rather than a clone: the key is needed before the restore, and the clone
+          # below reuses this answer instead of resolving a second time and risking a different one.
+          SHA=$(git ls-remote https://github.com/nubjs/nub.git "$REF" | cut -f1)
+          [ -n "$SHA" ] || { echo "⛔ could not resolve nub ref '$REF'" >&2; exit 1; }
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "nub commit under test: $REF -> $SHA"
+
       - name: Restore a feature-enabled nub binary
         id: nubbin
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-linux-
-          restore-keys: |
-            nub-bin-v1-linux-
+          key: nub-bin-v1-linux-${{ env.NUB_GIT_SHA }}
 
       - name: Build the probe binary
         if: steps.nubbin.outputs.cache-matched-key == ''
@@ -84,11 +106,26 @@ jobs:
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
           cd /tmp/nubsrc
-          SHA=$(git rev-parse origin/sandbox/integration)
-          git checkout --detach "$SHA"
-          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          # Already resolved above, on both the hit and miss paths, so the binary cannot be built
+          # from a different commit than the key it is saved under names.
+          git checkout --detach "$NUB_GIT_SHA"
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
           echo "NUB_BIN=/tmp/nubsrc/target/fast/nub" >> "$GITHUB_ENV"
+          # Staged at the path the cache is keyed on, so the save below and the restore above agree
+          # on one spelling — a disagreement there stores nothing while reporting success.
+          mkdir -p /tmp/nub/target/release
+          cp /tmp/nubsrc/target/fast/nub /tmp/nub/target/release/nub
+
+      # ⛔ WITHOUT THIS, REMOVING THE PREFIX FALLBACK WOULD COST A COLD BUILD ON *EVERY* RUN rather
+      # than once per SHA. There was no save step here: the prefix let this probe live off binaries
+      # other workflows happened to mint, which is what made the fallback load-bearing rather than
+      # merely convenient. Saving is what makes the amortisation argument true.
+      - name: Save the built binary under its exact SHA
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-linux-${{ env.NUB_GIT_SHA }}
 
       - name: Point at the restored binary
         if: steps.nubbin.outputs.cache-matched-key != ''
