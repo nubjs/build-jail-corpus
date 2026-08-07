@@ -1,0 +1,117 @@
+### weak-napi@1.0.3   (/home/runner/v2-ZFnPyx)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=149 trace=106030 lines
+  CLOSURE   7 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":33,"filesTheScriptProduced":18,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-ZFnPyx/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ZFnPyx/observe/capture.json
+  RAWLOG-BYTES raw=18320185 gz=452885
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ZFnPyx/jailhome","TMPDIR":"/tmp/nub-tmp-obslKDvNU","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ZFnPyx/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 116
+    writes  script 6701  /  whole traced tree 7789
+    sockets script 4  /  whole traced tree 10
+    ⛔ CWD-UNOBSERVED 1 relative path(s) (1 write(s)) came from a
+       process whose own cwd was never observed. The paths are KEPT and marked rather
+       than dropped or guessed silently, but they are not evidence of WHERE a write
+       landed, so a grant resting on one is not measured.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ZFnPyx/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ZFnPyx/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ZFnPyx/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obslKDvNU
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/runner/v2-ZFnPyx/jailhome/.cache
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node/common.gypi
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node/config.gypi
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/allocation.h
+        /home/runner/v2-ZFnPyx/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/common.h
+        … and 3318 more
+    jailTmp    3331  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/v8-platform.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/v8-local-handle.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/uv.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/v8-script.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/v8-debug.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/v8-value.h
+        /tmp/nub-tmp-obslKDvNU/node-gyp-tmp-Aunp8J/include/node/node_api.h
+        … and 3321 more
+    ownPkg       40  (base profile already grants this — NOT billed)
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build/config.gypi
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build/Makefile
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/node-addon-api
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/node-addon-api/src
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/node-addon-api/src/nothing.target.mk
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build/weakref.target.mk
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/node-addon-api/src/node-api.target.mk
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build/binding.Makefile
+        /home/runner/v2-ZFnPyx/observe/node_modules/weak-napi/build/node_gyp_bins
+        … and 30 more
+    kernelfs      1
+        /dev/null
+    project       1
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"project":true},"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    36783 distinct from 98324 calls (106031 lines, 7545 rejoined, 0 unparsed)
+    PROCS     123   lifecycle shells 111
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×117 wait4×101 exit_group×83 setsockopt×58 getsockname×42 exit×35 getsockopt×26 recvmsg×9
+    wrote /home/runner/v2-ZFnPyx/observe/events.ndjson.gz (216347 bytes)
+  EVENTLOG-FILE /home/runner/v2-ZFnPyx/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":106031,"parsed":98324,"unparsed":0,"unfinished":7545,"rejoined":7545,"unresolvedDirfd":3,"truncatedArg":0,"procs":123,"lifecyclePids":111,"distinctEvents":36783,"unknownSyscall":{"getsockname":42,"getsockopt":26,"getcwd":117,"recvmsg":9,"exit":35,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":83,"wait4":101},"out":"/home/runner/v2-ZFnPyx/observe/events.ndjson.gz","gzipBytes":216347}
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for weak-napi
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=27/33 missing=6 shortfall=3f7f4678c482 (tree 304/149) OVERRIDDEN=1 REJECTED=0 grant={"write":{"project":true},"network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/node-addon-api/src/nothing.a, build/Release/node-addon-api/src/nothing.a.ar-file-list, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     7 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for weak-napi
+  VERIFY[fb2126003217] rc=0 artifacts=27/33 missing=6 shortfall=3f7f4678c482 (tree 304/149) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/node-addon-api/src/nothing.a, build/Release/node-addon-api/src/nothing.a.ar-file-list, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  EVICT     7 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for weak-napi
+  VERIFY[fb3938809772] rc=0 artifacts=27/33 missing=6 shortfall=3f7f4678c482 (tree 304/149) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/node-addon-api/src/nothing.a, build/Release/node-addon-api/src/nothing.a.ar-file-list, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  EVICT     7 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for weak-napi
+  VERIFY[fb2742342390] rc=0 artifacts=27/33 missing=6 shortfall=3f7f4678c482 (tree 304/149) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/node-addon-api/src/nothing.a, build/Release/node-addon-api/src/nothing.a.ar-file-list, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  => ARTIFACT-GATE-SUSPECT {"write":{"project":true},"network":true}   (every arm rc=0 and the SAME 6-artifact shortfall at every
+     grant up to write:"disk" — invariant under widening, so it is not a capability gap)
+     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
