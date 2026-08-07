@@ -1,0 +1,120 @@
+### electron-chromedriver@13.0.0   (/Users/runner/v2m-SkoAzg)   nub=/tmp/nub/target/release/nub
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-SkoAzg/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-SkoAzg/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "electron-chromedriver" > "/Users/runner/v2m-SkoAzg/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-SkoAzg/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-SkoAzg/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-SkoAzg/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund electron-chromedriver
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002e54090) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=1939 (pre=1932) trace=14023 lines
+  CLOSURE   73 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-SkoAzg/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-SkoAzg/Observe/capture.json
+  RAWLOG-BYTES raw=2344821 gz=73683
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-SkoAzg/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":5,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-SkoAzg/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14024,"parsed":14006,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":543,"danglingPair":0,"failed":5651,"enoent":5636,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5636,"EEXIST":12},"procs":5,"lifecyclePids":1,"distinctEvents":6419,"emitted":6419,"calls":13451,"bytes":1254777,"gzipBytes":42737,"out":"/Users/runner/v2m-SkoAzg/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3439 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 3 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=71555 read  unproven .
+         pid=71555 read  unproven .
+         pid=71555 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600002e54090
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 18  /  whole traced subtree 1108
+    sockets script 2  /  whole traced subtree 3
+  == ROOTS (from /Users/runner/v2m-SkoAzg/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-SkoAzg/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-SkoAzg/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-SkoAzg/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    jailTmp       5  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o/electron-download-toUGi8
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o/electron-download-toUGi8/chromedriver-v13.0.0-darwin-arm64.zip
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o/electron-download-WqBsxN
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o/electron-download-VVWMrH
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsZhAR8o/electron-download-VVWMrH/SHASUMS256.txt
+    userHome      3
+    ownPkg        9  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/icudtl.dat
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/gen
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/gen/electron
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags/buildflags.h
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/LICENSE
+        /Users/runner/v2m-SkoAzg/Observe/node_modules/electron-chromedriver/bin/chromedriver
+  == READS the script performed, by scope ==
+    outside       5
+    systemfs      9
+    userHome      4
+    ownPkg        2
+    deps        143
+    jailTmp       1
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 2
+        140.82.116.4:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 3
+        .cache/nub/pm/tools/electron-cache/07dcd8f749c9bec3ba712c326cf40efbae0becef2dc205e18bae36383bef3f31
+        .cache/nub/pm/tools/electron-cache/07dcd8f749c9bec3ba712c326cf40efbae0becef2dc205e18bae36383bef3f31/SHASUMS256.txt
+        .cache/nub/pm/tools/electron-cache/07dcd8f749c9bec3ba712c326cf40efbae0becef2dc205e18bae36383bef3f31/chromedriver-v13.0.0-darwin-arm64.zip
+  EVICT[synth] 73 store entries removed, 3 spared as nub tooling, 1060 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6029/1939) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}
+  EVICT[nar-no-network] 73 store entries removed, 3 spared as nub tooling, 1060 in store
+  VERIFY[nar-no-network] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6029/1939) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  EVICT[nar-no-write-userHome] 73 store entries removed, 3 spared as nub tooling, 1060 in store
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6029/1939) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  EVICT[joint-narrow] 73 store entries removed, 3 spared as nub tooling, 1060 in store
+  VERIFY[joint-narrow] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6029/1939) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
+### DONE electron-chromedriver@13.0.0  synthesized={"write":{"userHome":true},"network":true} verified=1
