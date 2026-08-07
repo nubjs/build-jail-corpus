@@ -1,0 +1,78 @@
+### electron-chromedriver@11.0.0   (/home/nub/v2-Z60jd8)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1932 trace=10436 lines
+  CLOSURE   73 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":6,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-Z60jd8/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-Z60jd8/observe/capture.json
+  RAWLOG-BYTES raw=2014057 gz=73536
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-Z60jd8/jailhome","TMPDIR":"/tmp/nub-tmp-obse30JxX","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-Z60jd8/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 20  /  whole traced tree 1198
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-Z60jd8/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-Z60jd8/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-Z60jd8/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obse30JxX
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver
+  == WRITES the script actually performed ==
+    jailTmp       5  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obse30JxX/electron-download-2TknMs
+        /tmp/nub-tmp-obse30JxX/electron-download-2TknMs/chromedriver-v11.0.0-linux-x64.zip
+        /tmp/nub-tmp-obse30JxX/electron-download-yxZoHz
+        /tmp/nub-tmp-obse30JxX/electron-download-MFrVr4
+        /tmp/nub-tmp-obse30JxX/electron-download-MFrVr4/SHASUMS256.txt
+    jailHome      5  (base profile already grants this — NOT billed)
+        /home/nub/v2-Z60jd8/jailhome/.cache
+        /home/nub/v2-Z60jd8/jailhome/.cache/electron
+        /home/nub/v2-Z60jd8/jailhome/.cache/electron/fe8ca7691a6df4c9ec210f4d9b5ab801fe6c33393812a9a461b4ec134767bee9
+        /home/nub/v2-Z60jd8/jailhome/.cache/electron/fe8ca7691a6df4c9ec210f4d9b5ab801fe6c33393812a9a461b4ec134767bee9/SHASUMS256.txt
+        /home/nub/v2-Z60jd8/jailhome/.cache/electron/fe8ca7691a6df4c9ec210f4d9b5ab801fe6c33393812a9a461b4ec134767bee9/chromedriver-v11.0.0-linux-x64.zip
+    ownPkg       10  (base profile already grants this — NOT billed)
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/LICENSE
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/libffmpeg.so
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/icudtl.dat
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/chromedriver
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/gen
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/gen/electron
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags
+        /home/nub/v2-Z60jd8/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags/buildflags.h
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.11.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5638 distinct from 10319 calls (10437 lines, 92 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×36 setsockopt×33 getsockopt×18 exit×18 recvmsg×10 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/nub/v2-Z60jd8/observe/events.ndjson.gz (38644 bytes)
+  EVENTLOG-FILE /home/nub/v2-Z60jd8/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10437,"parsed":10319,"unparsed":0,"unfinished":92,"rejoined":92,"unresolvedDirfd":4,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5638,"unknownSyscall":{"getsockname":36,"getsockopt":18,"getcwd":4,"recvmsg":10,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-Z60jd8/observe/events.ndjson.gz","gzipBytes":38644}
+  EVICT     60 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 6032/1932) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     73 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-network] rc=1 artifacts=6/12 missing=6 shortfall=14fb022fa14e (tree 6012/1932) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/LICENSE, bin/LICENSES.chromium.html, bin/chromedriver, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/libffmpeg.so
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

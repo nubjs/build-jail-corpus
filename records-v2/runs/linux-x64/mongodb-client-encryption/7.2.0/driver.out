@@ -1,0 +1,63 @@
+### mongodb-client-encryption@7.2.0   (/home/nub/v2-e2hkto)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=359 trace=9661 lines
+  CLOSURE   37 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-e2hkto/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-e2hkto/observe/capture.json
+  RAWLOG-BYTES raw=1877902 gz=69957
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-e2hkto/jailhome","TMPDIR":"/tmp/nub-tmp-obsTqoM2q","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-e2hkto/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 6  /  whole traced tree 1184
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-e2hkto/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-e2hkto/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-e2hkto/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsTqoM2q
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-e2hkto/observe/node_modules/mongodb-client-encryption
+  == WRITES the script actually performed ==
+    jailHome      3  (base profile already grants this — NOT billed)
+        /home/nub/v2-e2hkto/jailhome/.npm/_prebuilds
+        /home/nub/v2-e2hkto/jailhome/.npm/_prebuilds/104007-mongodb-client-encryption-v7.2.0-napi-v9-linux-x64.tar.gz.331301-61d961cee449e.tmp
+        /home/nub/v2-e2hkto/jailhome/.npm/_prebuilds/104007-mongodb-client-encryption-v7.2.0-napi-v9-linux-x64.tar.gz
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/nub/v2-e2hkto/observe/node_modules/mongodb-client-encryption/build
+        /home/nub/v2-e2hkto/observe/node_modules/mongodb-client-encryption/build/Release
+        /home/nub/v2-e2hkto/observe/node_modules/mongodb-client-encryption/build/Release/mongocrypt.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.9.34:443
+        140.82.113.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5291 distinct from 9597 calls (9662 lines, 39 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×33 getsockname×31 exit×18 getsockopt×13 recvmsg×10 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/nub/v2-e2hkto/observe/events.ndjson.gz (36480 bytes)
+  EVENTLOG-FILE /home/nub/v2-e2hkto/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9662,"parsed":9597,"unparsed":0,"unfinished":39,"rejoined":39,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5291,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":10,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-e2hkto/observe/events.ndjson.gz","gzipBytes":36480}
+  EVICT     37 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for mongodb-client-encryption
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 1166/359) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     36 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for mongodb-client-encryption
+  VERIFY[drop-no-network] rc=1 artifacts=27/24 missing=1 shortfall=5feeee566503 (tree 1173/359) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Release/mongocrypt.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

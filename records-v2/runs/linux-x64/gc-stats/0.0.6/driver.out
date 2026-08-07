@@ -1,0 +1,86 @@
+### gc-stats@0.0.6   (/home/nub/v2-t0rOPy)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=73 trace=38433 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":19,"filesTheScriptProduced":10,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-t0rOPy/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-t0rOPy/observe/capture.json
+  RAWLOG-BYTES raw=6241969 gz=212146
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-t0rOPy/jailhome","TMPDIR":"/tmp/nub-tmp-obspeJLfx","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-t0rOPy/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 65
+    writes  script 3356  /  whole traced tree 4534
+    sockets script 3  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-t0rOPy/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-t0rOPy/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-t0rOPy/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obspeJLfx
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-t0rOPy/jailhome/.cache
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-t0rOPy/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    ownPkg       23  (base profile already grants this — NOT billed)
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/config.gypi
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/Makefile
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/gcstats.target.mk
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/binding.Makefile
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/node_gyp_bins
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/node_gyp_bins/python3
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/Release
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/obj.target
+        /home/nub/v2-t0rOPy/observe/node_modules/gc-stats/build/gcstats
+        … and 13 more
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obspeJLfx/cc1BIUyG.s
+        /tmp/nub-tmp-obspeJLfx/ccnnkBAk.res
+        /tmp/nub-tmp-obspeJLfx/cc5NaVA9.cdtor.c
+        /tmp/nub-tmp-obspeJLfx/ccPaDTOc.cdtor.o
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.11.34:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    18635 distinct from 37802 calls (38434 lines, 538 rejoined, 0 unparsed)
+    PROCS     71   lifecycle shells 60
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×74 setsockopt×58 wait4×53 exit_group×45 getsockname×40 getsockopt×24 exit×23 socketpair×9
+    wrote /home/nub/v2-t0rOPy/observe/events.ndjson.gz (110423 bytes)
+  EVENTLOG-FILE /home/nub/v2-t0rOPy/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":38434,"parsed":37802,"unparsed":0,"unfinished":538,"rejoined":538,"unresolvedDirfd":3,"truncatedArg":0,"procs":71,"lifecyclePids":60,"distinctEvents":18635,"unknownSyscall":{"getsockname":40,"getsockopt":24,"getcwd":74,"recvmsg":8,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":45,"wait4":53,"exit":23},"out":"/home/nub/v2-t0rOPy/observe/events.ndjson.gz","gzipBytes":110423}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for gc-stats
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=18/18 missing=0 shortfall=none (tree 215/73) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for gc-stats
+  VERIFY[drop-no-network] rc=0 artifacts=18/18 missing=0 shortfall=none (tree 215/73) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

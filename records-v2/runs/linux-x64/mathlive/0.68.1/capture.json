@@ -1,0 +1,55 @@
+{
+  "v": 1,
+  "kind": "capture",
+  "platform": "linux-x64",
+  "pkg": "mathlive",
+  "version": "0.68.1",
+  "tracer": "strace",
+  "invocation": "strace -f -e trace=file,network,process -o trace.txt npm rebuild --no-audit --no-fund <pkg>",
+  "subscribes": {
+    "traceFilter": "file,network,process",
+    "followForks": true,
+    "straceVersion": "strace -- version 6.8"
+  },
+  "decoders": {
+    "synthesizer": {
+      "path": "harness/v2/observe.mjs",
+      "sha256": "cb895dad6f95172f832c98ac9702bafa80dd2625efe709536c4722259f7d4622",
+      "bytes": 29123
+    },
+    "derived": {
+      "path": "harness/v2/adapters/linux.mjs",
+      "sha256": "3c890bd9b6910c05fd2918c7b2592553635254553fdc39e213e6a2d23ddd34cf",
+      "bytes": 29346
+    }
+  },
+  "os": {
+    "kernel": "Linux nub-corpus-linux.us-central1-a.c.pullfrog.internal 6.17.0-1021-gcp #24~24.04.1-Ubuntu SMP Tue Jul  7 14:58:58 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "distro": "Ubuntu 24.04.4 LTS"
+  },
+  "roots": {
+    "project": "/home/nub/v2-dLgDOE/observe",
+    "home": "/home/nub",
+    "jailHome": "/home/nub/v2-dLgDOE/jailhome",
+    "temp": "/tmp/nub-tmp-obs33VUG3",
+    "toolsDir": "/home/nub/.cache/nub/pm/tools",
+    "npmPrefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
+    "ownPkg": "/home/nub/v2-dLgDOE/observe/node_modules/mathlive",
+    "globalStore": "/home/nub/.cache/nub/pm/store",
+    "projectStore": "/home/nub/v2-dLgDOE/observe/node_modules/.store",
+    "interpreter": "/home/nub/node"
+  },
+  "observeEnv": {
+    "HOME": "/home/nub/v2-dLgDOE/jailhome",
+    "TMPDIR": "/tmp/nub-tmp-obs33VUG3",
+    "NODE_COMPAT": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
+    "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
+    "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
+    "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix"
+  },
+  "rawBytes": 1696598,
+  "rawLines": 8639,
+  "at": "2026-08-07T02:21:50.950Z"
+}

@@ -1,0 +1,90 @@
+### applicationinsights-native-metrics@0.0.9   (/home/nub/v2-c6ymdG)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=534 trace=78324 lines
+  CLOSURE   56 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":33,"filesTheScriptProduced":16,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-c6ymdG/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-c6ymdG/observe/capture.json
+  RAWLOG-BYTES raw=10467429 gz=323602
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-c6ymdG/jailhome","TMPDIR":"/tmp/nub-tmp-obsXEEkze","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-c6ymdG/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 160
+    writes  script 3368  /  whole traced tree 4546
+    sockets script 6  /  whole traced tree 12
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-c6ymdG/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-c6ymdG/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-c6ymdG/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXEEkze
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics
+  == WRITES the script actually performed ==
+    ownPkg       32  (base profile already grants this — NOT billed)
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/Release
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/config.gypi
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/Makefile
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/native_metrics.target.mk
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/binding.Makefile
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/node_gyp_bins
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/node_gyp_bins/python3
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/obj.target
+        /home/nub/v2-c6ymdG/observe/node_modules/applicationinsights-native-metrics/build/native_metrics
+        … and 22 more
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-c6ymdG/jailhome/.cache
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-c6ymdG/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    jailTmp       7  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsXEEkze/ccQN4Wd5.s
+        /tmp/nub-tmp-obsXEEkze/cc8uNocY.s
+        /tmp/nub-tmp-obsXEEkze/ccPlNMJu.s
+        /tmp/nub-tmp-obsXEEkze/cc6A0uS2.s
+        /tmp/nub-tmp-obsXEEkze/cc7HmmhA.res
+        /tmp/nub-tmp-obsXEEkze/cc3WwOXI.cdtor.c
+        /tmp/nub-tmp-obsXEEkze/ccz1pnT5.cdtor.o
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 4
+        127.0.0.53:53
+        104.16.6.34:443
+        140.82.114.4:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    32851 distinct from 77097 calls (78325 lines, 1017 rejoined, 0 unparsed)
+    PROCS     166   lifecycle shells 155
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×128 wait4×126 exit_group×110 setsockopt×63 getsockname×58 exit×50 getsockopt×42 recvmsg×10
+    wrote /home/nub/v2-c6ymdG/observe/events.ndjson.gz (174486 bytes)
+  EVENTLOG-FILE /home/nub/v2-c6ymdG/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":78325,"parsed":77097,"unparsed":0,"unfinished":1017,"rejoined":1017,"unresolvedDirfd":3,"truncatedArg":0,"procs":166,"lifecyclePids":155,"distinctEvents":32851,"unknownSyscall":{"getsockname":58,"getsockopt":42,"getcwd":128,"recvmsg":10,"setsockopt":63,"sendmmsg":3,"socketpair":9,"shutdown":9,"exit":50,"exit_group":110,"wait4":126},"out":"/home/nub/v2-c6ymdG/observe/events.ndjson.gz","gzipBytes":174486}
+  EVICT     60 store entries removed, 8 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for applicationinsights-native-metrics
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=33/33 missing=0 shortfall=none (tree 1581/534) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     57 store entries removed, 8 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for applicationinsights-native-metrics
+  VERIFY[drop-no-network] rc=0 artifacts=33/33 missing=0 shortfall=none (tree 1581/534) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

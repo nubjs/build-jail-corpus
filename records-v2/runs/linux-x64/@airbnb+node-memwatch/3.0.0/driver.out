@@ -1,0 +1,89 @@
+### @airbnb/node-memwatch@3.0.0   (/home/nub/v2-nbVYLR)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=103 trace=69906 lines
+  CLOSURE   4 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":35,"filesTheScriptProduced":16,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-nbVYLR/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-nbVYLR/observe/capture.json
+  RAWLOG-BYTES raw=9476174 gz=291590
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-nbVYLR/jailhome","TMPDIR":"/tmp/nub-tmp-obslZZ4Or","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-nbVYLR/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 128
+    writes  script 3368  /  whole traced tree 4546
+    sockets script 3  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-nbVYLR/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-nbVYLR/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-nbVYLR/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obslZZ4Or
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-nbVYLR/jailhome/.cache
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-nbVYLR/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    ownPkg       32  (base profile already grants this — NOT billed)
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/config.gypi
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/Makefile
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/memwatch.target.mk
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/binding.Makefile
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/node_gyp_bins
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/node_gyp_bins/python3
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/Release
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/obj.target
+        /home/nub/v2-nbVYLR/observe/node_modules/@airbnb/node-memwatch/build/memwatch
+        … and 22 more
+    jailTmp       7  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obslZZ4Or/ccntTuaA.s
+        /tmp/nub-tmp-obslZZ4Or/ccArvWVR.s
+        /tmp/nub-tmp-obslZZ4Or/cc33NtYY.s
+        /tmp/nub-tmp-obslZZ4Or/cc01etzm.s
+        /tmp/nub-tmp-obslZZ4Or/ccPXkJVO.res
+        /tmp/nub-tmp-obslZZ4Or/ccRk9S2Z.cdtor.c
+        /tmp/nub-tmp-obslZZ4Or/ccSiXVmP.cdtor.o
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    28756 distinct from 68687 calls (69907 lines, 1043 rejoined, 0 unparsed)
+    PROCS     134   lifecycle shells 123
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×125 wait4×125 exit_group×108 setsockopt×58 getsockname×40 getsockopt×24 exit×23 socketpair×9
+    wrote /home/nub/v2-nbVYLR/observe/events.ndjson.gz (155961 bytes)
+  EVENTLOG-FILE /home/nub/v2-nbVYLR/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":69907,"parsed":68687,"unparsed":0,"unfinished":1043,"rejoined":1043,"unresolvedDirfd":3,"truncatedArg":0,"procs":134,"lifecyclePids":123,"distinctEvents":28756,"unknownSyscall":{"getsockname":40,"getsockopt":24,"getcwd":125,"recvmsg":8,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":108,"wait4":125,"exit":23},"out":"/home/nub/v2-nbVYLR/observe/events.ndjson.gz","gzipBytes":155961}
+  EVICT     3 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @airbnb/node-memwatch
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=34/34 missing=0 shortfall=none (tree 305/103) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @airbnb/node-memwatch
+  VERIFY[drop-no-network] rc=0 artifacts=34/34 missing=0 shortfall=none (tree 305/103) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

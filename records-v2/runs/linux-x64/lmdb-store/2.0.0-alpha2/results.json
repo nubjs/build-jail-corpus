@@ -89,5 +89,15 @@
         "NODE_ENV": null
       }
     }
+  },
+  "venueContingent": {
+    "axis": "host toolchain",
+    "descendedFrom": {
+      "network": true
+    },
+    "measured": "OBSERVE (npm) reached the network and the synthesized grant carried it; both jailed arms then installed with network denied, so the descent removed it. The drop arm really was denied the network — the falsification control proves that detection works on this axis (hugo-extended at {} fails with EAI_AGAIN/ENETUNREACH in the same run).",
+    "whyItMayNotGeneralise": "Every record in this class is a node-gyp native build, and the measuring host supplies a full C/C++ toolchain plus a Node installation that ships headers. On a host lacking either, node-gyp would have to DOWNLOAD headers and this {} would under-grant. The measured difference: OBSERVE's generated *.target.mk names .cache/node-gyp/<ver>/…, while both jailed arms name the local Node install's include dir.",
+    "unresolved": "WHY the two differ is NOT established. Nothing in nub or aube sets nodedir/devdir, and the local include path does not appear in the retained OBSERVE trace. The .mk reading was taken from VM state the record does not retain. Decisive cheap check for whoever is next on the VM: run drop-no-network with ~/.cache/node-gyp AND the private home provably empty — measure.sh evicts jail-home/<pkg>-* but not a node-gyp dev dir outside it.",
+    "precedent": "Treat as a per-toolchain split like kerberos@7.0.0 (needs network on Linux, not on macOS, because one venue has a working compiler for the fallback), not as a universal minimum."
   }
 }

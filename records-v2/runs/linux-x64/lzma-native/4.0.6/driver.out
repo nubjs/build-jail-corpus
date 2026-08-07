@@ -1,0 +1,116 @@
+### lzma-native@4.0.6   (/home/nub/v2-Sqe9WO)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=602 trace=680538 lines
+  CLOSURE   68 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":42,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-Sqe9WO/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-Sqe9WO/observe/capture.json
+  RAWLOG-BYTES raw=75810841 gz=2582455
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-Sqe9WO/jailhome","TMPDIR":"/tmp/nub-tmp-obsASBKeW","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-Sqe9WO/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 5406
+    writes  script 4828  /  whole traced tree 6006
+    sockets script 8  /  whole traced tree 12
+    ⛔ 9 WRITES with an UNRESOLVED dirfd — base unknown, so NOT classified
+       and NOT granted. They are a decoding gap, not a capability. Never guessed:
+        unlinkat conftest.c (dirfd 8)
+        unlinkat conftst6.h (dirfd 8)
+        unlinkat conftst5.h (dirfd 8)
+        unlinkat conftst1.h (dirfd 8)
+        unlinkat conftst2.h (dirfd 8)
+        unlinkat conftst3.h (dirfd 8)
+        unlinkat conftest.Po (dirfd 8)
+        unlinkat conftst4.h (dirfd 8)
+        unlinkat conftest.o (dirfd 8)
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-Sqe9WO/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-Sqe9WO/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-Sqe9WO/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsASBKeW
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native
+  == WRITES the script actually performed ==
+    ownPkg     1172  (base profile already grants this — NOT billed)
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/binding-v4.0.6-node-v127-linux-x64
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/config.gypi
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/testsupp.c
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/testsupp.o
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/liblzma
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/liblzma/node_liblzma_config.log
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/liblzma/xz-5.2.3
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/liblzma/xz-5.2.3/debug
+        /home/nub/v2-Sqe9WO/observe/node_modules/lzma-native/build/liblzma/xz-5.2.3/debug/translation.bash
+        … and 1162 more
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-Sqe9WO/jailhome/.cache
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-Sqe9WO/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    jailTmp     318  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsASBKeW/ccbcxPsj.s
+        /tmp/nub-tmp-obsASBKeW/cgRp7XAq
+        /tmp/nub-tmp-obsASBKeW/cgRp7XAq/dummy.c
+        /tmp/nub-tmp-obsASBKeW/ccucrxU5.s
+        /tmp/nub-tmp-obsASBKeW/cgRp7XAq/dummy.o
+        /tmp/nub-tmp-obsASBKeW/GmDd6bHg
+        /tmp/nub-tmp-obsASBKeW/ccTLkKsu.s
+        /tmp/nub-tmp-obsASBKeW/ccUTRJm2.o
+        /tmp/nub-tmp-obsASBKeW/ccqXSuF8.res
+        /tmp/nub-tmp-obsASBKeW/cc2VVmmg.cdtor.c
+        … and 308 more
+    kernelfs      1
+        /dev/null
+    bytecode      9  (jail REFUSES these and the build succeeds anyway — NOT billed)
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/conftest.two
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/conftest.one
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/sub
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/depcomp
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/conftest.err
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/confmf
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/defines.awk
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/subs1.awk
+        /usr/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc/subs.awk
+  == NETWORK ==
+    AF_INET sockets: 8   distinct peers: 4
+        127.0.0.53:53
+        104.16.5.34:443
+        51.75.72.12:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        openat /var/cache/ldconfig/aux-cache
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    335814 distinct from 660855 calls (680539 lines, 9888 rejoined, 0 unparsed)
+    PROCS     5412   lifecycle shells 5401
+    ⛔ 22 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×9232 exit_group×5346 getcwd×811 setsockopt×75 getsockname×64 exit×59 getsockopt×48 socketpair×12
+    wrote /home/nub/v2-Sqe9WO/observe/events.ndjson.gz (1446093 bytes)
+  EVENTLOG-FILE /home/nub/v2-Sqe9WO/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":680539,"parsed":660855,"unparsed":0,"unfinished":9888,"rejoined":9888,"unresolvedDirfd":22,"truncatedArg":0,"procs":5412,"lifecyclePids":5401,"distinctEvents":335814,"unknownSyscall":{"getsockname":64,"getsockopt":48,"getcwd":811,"recvmsg":10,"setsockopt":75,"sendmmsg":3,"socketpair":12,"shutdown":10,"exit_group":5346,"wait4":9232,"exit":59},"out":"/home/nub/v2-Sqe9WO/observe/events.ndjson.gz","gzipBytes":1446093}
+  EVICT     67 store entries removed, 8 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 1931/602) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     69 store entries removed, 8 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+  VERIFY[drop-no-network] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 1931/602) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

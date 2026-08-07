@@ -1,0 +1,61 @@
+### hugo-extended@0.153.5   (/home/nub/v2-SJ38Jr)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1011 trace=9625 lines
+  CLOSURE   33 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-SJ38Jr/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-SJ38Jr/observe/capture.json
+  RAWLOG-BYTES raw=1856239 gz=69661
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-SJ38Jr/jailhome","TMPDIR":"/tmp/nub-tmp-obsqpGTzS","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-SJ38Jr/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 27
+    writes  script 5  /  whole traced tree 1183
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-SJ38Jr/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-SJ38Jr/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-SJ38Jr/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsqpGTzS
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended
+  == WRITES the script actually performed ==
+    ownPkg        5  (base profile already grants this — NOT billed)
+        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended/vendor
+        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended/vendor/hugo_extended_0.153.5_linux-amd64.tar.gz
+        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended/vendor/hugo
+        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended/vendor/README.md
+        /home/nub/v2-SJ38Jr/observe/node_modules/hugo-extended/vendor/LICENSE
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5218 distinct from 9526 calls (9626 lines, 27 rejoined, 0 unparsed)
+    PROCS     33   lifecycle shells 22
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×57 tgkill×36 getsockname×32 exit×18 getsockopt×15 recvmsg×10 getcwd×7 socketpair×6
+    wrote /home/nub/v2-SJ38Jr/observe/events.ndjson.gz (36491 bytes)
+  EVENTLOG-FILE /home/nub/v2-SJ38Jr/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9626,"parsed":9526,"unparsed":0,"unfinished":27,"rejoined":27,"unresolvedDirfd":3,"truncatedArg":0,"procs":33,"lifecyclePids":22,"distinctEvents":5218,"unknownSyscall":{"getsockname":32,"getsockopt":15,"getcwd":7,"recvmsg":10,"setsockopt":57,"sendmmsg":3,"socketpair":6,"shutdown":4,"tgkill":36,"exit_group":4,"wait4":4,"exit":18},"out":"/home/nub/v2-SJ38Jr/observe/events.ndjson.gz","gzipBytes":36491}
+  EVICT     28 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for hugo-extended
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 3069/1011) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     27 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for hugo-extended
+  VERIFY[drop-no-network] rc=1 artifacts=9/12 missing=3 shortfall=219cbefac624 (tree 3060/1011) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: vendor/LICENSE, vendor/README.md, vendor/hugo
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
