@@ -14,6 +14,16 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+// The digest is defined once, beside the predicate that compares digests across arms, so this
+// driver's inline gate and `artifact-gate.mjs` cannot drift apart. Importing that module does NOT run
+// its CLI -- its main-module guard resolves the invoked script's path to a URL and compares it
+// against its own, and under this import that path is THIS file.
+//
+// ⛔ THE EXPRESSION IS DESCRIBED RATHER THAN QUOTED, AND THAT IS NOT PEDANTRY. `cli-guard.test.mjs`
+// scans for files that CALL the URL-resolving form and requires each to carry the import-safety guard
+// beside it. Quoting the call in prose puts a file with no CLI guard at all on that list, and the test
+// then fails naming a defect that does not exist. Measured twice while writing this comment.
+import { shortfallDigest } from './shortfall-invariance.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -967,6 +977,12 @@ if (OBSERVE_ONLY) {
 // alongside isolation: it would evict entries from a store that is already empty and the only
 // effect would be the `EVICT` log line.
 
+// One `rc:shortfall-digest:ok|abs:missing-count` entry per grant-widening arm, appended by `verify`.
+// Read once, at the foot of the ladder, to decide whether a shortfall responded to widening. Same
+// field order and same reader as `measure.sh` and `measure-macos.sh` — the ledger is a cross-driver
+// format, and this driver joins it rather than inventing a Windows-shaped one.
+const ARM_LEDGER = [];
+
 let armSeq = 0;
 const verify = (grant, label) => {
   const v = path.join(ROOT, `verify-${label}`);
@@ -1132,8 +1148,31 @@ const verify = (grant, label) => {
   }
   // `files/OBS_FILES` stays printed for continuity with the existing corpus logs, but it is
   // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.
-  console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
+  // The shortfall's IDENTITY, over the full missing list including the sizes rather than the count:
+  // two arms each missing one DIFFERENT file both read `missing=1`, which is a varying shortfall
+  // reported as an invariant one. Printed as well as recorded so a corpus log is auditable against
+  // the ledger, and in the position `falsify.mjs`'s `VERIFY[at-grant]` regex already allows for it.
+  const shortfall = shortfallDigest(missing);
+  console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} shortfall=${shortfall} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
   if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
+  // ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
+  // block there for what it decides. Only the arms that actually WIDEN the grant are recorded, and
+  // `at-grant` is excluded because DIRECT mode never reaches the ladder. (There is no `diag` arm on
+  // this driver; the POSIX exclusion lists carry one because they re-run the failing grant under a
+  // tracer, which would let a repeated point pose as corroboration.)
+  //
+  // ⛔ A TIMED-OUT ARM CONTRIBUTES NOTHING, AND THAT IS CORRECT RATHER THAN AN OVERSIGHT. Both
+  // timeout paths return above this line, before a manifest exists — and a hang is not evidence about
+  // the grant, which is why the ladder abandons on one instead of continuing. `classify` would refuse
+  // the short ledger anyway; this just means it never sees a fabricated arm.
+  //
+  // ⛔ `abs` IS ITS OWN STATE AND MUST NOT COLLAPSE INTO `ok`. `missingArtifacts` returns
+  // `['<package absent>']` when the package is not installed at all, so an absent package would
+  // otherwise look like a stable one-file shortfall repeated at every rung — "invariant" only in the
+  // sense that nothing happened four times. `classify`'s safety clause refuses it by this field.
+  if (label !== 'at-grant') {
+    ARM_LEDGER.push(`${rc}:${shortfall}:${got ? 'ok' : 'abs'}:${missing.length}`);
+  }
   if (!(ovr >= 1 && rej === 0)) { console.log('     !! override did not engage -- arm is VOID'); sweepArmCache(); return { ok: false, void: true, files, rc }; }
   sweepArmCache();
   // Artifacts, not exit codes: a jailed run that exits 0 having produced nothing is the normal
@@ -1355,4 +1394,68 @@ for (const [i, g] of LADDER.entries()) {
     process.exit(0);
   }
 }
+// ── 5. BEFORE DECLARING NOTHING PASSED: DID THE SHORTFALL EVER RESPOND TO THE GRANT? ──────────
+//
+// ⛔ A SHORTFALL INVARIANT UNDER WIDENING IS NOT A CAPABILITY GAP, and everything above this line
+// assumes the opposite. The ladder reads one boolean per rung, so four arms that each exited 0 and
+// each fell short by the SAME files are indistinguishable from four arms that failed for four
+// different reasons -- and without this stage both land on `NO-STATE-PASSED`, which discards the
+// record. `measure.sh` has asked this question since `windows-foreground-love@0.6.1` was thrown away
+// with a correct narrow grant already in hand; this driver and `measure-macos.sh` did not, and the
+// cost of that asymmetry is a TRIAGE gap: neither could tell "needs a wider grant" from "no grant
+// will ever help", which is the distinction that manufactures false under-grant findings.
+//
+// ⛔ THE TOP RUNG MEANS SOMETHING WEAKER ON WINDOWS, AND THE VERDICT STILL HOLDS. `write:"disk"`
+// DECLINES the AppContainer/LowBox token altogether rather than widening a path grant, so it drops
+// the filesystem and network axes together. That makes it a WIDER state than the rungs below it, not
+// a narrower one, which is all grant-independence needs: a shortfall unchanged from the synthesized
+// grant up to a state with no confinement at all cannot have been caused by confinement. It does
+// mean a token-compatibility failure and a path failure look identical here -- but that is an
+// argument for reading the shortfall against the toolchain, which is exactly what this verdict says.
+//
+// ⛔ THE VERDICT IS `SUSPECT`, NOT `VERIFIED`, AND THE DIFFERENCE IS THE POINT. Grant-independence
+// proves the shortfall is not a capability gap; it does not prove the install was good, and this is
+// the ONLY path in this driver that publishes a grant without a leave-one-out DESCENT behind it --
+// the synth and ladder paths both descend, so minimality here is unproven and the grant is a
+// CANDIDATE. The record keeps it so the package is triageable instead of discarded; `collate.mjs`
+// keeps it out of the catalog, because publishing an unverified NARROW grant is the under-granting
+// direction and that is the one that breaks a real install.
+const inv = run(NODE, [path.join(HERE, 'shortfall-invariance.mjs'), '--arms', '4'],
+  { input: ARM_LEDGER.join('\n') + '\n' });
+const invOut = (inv.stdout ?? '').trim();
+// ⛔⛔ AN EXIT CODE ALONE DOES NOT SAY THE PREDICATE RAN. The CLI block below `classify` prints
+// `GRANT-INDEPENDENT ...` or `NOT-ESTABLISHED ...` on every path it takes, so EMPTY stdout means it
+// never executed -- and the failure that produces that exits 0, so a bare `status === 0` reads a
+// script that did nothing as the strongest verdict this stage can issue. The count would then render
+// empty and the verdict would be published off no evidence at all.
+//
+// ⛔ AND THE TRIGGER IS A WINDOWS DEFECT ORIGINALLY. That main-module guard resolves the invoked
+// script's path to a URL, rather than string-concatenating it, precisely because the STRING form never
+// matches on Windows -- argv carries a backslash path while `import.meta.url` is `file:///C:/...` --
+// the exact silent-exit-0 shape this guard refuses. A spawn failure (`inv.error`) lands here too,
+// which is right: no stdout, no answer.
+//
+// ⛔ `HARNESS-ERROR`, NOT A NEW NOUN AND NOT `NO-STATE-PASSED`. `record.mjs` already parses this
+// spelling from this driver, and `claim-slice.mjs` returns a `HARNESS-*` row to `pending` instead of
+// closing it -- which is right, because a re-run would answer the question. Falling through would
+// instead record "nothing installed this package" as a MEASUREMENT, when the rescue never got to run.
+if (!invOut) {
+  console.log(`  => HARNESS-ERROR: shortfall-invariance.mjs printed nothing (rc=${inv.status}) -- the predicate`);
+  console.log('     never ran, so grant-independence is UNANSWERED and no verdict here would rest on evidence.');
+  process.exit(1);
+}
+if (inv.status === 0) {
+  const missN = invOut.split(' ')[1];
+  console.log(`  => ARTIFACT-GATE-SUSPECT ${JSON.stringify(GRANT)}   (every arm rc=0 and the SAME ${missN}-artifact shortfall at`);
+  console.log('     every grant up to write:"disk" -- invariant under widening, so it is not a capability gap)');
+  // `->`, never `=>`: `record.mjs` keys every verdict on a leading `=>`, so a continuation line that
+  // opens with one is a verdict token waiting to be matched by the next pattern someone adds.
+  console.log('     -> The grant is the SYNTHESIZED one and is UNVERIFIED -- minimality was never descended.');
+  console.log("        Triage the shortfall against the arm's toolchain, not against the jail.");
+  process.exit(0);
+}
+console.log(`  NOT-GRANT-INDEPENDENT ${invOut.replace(/^NOT-ESTABLISHED /, '')}`);
+// ⛔ ONLY NOW, AND ONLY IN THIS BRANCH. `record.mjs` walks the log line by line and the LAST matching
+// `=>` wins, so printing both verdicts would silently overwrite `ARTIFACT-GATE-SUSPECT` with
+// `NO-STATE-PASSED` and this whole stage would have no effect on any record.
 console.log('  => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly');

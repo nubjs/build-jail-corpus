@@ -60,7 +60,20 @@ test('INSTRUMENT: the region was located and holds the three rungs and the desce
 // A four-arm ledger whose shortfall digest CHANGES across arms, so `shortfall-invariance.mjs` refuses
 // and the all-rungs-fail path lands on its real terminal verdict rather than on the SUSPECT escape.
 // Format is `verify`'s own: `<install rc>:<shortfall digest>:<ok|abs>:<missing count>`.
-const LEDGER_RESPONSIVE = ['1:aa11:ok:9', '1:bb22:ok:7', '1:cc33:ok:4', '1:dd44:ok:2'].join('\n') + '\n';
+//
+// ⛔ THIS FIXTURE WAS REACHING THE PREDICATE AS ONE ARM AND REFUSING FOR THE WRONG REASON, TWICE OVER,
+// and every case here stayed green because they all check only the terminal verdict — which is a
+// refusal either way. Found while porting this stage to the other two drivers; both defects are fixed
+// and an INSTRUMENT case below pins them.
+//
+//   1. `JSON.stringify` renders the separators as the two characters `\` `n`, which bash inside
+//      double quotes does not interpret, so the predicate saw ONE line and answered `ladder was not
+//      fully walked`. The assignment is single-quoted now; a real newline survives that verbatim.
+//   2. Every arm was rc=1, and the predicate checks exit codes BEFORE digests, so it answered `an arm
+//      exited non-zero` and never looked at the shortfall. rc=0 is what puts the DIGEST clause — the
+//      one that does the separating — in the refusing position, and it is the realistic shape besides:
+//      an install that exits clean and then fails the artifact gate is why this stage exists at all.
+const LEDGER_RESPONSIVE = ['0:aa11:ok:9', '0:bb22:ok:7', '0:cc33:ok:4', '0:dd44:ok:2'].join('\n') + '\n';
 
 /**
  * Run the extracted region with a stubbed `verify`, and return its stdout.
@@ -87,7 +100,9 @@ const run = (oracle, {
     'set -uo pipefail',
     `ROOT=${JSON.stringify(root)}`,
     `HERE=${JSON.stringify(here)}`,
-    `ARM_LEDGER=${JSON.stringify(ledger)}`,
+    // Single-quoted, not `JSON.stringify` — see the note on `LEDGER_RESPONSIVE`. No ledger contains
+    // a single quote.
+    `ARM_LEDGER='${ledger}'`,
     `GRANT='${grant}'`,
     // `verify "$GRANT" "synth"; SRC=$?` sits just above the extracted region, so its result is the
     // region's input: 0 means the synthesized grant verified and the ladder must never be reached.
@@ -276,11 +291,25 @@ test('⭑ a VOID rung stops the ladder instead of climbing past a grant it never
   assert.notEqual(r.verdict, 'MINIMUM', 'a VOID rung must never yield a published minimum');
 });
 
+test('INSTRUMENT: the ledger reaches the predicate as FOUR arms, and refuses on the DIGEST clause', () => {
+  // ⛔ THE CONTROL FOR THE TWO DEFECTS DESCRIBED ON `LEDGER_RESPONSIVE`. Without it this file's
+  // negative control is satisfiable by a fixture the predicate never parses: it refuses, the terminal
+  // verdict appears, and nothing distinguishes "the shortfall responded" from "the fixture was
+  // mangled". Asserting the CLAUSE is what makes the refusal attributable.
+  const out = run('  return 1');
+  assert.doesNotMatch(out, /not fully walked/, 'the ledger arrived truncated to a single arm');
+  assert.doesNotMatch(out, /an arm exited non-zero/,
+    'the exit-code clause refused first, so the varying shortfall was never examined');
+  assert.match(out, /NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms/);
+});
+
 test('every rung failing is still NO-STATE-PASSED, with no grant and no descent', () => {
   // The honest end of the Linux ladder: nothing this harness can express installs the package, and
   // the shortfall responded to the grant, so the grant-independence escape does not apply either.
   const out = run('  return 1');
   assert.match(out, /=> NO-STATE-PASSED even at write:disk/);
+  assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/,
+    'a shortfall that responded to the grant was classified as grant-independent');
   assert.doesNotMatch(out, /OVER-PREDICTED|=> MINIMAL/, 'a descent ran with no rung to descend from');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'NO-STATE-PASSED');

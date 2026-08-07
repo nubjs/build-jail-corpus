@@ -15,10 +15,37 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { classify } from './shortfall-invariance.mjs';
+import { classify, shortfallDigest } from './shortfall-invariance.mjs';
 
-/** `rc:digest:ok|abs:count` per arm, oldest first — the ledger `measure.sh` accumulates. */
+/** `rc:digest:ok|abs:count` per arm, oldest first — the ledger every driver accumulates. */
 const ledger = (...arms) => arms.join('\n');
+
+// ── `shortfallDigest` — the value the arms are compared BY ────────────────────────────────────────
+//
+// ⛔ IT LIVES IN THIS MODULE BECAUSE THREE CALLERS WANT IT AND A MIRRORED COPY WOULD DRIFT.
+// `artifact-gate.mjs` prints it for the two POSIX drivers; `measure-windows.mjs` computes it for its
+// own inline gate, which cannot call the POSIX gate. `classify` is the only consumer of the result,
+// so the definition sits beside it rather than inside one of the three producers.
+
+test('the digest is order-independent, so two arms with the same shortfall agree on its identity', () => {
+  // ⛔ THE MANIFEST WALK'S ORDER IS FILESYSTEM-DEPENDENT. Without the sort, two arms that fell short by
+  // exactly the same files would disagree on the digest — and disagreeing digests are read here as
+  // "the shortfall responded to the grant", i.e. the refusing direction. Safe, but it would silently
+  // delete the verdict rather than mis-issue it, which is the failure that never gets noticed.
+  const files = ['build/Makefile', 'build/config.gypi', 'lib/x.node (10B < 20B)'];
+  assert.equal(shortfallDigest(files), shortfallDigest([...files].reverse()));
+  assert.match(shortfallDigest(files), /^[0-9a-f]{12}$/);
+});
+
+test('a DIFFERENT shortfall gets a different digest, and an empty one is `none`', () => {
+  // The positive control for the case above: a digest that only ever collided would report every
+  // failing ladder as grant-independent. And `none` is not cosmetic — `classify` refuses that value by
+  // name, so an arm that PASSED the gate can never be counted toward grant-independence.
+  assert.notEqual(shortfallDigest(['a']), shortfallDigest(['b']));
+  assert.equal(shortfallDigest([]), 'none');
+  assert.equal(classify(ledger(...Array(4).fill('0:none:ok:0'))).why,
+    'no shortfall — the arms passed the gate');
+});
 
 test('the measured windows-foreground-love shape FIRES — a correct grant that the ladder discarded', () => {
   // 4 arms, rc=0 everywhere, the same 3-file shortfall from the synthesized grant all the way up to

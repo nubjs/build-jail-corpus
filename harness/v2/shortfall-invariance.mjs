@@ -1,9 +1,20 @@
 // Did the artifact shortfall RESPOND to widening the grant, or was it there the whole way up?
 //
-// ⛔ THIS IS THE ONE QUESTION THE LADDER CANNOT ASK ITSELF. `measure.sh` reads one boolean per rung, so
+// ⛔ THIS IS THE ONE QUESTION THE LADDER CANNOT ASK ITSELF. Every driver reads one boolean per rung, so
 // four arms that each exited 0 and each fell short by the SAME files are indistinguishable from four
-// arms that failed for four different reasons — and both land on `NO-STATE-PASSED`, which discards the
-// record.
+// arms that failed for four different reasons — and both land on the terminal verdict, which discards
+// the record.
+//
+// ⛔ ALL THREE DRIVERS CONSULT THIS, AND FOR A WHILE ONLY ONE DID. `measure.sh` has since it was
+// written; `measure-macos.sh` and `measure-windows.mjs` were taught it together, because a
+// single-driver edit is exactly the cross-driver asymmetry that let macOS ship without a ladder at
+// all. The cost of the gap was measured on `@arbitrum/sdk@3.0.0-beta.0`: darwin ran all three rungs
+// and got `rc=0 artifacts=816/1117 missing=301 shortfall=0d0532fa4785` at every one of them,
+// including `write:"disk"`, and recorded `UNDER-PREDICTED` — while Linux, from a different tracer,
+// had already recorded the same package `ARTIFACT-GATE-SUSPECT`. Both verdicts are excluded from the
+// catalog (`collate.mjs:187`), so the gap was never a broken-install risk; it was a TRIAGE gap, and
+// the distinction it erases — "needs a wider grant" versus "no grant will ever help" — is the one
+// that manufactures false under-grant findings.
 //
 // The rule being applied: a shortfall INVARIANT under widening is not a capability gap. The top rung
 // is `{"write":"disk","network":true}` and the rung below it adds `"read":"disk"`, so every axis the
@@ -12,7 +23,7 @@
 // for it to be evidence about. It says something about the ARM's toolchain, which is a different
 // question and not this harness's.
 //
-// MEASURED over the 45 `records-v2/runs/linux-x64` records this was written against: the predicate
+// MEASURED over the 45 `records-v2/runs/linux-x64` records this was FIRST written against: the predicate
 // holds on exactly 2 (`lmdb-store@2.0.0-alpha2`, `windows-foreground-love@0.6.1`) and on NONE of the
 // 12 `MINIMAL` ones. `windows-foreground-love@0.6.1` is the cost of not having it — it synthesized
 // `{"write":{"project":true},"network":true}`, that arm exited 0 with all 18 artifacts present and 3
@@ -27,6 +38,26 @@
 //   ledger: one `rc:shortfall-digest:ok|abs:missing-count` line per grant-WIDENING arm, in order.
 //   exit 0 = grant-independent (stdout: `GRANT-INDEPENDENT <count> <digest>`)
 //   exit 1 = not established (stdout: the clause that refused, so a log says WHY, not just no)
+import crypto from 'node:crypto';
+
+// The IDENTITY of a shortfall, and the ONE definition of it in the harness. Three call sites want it:
+// `artifact-gate.mjs` prints it as `shortfall=<digest>` for the two POSIX drivers, and
+// `measure-windows.mjs` computes it for its own inline gate, which cannot call the POSIX gate. It
+// lives here, beside the predicate that COMPARES digests, rather than being mirrored per driver —
+// a mirrored constant is the defect class `ci-env-scrub.test.mjs` exists to police, and there is no
+// reason to create a second instance of it.
+//
+// ⛔ SORTED BEFORE HASHING. The manifest walk's order is filesystem-dependent, so two arms with the
+// SAME shortfall would otherwise disagree on its identity — and disagreeing digests are read here as
+// "the shortfall responded to the grant", i.e. the refusing direction.
+//
+// ⛔ `none` FOR AN EMPTY SHORTFALL IS LOAD-BEARING, not a display choice. `classify` refuses that
+// value by name, so an arm that passed the gate can never be counted toward grant-independence.
+export function shortfallDigest(missing) {
+  return missing.length
+    ? crypto.createHash('sha1').update(missing.slice().sort().join('\n')).digest('hex').slice(0, 12)
+    : 'none';
+}
 
 export function classify(ledger, armsExpected = 4) {
   const arms = ledger

@@ -40,7 +40,10 @@
 //   exit 3 = OBSERVE itself produced nothing for this package, so there is nothing to gate on.
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
+// The digest is defined once, beside the predicate that compares digests across arms. Importing that
+// module does NOT run its CLI: its main-module guard resolves the invoked script's path to a URL and
+// compares it against its own, and under this import that path is THIS file.
+import { shortfallDigest } from './shortfall-invariance.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -225,11 +228,7 @@ for (const [f, size] of got ? obs : []) {
   if (isToolchainGenerated(f) && armSize > 0) continue;
   if (armSize < size) missing.push(`${f} (${armSize}B < ${size}B)`);
 }
-// Order the manifest walk produces is filesystem-dependent, so sort before digesting or two arms with
-// the same shortfall can disagree on its identity.
-const shortfall = missing.length
-  ? crypto.createHash('sha1').update(missing.slice().sort().join('\n')).digest('hex').slice(0, 12)
-  : 'none';
+const shortfall = shortfallDigest(missing);
 console.log(
   `artifacts=${got ? got.size : 'ABSENT'}/${obs.size} missing=${missing.length} shortfall=${shortfall}`,
 );
