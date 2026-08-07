@@ -3,41 +3,26 @@
   "version": "1.2.3",
   "harnessVersion": 2,
   "verdict": "MINIMUM",
-  "grant": {
-    "write": {
-      "deps": true,
-      "project": true,
-      "userHome": true
-    }
-  },
-  "synthesized": {
-    "write": {
-      "deps": true,
-      "project": true,
-      "userHome": true
-    }
-  },
+  "grant": {},
+  "synthesized": {},
   "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-write-deps",
-    "no-write-project",
-    "no-write-userHome"
-  ],
+  "minimality": "MINIMAL",
+  "overPredictedBy": [],
   "grantSource": "synthesized",
-  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
   "descendedGrant": {},
   "notes": [
     "arms-unfalsifiable",
-    "cwd-unobserved"
+    "cwd-unobserved",
+    "events-lost"
   ],
   "eventLog": {
     "lines": 12235,
-    "parsed": 12218,
+    "parsed": 12217,
     "unparsed": 0,
     "live": true,
-    "tracerErrors": 0,
-    "tracerErrorTotal": 0,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
     "unresolvedDirfd": 24,
     "unresolvedFd": 0,
     "pairedTwoPath": 541,
@@ -54,20 +39,20 @@
     "distinctEvents": 5584,
     "emitted": 5584,
     "calls": 11654,
-    "bytes": 1116462,
-    "gzipBytes": 37768,
-    "out": "/Users/runner/v2m-IxDDse/Observe/events.ndjson"
+    "bytes": 1133900,
+    "gzipBytes": 38263,
+    "out": "/Users/runner/v2m-2ACKuo/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 19708,
+  "durationMs": 16055,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": null,
     "nubVersion": "v0.6.0",
-    "corpusGitSha": "e8b28639b5a07cf418f88a090a5fc629ecaae046",
+    "corpusGitSha": "067a3d5333dffaa72f30b3fc4c0734e977797c96",
     "node": "v22.23.1",
-    "at": "2026-08-06T23:24:17.253Z",
+    "at": "2026-08-07T02:33:05.761Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -76,13 +61,16 @@
     "jailRoot": null,
     "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
+    "cwdResolved": 1,
+    "cwdUnplaceableWrites": null,
     "nubBinary": null,
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-IxDDse/jailhome",
-        "TMPDIR": "/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T//nub-tmp-obs9YKosT",
+        "HOME": "/Users/runner/v2m-2ACKuo/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsNYcHbl",
         "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
         "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
         "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
