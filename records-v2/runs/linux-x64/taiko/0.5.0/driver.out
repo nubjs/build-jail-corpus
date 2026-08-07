@@ -1,0 +1,73 @@
+### taiko@0.5.0   (/home/runner/v2-WMq8LQ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2294 trace=17976 lines
+  CLOSURE   54 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":339,"filesTheScriptProduced":320,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-WMq8LQ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-WMq8LQ/observe/capture.json
+  RAWLOG-BYTES raw=3959034 gz=94658
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-WMq8LQ/jailhome","TMPDIR":"/tmp/nub-tmp-obsAzJUeN","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-WMq8LQ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 397  /  whole traced tree 1485
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-WMq8LQ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-WMq8LQ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-WMq8LQ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsAzJUeN
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-WMq8LQ/observe/node_modules/taiko
+  == WRITES the script actually performed ==
+    ownPkg      397  (base profile already grants this — NOT billed)
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/download-linux-615489.zip
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/xdg-mime
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/natives_blob.bin
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/locales
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/locales/it.pak.info
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/locales/bn.pak.info
+        /home/runner/v2-WMq8LQ/observe/node_modules/taiko/.local-chromium/linux-615489/chrome-linux/locales/fi.pak.info
+        … and 387 more
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.11.34:443
+        142.251.215.251:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5661 distinct from 17775 calls (17977 lines, 174 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×40 setsockopt×28 exit×20 getsockopt×14 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-WMq8LQ/observe/events.ndjson.gz (38953 bytes)
+  EVENTLOG-FILE /home/runner/v2-WMq8LQ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":17977,"parsed":17775,"unparsed":0,"unfinished":174,"rejoined":174,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5661,"unknownSyscall":{"getsockname":40,"getsockopt":14,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":28,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-WMq8LQ/observe/events.ndjson.gz","gzipBytes":38953}
+  EVICT     36 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for taiko
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=339/339 missing=0 shortfall=none (tree 6904/2294) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     55 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for taiko
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-network] rc=1 artifacts=19/339 missing=320 shortfall=23e37dc48d84 (tree 5942/2294) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: .local-chromium/linux-615489/chrome-linux/MEIPreload/manifest.json, .local-chromium/linux-615489/chrome-linux/MEIPreload/preloaded_data.pb, .local-chromium/linux-615489/chrome-linux/chrome, .local-chromium/linux-615489/chrome-linux/chrome-wrapper, .local-chromium/linux-615489/chrome-linux/chrome_100_percent.pak, .local-chromium/linux-615489/chrome-linux/chrome_200_percent.pak (+314)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
