@@ -2,28 +2,51 @@
   "pkg": "@arbitrum/sdk",
   "version": "3.0.0-beta.0",
   "harnessVersion": 2,
-  "verdict": "UNDER-PREDICTED",
-  "grant": null,
+  "verdict": "ARTIFACT-GATE-SUSPECT",
+  "grant": {
+    "write": {
+      "deps": true
+    },
+    "network": true,
+    "writePaths": [
+      "Library/Application Support/hardhat-nodejs",
+      "Library/Caches/hardhat-nodejs",
+      "Library/Preferences/hardhat-nodejs"
+    ]
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
-    "network": true
+    "network": true,
+    "writePaths": [
+      "Library/Application Support/hardhat-nodejs",
+      "Library/Caches/hardhat-nodejs",
+      "Library/Preferences/hardhat-nodejs"
+    ]
   },
   "verifiedBy": null,
   "minimality": null,
   "overPredictedBy": [],
+  "writePaths": [
+    "Library/Application Support/hardhat-nodejs",
+    "Library/Caches/hardhat-nodejs",
+    "Library/Preferences/hardhat-nodejs"
+  ],
+  "writePathsVersionPinned": [],
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
   "notes": [
     "cwd-unobserved",
     "events-lost",
-    "under-predicted"
+    "replay-suspected",
+    "under-predicted",
+    "artifact-shortfall-grant-independent"
   ],
   "eventLog": {
-    "lines": 59023,
-    "parsed": 58999,
+    "lines": 58901,
+    "parsed": 58877,
     "unparsed": 0,
     "live": true,
     "tracerErrors": 1,
@@ -32,33 +55,33 @@
     "unresolvedFd": 0,
     "pairedTwoPath": 637,
     "danglingPair": 0,
-    "failed": 29372,
-    "enoent": 28485,
+    "failed": 29285,
+    "enoent": 28433,
     "refusals": 0,
     "byErrno": {
       "ENXIO": 7,
-      "ENOENT": 28485,
-      "EEXIST": 880
+      "ENOENT": 28433,
+      "EEXIST": 845
     },
     "procs": 17,
     "lifecyclePids": 5,
-    "distinctEvents": 27609,
-    "emitted": 27609,
-    "calls": 58261,
-    "bytes": 4791488,
-    "gzipBytes": 152183,
-    "out": "/Users/runner/v2m-Wc9Hrq/Observe/events.ndjson"
+    "distinctEvents": 27610,
+    "emitted": 27610,
+    "calls": 58139,
+    "bytes": 4819306,
+    "gzipBytes": 152981,
+    "out": "/Users/runner/v2m-HcdfKO/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 125759,
+  "durationMs": 96066,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
-    "nubGitSha": null,
-    "nubVersion": "v0.6.0",
-    "corpusGitSha": "14d77b078e623ae8a2da93444d2446912ebe9557",
+    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "1b5c5f894ab39eb356fe3c8ed5b1720e05904400",
     "node": "v22.23.1",
-    "at": "2026-08-07T03:05:57.667Z",
+    "at": "2026-08-07T12:31:03.481Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -69,12 +92,20 @@
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
-    "nubBinary": null,
+    "nubBinary": {
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4",
+      "bytes": 94103896,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-Wc9Hrq/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsNuczWw",
+        "HOME": "/Users/runner/v2m-HcdfKO/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsB8klYr",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
