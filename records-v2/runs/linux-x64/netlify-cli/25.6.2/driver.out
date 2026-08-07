@@ -1,0 +1,66 @@
+### netlify-cli@25.6.2   (/home/runner/v2-ftsmMZ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=38050 trace=33801 lines
+  CLOSURE   838 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1122,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (1122) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-ftsmMZ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ftsmMZ/observe/capture.json
+  RAWLOG-BYTES raw=6838343 gz=184387
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ftsmMZ/jailhome","TMPDIR":"/tmp/nub-tmp-obsMzjQMv","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ftsmMZ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 1  /  whole traced tree 1089
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ftsmMZ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ftsmMZ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ftsmMZ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsMzjQMv
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ftsmMZ/observe/node_modules/netlify-cli
+  == WRITES the script actually performed ==
+    userHome      1
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.11.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    1 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        .config/netlify/autocompletion.json
+    EVENTS    12684 distinct from 32095 calls (33802 lines, 1679 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×63 getsockname×42 getsockopt×28 setsockopt×23 exit×20 recvmsg×7 socketpair×3 shutdown×3
+    wrote /home/runner/v2-ftsmMZ/observe/events.ndjson.gz (81180 bytes)
+  EVENTLOG-FILE /home/runner/v2-ftsmMZ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":33802,"parsed":32095,"unparsed":0,"unfinished":1679,"rejoined":1679,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":12684,"unknownSyscall":{"getsockname":42,"getsockopt":28,"getcwd":63,"recvmsg":7,"exit":20,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-ftsmMZ/observe/events.ndjson.gz","gzipBytes":81180}
+  EVICT     942 store entries removed, 16 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1122/1122 missing=0 shortfall=none (tree 128586/38050) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}   (observed, then verified)
+  EVICT     953 store entries removed, 16 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=1122/1122 missing=0 shortfall=none (tree 128586/38050) OVERRIDDEN=1 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true}}; each named capability drops on its own)
