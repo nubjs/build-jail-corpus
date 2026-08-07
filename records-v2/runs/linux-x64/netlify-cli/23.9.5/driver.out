@@ -1,0 +1,79 @@
+### netlify-cli@23.9.5   (/home/runner/v2-6eFaX5)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=25479 trace=33140 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":962,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (962) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-6eFaX5/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-6eFaX5/observe/capture.json
+  RAWLOG-BYTES raw=7225825 gz=183301
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-6eFaX5/jailhome","TMPDIR":"/tmp/nub-tmp-obs8W2yvA","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-6eFaX5/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 5
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-6eFaX5/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-6eFaX5/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-6eFaX5/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs8W2yvA
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-6eFaX5/observe/node_modules/netlify-cli
+  == WRITES the script actually performed ==
+    userHome      2
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.6.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    2 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2
+        .config/netlify
+        .config/netlify/autocompletion.json
+    EVENTS    12344 distinct from 31661 calls (33141 lines, 1452 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×63 getsockname×47 getsockopt×33 setsockopt×23 exit×20 recvmsg×7 socketpair×3 shutdown×3
+    wrote /home/runner/v2-6eFaX5/observe/events.ndjson.gz (79381 bytes)
+  EVENTLOG-FILE /home/runner/v2-6eFaX5/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":33141,"parsed":31661,"unparsed":0,"unfinished":1452,"rejoined":1452,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":12344,"unknownSyscall":{"getsockname":47,"getsockopt":33,"getcwd":63,"recvmsg":7,"exit":20,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-6eFaX5/observe/events.ndjson.gz","gzipBytes":79381}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  VERIFY[synth] rc=1 artifacts=ABSENT/962 missing=1 shortfall=7f7367677a90 (tree 3/25479) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+       missing: <package absent>
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  VERIFY[fb2126003217] rc=1 artifacts=ABSENT/962 missing=1 shortfall=7f7367677a90 (tree 3/25479) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  VERIFY[fb3938809772] rc=1 artifacts=ABSENT/962 missing=1 shortfall=7f7367677a90 (tree 3/25479) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  VERIFY[fb2742342390] rc=1 artifacts=ABSENT/962 missing=1 shortfall=7f7367677a90 (tree 3/25479) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: <package absent>
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
+     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
+     an under-grant: do not widen the catalog. This is a nub install defect to chase.
