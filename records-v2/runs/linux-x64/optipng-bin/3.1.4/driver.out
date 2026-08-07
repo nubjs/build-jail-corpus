@@ -1,0 +1,62 @@
+### optipng-bin@3.1.4   (/home/runner/v2-t9PDf6)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2028 trace=17622 lines
+  CLOSURE   290 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-t9PDf6/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-t9PDf6/observe/capture.json
+  RAWLOG-BYTES raw=3685716 gz=111201
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-t9PDf6/jailhome","TMPDIR":"/tmp/nub-tmp-obsiqWgWY","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-t9PDf6/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 2  /  whole traced tree 1090
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-t9PDf6/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-t9PDf6/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-t9PDf6/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsiqWgWY
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-t9PDf6/observe/node_modules/optipng-bin
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-t9PDf6/observe/node_modules/optipng-bin/vendor
+        /home/runner/v2-t9PDf6/observe/node_modules/optipng-bin/vendor/optipng
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.9.34:443
+        185.199.111.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8514 distinct from 17266 calls (17623 lines, 327 rejoined, 0 unparsed)
+    PROCS     26   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×40 getsockname×30 exit×20 getsockopt×12 recvmsg×9 socketpair×6 getcwd×5 shutdown×5
+    wrote /home/runner/v2-t9PDf6/observe/events.ndjson.gz (52795 bytes)
+  EVENTLOG-FILE /home/runner/v2-t9PDf6/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":17623,"parsed":17266,"unparsed":0,"unfinished":327,"rejoined":327,"unresolvedDirfd":3,"truncatedArg":0,"procs":26,"lifecyclePids":14,"distinctEvents":8514,"unknownSyscall":{"getsockname":30,"getsockopt":12,"getcwd":5,"recvmsg":9,"exit":20,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":5,"exit_group":4,"wait4":4},"out":"/home/runner/v2-t9PDf6/observe/events.ndjson.gz","gzipBytes":52795}
+  EVICT     154 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for optipng-bin
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7696/2028) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     309 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for optipng-bin
+  VERIFY[drop-no-network] rc=0 artifacts=7/8 missing=1 shortfall=82d30115fc6e (tree 7693/2028) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: vendor/optipng
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
