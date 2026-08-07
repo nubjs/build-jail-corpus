@@ -1,0 +1,96 @@
+### @paloaltonetworks/postman-code-generators@1.1.9   (/home/nub/v2-Vd23SA)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1935 trace=72854 lines
+  CLOSURE   43 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":144,"filesTheScriptProduced":4,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-Vd23SA/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-Vd23SA/observe/capture.json
+  RAWLOG-BYTES raw=14224293 gz=474864
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-Vd23SA/jailhome","TMPDIR":"/tmp/nub-tmp-obskNFj1t","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-Vd23SA/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 216
+    writes  script 1352  /  whole traced tree 1945
+    sockets script 28  /  whole traced tree 34
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-Vd23SA/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-Vd23SA/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-Vd23SA/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obskNFj1t
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators
+  == WRITES the script actually performed ==
+    jailTmp    1222  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obskNFj1t/shelljs_317a971b347eae9de23c
+        /tmp/nub-tmp-obskNFj1t/shelljs_1d02b82a555fc4eb103d
+        /tmp/nub-tmp-obskNFj1t/shelljs_d5436edefb034ad1b4e6
+        /tmp/nub-tmp-obskNFj1t/shelljs_a4631b3f0c9908979455
+        /tmp/nub-tmp-obskNFj1t/shelljs_0708877c4c0fd0c27459
+        /tmp/nub-tmp-obskNFj1t/shelljs_46160ea6d24e220ed531
+        /tmp/nub-tmp-obskNFj1t/shelljs_df93e95c6c705f92dd3c
+        /tmp/nub-tmp-obskNFj1t/node-compile-cache/v22.20.0-x64-9de703df-1001/103b828d.Dk3svN
+        /tmp/nub-tmp-obskNFj1t/node-compile-cache/v22.20.0-x64-9de703df-1001/103b828d
+        /tmp/nub-tmp-obskNFj1t/node-compile-cache/v22.20.0-x64-9de703df-1001/a0593343.wyW5Cd
+        … and 1212 more
+    ownPkg       34  (base profile already grants this — NOT billed)
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/lib/assets/languages.js
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/csharp-restsharp/npm-shrinkwrap.json
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/curl/npm-shrinkwrap.json
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/golang/npm-shrinkwrap.json
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules/asynckit
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules/delayed-stream
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules/mime-db
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules/mime-types
+        /home/nub/v2-Vd23SA/observe/node_modules/@paloaltonetworks/postman-code-generators/codegens/js-fetch/node_modules/form-data
+        … and 24 more
+    kernelfs      1
+        /dev/null
+    jailHome     95  (base profile already grants this — NOT billed)
+        /home/nub/v2-Vd23SA/jailhome/.npm/_logs/2026-08-07T13_42_42_607Z-debug-0.log
+        /home/nub/v2-Vd23SA/jailhome/.npm/_logs/2026-08-07T13_42_44_351Z-debug-0.log
+        /home/nub/v2-Vd23SA/jailhome/.npm/_logs/2026-08-07T13_42_46_096Z-debug-0.log
+        /home/nub/v2-Vd23SA/jailhome/.npm/_logs/2026-08-07T13_42_47_588Z-debug-0.log
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache/tmp
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache/tmp/55bf7552
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache/tmp/6e9341fb
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache/tmp/c6b86c24
+        /home/nub/v2-Vd23SA/jailhome/.npm/_cacache/tmp/ac5eeaff
+        … and 85 more
+  == NETWORK ==
+    AF_INET sockets: 28   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        104.16.9.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 95
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    35208 distinct from 71870 calls (72855 lines, 733 rejoined, 0 unparsed)
+    PROCS     222   lifecycle shells 211
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×286 setsockopt×208 getsockopt×180 exit×172 recvmsg×52 wait4×39 getcwd×36 socketpair×30
+    wrote /home/nub/v2-Vd23SA/observe/events.ndjson.gz (176678 bytes)
+  EVENTLOG-FILE /home/nub/v2-Vd23SA/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":72855,"parsed":71870,"unparsed":0,"unfinished":733,"rejoined":733,"unresolvedDirfd":3,"truncatedArg":0,"procs":222,"lifecyclePids":211,"distinctEvents":35208,"unknownSyscall":{"getsockname":286,"getsockopt":180,"getcwd":36,"recvmsg":52,"setsockopt":208,"sendmmsg":8,"socketpair":30,"shutdown":21,"exit":172,"exit_group":30,"wait4":39},"out":"/home/nub/v2-Vd23SA/observe/events.ndjson.gz","gzipBytes":176678}
+  EVICT     51 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @paloaltonetworks/postman-code-generators
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=144/144 missing=0 shortfall=none (tree 6857/1935) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     43 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @paloaltonetworks/postman-code-generators
+  VERIFY[drop-no-network] rc=0 artifacts=144/144 missing=0 shortfall=none (tree 6854/1935) OVERRIDDEN=1 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

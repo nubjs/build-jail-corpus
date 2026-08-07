@@ -1,0 +1,63 @@
+### sq-native@1.0.10   (/home/nub/v2-zBlFTJ)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=181 trace=8989 lines
+  CLOSURE   19 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":17,"filesTheScriptProduced":9,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-zBlFTJ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-zBlFTJ/observe/capture.json
+  RAWLOG-BYTES raw=1754375 gz=64318
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-zBlFTJ/jailhome","TMPDIR":"/tmp/nub-tmp-obs76Fyc1","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-zBlFTJ/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 10  /  whole traced tree 1188
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-zBlFTJ/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-zBlFTJ/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-zBlFTJ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs76Fyc1
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native
+  == WRITES the script actually performed ==
+    ownPkg       10  (base profile already grants this — NOT billed)
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/installed.json
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v46.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v59.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-napi-v3.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v48.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v51.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libSqreen.so
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v47.node
+        /home/nub/v2-zBlFTJ/observe/node_modules/sq-native/bindings/libsqreen-node-v57.node
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4872 distinct from 8946 calls (8990 lines, 16 rejoined, 0 unparsed)
+    PROCS     24   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×25 exit×18 getsockopt×11 recvmsg×6 socketpair×6 getcwd×4 shutdown×4
+    wrote /home/nub/v2-zBlFTJ/observe/events.ndjson.gz (34314 bytes)
+  EVENTLOG-FILE /home/nub/v2-zBlFTJ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8990,"parsed":8946,"unparsed":0,"unfinished":16,"rejoined":16,"unresolvedDirfd":3,"truncatedArg":0,"procs":24,"lifecyclePids":13,"distinctEvents":4872,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":4,"recvmsg":6,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"exit_group":4,"wait4":4,"exit":18},"out":"/home/nub/v2-zBlFTJ/observe/events.ndjson.gz","gzipBytes":34314}
+  EVICT     22 store entries removed, 6 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sq-native
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 620/181) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

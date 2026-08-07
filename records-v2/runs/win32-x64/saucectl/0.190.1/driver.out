@@ -1,0 +1,63 @@
+### saucectl@0.190.1   (C:\jail\m-saucectl-msj021rx)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=6064 exit=0 events=84117 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (C:\jail\m-saucectl-msj021rx\observe\node_modules\saucectl)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 42 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-saucectl-msj021rx\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-saucectl-msj021rx\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-saucectl-msj021rx\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-saucectl-msj021rx\observe\node_modules\saucectl
+  == ATTRIBUTION == lifecycle pids: 3 (root 6064)
+    writes  script 3  /  whole traced tree 12
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          2
+    kernelfs      1
+  == READS ==
+    deps        205
+    outside       3
+    project       1
+    systemfs     41
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.112.3:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  107374574 B xml -> 1670988 B gz (64.3x)  sha256 028a43fb5cafd247…
+  HEADER    etw-header.json (4956 bytes)
+  DERIVED   10320 distinct from 25517 kept ops (84117 xml events, 6574 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 2 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (143582 bytes)
+  RAWLOG-CAPTURE C:\jail\m-saucectl-msj021rx\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-saucectl-msj021rx
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-saucectl-msj021rx\\npm-cache","TMP":"C:\\jail\\m-saucectl-msj021rx\\tmp","TEMP":"C:\\jail\\m-saucectl-msj021rx\\tmp","TMPDIR":"C:\\jail\\m-saucectl-msj021rx\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-saucectl-msj021rx\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 6529/630) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-saucectl-msj021rx\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=7/8 missing=1 shortfall=7b125f15df9d (tree 6525/630) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/saucectl.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-saucectl-msj021rx\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 6529/630) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed

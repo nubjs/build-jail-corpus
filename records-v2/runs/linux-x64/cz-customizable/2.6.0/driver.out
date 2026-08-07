@@ -1,0 +1,59 @@
+### cz-customizable@2.6.0   (/home/nub/v2-7kvABK)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=120 trace=8693 lines
+  CLOSURE   10 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-7kvABK/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-7kvABK/observe/capture.json
+  RAWLOG-BYTES raw=1703315 gz=61517
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-7kvABK/jailhome","TMPDIR":"/tmp/nub-tmp-obsZMzGfj","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-7kvABK/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 2  /  whole traced tree 1180
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-7kvABK/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-7kvABK/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-7kvABK/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsZMzGfj
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-7kvABK/observe/node_modules/cz-customizable
+  == WRITES the script actually performed ==
+    project       1
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/nub/v2-7kvABK/observe/node_modules/cz-customizable/cz-config
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.6.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"project":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4685 distinct from 8645 calls (8694 lines, 23 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×25 setsockopt×23 exit×18 getsockopt×11 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/nub/v2-7kvABK/observe/events.ndjson.gz (33116 bytes)
+  EVENTLOG-FILE /home/nub/v2-7kvABK/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8694,"parsed":8645,"unparsed":0,"unfinished":23,"rejoined":23,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":4685,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-7kvABK/observe/events.ndjson.gz","gzipBytes":33116}
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cz-customizable
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 357/120) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true}}
+  => VERIFIED {"write":{"project":true}}   (observed, then verified)
+  EVICT     10 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cz-customizable
+  VERIFY[drop-no-write-project] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 357/120) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-project' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-project  (synthesized {"write":{"project":true}}; each named capability drops on its own)

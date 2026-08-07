@@ -1,0 +1,59 @@
+### sharp@0.33.5   (/home/nub/v2-xqlAZw)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=134 trace=9033 lines
+  CLOSURE   11 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":32,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (32) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-xqlAZw/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-xqlAZw/observe/capture.json
+  RAWLOG-BYTES raw=1749780 gz=63959
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-xqlAZw/jailhome","TMPDIR":"/tmp/nub-tmp-obstkm9Mt","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-xqlAZw/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 1  /  whole traced tree 1179
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-xqlAZw/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-xqlAZw/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-xqlAZw/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obstkm9Mt
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-xqlAZw/observe/node_modules/sharp
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.7.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4900 distinct from 8966 calls (9034 lines, 38 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×47 getsockname×21 exit×14 socketpair×9 wait4×9 getsockopt×7 exit_group×7 recvmsg×6
+    wrote /home/nub/v2-xqlAZw/observe/events.ndjson.gz (34528 bytes)
+  EVENTLOG-FILE /home/nub/v2-xqlAZw/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9034,"parsed":8966,"unparsed":0,"unfinished":38,"rejoined":38,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":4900,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":6,"setsockopt":47,"sendmmsg":1,"socketpair":9,"shutdown":5,"exit_group":7,"wait4":9,"exit":14},"out":"/home/nub/v2-xqlAZw/observe/events.ndjson.gz","gzipBytes":34528}
+  EVICT     5 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sharp
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=32/32 missing=0 shortfall=none (tree 409/134) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

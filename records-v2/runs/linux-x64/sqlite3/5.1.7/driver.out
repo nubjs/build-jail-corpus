@@ -1,0 +1,66 @@
+### sqlite3@5.1.7   (/home/nub/v2-FaUdzS)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1159 trace=9854 lines
+  CLOSURE   119 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-FaUdzS/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-FaUdzS/observe/capture.json
+  RAWLOG-BYTES raw=1913848 gz=71380
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-FaUdzS/jailhome","TMPDIR":"/tmp/nub-tmp-obsw5mH8Q","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-FaUdzS/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 6  /  whole traced tree 1184
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-FaUdzS/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-FaUdzS/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-FaUdzS/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsw5mH8Q
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-FaUdzS/observe/node_modules/sqlite3
+  == WRITES the script actually performed ==
+    jailHome      3  (base profile already grants this — NOT billed)
+        /home/nub/v2-FaUdzS/jailhome/.npm/_prebuilds
+        /home/nub/v2-FaUdzS/jailhome/.npm/_prebuilds/35c27c-sqlite3-v5.1.7-napi-v6-linux-x64.tar.gz.668712-5c2db81913f2b.tmp
+        /home/nub/v2-FaUdzS/jailhome/.npm/_prebuilds/35c27c-sqlite3-v5.1.7-napi-v6-linux-x64.tar.gz
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/nub/v2-FaUdzS/observe/node_modules/sqlite3/build
+        /home/nub/v2-FaUdzS/observe/node_modules/sqlite3/build/Release
+        /home/nub/v2-FaUdzS/observe/node_modules/sqlite3/build/Release/node_sqlite3.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        140.82.113.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5479 distinct from 9782 calls (9855 lines, 47 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×33 getsockname×31 exit×18 getsockopt×13 recvmsg×10 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/nub/v2-FaUdzS/observe/events.ndjson.gz (37752 bytes)
+  EVENTLOG-FILE /home/nub/v2-FaUdzS/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9855,"parsed":9782,"unparsed":0,"unfinished":47,"rejoined":47,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5479,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":10,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-FaUdzS/observe/events.ndjson.gz","gzipBytes":37752}
+  EVICT     141 store entries removed, 13 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sqlite3
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 3976/1159) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     118 store entries removed, 13 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sqlite3
+  VERIFY[drop-no-network] rc=1 artifacts=27/24 missing=1 shortfall=b47356349619 (tree 3983/1159) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: build/Release/node_sqlite3.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

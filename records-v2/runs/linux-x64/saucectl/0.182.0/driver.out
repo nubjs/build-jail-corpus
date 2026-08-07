@@ -1,0 +1,61 @@
+### saucectl@0.182.0   (/home/nub/v2-6MPZjO)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=630 trace=9718 lines
+  CLOSURE   42 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-6MPZjO/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-6MPZjO/observe/capture.json
+  RAWLOG-BYTES raw=1889360 gz=70856
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-6MPZjO/jailhome","TMPDIR":"/tmp/nub-tmp-obs8NdZbX","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-6MPZjO/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 26
+    writes  script 2  /  whole traced tree 1180
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-6MPZjO/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-6MPZjO/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-6MPZjO/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs8NdZbX
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-6MPZjO/observe/node_modules/saucectl
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/nub/v2-6MPZjO/observe/node_modules/saucectl/bin
+        /home/nub/v2-6MPZjO/observe/node_modules/saucectl/bin/saucectl
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        140.82.112.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5278 distinct from 9632 calls (9719 lines, 44 rejoined, 0 unparsed)
+    PROCS     32   lifecycle shells 21
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×57 getsockname×38 getsockopt×19 exit×18 recvmsg×10 tgkill×7 socketpair×6 shutdown×5
+    wrote /home/nub/v2-6MPZjO/observe/events.ndjson.gz (36462 bytes)
+  EVENTLOG-FILE /home/nub/v2-6MPZjO/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9719,"parsed":9632,"unparsed":0,"unfinished":44,"rejoined":44,"unresolvedDirfd":4,"truncatedArg":0,"procs":32,"lifecyclePids":21,"distinctEvents":5278,"unknownSyscall":{"getsockname":38,"getsockopt":19,"getcwd":4,"recvmsg":10,"setsockopt":57,"sendmmsg":3,"socketpair":6,"shutdown":5,"tgkill":7,"exit_group":4,"wait4":4,"exit":18},"out":"/home/nub/v2-6MPZjO/observe/events.ndjson.gz","gzipBytes":36462}
+  EVICT     30 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for saucectl
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 2172/630) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     44 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for saucectl
+  VERIFY[drop-no-network] rc=1 artifacts=7/8 missing=1 shortfall=1f6a7b28e9d5 (tree 2167/630) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: bin/saucectl
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
