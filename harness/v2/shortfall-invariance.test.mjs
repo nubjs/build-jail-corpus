@@ -99,3 +99,34 @@ test('a clean ladder does not report as suspect — `none` is a pass, not an inv
   assert.equal(r.ok, false);
   assert.match(r.why, /passed the gate/);
 });
+
+// ⛔⛔ THE ABSENT TRAP. These lock the near-miss of 2026-08-07: I was about to key a new verdict on
+// `allArmsRc0` alone, which would have read `netlify-cli@23.9.5`/`@26.2.0`/`@27.0.1` — rc=0 on all
+// four arms with `artifacts=ABSENT` and 3 files in the tree against OBSERVE's 25,538 — as clean
+// installs, and let a grant publish off a run in which nothing installed. That is an under-grant,
+// the one direction this system may not take.
+test('installActuallyRan is FALSE when every arm exited 0 but the package was ABSENT', () => {
+  const r = classify('0:aa:abs:1\n0:aa:abs:1\n0:aa:abs:1\n0:aa:abs:1', 4);
+  assert.equal(r.ok, false);
+  assert.equal(r.code, 'PACKAGE_ABSENT');
+  assert.equal(r.allArmsRc0, true, 'the exit codes really are all zero — that is the trap');
+  assert.equal(r.installActuallyRan, false, 'rc=0 with nothing installed must NEVER read as a real install');
+});
+
+test('installActuallyRan is TRUE only when the arms exited 0 AND the package was present', () => {
+  const r = classify('0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 4);
+  assert.equal(r.installActuallyRan, true);
+  assert.equal(r.code, 'GRANT_INDEPENDENT');
+});
+
+test('every refusal carries a machine-readable code, so a driver need not parse prose', () => {
+  const cases = [
+    ['0:aa:ok:1\n0:aa:ok:1', 'LADDER_TRUNCATED'],
+    ['1:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'ARM_EXITED_NONZERO'],
+    ['0:aa:abs:1\n0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'PACKAGE_ABSENT'],
+    ['0:aa:ok:1\n0:bb:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'SHORTFALL_VARIED'],
+    ['0:?:ok:1\n0:?:ok:1\n0:?:ok:1\n0:?:ok:1', 'NO_DIGEST'],
+    ['0:none:ok:0\n0:none:ok:0\n0:none:ok:0\n0:none:ok:0', 'NO_SHORTFALL'],
+  ];
+  for (const [ledger, code] of cases) assert.equal(classify(ledger, 4).code, code, `ledger ${ledger}`);
+});

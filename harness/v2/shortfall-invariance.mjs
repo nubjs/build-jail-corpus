@@ -69,17 +69,38 @@ export function classify(ledger, armsExpected = 4) {
       return { rc, sig, state, count };
     });
 
+  // ⛔⛔ THESE TWO FACTS TOGETHER — AND ONLY TOGETHER — MEAN "THE INSTALL ACTUALLY RAN EVERY TIME".
+  // Reported on EVERY return so a caller can separate two situations the driver's terminal verdict
+  // currently conflates: "nothing installed at any rung" vs "it installed cleanly at every rung and
+  // only the artifact gate disagreed". `NO-STATE-PASSED` is asserted for both today.
+  //
+  // ⛔ `allArmsRc0` ALONE IS NOT SAFE, and reaching for it alone was a real near-miss (2026-08-07).
+  // MEASURED on `netlify-cli@23.9.5`/`@26.2.0`/`@27.0.1`: rc=0 on all four arms with
+  // `artifacts=ABSENT` and 3 files in the arm tree against OBSERVE's 25,538 — the package installed
+  // NOTHING, four times over. A rule keyed on exit codes alone reads that as a clean install and
+  // would let a grant publish off a run in which nothing happened: an under-grant of unknown size,
+  // and under-granting is the one direction that breaks a real install. An exit code says the
+  // process ended; it does not say it did anything. That is why `installActuallyRan` exists and why
+  // no caller should recompute it from `rc` alone.
+  const allArmsRc0 = arms.length > 0 && arms.every((a) => a.rc === '0');
+  const anyArmAbsent = arms.some((a) => a.state === 'abs');
+  const installActuallyRan = allArmsRc0 && !anyArmAbsent;
+  const F = (code, why) => ({ ok: false, code, why, allArmsRc0, anyArmAbsent, installActuallyRan });
+
   // A truncated ladder makes "invariant" a claim about too few points to be worth making. The full set
   // is the synth arm plus every rung up to `write:"disk"`, under which no write can be denied — that
   // top rung is what makes grant-independence mean anything at all.
   if (arms.length !== armsExpected) {
-    return { ok: false, why: `ladder was not fully walked (${arms.length} arms, expected ${armsExpected})` };
+    return F('LADDER_TRUNCATED', `ladder was not fully walked (${arms.length} arms, expected ${armsExpected})`);
   }
   // ⛔ THE EXIT-CODE CLAUSE IS NOT WHAT DOES THE SEPARATING — THE DIGEST CLAUSE IS, and conflating them
   // is how this rule would swallow a healthy record. `mozjpeg@6.0.1` is `MINIMAL` with rc=0 on BOTH its
   // arms; it is held out ONLY because its shortfall MOVED (0 -> 1) when the grant narrowed. A rule
   // keyed on exit codes alone would bless it and destroy the gate's discrimination at rc=0.
-  if (arms.some((a) => a.rc !== '0')) return { ok: false, why: 'an arm exited non-zero' };
+  //
+  // ⭑ THIS is the ONLY clause that means "nothing installed anywhere". The other four refusals below
+  // are all compatible with a successful install, which is precisely the conflation to fix.
+  if (arms.some((a) => a.rc !== '0')) return F('ARM_EXITED_NONZERO', 'an arm exited non-zero');
 
   // ⛔⛔ `<package absent>` IS EXCLUDED AND THIS IS THE SAFETY CLAUSE OF THE WHOLE FILE.
   // MEASURED on `netlify-cli@26.2.0`: `artifacts=ABSENT/1110` on all four arms, 3 files in the entire
@@ -88,21 +109,21 @@ export function classify(ledger, armsExpected = 4) {
   // Blessing it would publish `{"write":{"userHome":true}}` off a run in which nothing installed — an
   // under-grant of unknown size, and under-granting is the one direction that breaks a real install.
   // An absent package is a FAILED arm here for exactly the reason it is one inside the gate.
-  if (arms.some((a) => a.state === 'abs')) return { ok: false, why: 'the package was ABSENT from an arm — nothing was measured' };
+  if (arms.some((a) => a.state === 'abs')) return F('PACKAGE_ABSENT', 'the package was ABSENT from an arm — nothing was measured');
 
   // `?` is an arm whose gate line carried no digest (a gate that could not run, or an rc=3 arm with no
   // reference). It can never equal another arm's digest, so an unreadable arm can only ever REFUSE the
   // claim — never silently support it. That direction is chosen, not incidental.
   const sigs = new Set(arms.map((a) => a.sig));
-  if (sigs.size !== 1) return { ok: false, why: `the shortfall CHANGED across arms (${[...sigs].join(', ')}) — it responded to the grant` };
+  if (sigs.size !== 1) return F('SHORTFALL_VARIED', `the shortfall CHANGED across arms (${[...sigs].join(', ')}) — it responded to the grant`);
   const [sig] = sigs;
-  if (sig === '?') return { ok: false, why: 'an arm produced no readable shortfall digest' };
+  if (sig === '?') return F('NO_DIGEST', 'an arm produced no readable shortfall digest');
   // Unreachable from the driver, which only consults this after the ladder has already failed every
   // arm — but a `none` digest means every arm PASSED, and answering "grant-independent" to that would
   // report a clean run as suspect.
-  if (sig === 'none') return { ok: false, why: 'no shortfall — the arms passed the gate' };
+  if (sig === 'none') return F('NO_SHORTFALL', 'no shortfall — the arms passed the gate');
 
-  return { ok: true, count: arms[0].count, sig };
+  return { ok: true, code: 'GRANT_INDEPENDENT', count: arms[0].count, sig, allArmsRc0, anyArmAbsent, installActuallyRan };
 }
 
 // ⛔ `pathToFileURL`, not the string form. On Windows `process.argv[1]` is a backslash path while
