@@ -1,0 +1,60 @@
+### unicode@0.5.3   (C:\jail\m-unicode-msj2n8ue)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=4708 exit=0 events=157743 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 37 files  (C:\jail\m-unicode-msj2n8ue\observe\node_modules\unicode)
+  ARM-FALSIFIABILITY {"manifestFiles":37,"filesTheScriptProduced":29,"reasons":[]}
+  CLOSURE 4 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-unicode-msj2n8ue\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-unicode-msj2n8ue\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-unicode-msj2n8ue\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-unicode-msj2n8ue\observe\node_modules\unicode
+  == ATTRIBUTION == lifecycle pids: 2 (root 4708)
+    writes  script 29  /  whole traced tree 36
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps         29
+  == READS ==
+    deps         16
+    outside       3
+    project       1
+    systemfs     35
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 1
+        172.67.74.23:80
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  204336884 B xml -> 2790979 B gz (73.2x)  sha256 4df9cade1f8a418b…
+  HEADER    etw-header.json (4948 bytes)
+  DERIVED   9132 distinct from 63551 kept ops (157743 xml events, 5988 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 28 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (127758 bytes)
+  RAWLOG-CAPTURE C:\jail\m-unicode-msj2n8ue\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-unicode-msj2n8ue
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-unicode-msj2n8ue\\npm-cache","TMP":"C:\\jail\\m-unicode-msj2n8ue\\tmp","TEMP":"C:\\jail\\m-unicode-msj2n8ue\\tmp","TMPDIR":"C:\\jail\\m-unicode-msj2n8ue\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 5793/72) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=8/37 missing=29 shortfall=848aa0d103de (tree 5764/72) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: category/Cc.js, category/Cf.js, category/Co.js, category/Cs.js, category/Ll.js, category/Lm.js (+23)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 5793/72) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed

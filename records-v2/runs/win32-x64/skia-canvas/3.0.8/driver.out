@@ -1,0 +1,60 @@
+### skia-canvas@3.0.8   (C:\jail\m-skiacanvas-msj2hzhf)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=5292 exit=0 events=78408 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 20 files  (C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\skia-canvas)
+  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 9 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-skiacanvas-msj2hzhf\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-skiacanvas-msj2hzhf\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\skia-canvas
+  == ATTRIBUTION == lifecycle pids: 2 (root 5292)
+    writes  script 1  /  whole traced tree 8
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          1
+  == READS ==
+    deps         36
+    outside       3
+    project       1
+    systemfs     35
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.3:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  100283968 B xml -> 1548374 B gz (64.8x)  sha256 0a52e7f9e1d76c93…
+  HEADER    etw-header.json (4970 bytes)
+  DERIVED   9095 distinct from 25070 kept ops (78408 xml events, 5375 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (126865 bytes)
+  RAWLOG-CAPTURE C:\jail\m-skiacanvas-msj2hzhf\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-skiacanvas-msj2hzhf
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-skiacanvas-msj2hzhf\\npm-cache","TMP":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp","TEMP":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp","TMPDIR":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5838/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=19/20 missing=1 shortfall=a5f1cd37808a (tree 5837/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: lib/skia.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5838/83) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed

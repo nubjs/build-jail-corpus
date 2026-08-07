@@ -1,0 +1,132 @@
+{
+  "k": "h",
+  "v": 1,
+  "platform": "win32-x64",
+  "pkg": "@sitespeed.io/edgedriver",
+  "version": "141.0.3537-71",
+  "at": "2026-08-07T14:58:57.109Z",
+  "tracer": {
+    "kind": "etw",
+    "capture": "harness/v2/adapters/windows.ps1",
+    "captureScriptSha256": "0791258ef5aaa597ab2be67ebfcc7006986f74c72bfcb99815f3e51f2edb0335",
+    "captureSchema": "nub-obs-win/1",
+    "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
+    "tracerptExit": 0,
+    "session": {
+      "name": "nubobs_988_msj2kzhx",
+      "bufferSizeKB": 1024,
+      "minBuffers": 64,
+      "maxBuffers": 320,
+      "maxFileMB": 8192,
+      "mode": "sequential",
+      "settleMs": 1200
+    },
+    "providers": [
+      {
+        "name": "Microsoft-Windows-Kernel-File",
+        "keywords": "0x1FF0",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Network",
+        "keywords": "0x30",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Process",
+        "keywords": "0x10",
+        "level": 5,
+        "exit": 0
+      }
+    ]
+  },
+  "os": {
+    "version": "Microsoft Windows NT 10.0.20348.0",
+    "host": "NUB-WIN3",
+    "arch": "x64"
+  },
+  "identity": {
+    "whoami": "NUB-WIN3\\nub",
+    "sid": "S-1-5-21-1994189214-170099399-1991151175-1000",
+    "elevated": true,
+    "privDropped": {
+      "SeBackupPrivilege": "removed",
+      "SeRestorePrivilege": "removed",
+      "SeTakeOwnershipPrivilege": "removed"
+    }
+  },
+  "run": {
+    "command": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\rebuild.cmd",
+    "workDir": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\observe",
+    "rootPid": 3468,
+    "launcherPid": 7044,
+    "exitCode": 0,
+    "startedUtc": "2026-08-07T14:58:33.7536695Z",
+    "endedUtc": "2026-08-07T14:58:37.9274949Z"
+  },
+  "integrity": {
+    "eventsTotal": 85787,
+    "eventsLost": 0,
+    "lostFrom": "tracerpt summary 'Total Events Lost'"
+  },
+  "roots": {
+    "project": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\observe",
+    "home": "C:\\Users\\nub",
+    "jailHome": null,
+    "globalStore": "C:\\Users\\nub\\AppData\\Local\\nub\\pm\\store",
+    "projectStore": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\observe\\node_modules\\.store",
+    "interpreter": "C:\\Program Files\\nodejs\\node.exe",
+    "toolsDir": "C:\\Users\\nub\\AppData\\Local\\nub\\pm\\tools",
+    "temp": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\tmp",
+    "npmPrefix": null,
+    "ownPkg": "C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\observe\\node_modules\\@sitespeed.io\\edgedriver",
+    "cwd": null
+  },
+  "rootsFrom": "capture.json",
+  "devmap": {
+    "\\Device\\HarddiskVolume3": "C:"
+  },
+  "raw": {
+    "file": "etw-raw.xml.gz",
+    "bytes": 109651726,
+    "gzBytes": 1683949,
+    "sha256": "ed6e1a16cfb1c3407af1a061c2d1d6a9eadb7c9c3d9cbe635f62a9ff3e5a34fd",
+    "of": "trace.xml",
+    "etlBytes": 18874368,
+    "etlRetained": false
+  },
+  "limits": {
+    "createHasNoDesiredAccess": "Create (12) carries no DesiredAccess; `d` is the CreateDisposition, not the requested access. `open-r` means disposition FILE_OPEN, NOT proof of read-only intent — a FILE_OPEN handle can be written through. Writes are evidenced by event 16.",
+    "noRundownForPreOpenHandles": "the FileObject/FileKey name tables hold nothing for a file already open when the session started (no rundown session is run); those handle ops are counted in stats.unresolvedHandle and are unnameable, not missing",
+    "hardlinkDestNeeds0x800": "a hardlink destination is carried ONLY by event 28 (keyword 0x800) — NTFS emits no NameCreate for a second name on an existing FileKey, so below 0x1FF0 it is unrecoverable by re-parse rather than merely unrelated. A rename destination by contrast also appears as its own NameCreate, so a narrow mask loses only the source-to-dest relation.",
+    "taskNamesAreMisleading": "events are keyed on the numeric EventID; event 27 (RenamePath) renders RenderingInfo/Task as `NameDelete`, so a task-name-keyed reader will be wrong"
+  },
+  "derived": {
+    "file": "events.ndjson.gz",
+    "filter": "subtree of rootPid 3468 (out-of-subtree events are in the raw only)",
+    "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on NUB-WIN3))"
+  },
+  "stats": {
+    "xmlEvents": 85787,
+    "kept": 27028,
+    "distinct": 8997,
+    "byProvider": {
+      "Microsoft-Windows-Kernel-File": 85387,
+      "Microsoft-Windows-Kernel-Process": 10,
+      "Microsoft-Windows-Kernel-Network": 388
+    },
+    "unknownFileEvent": {},
+    "unresolvedHandle": 1,
+    "unsettled": 7,
+    "reattributedByThread": 0,
+    "outOfSubtree": 6029,
+    "destResolved": 3,
+    "destUnresolved": 0,
+    "shortExpanded": 0,
+    "shortUnexpanded": 0,
+    "shortUnmapped": 0
+  }
+}

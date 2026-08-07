@@ -1,0 +1,66 @@
+### netlify-cli@10.9.1   (C:\jail\m-netlifycli-msj12jbb)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=4504 exit=0 events=429809 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 312 files  (C:\jail\m-netlifycli-msj12jbb\observe\node_modules\netlify-cli)
+  ARM-FALSIFIABILITY {"manifestFiles":305,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (305) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-netlifycli-msj12jbb\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-netlifycli-msj12jbb\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-netlifycli-msj12jbb\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-netlifycli-msj12jbb\observe\node_modules\netlify-cli
+  == ATTRIBUTION == lifecycle pids: 2 (root 4504)
+    writes  script 1  /  whole traced tree 15
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    userHome      1
+  == READS ==
+    deps       5777
+    outside       3
+    project       1
+    systemfs     37
+    kernelfs      1
+    jailTmp       1
+    userHome      1
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  RAW       etw-raw.xml.gz  550455479 B xml -> 9060043 B gz (60.8x)  sha256 81b6a6669c95443e…
+  HEADER    etw-header.json (4978 bytes)
+  DERIVED   53834 distinct from 119923 kept ops (429809 xml events, 42311 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 9 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (736726 bytes)
+  RAWLOG-CAPTURE C:\jail\m-netlifycli-msj12jbb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-netlifycli-msj12jbb
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-netlifycli-msj12jbb\\npm-cache","TMP":"C:\\jail\\m-netlifycli-msj12jbb\\tmp","TEMP":"C:\\jail\\m-netlifycli-msj12jbb\\tmp","TMPDIR":"C:\\jail\\m-netlifycli-msj12jbb\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-netlifycli-msj12jbb\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=312/312 missing=1 shortfall=58e311b75e8b (tree 38522/35642) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     missing artifacts: src/functions-templates/rust/hello-world/.npmignore
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at C:\jail\m-netlifycli-msj12jbb\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=312/312 missing=1 shortfall=58e311b75e8b (tree 36530/35642) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     missing artifacts: src/functions-templates/rust/hello-world/.npmignore
+  STORE   isolated virtual store at C:\jail\m-netlifycli-msj12jbb\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=312/312 missing=1 shortfall=58e311b75e8b (tree 36526/35642) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     missing artifacts: src/functions-templates/rust/hello-world/.npmignore
+  STORE   isolated virtual store at C:\jail\m-netlifycli-msj12jbb\verify-fb2\.cache

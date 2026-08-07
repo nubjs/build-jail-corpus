@@ -1,0 +1,59 @@
+### @sitespeed.io/edgedriver@141.0.3537-71   (C:\jail\m-sitespeedioedgedriver-msj2kwwg)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=3468 exit=0 events=85787 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (C:\jail\m-sitespeedioedgedriver-msj2kwwg\observe\node_modules\@sitespeed.io\edgedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":3,"reasons":[]}
+  CLOSURE 3 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-sitespeedioedgedriver-msj2kwwg\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-sitespeedioedgedriver-msj2kwwg\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-sitespeedioedgedriver-msj2kwwg\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-sitespeedioedgedriver-msj2kwwg\observe\node_modules\@sitespeed.io\edgedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 3468)
+    writes  script 7  /  whole traced tree 13
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps          7
+  == READS ==
+    deps         18
+    outside       3
+    project       1
+    systemfs     35
+  == NETWORK ==
+    distinct peers: 1
+        150.171.109.183:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  109651726 B xml -> 1683949 B gz (65.1x)  sha256 ed6e1a16cfb1c340…
+  HEADER    etw-header.json (5071 bytes)
+  DERIVED   8997 distinct from 27028 kept ops (85787 xml events, 6029 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 7 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (125506 bytes)
+  RAWLOG-CAPTURE C:\jail\m-sitespeedioedgedriver-msj2kwwg\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-sitespeedioedgedriver-msj2kwwg
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\npm-cache","TMP":"C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\tmp","TEMP":"C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\tmp","TMPDIR":"C:\\jail\\m-sitespeedioedgedriver-msj2kwwg\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-sitespeedioedgedriver-msj2kwwg\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5742/27) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-sitespeedioedgedriver-msj2kwwg\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=5/8 missing=3 shortfall=78a1ee578261 (tree 5736/27) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: vendor/Driver_Notes/EULA, vendor/Driver_Notes/LICENSE, vendor/msedgedriver.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-sitespeedioedgedriver-msj2kwwg\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5742/27) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
