@@ -1,0 +1,86 @@
+### @pulumi/gcp@4.9.1   (/home/runner/v2-Gdqcd9)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=10196 trace=12520 lines
+  CLOSURE   199 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1866,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (1866) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-Gdqcd9/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Gdqcd9/observe/capture.json
+  RAWLOG-BYTES raw=2581112 gz=81943
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Gdqcd9/jailhome","TMPDIR":"/tmp/nub-tmp-obsNlfjyD","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Gdqcd9/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 23
+    writes  script 9  /  whole traced tree 1097
+    sockets script 23  /  whole traced tree 27
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Gdqcd9/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Gdqcd9/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Gdqcd9/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsNlfjyD
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Gdqcd9/observe/node_modules/@pulumi/gcp
+  == WRITES the script actually performed ==
+    userHome      8
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsNlfjyD/pulumi-plugin-tar2047536819
+  == NETWORK ==
+    AF_INET sockets: 23   distinct peers: 3
+        127.0.0.53:53
+        104.16.10.34:443
+        18.155.202.95:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    8 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 8
+        .pulumi/logs/pulumi-20260807T194003-140547-plugin_install.log
+        .pulumi/plugins/resource-gcp-v4.9.1.lock
+        .pulumi/plugins/resource-gcp-v4.9.1.partial
+        .pulumi/plugins/resource-gcp-v4.9.1
+        .pulumi/plugins/resource-gcp-v4.9.1/CHANGELOG.md
+        .pulumi/plugins/resource-gcp-v4.9.1/LICENSE
+        .pulumi/plugins/resource-gcp-v4.9.1/README.md
+        .pulumi/plugins/resource-gcp-v4.9.1/pulumi-resource-gcp
+    EVENTS    5386 distinct from 11982 calls (12521 lines, 359 rejoined, 0 unparsed)
+    PROCS     30   lifecycle shells 18
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: tgkill×146 setsockopt×60 getsockname×39 getpeername×18 getsockopt×15 exit×15 recvmsg×7 getcwd×4
+    wrote /home/runner/v2-Gdqcd9/observe/events.ndjson.gz (38402 bytes)
+  EVENTLOG-FILE /home/runner/v2-Gdqcd9/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12521,"parsed":11982,"unparsed":0,"unfinished":359,"rejoined":359,"unresolvedDirfd":3,"truncatedArg":0,"procs":30,"lifecyclePids":18,"distinctEvents":5386,"unknownSyscall":{"getsockname":39,"getsockopt":15,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":60,"sendmmsg":1,"socketpair":3,"shutdown":3,"tgkill":146,"listen":1,"accept4":1,"getpeername":18,"exit_group":4,"wait4":4},"out":"/home/runner/v2-Gdqcd9/observe/events.ndjson.gz","gzipBytes":38402}
+  EVICT     201 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/gcp
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1866/1866 missing=0 shortfall=none (tree 44449/10196) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     204 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/gcp
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-network] rc=0 artifacts=1866/1866 missing=0 shortfall=none (tree 44449/10196) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  EVICT     204 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/gcp
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=1866/1866 missing=0 shortfall=none (tree 44449/10196) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     204 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/gcp
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[joint-narrow] rc=0 artifacts=1866/1866 missing=0 shortfall=none (tree 44449/10196) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
