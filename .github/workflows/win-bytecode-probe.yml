@@ -1,30 +1,36 @@
-# WHERE do win32's `userHome` writes on a native build actually come from?
+# Does node-gyp's Python write bytecode on win32, and WHICH BUCKET does it land in?
 #
-# The macOS lane measured that 39 of 39 `userHome` writes on `cpu-features@0.0.10` were
-# `__pycache__`/`.pyc` beside node-gyp's bundled gyp, so the synthesized grant carried
-# `write.userHome` — the persistence capability — manufactured entirely by CPython. `measure.sh` has
-# suppressed that since its own bring-up; `measure-windows.mjs` has ZERO references and `classify.mjs`
-# has no bytecode drop, so win32 looks exposed to the same defect.
+# ⛔ THIS IS THE PUBLISHING GATE FOR NATIVE-BUILD win32 RECORDS. On macOS, 39 of 39 `userHome` writes
+# on a native build were `__pycache__`/`.pyc` beside node-gyp's bundled gyp, so the synthesized grant
+# carried `write.userHome` — the PERSISTENCE capability — manufactured entirely by CPython.
+# `measure-windows.mjs` sets no `PYTHONDONTWRITEBYTECODE`, so the same defect would ride into every
+# win32 record if the mechanism transfers.
 #
-# ⛔ BUT THE MECHANISM MAY NOT TRANSFER, AND ADDING THE VARIABLE DEFENSIVELY WOULD HIDE THAT. On this
-# platform node-gyp's `gyp/pylib` is NOT under the user home — MEASURED on the corpus VM at
-# `C:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\gyp\pylib`, which classifies
-# `systemfs`/`outside`, never `userHome`. And the win32 evidence already in hand does not settle it
-# either way: `@pulumi/datadog@0.18.9` from win-evict-probe run 31132145179 shows
-# `WRITES userHome 9` and a synthesized `{"write":{"userHome":true},"network":true}` — the same
-# symptom as macOS — but `observed.json` serialises only the `outside` and `systemfs` path lists, so
-# those 9 paths are counts with no names. A different cause with an identical count is exactly what
-# a defensive fix would paper over: node-gyp's own header cache lives at `%LOCALAPPDATA%\node-gyp`,
-# which IS under the home and is NOT a declared root.
+# ROUND 1 (run 31134429426) ANSWERED HALF OF IT AND IS WHY THIS EXISTS. Re-parsing the retained
+# archive for `@pulumi/datadog@0.18.9` found ZERO bytecode events in the whole trace, and named every
+# write under the home root as that package's own `~/.pulumi` plugin payload — a real need, not an
+# artefact. But it did not settle the question, because THAT PACKAGE NEVER RAN PYTHON: its trace holds
+# five process events — `node.exe`, `cmd.exe`, `pulumi.exe` — and no `python.exe`. And
+# `cpu-features@0.0.10`, the package the macOS finding came from, returned
+# `BROKEN-WITHOUT-JAIL-TOO` because its unjailed rebuild fails on `windows-latest`.
 #
-# ⇒ This probe exists to NAME those writes. It runs OBSERVE only, retains the decoded event stream
-# and the capture header, and uploads both so the buckets can be re-derived off-runner with
-# `classify.mjs` itself rather than re-implemented here.
+# ⛔ SO THIS ROUND DOES NOT USE THE DRIVER, AND THAT IS THE WHOLE DESIGN CHANGE.
+# `measure-windows.mjs` exits at `BROKEN-WITHOUT-JAIL-TOO` BEFORE the retention hook runs, so a
+# package whose build FAILS produces no archive at all — which is exactly the population most likely
+# to be interesting here, since plenty of native packages fail to build on a bare Windows runner.
 #
-# ⛔ NO nub BINARY IS BUILT OR RESTORED, DELIBERATELY. `--observe-only` returns before `verify()`,
-# which is the only consumer of `--nub`, so the ~20-minute cold Rust build every other Windows
-# workflow here pays buys nothing for this question. It also keeps the probe honest: nothing it
-# reports can depend on which nub was cached.
+# ⛔ AND A FAILED BUILD STILL ANSWERS THE QUESTION, which is why losing that population mattered.
+# `node-gyp configure` runs Python to generate the `.vcxproj` BEFORE `msbuild` ever runs, so bytecode
+# is written — or not — during configure. Whether the compile later succeeds is irrelevant to "does
+# CPython cache bytecode here, and where does it land". Tracing `npm rebuild` directly through the
+# harness's OWN adapters keeps the decode honest while dropping the driver's early exit.
+#
+# THE THREE THINGS EACH ROW MUST REPORT, because any one alone is misreadable:
+#   1. did `python.exe` actually spawn — without this a zero bytecode count means nothing, which is
+#      precisely how round 1 produced a confident non-answer;
+#   2. how many `__pycache__`/`.pyc` paths appear anywhere in the trace;
+#   3. whether ANY of them is under `%USERPROFILE%` — the only bucket that makes this a security
+#      finding rather than noise.
 name: win-bytecode-probe
 
 on:
@@ -33,8 +39,8 @@ on:
   workflow_dispatch:
     inputs:
       pkgs:
-        description: 'space-separated pkg@version list of native builds to trace'
-        default: '@pulumi/datadog@0.18.9 cpu-features@0.0.10'
+        description: 'space-separated native pkg@version list'
+        default: 'deasync@0.1.30 integer@4.0.3 segfault-handler@1.3.0 cpu-features@0.0.10'
 
 permissions:
   contents: read
@@ -44,31 +50,27 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 60
     env:
-      PKGS: ${{ inputs.pkgs || '@pulumi/datadog@0.18.9 cpu-features@0.0.10' }}
+      PKGS: ${{ inputs.pkgs || 'deasync@0.1.30 integer@4.0.3 segfault-handler@1.3.0 cpu-features@0.0.10' }}
+      # ⛔ FORCE A SOURCE BUILD. Most of these ship prebuilds, and a package that downloads a binary
+      # never runs node-gyp at all — which would reproduce round 1's non-answer with more packages.
+      npm_config_build_from_source: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
 
-      # The layout facts the whole question turns on, recorded rather than assumed. If `gyp/pylib`
-      # is not under the home here, bytecode CANNOT be what fills the `userHome` bucket, and that is
-      # a finding rather than a reason to add the variable anyway.
       - name: Host layout facts
         shell: bash --noprofile --norc {0}
         run: |
           set +e
-          node --version; npm --version
+          node --version; npm --version; python --version 2>&1
           echo "USERPROFILE=$USERPROFILE"
-          echo "LOCALAPPDATA=$LOCALAPPDATA"
-          echo "--- python ---"
-          where python; where python3; where py; python --version 2>&1
-          echo "--- node-gyp gyp/pylib location (is it under the home?) ---"
-          find "$(dirname "$(which node)")" -path '*node-gyp/gyp/pylib*' -name '*.py' 2>/dev/null | head -3
-          npm root -g 2>/dev/null
-          echo "--- node-gyp header cache (under the home, and NOT a declared root) ---"
-          ls -d "$LOCALAPPDATA/node-gyp" 2>/dev/null || echo "absent before the run"
+          echo "--- is node-gyp gyp/pylib under the home? (if not, bytecode cannot reach userHome) ---"
+          find /c/hostedtoolcache/windows/node -path '*node-gyp/gyp/pylib/gyp/common.py' 2>/dev/null | head -2
+          echo "--- are the stdlib pyc files pre-built, i.e. is there anything left to cache? ---"
+          ls /c/hostedtoolcache/windows/Python/*/x64/Lib/__pycache__ 2>/dev/null | head -3 || echo "no stdlib __pycache__"
 
-      - name: OBSERVE each package, retaining the decoded event stream
+      - name: Trace `npm rebuild` per package, through the harness adapters
         shell: bash --noprofile --norc {0}
         run: |
           set +e
@@ -76,57 +78,77 @@ jobs:
           for spec in $PKGS; do
             pkg="${spec%@*}"; ver="${spec##*@}"
             slug=$(echo "$spec" | tr -c 'A-Za-z0-9.' '-')
+            d="/c/bc/$slug"; rm -rf "$d"; mkdir -p "$d"
             echo "════════════════════════ $spec ════════════════════════"
-            NUB_V2_EVENTS_OUT="C:/out/$slug.events.ndjson.gz" \
-              node harness/v2/measure-windows.mjs "$pkg" "$ver" --root C:\\jail --observe-only \
-              > "/c/out/$slug.driver.out" 2>&1
-            echo "exit=$?"
-            tail -30 "/c/out/$slug.driver.out"
-            # `RAWLOG-CAPTURE` is the driver's own announcement of where the roots header landed;
-            # copying it by that line rather than by a reconstructed path is the same contract
-            # `record.mjs` uses, so this cannot drift from where the driver actually wrote it.
-            cap=$(grep -m1 'RAWLOG-CAPTURE' "/c/out/$slug.driver.out" | sed 's/.*RAWLOG-CAPTURE //' | tr -d '\r')
-            [ -n "$cap" ] && cp "$cap" "/c/out/$slug.capture.json"
-            root=$(dirname "$(dirname "$cap")")
-            [ -f "$root/observed.json" ] && cp "$root/observed.json" "/c/out/$slug.observed.json"
-            [ -f "$root/observed.txt" ]  && cp "$root/observed.txt"  "/c/out/$slug.observed.txt"
+            ( cd "$d" && printf '{"name":"p","version":"1.0.0"}\n' > package.json \
+              && npm install --no-audit --no-fund --ignore-scripts "$spec" > fetch.log 2>&1 )
+            echo "fetch rc=$?"
+            # A space-free wrapper, for the same reason measure-windows.mjs uses one: `cmd /c` strips
+            # the outer quote pair off a string that both starts and ends with a quote, so a path
+            # containing `Program Files` degrades into an unrunnable command.
+            printf '@echo off\r\n"%s" "%s" rebuild --no-audit --no-fund %s\r\n' \
+              "$(cygpath -w "$(which node)")" \
+              "$(cygpath -w "$(dirname "$(which node)")/node_modules/npm/bin/npm-cli.js")" \
+              "$pkg" > "$d/rebuild.cmd"
+            powershell.exe -NoProfile -ExecutionPolicy Bypass -File harness/v2/adapters/windows.ps1 \
+              -OutDir "$(cygpath -w "$d/cap")" -Command "$(cygpath -w "$d/rebuild.cmd")" \
+              -WorkDir "$(cygpath -w "$d")" -Session "bc_${slug}_$$" > "$d/capture.log" 2>&1
+            echo "capture rc=$?"; tail -4 "$d/capture.log"
+            node harness/v2/adapters/windows.mjs "$d/cap" --out "$d/events.ndjson" > "$d/parse.log" 2>&1
+            echo "parse rc=$?  events=$(wc -l < "$d/events.ndjson" 2>/dev/null || echo 0)"
+            cp "$d/events.ndjson" "/c/out/$slug.events.ndjson" 2>/dev/null
+            cp "$d/cap/meta.json" "/c/out/$slug.meta.json" 2>/dev/null
           done
-          ls -la /c/out
 
-      # A first cut on the runner, so the answer is visible in the log even if the artifact is never
-      # downloaded. The authoritative bucketing is still `classify.mjs` re-run off the artifact — this
-      # only counts how many attributed writes look like bytecode versus the node-gyp header cache.
-      - name: Name the writes
+      # ⛔ THE ANSWER, AND IT CARRIES ITS OWN NEGATIVE CONTROL. A zero bytecode count is only
+      # meaningful for a row where python ACTUALLY SPAWNED; every other row is reported as NO-PYTHON
+      # and explicitly does not count as evidence either way.
+      - name: Did python run, and where did its bytecode land
         if: always()
         shell: bash --noprofile --norc {0}
         run: |
           set +e
           node -e '
-            const fs = require("fs"), zlib = require("zlib"), path = require("path");
-            for (const f of fs.readdirSync("C:/out").filter((x) => x.endsWith(".events.ndjson.gz"))) {
-              const slug = f.replace(".events.ndjson.gz", "");
-              let lines;
-              try { lines = zlib.gunzipSync(fs.readFileSync(path.join("C:/out", f))).toString().split("\n"); }
-              catch (e) { console.log(slug + ": UNREADABLE " + e.message); continue; }
-              const writes = [];
-              for (const l of lines) {
-                if (!l.trim()) continue;
-                let e; try { e = JSON.parse(l); } catch { continue; }
-                const p = e.path || e.file || "";
-                if (!p) continue;
-                if (/write|create|rename|unlink|delete|setinfo|mkdir/i.test(e.op || e.kind || e.event || "")) writes.push(p);
+            const fs = require("fs"), path = require("path");
+            const home = (process.env.USERPROFILE || "").toLowerCase();
+            let anyPython = false, anyHomeBytecode = false;
+            for (const f of fs.readdirSync("C:/out").filter((x) => x.endsWith(".events.ndjson"))) {
+              const slug = f.replace(".events.ndjson", "");
+              const evs = fs.readFileSync(path.join("C:/out", f), "utf8").split("\n")
+                .filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } })
+                .filter(Boolean);
+              const pathOf = (e) => [e.f, e.n, e.path].find((v) => typeof v === "string") || "";
+              const procs = evs.filter((e) => e.k === "p");
+              const images = new Set();
+              for (const e of procs) {
+                const d = e.data || {};
+                const n = String(d.ImageName || d.ImageFileName || "");
+                if (n) images.add(n.split(/[\\\/]/).pop().toLowerCase());
               }
-              const bc = writes.filter((p) => /__pycache__|\.py[co]$/i.test(p));
-              const gypcache = writes.filter((p) => /[\\\/]node-gyp[\\\/]/i.test(p));
+              const python = [...images].some((n) => n.startsWith("python"));
+              const bc = evs.map(pathOf).filter((p) => /__pycache__|\.py[co]$/i.test(p));
+              const bcHome = bc.filter((p) => p.toLowerCase().startsWith(home));
+              anyPython = anyPython || python;
+              anyHomeBytecode = anyHomeBytecode || bcHome.length > 0;
               console.log("── " + slug);
-              console.log("   write-ish events: " + writes.length
-                + "   bytecode: " + bc.length + "   node-gyp path: " + gypcache.length);
-              for (const p of [...new Set(bc)].slice(0, 8)) console.log("     BYTECODE  " + p);
-              for (const p of [...new Set(gypcache)].slice(0, 8)) console.log("     NODE-GYP  " + p);
+              console.log("   processes: " + [...images].join(" "));
+              console.log("   python spawned: " + python
+                + "   bytecode paths: " + bc.length + "   of those under the home: " + bcHome.length);
+              if (!python) console.log("   ⚠ NO-PYTHON — this row is NOT evidence about bytecode either way");
+              for (const p of [...new Set(bc)].slice(0, 6)) console.log("     BYTECODE  " + p);
             }
+            console.log("");
+            if (!anyPython) {
+              console.log("=> INCONCLUSIVE: no row spawned python, so the question is still open.");
+              console.log("   Pick a package that reaches `node-gyp configure` on this runner.");
+              process.exit(1);
+            }
+            console.log(anyHomeBytecode
+              ? "=> BYTECODE REACHES THE HOME on win32 — the macOS mechanism transfers and the suppression is needed."
+              : "=> python ran and NO bytecode landed under the home — the macOS mechanism does NOT transfer here.");
           '
 
-      - name: Upload the archives for off-runner re-parsing
+      - name: Upload the traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
