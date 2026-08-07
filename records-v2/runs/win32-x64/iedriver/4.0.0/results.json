@@ -1,0 +1,76 @@
+{
+  "pkg": "iedriver",
+  "version": "4.0.0",
+  "harnessVersion": 2,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
+  "synthesized": {
+    "write": {
+      "deps": true
+    },
+    "network": true
+  },
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
+  "notes": [
+    "under-predicted"
+  ],
+  "eventLog": null,
+  "driverRc": 0,
+  "durationMs": 2376190,
+  "provenance": {
+    "platform": "win32-x64",
+    "harness": "measure-windows.mjs",
+    "nubGitSha": null,
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "1930f10ebd01191d4868e8f2603f7b64e74aa6ed",
+    "node": "v22.15.0",
+    "at": "2026-08-07T02:28:11.099Z",
+    "venue": "unknown",
+    "ciEnvSet": false,
+    "storeLayout": "hoisted",
+    "interpreterPath": "C:\\Program Files\\nodejs\\node.exe",
+    "interpreterInsideHome": false,
+    "jailRoot": "C:\\jail\\m-iedriver-msiad49w",
+    "observeUser": "NUB-WIN3\\nub elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": null,
+    "overrides": {
+      "set": {
+        "npm_config_cache": "C:\\jail\\m-iedriver-msiad49w\\npm-cache",
+        "TMP": "C:\\jail\\m-iedriver-msiad49w\\tmp",
+        "TEMP": "C:\\jail\\m-iedriver-msiad49w\\tmp",
+        "TMPDIR": "C:\\jail\\m-iedriver-msiad49w\\tmp"
+      },
+      "unset": [],
+      "notRedirected": {
+        "USERPROFILE": "C:\\Users\\nub",
+        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
+      },
+      "passedThrough": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "NODE_ENV": null
+      }
+    }
+  }
+}

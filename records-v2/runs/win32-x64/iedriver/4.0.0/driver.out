@@ -1,0 +1,80 @@
+### iedriver@4.0.0   (C:\jail\m-iedriver-msiad49w)
+  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=4668 exit=0 events=98860 lost=0
+  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 11 files  (C:\jail\m-iedriver-msiad49w\observe\node_modules\iedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 82 packages evicted per arm
+  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-iedriver-msiad49w\observe   [keyed on]
+    home          C:\Users\nub   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-iedriver-msiad49w\observe\node_modules\.store
+    interpreter   C:\Program Files\nodejs\node.exe
+    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-iedriver-msiad49w\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-iedriver-msiad49w\observe\node_modules\iedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 4668)
+    writes  script 14  /  whole traced tree 24
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    jailTmp       8
+    deps          6
+  == READS ==
+    deps        425
+    outside       3
+    project       1
+    systemfs     34
+    kernelfs      1
+    userHome      1
+    jailTmp       9
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.3:443
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 8 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  126265865 B xml -> 2019412 B gz (62.5x)  sha256 b5325aa598572d93…
+  HEADER    etw-header.json (4956 bytes)
+  DERIVED   11824 distinct from 29896 kept ops (98860 xml events, 7874 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 14 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 2 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
+  wrote events.ndjson.gz (163274 bytes)
+  RAWLOG-CAPTURE C:\jail\m-iedriver-msiad49w\cap\capture.json
+  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-iedriver-msiad49w
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-iedriver-msiad49w\\npm-cache","TMP":"C:\\jail\\m-iedriver-msiad49w\\tmp","TEMP":"C:\\jail\\m-iedriver-msiad49w\\tmp","TMPDIR":"C:\\jail\\m-iedriver-msiad49w\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=9/11 missing=2 (tree 6941/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: lib/iedriver64/IEDriverServer.exe, lib/iedriver64/IEDriverServer_x64_4.0.0.zip
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-fb0\.cache
+  VERIFY[fb0] rc=0 artifacts=15/11 missing=0 (tree 6950/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=10/11 missing=2 (tree 6942/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     missing artifacts: lib/iedriver64/IEDriverServer.exe, lib/iedriver64/IEDriverServer_x64_4.0.0.zip
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=15/11 missing=0 (tree 6950/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-nar-no-write-project\.cache
+  VERIFY[nar-no-write-project] rc=1 artifacts=9/11 missing=2 (tree 6941/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     missing artifacts: lib/iedriver64/IEDriverServer.exe, lib/iedriver64/IEDriverServer_x64_4.0.0.zip
+     'no-write-project' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=15/11 missing=0 (tree 6950/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-iedriver-msiad49w\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=15/11 missing=0 (tree 6950/884) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"project":true},"network":true} — all 2 capabilities drop TOGETHER, measured
