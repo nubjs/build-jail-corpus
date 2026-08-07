@@ -176,13 +176,18 @@ test('⭑ the write:"disk" rung is NOT descended — Object.keys on a string wou
   assert.ok(!r.notes.includes('descent-name-unparsed'));
 });
 
-test('⭑ `read` is never enumerated, even on the ONE rung that carries it', () => {
-  // ⛔ THE OTHER HALF OF THE CARVE-OUT, AND THE ONLY PLACE IT IS REACHABLE. Rung 1 carries
-  // `read:"disk"` literally, so before the descent ran over a rung there was no grant in this driver
-  // with a `read` key at all. `applyGrantSourceRule` has no `no-read` case, so a droppable `read`
-  // would land in `unparsedNames` — and that does not merely lose the read narrowing, it forces the
-  // whole record back to the wide grant and discards the write/network narrowings that DID parse.
-  // Leaving `read` granted and unquestioned is the over-granting direction, which is the safe one.
+test('`read` is not enumerated even on the ONE rung that carries it — a KNOWN GAP, pinned', () => {
+  // ⛔ THIS PINS CURRENT BEHAVIOUR, NOT A DESIRED INVARIANT, AND THE DISTINCTION IS THE WHOLE COMMENT.
+  // Rung 1 carries `read:"disk"` literally, so this is the only place in the Linux driver where a
+  // `read` key is reachable at all. The descent skips it because `applyGrantSourceRule` used to have
+  // no `no-read` case, which put a droppable `read` in `unparsedNames` and forced the whole record
+  // back to the wide grant — losing the write/network narrowings that DID parse.
+  //
+  // ⇒ `366936ce3` ADDED that case, and `measure-windows.mjs` already emits `no-read`, so the reason
+  // has expired: Linux and macOS now leave a real narrowing on the table on every rung-1 record. The
+  // direction is over-granting, so nothing is at risk and this test is not a bug report — but when
+  // the two remaining drivers are taught `no-read`, THIS TEST IS THE ONE THAT MUST BE REWRITTEN, and
+  // it should fail loudly rather than silently certify the gap.
   const out = run(`
     case "$label" in
       fb*) case "$grant" in *'"read":"disk"'*) return 0 ;; *) return 1 ;; esac ;;

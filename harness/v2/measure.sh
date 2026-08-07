@@ -1155,15 +1155,18 @@ descend () {
   # all five Linux records carrying an over-prediction re-parse with `descendedGrant === grant`.
   # macOS and Windows already use the `no-*` spelling; Linux was the odd one out.
   #
-  # ⛔ `read` IS DELIBERATELY NOT ENUMERATED, AND A `read` KEY IS NO LONGER HYPOTHETICAL HERE.
-  # `classify.mjs` still never synthesizes one, but LADDER RUNG 1 carries `read:"disk"` literally, and
-  # this function is now called from the ladder path — so the reason has to be the CONSEQUENCE rather
-  # than the absence. `record.mjs`'s `applyGrantSourceRule` has no `no-read` case, so a droppable
-  # `read` lands in `unparsedNames`, and that forces the WHOLE record back to the wide grant,
-  # discarding the network and write narrowings that DID parse. Leaving `read` un-enumerated grants it
-  # unquestioned on the one rung that carries it, which is the over-granting direction and therefore
-  # the safe one. Making it droppable means teaching `record.mjs` `no-read` in the same change, never
-  # here alone; the unknown-name guard is what keeps that failure loud instead of silent.
+  # ⛔ `read` IS NOT ENUMERATED HERE, AND AS OF `366936ce3` THAT IS AN OPEN GAP RATHER THAN A CARVE-OUT.
+  # `classify.mjs` never synthesizes a `read` key, but LADDER RUNG 1 carries `read:"disk"` literally
+  # and this function is now called from the ladder path, so the key is reachable. The reason it was
+  # left alone was that `record.mjs`'s `applyGrantSourceRule` had no `no-read` case, which put a
+  # droppable `read` in `unparsedNames` and forced the WHOLE record back to the wide grant — losing the
+  # network and write narrowings that DID parse. `366936ce3` ADDED that case, and `measure-windows.mjs`
+  # already emits `no-read`, so the recorder half is done and Windows is paired with it.
+  #
+  # ⇒ Linux and macOS still skip it, which now costs a real narrowing on every rung-1 record: `read`
+  # stays granted unquestioned. That direction is over-granting, so it is safe and nothing is at risk —
+  # but it is no longer justified. Enumerating it is one coordinated change across BOTH remaining
+  # drivers, not a Linux-only edit, which is why it is recorded here rather than made here.
   CAPS=$(node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
     if (g.network) out.push("no-network");
