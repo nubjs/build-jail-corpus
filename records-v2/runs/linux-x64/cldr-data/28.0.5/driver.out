@@ -1,0 +1,83 @@
+### cldr-data@28.0.5   (/home/runner/v2-vMJQWM)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=14589 trace=113119 lines
+  CLOSURE   98 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12568,"filesTheScriptProduced":12557,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-vMJQWM/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-vMJQWM/observe/capture.json
+  RAWLOG-BYTES raw=18762533 gz=361795
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-vMJQWM/jailhome","TMPDIR":"/tmp/nub-tmp-obsny30I6","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-vMJQWM/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 13083  /  whole traced tree 14093
+    sockets script 70  /  whole traced tree 74
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-vMJQWM/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-vMJQWM/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-vMJQWM/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsny30I6
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data
+  == WRITES the script actually performed ==
+    jailTmp     156  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/16d5f59d.V20nEd
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/16d5f59d
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/7857aa30.uJnOSn
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/7857aa30
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dbfe9869.YbmO24
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dbfe9869
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/7de36298.O0fVPe
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/7de36298
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/d26aaf35.kT5Wxe
+        /tmp/nub-tmp-obsny30I6/node-compile-cache/v22.23.1-x64-9ac5647c-1001/d26aaf35
+        … and 146 more
+    ownPkg    12927  (base profile already grants this — NOT billed)
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/.gitattributes
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/.gitignore
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/LICENSE
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/README.md
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/availableLocales.json
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/.ignored-bower.json
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/defaultContent.json
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/.ignored-package.json
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/supplemental
+        /home/runner/v2-vMJQWM/observe/node_modules/cldr-data/supplemental/aliases.json
+        … and 12917 more
+  == NETWORK ==
+    AF_INET sockets: 70   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        140.82.116.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    45622 distinct from 112775 calls (113120 lines, 303 rejoined, 0 unparsed)
+    PROCS     37   lifecycle shells 25
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×210 recvmsg×82 getsockname×73 getsockopt×59 sendmmsg×36 exit×29 getcwd×7 socketpair×6
+    wrote /home/runner/v2-vMJQWM/observe/events.ndjson.gz (184496 bytes)
+  EVENTLOG-FILE /home/runner/v2-vMJQWM/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":113120,"parsed":112775,"unparsed":0,"unfinished":303,"rejoined":303,"unresolvedDirfd":3,"truncatedArg":0,"procs":37,"lifecyclePids":25,"distinctEvents":45622,"unknownSyscall":{"getsockname":73,"getsockopt":59,"getcwd":7,"recvmsg":82,"exit":29,"setsockopt":210,"sendmmsg":36,"socketpair":6,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-vMJQWM/observe/events.ndjson.gz","gzipBytes":184496}
+  EVICT     24 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cldr-data
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12565/12565 missing=0 shortfall=none (tree 43880/14589) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     101 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cldr-data
+  VERIFY[drop-no-network] rc=1 artifacts=10/12565 missing=12555 shortfall=967285d8a9d0 (tree 6207/14589) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: .ignored-bower.json, .ignored-package.json, LICENSE, availableLocales.json, defaultContent.json, main/af/ca-buddhist.json (+12549)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
