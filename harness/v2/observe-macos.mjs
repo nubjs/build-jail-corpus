@@ -366,13 +366,35 @@ for (const raw of lines) {
     // artifact rather than assumed, and the write bills through the normal scopes (usually free
     // `ownPkg`). MEASURED on cpu-features@0.0.10: `pid=47721 WRITE unproven buildcheck.gypi` is
     // exactly that case.
+    // ⛔ THE CWD IS THE PACKAGE DIR *OR A DIRECTORY UNDER IT*, AND THE FIRST VERSION ONLY TRIED THE
+    // ROOT. node-gyp runs make from `<pkgdir>/build`, so its writes come through as `Release/foo.o`
+    // rather than `build/Release/foo.o`. MEASURED on cpu-features@0.0.10: an exact-match-only
+    // resolution placed 14 paths and left 52 unplaceable — and the residue was almost entirely the
+    // real build output, `Release/cpufeatures.node` included, sitting one directory deeper than the
+    // hypothesis being tested.
+    //
+    // ⛔ UNIQUENESS IS WHAT MAKES A SUFFIX MATCH EVIDENCE RATHER THAN A GUESS. Exactly one artifact
+    // in the package dir ending in this relative path pins the placement; two or more is genuinely
+    // ambiguous and stays unplaceable, because picking either would be inventing a path. On that same
+    // package: 28 unique, 8 ambiguous, 16 with no match at all — the last group being build temporaries
+    // (`.raw`, `.WkHJSL`) deleted before the manifest was taken, which SHOULD stay unplaceable.
     const rel = rawPath.replace(/^\.\//, '');
-    if (ownPkgDir && haveManifest && pkgManifest.has(rel)) {
-      cwdResolvedCount++;
-      const placed = `${ownPkgDir}/${rel}`;
-      if (w) allWrites.add(placed);
-      (w ? writes : reads).add(placed);
-      continue;
+    if (ownPkgDir && haveManifest) {
+      let placedRel = pkgManifest.has(rel) ? rel : undefined;
+      if (placedRel === undefined) {
+        let hit; let n = 0;
+        for (const m of pkgManifest) {
+          if (m.endsWith(`/${rel}`)) { hit = m; if (++n > 1) break; }
+        }
+        if (n === 1) placedRel = hit;
+      }
+      if (placedRel !== undefined) {
+        cwdResolvedCount++;
+        const placed = `${ownPkgDir}/${placedRel}`;
+        if (w) allWrites.add(placed);
+        (w ? writes : reads).add(placed);
+        continue;
+      }
     }
     // The detector, when the adapter supplies it. Severity ONLY — see the note: a match is "not
     // disproven", never "verified", and both severities bill the same.
