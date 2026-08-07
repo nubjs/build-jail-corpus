@@ -1,0 +1,145 @@
+{
+  "pkg": "node-pty",
+  "version": "1.1.0-beta33",
+  "harnessVersion": 2,
+  "verdict": "UNDER-PREDICTED",
+  "grant": null,
+  "synthesized": {
+    "write": {
+      "deps": true,
+      "project": true
+    },
+    "network": true,
+    "writePaths": [
+      "Library/Caches/node-gyp"
+    ]
+  },
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
+  "notes": [
+    "cwd-unobserved",
+    "events-lost",
+    "under-predicted"
+  ],
+  "eventLog": {
+    "lines": 131377,
+    "parsed": 131233,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 97,
+    "tracerErrorTotal": 97,
+    "unresolvedDirfd": 411,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 1135,
+    "danglingPair": 0,
+    "failed": 46018,
+    "enoent": 23339,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 36,
+      "ENOENT": 23339,
+      "EINVAL": 8,
+      "EEXIST": 22034,
+      "ENOTEMPTY": 601
+    },
+    "procs": 76,
+    "lifecyclePids": 33,
+    "distinctEvents": 63758,
+    "emitted": 63758,
+    "calls": 129786,
+    "bytes": 13198379,
+    "gzipBytes": 346971,
+    "out": "/Users/runner/v2m-dlJfdF/Observe/events.ndjson"
+  },
+  "driverRc": 0,
+  "durationMs": 35433,
+  "provenance": {
+    "platform": "darwin-arm64",
+    "harness": "measure-macos.sh",
+    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "fce50a0c27f6f3e9bfbde5bac2d48f255387bf41",
+    "node": "v22.23.1",
+    "at": "2026-08-07T22:47:45.109Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
+    "ciChild": "clean (no CI-detection variable reaches the traced script)",
+    "cwdResolved": 16,
+    "cwdUnplaceableWrites": [
+      "./Release/.deps",
+      "./Release/.deps/Release",
+      "./Release/.deps/Release/obj.target",
+      "./Release/.deps/Release/obj.target/../node-addon-api",
+      "./Release/.deps/Release/obj.target/../node-addon-api/node_addon_api_except.stamp.d",
+      "./Release/.deps/Release/obj.target/pty",
+      "./Release/.deps/Release/obj.target/pty/src",
+      "./Release/.deps/Release/obj.target/pty/src/unix",
+      "./Release/.deps/Release/obj.target/pty/src/unix/pty.o.d",
+      "./Release/.deps/Release/obj.target/pty/src/unix/pty.o.d.raw",
+      "./Release/.deps/Release/obj.target/spawn-helper",
+      "./Release/.deps/Release/obj.target/spawn-helper/src",
+      "./Release/.deps/Release/obj.target/spawn-helper/src/unix",
+      "./Release/.deps/Release/obj.target/spawn-helper/src/unix/spawn-helper.o.d",
+      "./Release/.deps/Release/obj.target/spawn-helper/src/unix/spawn-helper.o.d.raw",
+      "./Release/.deps/Release/pty.node.d",
+      "./Release/.deps/Release/spawn-helper.d",
+      "./build/../node-addon-api",
+      "./build/../node-addon-api/node_addon_api.Makefile",
+      "./build/../node-addon-api/node_addon_api.target.mk",
+      "./build/../node-addon-api/node_addon_api_except.target.mk",
+      "./build/../node-addon-api/node_addon_api_maybe.target.mk",
+      "Release/obj.target",
+      "Release/obj.target/../node-addon-api",
+      "Release/obj.target/../node-addon-api/node_addon_api_except.stamp",
+      "Release/obj.target/pty",
+      "Release/obj.target/pty/src",
+      "Release/obj.target/pty/src/unix",
+      "Release/obj.target/spawn-helper",
+      "Release/obj.target/spawn-helper/src",
+      "Release/obj.target/spawn-helper/src/unix"
+    ],
+    "nubBinary": {
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4",
+      "bytes": 94103896,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-dlJfdF/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8lytZ5",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}
