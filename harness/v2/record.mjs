@@ -464,14 +464,36 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     return c === h || c.startsWith(h + sep);
   };
 
+  // ⛔ AN UNDECLARED VENUE IS `unknown`, NEVER A PLAUSIBLE GUESS. This defaulted to `local`, so a run
+  // on the corpus VM with `NUB_CORPUS_VENUE` unset recorded `venue: "local"` — a wrong value that
+  // reads exactly like a right one. That is the same shape as every other "absent is not empty"
+  // defect this harness has hit (the manifest, the falsifiability flag, the temp roots), and it is
+  // worse in one way: venue is PROVENANCE, so a wrong value poisons the ability to re-examine the
+  // record later rather than merely the current answer. `unknown` is non-breaking for consumers and
+  // makes the gap visible IN THE DATA.
+  //
+  // ⛔ AND IT IS NEVER INFERRED — not from `CI`, not from the hostname, not from the interpreter
+  // path. A cloud VM and a laptop are not distinguishable from inside; an inferred venue is a guess
+  // wearing a fact's clothing, and the entire value of the field is that it is ASSERTED by whoever
+  // knows. `GITHUB_ACTIONS` is the one exception and is not an inference: the runner sets it itself.
+  const resolveVenue = (env) => {
+    if (env.GITHUB_ACTIONS) return 'ci';
+    const declared = env.NUB_CORPUS_VENUE;
+    if (declared) return declared;
+    // Loud, once per record, naming the variable and the value being written. An operator who sees
+    // this once fixes it forever; a silent default is what let a mislabelled record exist at all.
+    console.error('⛔ NUB_CORPUS_VENUE is not set, so this record is being written with '
+      + 'venue: "unknown". Set NUB_CORPUS_VENUE=vm|local|ci to say where these arms actually ran — '
+      + 'a venue comparison cannot attribute a difference between two records that both say unknown.');
+    return 'unknown';
+  };
+
   const venueProvenance = (p, platform) => {
     const env = process.env;
     const home = env.HOME ?? env.USERPROFILE ?? '';
     const interpreterPath = p.interpreterPath ?? null;
     return {
-      // GITHUB_ACTIONS is the runner itself; anything else is declared by the operator, because a
-      // cloud VM and a laptop are not distinguishable from inside without being told.
-      venue: env.GITHUB_ACTIONS ? 'ci' : (env.NUB_CORPUS_VENUE ?? 'local'),
+      venue: resolveVenue(env),
       ciEnvSet: env.CI !== undefined,
       storeLayout: p.storeLayout ?? null,
       interpreterPath,
