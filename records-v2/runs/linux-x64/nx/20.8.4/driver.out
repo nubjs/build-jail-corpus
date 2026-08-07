@@ -1,0 +1,61 @@
+### nx@20.8.4   (/home/runner/v2-xQom70)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2607 trace=16585 lines
+  CLOSURE   124 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":849,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (849) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-xQom70/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-xQom70/observe/capture.json
+  RAWLOG-BYTES raw=3503856 gz=96747
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-xQom70/jailhome","TMPDIR":"/tmp/nub-tmp-obs72zuoM","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-xQom70/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 3  /  whole traced tree 1091
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-xQom70/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-xQom70/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-xQom70/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs72zuoM
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-xQom70/observe/node_modules/nx
+  == WRITES the script actually performed ==
+    jailTmp       3  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs72zuoM/nx-native-file-cache-50cf249
+        /tmp/nub-tmp-obs72zuoM/nx-native-file-cache-50cf249/20.8.4-0.4545309947896934nx.linux-x64-gnu.node
+        /tmp/nub-tmp-obs72zuoM/nx-native-file-cache-50cf249/20.8.4-nx.linux-x64-gnu.node
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6057 distinct from 16412 calls (16586 lines, 147 rejoined, 0 unparsed)
+    PROCS     24   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×27 setsockopt×23 exit×15 getsockopt×13 recvmsg×7 getcwd×5 socketpair×4 shutdown×3
+    wrote /home/runner/v2-xQom70/observe/events.ndjson.gz (40674 bytes)
+  EVENTLOG-FILE /home/runner/v2-xQom70/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16586,"parsed":16412,"unparsed":0,"unfinished":147,"rejoined":147,"unresolvedDirfd":3,"truncatedArg":0,"procs":24,"lifecyclePids":12,"distinctEvents":6057,"unknownSyscall":{"getsockname":27,"getsockopt":13,"getcwd":5,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":4,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-xQom70/observe/events.ndjson.gz","gzipBytes":40674}
+  EVICT     58 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for nx
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=849/849 missing=0 shortfall=none (tree 8283/2607) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
