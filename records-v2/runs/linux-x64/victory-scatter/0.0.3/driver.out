@@ -1,0 +1,80 @@
+### victory-scatter@0.0.3   (/home/runner/v2-J2Tl89)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=10754 trace=26279 lines
+  CLOSURE   363 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":22,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (22) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-J2Tl89/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-J2Tl89/observe/capture.json
+  RAWLOG-BYTES raw=5441952 gz=162296
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-J2Tl89/jailhome","TMPDIR":"/tmp/nub-tmp-obsPtTMIr","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-J2Tl89/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 48
+    writes  script 284  /  whole traced tree 1281
+    sockets script 0  /  whole traced tree 3
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-J2Tl89/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-J2Tl89/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-J2Tl89/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsPtTMIr
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-J2Tl89/jailhome/.npm/_logs/2026-08-07T19_31_14_277Z-debug-0.log
+        /home/runner/v2-J2Tl89/jailhome/.npm/_logs/2026-08-07T19_31_14_586Z-debug-0.log
+    ownPkg        6  (base profile already grants this — NOT billed)
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib/log.js
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib/index.js
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib/path-helpers.js
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib/components/victory-scatter.js
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib/components
+        /home/runner/v2-J2Tl89/observe/node_modules/victory-scatter/lib
+    jailTmp     276  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e901b9c5.Ob0xDX
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/e901b9c5
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/6c0a4a17.yMYIPC
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/6c0a4a17
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/f3939c37.Mgie3U
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/f3939c37
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd1e55a6.C47tj3
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd1e55a6
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/1d60fb6c.pqq57v
+        /tmp/nub-tmp-obsPtTMIr/node-compile-cache/v22.23.1-x64-9ac5647c-1001/1d60fb6c
+        … and 266 more
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.11.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    11199 distinct from 25622 calls (26280 lines, 595 rejoined, 0 unparsed)
+    PROCS     55   lifecycle shells 43
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×62 getsockopt×47 exit×42 setsockopt×23 recvmsg×17 wait4×11 getcwd×9 exit_group×8
+    wrote /home/runner/v2-J2Tl89/observe/events.ndjson.gz (69909 bytes)
+  EVENTLOG-FILE /home/runner/v2-J2Tl89/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":26280,"parsed":25622,"unparsed":0,"unfinished":595,"rejoined":595,"unresolvedDirfd":3,"truncatedArg":0,"procs":55,"lifecyclePids":43,"distinctEvents":11199,"unknownSyscall":{"getsockname":62,"getsockopt":47,"getcwd":9,"recvmsg":17,"exit":42,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":8,"wait4":11},"out":"/home/runner/v2-J2Tl89/observe/events.ndjson.gz","gzipBytes":69909}
+  EVICT     361 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for victory-scatter
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 32264/10754) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
