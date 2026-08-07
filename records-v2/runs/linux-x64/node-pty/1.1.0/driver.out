@@ -1,0 +1,103 @@
+### node-pty@1.1.0   (/home/nub/v2-kaNI4N)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=318 trace=36845 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":295,"filesTheScriptProduced":9,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-kaNI4N/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-kaNI4N/observe/capture.json
+  RAWLOG-BYTES raw=6075491 gz=211055
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-kaNI4N/jailhome","TMPDIR":"/tmp/nub-tmp-obssxvIkq","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-kaNI4N/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 85
+    writes  script 3376  /  whole traced tree 4554
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-kaNI4N/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-kaNI4N/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-kaNI4N/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obssxvIkq
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-kaNI4N/observe/node_modules/node-pty
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-kaNI4N/jailhome/.cache
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-kaNI4N/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    ownPkg       43  (base profile already grants this — NOT billed)
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/build
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/build/config.gypi
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/build/Makefile
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/node-addon-api
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/node-addon-api/node_addon_api_maybe.target.mk
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/node-addon-api/node_addon_api_except.target.mk
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/build/pty.target.mk
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/node-addon-api/node_addon_api.target.mk
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/build/binding.Makefile
+        /home/nub/v2-kaNI4N/observe/node_modules/node-pty/node-addon-api/node_addon_api.Makefile
+        … and 33 more
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obssxvIkq/cc7oMt6l.s
+        /tmp/nub-tmp-obssxvIkq/ccrYvlMx.res
+        /tmp/nub-tmp-obssxvIkq/ccg24amf.cdtor.c
+        /tmp/nub-tmp-obssxvIkq/ccirGEyv.cdtor.o
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    17948 distinct from 36001 calls (36846 lines, 727 rejoined, 0 unparsed)
+    PROCS     91   lifecycle shells 80
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×130 setsockopt×70 wait4×64 getsockname×54 exit_group×53 getsockopt×38 exit×33 socketpair×12
+    wrote /home/nub/v2-kaNI4N/observe/events.ndjson.gz (105630 bytes)
+  EVENTLOG-FILE /home/nub/v2-kaNI4N/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":36846,"parsed":36001,"unparsed":0,"unfinished":727,"rejoined":727,"unresolvedDirfd":3,"truncatedArg":0,"procs":91,"lifecyclePids":80,"distinctEvents":17948,"unknownSyscall":{"getsockname":54,"getsockopt":38,"getcwd":130,"recvmsg":8,"setsockopt":70,"sendmmsg":2,"socketpair":12,"shutdown":12,"exit":33,"exit_group":53,"wait4":64},"out":"/home/nub/v2-kaNI4N/observe/events.ndjson.gz","gzipBytes":105630}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-pty
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=286/293 missing=7 shortfall=ea0776ba56ce (tree 927/318) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+       missing: build/Release/pty.node, build/binding.Makefile, build/pty.target.mk, node-addon-api/node_addon_api.Makefile, node-addon-api/node_addon_api.target.mk, node-addon-api/node_addon_api_except.target.mk (+1)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-pty
+  VERIFY[fb2126003217] rc=0 artifacts=289/293 missing=4 shortfall=4c85700f01f2 (tree 940/318) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: node-addon-api/node_addon_api.Makefile, node-addon-api/node_addon_api.target.mk, node-addon-api/node_addon_api_except.target.mk, node-addon-api/node_addon_api_maybe.target.mk
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-pty
+  VERIFY[fb3938809772] rc=0 artifacts=289/293 missing=4 shortfall=4c85700f01f2 (tree 940/318) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: node-addon-api/node_addon_api.Makefile, node-addon-api/node_addon_api.target.mk, node-addon-api/node_addon_api_except.target.mk, node-addon-api/node_addon_api_maybe.target.mk
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node-pty
+  VERIFY[fb2742342390] rc=0 artifacts=289/293 missing=4 shortfall=4c85700f01f2 (tree 940/318) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
+       missing: node-addon-api/node_addon_api.Makefile, node-addon-api/node_addon_api.target.mk, node-addon-api/node_addon_api_except.target.mk, node-addon-api/node_addon_api_maybe.target.mk
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly

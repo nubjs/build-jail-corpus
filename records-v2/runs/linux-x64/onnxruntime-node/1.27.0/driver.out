@@ -1,0 +1,69 @@
+### onnxruntime-node@1.27.0   (/home/nub/v2-45ceON)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=521 trace=9296 lines
+  CLOSURE   17 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":46,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-45ceON/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-45ceON/observe/capture.json
+  RAWLOG-BYTES raw=1815344 gz=67505
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-45ceON/jailhome","TMPDIR":"/tmp/nub-tmp-obsDQcw0W","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-45ceON/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 9  /  whole traced tree 1187
+    sockets script 11  /  whole traced tree 17
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-45ceON/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-45ceON/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-45ceON/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsDQcw0W
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-45ceON/observe/node_modules/onnxruntime-node
+  == WRITES the script actually performed ==
+    jailTmp       6  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020/microsoft.ml.onnxruntime.gpu.linux.1.27.0.nupkg
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020/extracted
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020/extracted/libonnxruntime_providers_cuda.so
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020/extracted/libonnxruntime_providers_shared.so
+        /tmp/nub-tmp-obsDQcw0W/onnxruntime-node-pkgs_1786116629020/extracted/libonnxruntime_providers_tensorrt.so
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/nub/v2-45ceON/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_cuda.so
+        /home/nub/v2-45ceON/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_shared.so
+        /home/nub/v2-45ceON/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_tensorrt.so
+  == NETWORK ==
+    AF_INET sockets: 11   distinct peers: 3
+        127.0.0.53:53
+        104.16.9.34:443
+        150.171.110.195:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5037 distinct from 9236 calls (9297 lines, 35 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×26 exit×18 getsockopt×14 recvmsg×12 shutdown×6 getcwd×4 sendmmsg×4
+    wrote /home/nub/v2-45ceON/observe/events.ndjson.gz (35347 bytes)
+  EVENTLOG-FILE /home/nub/v2-45ceON/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9297,"parsed":9236,"unparsed":0,"unfinished":35,"rejoined":35,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5037,"unknownSyscall":{"getsockname":31,"getsockopt":14,"getcwd":4,"recvmsg":12,"setsockopt":26,"sendmmsg":4,"socketpair":3,"shutdown":6,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-45ceON/observe/events.ndjson.gz","gzipBytes":35347}
+  EVICT     14 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for onnxruntime-node
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=46/46 missing=0 shortfall=none (tree 1583/521) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     16 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for onnxruntime-node
+  VERIFY[drop-no-network] rc=1 artifacts=43/46 missing=3 shortfall=a109073c4cf5 (tree 1574/521) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/napi-v6/linux/x64/libonnxruntime_providers_cuda.so, bin/napi-v6/linux/x64/libonnxruntime_providers_shared.so, bin/napi-v6/linux/x64/libonnxruntime_providers_tensorrt.so
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
