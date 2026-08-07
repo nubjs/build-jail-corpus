@@ -24,6 +24,7 @@ import { spawnSync } from 'node:child_process';
 // beside it. Quoting the call in prose puts a file with no CLI guard at all on that list, and the test
 // then fails naming a defect that does not exist. Measured twice while writing this comment.
 import { shortfallDigest } from './shortfall-invariance.mjs';
+import { buildCatalog } from './dep-scaffold.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
@@ -1115,10 +1116,12 @@ const verify = (grant, label) => {
   // `packages.get(package)?`, so an ABSENT package yields `None` and runs at the base profile). So
   // express the empty grant by OMITTING the package under test, and carry a sentinel entry under an
   // unrelated name purely so the override still engages and the assertion below stays meaningful.
-  const catalog = Object.keys(grant).length
-    ? { packages: { [PKG]: { default: grant } } }
-    : { packages: { __v2_empty_grant_sentinel__: { default: { network: true } } } };
+  // ⛔ SHARED WITH THE OTHER TWO DRIVERS — see `dep-scaffold.mjs`. This driver carried the
+  // target-only construction while `measure.sh` had already been fixed, so the dependency-grant
+  // confound stayed live here.
+  const { catalog, scaffolded } = buildCatalog(PKG, grant, OBS);
   fs.writeFileSync(cat, JSON.stringify(catalog));
+  if (scaffolded) console.log(`  scaffold: ${scaffolded} dependency package(s) with lifecycle scripts granted a fixed wide grant`);
 
   // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
   // Both were tried and both FAILED to stop an arm replaying its predecessor's result. There are

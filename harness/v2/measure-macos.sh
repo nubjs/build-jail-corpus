@@ -726,14 +726,10 @@ verify () {
   if [ -n "${AT_CATALOG:-}" ]; then
     cp "$AT_CATALOG" "$v/cat.json" || return 1
   else
-  node -e '
-    const fs=require("fs");const [r,p,g]=process.argv.slice(1);
-    const grant=JSON.parse(g);
-    const cat = Object.keys(grant).length
-      ? {packages:{[p]:{default:grant}}}
-      : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
-    fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
-  ' "$v" "$PKG" "$grant" || return 1
+  # ⛔ SHARED WITH THE OTHER TWO DRIVERS — see `dep-scaffold.mjs`. This driver carried the
+  # target-only construction while `measure.sh` had already been fixed, so the dependency-grant
+  # confound stayed live here.
+  node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" || return 1
   fi
   # ⛔⛔ EVICT THIS PACKAGE **AND ITS CLOSURE** FROM THE MACHINE-GLOBAL STORE. Ported from
   # `measure.sh`, whose comments carry the measurements; the load-bearing ones, restated because

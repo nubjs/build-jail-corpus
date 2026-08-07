@@ -1011,41 +1011,7 @@ verify () {
   #
   # This over-grants the SCAFFOLDING only, and it cannot reach the catalog: `collate.mjs` publishes
   # the grant recorded for the package under test, and every dependency is measured in its own run.
-  node -e '
-    const fs=require("fs"),path=require("path");
-    const [r,p,g,obs]=process.argv.slice(1);
-    const grant=JSON.parse(g);
-    const packages={};
-    const SCAFFOLD={write:"disk",network:true};
-
-    // Every package in the OBSERVED tree that declares a lifecycle script, except the target.
-    const nm=path.join(obs,"node_modules");
-    const manifests=[];
-    if(fs.existsSync(nm)){
-      for(const e of fs.readdirSync(nm,{withFileTypes:true})){
-        if(!e.isDirectory()||e.name===".bin")continue;
-        if(e.name.startsWith("@")){
-          for(const s of fs.readdirSync(path.join(nm,e.name),{withFileTypes:true}))
-            if(s.isDirectory())manifests.push([e.name+"/"+s.name,path.join(nm,e.name,s.name,"package.json")]);
-        } else manifests.push([e.name,path.join(nm,e.name,"package.json")]);
-      }
-    }
-    for(const [name,mf] of manifests){
-      if(name===p)continue;
-      let sc; try{ sc=(JSON.parse(fs.readFileSync(mf,"utf8")).scripts)||{}; }catch(e){ continue; }
-      if(sc.install||sc.preinstall||sc.postinstall)packages[name]={default:SCAFFOLD};
-    }
-    const scaffolded=Object.keys(packages).length;
-
-    // The target carries the RUNG. An EMPTY grant is still expressed by OMITTING the target (the
-    // base profile already IS nothing); the sentinel is only needed when nothing else would make the
-    // override engage, so the downstream assertion stays meaningful.
-    if(Object.keys(grant).length)packages[p]={default:grant};
-    if(!Object.keys(packages).length)packages["__v2_empty_grant_sentinel__"]={default:{network:true}};
-
-    fs.writeFileSync(path.join(r,"cat.json"),JSON.stringify({packages}));
-    if(scaffolded)console.log("  scaffold: "+scaffolded+" dependency package(s) with lifecycle scripts granted a fixed wide grant");
-  ' "$v" "$PKG" "$grant" "$OBS" || return 1
+  node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" || return 1
   fi
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique
