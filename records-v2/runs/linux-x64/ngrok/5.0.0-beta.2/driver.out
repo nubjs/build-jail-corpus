@@ -1,0 +1,64 @@
+### ngrok@5.0.0-beta.2   (/home/runner/v2-DT8rbd)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=715 trace=12027 lines
+  CLOSURE   43 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":15,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-DT8rbd/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-DT8rbd/observe/capture.json
+  RAWLOG-BYTES raw=2615911 gz=77584
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-DT8rbd/jailhome","TMPDIR":"/tmp/nub-tmp-obsWxQbwy","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-DT8rbd/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 3  /  whole traced tree 1091
+    sockets script 3  /  whole traced tree 7
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-DT8rbd/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-DT8rbd/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-DT8rbd/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsWxQbwy
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-DT8rbd/observe/node_modules/ngrok
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-DT8rbd/jailhome/.ngrok
+        /home/runner/v2-DT8rbd/jailhome/.ngrok/aHR0cHM6Ly9iaW4uZXF1aW5veC5pby9jL2JOeWoxbVFWWTRjL25ncm9rLXYzLXN0YWJsZS1saW51eC1hbWQ2NC56aXA=.zip
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-DT8rbd/observe/node_modules/ngrok/bin/ngrok
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        75.2.60.68:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".ngrok"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+        .ngrok
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4965 distinct from 11887 calls (12028 lines, 113 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×30 setsockopt×28 exit×20 getsockopt×13 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-DT8rbd/observe/events.ndjson.gz (34550 bytes)
+  EVENTLOG-FILE /home/runner/v2-DT8rbd/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12028,"parsed":11887,"unparsed":0,"unfinished":113,"rejoined":113,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4965,"unknownSyscall":{"getsockname":30,"getsockopt":13,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":28,"sendmmsg":2,"socketpair":3,"shutdown":3,"getpeername":1,"exit_group":3,"wait4":3},"out":"/home/runner/v2-DT8rbd/observe/events.ndjson.gz","gzipBytes":34550}
+  EVICT     43 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ngrok
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=15/15 missing=0 shortfall=none (tree 2501/715) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".ngrok"]}
+  => VERIFIED {"network":true,"writePaths":[".ngrok"]}   (observed, then verified)
+  EVICT     44 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ngrok
+  VERIFY[drop-no-network] rc=1 artifacts=15/15 missing=1 shortfall=9b5184d63e04 (tree 2499/715) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".ngrok"]}
+       missing: bin/ngrok (23306088B < 32903330B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".ngrok"]} is independently necessary
