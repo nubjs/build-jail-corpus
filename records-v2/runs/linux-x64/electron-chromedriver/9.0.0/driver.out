@@ -1,0 +1,82 @@
+### electron-chromedriver@9.0.0   (/home/runner/v2-HKneAu)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1932 trace=13035 lines
+  CLOSURE   73 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":6,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-HKneAu/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-HKneAu/observe/capture.json
+  RAWLOG-BYTES raw=2798351 gz=82337
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-HKneAu/jailhome","TMPDIR":"/tmp/nub-tmp-obs1KuuyD","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-HKneAu/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 20  /  whole traced tree 1108
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-HKneAu/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-HKneAu/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-HKneAu/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs1KuuyD
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver
+  == WRITES the script actually performed ==
+    jailTmp       5  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs1KuuyD/electron-download-hYB5CT
+        /tmp/nub-tmp-obs1KuuyD/electron-download-hYB5CT/chromedriver-v9.0.0-linux-x64.zip
+        /tmp/nub-tmp-obs1KuuyD/electron-download-Hg5io4
+        /tmp/nub-tmp-obs1KuuyD/electron-download-32oBkZ
+        /tmp/nub-tmp-obs1KuuyD/electron-download-32oBkZ/SHASUMS256.txt
+    jailHome      5  (base profile already grants this — NOT billed)
+        /home/runner/v2-HKneAu/jailhome/.cache
+        /home/runner/v2-HKneAu/jailhome/.cache/electron
+        /home/runner/v2-HKneAu/jailhome/.cache/electron/d3f4ce7a2a0435adbe0f6a416e923edcd6fef2f47629ac989c1af9bd4b515d90
+        /home/runner/v2-HKneAu/jailhome/.cache/electron/d3f4ce7a2a0435adbe0f6a416e923edcd6fef2f47629ac989c1af9bd4b515d90/SHASUMS256.txt
+        /home/runner/v2-HKneAu/jailhome/.cache/electron/d3f4ce7a2a0435adbe0f6a416e923edcd6fef2f47629ac989c1af9bd4b515d90/chromedriver-v9.0.0-linux-x64.zip
+    ownPkg       10  (base profile already grants this — NOT billed)
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/LICENSE
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/libffmpeg.so
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/icudtl.dat
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/chromedriver
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/gen
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/gen/electron
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags
+        /home/runner/v2-HKneAu/observe/node_modules/electron-chromedriver/bin/gen/electron/buildflags/buildflags.h
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.11.34:443
+        140.82.113.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 5
+        .cache/electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5402 distinct from 12906 calls (13036 lines, 102 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×35 setsockopt×33 exit×20 getsockopt×18 recvmsg×11 getcwd×5 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-HKneAu/observe/events.ndjson.gz (37153 bytes)
+  EVENTLOG-FILE /home/runner/v2-HKneAu/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13036,"parsed":12906,"unparsed":0,"unfinished":102,"rejoined":102,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5402,"unknownSyscall":{"getsockname":35,"getsockopt":18,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-HKneAu/observe/events.ndjson.gz","gzipBytes":37153}
+  EVICT     60 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 6032/1932) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/electron"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/electron"]}   (observed, then verified)
+  EVICT     73 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-chromedriver
+  VERIFY[drop-no-network] rc=1 artifacts=6/12 missing=6 shortfall=14fb022fa14e (tree 6012/1932) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/electron"]}
+       missing: bin/LICENSE, bin/LICENSES.chromium.html, bin/chromedriver, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/libffmpeg.so
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/electron"]} is independently necessary
