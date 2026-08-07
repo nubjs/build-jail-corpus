@@ -17,9 +17,48 @@
 #
 #   usage: measure-macos.sh <pkg> <version> [nub-binary]
 set -uo pipefail
-PKG="${1:?usage: measure-macos.sh <pkg> <version> [nub]}"
-VER="${2:?usage: measure-macos.sh <pkg> <version> [nub]}"
-NUB="${3:-}"
+PKG="${1:?usage: measure-macos.sh <pkg> <version> [nub] [--at-grant <json>|--at-catalog <file>]}"
+VER="${2:?usage: measure-macos.sh <pkg> <version> [nub] [--at-grant <json>|--at-catalog <file>]}"
+# ⛔ `[nub-binary]` IS OPTIONAL AND A FLAG TAKES ITS SLOT, so a `$3` beginning with `-` is a FLAG,
+# not a path. Ported deliberately: `measure.sh` took `${3:-}` blindly once, which made the documented
+# form `<pkg> <ver> --at-grant '<json>'` exec `--at-grant install` — every arm rc=127
+# `--at-grant: command not found`, reported as `⛔ VOID`. Honest verdict, unusable flag.
+case "${3:-}" in
+  ''|-*) NUB="" ;;
+  *) NUB="$3" ;;
+esac
+# ⛔ DIRECT MODE. Two flags, two DIFFERENT questions, and neither is the measurement this driver
+# normally makes. `--at-grant` asks "does this package install under EXACTLY this grant?" and builds
+# its own one-package catalog, so it can only ever test a catalog of this driver's construction.
+# `--at-catalog` runs the identical arm against a catalog FILE — `collate.mjs`'s real output, with
+# version bands, baseline, env and absent-package entries that `--at-grant` cannot express. That
+# round trip has never been checked on darwin: everything this pipeline has produced so far is the
+# harness reading its own output back, and `--at-catalog` is the first thing that would catch a
+# grant the collator encodes in a shape nub's parser reads differently.
+#
+# Both still run the FULL OBSERVE phase first, because the artifact gate compares the arm against
+# OBSERVE's manifest — a direct arm with no reference cannot tell "installed correctly" from
+# "installed nothing".
+AT_GRANT=""
+AT_CATALOG=""
+for i in "$@"; do
+  case "${PREV_ARG:-}" in
+    --at-grant) AT_GRANT="$i" ;;
+    --at-catalog) AT_CATALOG="$i" ;;
+  esac
+  PREV_ARG="$i"
+done
+[ -n "$AT_GRANT" ] && case "$AT_GRANT" in
+  '{'*'}') : ;;
+  *) echo "⛔ --at-grant needs a JSON object, got: $AT_GRANT" >&2; exit 2 ;;
+esac
+[ -n "$AT_GRANT" ] && [ -n "$AT_CATALOG" ] && {
+  echo "⛔ --at-grant and --at-catalog ask two different questions; pass one" >&2; exit 2; }
+[ -n "$AT_CATALOG" ] && { [ -s "$AT_CATALOG" ] || {
+  echo "⛔ --at-catalog needs a non-empty catalog FILE, got: $AT_CATALOG" >&2; exit 2; }; }
+# Absolute, because every arm runs with its cwd inside the fixture.
+[ -n "$AT_CATALOG" ] &&
+  AT_CATALOG="$(cd "$(dirname "$AT_CATALOG")" && pwd)/$(basename "$AT_CATALOG")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUNUSER="${SUDO_USER:-$(id -un)}"
 NPM_BIN="$(command -v npm)"
@@ -92,7 +131,15 @@ ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
 # it with `INTERPRETER` and `GLOBAL_STORE` cost a whole macOS run to `line 86: ROOT: unbound variable`
 # under `set -u`, which clobbered two good published records with HARNESS-ERROR.
 JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
-JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
+# ⛔ `${TMPDIR%/}`, NOT `$TMPDIR`. macOS sets TMPDIR WITH a trailing slash
+# (`/var/folders/<..>/T/`), so the naive form yields a root containing `T//nub-tmp-obsXXXXXX` while
+# every path the kernel reports carries a single slash — and `p.startsWith(root)` is then false for
+# every file in the driver's own private temp. MEASURED on cpu-features@0.0.10: 3,345 writes into
+# $JAIL_TMP were bucketed `outside` instead of free `jailTmp`, so the record warned about thousands
+# of writes "OUTSIDE project/home" that were in a directory this driver created. It did not inflate
+# the grant — `outside` bills nothing — but it made the temp root dead on this platform.
+JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}"/nub-tmp-obsXXXXXX)" || exit 1
+JAIL_TMP="$(cd "$JAIL_TMP" && pwd -P)"
 chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
 # The driver runs under sudo (dtrace needs uid 0) but every measured process is dropped back to the
 # invoking user — so the tree they write into must be theirs, or npm fails on its own fixture and
@@ -395,6 +442,21 @@ node -e '
                   ELECTRON_CACHE: `${toolsDir}/electron-cache`,
                   electron_config_cache: `${toolsDir}/electron-cache`,
                   npm_config_prefix: `${toolsDir}/npm-prefix` },
+    // ⛔ THE PACKAGE DIRECTORY AS IT EXISTS AFTER OBSERVE, EMBEDDED SO THE ARCHIVE STAYS
+    // SELF-SUFFICIENT. The cwd guard resolves a relative write against the package dir and then
+    // CONFIRMS the resolution against this list — a write to `buildcheck.gypi` is placed only if
+    // `buildcheck.gypi` is actually there afterwards. Kept IN the capture rather than as a side file
+    // because a re-parse months later has the archive and nothing else; a manifest that lived only
+    // on the runner would make the guard permanently unresolvable on every retained trace.
+    pkgManifest: (() => {
+      const root = obs + "/node_modules/" + pkg, out = [];
+      const walk = (d, rel) => { let e; try { e = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+        for (const x of e) { if (x.name === "node_modules") continue;
+          const p = d + "/" + x.name, r = rel ? rel + "/" + x.name : x.name;
+          let t; try { t = fs.statSync(p); } catch { continue; }
+          if (t.isDirectory()) { out.push(r); walk(p, r); } else out.push(r); } };
+      walk(root, ""); return out;
+    })(),
     rawBytes: st(trace),
     at: new Date().toISOString(),
   }, null, 2));
@@ -572,6 +634,14 @@ verify () {
   # throwaway sentinel entry keeps the file non-empty so the override still engages and the
   # OVERRIDDEN>=1 / REJECTED==0 assertion below stays meaningful. Ported from measure.sh; the
   # Windows lane took husky@4.3.8 from write:"disk" to a verified {} on exactly this construction.
+  # ⛔ UNDER `--at-catalog` NONE OF THE CONSTRUCTION BELOW APPLIES — THE FILE IS THE HYPOTHESIS.
+  # Copied VERBATIM, sentinel or no sentinel, because the question that mode asks is whether the
+  # catalog AS COLLATED installs the package. Rewriting it here to be likelier to engage would
+  # answer about a catalog nobody ships, and a collated catalog that fails to engage leaves the arm
+  # VOID — which is the honest reading of "this file would not have worked".
+  if [ -n "${AT_CATALOG:-}" ]; then
+    cp "$AT_CATALOG" "$v/cat.json" || return 1
+  else
   node -e '
     const fs=require("fs");const [r,p,g]=process.argv.slice(1);
     const grant=JSON.parse(g);
@@ -580,6 +650,7 @@ verify () {
       : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
     fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
   ' "$v" "$PKG" "$grant" || return 1
+  fi
   # ⛔⛔ EVICT THIS PACKAGE **AND ITS CLOSURE** FROM THE MACHINE-GLOBAL STORE. Ported from
   # `measure.sh`, whose comments carry the measurements; the load-bearing ones, restated because
   # this lane was hard-disabled for lacking exactly this:

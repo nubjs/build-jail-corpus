@@ -68,8 +68,21 @@ if (undeclared.length) {
 //
 // Only these three are destructured, and every use below is null-guarded — a `null` root must never
 // reach `startsWith`, which would match the literal string "null" and silently misclassify.
+// ⛔ COLLAPSE REPEATED SLASHES IN EVERY ROOT BEFORE COMPARING. A root is only ever used as a
+// `startsWith` prefix, and the kernel reports canonical single-slash paths — so one stray `//` from
+// however the root was built makes that root silently match NOTHING. Normalising here rather than
+// only at the producer means an archive already captured with a malformed root still re-parses
+// correctly, which is the whole point of retaining the raw trace.
+const norm = (p) => (typeof p === 'string' ? p.replace(/\/{2,}/g, '/').replace(/(.)\/$/, '$1') : p);
+for (const k of Object.keys(roots)) roots[k] = norm(roots[k]);
 const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix } = roots;
 const pkgName = capture.pkg ?? null;
+// The package directory as it existed after OBSERVE, embedded in the capture. The cwd guard resolves
+// a relative write against the package dir and confirms it against this set. Absent on any archive
+// captured before it existed — and absence must NOT read as "nothing is confirmable", so the guard
+// distinguishes the two.
+const pkgManifest = new Set(capture.pkgManifest ?? []);
+const haveManifest = Array.isArray(capture.pkgManifest);
 const lines = fs.readFileSync(file, 'utf8').split('\n');
 
 // Darwin open(2) flags. Any of these means the fd may be written through; O_RDONLY is 0x0 and so
@@ -143,6 +156,7 @@ const cwdTrusted = new Set();      // pids whose cwd belief traces back to an OB
 const cwdName = new Map();         // pid -> basename of the cwd dtrace observed, when the adapter emits it
 const cwdUnresolved = [];          // { pid, raw, write, severity } for the report
 let cwdUnobservedWrite = false;    // any WRITE we could not place ⇒ widen the grant
+let cwdResolvedCount = 0;          // relative paths PLACED against the package dir and confirmed
 let cwdProvenStale = false;        // a basename mismatch: our belief is DISPROVEN, not merely unproven
 
 // ⛔ EVERY PATH-MUTATING CALL THE ADAPTER SUBSCRIBES TO MUST BE HERE, OR ITS PATH IS BILLED AS A
@@ -343,6 +357,23 @@ for (const raw of lines) {
   // form `abs()` just computed. Restricted to `mine(pid)` because only the lifecycle subtree is
   // spawned by npm with a cwd override, and only its paths reach the grant.
   if (!rawPath.startsWith('/') && mine(pid) && !cwdTrusted.has(pid)) {
+    // ⛔ RESOLVE FIRST, WIDEN ONLY AS A LAST RESORT. The earlier guard treated "I cannot PROVE the
+    // cwd" as "this write could be anywhere", which is far weaker than the truth: npm, pnpm and aube
+    // all set a lifecycle script's cwd to the PACKAGE'S OWN DIRECTORY. What macOS cannot observe is
+    // whether the script then CHANGED it. So the package dir is a strong hypothesis, and the capture
+    // carries the evidence to test it — if the trace shows a relative write to `buildcheck.gypi` and
+    // `buildcheck.gypi` is in the package directory afterwards, the resolution is CONFIRMED by the
+    // artifact rather than assumed, and the write bills through the normal scopes (usually free
+    // `ownPkg`). MEASURED on cpu-features@0.0.10: `pid=47721 WRITE unproven buildcheck.gypi` is
+    // exactly that case.
+    const rel = rawPath.replace(/^\.\//, '');
+    if (ownPkgDir && haveManifest && pkgManifest.has(rel)) {
+      cwdResolvedCount++;
+      const placed = `${ownPkgDir}/${rel}`;
+      if (w) allWrites.add(placed);
+      (w ? writes : reads).add(placed);
+      continue;
+    }
     // The detector, when the adapter supplies it. Severity ONLY — see the note: a match is "not
     // disproven", never "verified", and both severities bill the same.
     const believed = (cwds.get(pid) ?? proj ?? '').split('/').pop();
@@ -461,6 +492,17 @@ if (cwdUnresolved.length > 0) {
     console.log(`       pid=${c.pid} ${c.write ? 'WRITE' : 'read '} ${c.severity.padEnd(8)} ${c.raw}`);
   }
   if (cwdUnresolved.length > 10) console.log(`       … and ${cwdUnresolved.length - 10} more`);
+  // ⛔ THE RESIDUAL WRITES, BY NAME, MACHINE-READABLE. The grant above covers them with
+  // `deps`+`project`, which is a calibrated guess and not a measurement. If a macOS install ever
+  // breaks because one of these actually landed somewhere else, the fix is a single catalog line —
+  // but only if the record says WHICH paths were in doubt. Without this the next person has to
+  // re-measure to learn what the guard could not place, and the run that produced it is long gone.
+  const residual = [...new Set(cwdUnresolved.filter((c) => c.write).map((c) => c.raw))].sort();
+  if (residual.length) console.log(`  CWD-UNPLACEABLE-WRITES ${JSON.stringify(residual)}`);
+}
+if (cwdResolvedCount > 0) {
+  console.log(`  CWD-RESOLVED ${cwdResolvedCount} relative path(s) placed against the package dir`);
+  console.log('     and CONFIRMED by an artifact present after the run — not assumed.');
 }
 if (!live) console.log('  ⛔ NO DTRACE-LIVE MARKER — the tracer never started. Nothing below is a measurement.');
 // The two counters come from different places on purpose — per-event records vs the adapter's own
@@ -532,14 +574,20 @@ const g = {};
 if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
 if (w.project) g.write = { ...(g.write ?? {}), project: true };
 if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
-// ⛔ AN UNPLACEABLE WRITE WIDENS THE GRANT TO EVERY WRITE SCOPE. We know a write happened and we do
-// not know where, so the only sound grant is one covering everywhere it could have been. This is
-// deliberately NOT `write:"disk"` — `classify.mjs` rule 3 is that an unmappable path is reported,
-// never rounded up to disk — and it is not a drop either: dropping it would be an under-grant, the
-// direction that breaks installs. The union of the three real scopes is the widest thing the v2
-// vocabulary can express, and the NARROW arms then descend from it with real jailed runs, which is
-// what recovers the true minimum. The cost is one extra arm per scope on affected packages.
-if (cwdUnobservedWrite) g.write = { ...(g.write ?? {}), deps: true, project: true, userHome: true };
+// ⛔ AN UNPLACEABLE WRITE WIDENS TO `deps` + `project`, AND NEVER TO `userHome`. A write we could
+// not place still has to be covered, because dropping it would under-grant and break an install. But
+// `write:userHome` is not ordinary over-granting — it is write access to the whole user home,
+// `~/.zshrc`, `~/.ssh/authorized_keys`, any shell profile. That is the PERSISTENCE capability, and
+// the first property this jail exists to hold is that a confined install script cannot read
+// credentials or write persistence. Handing it out on a GUESS defeats the property outright.
+//
+// ⛔ AND THE GUESS WAS BADLY CALIBRATED, WHICH IS WHAT MAKES THIS SAFE. A relative write from a
+// lifecycle script overwhelmingly lands under the package directory — that is the cwd npm sets — so
+// the resolution above places the great majority of them against real artifacts. What remains is a
+// small residue, listed BY NAME in the report so that if a macOS install ever does break on one, the
+// fix is a single catalog line and the evidence is already in the record rather than needing a
+// re-measure. `userHome` now requires an ABSOLUTE observed write into the home.
+if (cwdUnobservedWrite) g.write = { ...(g.write ?? {}), deps: true, project: true };
 if (sockets > 0) g.network = true;
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 // ⛔ `{}` IS A REAL, VERIFIABLE ANSWER — a package whose script genuinely needs nothing. It has been

@@ -100,7 +100,15 @@ const NUB = opt('--nub', '');
 // of the driver. That is how the oracle itself is shown capable of going red — `falsify-selftest.sh`
 // generates that copy, runs this file against it, and asserts it goes red for BOTH of its two
 // mechanisms. See FALSIFICATION.md, "proving the oracle can fail". Not a knob for ordinary runs.
-const DRIVER = path.resolve(opt('--driver', path.join(HERE, 'measure.sh')));
+//
+// ⛔ THE DEFAULT IS PER-PLATFORM, and defaulting to `measure.sh` everywhere made this file silently
+// linux-only. The three drivers are not interchangeable — `run-batch-v2.mjs` already carries the
+// same dispatch and says why — and on Windows there is no `bash` at ALL: MEASURED on the corpus VM,
+// `where bash` finds nothing and Git-for-Windows is absent. So the one platform whose records are
+// gated on this control was the one platform where it could not run.
+const DEFAULT_DRIVER = process.platform === 'win32' ? 'measure-windows.mjs'
+  : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh';
+const DRIVER = path.resolve(opt('--driver', path.join(HERE, DEFAULT_DRIVER)));
 const ONLY = opt('--case', '');
 const JSON_OUT = opt('--json', '');
 // Drops the `wrong-warm` arm. Halves the cost and gives up the one check that no amount of eviction
@@ -115,9 +123,16 @@ const BUDGET_MS = Number(opt('--budget', '900')) * 1000;
 // `minimality: MINIMAL`, and MINIMAL is the descent having tested the removal of each capability
 // individually and found it necessary. So `insufficient` here is not a guess about what a package
 // needs — it is the corpus's own answer with one term deleted.
+//
+// ⛔ AND EVERY CASE DECLARES THE PLATFORM ITS EVIDENCE CAME FROM. A case is grounded in one
+// platform's measured arms — the refusal errno, the path shape and which detector fires all differ
+// across them — so running a linux-grounded case on another platform would be asserting a
+// correspondence nobody measured. The selector below filters on this and refuses to run at all
+// rather than falling back to another platform's table.
 const CASES = [
   {
     name: 'write.deps',
+    platform: 'linux',
     pkg: '@apollo/rover',
     version: '0.4.8',
     // records-v2/runs/linux-x64/@apollo+rover/0.4.8/results.json — MINIMUM, MINIMAL
@@ -141,6 +156,7 @@ const CASES = [
   },
   {
     name: 'network',
+    platform: 'linux',
     pkg: 'hugo-extended',
     version: '0.141.0',
     // records-v2/runs/linux-x64/hugo-extended/0.141.0/results.json — MINIMUM, MINIMAL
@@ -160,6 +176,55 @@ const CASES = [
     ranEvidence: /Hugo install(ed successfully|ation failed)/,
     mustDetect: ['rc', 'gate'],
   },
+  // ── win32 ────────────────────────────────────────────────────────────────────────────────────
+  //
+  // ⛔ THIS CASE REPLACES THE R1 "TEETH CONTROL" IN `win-evict-probe.yml`, WHICH WAS MEASURED
+  // NON-DISCRIMINATING ON THIS PLATFORM. R1 required a SHALLOW (root-only) store eviction to produce
+  // a false PASS, so that deep eviction could be shown to be what prevents one. MEASURED on both
+  // venues — win-evict-probe run 31132145179 on `windows-latest`, and the same rows re-run on the
+  // corpus VM — it did not: R1 and R2 came back identical at `rc=1 artifacts=6/6`, differing only in
+  // `EVICT 1` vs `EVICT 30`. The reason is mechanical rather than a gap in the experiment: both arms
+  // fail on a WRITE refused at the grant boundary (`EPERM … mkdir …\bin`), which fires whether or
+  // not the entry was evicted, so eviction depth is not the discriminating variable here and no
+  // amount of retrying could have made it one. What actually needs proving is not "deep eviction is
+  // load-bearing" but "the win32 verify arm can detect an under-grant", which is this file's job and
+  // is grounded in measured arms rather than a synthetic eviction manipulation.
+  //
+  // ⛔ VERSION 0.2.1, NOT THE 0.4.8 THE LINUX CASE USES, AND DELIBERATELY SO. The grant is not read
+  // off a committed win32 record because there are none yet — this case is part of what unblocks the
+  // first ones. It is grounded instead on REAL ARMS, which is the stronger of the two anyway: the
+  // sufficient and insufficient verdicts below were each produced twice, independently, on
+  // `windows-latest` (run 31132145179 rows R0/R3 and R1/R2) and again on the corpus VM.
+  //
+  // ⛔ `EPERM`, NOT `EACCES`. Same refusal, different spelling — Windows reports a denied create as
+  // EPERM. Verbatim from the two insufficient arms of run 31132145179, which failed at DIFFERENT
+  // points depending on how far the previous arm had got, which is why the regex names the errno and
+  // the subject rather than the operation:
+  //
+  //   EPERM: operation not permitted, mkdir  '…\binary-install@0.1.1-<hash>\node_modules\binary-install\bin'
+  //   EPERM: operation not permitted, unlink '…\binary-install@0.1.1-<hash>\node_modules\binary-install\bin\LICENSE'
+  //
+  // ⛔ CAUGHT BY `rc` ALONE, exactly as rover is on Linux and for the same structural reason: the
+  // postinstall delegates to `binary-install` and writes into THAT package's directory, while the
+  // artifact gate is scoped to the measured package's own. The insufficient arms read
+  // `artifacts=6/6 missing=0` — a full manifest — so the install exit code is the only thing between
+  // a narrowed grant and a `SUFFICIENT` verdict on this platform.
+  {
+    name: 'write.deps',
+    platform: 'win32',
+    pkg: '@apollo/rover',
+    version: '0.2.1',
+    sufficient: { write: { deps: true }, network: true },
+    insufficient: { network: true },
+    removed: 'write.deps',
+    refusal: [/EPERM/, /binary-install/],
+    // Identical to the Linux case: the download line when the write is permitted, the
+    // `binary-install` require-stack when it is not. Both shapes were observed on win32 —
+    // `Downloading release from https://github.com/apollographql/rover/…` on the sufficient arm,
+    // `binary-install\index.js:48:7` on the insufficient one.
+    ranEvidence: /Downloading release from|binary-install[/\\]index\.js/,
+    mustDetect: ['rc'],
+  },
 ];
 
 // ── driver invocation + output parsing ────────────────────────────────────────────────────────
@@ -170,9 +235,18 @@ const CASES = [
 // already relies on, all of it stable.
 const runArm = (kase, grant, label) => {
   const t0 = Date.now();
-  const r = spawnSync('bash', [DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)], {
-    encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS,
-  });
+  // ⛔ THE WIN32 DRIVER IS NODE, TAKES FLAGS RATHER THAN POSITIONALS, AND THERE IS NO `bash` TO RUN
+  // IT WITH. Same dispatch `run-batch-v2.mjs` carries, and the same reason it lives in one place:
+  // `measure.sh`/`measure-macos.sh` take `<pkg> <ver> [nub]`, `measure-windows.mjs` takes
+  // `--nub`. The `--root` default stays `C:\jail` — deliberately NOT under `C:\Users\<user>`, whose
+  // inheritable AppContainer package SIDs make every jailed arm there fail on token construction
+  // before a script runs, which a reader would mistake for a grant result.
+  const r = process.platform === 'win32'
+    ? spawnSync(process.execPath, [DRIVER, kase.pkg, kase.version, '--nub', NUB,
+      '--at-grant', JSON.stringify(grant)], { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS })
+    : spawnSync('bash', [DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)], {
+      encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS,
+    });
   const out = (r.stdout ?? '') + (r.stderr ?? '');
   const rc = r.status ?? (r.error ? -1 : 1);
   const grab = (re, i = 1) => { const m = out.match(re); return m ? m[i] : null; };
@@ -188,7 +262,15 @@ const runArm = (kase, grant, label) => {
   const fetchLog = root ? slurp(root, 'observe', 'fetch.log') : '';
 
   const verify = out.match(
-    /VERIFY\[at-grant\] rc=(\d+) (?:artifacts=(\d+|ABSENT)\/(\d+) missing=(\d+) shortfall=(\S+)|\S+)[^\n]*OVERRIDDEN=(\d+) REJECTED=(\d+)/,
+    // ⛔ `shortfall=` IS OPTIONAL BECAUSE ONLY THE POSIX DRIVERS EMIT IT. `measure-windows.mjs`
+    // prints `artifacts=6/6 missing=0 (tree 78/250)` with no shortfall term, so the required form
+    // fell through to the `|\S+` alternative and matched `artifacts=6/6` as one opaque token —
+    // leaving `artifacts`, `reference` and `missing` null on every win32 arm while `rc` still
+    // parsed. A win32 case declaring `mustDetect: ['gate']` would then have been unsatisfiable for
+    // a PARSING reason, and silently: the driver prints `missing`, this file just never read it.
+    // Optional rather than a second alternative so the capture-group numbering — and therefore
+    // OVERRIDDEN/REJECTED at 6 and 7 — is unchanged for the POSIX lanes.
+    /VERIFY\[at-grant\] rc=(\d+) (?:artifacts=(\d+|ABSENT)\/(\d+) missing=(\d+)(?:\s+shortfall=(\S+))?|\S+)[^\n]*OVERRIDDEN=(\d+) REJECTED=(\d+)/,
   );
 
   return {
@@ -393,14 +475,50 @@ const judgeRight = (kase, arm) => {
 };
 
 // ── run ───────────────────────────────────────────────────────────────────────────────────────
+
+// ⛔ A CAPABILITY PROBE, AND IT EXISTS BECAUSE THE ANSWER WAS BEING KEPT IN TWO PLACES.
+// `run-batch-v2.mjs` has to decide whether to run this control before it starts a slice. It decided
+// with its own hardcoded `process.platform !== 'linux'`, which went stale the moment win32 gained a
+// case here: the case was grounded on measured arms, verified in BOTH directions, wired in — and
+// then skipped by a batch runner still printing "no case table for win32 yet". A second copy of a
+// list is a copy that drifts, and this one drifted silently while reading as deliberate.
+//
+// Deliberately ABOVE the `--nub`/`--driver` checks: the question is "does a case EXIST for this
+// platform", not "can it run right now". A caller deciding whether to bother must not need a binary.
+if (argv.includes('--has-case')) {
+  const n = CASES.filter((c) => c.platform === process.platform).length;
+  console.log(`${n} falsification case(s) grounded on ${process.platform}`);
+  process.exit(n > 0 ? 0 : 1);
+}
+
 if (!NUB) { console.error('falsify.mjs: --nub <binary> is required'); process.exit(2); }
 if (!fs.existsSync(NUB)) { console.error(`falsify.mjs: no such nub binary: ${NUB}`); process.exit(2); }
 if (!fs.existsSync(DRIVER)) { console.error(`falsify.mjs: no such driver: ${DRIVER}`); process.exit(2); }
 
-const selected = CASES.filter((c) => !ONLY || c.name === ONLY);
-if (!selected.length) { console.error(`falsify.mjs: no case named '${ONLY}'`); process.exit(2); }
+// ⛔ REFUSES rather than silently running another platform's table. A case is grounded in the arms
+// of ONE platform, so an empty selection means this platform has no falsification evidence — which
+// is a hard stop, not a pass. Exit 2 (INCONCLUSIVE) because the question was never put.
+const forPlatform = CASES.filter((c) => c.platform === process.platform);
+if (!forPlatform.length) {
+  console.error(`falsify.mjs: no case is grounded on ${process.platform} — this platform has no`);
+  console.error('  falsification evidence, so the harness cannot be shown able to reject a bad grant here.');
+  process.exit(2);
+}
+const selected = forPlatform.filter((c) => !ONLY || c.name === ONLY);
+if (!selected.length) { console.error(`falsify.mjs: no ${process.platform} case named '${ONLY}'`); process.exit(2); }
 
-console.log(`falsify: ${selected.length} case(s), driver=${DRIVER}, nub=${NUB}${QUICK ? ', --quick (no warm arm)' : ''}`);
+console.log(`falsify: ${selected.length} case(s) on ${process.platform}, driver=${DRIVER}, nub=${NUB}${QUICK ? ', --quick (no warm arm)' : ''}`);
+// ⛔ ONE CASE PROVES AT LEAST ONE DETECTOR IS LIVE; IT DOES NOT ISOLATE WHICH. The measured reason
+// this matters is in the header: rover is caught by `rc` ALONE while hugo is caught by `rc` AND the
+// artifact gate, so a single rc-detected case leaves the gate entirely unattested — a later change
+// that made the driver tolerant of a non-zero rc would pass this control while detecting nothing.
+// Printed on every run rather than only when short, so a green one-case platform can never be read
+// as equivalent to a green two-case one.
+if (!ONLY && forPlatform.length < 2) {
+  console.log(`  ⚠ ${process.platform} has ONE case, covering detector(s): `
+    + `${[...new Set(forPlatform.flatMap((c) => c.mustDetect))].join(', ')}. A green run proves at least`);
+  console.log('    one detector is live; it does not isolate which, and it leaves the others unattested.');
+}
 
 const results = [];
 let failed = 0; let inconclusive = 0;
@@ -508,7 +626,18 @@ if (failed) {
 }
 
 if (JSON_OUT) {
-  fs.mkdirSync(path.dirname(path.resolve(JSON_OUT)), { recursive: true });
+  // ⛔ `mkdirSync(..., {recursive:true})` THROWS ON A WINDOWS DRIVE ROOT, and the crash lands AFTER
+  // the verdict has already been decided — so it converts a PASS into a non-zero exit. MEASURED:
+  // `--json C:\falsify.json` gives a dirname of `C:\`, and Node raises
+  // `EPERM: operation not permitted, mkdir 'C:\'` even though the directory plainly exists and
+  // `recursive` is supposed to make an existing directory a no-op. The run that found this printed
+  // `falsify: PASS — 1/1 case(s) detected their wrong grant` and then exited 1.
+  //
+  // That is the worst possible shape for THIS file in particular: it is the pre-sweep gate, so a
+  // spurious red trains a reader to discount its exit code, which is the one signal it exists to
+  // provide. Existence check first; the recursive create is only for a genuinely absent directory.
+  const outDir = path.dirname(path.resolve(JSON_OUT));
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(JSON_OUT, `${JSON.stringify({
     at: new Date().toISOString(),
     platform: `${process.platform}-${process.arch}`,

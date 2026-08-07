@@ -28,7 +28,8 @@ const HERE = import.meta.dirname;
 // recorded without one has to keep taking.
 // Roots reach the classifier ONLY through a capture.json (portability R2), so every case writes one.
 // `rootsOverride` is how the undeclared-root cases express a capture that fails to say.
-const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null, rootsOverride = null } = {}) => {
+const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null, rootsOverride = null,
+                         pkgManifest = null } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'obsmac-'));
   const f = join(dir, 'trace.txt');
   writeFileSync(f, trace.trimStart() + '\n');
@@ -38,7 +39,8 @@ const decode = (trace, { proj = '/proj', home = '/Users/runner', pkg = null, roo
     ownPkg: pkg ? `${proj}/node_modules/${pkg}` : null,
   };
   const cap = join(dir, 'capture.json');
-  writeFileSync(cap, JSON.stringify({ v: 1, kind: 'capture', pkg, roots }));
+  writeFileSync(cap, JSON.stringify({ v: 1, kind: 'capture', pkg, roots,
+    ...(pkgManifest ? { pkgManifest } : {}) }));
   return execFileSync(process.execPath,
     [join(HERE, 'observe-macos.mjs'), f, '--capture', cap], { encoding: 'utf8' });
 };
@@ -339,7 +341,9 @@ test('an unplaceable write WIDENS the grant rather than dropping it', () => {
   // Dropping an observed write is an under-grant, the one forbidden direction. We know a write
   // happened and not where, so the grant must cover everywhere it could have landed.
   const out = decode(REL_WRITE, { pkg: 'ttf2woff2' });
-  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true}}');
+  assert.doesNotMatch(grant(out), /userHome/,
+    'an unplaceable write must NEVER buy userHome — that is the persistence capability');
 });
 
 test('a pid that DID chdir is resolved normally — the guard is not a blanket drop', () => {
@@ -376,8 +380,9 @@ OPEN|3952|3950|bash|flags=0x601|ret=3|errno=0|dirfd=-2|cwd=Observe|builderror.lo
 `, { proj: '/proj/Observe', pkg: 'ttf2woff2' });
   assert.doesNotMatch(out, /Severity: STALE/, 'a match is not a mismatch');
   assert.match(out, /CWD-UNOBSERVED/, 'but the write is still unplaceable');
-  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}',
-    'and it still bills the widest scope — a match must never buy a narrower grant');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true}}',
+    'and it still bills the same — a match must never buy a narrower grant');
+  assert.doesNotMatch(grant(out), /userHome/, 'and never the persistence capability');
 });
 
 // ── 8. ROOTS COME ONLY FROM THE CAPTURE (portability R2) ──────────────────────────────────────
@@ -434,7 +439,9 @@ test('a RELATIVE chdir does not make a fabricated cwd count as observed', () => 
   // yields an unflagged {"write":{"project":true}} billed against the invented /proj/build/out.txt.
   const out = decode(REL_CHDIR, { pkg: 'kaf' });
   assert.match(out, /CWD-UNOBSERVED/, 'the shell chdir\'d relative to a base we never trusted');
-  assert.equal(grant(out), '{"write":{"deps":true,"project":true,"userHome":true}}');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true}}');
+  assert.doesNotMatch(grant(out), /userHome/,
+    'an unplaceable write must NEVER buy userHome — that is the persistence capability');
 });
 
 test('an ABSOLUTE chdir DOES establish trust — the fix is not a blanket distrust of chdir', () => {
@@ -462,4 +469,46 @@ OPEN|3950|3900|bash|flags=0x601|ret=3|errno=0|dirfd=-2|out.txt
 `, { pkg: 'kaf' });
   assert.doesNotMatch(out, /CWD-UNOBSERVED/, 'the base was established absolutely first');
   assert.match(out, /ownPkg\s+1/, 'so /proj/node_modules/kaf/build/out.txt resolves correctly');
+});
+
+// ── 10. RESOLVE A RELATIVE WRITE AGAINST THE PACKAGE DIR, CONFIRMED BY THE ARTIFACT ───────────
+//
+// npm sets a lifecycle script's cwd to the package's own directory; what macOS cannot observe is
+// whether the script then CHANGED it. So the package dir is a strong hypothesis, and the capture
+// carries the post-run manifest to TEST it rather than assume it. The pair below is the whole
+// contract: confirmed by an artifact ⇒ placed; not confirmed ⇒ still unplaceable.
+const REL_TO_PKGDIR = `
+DTRACE-LIVE|target=3888
+CHDIR|3900|3888|bash|ret=0|/proj
+EXECARGV|3950|3900|sh|-c|node buildcheck.js > buildcheck.gypi && node-gyp rebuild
+EXEC|3950|3900|sh|sh
+OPEN|3952|3950|bash|flags=0x601|ret=3|errno=0|dirfd=-2|buildcheck.gypi
+`;
+
+test('a relative write is PLACED when the package directory really contains it afterwards', () => {
+  // RED ON REVERT: delete the manifest lookup and this widens instead of resolving. MEASURED on
+  // cpu-features@0.0.10, whose trace carries exactly `pid=47721 WRITE unproven buildcheck.gypi`.
+  const out = decode(REL_TO_PKGDIR, { pkg: 'cpu-features', pkgManifest: ['buildcheck.gypi'] });
+  assert.doesNotMatch(out, /CWD-UNOBSERVED/, 'a confirmed resolution is not an unplaceable write');
+  assert.match(out, /ownPkg\s+1/, 'it lands in the package dir, which the base profile grants free');
+  assert.equal(grant(out), '{}', 'so it costs nothing');
+});
+
+test('a relative write is NOT placed when no artifact confirms it', () => {
+  // The negative control, and the one that stops the resolution being a blanket "assume package
+  // dir". Same trace, same package — only the manifest differs.
+  const out = decode(REL_TO_PKGDIR, { pkg: 'cpu-features', pkgManifest: ['something-else.txt'] });
+  assert.match(out, /CWD-UNOBSERVED/, 'unconfirmed stays unplaceable');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true}}');
+  assert.doesNotMatch(grant(out), /userHome/, 'and still never the persistence capability');
+});
+
+test('an archive with NO manifest cannot resolve, and does not pretend to', () => {
+  // ⛔ ABSENT IS NOT EMPTY. An archive captured before the manifest existed must fall back to
+  // unplaceable — treating a missing manifest as "confirms nothing" is correct, but treating it as
+  // "confirms everything" would silently place every relative write against a directory nobody
+  // checked. Same absent-vs-null discipline as the roots.
+  const out = decode(REL_TO_PKGDIR, { pkg: 'cpu-features' });
+  assert.match(out, /CWD-UNOBSERVED/, 'no manifest means no confirmation');
+  assert.equal(grant(out), '{"write":{"deps":true,"project":true}}');
 });
