@@ -990,9 +990,43 @@ verify () {
   # `tracing::debug!` (`install/side_effects_cache.rs:153`) and is the ONLY line that distinguishes a
   # built arm from a replayed one — see the long note below the arm for why every default-level
   # candidate was measured and rejected. Without this the replay assertion below is unfalsifiable.
+  # ⛔ TWO COMMANDS, TWO WAYS THE OBVIOUS SPELLING GETS IT WRONG. This block used to be a bare
+  # `( install; approve-builds )` and both defects below were live in every arm of every record.
+  #
+  # ⛔ (1) THE INSTALL'S EXIT CODE WAS SILENTLY DROPPED. A subshell exits with its LAST command's
+  # status, so `( install; approve-builds )` reports approve-builds' rc and a failed install
+  # vanishes. PROVEN in this shell, not argued: `( false; true )` exits 0. It is not hypothetical
+  # either — `ctrlc-windows@0.1.9` measured `install=1 approve=0`, which this block would have
+  # recorded as rc=0. Mostly the artifact gate caught it downstream (`rc==0 && grc==0`), but NOT in
+  # the `grc==3` branch below, which gates on rc ALONE — so in exactly the no-artifact-reference
+  # case a totally failed install could pass as a sufficient arm at a narrow grant. That is an
+  # UNDER-GRANT direction, which is the one that matters.
+  #
+  # ⛔ (2) THE LIFECYCLE SCRIPT RAN TWICE FOR A DEFAULT-TRUSTED PACKAGE. Both commands are here
+  # because there are two paths: a default-trusted package runs its scripts inside `install`
+  # (`install/lifecycle.rs:729`, "defaultTrust: running build scripts for"), and an unreviewed one
+  # is deferred (`unreviewed_builds.rs:47`, "ignored build scripts for") and runs under
+  # `approve-builds`. Running both unconditionally means the trusted case builds twice, which
+  # breaks any script that is not idempotent. MEASURED on `gentype@3.9.1`: its postinstall fetches
+  # `vendor-linux/gentype.exe`, run 1 consumes it, run 2 dies `executable not found`, and every
+  # rung of the ladder then failed for a reason that had nothing to do with the grant —
+  # `NO-STATE-PASSED` on a package that installs clean in 455ms.
+  #
+  # The skip is keyed on POSITIVE evidence that install already ran them, never on the absence of
+  # something. Any path that prints neither marker keeps the old behaviour of running
+  # approve-builds, so an unrecognised trust path can only ever cost a redundant no-op — never a
+  # script that silently never ran.
   ( cd "$v"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
-    RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
+    irc=$?
+    if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then
+      echo "# approve-builds SKIPPED: nub install already ran this package's build scripts" > "$v/a.log"
+      arc=0
+    else
+      RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1
+      arc=$?
+    fi
+    [ "$irc" -eq 0 ] && [ "$arc" -eq 0 ] )
   local rc=$?
   # ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
   # a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
