@@ -19,7 +19,10 @@ import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const DRIVER = join(new URL('.', import.meta.url).pathname, 'measure-macos.sh');
+// ⛔ `import.meta.dirname`, NOT `new URL('.', import.meta.url).pathname`: on Windows the latter
+// yields `/C:/…`, a path that exists nowhere, so the driver never spawned and all four cases below
+// reported `status: null` instead of the exit code they assert on. `search.mjs` documents this trap.
+const DRIVER = join(import.meta.dirname, 'measure-macos.sh');
 
 // ⛔ STUBBED, BECAUSE A "VALIDATION" TEST THAT REACHES OBSERVE IS NOT A VALIDATION TEST. The first
 // version ran the real driver: the refusal cases exited at a gate, but every POSITIVE control fell

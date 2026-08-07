@@ -23,10 +23,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
+// `join` is imported further down with the regeneration block's deps; ESM imports hoist, so it is
+// in scope here.
 
-const HERE = new URL('.', import.meta.url).pathname;
+// Use `import.meta.dirname`, not `new URL('.', import.meta.url).pathname`. On Windows the URL form
+// yields `/C:/...` — a leading slash before the drive letter — so every `existsSync` below returned
+// false, `present` came out empty, and this whole contract file tested nothing. The two-platform
+// guard below is what caught that, which is exactly the job it was written for.
+const HERE = import.meta.dirname;
 const load = (name) => {
-  const p = `${HERE}${name}`;
+  const p = join(HERE, name);
   if (!existsSync(p)) return null;
   return gunzipSync(readFileSync(p)).toString('utf8').trim().split('\n').map((l) => JSON.parse(l));
 };
@@ -120,7 +126,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gunzipSync as gunzip } from 'node:zlib';
 
-const RAW = `${HERE}macos-apollo-rover-0.2.1.trace.txt.gz`;
+const RAW = join(HERE, 'macos-apollo-rover-0.2.1.trace.txt.gz');
 if (existsSync(RAW)) {
   test('the derived macOS log regenerates from the archived raw trace, losing nothing', () => {
     const dir = mkdtempSync(join(tmpdir(), 'regen-'));
@@ -128,7 +134,7 @@ if (existsSync(RAW)) {
     writeFileSync(trace, gunzip(readFileSync(RAW)));
     const out = join(dir, 'events.ndjson');
     execFileSync(process.execPath, [
-      `${HERE}../adapters/macos-eventlog.mjs`, trace, '--out', out,
+      join(HERE, '..', 'adapters', 'macos-eventlog.mjs'), trace, '--out', out,
       '--pkg', '@apollo/rover', '--version', '0.2.1',
       // The roots come from the ARCHIVED log's own header, which is the point of recording them.
       '--project', LOGS.macos.find((r) => r.k === 'h').roots.project,

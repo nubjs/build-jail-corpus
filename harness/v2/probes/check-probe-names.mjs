@@ -16,8 +16,10 @@
 //
 //   usage: node check-probe-names.mjs [path/to/macos-observe.d]
 import fs from 'node:fs';
+import path from 'node:path';
 
-const file = process.argv[2] ?? new URL('../adapters/macos-observe.d', import.meta.url).pathname;
+// `import.meta.dirname`, not `new URL(...).pathname` — the URL form yields `/C:/...` on Windows.
+const file = process.argv[2] ?? path.join(import.meta.dirname, '..', 'adapters', 'macos-observe.d');
 const src = fs.readFileSync(file, 'utf8');
 
 // Measured present on macOS 15.7.7 / arm64. The base set (open/openat/chdir/connect/execve and

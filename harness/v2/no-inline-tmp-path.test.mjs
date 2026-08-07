@@ -79,11 +79,22 @@ test('CONTROL: the workflow scan is actually reading files that contain `node` i
 // off within a day. A path BASE is what gets written as the bare literal.
 const HARNESS = path.join(import.meta.dirname, '..');
 const SELF = 'no-inline-tmp-path.test.mjs';
-const jsFiles = [
-  ...fs.readdirSync(HARNESS).filter((f) => f.endsWith('.mjs')).map((f) => ['harness/' + f, path.join(HARNESS, f)]),
-  ...fs.readdirSync(import.meta.dirname).filter((f) => f.endsWith('.mjs') && f !== SELF)
-    .map((f) => ['harness/v2/' + f, path.join(import.meta.dirname, f)]),
-];
+
+// ⛔ RECURSE. The first version listed only `harness/` and `harness/v2/`, so it never saw
+// `harness/v2/fixtures/` or `harness/v2/probes/` — two of the three real offenders. It reported a
+// clean scan over a set that excluded them, which is the vacuous-green failure this file exists to
+// prevent, committed by this file. `walk` is why the CONTROL below asserts a minimum file count.
+const walk = (dir, prefix) => {
+  const out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) out.push(...walk(full, `${prefix}${e.name}/`));
+    else if (e.name.endsWith('.mjs') && e.name !== SELF) out.push([prefix + e.name, full]);
+  }
+  return out;
+};
+const jsFiles = walk(HARNESS, 'harness/');
 const TMP_LITERAL = /(['"])\/tmp\1/;
 
 // ⛔ SCAN CODE, NOT PROSE — and this cost a false positive on the first run. The banned literal
@@ -119,6 +130,42 @@ test('⭑ no harness JS uses a bare `/tmp` literal as a path base — use os.tmp
     'these hardcode a POSIX temp path that does not exist on Windows. It survives CI because the '
     + 'GitHub runner sets RUNNER_TEMP, and fails on every other Windows box. Use `os.tmpdir()`, which '
     + `honours TMPDIR/TEMP/TMP:\n  ${offenders.join('\n  ')}`);
+});
+
+// ── the third Windows path hazard, and it lives here because it is the same family ──────────────
+// `new URL('.', import.meta.url).pathname` returns `/C:/repo/harness/v2/` on Windows — a leading
+// slash before the drive letter — which exists nowhere. `search.mjs:32` already documents this in
+// prose, yet three sites still used the raw form and every one of them failed silently rather than
+// loudly: the macOS driver never spawned (`status: null`, read as a wrong exit code) and the schema
+// contract file found zero fixtures and tested nothing at all.
+//
+// Two sites under `probes/win-viability/` hand-patch it with `.replace(/^\/([A-Za-z]:)/, '$1')`.
+// Those WORK, so they are allowed — the ban is on the unpatched form only.
+const URL_PATHNAME = /new URL\([^)]*import\.meta\.url\)\.pathname/;
+
+test('CONTROL: the URL-pathname scan flags the raw form and allows the hand-patched one', () => {
+  assert.ok(URL_PATHNAME.test(`join(new URL('.', import.meta.url).pathname, 'x.sh')`),
+    'the pattern missed the raw form it exists to catch');
+  const patched = `path.dirname(new URL(import.meta.url).pathname.replace(/^\\/([A-Za-z]:)/, '$1'))`;
+  assert.ok(URL_PATHNAME.test(patched),
+    'the pattern should still MATCH the patched form — the allowance is made by the scan, not the regex');
+  assert.equal(URL_PATHNAME.test('const d = import.meta.dirname;'), false,
+    'the correct idiom must not be flagged');
+});
+
+test('⭑ no harness JS derives a path from import.meta.url via .pathname — use import.meta.dirname', () => {
+  const offenders = [];
+  for (const [label, file] of jsFiles) {
+    fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+      if (isComment(line) || !URL_PATHNAME.test(line)) return;
+      if (/\.replace\(\s*\/\^\\\/\(\[A-Za-z\]:\)\//.test(line)) return; // hand-patched, and it works
+      offenders.push(`${label}:${i + 1}: ${line.trim()}`);
+    });
+  }
+  assert.deepEqual(offenders, [],
+    'these yield `/C:/...` on Windows, so the path exists nowhere and the failure is SILENT — a '
+    + 'spawn that never happens, or a fixture set that reads as empty. Use `import.meta.dirname` '
+    + `(or fileURLToPath), already the idiom in 40+ files here:\n  ${offenders.join('\n  ')}`);
 });
 
 test('CONTROL: the source scan is reading a real, non-empty set of harness files', () => {
