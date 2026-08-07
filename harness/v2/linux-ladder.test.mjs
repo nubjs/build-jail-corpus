@@ -97,6 +97,9 @@ const run = (oracle, {
   // file assumes: their subject is the LADDER, and the jail-off control must not silently change
   // what they assert. Set 1 to drive the other branch.
   unjailedNubRc = 0,
+  // ⛔ WHOSE FAULT the failure is. `unjailedNubRc: 1` alone says only "nub cannot install it";
+  // whether that is a NUB defect or a broken package turns on npm, so both branches need driving.
+  npmRc = 0,
 } = {}) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'linux-ladder-'));
   const script = path.join(root, 'region.sh');
@@ -121,6 +124,9 @@ const run = (oracle, {
     // The jail-off control the terminal verdict now consults. Stubbed here for the same reason
     // `verify` is: the real one runs two `nub` installs, which no unit test can afford.
     `unjailed_nub_ok () { return ${unjailedNubRc}; }`,
+    // Shadows the real `npm_ok` defined inside the branch; a function defined later wins in bash,
+    // so this is set via an env the branch's definition cannot see. Stub `npm` itself instead.
+    `npm () { return ${npmRc}; }`,
     'verify () {',
     '  local grant="$1" label="$2"',
     oracle,
@@ -333,13 +339,24 @@ test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it u
   // every verify arm runs. So a package npm installs fine but nub cannot install even unjailed used
   // to climb the whole ladder and be filed NO-STATE-PASSED, reading as "the jail blocks this" about
   // a defect the jail had no part in. Measured on `@progress/kendo-licensing@0.1.2`.
-  const out = run('  return 1', { unjailedNubRc: 1 });
+  const out = run('  return 1', { unjailedNubRc: 1, npmRc: 0 });
   assert.match(out, /=> BROKEN-UNJAILED-NUB/);
   assert.doesNotMatch(out, /=> NO-STATE-PASSED/,
     'a nub install defect must not also claim the jail-capability verdict');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
   assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+});
+
+test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot install it either', () => {
+  // ⛔ THE OVER-CLAIM THIS PREVENTS, caught on the stage's FIRST live record.
+  // `@aws-amplify/cli@2.0.0` came back BROKEN-UNJAILED-NUB — true about nub, and misleading,
+  // because plain `npm install` fails too (gyp rejects Python 3.12). Naming nub as the culprit for
+  // a package NOTHING installs sends the next reader chasing a bug that is not there.
+  const out = run('  return 1', { unjailedNubRc: 1, npmRc: 1 });
+  assert.match(out, /=> BROKEN-WITHOUT-JAIL-TOO \(neither nub nor npm/);
+  assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/,
+    'a package npm cannot install either must not be filed as a nub defect');
 });
 
 test('the synth-verified path is untouched: it descends from GRANT and still says "synthesized"', () => {

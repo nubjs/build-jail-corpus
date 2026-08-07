@@ -1600,12 +1600,30 @@ echo "  NOT-GRANT-INDEPENDENT ${INV#NOT-ESTABLISHED }"
 unjailed_nub_ok "$PKG" "$VER"
 NSP_RC=$?
 if [ "$NSP_RC" -ne 0 ]; then
-  # ⛔ ONE `=>` LINE ONLY — `record.mjs` walks the log and the LAST match wins, so printing both
-  # verdicts here would silently overwrite this one with `NO-STATE-PASSED` and the stage would have
-  # no effect on any record.
-  echo "  => BROKEN-UNJAILED-NUB — nub cannot install this package even with the jail OFF, so the"
-  echo "     ladder's failures say nothing about capabilities. NOT a jail finding and NOT an"
-  echo "     under-grant: do not widen the catalog. This is a nub install defect to chase separately."
+  # ⛔⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT.
+  # Caught on this stage's FIRST live record: `@aws-amplify/cli@2.0.0` came back
+  # `BROKEN-UNJAILED-NUB`, but a hand triage of that family had already shown plain `npm install`
+  # fails too (rc=2 — gyp rejects Python 3.12). The verdict was true about nub and still misleading,
+  # because it asserts a nub defect for a package NOTHING installs, and a name like that sends the
+  # next reader chasing a bug that is not there.
+  #
+  # ⛔ AND THE TOP-OF-FILE CONTROL CANNOT COVER THIS, which is why the question belongs here. That
+  # one keys on OBSERVE, and OBSERVE runs `npm rebuild` against an already-materialized tree — which
+  # SUCCEEDS for amplify while a fresh `npm install` fails. Different npm verb, different answer.
+  npm_ok () {
+    local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
+    ( cd "$d" && npm install --no-audit --no-fund "$1@$2" > n.log 2>&1 )
+    local rc=$?; rm -rf "$d"; return $rc
+  }
+  # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
+  # second verdict after either branch would silently overwrite it and the stage would be inert.
+  if npm_ok "$PKG" "$VER"; then
+    echo "  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail"
+    echo "     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT"
+    echo "     an under-grant: do not widen the catalog. This is a nub install defect to chase."
+  else
+    echo "  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)"
+  fi
   exit 0
 fi
 echo "  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference"
