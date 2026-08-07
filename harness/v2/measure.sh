@@ -1182,6 +1182,15 @@ verify () {
 "
       ;;
   esac
+  # ⛔ A SCRIPT THAT NEVER LAUNCHED MEASURED NOTHING — the same outcome as a non-engaging override,
+  # for the same reason. Its tree is byte-identical to one whose script spawned and died on its
+  # first statement, so without this the two are indistinguishable downstream and can agree on a
+  # shortfall digest for entirely unrelated reasons (measured on `postman-code-generators@0.2.4`,
+  # where fb0 ran-and-died and fb1 never spawned, both reporting `f648aa40f798`).
+  # Shared with the other two drivers via `never-spawned.mjs`; exit 0 there means "never spawned".
+  if node "$HERE/never-spawned.mjs" "$v" 2>/dev/null; then
+    echo "     ⛔ the lifecycle script never LAUNCHED — arm is VOID (nothing was measured)"; return 2
+  fi
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
   # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
   # Fall back to the exit code rather than passing an ungated arm off as measured.

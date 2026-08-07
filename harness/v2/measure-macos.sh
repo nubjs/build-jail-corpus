@@ -874,6 +874,14 @@ JW
 "
       ;;
   esac
+  # ⛔ A SCRIPT THAT NEVER LAUNCHED MEASURED NOTHING — the same outcome as a non-engaging override,
+  # for the same reason. Its tree is byte-identical to one whose script spawned and died on its
+  # first statement, so without this the two are indistinguishable downstream and can agree on a
+  # shortfall digest for entirely unrelated reasons. Ported from measure.sh; shared predicate in
+  # `never-spawned.mjs`, where exit 0 means "never spawned".
+  if node "$HERE/never-spawned.mjs" "$v" 2>/dev/null; then
+    echo "     ⛔ the lifecycle script never LAUNCHED — arm is VOID (nothing was measured)"; return 2
+  fi
   [ "$ovr" -ge 1 ] && [ "$rej" -eq 0 ] || { echo "     ⛔ override did not engage — arm is VOID"; return 2; }
   # rc 3 = OBSERVE produced no files for this package at all, so the manifest can gate on nothing.
   # Fall back to the exit code rather than passing an ungated arm off as measured.

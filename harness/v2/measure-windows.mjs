@@ -34,6 +34,7 @@ import { spawnSync } from 'node:child_process';
 import { shortfallDigest } from './shortfall-invariance.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
+import { neverSpawned } from './never-spawned.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
@@ -1294,6 +1295,16 @@ const verify = (grant, label) => {
   // sense that nothing happened four times. `classify`'s safety clause refuses it by this field.
   if (label !== 'at-grant') {
     ARM_LEDGER.push(`${rc}:${shortfall}:${got ? 'ok' : 'abs'}:${missing.length}`);
+  }
+  // ⛔ A SCRIPT THAT NEVER LAUNCHED MEASURED NOTHING — the same outcome as a non-engaging override.
+  // Its tree is byte-identical to one whose script spawned and died on its first statement, so
+  // without this the two are indistinguishable downstream. MEASURED on `postman-code-generators`:
+  // fb0 (ran, died on its first `shell.exec`) and fb1 (never spawned -- the `read:"disk"` rung
+  // fails the launch with ERROR_INVALID_PARAMETER) both reported shortfall `f648aa40f798`, and the
+  // grant-independence test read that agreement as signal. Shared predicate in `never-spawned.mjs`.
+  if (neverSpawned(logs)) {
+    console.log('     !! the lifecycle script never LAUNCHED -- arm is VOID (nothing was measured)');
+    sweepArmCache(); return { ok: false, void: true, files, rc };
   }
   if (!(ovr >= 1 && rej === 0)) { console.log('     !! override did not engage -- arm is VOID'); sweepArmCache(); return { ok: false, void: true, files, rc }; }
   sweepArmCache();
