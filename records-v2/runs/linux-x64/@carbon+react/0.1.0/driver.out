@@ -1,0 +1,61 @@
+### @carbon/react@0.1.0   (/home/runner/v2-2sKNHl)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=30331 trace=18681 lines
+  CLOSURE   182 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":66,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (66) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-2sKNHl/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-2sKNHl/observe/capture.json
+  RAWLOG-BYTES raw=3876514 gz=109902
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-2sKNHl/jailhome","TMPDIR":"/tmp/nub-tmp-obsG5hKAY","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-2sKNHl/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 1  /  whole traced tree 1089
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-2sKNHl/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-2sKNHl/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-2sKNHl/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsG5hKAY
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-2sKNHl/observe/node_modules/@carbon/react
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.3.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7341 distinct from 18179 calls (18682 lines, 467 rejoined, 0 unparsed)
+    PROCS     29   lifecycle shells 17
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×47 getsockname×26 exit×20 getsockopt×13 socketpair×9 wait4×9 getcwd×8 recvmsg×7
+    wrote /home/runner/v2-2sKNHl/observe/events.ndjson.gz (47865 bytes)
+  EVENTLOG-FILE /home/runner/v2-2sKNHl/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":18682,"parsed":18179,"unparsed":0,"unfinished":467,"rejoined":467,"unresolvedDirfd":3,"truncatedArg":0,"procs":29,"lifecyclePids":17,"distinctEvents":7341,"unknownSyscall":{"getsockname":26,"getsockopt":13,"getcwd":8,"recvmsg":7,"exit":20,"setsockopt":47,"sendmmsg":1,"socketpair":9,"shutdown":5,"exit_group":7,"wait4":9},"out":"/home/runner/v2-2sKNHl/observe/events.ndjson.gz","gzipBytes":47865}
+  EVICT     73 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @carbon/react
+  scaffold: 12 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=66/66 missing=0 shortfall=none (tree 112712/30331) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
