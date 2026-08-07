@@ -349,6 +349,13 @@ const applyGrantSourceRule = (out, lines) => {
   const unparsedNames = [];
   for (const name of out.overPredictedBy) {
     if (name === 'no-network') { delete descended.network; continue; }
+    // `read` is a SCOPE, not a map of scopes, so the whole key goes — there is no `no-read-<scope>`
+    // to mirror `no-write-<scope>`, and inventing one would be a second vocabulary of exactly the
+    // kind the guard above exists to prevent. This case is what lets ladder rung 1 narrow at all:
+    // that rung carries `read:"disk"`, and without a parse for the drop the record kept the WIDE
+    // grant and recorded `descent-name-unparsed`. Safe by construction — the descent only ever
+    // keeps a drop whose arm VERIFIED, so a dropped `read` is one the install provably did not need.
+    if (name === 'no-read') { delete descended.read; continue; }
     const w = /^no-write-(.+)$/.exec(name);
     if (w) {
       if (descended.write) {

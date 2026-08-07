@@ -249,6 +249,39 @@ test('a single dropped capability narrows the grant — one arm verified exactly
   assert.deepEqual(r.descendedGrant, { network: true });
 });
 
+test("a dropped `read` narrows — the ladder's read rung is why this case has to exist", () => {
+  // Ladder rung 1 is the only grant carrying `read:"disk"`, so before this parsed, a rung-1 record
+  // could never narrow: the drop fell into `unparsedNames`, the WIDE grant was kept, and the record
+  // said `descent-name-unparsed`. All three drivers independently carved `read` out of their descent
+  // rather than emit a name the recorder rejects — three lanes routing around one missing case,
+  // which is what identified it as a gap rather than three separate correct decisions.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  VERIFY[fb1] rc=0 grant={"write":{"project":true},"read":"disk","network":true}',
+    '  => VERIFIED {"write":{"project":true},"read":"disk","network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower z also verifies; 'no-read' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'descended', 'a parsed drop must read as a real narrowing');
+  assert.deepEqual(r.grant, { write: { project: true }, network: true });
+  assert.ok(!r.notes.includes('descent-name-unparsed'), '`no-read` must not land in unparsedNames');
+});
+
+test('an UNKNOWN drop name still forces the wide grant — adding `no-read` did not soften the guard', () => {
+  // ⛔ THE CONTROL FOR THE TEST ABOVE, and it belongs in the same commit. The vocabulary guard exists
+  // because a driver spelling its variants differently once produced a `descended` grant identical to
+  // the synthesized one, with the record publishing `grantSource: "descended"` beside a narrowing
+  // that never happened. WIDENING the accepted vocabulary is precisely the change that could re-open
+  // that hole, so the rejection path is asserted alongside the term being added to it.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"project":true},"read":"disk","network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower z also verifies; 'no-readable' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'synthesized', 'an unparsable name must NOT read as a narrowing');
+  assert.ok(r.notes.includes('descent-name-unparsed'));
+  assert.deepEqual(r.grant, { write: { project: true }, read: 'disk', network: true }, 'the wide grant is kept');
+});
+
 test('TWO dropped capabilities do NOT narrow — leave-one-out never measured the joint drop', () => {
   // ⛔ THE GUARD THAT THE OBVIOUS IMPLEMENTATION MISSES. Each capability has an arm proving it drops
   // ALONE; the joint grant is strictly narrower than any arm that ran. measure.sh says as much in its
