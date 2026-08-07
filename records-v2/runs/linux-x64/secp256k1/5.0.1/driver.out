@@ -1,0 +1,58 @@
+### secp256k1@5.0.1   (/home/runner/v2-QZsqHD)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=207 trace=10937 lines
+  CLOSURE   11 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":107,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (107) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `install` ends in a status-swallowing construct (`node-gyp-build || exit 0`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-QZsqHD/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-QZsqHD/observe/capture.json
+  RAWLOG-BYTES raw=2393219 gz=69928
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-QZsqHD/jailhome","TMPDIR":"/tmp/nub-tmp-obsV5DYnL","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-QZsqHD/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 21
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-QZsqHD/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-QZsqHD/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-QZsqHD/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsV5DYnL
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-QZsqHD/observe/node_modules/secp256k1
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.11.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4517 distinct from 10877 calls (10938 lines, 28 rejoined, 0 unparsed)
+    PROCS     28   lifecycle shells 16
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×25 exit×20 getsockopt×12 recvmsg×7 socketpair×6 wait4×6 shutdown×5
+    wrote /home/runner/v2-QZsqHD/observe/events.ndjson.gz (31896 bytes)
+  EVENTLOG-FILE /home/runner/v2-QZsqHD/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10938,"parsed":10877,"unparsed":0,"unfinished":28,"rejoined":28,"unresolvedDirfd":3,"truncatedArg":0,"procs":28,"lifecyclePids":16,"distinctEvents":4517,"unknownSyscall":{"getsockname":25,"getsockopt":12,"getcwd":4,"recvmsg":7,"exit":20,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":5,"exit_group":5,"wait4":6},"out":"/home/runner/v2-QZsqHD/observe/events.ndjson.gz","gzipBytes":31896}
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for secp256k1
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=106/106 missing=0 shortfall=none (tree 658/207) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
