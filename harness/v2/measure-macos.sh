@@ -442,6 +442,21 @@ node -e '
                   ELECTRON_CACHE: `${toolsDir}/electron-cache`,
                   electron_config_cache: `${toolsDir}/electron-cache`,
                   npm_config_prefix: `${toolsDir}/npm-prefix` },
+    // ⛔ THE PACKAGE DIRECTORY AS IT EXISTS AFTER OBSERVE, EMBEDDED SO THE ARCHIVE STAYS
+    // SELF-SUFFICIENT. The cwd guard resolves a relative write against the package dir and then
+    // CONFIRMS the resolution against this list — a write to `buildcheck.gypi` is placed only if
+    // `buildcheck.gypi` is actually there afterwards. Kept IN the capture rather than as a side file
+    // because a re-parse months later has the archive and nothing else; a manifest that lived only
+    // on the runner would make the guard permanently unresolvable on every retained trace.
+    pkgManifest: (() => {
+      const root = obs + "/node_modules/" + pkg, out = [];
+      const walk = (d, rel) => { let e; try { e = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+        for (const x of e) { if (x.name === "node_modules") continue;
+          const p = d + "/" + x.name, r = rel ? rel + "/" + x.name : x.name;
+          let t; try { t = fs.statSync(p); } catch { continue; }
+          if (t.isDirectory()) { out.push(r); walk(p, r); } else out.push(r); } };
+      walk(root, ""); return out;
+    })(),
     rawBytes: st(trace),
     at: new Date().toISOString(),
   }, null, 2));
