@@ -407,9 +407,20 @@ const stripNotes = (e) => {
 // batch runner's second copy of a *capability* list is exactly what silently skipped win32's
 // falsification control. Kept here only because the drivers take different argv shapes, which is the
 // same reason `run-batch-v2.mjs` keeps its own dispatch.
+// ⛔ DARWIN NEEDS ROOT AND `bash` ALONE DOES NOT GIVE IT ANY. dtrace requires uid 0, so
+// `bash measure-macos.sh …` unprivileged dies before it traces anything — MEASURED locally: rc=1 in
+// 3s, ZERO verdict lines, `dtrace: DTrace requires additional privileges`. `falsify.mjs` had the
+// identical omission and reported `UNPARSED … detectors=none`, i.e. an instrument failure wearing
+// the costume of the finding it exists to make. Here it would have been quieter but no better: no
+// `── DIRECT:` banner, so the stage reports `unavailable` forever and darwin's collated-catalog
+// round trip silently never runs — which is what wiring darwin was meant to fix.
+//
+// `-E` is load-bearing, per `run-batch-v2.mjs:198`: the driver reads `SUDO_USER` to drop every
+// measured process back to the invoking user (R7), and needs the ambient PATH to find npm, which a
+// bare `sudo` strips.
 const DRIVER_FOR_PLATFORM = {
-  linux: { file: 'measure.sh', run: 'bash' },
-  darwin: { file: 'measure-macos.sh', run: 'bash' },
+  linux: { file: 'measure.sh', run: 'bash', pre: [] },
+  darwin: { file: 'measure-macos.sh', run: 'sudo', pre: ['-E', 'bash'] },
 };
 
 function stageInstall() {
@@ -440,7 +451,7 @@ function stageInstall() {
     fs.writeFileSync(cat, `${JSON.stringify(doc, null, 2)}\n`);
     summary.install = { negativeControl: g };
   }
-  const args = [path.join(HERE, driver.file), PKG, VER, NUB, '--at-catalog', cat];
+  const args = [...(driver.pre ?? []), path.join(HERE, driver.file), PKG, VER, NUB, '--at-catalog', cat];
   const r = sh(driver.run, args);
   const log = path.join(WORK, 'install.out');
   const text = `$ ${driver.run} ${args.join(' ')}\n\n${r.stdout ?? ''}${r.stderr ?? ''}`;

@@ -274,12 +274,25 @@ const runArm = (kase, grant, label) => {
   // `--nub`. The `--root` default stays `C:\jail` — deliberately NOT under `C:\Users\<user>`, whose
   // inheritable AppContainer package SIDs make every jailed arm there fail on token construction
   // before a script runs, which a reader would mistake for a grant result.
+  // ⛔ THE DARWIN DRIVER NEEDS ROOT AND THIS FILE WAS NOT GIVING IT ANY. dtrace requires uid 0, so
+  // `bash measure-macos.sh …` unprivileged dies before it traces anything — MEASURED locally,
+  // reproducing the runner exactly: rc=1 in 3s, ZERO verdict lines, `dtrace: DTrace requires
+  // additional privileges`. falsify then reported `UNPARSED … detectors=none` and FAILED the case,
+  // which reads as "the harness cannot detect a bad grant" when the truth is "the driver never ran".
+  // An instrument failure wearing the costume of the finding it exists to make.
+  //
+  // ⛔ `-E` IS LOAD-BEARING, and `run-batch-v2.mjs:198` carries the same note: the driver reads
+  // `SUDO_USER` to drop every measured process back to the invoking user (R7), and it needs the
+  // ambient PATH to find npm, which a bare `sudo` strips. Mirrored rather than re-derived so the two
+  // callers cannot drift into invoking the same driver two different ways.
+  const posixArgs = [DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
+  const opts = { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS };
   const r = process.platform === 'win32'
     ? spawnSync(process.execPath, [DRIVER, kase.pkg, kase.version, '--nub', NUB,
-      '--at-grant', JSON.stringify(grant)], { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS })
-    : spawnSync('bash', [DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)], {
-      encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS,
-    });
+      '--at-grant', JSON.stringify(grant)], opts)
+    : process.platform === 'darwin'
+      ? spawnSync('sudo', ['-E', 'bash', ...posixArgs], opts)
+      : spawnSync('bash', posixArgs, opts);
   const out = (r.stdout ?? '') + (r.stderr ?? '');
   const rc = r.status ?? (r.error ? -1 : 1);
   const grab = (re, i = 1) => { const m = out.match(re); return m ? m[i] : null; };
