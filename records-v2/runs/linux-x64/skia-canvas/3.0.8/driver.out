@@ -1,0 +1,61 @@
+### skia-canvas@3.0.8   (/home/runner/v2-l2NkEX)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=83 trace=11042 lines
+  CLOSURE   9 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-l2NkEX/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-l2NkEX/observe/capture.json
+  RAWLOG-BYTES raw=2438131 gz=71718
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-l2NkEX/jailhome","TMPDIR":"/tmp/nub-tmp-obsMZaeZs","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-l2NkEX/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 1  /  whole traced tree 1089
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-l2NkEX/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-l2NkEX/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-l2NkEX/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsMZaeZs
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-l2NkEX/observe/node_modules/skia-canvas
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-l2NkEX/observe/node_modules/skia-canvas/lib/skia.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.10.34:443
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4513 distinct from 10998 calls (11043 lines, 17 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×34 setsockopt×29 exit×20 getsockopt×16 recvmsg×11 getcwd×7 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-l2NkEX/observe/events.ndjson.gz (31866 bytes)
+  EVENTLOG-FILE /home/runner/v2-l2NkEX/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11043,"parsed":10998,"unparsed":0,"unfinished":17,"rejoined":17,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4513,"unknownSyscall":{"getsockname":34,"getsockopt":16,"getcwd":7,"recvmsg":11,"exit":20,"setsockopt":29,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-l2NkEX/observe/events.ndjson.gz","gzipBytes":31866}
+  EVICT     6 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for skia-canvas
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 245/83) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     9 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for skia-canvas
+  VERIFY[drop-no-network] rc=1 artifacts=19/20 missing=1 shortfall=a5f1cd37808a (tree 242/83) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: lib/skia.node
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
