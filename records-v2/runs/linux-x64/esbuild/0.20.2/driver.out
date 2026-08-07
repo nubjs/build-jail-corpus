@@ -1,0 +1,56 @@
+### esbuild@0.20.2   (/home/runner/v2-hlLtgW)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=14 trace=10768 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-hlLtgW/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-hlLtgW/observe/capture.json
+  RAWLOG-BYTES raw=2382095 gz=69146
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-hlLtgW/jailhome","TMPDIR":"/tmp/nub-tmp-obsPgPEcI","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-hlLtgW/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-hlLtgW/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-hlLtgW/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-hlLtgW/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsPgPEcI
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-hlLtgW/observe/node_modules/esbuild
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-hlLtgW/observe/node_modules/esbuild/bin-esbuild
+        /home/runner/v2-hlLtgW/observe/node_modules/esbuild/bin/esbuild
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4390 distinct from 10721 calls (10769 lines, 17 rejoined, 0 unparsed)
+    PROCS     26   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×21 exit×16 getsockopt×7 recvmsg×7 socketpair×6 getcwd×4 shutdown×4
+    wrote /home/runner/v2-hlLtgW/observe/events.ndjson.gz (31238 bytes)
+  EVENTLOG-FILE /home/runner/v2-hlLtgW/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10769,"parsed":10721,"unparsed":0,"unfinished":17,"rejoined":17,"unresolvedDirfd":3,"truncatedArg":0,"procs":26,"lifecyclePids":14,"distinctEvents":4390,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":16,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"tgkill":1,"exit_group":4,"wait4":4},"out":"/home/runner/v2-hlLtgW/observe/events.ndjson.gz","gzipBytes":31238}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for esbuild
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 48/14) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
