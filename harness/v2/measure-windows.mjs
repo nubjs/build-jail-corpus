@@ -859,6 +859,26 @@ const verify = (grant, label) => {
   // identity, so a reused name REPLAYS the previous arm's result with every precondition green.
   fs.writeFileSync(path.join(v, 'package.json'),
     JSON.stringify({ name: `r${armSeq++}${Date.now().toString(36)}`, version: '1.0.0', dependencies: { [PKG]: VER } }) + '\n');
+  // ⛔ THE SIDE-EFFECTS MEMO IS TURNED OFF AT SOURCE, NOT ONLY SWEPT AFTERWARDS. Both POSIX drivers
+  // have written this since their own bring-up (`measure.sh:647`, `measure-macos.sh:560`); this
+  // driver had only the `rmSync` below, so the memo was its SINGLE point of failure.
+  //
+  // ⛔ AND THAT `rmSync` IS LOAD-BEARING, NOT BELT-AND-BRACES — MEASURED, by disabling it in a
+  // mutated copy of this driver and re-running `@apollo/rover@0.2.1` at the too-narrow
+  // `{"network":true}`:
+  //
+  //   memo purged (this driver today)   rc=1  artifacts=6/6
+  //   memo KEPT                          rc=1  artifacts=7/6   <- the refused artifact came BACK
+  //
+  // The memo restored into a jailed arm the very file the grant had refused to let the script
+  // produce. Only the non-zero `rc` stopped that arm being scored a pass, so the artifact gate on
+  // its own was already fooled — a one-signal margin, and on a package whose script exits 0 despite
+  // a refused write it would be a false PASS at a grant narrower than the package needs. That is an
+  // under-grant, the direction this project forbids.
+  //
+  // Both defences are kept deliberately: the `.npmrc` stops an entry being written at all, the
+  // `rmSync` clears anything a prior arm or another lane on this box already left.
+  fs.writeFileSync(path.join(v, '.npmrc'), 'side-effects-cache=false\n');
   const cat = path.join(v, 'cat.json');
   // ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   // MODAL CASE. nub REJECTS a catalog entry that widens nothing -- "`default` widens nothing and
