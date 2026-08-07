@@ -152,6 +152,65 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 export NUB_CACHE_DIR="$ROOT/nubcache"
 echo "### $PKG@$VER   ($ROOT)   nub=${NUB:-<none>}"
 
+# ⛔ WHICH BINARY ANSWERED THIS RECORD — the identity `nubGitSha` PROVABLY CANNOT GIVE, and which
+# this driver was not emitting at all. MEASURED across the corpus before this line existed:
+# `provenance.nubBinary` was present on 119/119 linux-x64 records and 0/120 darwin-arm64, because
+# only `measure.sh` emitted the `VENUE-NUB-BINARY` marker `record.mjs` learns it from; and
+# `provenance.nubGitSha` was null on all 240 records besides. So a darwin record named NOTHING about
+# the program that produced it, across the larger of the two measured platforms.
+#
+# That is not bookkeeping. `corpus-v2-runner.yml` justified serving any cached binary on the premise
+# that "each record names the binary that answered it" — true on one lane, false on this one — and a
+# stale binary then measured a whole run into unattributability (run 31145732202).
+#
+# ⛔ THE CONTENT HASH IS THE IDENTITY THAT SURVIVES A SHARED MUTABLE PATH, which a commit sha is not.
+# Two binaries built from the SAME commit behave differently when their feature sets differ: MEASURED
+# 2026-08-06, a `--release` build of the right commit missing only `build-jail-catalog-override`
+# VOIDed four cells while reporting a `nubGitSha` identical to the working binary's. It also arms a
+# check that was inert on darwin until now — `e2e.mjs` compares its own preflight hash against this
+# one and fails the run when they disagree, which is how a lane rebuilding the artifact MID-BATCH is
+# caught. With no marker that comparison read `null` and passed silently.
+#
+# ⛔⛔ THE OVERRIDE FEATURE IS PROBED BY EXERCISING IT, NEVER BY GREPPING FOR ITS NAME. Rust does not
+# embed feature names, and the literal `build-jail-catalog-override` appears in exactly one place:
+# the error a nub built WITHOUT the feature prints when it refuses `NUB_BUILD_JAIL_CATALOG`. A
+# content search therefore matches the BROKEN binary and misses the WORKING one — strictly worse than
+# no check at all. `measure.sh` carries the side-by-side measurement.
+#
+# The bytecode env name IS a genuine string constant (`BUILD_JAIL_BASELINE_ENV` in `preset.rs`), so a
+# content search answers that one honestly. It is read from the same buffer the hash is taken from
+# rather than by a second `grep -a` pass, as `measure-windows.mjs` does: one read of a ~50 MB binary,
+# and no dependence on whether BSD grep and GNU grep agree about binary files.
+#
+# ⛔ THE PROBE GETS ITS OWN THROWAWAY `NUB_CACHE_DIR`. This driver runs as ROOT (dtrace needs uid 0)
+# while every arm is dropped back to the invoking user, so a root-owned directory created under the
+# exported `NUB_CACHE_DIR` would be a root-owned obstacle in the arms' own cache. Pointing the probe
+# somewhere disposable means the identity question cannot perturb the measurement that follows.
+if [ -f "$NUB" ]; then
+  NUB_PROBE_CAT="$(mktemp "${TMPDIR:-/tmp}/nub-probe-cat-XXXXXX.json")"
+  printf '{"packages":{"__override_probe__":{"default":{"network":true}}}}' > "$NUB_PROBE_CAT"
+  NUB_PROBE_CACHE="$(mktemp -d "${TMPDIR:-/tmp}/nub-probe-cache-XXXXXX")"
+  NUB_HAS_OVERRIDE=false
+  if NUB_CACHE_DIR="$NUB_PROBE_CACHE" NUB_BUILD_JAIL_CATALOG="$NUB_PROBE_CAT" \
+     "$NUB" --version >/dev/null 2>&1; then
+    NUB_HAS_OVERRIDE=true
+  fi
+  rm -rf "$NUB_PROBE_CAT" "$NUB_PROBE_CACHE"
+  # (No apostrophes in this block: it lives inside a single-quoted `node -e` script.)
+  echo "  VENUE-NUB-BINARY $(node -e '
+    const fs = require("fs"), crypto = require("crypto");
+    let sha = null, bytes = null, bytecodeEnv = false;
+    try { const b = fs.readFileSync(process.argv[1]);
+          sha = crypto.createHash("sha256").update(b).digest("hex"); bytes = b.length;
+          bytecodeEnv = b.includes("PYTHONDONTWRITEBYTECODE"); } catch {}
+    process.stdout.write(JSON.stringify({
+      path: process.argv[1], sha256: sha, bytes,
+      features: { buildJailCatalogOverride: process.argv[2] === "true",
+                  pythonDontWriteBytecodeEnv: bytecodeEnv },
+    }));
+  ' "$NUB" "$NUB_HAS_OVERRIDE" 2>/dev/null)"
+fi
+
 # ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
 # Shared with `measure.sh`; `measure-windows.mjs` carries the same key list in JS and
 # `ci-env-scrub.test.mjs` asserts all three agree. Full reasoning is in the sourced file. The short
