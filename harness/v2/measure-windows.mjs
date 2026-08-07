@@ -118,6 +118,49 @@ const ARM_TIMEOUT_MS = Number(flag('--arm-timeout', '600000'));
 const ROOT = path.join(BASE, `m-${PKG.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`);
 fs.mkdirSync(ROOT, { recursive: true });
 
+// ⛔⛔ EACH ARM GETS ITS OWN VIRTUAL STORE; THE CAS STAYS SHARED. This replaced the per-arm
+// `evictClosure()` sweep, and the reason is a defect that sweep produced rather than a tidy-up.
+//
+// MEASURED: a `falsify.mjs` POSITIVE arm — the KNOWN-SUFFICIENT grant — came back INSUFFICIENT, so
+// the control declared every result unattributable and refused to start the batch. The install
+// itself succeeded (`rover.exe has been installed!`); `approve-builds` then died `MODULE_NOT_FOUND`
+// requiring `…\pm\store\tar@6.2.1-<hash>\node_modules\tar\lib\mkdir.js`. The sweep had removed a
+// DEPENDENCY's store entry while a DEPENDENT's entry survived and still linked to it, leaving a
+// partially-evicted store graph.
+//
+// ⛔ AND THE `keep` SPARING CANNOT BE PATCHED INTO CORRECTNESS. It already covered node-gyp's
+// tooling closure — the `Cannot find module 'semver'` case — and did NOT cover
+// `binary-install` → `tar`. That is not one missing entry; it is an exception list that needs a new
+// entry per gap, and every gap presents as an unattributable control at best and a wrong verdict at
+// worst. A fresh virtual store cannot be partially evicted, so the failure class is gone by
+// CONSTRUCTION rather than by a graph traversal that has to be got right.
+//
+// ⛔ THE COST WAS MEASURED, NOT ASSUMED, because the premise for choosing this over a
+// reverse-dependency walk is that the CAS is the expensive part and the virtual store is only
+// links. `@apollo/rover@0.2.1`, three reps each, same box, CAS warmed first so neither condition
+// pays the download:
+//
+//   shared virtual store + eviction (before)   median 25.7 s/arm
+//   fresh virtual store per arm (now)          median 35.7 s/arm     1.39x, +10 s
+//   the same arm with a COLD CAS, for scale            82.3 s/arm     3.2x the isolated arm
+//
+// So an isolated arm pays linking and not fetching, which is the claim. +39% per arm buys the
+// removal of an entire failure class.
+//
+// `XDG_CACHE_HOME` is the lever, and the split it produces is MEASURED: it relocates
+// `<cache>/nub/pm` — the virtual store, `tools/`, the side-effects memo — while the
+// content-addressed store stays at `%LOCALAPPDATA%\nub\store\v1\files`, shared and warm. Exactly
+// isolate-the-links, share-the-bytes. It also keeps the GLOBAL virtual-store LAYOUT a real user
+// gets, where `enable_global_virtual_store=false` would have silently switched every arm to the
+// project-local layout and changed what was being measured.
+//
+// ⛔ `--cache-home` EXISTS FOR THE ONE ARM WHOSE SUBJECT IS SHARING. `falsify.mjs`'s `wrong-warm`
+// asks whether state left by a PREVIOUS arm satisfies an operation the current grant forbids, so it
+// must reuse the prior arm's store rather than get a fresh one — isolating it would delete the very
+// thing it tests. That arm is safe from the defect above for a different reason: it inherits a
+// WHOLE store, never a partially-evicted one.
+const CACHE_HOME = flag('--cache-home', '');
+
 // ⛔ A STRAY nub.jsonc ABOVE THE FIXTURE poisons every run under it -- nub walks UP from the cwd,
 // so a file three directories up silently supplies an `install.buildJail` the driver never chose.
 for (let d = ROOT; ; d = path.dirname(d)) {
@@ -903,37 +946,18 @@ if (OBSERVE_ONLY) {
 // `.github/workflows/win-evict-probe.yml`). The overlap is narrow besides: an entry is spared only at
 // the exact `<name>@<version>-<hash>` nub's tooling pinned, so any other version of the same name is
 // still evicted.
-const evictClosure = () => {
-  if (!fs.existsSync(STORE)) return;
-  let storeReal; try { storeReal = fs.realpathSync(STORE); } catch { storeReal = STORE; }
-  const keep = new Set();
-  const walk = (dir, depth) => {
-    if (depth > 6) return;
-    let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const e of ents) {
-      const p = path.join(dir, e.name);
-      let t; try { t = fs.realpathSync(p); } catch { continue; }
-      const rel = path.relative(storeReal, t);
-      if (rel && !rel.startsWith('..') && !path.isAbsolute(rel)) { keep.add(rel.split(path.sep)[0]); continue; }
-      let st; try { st = fs.statSync(p); } catch { continue; }
-      if (st.isDirectory()) walk(p, depth + 1);
-    }
-  };
-  walk(TOOLS, 0);
-  // Store dirs are `<name, with `/` as `+`>@<version>-<hash>`. Anchoring on `<slug>@` keeps the
-  // eviction TARGETED — the store is machine-global and a sibling runner may be measuring on the
-  // same box, so a bare `*yorkie*` would take out an unrelated `yorkie-foo` alongside it.
-  const prefixes = [...new Set([PKG, ...CLOSURE].map((n) => n.replace(/\//g, '+') + '@'))];
-  let removed = 0, spared = 0;
-  let entries; try { entries = fs.readdirSync(STORE); } catch { entries = []; }
-  for (const e of entries) {
-    if (!prefixes.some((n) => e.startsWith(n))) continue;
-    if (keep.has(e)) { spared++; continue; }
-    fs.rmSync(path.join(STORE, e), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
-    removed++;
-  }
-  console.log(`  EVICT   ${removed} store entries removed, ${spared} spared as nub tooling`);
-};
+// ⛔ `evictClosure()` WAS DELETED, NOT DISABLED, when each arm gained its own virtual store. It is
+// recorded here because the thing it was built for is real and a future reader will otherwise
+// rebuild it: a package already materialized in a SHARED store is relinked rather than
+// reinstalled, its lifecycle script never runs, and the arm then passes at whatever grant is under
+// test — including one NARROWER than the package needs, which is an under-grant. MEASURED on Linux
+// on `@apollo/rover@0.2.1`: evicting rover alone gave a false PASS at `{"network":true}` with an
+// EMPTY `bin/`, while evicting rover plus `binary-install` correctly FAILED.
+//
+// Per-arm isolation answers that same hazard without a sweep — a fresh virtual store has nothing to
+// relink — and without the partial-graph failure the sweep itself caused. Do not reintroduce it
+// alongside isolation: it would evict entries from a store that is already empty and the only
+// effect would be the `EVICT` log line.
 
 let armSeq = 0;
 const verify = (grant, label) => {
@@ -1014,11 +1038,29 @@ const verify = (grant, label) => {
   // while `%LOCALAPPDATA%\nub\pm\store` still served the package, so the arm looked isolated and
   // was not. Evict the store entries themselves, which are the only thing the linker consults --
   // PKG's and its whole measured closure's, per the note above `evictClosure`.
-  evictClosure();
-  // The memo drop stays: it is necessary but, on its own, was measured to be insufficient.
-  fs.rmSync(path.join(CACHE, 'side-effects-v1'),
-    { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
-  const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat };
+  // ⛔ NO `evictClosure()` AND NO MEMO SWEEP: this arm gets a FRESH virtual store instead, so both
+  // are structurally unnecessary here. See the long note beside `CACHE_HOME` for the defect the
+  // sweep produced and the measured cost of replacing it. `--cache-home` opts an arm back into a
+  // SHARED store — `falsify.mjs`'s `wrong-warm`, whose whole subject is what a previous arm left
+  // behind.
+  const armCache = CACHE_HOME || path.join(v, '.cache');
+  fs.mkdirSync(armCache, { recursive: true });
+  // ⛔ THE INDEPENDENCE CLAIM, PRINTED, because a consumer has to be able to CHECK it and the old
+  // `EVICT n` line no longer exists. `falsify.mjs` refused a run the moment isolation landed —
+  // `evicted=-1`, "the store eviction has silently no-opped" — which was the right instinct keyed on
+  // a mechanism that had been replaced. Same two-line contract the venue markers use: the driver
+  // states the fact, the consumer learns it, and neither has to know the other's internals.
+  // ⛔ REPORTS WHAT IS TRUE, NOT WHICH FLAG WAS PASSED. `--cache-home` is how `right` and
+  // `wrong-warm` are pointed at the SAME directory, but `right` runs first and finds it EMPTY — so
+  // keying the word on the flag would label `right` shared and fail it. The honest predicate is
+  // whether this arm starts from an empty virtual store, which is also exactly what a consumer
+  // wants to know.
+  const armStore = path.join(armCache, 'nub', 'pm', 'store');
+  let priorEntries = 0;
+  try { priorEntries = fs.readdirSync(armStore).length; } catch { priorEntries = 0; }
+  console.log(`  STORE   ${priorEntries === 0 ? 'isolated' : `shared (${priorEntries} entries carried in)`}`
+    + ` virtual store at ${armCache}`);
+  const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache };
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
   // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the

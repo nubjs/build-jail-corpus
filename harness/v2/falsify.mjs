@@ -269,7 +269,15 @@ const CASES = [
 // development; the contract depended on here is its ARGV, its `###  <pkg>@<ver>   (<root>)` header,
 // its `VERIFY[...]` line and its `=>` terminal vocabulary — the same surface `run-batch-v2.mjs`
 // already relies on, all of it stable.
-const runArm = (kase, grant, label) => {
+// ⛔ `cacheHome` IS THE `wrong-warm` CARVE-OUT, AND ON win32 IT IS LOAD-BEARING.
+// `measure-windows.mjs` now gives every arm its OWN virtual store — a shared store plus a per-arm
+// eviction sweep left a partially-evicted graph and failed the POSITIVE control (see its
+// `CACHE_HOME` note). But `wrong-warm` exists precisely to ask whether state a PREVIOUS arm left
+// can satisfy an operation the current grant forbids, so isolating it would delete the thing it
+// tests and turn it into a second `wrong-cold` — silently, and in the direction that hides a real
+// warm-state leak. Handing it `right`'s cache home is what keeps it meaningful: isolation
+// everywhere except the one arm whose subject IS sharing.
+const runArm = (kase, grant, label, cacheHome) => {
   const t0 = Date.now();
   // ⛔ THE WIN32 DRIVER IS NODE, TAKES FLAGS RATHER THAN POSITIONALS, AND THERE IS NO `bash` TO RUN
   // IT WITH. Same dispatch `run-batch-v2.mjs` carries, and the same reason it lives in one place:
@@ -295,7 +303,8 @@ const runArm = (kase, grant, label) => {
   // `sudo -E` just as much as the default one does.
   const opts = { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS };
   const args = process.platform === 'win32'
-    ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant)]
+    ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant),
+      ...(cacheHome ? ['--cache-home', cacheHome] : [])]
     : [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
   const r = spawnSync(DRIVER_CMD, args, opts);
   const out = (r.stdout ?? '') + (r.stderr ?? '');
@@ -366,6 +375,9 @@ const runArm = (kase, grant, label) => {
     // this match both; without it darwin reported `evicted=-1` and the eviction judge failed a run
     // whose eviction had in fact happened.
     evicted: Number(grab(/EVICT(?:\[[^\]]*\])?\s+(\d+) store entries removed/) ?? -1),
+    // The win32 driver's equivalent independence claim; see `judgeEviction`.
+    storeIsolated: /^\s*STORE\s+isolated /m.test(out),
+    storeShared: /^\s*STORE\s+shared /m.test(out),
     // ⛔ REPORTED, NOT FAILED, AND THE REASON IS A MEASURED DEFECT IN THE DRIVER'S OWN PREDICATE.
     // `measure.sh` warns `REPLAY SUSPECTED` when no arm log matches `running build scripts for`. nub
     // prints that line only for a package on its DEFAULT-TRUST list, where the script runs during
@@ -464,8 +476,14 @@ const judgeWrong = (kase, arm) => {
   if (arm.overridden != null && arm.overridden < 1) fail.push('OVERRIDDEN=0 — the arm measured the compiled-in catalog, not the stated grant');
   if (arm.rejected) fail.push(`REJECTED=${arm.rejected} — nub refused the override catalog`);
   fail.push(...judgeScriptRan(kase, arm));
+  // ⛔ TWO ARMS ARE EXEMPT, FOR OPPOSITE REASONS, AND CONFLATING THEM BREAKS ONE OF THEM.
   // `wrong-cold` runs first on a deliberately cold venue, so an empty store is expected there.
-  if (arm.label !== 'wrong-cold') fail.push(...judgeEviction(arm));
+  // `wrong-warm` is exempt because a shared store IS ITS SUBJECT: it asks whether state the control
+  // left behind can satisfy an operation the current grant forbids, so demanding independence of it
+  // would fail the one arm designed to lack it. On win32 it is now explicitly handed the control's
+  // cache home and so reports `STORE shared` by construction — judging it here would turn the
+  // carve-out into a guaranteed failure.
+  if (arm.label !== 'wrong-cold' && arm.label !== 'wrong-warm') fail.push(...judgeEviction(arm));
   return { fail, inconclusive };
 };
 
@@ -478,10 +496,28 @@ const judgeWrong = (kase, arm) => {
 //
 // Applied to `right` and `wrong-warm` only. `wrong-cold` runs first by design and may legitimately
 // find an empty store, so requiring an eviction there would fail on a genuinely cold venue.
-const judgeEviction = (arm) => (arm.evicted >= 1 ? [] : [
-  `EVICT removed ${arm.evicted} store entries — the arm may have REPLAYED a previous arm's build `
-  + `rather than rebuilding, which makes its verdict unattributable. The store eviction has silently `
-  + `no-opped before (a slug that matched no scoped package).`,
+//
+// ⛔ TWO MECHANISMS SATISFY THIS, AND THE JUDGE HAD TO LEARN THE SECOND ONE. `measure.sh` and
+// `measure-macos.sh` guarantee arm independence by EVICTING the closure from a shared store, and
+// print `EVICT n`. `measure-windows.mjs` now guarantees it by giving each arm its OWN virtual store
+// — a shared store plus a per-arm sweep left a partially-evicted graph and failed the positive
+// control — and prints `STORE isolated`. Keying only on the eviction count made this judge fail
+// every win32 arm the instant isolation landed, reporting `evicted=-1 … the store eviction has
+// silently no-opped`: the right instinct, asserted against a mechanism that no longer exists.
+//
+// ⛔ `STORE shared` IS NOT INDEPENDENCE AND IS NOT ACCEPTED HERE. That spelling means the arm was
+// deliberately handed a previous arm's store — `wrong-warm`, whose entire subject is what warm state
+// survives. This judge is applied to `right` and `wrong-warm` only, and `wrong-warm` is expected to
+// be shared, so it is the CALLER that decides which arms must be independent; the judge just refuses
+// to call a shared store an isolated one.
+const judgeEviction = (arm) => (arm.evicted >= 1 || arm.storeIsolated ? [] : [
+  arm.storeShared
+    ? `STORE reported SHARED — this arm reused another arm's virtual store, so its verdict cannot be `
+      + `attributed to its own grant.`
+    : `Neither an EVICT count nor an isolated store was reported (evicted=${arm.evicted}) — the arm `
+      + `may have REPLAYED a previous arm's build rather than rebuilding, which makes its verdict `
+      + `unattributable. The store eviction has silently no-opped before (a slug that matched no `
+      + `scoped package).`,
 ]);
 
 // Applies to every arm, whatever its grant: an arm whose script never spawned measured nothing, and
@@ -602,14 +638,21 @@ for (const kase of selected) {
   arms.push(cold);
   absorb('wrong-cold', judgeWrong(kase, cold));
 
-  const right = runArm(kase, kase.sufficient, 'right');
+  // A cache home `right` and `wrong-warm` SHARE, so the warm arm inherits exactly what the control
+  // left behind. Per-case, so two cases cannot contaminate each other, and win32-only: the POSIX
+  // drivers do their own per-arm eviction and take no such flag, so passing one would be ignored.
+  const sharedCache = process.platform === 'win32'
+    ? path.join(process.env.TEMP || 'C:\\Windows\\Temp',
+      `falsify-warm-${kase.name.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`)
+    : '';
+  const right = runArm(kase, kase.sufficient, 'right', sharedCache);
   arms.push(right);
   const control = absorb('right', judgeRight(kase, right));
 
   // The warm arm is only meaningful once the control has actually populated the caches it is meant
   // to probe, so a failed control skips it rather than reporting a second unattributable result.
   if (!QUICK && !control.fail.length && !control.inconclusive.length) {
-    const warm = runArm(kase, kase.insufficient, 'wrong-warm');
+    const warm = runArm(kase, kase.insufficient, 'wrong-warm', sharedCache);
     arms.push(warm);
     absorb('wrong-warm', judgeWrong(kase, warm));
   }
