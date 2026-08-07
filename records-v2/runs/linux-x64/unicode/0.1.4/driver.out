@@ -1,0 +1,84 @@
+### unicode@0.1.4   (/home/runner/v2-IyDFo6)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=78 trace=10926 lines
+  CLOSURE   4 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":42,"filesTheScriptProduced":37,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-IyDFo6/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-IyDFo6/observe/capture.json
+  RAWLOG-BYTES raw=2397354 gz=71243
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-IyDFo6/jailhome","TMPDIR":"/tmp/nub-tmp-obsZcyd3H","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-IyDFo6/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 37  /  whole traced tree 1125
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-IyDFo6/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-IyDFo6/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-IyDFo6/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsZcyd3H
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-IyDFo6/observe/node_modules/unicode
+  == WRITES the script actually performed ==
+    ownPkg       37  (base profile already grants this — NOT billed)
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/0.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/7.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/220.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/230.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Cc.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Zs.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Po.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Sc.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Ps.js
+        /home/runner/v2-IyDFo6/observe/node_modules/unicode/category/Pe.js
+        … and 27 more
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        104.26.10.47:80
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4500 distinct from 10878 calls (10927 lines, 22 rejoined, 0 unparsed)
+    PROCS     24   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×29 setsockopt×29 exit×19 getsockopt×12 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-IyDFo6/observe/events.ndjson.gz (31663 bytes)
+  EVENTLOG-FILE /home/runner/v2-IyDFo6/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10927,"parsed":10878,"unparsed":0,"unfinished":22,"rejoined":22,"unresolvedDirfd":3,"truncatedArg":0,"procs":24,"lifecyclePids":12,"distinctEvents":4500,"unknownSyscall":{"getsockname":29,"getsockopt":12,"getcwd":4,"recvmsg":9,"exit":19,"setsockopt":29,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-IyDFo6/observe/events.ndjson.gz","gzipBytes":31663}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for unicode
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=40/41 missing=11 shortfall=af42f5d3b724 (tree 242/78) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: category/220.js, category/230.js, category/7.js, category/Ll.js (742530B < 743209B), category/Lm.js (130779B < 131080B), category/Lu.js (611134B < 611442B) (+5)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for unicode
+  VERIFY[fb2126003217] rc=0 artifacts=39/41 missing=12 shortfall=40692b20b597 (tree 239/78) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: category/220.js, category/230.js, category/7.js, category/Ll.js (742537B < 743209B), category/Lo.js (6682784B < 6682920B), category/Lu.js (610772B < 611442B) (+6)
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for unicode
+  VERIFY[fb3938809772] rc=0 artifacts=42/41 missing=10 shortfall=053863f42218 (tree 248/78) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: category/.js (275B < 409B), category/220.js (274B < 284B), category/230.js, category/7.js, category/Ll.js (742104B < 743209B), category/Lo.js (6681912B < 6682920B) (+4)
+  EVICT     4 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for unicode
+  VERIFY[fb2742342390] rc=0 artifacts=39/41 missing=13 shortfall=803929bf31d6 (tree 239/78) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: category/0.js (1553B < 1632B), category/220.js (275B < 284B), category/230.js (289B < 327B), category/7.js, category/Cs.js (1588B < 1891B), category/L.js (+7)
+  NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms (af42f5d3b724, 40692b20b597, 053863f42218, 803929bf31d6) — it responded to the grant
+  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
