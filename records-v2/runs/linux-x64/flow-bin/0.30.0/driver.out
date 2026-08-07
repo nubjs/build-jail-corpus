@@ -1,0 +1,63 @@
+### flow-bin@0.30.0   (/home/runner/v2-qa51mA)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1969 trace=18032 lines
+  CLOSURE   281 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":2,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-qa51mA/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-qa51mA/observe/capture.json
+  RAWLOG-BYTES raw=3780569 gz=112015
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-qa51mA/jailhome","TMPDIR":"/tmp/nub-tmp-obsEXWhBY","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-qa51mA/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 3  /  whole traced tree 1091
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-qa51mA/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-qa51mA/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-qa51mA/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsEXWhBY
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-qa51mA/observe/node_modules/flow-bin
+  == WRITES the script actually performed ==
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-qa51mA/observe/node_modules/flow-bin/vendor
+        /home/runner/v2-qa51mA/observe/node_modules/flow-bin/vendor/flow.js
+        /home/runner/v2-qa51mA/observe/node_modules/flow-bin/vendor/flow
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8168 distinct from 17675 calls (18033 lines, 328 rejoined, 0 unparsed)
+    PROCS     26   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×45 getsockname×31 exit×20 getsockopt×13 recvmsg×11 getcwd×6 socketpair×6 shutdown×5
+    wrote /home/runner/v2-qa51mA/observe/events.ndjson.gz (51132 bytes)
+  EVENTLOG-FILE /home/runner/v2-qa51mA/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":18033,"parsed":17675,"unparsed":0,"unfinished":328,"rejoined":328,"unresolvedDirfd":3,"truncatedArg":0,"procs":26,"lifecyclePids":14,"distinctEvents":8168,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":6,"recvmsg":11,"exit":20,"setsockopt":45,"sendmmsg":3,"socketpair":6,"shutdown":5,"exit_group":4,"wait4":4},"out":"/home/runner/v2-qa51mA/observe/events.ndjson.gz","gzipBytes":51132}
+  EVICT     127 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for flow-bin
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 7517/1969) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     299 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for flow-bin
+  VERIFY[drop-no-network] rc=0 artifacts=7/9 missing=2 shortfall=072995e47ef7 (tree 7511/1969) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: vendor/flow, vendor/flow.js
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
