@@ -139,6 +139,14 @@ const excluded = {
   noVerdict: [], broken: [], harnessError: [], noStatePassed: [], refusedMalicious: [],
   brokenWithoutJailToo: [], brokenInEnvironment: [], artifactGateSuspect: [],
 };
+// ⛔ WARNED ABOUT, NOT EXCLUDED, AND THE ASYMMETRY WITH `artifactGateSuspect` IS DELIBERATE. That
+// bucket is excluded because its grant was never VERIFIED past a shortfall — an unverified NARROW
+// grant, the under-granting direction. A truncated descent is the opposite: its grant is WIDE and
+// every drop it applied had a verifying arm, so the grant installs. Only its MINIMALITY is unproven,
+// which is the over-granting direction and therefore safe to ship. Excluding it would leave the
+// package at the base profile — a BROKEN install, and precisely for the slowest packages, since a
+// ladder record costs ~3.4x a synth record and so is the one that hits the budget cap.
+const unprovenMinimality = [];
 
 for (const r of records) {
   // ⛔ ITS OWN BUCKET. A package that fails IDENTICALLY with the jail off is not evidence about the
@@ -185,6 +193,13 @@ for (const r of records) {
   // should say which of those two things happened.
   if (r.verdict === 'REFUSED-MALICIOUS') { excluded.refusedMalicious.push(`${r.pkg}@${r.version}`); continue; }
   if (r.verdict !== 'MINIMUM') { excluded.noVerdict.push(`${r.pkg}@${r.version}`); continue; }
+  // A descent killed at its budget: `record.mjs` marks these `grantSource: "descended-incomplete"` /
+  // `minimality: "UNPROVEN"` rather than letting them keep claiming a completed descent. The record
+  // is kept and shipped; this is the line that stops the claim being invisible, which is what the
+  // `driver-timeout` note alone could never do — nothing consumed it.
+  if (r.grantSource === 'descended-incomplete' || (r.notes ?? []).includes('driver-timeout')) {
+    unprovenMinimality.push(`${r.pkg}@${r.version} [${JSON.stringify(r.grant)}]`);
+  }
   if (!byPackage.has(r.pkg)) byPackage.set(r.pkg, []);
   byPackage.get(r.pkg).push(r);
 }
@@ -569,6 +584,15 @@ if (staleDefaults.length) {
 if (missingTag.length) {
   console.log(`\n⚠ ${missingTag.length} package(s) predate dist-tag recording, so latest is UNCHECKED`);
   console.log(`  (assumed = highest measured): ${missingTag.join(', ')}`);
+}
+if (unprovenMinimality.length) {
+  console.log(`\n⚠ ${unprovenMinimality.length} RECORD(S) COME FROM A DESCENT KILLED AT ITS BUDGET —`);
+  console.log('  SHIPPED, because the grant installs: every drop that was applied had a verifying arm,');
+  console.log('  and dropping the record would leave the package at the base profile (a broken install).');
+  console.log('  But its MINIMALITY is unproven: a capability whose arm never ran is still in the grant');
+  console.log('  UNTESTED, so these are wider than measurement requires. Re-measure with a larger');
+  console.log('  `NUB_CORPUS_PKG_BUDGET` to narrow them:');
+  for (const u of unprovenMinimality) console.log(`    ${u}`);
 }
 for (const [k, v] of Object.entries(excluded)) {
   if (v.length) console.log(`excluded (${k})  ${v.length}: ${v.slice(0, 6).join(', ')}${v.length > 6 ? ' …' : ''}`);

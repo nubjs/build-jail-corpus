@@ -311,6 +311,70 @@ export function parseDriverLog(log) {
   return out;
 }
 
+/** The driver rcs that mean "killed at a budget/deadline", not "finished and failed". `124` is the
+ *  GNU `timeout` convention `portable-timeout.sh` and `run-batch-v2.mjs` both spell; `137` is
+ *  SIGKILL. */
+export const isTruncatedRc = (rc) => rc === 124 || rc === 137;
+
+/**
+ * A descent that was KILLED must not report that it completed.
+ *
+ * ⛔ THE DEFECT, MEASURED on `mozjpeg@6.0.1` (win32): the driver ran for exactly `[2400s]` — the
+ * `NUB_CORPUS_PKG_BUDGET` — finishing `no-network` and `no-write-deps` before the kill, so
+ * `no-write-project`, `no-write-userHome` and the joint arm NEVER RAN. The record published
+ * `grant: {"write":{"project":true,"userHome":true},"network":true}` with `grantSource: "descended"`
+ * and `minimality: "OVER-PREDICTED"` — i.e. it claimed `write.userHome`, the persistence capability,
+ * had been descended, when nothing ever tested it.
+ *
+ * ⛔ AND NOTHING DOWNSTREAM CAUGHT IT. `collate.mjs` excludes on VERDICT alone, and the verdict is
+ * `MINIMUM` (see the note at the `!parsed.verdict` guard: the driver prints `=> MINIMUM` when the
+ * SYNTH arm verifies, THEN descends, so a kill during the descent arrives with a verdict already
+ * parsed and the `rc === 124` branch never runs). The `driver-timeout` note was honest and had no
+ * consumer.
+ *
+ * ⛔ THIS IS SYSTEMATIC, NOT BAD LUCK: a ladder record costs ~3.4x a synth record (MEASURED,
+ * `iedriver` 693s -> 2376s once the descent ran), so ladder records are exactly the ones that hit a
+ * 2400s cap. A Windows sweep mints these.
+ *
+ * ⛔⛔ THE GRANT IS NOT TOUCHED, AND THAT IS THE SAFE DIRECTION RATHER THAN AN OVERSIGHT. Every drop
+ * that was APPLIED had a verifying arm, so the narrowed grant is a real measurement; reverting to
+ * the synthesized value would discard verified narrowing, and dropping the record would leave the
+ * package running at the base profile — a BROKEN install, which is the one error this corpus may not
+ * make. What is false is the CLAIM of completeness, so only the claim changes.
+ *
+ * Raising the budget is not the fix: it moves the cliff without removing it.
+ */
+export function applyTruncationClaim(parsed, rc) {
+  if (!isTruncatedRc(rc)) return parsed;
+  parsed.notes = [...new Set([...(parsed.notes ?? []), 'driver-timeout'])];
+
+  // The vocabulary already exists: `=> DESCENT INCOMPLETE` (all three drivers) parses to
+  // `minimality: 'UNPROVEN'` for the case where an arm was VOID so a capability was never measured.
+  // A budget kill is the same class — capabilities never measured — reached the one way the driver
+  // cannot announce, because it is dead. Unconditional: a descent that finished microseconds before
+  // the kill is indistinguishable here, and understating our confidence is the safe direction.
+  parsed.minimality = 'UNPROVEN';
+
+  // ⛔ NOT `'synthesized'`. `applyGrantSourceRule` already moved the narrowed value into `grant`, so
+  // relabelling it `synthesized` would put the descended grant beside a claim it was never
+  // descended — the exact mirror of the defect the `descent-name-unparsed` guard exists to prevent.
+  // A third value is what honestly describes a narrowing that is real but incomplete.
+  if (parsed.grantSource === 'descended') {
+    parsed.grantSource = 'descended-incomplete';
+    parsed.grantSourceReason = `${parsed.grantSourceReason ?? 'the descent narrowed the grant'}`
+      + ' — BUT THE DRIVER WAS KILLED AT ITS BUDGET (driver-timeout), so the descent did not run to '
+      + 'completion: any capability whose arm had not yet run is still in this grant UNTESTED. The '
+      + 'drops that were applied were each verified, so the grant is safe to use; its MINIMALITY is '
+      + 'not established. Re-measure with a larger budget to settle it.';
+  } else if (parsed.grantSource === 'synthesized') {
+    parsed.grantSourceReason = `${parsed.grantSourceReason ?? 'the synthesized grant was kept'}`
+      + ' — AND THE DRIVER WAS KILLED AT ITS BUDGET (driver-timeout), so this reason describes the '
+      + 'descent only as far as it got. The grant is the wider synthesized value, which is the safe '
+      + 'direction, but it was not shown to be minimal.';
+  }
+  return parsed;
+}
+
 // ⛔ WHICH VALUE THE CATALOG GETS, AND WHY IT IS NOT SIMPLY "THE NARROWEST ONE".
 //
 // `collate.mjs` keys on `grant`, and `grant` was the SYNTHESIZED value — so on every over-predicting
@@ -568,17 +632,22 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   //
   // MEASURED on `duckdb@1.4.4`: `driverRc: 124`, `durationMs: 2400105` (the budget, exactly),
   // killed with its cwd in `verify-drop-no-network` — recorded `verdict: "MINIMUM"`,
-  // `minimality: null`. The grant is SAFE, because a cut-off descent narrows nothing and leaves the
-  // synthesized grant standing, so this is a false claim of COMPLETENESS rather than an under-grant.
-  // But `minimality: null` was the only tell, and it is equally produced by a package that simply
-  // has no descent to run — so nothing downstream could distinguish them.
+  // `minimality: null`, with no capability yet dropped.
+  //
+  // ⛔ AND A KILL DOES NOT ALWAYS ARRIVE THAT EARLY — this comment used to say "a cut-off descent
+  // narrows nothing and leaves the synthesized grant standing", and `mozjpeg@6.0.1` (win32) falsified
+  // it: that descent COMPLETED `no-network` and `no-write-deps` before the kill, so `grant` was
+  // genuinely narrowed and published `grantSource: "descended"` while `no-write-project`,
+  // `no-write-userHome` and the joint arm never ran. The grant is still SAFE — every applied drop had
+  // a verifying arm — but the record claimed a COMPLETENESS it never had, over `write.userHome`, the
+  // persistence capability.
   //
   // The note is additive on purpose. Downgrading the verdict would drop the package from the catalog
   // (`collate.mjs` keeps only `MINIMUM`) and discard a grant its synth arm really did verify — the
-  // same trade `ARTIFACT-GATE-SUSPECT` already settled the other way, for the same reason.
-  if (rc === 124 || rc === 137) {
-    parsed.notes = [...new Set([...(parsed.notes ?? []), 'driver-timeout'])];
-  }
+  // same trade `ARTIFACT-GATE-SUSPECT` already settled the other way, for the same reason. What the
+  // note alone could NOT do is stop the false claim, because nothing consumed it; `applyTruncationClaim`
+  // is what now downgrades `minimality` and `grantSource` to match what actually ran.
+  applyTruncationClaim(parsed, rc);
 
   // ⛔ RESOLVED ONCE, ABOVE THE RECORD, BECAUSE `interpreterInsideHome` NEEDS IT. Reading it out of
   // `rec.provenance` while `rec` is still being built would evaluate to `undefined`, and the
