@@ -228,6 +228,61 @@ const CASES = [
     ranEvidence: /Downloading release from|binary-install[/\\]index\.js/,
     mustDetect: ['rc'],
   },
+  // ⛔ THE `gate` DETECTOR, WHICH THE rover CASE ABOVE LEAVES ENTIRELY UNATTESTED ON THIS PLATFORM.
+  // The two detectors are not interchangeable and a case only exercises the one that actually fires:
+  // rover's insufficient arms read `rc=1 artifacts=6/6 missing=0`, so `rc` catches them and the
+  // artifact manifest is never consulted. A detector nothing attests is indistinguishable from a
+  // detector that cannot fire.
+  //
+  // ⛔ iedriver WAS THE OBVIOUS CANDIDATE AND IT DOES NOT WORK — MEASURED, not assumed. Five grants
+  // spanning `{"network":true}` to `{"write":{"deps","userHome"},"network":true}`, plus the four
+  // leave-one-out arms of its own published record, ALL exit rc=1. Its install script fails loudly
+  // when a write is refused, so `rc` fires every time and a `gate` assertion riding on it would be a
+  // passing test of nothing.
+  //
+  // ⛔ mozjpeg IS THE CASE BECAUSE ITS SCRIPT EXITS 0 AND SIMPLY PRODUCES LESS. Verbatim from the
+  // descent of its own win32 measurement:
+  //
+  //   VERIFY[nar-no-network] rc=0 artifacts=7/8 missing=1  grant={"write":{"deps","project","userHome"}}
+  //   VERIFY[fb0]            rc=0 artifacts=8/8 missing=0  grant={"write":{...},"network":true}
+  //
+  // Exit code CLEAN, manifest SHORT by exactly `vendor/cjpeg.exe`. That is the gate detecting an
+  // under-grant with no help from `rc`, which is the whole reason this case exists.
+  //
+  // ⛔ THE WIN32 MINIMUM IS NOT THE POSIX ONE, so the grant is not copied across. linux-x64 and
+  // darwin-arm64 both record `MINIMUM {"network":true} MINIMAL`; on win32 that same grant fails
+  // `rc=1 artifacts=7/8`, and the measured win32 minimum also needs `write.project` and
+  // `write.userHome`. Assuming the POSIX grant here would have produced a positive control that
+  // could never pass.
+  {
+    name: 'network-gate',
+    platform: 'win32',
+    pkg: 'mozjpeg',
+    version: '6.0.1',
+    sufficient: { write: { project: true, userHome: true }, network: true },
+    insufficient: { write: { project: true, userHome: true } },
+    removed: 'network',
+    // ⛔ THE JAIL'S OWN DENIAL MARKER, NOT A libuv ERRNO — and the first spelling of this case looked
+    // for an errno and MISSED. MEASURED: nub intercepts at the socket layer and emits its own line
+    // rather than letting `ECONNREFUSED` and friends surface, so the arm log carries
+    //
+    //   WARN_NUB_JAIL_NET_DENIED mozjpeg raw.githubusercontent.com net.Socket.connect
+    //   × RequestError: nub build sandbox: blocked network access to github.com by mozjpeg
+    //
+    // and no errno at all. This is a TIGHTENING rather than a loosening: a bare errno is evidence
+    // that something failed, which the hugo case's own comment notes an unrelated transient can
+    // satisfy, whereas this names the jail, the mechanism and the host the script actually reached
+    // for. The conjunction still holds — kind AND subject.
+    //
+    // ⛔ `(AUBE|NUB)` BECAUSE THE ENGINE OUTPUT IS REBRANDED. `WARN_AUBE_*` becomes `WARN_NUB_*`
+    // through `pm_engine::present.rs`, so a log grepped for either spelling alone silently finds
+    // nothing on the other side of that rename.
+    refusal: [/WARN_(AUBE|NUB)_JAIL_NET_DENIED|blocked network access/, /github\.com|raw\.githubusercontent\.com/],
+    ranEvidence: /mozjpeg|cjpeg/i,
+    // ⛔ `gate` ALONE, DELIBERATELY. Naming `rc` here too would let the case pass on the detector the
+    // rover case already covers, and the point of adding it is the one neither case covered.
+    mustDetect: ['gate'],
+  },
   // ⛔ THE ONLY CASE GROUNDED ON DARWIN, AND ITS SCOPE IS PRINTED WITH EVERY VERDICT. See the
   // scope-limit block near the bottom: hugo is caught by rc AND the gate, so a green darwin control
   // proves at least one detector is live and CANNOT say which. The rover axis — an artifact landing
