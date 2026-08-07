@@ -1,0 +1,86 @@
+### esbuild@0.11.23   (/home/runner/v2-q9kmCB)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=10 trace=21799 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-q9kmCB/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-q9kmCB/observe/capture.json
+  RAWLOG-BYTES raw=4813328 gz=138151
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-q9kmCB/jailhome","TMPDIR":"/tmp/nub-tmp-obsQpsbDB","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-q9kmCB/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 32
+    writes  script 1142  /  whole traced tree 1690
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-q9kmCB/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-q9kmCB/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-q9kmCB/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsQpsbDB
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-q9kmCB/observe/node_modules/esbuild
+  == WRITES the script actually performed ==
+    jailTmp    1116  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/package.json
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/esbuild-linux-64
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/esbuild-linux-64/bin
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/esbuild-linux-64/bin/esbuild
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/esbuild-linux-64/package.json
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/esbuild-linux-64/README.md
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/.bin
+        /tmp/nub-tmp-obsQpsbDB/esbuild-mu21h96zv2c/node_modules/.bin/esbuild
+        … and 1106 more
+    jailHome     24  (base profile already grants this — NOT billed)
+        /home/runner/v2-q9kmCB/jailhome/.npm/_logs/2026-08-07T18_45_22_504Z-debug-0.log
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/tmp
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/tmp/a2ccc495
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/content-v2
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/content-v2/sha512
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/content-v2/sha512/9f
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/content-v2/sha512/9f/d9
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/content-v2/sha512/9f/d9/799e15788f483ea0dbf8a5b32bbe7dc2943097c889b087fa2749776f571b1e79e716ce62c6bf7843579cff6a64c95eeb770e13debd3d9e6fee4254d44e14
+        /home/runner/v2-q9kmCB/jailhome/.npm/_cacache/index-v5
+        … and 14 more
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-q9kmCB/observe/node_modules/esbuild/bin/esbuild__
+        /home/runner/v2-q9kmCB/observe/node_modules/esbuild/bin/esbuild
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.2.34:443
+        104.16.8.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/esbuild"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 24
+        .cache/esbuild
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8899 distinct from 21667 calls (21800 lines, 88 rejoined, 0 unparsed)
+    PROCS     39   lifecycle shells 27
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×58 getsockname×55 getsockopt×29 exit×26 recvmsg×14 socketpair×9 getcwd×7 wait4×7
+    wrote /home/runner/v2-q9kmCB/observe/events.ndjson.gz (55772 bytes)
+  EVENTLOG-FILE /home/runner/v2-q9kmCB/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":21800,"parsed":21667,"unparsed":0,"unfinished":88,"rejoined":88,"unresolvedDirfd":1,"truncatedArg":0,"procs":39,"lifecyclePids":27,"distinctEvents":8899,"unknownSyscall":{"getsockname":55,"getsockopt":29,"getcwd":7,"recvmsg":14,"exit":26,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":5,"exit_group":6,"wait4":7},"out":"/home/runner/v2-q9kmCB/observe/events.ndjson.gz","gzipBytes":55772}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for esbuild
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 27/10) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/esbuild"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/esbuild"]}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for esbuild
+  VERIFY[drop-no-network] rc=1 artifacts=6/6 missing=1 shortfall=a385166252f7 (tree 25/10) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/esbuild"]}
+       missing: bin/esbuild (650B < 7856128B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/esbuild"]} is independently necessary
