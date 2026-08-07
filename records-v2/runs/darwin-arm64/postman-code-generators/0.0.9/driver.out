@@ -1,0 +1,155 @@
+### postman-code-generators@0.0.9   (/Users/runner/v2m-hg1O5k)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-hg1O5k/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-hg1O5k/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "postman-code-generators" > "/Users/runner/v2m-hg1O5k/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-hg1O5k/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-hg1O5k/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-hg1O5k/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund postman-code-generators
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000068d170) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 8 (ID 179: syscall::open:return): invalid address (0x16f1ba81d) in action #9 at DIF offset 12
+     dtrace: error on enabled probe ID 8 (ID 179: syscall::open:return): invalid address (0x16d0366f0) in action #9 at DIF offset 12
+     dtrace: error on enabled probe ID 100 (ID 845: syscall::stat64:return): invalid address (0x16bacab78) in action #8 at DIF offset 12
+     dtrace: error on enabled probe ID 100 (ID 845: syscall::stat64:return): invalid address (0x16d60b778) in action #8 at DIF offset 12
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=3352 (pre=3340) trace=243724 lines
+  CLOSURE   72 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-hg1O5k/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-hg1O5k/Observe/capture.json
+  RAWLOG-BYTES raw=41100736 gz=1174708
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-hg1O5k/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":303,"filesTheScriptProduced":19,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-hg1O5k/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":243725,"parsed":243703,"unparsed":0,"live":true,"tracerErrors":5,"tracerErrorTotal":5,"unresolvedDirfd":522,"unresolvedFd":0,"pairedTwoPath":1223,"danglingPair":0,"failed":99909,"enoent":99317,"refusals":0,"byErrno":{"ENXIO":51,"ENOENT":99317,"EEXIST":538,"ENOTEMPTY":3},"procs":53,"lifecyclePids":49,"distinctEvents":105029,"emitted":105029,"calls":241998,"bytes":19637524,"gzipBytes":447123,"out":"/Users/runner/v2m-hg1O5k/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=41378 dropped-events=5
+    NOTE 348 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 95 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=47509 read  unproven .
+         pid=47509 read  unproven .
+         pid=47509 read  unproven .
+         pid=47517 read  unproven .
+         pid=47518 read  unproven .
+         pid=47518 read  unproven .
+         pid=47518 read  unproven .
+         pid=47526 read  unproven .
+         pid=47527 read  unproven .
+         pid=47527 read  unproven .
+         … and 85 more
+    CWD-RESOLVED 24 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 5 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x60000068d170
+             1 x  epid=8 action=9 fault=1 addr=0x16f1ba81d
+             1 x  epid=8 action=9 fault=1 addr=0x16d0366f0
+             1 x  epid=100 action=8 fault=1 addr=0x16bacab78
+             1 x  epid=100 action=8 fault=1 addr=0x16d60b778
+  == ATTRIBUTION == lifecycle pids: 49
+    writes  script 1951  /  whole traced subtree 2500
+    sockets script 11  /  whole traced subtree 12
+  == ROOTS (from /Users/runner/v2m-hg1O5k/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-hg1O5k/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-hg1O5k/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-hg1O5k/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    jailTmp    1201  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_6836e9e1f30e4e12a3f1
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_0f4d033882263b0f3f88
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_f4c2a10040561543551a
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_3bb0f247681a42eb2b51
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_5896d2d4136927155ff1
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_5b3b76a6811f9922a007
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_c5b3fdf26fd77d951c5d
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/shelljs_7644bd1202d33bfd5469
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2.yXA9WL
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDvqBX/node-compile-cache/v22.23.1-arm64-2b4477fa-501/0ebbc1d2
+        … and 1191 more
+    ownPkg      175  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/lib/assets/languages.js
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/csharp-restsharp/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/curl/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/golang/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/http/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/java-okhttp/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/java-unirest/npm-shrinkwrap.json
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules/combined-stream
+        /Users/runner/v2m-hg1O5k/Observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules/form-data
+        … and 165 more
+    jailHome    574  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_19_453Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_20_367Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_20_932Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_21_525Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_22_061Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_22_866Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_logs/2026-08-07T16_34_23_502Z-debug-0.log
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_cacache
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_cacache/tmp
+        /Users/runner/v2m-hg1O5k/jailhome/.npm/_cacache/tmp/7bea7d13
+        … and 564 more
+  == READS the script performed, by scope ==
+    outside      10
+    systemfs     13
+    userHome    682
+    ownPkg       72
+    deps         59
+    jailTmp     648
+    project       1
+    jailHome     93
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /bin/sh
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 11   distinct peers: 1
+        104.16.2.34:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 574
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 41 store entries removed, 1 spared as nub tooling, 774 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=303/303 missing=0 shortfall=none (tree 8966/3352) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}
+  EVICT[nar-no-network] 75 store entries removed, 1 spared as nub tooling, 808 in store
