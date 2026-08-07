@@ -1,0 +1,121 @@
+### purescript@0.10.7   (/home/runner/v2-AAEHZw)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2051 trace=578520 lines
+  CLOSURE   291 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":27,"filesTheScriptProduced":12,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-AAEHZw/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-AAEHZw/observe/capture.json
+  RAWLOG-BYTES raw=93702325 gz=3700628
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-AAEHZw/jailhome","TMPDIR":"/tmp/nub-tmp-obswO3aBr","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-AAEHZw/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 1904
+    writes  script 30288  /  whole traced tree 31376
+    sockets script 71  /  whole traced tree 75
+    ⛔ 4 WRITES with an UNRESOLVED dirfd — base unknown, so NOT classified
+       and NOT granted. They are a decoding gap, not a capability. Never guessed:
+        unlinkat conftest.two (dirfd 8)
+        unlinkat conftest.one (dirfd 8)
+        unlinkat subs.awk (dirfd 8)
+        unlinkat subs1.awk (dirfd 8)
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-AAEHZw/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-AAEHZw/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-AAEHZw/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obswO3aBr
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-AAEHZw/observe/node_modules/purescript
+  == WRITES the script actually performed ==
+    ownPkg       13  (base profile already grants this — NOT billed)
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc-publish
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc-package
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psci
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc-ide-client
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/README
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc-ide-server
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/dependencies.txt
+        /home/runner/v2-AAEHZw/observe/node_modules/purescript/vendor/psc-bundle
+        … and 3 more
+    jailTmp   12897  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/.gitignore
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/.travis.yml
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/CONTRIBUTING.md
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/CONTRIBUTORS.md
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/INSTALL.md
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/LICENSE
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/README.md
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/Setup.hs
+        /tmp/nub-tmp-obswO3aBr/4c437fed-43ac-4e0b-8bd2-4bf49601fde0/appveyor.yml
+        … and 12887 more
+    jailHome  17209  (base profile already grants this — NOT billed)
+        /home/runner/v2-AAEHZw/jailhome/.stack
+        /home/runner/v2-AAEHZw/jailhome/.stack/.config.yaml73582-0.tmp
+        /home/runner/v2-AAEHZw/jailhome/.stack/config.yaml
+        /home/runner/v2-AAEHZw/jailhome/.stack/pantry
+        /home/runner/v2-AAEHZw/jailhome/.stack/pantry/pantry.sqlite3.pantry-write-lock
+        /home/runner/v2-AAEHZw/jailhome/.stack/pantry/pantry.sqlite3
+        /home/runner/v2-AAEHZw/jailhome/.stack/pantry/pantry.sqlite3-journal
+        /home/runner/v2-AAEHZw/jailhome/.stack/stack.sqlite3.pantry-write-lock
+        /home/runner/v2-AAEHZw/jailhome/.stack/stack.sqlite3
+        /home/runner/v2-AAEHZw/jailhome/.stack/stack.sqlite3-journal
+        … and 17199 more
+    kernelfs    169
+        /dev/null
+        /proc/self/task/74794/comm
+        /proc/self/task/74795/comm
+        /proc/self/task/74796/comm
+        /proc/self/task/74800/comm
+        /proc/self/task/74801/comm
+        /proc/self/task/74802/comm
+        /proc/self/task/74806/comm
+        /proc/self/task/74807/comm
+        /proc/self/task/74808/comm
+        … and 159 more
+  == NETWORK ==
+    AF_INET sockets: 71   distinct peers: 5
+        127.0.0.53:53
+        104.16.5.34:443
+        140.82.116.3:443
+        127.0.0.1:65535
+        185.199.110.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 5
+        access /sbin/ldconfig
+        access /usr/bin/ldd
+        access /usr/bin/xz
+        access /usr/bin/gmake
+        access /usr/bin/tar
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".stack"]}
+    NOTE 169 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 17209
+        .stack
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    413593 distinct from 565772 calls (578521 lines, 4676 rejoined, 0 unparsed)
+    PROCS     1911   lifecycle shells 1899
+    ⛔ 7 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×2494 getcwd×1871 exit_group×1648 setsockopt×368 getpeername×317 exit×259 socketpair×69 getsockname×51
+    wrote /home/runner/v2-AAEHZw/observe/events.ndjson.gz (1836276 bytes)
+  EVENTLOG-FILE /home/runner/v2-AAEHZw/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":578521,"parsed":565772,"unparsed":0,"unfinished":4676,"rejoined":4676,"unresolvedDirfd":7,"truncatedArg":0,"procs":1911,"lifecyclePids":1899,"distinctEvents":413593,"unknownSyscall":{"getsockname":51,"getsockopt":32,"getcwd":1871,"recvmsg":51,"exit":259,"setsockopt":368,"sendmmsg":16,"socketpair":69,"shutdown":47,"exit_group":1648,"wait4":2494,"getpeername":317},"out":"/home/runner/v2-AAEHZw/observe/events.ndjson.gz","gzipBytes":1836276}
+  EVICT     203 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for purescript
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=27/27 missing=0 shortfall=none (tree 7776/2051) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".stack"]}
+  => VERIFIED {"network":true,"writePaths":[".stack"]}   (observed, then verified)
+  EVICT     310 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for purescript
+  VERIFY[drop-no-network] rc=0 artifacts=15/27 missing=12 shortfall=c6b48986dae8 (tree 7740/2051) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".stack"]}
+       missing: vendor/INSTALL.md, vendor/LICENSE, vendor/README, vendor/dependencies.txt, vendor/psc, vendor/psc-bundle (+6)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".stack"]} is independently necessary
