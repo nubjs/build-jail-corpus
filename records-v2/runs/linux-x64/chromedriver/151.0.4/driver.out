@@ -1,0 +1,83 @@
+### chromedriver@151.0.4   (/home/nub/v2-mlNxqa)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1042 trace=9803 lines
+  CLOSURE   59 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-mlNxqa/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-mlNxqa/observe/capture.json
+  RAWLOG-BYTES raw=1903526 gz=70722
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-mlNxqa/jailhome","TMPDIR":"/tmp/nub-tmp-obsoKBR1u","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-mlNxqa/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 10  /  whole traced tree 1188
+    sockets script 7  /  whole traced tree 13
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-mlNxqa/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-mlNxqa/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-mlNxqa/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsoKBR1u
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-mlNxqa/observe/node_modules/chromedriver
+  == WRITES the script actually performed ==
+    jailTmp       8  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/1786113268330.tmp
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/chromedriver-linux64.zip
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/chromedriver-linux64
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/chromedriver-linux64/LICENSE.chromedriver
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/chromedriver-linux64/THIRD_PARTY_NOTICES.chromedriver
+        /tmp/nub-tmp-obsoKBR1u/151.0.7922.77/chromedriver/chromedriver-linux64/chromedriver
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/nub/v2-mlNxqa/observe/node_modules/chromedriver/lib/chromedriver
+        /home/nub/v2-mlNxqa/observe/node_modules/chromedriver/lib/chromedriver/chromedriver
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        185.199.108.153:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5363 distinct from 9755 calls (9804 lines, 23 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×53 setsockopt×41 getsockopt×19 exit×18 recvmsg×10 getcwd×5 shutdown×5 sendmmsg×3
+    wrote /home/nub/v2-mlNxqa/observe/events.ndjson.gz (36929 bytes)
+  EVENTLOG-FILE /home/nub/v2-mlNxqa/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9804,"parsed":9755,"unparsed":0,"unfinished":23,"rejoined":23,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5363,"unknownSyscall":{"getsockname":53,"getsockopt":19,"getcwd":5,"recvmsg":10,"setsockopt":41,"sendmmsg":3,"socketpair":3,"shutdown":5,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-mlNxqa/observe/events.ndjson.gz","gzipBytes":36929}
+  EVICT     49 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+  VERIFY[synth] rc=1 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 3/1042) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: <package absent>
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+  VERIFY[fb2126003217] rc=1 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 3/1042) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+  VERIFY[fb3938809772] rc=1 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 3/1042) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+  VERIFY[fb2742342390] rc=1 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 3/1042) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: <package absent>
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
+     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
+     an under-grant: do not widen the catalog. This is a nub install defect to chase.

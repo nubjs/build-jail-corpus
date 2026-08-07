@@ -1,0 +1,79 @@
+### cypress@15.20.0   (/home/nub/v2-YSfjgz)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=3943 trace=79404 lines
+  CLOSURE   154 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":794,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (794) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-YSfjgz/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-YSfjgz/observe/capture.json
+  RAWLOG-BYTES raw=16139718 gz=425701
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-YSfjgz/jailhome","TMPDIR":"/tmp/nub-tmp-obsEni9fj","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-YSfjgz/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 24965  /  whole traced tree 26143
+    sockets script 9  /  whole traced tree 15
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-YSfjgz/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-YSfjgz/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-YSfjgz/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsEni9fj
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-YSfjgz/observe/node_modules/cypress
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+    jailHome  24963  (base profile already grants this — NOT billed)
+        /home/nub/v2-YSfjgz/jailhome/.cache
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/v8_context_snapshot.bin
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/LICENSE.electron.txt
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/libGLESv2.so
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/chrome_crashpad_handler
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/resources.pak
+        /home/nub/v2-YSfjgz/jailhome/.cache/Cypress/15.20.0/Cypress/chrome_200_percent.pak
+        … and 24953 more
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsEni9fj/cypress-716823.zip
+  == NETWORK ==
+    AF_INET sockets: 9   distinct peers: 3
+        127.0.0.53:53
+        104.16.7.34:443
+        104.20.35.55:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        openat /sys/class/dmi/id/product_uuid
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/Cypress"]}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 24963
+        .cache/Cypress
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    50686 distinct from 79291 calls (79405 lines, 63 rejoined, 0 unparsed)
+    PROCS     36   lifecycle shells 25
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×98 getsockname×59 getsockopt×40 wait4×21 socketpair×19 exit×19 exit_group×15 recvmsg×14
+    wrote /home/nub/v2-YSfjgz/observe/events.ndjson.gz (329556 bytes)
+  EVENTLOG-FILE /home/nub/v2-YSfjgz/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":79405,"parsed":79291,"unparsed":0,"unfinished":63,"rejoined":63,"unresolvedDirfd":3,"truncatedArg":0,"procs":36,"lifecyclePids":25,"distinctEvents":50686,"unknownSyscall":{"getsockname":59,"getsockopt":40,"getcwd":5,"recvmsg":14,"setsockopt":98,"sendmmsg":4,"socketpair":19,"shutdown":13,"exit_group":15,"wait4":21,"exit":19},"out":"/home/nub/v2-YSfjgz/observe/events.ndjson.gz","gzipBytes":329556}
+  EVICT     159 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cypress
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=794/794 missing=0 shortfall=none (tree 12366/3943) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/Cypress"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/Cypress"]}   (observed, then verified)
+  EVICT     165 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cypress
+  VERIFY[drop-no-network] rc=1 artifacts=794/794 missing=0 shortfall=none (tree 12364/3943) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/Cypress"]}
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/Cypress"]} is independently necessary

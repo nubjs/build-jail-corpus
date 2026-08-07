@@ -1,0 +1,80 @@
+### @pact-foundation/pact@17.1.0   (/home/nub/v2-o0iwkW)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=4668 trace=9013 lines
+  CLOSURE   125 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":339,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (339) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-o0iwkW/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-o0iwkW/observe/capture.json
+  RAWLOG-BYTES raw=1745859 gz=62155
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-o0iwkW/jailhome","TMPDIR":"/tmp/nub-tmp-obsYD8TqZ","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-o0iwkW/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 1178
+    sockets script 0  /  whole traced tree 6
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-o0iwkW/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-o0iwkW/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-o0iwkW/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsYD8TqZ
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-o0iwkW/observe/node_modules/@pact-foundation/pact
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4866 distinct from 8758 calls (9014 lines, 244 rejoined, 0 unparsed)
+    PROCS     11   lifecycle shells 0
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×18 setsockopt×11 exit×9 recvmsg×6 getsockopt×4 getcwd×2 sendmmsg×1 exit_group×1
+    wrote /home/nub/v2-o0iwkW/observe/events.ndjson.gz (34178 bytes)
+  EVENTLOG-FILE /home/nub/v2-o0iwkW/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9014,"parsed":8758,"unparsed":0,"unfinished":244,"rejoined":244,"unresolvedDirfd":3,"truncatedArg":0,"procs":11,"lifecyclePids":0,"distinctEvents":4866,"unknownSyscall":{"getsockname":18,"getsockopt":4,"getcwd":2,"recvmsg":6,"setsockopt":11,"sendmmsg":1,"exit":9,"exit_group":1},"out":"/home/nub/v2-o0iwkW/observe/events.ndjson.gz","gzipBytes":34178}
+  EVICT     115 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pact-foundation/pact
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[synth] rc=1 artifacts=ABSENT/339 missing=1 shortfall=7f7367677a90 (tree 3/4668) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: <package absent>
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pact-foundation/pact
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb2126003217] rc=1 artifacts=ABSENT/339 missing=1 shortfall=7f7367677a90 (tree 3/4668) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pact-foundation/pact
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb3938809772] rc=1 artifacts=ABSENT/339 missing=1 shortfall=7f7367677a90 (tree 3/4668) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: <package absent>
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pact-foundation/pact
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb2742342390] rc=1 artifacts=ABSENT/339 missing=1 shortfall=7f7367677a90 (tree 3/4668) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: <package absent>
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
+     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
+     an under-grant: do not widen the catalog. This is a nub install defect to chase.

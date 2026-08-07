@@ -1,0 +1,81 @@
+### better-sqlite3@13.0.3   (/home/nub/v2-Qt16La)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=99 trace=25416 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":77,"filesTheScriptProduced":9,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-Qt16La/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-Qt16La/observe/capture.json
+  RAWLOG-BYTES raw=4903883 gz=178951
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-Qt16La/jailhome","TMPDIR":"/tmp/nub-tmp-obsXvv94p","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-Qt16La/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 41
+    writes  script 3345  /  whole traced tree 4523
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-Qt16La/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-Qt16La/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-Qt16La/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXvv94p
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/nub/v2-Qt16La/jailhome/.cache
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-Qt16La/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        … and 3318 more
+    ownPkg       17  (base profile already grants this — NOT billed)
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/config.gypi
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/Makefile
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/test_extension.target.mk
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/better_sqlite3.target.mk
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/binding.Makefile
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/node_gyp_bins
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/node_gyp_bins/python3
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/Release
+        /home/nub/v2-Qt16La/observe/node_modules/better-sqlite3/build/obj.target
+        … and 7 more
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    13974 distinct from 24889 calls (25417 lines, 468 rejoined, 0 unparsed)
+    PROCS     47   lifecycle shells 36
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×62 setsockopt×58 getsockname×40 wait4×25 getsockopt×24 exit×23 exit_group×21 recvmsg×12
+    wrote /home/nub/v2-Qt16La/observe/events.ndjson.gz (82543 bytes)
+  EVENTLOG-FILE /home/nub/v2-Qt16La/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":25417,"parsed":24889,"unparsed":0,"unfinished":468,"rejoined":468,"unresolvedDirfd":3,"truncatedArg":0,"procs":47,"lifecyclePids":36,"distinctEvents":13974,"unknownSyscall":{"getsockname":40,"getsockopt":24,"getcwd":62,"recvmsg":12,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":21,"wait4":25,"getpeername":1,"exit":23},"out":"/home/nub/v2-Qt16La/observe/events.ndjson.gz","gzipBytes":82543}
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for better-sqlite3
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=77/77 missing=0 shortfall=none (tree 198/99) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for better-sqlite3
+  VERIFY[drop-no-network] rc=0 artifacts=77/77 missing=0 shortfall=none (tree 198/99) OVERRIDDEN=1 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

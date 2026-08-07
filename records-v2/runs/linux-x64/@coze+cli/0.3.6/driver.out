@@ -1,0 +1,88 @@
+### @coze/cli@0.3.6   (/home/nub/v2-AstKCf)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=5753 trace=101778 lines
+  CLOSURE   162 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":45,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (45) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-AstKCf/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-AstKCf/observe/capture.json
+  RAWLOG-BYTES raw=15190513 gz=565760
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-AstKCf/jailhome","TMPDIR":"/tmp/nub-tmp-obsT4Mb7H","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-AstKCf/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 80
+    writes  script 625  /  whole traced tree 1719
+    sockets script 10  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-AstKCf/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-AstKCf/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-AstKCf/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsT4Mb7H
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-AstKCf/observe/node_modules/@coze/cli
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+    jailHome    280  (base profile already grants this — NOT billed)
+        /home/nub/v2-AstKCf/jailhome/.coze
+        /home/nub/v2-AstKCf/jailhome/.coze/cli
+        /home/nub/v2-AstKCf/jailhome/.coze/cli/logs
+        /home/nub/v2-AstKCf/jailhome/.coze/cli/logs/2026-08-07T14-30-19-198Z-706191.log
+        /home/nub/v2-AstKCf/jailhome/.agents
+        /home/nub/v2-AstKCf/jailhome/.agents/skills
+        /home/nub/v2-AstKCf/jailhome/.agents/skills/coze-agent-collaboration
+        /home/nub/v2-AstKCf/jailhome/.agents/skills/coze-agent-collaboration/agents
+        /home/nub/v2-AstKCf/jailhome/.agents/skills/coze-agent-collaboration/references
+        /home/nub/v2-AstKCf/jailhome/.agents/skills/coze-agent-collaboration/SKILL.md
+        … and 270 more
+    jailTmp     344  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/9ee51943.Uumifp
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/9ee51943
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/47904b52.DwvETm
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/47904b52
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/652892a2.N2sbAe
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/652892a2
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/9d204462.dX1KOt
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/9d204462
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/c61436ab.1mV3dk
+        /tmp/nub-tmp-obsT4Mb7H/node-compile-cache/v22.20.0-x64-9de703df-1001/c61436ab
+        … and 334 more
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        104.16.2.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 280
+    none declared — the writes SCATTER — no small set of directories names them, so the honest answer is to declare nothing rather than promote a long tail into the user's real home (57 entries derived, cap 4): .adal, .agents, .aider-desk, .astrbot, .augment, .autohand, .bob, .claude, …
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    11736 distinct from 73379 calls (101779 lines, 28304 rejoined, 0 unparsed)
+    PROCS     86   lifecycle shells 75
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×116 setsockopt×100 getsockopt×72 exit×68 socketpair×18 recvmsg×16 getcwd×15 wait4×11
+    wrote /home/nub/v2-AstKCf/observe/events.ndjson.gz (74580 bytes)
+  EVENTLOG-FILE /home/nub/v2-AstKCf/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":101779,"parsed":73379,"unparsed":0,"unfinished":28304,"rejoined":28304,"unresolvedDirfd":3,"truncatedArg":0,"procs":86,"lifecyclePids":75,"distinctEvents":11736,"unknownSyscall":{"getsockname":116,"getsockopt":72,"getcwd":15,"recvmsg":16,"setsockopt":100,"sendmmsg":4,"socketpair":18,"shutdown":8,"exit":68,"exit_group":10,"wait4":11},"out":"/home/nub/v2-AstKCf/observe/events.ndjson.gz","gzipBytes":74580}
+  EVICT     203 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @coze/cli
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 17892/5753) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     163 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @coze/cli
+  VERIFY[drop-no-network] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 17892/5753) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
