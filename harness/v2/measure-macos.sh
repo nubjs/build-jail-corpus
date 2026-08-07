@@ -785,8 +785,52 @@ JW
   [ "$rc" -eq 0 ] && [ "$grc" -eq 0 ]
 }
 
+# ── 3-DIRECT. ONE ARM AT A NAMED GRANT, THEN STOP. ────────────────────────────────────────────
+#
+# ⛔ THE EXIT CODES ARE THE CONTRACT. `falsify.mjs` and `e2e.mjs` both branch on them, and the three
+# outcomes are genuinely different things. Collapsing VOID into INSUFFICIENT would turn "the override
+# never engaged, nothing was measured" into a fabricated capability finding about a package.
+#   0  SUFFICIENT    installed, and its artifacts matched OBSERVE
+#   1  INSUFFICIENT  the package needs MORE than this grant
+#   3  VOID          the override did not engage; NOTHING was measured
+#
+# ⛔ THIS BLOCK IS THE FEATURE. An earlier commit shipped the flag PARSING without it: `--at-grant`
+# validated, then fell through to the ordinary ladder and measured the SYNTHESIZED grant instead of
+# the caller's, exiting 0 in every case so 1 and 3 were unreachable. It passed `bash -n`, the smoke
+# probe, and six tests — because every one of those stops at a validation gate, and a `grep` for the
+# flag name matches the parser. Nothing short of RUNNING the driver and looking for the line below
+# could have caught it.
+if [ -n "$AT_GRANT" ] || [ -n "$AT_CATALOG" ]; then
+  if [ -n "$AT_CATALOG" ]; then
+    echo "  ── DIRECT: does $PKG@$VER install under the catalog at $AT_CATALOG ?"
+    verify "(catalog $AT_CATALOG)" "at-catalog"; ARC=$?
+  else
+    echo "  ── DIRECT: does $PKG@$VER install under EXACTLY $AT_GRANT ?"
+    verify "$AT_GRANT" "at-grant"; ARC=$?
+  fi
+  AT_SUBJECT="${AT_CATALOG:-$AT_GRANT}"
+  case "$ARC" in
+    0) echo "  => SUFFICIENT $AT_SUBJECT   (installed, artifacts matched OBSERVE)"; exit 0 ;;
+    2) echo "  => ⛔ VOID — the override did not engage; NOTHING was measured."
+       echo "     Not a result. Do NOT record it, and do NOT read it as insufficient."; exit 3 ;;
+    *) echo "  => INSUFFICIENT $AT_SUBJECT   (the package needs MORE than this grant)"
+       echo "     ⇒ If this grant came from a v1 record, that record UNDER-GRANTS — the direction"
+       echo "        that breaks a real install. Worth a mechanism before it is acted on."; exit 1 ;;
+  esac
+fi
+
 VERIFIED=0
-if verify "$GRANT" "synth"; then
+# ⛔ VOID IS NOT INSUFFICIENT ON THE LADDER EITHER. `verify` returns 2 when the catalog override
+# never engaged, and a bare `if verify …` reads that as false — so a run that measured NOTHING was
+# reported `=> UNDER-PREDICTED … This is the correctness finding`, which is a capability claim about
+# the package. `measure.sh` guards this explicitly and this driver did not.
+verify "$GRANT" "synth"; SRC=$?
+if [ "$SRC" -eq 2 ]; then
+  echo "  => ⛔ VOID — the override did not engage on the verdict arm; NOTHING was measured."
+  echo "     Not a result. Do NOT read the absence of a verdict as a wide grant."
+  exit 3
+fi
+if [ "$SRC" -eq 0 ]; then
   VERIFIED=1
   echo "  => VERIFIED $GRANT"
 else

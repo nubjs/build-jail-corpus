@@ -251,7 +251,13 @@ const runArm = (kase, grant, label) => {
   const rc = r.status ?? (r.error ? -1 : 1);
   const grab = (re, i = 1) => { const m = out.match(re); return m ? m[i] : null; };
 
-  const root = grab(/^###\s+\S+\s+\((\S+)\)\s*$/m);
+  // ⛔ THE HEADER IS NOT ANCHORED TO END-OF-LINE, BECAUSE THE DRIVERS DISAGREE ON WHAT FOLLOWS THE
+  // ROOT. `measure.sh` ends the line at the closing paren; `measure-macos.sh` appends ` nub=<path>`.
+  // Anchoring made `root` null on darwin, which empties `armLogs` — and with no logs, `refusalSeen`,
+  // `scriptRan` and `evidenceIsSound` are all false, so this file reports "the arm may have REPLAYED
+  // a previous arm's build" about a run that was fine. A parser reading three drivers has to accept
+  // all three dialects, or it fabricates alarms on the two it was not written against.
+  const root = grab(/^###\s+\S+\s+\((\S+)\)/m);
   const slurp = (...p) => { try { return fs.readFileSync(path.join(...p), 'utf8'); } catch { return ''; } };
   // The arm's own install/approve logs, which is where an OS refusal actually lands — the driver's
   // stdout carries only the verdict lines. `verify-at-grant` is the label DIRECT mode passes.
@@ -304,7 +310,11 @@ const runArm = (kase, grant, label) => {
     missing: verify && verify[4] != null ? Number(verify[4]) : null,
     overridden: verify ? Number(verify[6]) : null,
     rejected: verify ? Number(verify[7]) : null,
-    evicted: Number(grab(/EVICT\s+(\d+) store entries removed/) ?? -1),
+    // Same dialect problem: `measure.sh` prints `EVICT     <n> store entries removed`,
+    // `measure-macos.sh` prints `EVICT[<label>] <n> …`. The optional bracketed label is what makes
+    // this match both; without it darwin reported `evicted=-1` and the eviction judge failed a run
+    // whose eviction had in fact happened.
+    evicted: Number(grab(/EVICT(?:\[[^\]]*\])?\s+(\d+) store entries removed/) ?? -1),
     // ⛔ REPORTED, NOT FAILED, AND THE REASON IS A MEASURED DEFECT IN THE DRIVER'S OWN PREDICATE.
     // `measure.sh` warns `REPLAY SUSPECTED` when no arm log matches `running build scripts for`. nub
     // prints that line only for a package on its DEFAULT-TRUST list, where the script runs during
