@@ -1,0 +1,58 @@
+### wd@1.14.0   (/home/runner/v2-cByoz5)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2332 trace=11121 lines
+  CLOSURE   92 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":140,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-cByoz5/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-cByoz5/observe/capture.json
+  RAWLOG-BYTES raw=2418382 gz=70812
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-cByoz5/jailhome","TMPDIR":"/tmp/nub-tmp-obsZtVjW0","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-cByoz5/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 4  /  whole traced tree 1092
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-cByoz5/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-cByoz5/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-cByoz5/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsZtVjW0
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-cByoz5/observe/node_modules/wd
+  == WRITES the script actually performed ==
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-cByoz5/observe/node_modules/wd/build
+        /home/runner/v2-cByoz5/observe/node_modules/wd/build/safe-execute.js
+        /home/runner/v2-cByoz5/observe/node_modules/wd/build/safe-execute-async.js
+        /home/runner/v2-cByoz5/observe/node_modules/wd/build/wait-for-cond-in-browser.js
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.2.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4598 distinct from 10901 calls (11122 lines, 198 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-cByoz5/observe/events.ndjson.gz (32599 bytes)
+  EVENTLOG-FILE /home/runner/v2-cByoz5/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11122,"parsed":10901,"unparsed":0,"unfinished":198,"rejoined":198,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4598,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-cByoz5/observe/events.ndjson.gz","gzipBytes":32599}
+  EVICT     43 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for wd
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=140/140 missing=0 shortfall=none (tree 8241/2332) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
