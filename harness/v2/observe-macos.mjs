@@ -392,7 +392,25 @@ for (const raw of lines) {
 //
 // Each maps to a real base-profile grant, exactly as on Linux: private_home_dir/jail_private_home
 // (RW via push_rw_path), make_private_tmp/TmpMode::Private, and redirect_npm_prefix's leaf carve-out.
+// ⛔ PYTHON BYTECODE IS DROPPED WHEREVER IT LANDS, AND IT IS TESTED FIRST, AHEAD OF EVERY ROOT.
+// Ported from `observe.mjs:264`, which carries the two grounds; they are not restated here. What IS
+// worth stating is what its absence cost on THIS platform, because it was not the harmless
+// over-grant it looks like:
+//
+// MEASURED on cpu-features@0.0.10, by re-parsing the retained archive — 39 of 39 `userHome` writes
+// were `__pycache__`/`.pyc` under `hostedtoolcache/…/node-gyp/gyp/pylib/`. So the synthesized grant
+// carried `write.userHome` manufactured ENTIRELY by CPython caching bytecode next to node-gyp's
+// bundled gyp, i.e. by where Node happens to be installed on the measuring host.
+//
+// ⛔ AND `write.userHome` IS THE PERSISTENCE CAPABILITY. It is write access to the whole user home —
+// `~/.zshrc`, `~/.ssh/authorized_keys`, any shell profile. The mission's first success property is
+// that a jailed install script cannot read credentials OR write persistence, so billing bytecode
+// here does not merely widen a blast radius, it hands out the capability the jail exists to withhold,
+// on essentially every package with a native build. Security-material, not tidiness.
+const isBytecode = (p) => /(^|\/)__pycache__(\/|$)/.test(p) || /\.py[co]$/.test(p);
+
 const scope = (p) => {
+  if (isBytecode(p)) return 'bytecode';
   if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
   if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
   if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
@@ -406,6 +424,11 @@ const scope = (p) => {
 };
 // Named once so the report and the synthesized grant cannot disagree about which writes are free.
 const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
+// ⛔ `bytecode` IS NOT IN `BASE_COVERED`, AND THE DISTINCTION IS THE POINT. A base-covered write is
+// one the jail GRANTS; a bytecode write is one the jail REFUSES and the build survives without.
+// Collapsing them would make the report claim the jail hands these paths over, which is the opposite
+// of what was measured. Excluded from the grant for different reasons, so reported in different words.
+const NOT_BILLED = [...BASE_COVERED, 'bytecode'];
 const bucket = (set) => {
   const out = {};
   for (const p of set) (out[scope(p)] ??= []).push(p);
@@ -477,9 +500,15 @@ console.log('== WRITES the script actually performed ==');
 for (const [k, v] of Object.entries(w)) {
   // Naming the free scopes in the log is what stops a reader reconciling a bucket against the grant
   // and concluding the synthesis dropped a write it deliberately did not bill.
-  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)' : '';
+  const free = BASE_COVERED.includes(k) ? '  (base profile already grants this — NOT billed)'
+    : k === 'bytecode' ? '  (jail REFUSES these and the build succeeds anyway — NOT billed)' : '';
   console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}${free}`);
-  if (k === 'outside' || k === 'systemfs') v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
+  // Dump a sample of every bucket that is unclassifiable OR excluded from the grant — the excluded
+  // ones are the evidence the exclusion is honest, so a reader can check the paths themselves.
+  if (k === 'outside' || k === 'systemfs' || NOT_BILLED.includes(k)) {
+    v.slice(0, 10).forEach((p) => console.log(`      ${p}`));
+    if (v.length > 10) console.log(`      … and ${v.length - 10} more`);
+  }
 }
 console.log('== READS the script performed, by scope ==');
 for (const [k, v] of Object.entries(r)) console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);

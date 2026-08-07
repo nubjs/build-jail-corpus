@@ -246,6 +246,7 @@ sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
   "HOME=$JAIL_HOME" \
   "TMPDIR=$JAIL_TMP" \
   "NODE_COMPAT=1" \
+  "PYTHONDONTWRITEBYTECODE=1" \
   "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
   "electron_config_cache=$TOOLS/electron-cache" \
@@ -384,7 +385,12 @@ node -e '
     // reproduce the environment the real jail creates; a script reading os.tmpdir() writes to a
     // DIFFERENT path without them. When this set changes, a trace taken under the old set is not
     // comparable with one taken under the new, and only a recorded set makes that detectable.
-    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1",
+    // PYTHONDONTWRITEBYTECODE joined the set when nub began setting it on every confined script
+    // (BUILD_JAIL_BASELINE_ENV in compiler/preset.rs). The OBSERVE arm runs UNJAILED under npm, so
+    // the nub baseline env does not reach it — the harness must set it, or OBSERVE sees bytecode
+    // writes the jailed arm never attempts. The two are not redundant; they cover opposite sides of
+    // the same seam.
+    observeEnv: { HOME: jailHome, TMPDIR: jailTmp, NODE_COMPAT: "1", PYTHONDONTWRITEBYTECODE: "1",
                   PLAYWRIGHT_BROWSERS_PATH: `${toolsDir}/ms-playwright`,
                   ELECTRON_CACHE: `${toolsDir}/electron-cache`,
                   electron_config_cache: `${toolsDir}/electron-cache`,
@@ -422,6 +428,7 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
     const jh = process.argv[1], jt = process.argv[2], tools = process.argv[3];
     process.stdout.write(JSON.stringify({
       set: { PATH: "inherited-and-forwarded", HOME: jh, TMPDIR: jt, NODE_COMPAT: "1",
+             PYTHONDONTWRITEBYTECODE: "1",
              PLAYWRIGHT_BROWSERS_PATH: tools + "/ms-playwright",
              ELECTRON_CACHE: tools + "/electron-cache",
              electron_config_cache: tools + "/electron-cache",
