@@ -108,3 +108,55 @@ test('RED-GREEN on the vacuity term: pulumi publishes once its arms are falsifia
 test('a package with NO prior record always publishes', () => {
   assert.equal(decide(null, rec({}, ['arms-unfalsifiable'], 'MINIMAL')).publish, true);
 });
+
+// ── the shapes review found, each of which published silently ────────────────────────────────
+
+test('⛔ P2: `write:"disk"` is a capability — narrowing it away is not a no-op', () => {
+  // The ladder's top rung is `{"write":"disk","network":true}` and `record.mjs` records a ladder
+  // MINIMUM verbatim. Flattening only object-shaped `write` made the LARGEST possible narrowing
+  // report "does not narrow" and publish.
+  assert.deepEqual([...capsOf({ write: 'disk', network: true })].sort(), ['network', 'write:disk']);
+  assert.deepEqual(narrows({ write: 'disk', network: true }, { network: true }), ['write:disk']);
+  // A per-scope write does NOT satisfy whole-disk write.
+  assert.deepEqual(narrows({ write: 'disk' }, { write: { deps: true } }), ['write:disk']);
+  // …and the read axis is real too, for the `{"write":{…},"read":"disk",…}` rung.
+  assert.deepEqual(narrows({ read: 'disk', network: true }, { network: true }), ['read:disk']);
+});
+
+test('⛔ P2: a vacuous record narrowing whole-disk write is WITHHELD, not waved through', () => {
+  const prior = rec({ write: 'disk', network: true }, [], 'MINIMAL');
+  const incoming = rec({ network: true }, ['arms-unfalsifiable'], 'OVER-PREDICTED');
+  assert.equal(decide(prior, incoming).publish, false);
+});
+
+test('⛔ P3: on darwin, MINIMAL does not imply a red arm', () => {
+  // measure-macos.sh's descent is a two-way branch, so a VOID arm collapses into "necessary" and
+  // the driver prints MINIMAL having proven nothing. Linux/Windows keep three outcomes.
+  const grant = { write: { userHome: true }, network: true };
+  const darwin = { grant, notes: ['arms-unfalsifiable'], minimality: 'MINIMAL',
+    provenance: { platform: 'darwin-arm64' } };
+  const linux = { ...darwin, provenance: { platform: 'linux-x64' } };
+  assert.equal(hasRedArm(darwin), false, 'darwin MINIMAL is not evidence a detector fired');
+  assert.equal(hasRedArm(linux), true, 'linux MINIMAL with a non-empty grant IS');
+  const prior = rec({ write: { deps: true, userHome: true }, network: true }, [], null);
+  assert.equal(decide(prior, darwin).publish, false, 'the darwin narrowing must withhold');
+  assert.equal(decide(prior, linux).publish, true, 'the linux one must still publish');
+});
+
+test('⛔ P4: a degraded VERDICT may not silently delete a measured grant', () => {
+  // collate.mjs drops every non-MINIMUM verdict from the catalog, so this removes the package
+  // outright. It used to fall through as "narrows on falsifiable arms" — true, and beside the point.
+  const prior = { verdict: 'MINIMUM', grant: { network: true }, notes: [], minimality: 'MINIMAL' };
+  for (const v of ['BROKEN-WITHOUT-JAIL-TOO', 'NO-STATE-PASSED', 'HARNESS-ERROR']) {
+    const incoming = { verdict: v, grant: null, notes: [], minimality: null };
+    const d = decide(prior, incoming);
+    assert.equal(d.publish, false, `${v} must not replace a measured MINIMUM`);
+    assert.match(d.reason, /collate\.mjs drops/);
+  }
+  // CONTROL: the reverse transition is an IMPROVEMENT and must publish — both happened this batch
+  // (phantomjs@2.1.7 and windows-foreground-love@0.6.1).
+  const wasBroken = { verdict: 'BROKEN-WITHOUT-JAIL-TOO', grant: null, notes: [], minimality: null };
+  const nowMeasured = { verdict: 'MINIMUM', grant: { network: true }, notes: [], minimality: 'MINIMAL' };
+  assert.equal(decide(wasBroken, nowMeasured).publish, true,
+    'a package that became measurable must be allowed to gain a grant');
+});

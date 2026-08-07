@@ -45,8 +45,15 @@ cp -R "$REC_DIR/." "$STASH/rec/" 2>/dev/null || exit 0
 git config user.name  "corpus-runner"  2>/dev/null || true
 git config user.email "corpus-runner@users.noreply.github.com" 2>/dev/null || true
 
-printf '%s\n' "$REL" >> "$MANIFEST" 2>/dev/null
-sort -u -o "$MANIFEST" "$MANIFEST" 2>/dev/null
+# ⛔ THE MANIFEST IS APPENDED TO ONLY AFTER A PUBLISH VERDICT, FURTHER DOWN — NEVER HERE.
+# It used to be appended at this point, before the guard ran, and that made the guard DECORATIVE:
+# the manifest is replayed by every LATER invocation (`git add` per line, below) and by the
+# end-of-slice bulk commit, so a withheld record was staged and pushed under the NEXT package's
+# commit message. REPRODUCED: two invocations sharing one manifest, the first withheld — the
+# withheld `{}` grant landed on origin under the second package's commit.
+#
+# The first test of this guard used a SEPARATE manifest per record and therefore could not have
+# caught it, which is the "control that cannot fail" failure one level up from the thing it guards.
 
 for attempt in 1 2 3; do
   # MIXED reset, not --hard and not --soft. --hard would delete a record committed here but not yet
@@ -77,18 +84,46 @@ for attempt in 1 2 3; do
   PRIOR_JSON="$STASH/prior.json"
   git show "origin/$BRANCH:$REL/results.json" > "$PRIOR_JSON" 2>/dev/null || : > "$PRIOR_JSON"
   if [ -s "$PRIOR_JSON" ]; then
+    # ⛔ stderr is KEPT, not discarded. This fails open, so a guard that is broken publishes exactly
+    # as before — and if the only trace of that is a silent `2>/dev/null`, the fail-open is
+    # indistinguishable from a clean PUBLISH verdict in a slice log.
     node harness/v2/publish-guard.mjs --prior "$PRIOR_JSON" --incoming "$STASH/rec/results.json" \
-      > "$STASH/guard.out" 2>/dev/null
-    if [ "$?" = "10" ]; then
+      > "$STASH/guard.out" 2>"$STASH/guard.err"
+    GUARD_RC=$?
+    if [ "$GUARD_RC" != "0" ] && [ "$GUARD_RC" != "10" ]; then
+      echo "  ⚠ publish-guard failed (rc=$GUARD_RC) — FAILING OPEN, this record is publishing" \
+           "UNGUARDED: $(head -c 300 "$STASH/guard.err" 2>/dev/null)" >&2
+    fi
+    if [ "$GUARD_RC" = "10" ]; then
       echo "  ⛔ WITHHELD (not published): $REL" >&2
       sed 's/^/     /' "$STASH/guard.out" >&2
-      echo "     The record stays on disk at $REC_DIR for inspection; the corpus keeps its prior grant." >&2
+      # ⛔ THE RECORD MUST LEAVE THE WORKING TREE, NOT MERELY GO UNSTAGED. `record.mjs --out` writes
+      # straight into `records-v2/runs/...`, i.e. the record is ALREADY at $REL before this script
+      # runs. The MIXED reset above leaves the working tree alone, and both the end-of-slice bulk
+      # commit and `.github/workflows/corpus-v2-runner.yml`'s `git add records-v2` sweep the whole
+      # directory — so a withheld record left in place is published by the next thing that commits,
+      # with no guard anywhere in that path. Restore origin's copy, and park the withheld one
+      # OUTSIDE records-v2 so it stays inspectable without being sweepable.
+      WITHHELD_DIR="${NUB_CORPUS_WITHHELD:-withheld-records}/$(basename "$(dirname "$REL")")-$(basename "$REL")"
+      mkdir -p "$WITHHELD_DIR" 2>/dev/null
+      cp -R "$STASH/rec/." "$WITHHELD_DIR/" 2>/dev/null
+      if git cat-file -e "origin/$BRANCH:$REL/results.json" 2>/dev/null; then
+        git checkout -q "origin/$BRANCH" -- "$REL" 2>/dev/null
+      else
+        rm -rf "$REL" 2>/dev/null
+      fi
+      echo "     Parked at $WITHHELD_DIR (outside records-v2, so no bulk commit can sweep it in)." >&2
+      echo "     The corpus keeps its prior grant." >&2
       exit 0
     fi
   fi
 
   mkdir -p "$REL"
   cp -R "$STASH/rec/." "$REL/" 2>/dev/null
+
+  # PUBLISH verdict reached: only now may this record join the replayed manifest.
+  printf '%s\n' "$REL" >> "$MANIFEST" 2>/dev/null
+  sort -u -o "$MANIFEST" "$MANIFEST" 2>/dev/null
 
   node harness/claim-slice.mjs --reconcile --records records-v2 --queue "$QUEUE" >/dev/null 2>&1 || true
 
