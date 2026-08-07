@@ -49,7 +49,15 @@ const DIRTY = {
   T5_provenance: { provenance: { nubGitSha: null, venue: 'vm' } }, // no sha256 either -> unattributable
   T6_truncated: { grantSource: 'descended-incomplete' },
   T7_rc: { driverRc: 3221225477 },
+  T8_replay: { notes: ['replay-confirmed'] },
 };
+
+test('⭑ T8 fires only on CONFIRMED replay, never on the heuristic SUSPECTED note', () => {
+  // `replay-suspected` comes from predicates that have measurably false-fired — treating it as a
+  // finding would make most Windows records dirty for no reason and bury the real signal.
+  assert.equal(TRIPWIRES.T8_replay({ ...CLEAN, notes: ['replay-suspected'] }), null);
+  assert.ok(TRIPWIRES.T8_replay({ ...CLEAN, notes: ['replay-confirmed'] }));
+});
 
 for (const [name, patch] of Object.entries(DIRTY)) {
   test(`⭑ ${name} FIRES on a record built to trip it`, () => {

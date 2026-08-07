@@ -191,7 +191,18 @@ export function parseDriverLog(log) {
     if (/###\s+DONE\s.*\ssynthesized=/.test(l)) {
       out.synthesized ??= firstObject(l.slice(l.indexOf('synthesized=')));
     }
-    if (/REPLAY SUSPECTED/.test(l)) out.notes.push('replay-suspected');
+    // ⛔ TWO DISTINCT STRENGTHS, AND ONLY ONE OF THEM WAS EVER RECORDED. This matched `REPLAY
+    // SUSPECTED` alone — the wording the two HEURISTIC predicates print. `measure.sh` retired its
+    // heuristic in favour of `side-effects-cache: restored`, which is the one predicate measured to
+    // work, and announces it as `REPLAY CONFIRMED` — a spelling this line never matched. So the
+    // STRONGEST replay signal available produced no note at all, while the weak ones did.
+    //
+    // They are kept as separate notes because they mean different things and a reader must be able
+    // to tell them apart: CONFIRMED means the arm demonstrably replayed and its result is not a
+    // measurement; SUSPECTED is a guess from an indirect log shape and has false-fired in
+    // production (see the note at the Windows predicate).
+    if (/REPLAY CONFIRMED/.test(l)) out.notes.push('replay-confirmed');
+    else if (/REPLAY SUSPECTED/.test(l)) out.notes.push('replay-suspected');
     // ⛔ THE GRANT WAS WIDENED BECAUSE A WRITE COULD NOT BE PLACED, not because the package needed
     // the width. A reader comparing this record against another platform's has to be able to see
     // that from the record alone; the `STALE` variant additionally says the wrong resolution was

@@ -1176,7 +1176,12 @@ const verify = (grant, label) => {
     if (KEEP_ARM_CACHE || CACHE_HOME) return;
     try { fs.rmSync(armCache, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* a sweep failure must never cost a verdict */ }
   };
-  const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache };
+  // ⛔ `RUST_LOG=debug` IS LOAD-BEARING, NOT VERBOSITY — same reason `measure.sh` sets it.
+  // `side-effects-cache: restored` is a `tracing::debug!` (`install/side_effects_cache.rs`) and is
+  // the ONLY line that distinguishes a built arm from a replayed one. Without it the replay
+  // assertion below cannot observe what it asserts on, which is why this lane was still running the
+  // predicate `measure.sh` had already measured to be wrong.
+  const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
   // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
@@ -1223,8 +1228,26 @@ const verify = (grant, label) => {
   // result refuted a standing prediction, and a reader trusting the warning would have discarded
   // exactly the measurement that mattered. Keying on a summary line was always indirect; the fix
   // keys on the line that DIRECTLY evidences a script being invoked, across both logs.
-  if (!/running build scripts for/.test(logs)) {
-    console.log("     !! REPLAY SUSPECTED -- no 'running build scripts' line in either log; the script may not have run");
+  //
+  // ⛔⛔ AND THAT FIX WAS ALSO WRONG — MEASURED ON THE LINUX LANE, WHICH HAD ALREADY RETIRED IT.
+  // `running build scripts for` comes from `install/lifecycle.rs` and is printed ONLY for a
+  // DEFAULT-TRUSTED package. Everything else prints `ignored build scripts for N package(s)` and
+  // runs later under `approve-builds`, which prints NEITHER line. `measure.sh` records both
+  // directions measured: `es5-ext@0.10.64` (cold, approved, genuinely rebuilt) produced 0
+  // occurrences and FALSE-FIRED, while `msgpackr-extract@3.0.4` (genuinely RESTORED from cache)
+  // produced 1 and STAYED QUIET. A predicate that is both noisy and blind is worse than none — it
+  // trains a reader to ignore the one warning that would have mattered. It fired on all four arms
+  // of `postman-code-generators@0.2.4`, which is how this was noticed.
+  //
+  // The predicate below is the one `measure.sh` kept, and it is an ASSERTION ON AN EXISTING GUARD
+  // rather than a discovery instrument: every arm writes `side-effects-cache=false` into its own
+  // `.npmrc`, so this line should NEVER appear. It fires only if that guard regresses. Its green is
+  // correspondingly narrow — it means "the side-effects cache did not restore", not "no replay
+  // happened"; the store-eviction and unique-root paths have their own guards.
+  if (/side-effects-cache: restored/.test(logs)) {
+    console.log('     ⛔ REPLAY CONFIRMED -- nub restored this package\'s build output from the');
+    console.log('        side-effects cache, so the script did NOT run in this arm and its result');
+    console.log('        is not a measurement. side-effects-cache=false did not take effect here.');
   }
   // `files/OBS_FILES` stays printed for continuity with the existing corpus logs, but it is
   // DIAGNOSTIC ONLY -- see the pkgManifest comment for why those two numbers are incomparable.

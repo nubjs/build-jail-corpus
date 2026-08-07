@@ -113,6 +113,12 @@ export const TRIPWIRES = {
   },
   T6_truncated: (r) => (r.grantSource === 'descended-incomplete' || r.verdict === 'UNPROVEN'
     ? `budget-truncated (grantSource=${r.grantSource}, verdict=${r.verdict})` : null),
+  // ⛔ A CONFIRMED REPLAY MEANS THE ARM MEASURED NOTHING. The lifecycle script was restored from the
+  // side-effects cache instead of running, so the grant it "verified" was never exercised. Distinct
+  // from `replay-suspected`, which the heuristic predicates emit and which has false-fired in
+  // production — only the confirmed form is a finding.
+  T8_replay: (r) => ((r.notes || []).includes('replay-confirmed')
+    ? 'replay-confirmed — the script was restored from cache, so this arm measured nothing' : null),
   T7_rc: (r) => {
     const rc = r.driverRc;
     // 0 fine; 124 is the timeout the budget imposes and T6 already names it; anything else is unknown.
