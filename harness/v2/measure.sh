@@ -681,6 +681,10 @@ verify () {
   # Cost: each arm re-materializes this package from scratch. That is the price of independent arms.
   # Both, not either: the memo drop is NECESSARY and never SUFFICIENT, so keeping it costs nothing
   # and removing it would reintroduce a second replay path behind the one being fixed here.
+  # ⛔ THIS LINE HAS NEVER REMOVED ANYTHING AND IS KEPT ONLY SO THE CLAIM DIES HERE RATHER THAN BEING
+  # REDISCOVERED. `NUB_CACHE_DIR` does not relocate the side-effects cache — measured; the real purge
+  # is the `SE-PURGE` below, at the XDG path with the cache's own `__` encoding. Harmless either way,
+  # because `side-effects-cache=false` above is what actually closes this path.
   rm -rf "$NUB_CACHE_DIR/pm/side-effects-v1" 2>/dev/null
   # ⛔ THE SLUG MUST MATCH THE STORE'S OWN NAMING, AND THE FIRST REVISION OF THIS EVICTION DID NOT
   # — so it silently NO-OPPED FOR EVERY SCOPED PACKAGE, leaving open exactly the replay it was
@@ -840,6 +844,48 @@ verify () {
   # The private home is keyed on a hash of the package dir, which differs per arm root, so match the
   # readable basename prefix rather than trying to recompute nub's hash.
   rm -rf "$jailcache"/jail-home/"$(basename "$PKG")"-* 2>/dev/null
+  # ⛔ REPAIRING A DEAD GUARD — NOT CLOSING A LIVE HOLE, AND THE DISTINCTION IS RECORDED BECAUSE THE
+  # AUTHOR OF THIS LINE FIRST GOT IT WRONG IN THE ALARMING DIRECTION. The `rm -rf` above at the
+  # `$NUB_CACHE_DIR` path has never removed anything: `side_effects_cache_root` is
+  # `virtual_store_dir().parent()/side-effects-v1` (`install/side_effects_cache.rs:267`), a SIBLING of
+  # `pm/store`, and `NUB_CACHE_DIR` does not relocate it. MEASURED under this driver's exact env — the
+  # entry lands at `~/.cache/nub/pm/side-effects-v1/…` and NOTHING appears under `$ROOT/nubcache`.
+  #
+  # ⛔ THE PATH IS ALREADY CLOSED BY `side-effects-cache=false` IN EVERY ARM'S `.npmrc` (above), SO
+  # THIS IS DEFENCE IN DEPTH AND NOTHING MORE. Measured both ways on the same package and box:
+  #
+  #   two installs sharing a cache, NO `.npmrc`     -> `saved` then `restored`   (a real replay)
+  #   the same two installs WITH the arm's `.npmrc` -> no `saved`, no `restored`, no entry on disk
+  #
+  # The first configuration is not one this harness ever runs in. It is recorded because it is the
+  # red half of the replay assertion below — the only way that check has ever been shown able to fire.
+  #
+  # Keeping the purge anyway costs one `rm` and removes the reader's need to trust that a setting is
+  # honoured; deleting it would leave the surrounding comment describing a guard that is not there.
+  # ⛔⛔ `__`, NOT `+`, AND NOT THE RAW NAME — A THIRD ENCODING, MEASURED RATHER THAN ASSUMED. The
+  # store spells a scoped package `@scarf+scarf@1.4.0-<hash>`; the side-effects cache spells the SAME
+  # package `@scarf__scarf@1.4.0`. The first version of this line reused the store's `+` (and a raw
+  # `$PKG` fallback) and would have silently purged NOTHING for every scoped package — a no-op purge
+  # that reads as a working guard, on the largest slice of the corpus. Caught by installing
+  # `@scarf/scarf@1.4.0` and looking at the directory instead of trusting the sibling convention.
+  #
+  # ⛔ BY PACKAGE, NEVER THE WHOLE TREE. A blanket `rm -rf` of `side-effects-v1` would also close the
+  # path, and would also destroy a concurrently-running lane's cache on a shared box.
+  #
+  # ⛔ AND THE PURGE IS COUNTED AND PRINTED, because a purge that silently no-ops when the path shape
+  # changes is indistinguishable from a working one — which is the exact failure the `+` spelling
+  # above would have shipped.
+  #
+  # ⛔ READ THE COUNT CORRECTLY: `SE-PURGE 0` IS THE HEALTHY STATE AND MEANS NOTHING WAS THERE TO
+  # REMOVE. `side-effects-cache=false` stops any entry being written in the first place, so a
+  # production arm should print 0 every time and a NON-ZERO count is the interesting one — it says an
+  # entry existed, i.e. something wrote to this cache despite the setting. An earlier draft of this
+  # comment had it exactly backwards and called 0 the tell, which would have trained a reader to
+  # ignore the only value that carries information.
+  local sedir="$jailcache/pm/side-effects-v1/$(printf '%s' "$PKG" | sed 's|/|__|g')"
+  local sen=0
+  for d in "$sedir"@*; do [ -e "$d" ] && { rm -rf "$d" 2>/dev/null; sen=$((sen + 1)); }; done
+  echo "  SE-PURGE  $sen side-effects-cache entr$([ "$sen" -eq 1 ] && echo y || echo ies) for $PKG"
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
   # there are no version bands, so the entry grants exactly the base profile; drop it" — and then
@@ -878,9 +924,13 @@ verify () {
   # as a parameter rather than a second copy of this function so the preconditions above — unique
   # name, explicit `buildJail`, memo drop, override assertion — cannot drift between the arm that
   # decides the verdict and the arm that explains it.
+  # ⛔ `RUST_LOG=debug` IS LOAD-BEARING, NOT VERBOSITY. `side-effects-cache: restored` is a
+  # `tracing::debug!` (`install/side_effects_cache.rs:153`) and is the ONLY line that distinguishes a
+  # built arm from a replayed one — see the long note below the arm for why every default-level
+  # candidate was measured and rejected. Without this the replay assertion below is unfalsifiable.
   ( cd "$v"
-    NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
-    NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
+    RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
+    RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-a.txt} "$NUB" approve-builds --all > "$v/a.log" 2>&1 )
   local rc=$?
   # ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
   # a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
@@ -901,17 +951,46 @@ verify () {
   #   2. IT READ THE WRONG LOG. Lifecycle scripts run under `approve-builds`, whose output goes to
   #      `a.log`. `i.log` is the install step and cannot hold that evidence even in principle.
   #
-  # A warning that fires on arms that genuinely ran trains its reader to skip it, so a REAL replay
-  # sails through — precisely the failure this check exists to catch. Both counts are fixed by
-  # searching every log the arm wrote (the same `"$v"/*.log` the override assertion just below
-  # already uses) for the one line that DIRECTLY evidences a script being invoked, rather than
-  # inferring it from whichever install-summary shape the package count happened to produce.
+  # ⛔⛔ AND THE REPLACEMENT WAS WRONG TOO, IN BOTH DIRECTIONS — MEASURED, NOT ARGUED. It required
+  # `running build scripts for` somewhere in the arm's logs. That string comes from
+  # `install/lifecycle.rs:580` and is emitted ONLY for a DEFAULT-TRUSTED package; everything else
+  # takes `unreviewed_builds.rs:47` (`ignored build scripts for N package(s)`) and runs later under
+  # `approve-builds`, which prints neither line. Both halves measured on the corpus VM:
   #
-  # Reported, not fatal, and deliberately: the corpus only measures packages that DECLARE an install
-  # script, so missing evidence is a real signal here — but a script nub declines to run would also
-  # land here and is not a replay.
-  if ! grep -qE 'running build scripts for' "$v"/*.log 2>/dev/null; then
-    echo "     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run"
+  #   es5-ext@0.10.64        cold, scripts approved and rebuilt   0 occurrences  -> FALSE FIRE
+  #                          (`a.log` says `Approved 1 package(s) in package.json:`)
+  #   msgpackr-extract@3.0.4 second install, genuinely RESTORED   1 occurrence   -> STAYED QUIET
+  #
+  # ⛔ AND THE CORPUS ALREADY HELD THE REFUTATION, WITH NO VM AND NO RE-RUN. `hugo-extended@0.141.0`
+  # carries `REPLAY SUSPECTED` while its own descent arm reads
+  # `VERIFY[drop-network] rc=1 artifacts=9/12 missing=3`. A REPLAYED ARM CANNOT FAIL FOR MISSING
+  # ARTIFACTS — restored build output is present by definition. That script provably ran and provably
+  # responded to the grant. 10 of 45 committed linux-x64 records carry the flag and their verdicts all
+  # stand; the flag was noise. `Approved N package(s)` cannot discriminate either: it appears in the
+  # replayed run too, and it evidences "was handed to rebuild", not "was built".
+  #
+  # ⇒ NO LINE IN THE DEFAULT OUTPUT DISTINGUISHES RAN FROM REPLAYED. The only line that does is the
+  # cache's own, at debug level, which is why the arms above run under `RUST_LOG=debug`.
+  #
+  # ⛔ THIS IS AN ASSERTION ON AN EXISTING GUARD, NOT A DISCOVERY INSTRUMENT, AND THE DIFFERENCE IS
+  # THE WHOLE POINT. Every arm writes `side-effects-cache=false` into its own `.npmrc`, so this line
+  # SHOULD never appear. It fires only if that guard regresses — someone drops the `.npmrc` line, or
+  # nub stops honouring the setting. That is a question with exactly one answer, which is why it can
+  # be trusted where two predecessors that guessed at trust paths could not.
+  #
+  # ⛔⛔ AND ITS GREEN IS NARROW: it means "the side-effects cache did not restore", NOT "no replay
+  # happened". The store-eviction, unique-root-name and persistent-leaf paths are covered by their own
+  # evictions and are untouched by this check. Read it as one guard reporting on itself.
+  #
+  # Red-greened both ways against real runs of `msgpackr-extract@3.0.4` on the corpus VM: two installs
+  # sharing a cache WITHOUT the arm's `.npmrc` produce `saved` then `restored` (RED); the same pair
+  # WITH it produce neither, and write no cache entry at all (GREEN).
+  if grep -qE 'side-effects-cache: restored' "$v"/*.log 2>/dev/null; then
+    echo "     ⛔ REPLAY CONFIRMED — nub restored this package's build output from the side-effects"
+    echo "        cache, so the script did NOT run in this arm and its result is not a measurement."
+    # ⛔ SINGLE-QUOTED: backticks inside a double-quoted `echo` are COMMAND SUBSTITUTION, so the
+    # obvious spelling of this sentence tries to run `side-effects-cache=false` as a command.
+    echo '        side-effects-cache=false did not take effect for this arm; do not trust it.'
   fi
   # ⛔ A malformed override WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   # assertion an arm can measure the SHIPPED policy while you believe it measured yours.

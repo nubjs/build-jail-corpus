@@ -265,7 +265,17 @@ jobs:
               // The entry name is NOT always `<name>@<version>-<hash>`: a peer-dependency-keyed entry
               // is `fdir@6.5.0_picomatch@4.0.5_-<hash>`, so de-mangling the name off it reports a
               // false "unreadable" — which reads as a hole in the zero-lifecycle-scripts claim.
-              // Enumerate the entry's own node_modules instead of reconstructing the name.
+              // Enumerate the node_modules inside that entry instead of reconstructing the name.
+              //
+              // NO APOSTROPHES ANYWHERE IN THIS PROGRAM. It is the body of a `node -e ...` single-
+              // quoted shell string, so one quote — including one in a COMMENT — closes it early.
+              // This line read "the entry" + apostrophe + "s own node_modules" and cost run
+              // 31132145179 the whole step: node reported `SyntaxError: Unexpected end of input`
+              // because the program was truncated there, bash then failed on the NEXT line with
+              // `syntax error near unexpected token (`, and the JOB went red. Nothing about the
+              // eviction was wrong; the Verdict step right after it passed. So the red job was
+              // reporting a quoting bug in prose while the measurement it gates read green — and a
+              // reader who trusts the job conclusion learns the opposite of what the run measured.
               const cands = [path.join(store, e, "package.json")];
               const nm = path.join(store, e, "node_modules");
               for (const d of (fs.existsSync(nm) ? fs.readdirSync(nm) : [])) {

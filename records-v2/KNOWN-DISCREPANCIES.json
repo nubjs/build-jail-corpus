@@ -1,0 +1,25 @@
+{
+  "v": 1,
+  "kind": "known-discrepancies",
+  "what": "Packages whose committed record is known NOT to reproduce, with the reason. Read before treating a cross-section re-measure as a regression: for these, a different answer is the EXPECTED answer.",
+  "whyHandMaintained": "Unlike PRE-DESCENT.json this cannot be derived from the logs — it records a comparison between a committed record and a later run that no longer exists. Entries must therefore be retired by hand once the package is re-measured and the new record is the committed one.",
+  "entries": [
+    {
+      "platform": "linux-x64",
+      "package": "@pulumi/gcp",
+      "version": "0.16.9",
+      "committedGrant": { "write": { "userHome": true }, "network": true },
+      "committedOverPredictedBy": ["network", "write.userHome"],
+      "remeasured": {},
+      "remeasuredOn": "2026-08-06",
+      "remeasuredVerdict": "VERIFIED {} on the first arm; DESCEND reported the grant already empty, so N=0 and no descent arms ran",
+      "armFalsifiability": {
+        "manifestFiles": 697,
+        "filesTheScriptProduced": 0,
+        "reasons": ["gate-vacuous"]
+      },
+      "reading": "The committed record was never usable evidence. `gate-vacuous` means every file the artifact gate keys on was already present at its final size before any script ran, so the gate passes in every arm including a completely broken one — a green arm for this package carries no evidence either way. The narrower re-measured grant is therefore NOT a demonstrated narrowing and the wider committed one is NOT a demonstrated need; both are unfalsifiable for this package. Do not read the change as a regression, and do not read it as an improvement.",
+      "notInvestigated": "Which of the several harness changes landed on 2026-08-06 moved the synthesized grant was not isolated — no single-variable run was spent on it, deliberately, because `gate-vacuous` makes the answer unusable regardless."
+    }
+  ]
+}

@@ -13,13 +13,30 @@
 // and `echo`, and it is reachable in milliseconds by running those lines over fixture directories —
 // which is also exactly how the reviewer reproduced the store-layout defect.
 
-import { test } from 'node:test';
+import { test, test as nodeTest } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// ⛔ SKIPPED ON WINDOWS — BUT ONLY THE CASES THAT REPLAY THE SHELL, NOT THE FILE. Every case below
+// that drives an extracted `measure.sh` block runs it through `bash`, and MEASURED on the corpus
+// Windows VM there is no bash at all: `where bash` finds nothing and Git-for-Windows is absent, so
+// they die `spawnSync bash ENOENT` — a failure that says nothing about the provenance emissions.
+//
+// ⛔ THE TWO INSTRUMENT CHECKS ARE DELIBERATELY NOT SKIPPED. They assert the extractors actually
+// FOUND their block in `measure.sh`, which is pure text and passes on Windows today. They are also
+// the checks that stop a drifted anchor from turning every case here into a test of the empty
+// string, so a file-level skip would disarm the anti-vacuity guard on one platform and leave it
+// armed on the others — the asymmetry this file exists to prevent.
+//
+// ⛔ A SKIP IS NOT A PASS, so it is spelled as one and carries its reason into the TAP output.
+const SHELL_SKIP = process.platform === 'win32'
+  ? 'no bash on Windows: this case replays a block extracted from measure.sh'
+  : false;
+const shellTest = (name, fn) => nodeTest(name, { skip: SHELL_SKIP }, fn);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8').split('\n');
@@ -74,12 +91,12 @@ test('the extracted store-layout block is the real one — the instrument check'
   assert.match(LAYOUT_BLOCK, /VENUE-STORE-LAYOUT hoisted/, `extraction missed the block:\n${LAYOUT_BLOCK}`);
 });
 
-test('POSITIVE CONTROL: a single arm with a store reports the layout', () => {
+shellTest('POSITIVE CONTROL: a single arm with a store reports the layout', () => {
   const out = replayLayout([armWith('ctl', 'isolated')]);
   assert.match(out, /VENUE-STORE-LAYOUT isolated/, `the block must report at all:\n${out}`);
 });
 
-test('⛔ an arm with NO node_modules does not latch — a later arm still reports the layout', () => {
+shellTest('⛔ an arm with NO node_modules does not latch — a later arm still reports the layout', () => {
   // The reviewer's reproduction, verbatim in shape: a failed first arm followed by a good one.
   const out = replayLayout([armWith('fail', 'none'), armWith('good', 'isolated')]);
   assert.match(
@@ -89,7 +106,7 @@ test('⛔ an arm with NO node_modules does not latch — a later arm still repor
   );
 });
 
-test('the marker is still emitted exactly ONCE across many arms — the latch still latches', () => {
+shellTest('the marker is still emitted exactly ONCE across many arms — the latch still latches', () => {
   // Without this, "move the latch inside the branches" could be satisfied by deleting the latch,
   // which would emit a line per arm and let a later arm contradict an earlier one.
   const out = replayLayout([armWith('a', 'isolated'), armWith('b', 'isolated'), armWith('c', 'isolated')]);
@@ -100,13 +117,13 @@ test('the marker is still emitted exactly ONCE across many arms — the latch st
   );
 });
 
-test('a hoisted tree reports hoisted, and a run of failed arms before it changes nothing', () => {
+shellTest('a hoisted tree reports hoisted, and a run of failed arms before it changes nothing', () => {
   const out = replayLayout([armWith('f1', 'none'), armWith('f2', 'none'), armWith('h', 'hoisted')]);
   assert.match(out, /VENUE-STORE-LAYOUT hoisted/, `hoisted must be reachable after failed arms:\n${out}`);
   assert.doesNotMatch(out, /isolated/, `a hoisted tree must not report isolated:\n${out}`);
 });
 
-test('all-failed arms report NO layout rather than guessing one', () => {
+shellTest('all-failed arms report NO layout rather than guessing one', () => {
   // The honest outcome when nothing on disk answers the question. `storeLayout: null` is correct
   // HERE; the defect was reaching it while an arm still held the answer.
   const out = replayLayout([armWith('n1', 'none'), armWith('n2', 'none')]);
@@ -159,14 +176,14 @@ test('the extracted retention block is the real one — the instrument check', (
   assert.match(RETENTION_BLOCK, /RAW TRACE NOT RETAINED/, 'extraction missed the failure arm');
 });
 
-test('POSITIVE CONTROL: a good archive emits the archive lines AND the venue provenance', () => {
+shellTest('POSITIVE CONTROL: a good archive emits the archive lines AND the venue provenance', () => {
   const out = replayRetention({});
   assert.match(out, /RAWLOG-FILE /, `a good archive must be retained:\n${out}`);
   assert.match(out, /VENUE-INTERPRETER \/opt\/nodejs/, `provenance must be emitted:\n${out}`);
   assert.match(out, /VENUE-OVERRIDES \{/, `overrides must be emitted:\n${out}`);
 });
 
-test('⛔ a lost archive does NOT strip the venue provenance — they are independent facts', () => {
+shellTest('⛔ a lost archive does NOT strip the venue provenance — they are independent facts', () => {
   // No `trace.txt`, so `gzip` writes an empty `.gz` and the retention predicate is false. That is a
   // real and reported loss of the ARCHIVE; it must cost nothing else.
   const out = replayRetention({ traceBody: null });
@@ -175,14 +192,14 @@ test('⛔ a lost archive does NOT strip the venue provenance — they are indepe
   assert.match(out, /VENUE-OVERRIDES \{/, `a gzip failure stripped the whole overrides object:\n${out}`);
 });
 
-test('⛔ a zero-byte capture.json does NOT strip the venue provenance either', () => {
+shellTest('⛔ a zero-byte capture.json does NOT strip the venue provenance either', () => {
   const out = replayRetention({ captureBody: '' });
   assert.match(out, /RAW TRACE NOT RETAINED/, `precondition: retention must actually fail:\n${out}`);
   assert.match(out, /VENUE-INTERPRETER \/opt\/nodejs/, `an empty capture stripped interpreterPath:\n${out}`);
   assert.match(out, /VENUE-OVERRIDES \{/, `an empty capture stripped the overrides object:\n${out}`);
 });
 
-test('the emitted overrides are parseable JSON naming the variables the driver set', () => {
+shellTest('the emitted overrides are parseable JSON naming the variables the driver set', () => {
   // `record.mjs` does `JSON.parse` on this line and files `overrides-unparsable` when it throws, so a
   // malformed emission degrades silently into a note. Pin the shape here instead.
   const out = replayRetention({ traceBody: null });
