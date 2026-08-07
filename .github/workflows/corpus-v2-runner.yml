@@ -182,14 +182,51 @@ jobs:
           echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
           echo "binary cache path (native): $P"
 
+      # ⛔⛔ THE SHA IS RESOLVED *BEFORE* THE RESTORE, AND THE RESTORE HAS NO PREFIX FALLBACK.
+      # Both halves are load-bearing and the previous shape got both wrong.
+      #
+      # It keyed `nub-bin-v1-<os>-${{ inputs.nub_sha }}` behind `restore-keys: nub-bin-v1-<os>-`. A
+      # scheduled run passes no `nub_sha`, so the exact key was `nub-bin-v1-windows-` — which matches
+      # NOTHING — and the prefix fallback then served whatever binary was cached last. MEASURED on
+      # run 31145732202: the newest `nub-bin-v1-windows-*` was created 2026-08-06T07:33:54Z, the
+      # Windows-jail hardlink fix `4bd4687521` landed 2026-08-06T21:04:55Z, and that cache's
+      # `lastAccessedAt` is 2026-08-07T03:54:14Z. The run measured a binary ~13.5 h older than the fix
+      # it depended on, and every arm died on the pre-fix EPERM reading the package's own
+      # `install.js`. The input's description said "blank = restore any cached feature-enabled
+      # binary", so the behaviour was DOCUMENTED — but documented is a statement about intent, not a
+      # warrant that it is safe, and this is what it cost.
+      #
+      # ⛔ AND THE SHA USED TO BE RESOLVED INSIDE THE BUILD STEP, WHICH ONLY RUNS ON A CACHE MISS. So
+      # on a cache HIT nothing ever recorded which commit was measured. That is the attributability
+      # hole in its purest form: a corpus whose whole premise is measured provenance cannot say which
+      # binary produced a record. Resolving first fixes the key AND makes `NUB_GIT_SHA` true on both
+      # paths.
+      #
+      # The rebuild this costs is paid ONCE PER SHA and amortises across the hundreds of packages a
+      # sweep measures at that SHA.
+      - name: Resolve the nub commit under test
+        shell: bash
+        run: |
+          set -eu
+          REF="${{ inputs.nub_sha || 'sandbox/integration' }}"
+          # A raw 40-hex SHA is taken as-is; anything else is a ref and is resolved against the
+          # remote. `git ls-remote` avoids needing a clone this early, and the clone below reuses the
+          # answer rather than resolving a second time and risking a different one.
+          if printf '%s' "$REF" | grep -Eq '^[0-9a-f]{40}$'; then
+            SHA="$REF"
+          else
+            SHA=$(git ls-remote https://github.com/nubjs/nub.git "$REF" | cut -f1)
+          fi
+          [ -n "$SHA" ] || { echo "⛔ could not resolve nub ref '$REF'" >&2; exit 1; }
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "nub commit under test: $REF -> $SHA"
+
       - name: Restore a feature-enabled nub binary
         id: nubbin
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-${{ env.OS_NAME }}-${{ inputs.nub_sha }}
-          restore-keys: |
-            nub-bin-v1-${{ env.OS_NAME }}-
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
 
       - name: Build the probe binary
         if: steps.nubbin.outputs.cache-matched-key == ''
@@ -203,10 +240,9 @@ jobs:
           # used with '-b/-B/--orphan'". MEASURED, run 31102882458, which is why the Windows smoke
           # run never reached a compiler. Resolve to a SHA first; that also accepts a raw sha input,
           # which a `origin/` prefix would not.
-          REF="${{ inputs.nub_sha || 'origin/sandbox/integration' }}"
-          SHA=$(git rev-parse "$REF" 2>/dev/null || git rev-parse "origin/$REF")
-          git checkout --detach "$SHA"
-          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          # Already resolved above, on both the hit and miss paths, so this cannot disagree with
+          # the key the cache was looked up under.
+          git checkout --detach "$NUB_GIT_SHA"
           # `--profile fast` rather than `--release`: identical semantics for this purpose (fast
           # inherits dev) and it does not pay for LTO, which on a cold macOS runner is the difference
           # between fitting in the job and not.
