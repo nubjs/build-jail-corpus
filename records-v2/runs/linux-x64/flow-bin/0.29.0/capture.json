@@ -1,0 +1,55 @@
+{
+  "v": 1,
+  "kind": "capture",
+  "platform": "linux-x64",
+  "pkg": "flow-bin",
+  "version": "0.29.0",
+  "tracer": "strace",
+  "invocation": "strace -f -e trace=file,network,process -o trace.txt npm rebuild --no-audit --no-fund <pkg>",
+  "subscribes": {
+    "traceFilter": "file,network,process",
+    "followForks": true,
+    "straceVersion": "strace -- version 6.8"
+  },
+  "decoders": {
+    "synthesizer": {
+      "path": "harness/v2/observe.mjs",
+      "sha256": "86448cfe67e34de66fd4a84ea43d81219fcf7b072b0b571e7fc20f25fe6e0d06",
+      "bytes": 33230
+    },
+    "derived": {
+      "path": "harness/v2/adapters/linux.mjs",
+      "sha256": "3c890bd9b6910c05fd2918c7b2592553635254553fdc39e213e6a2d23ddd34cf",
+      "bytes": 29346
+    }
+  },
+  "os": {
+    "kernel": "Linux runnervmvrwv9 6.17.0-1020-azure #20~24.04.1-Ubuntu SMP Fri Jun 19 20:09:14 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "distro": "Ubuntu 24.04.4 LTS"
+  },
+  "roots": {
+    "project": "/home/runner/v2-TTPbLb/observe",
+    "home": "/home/runner",
+    "jailHome": "/home/runner/v2-TTPbLb/jailhome",
+    "temp": "/tmp/nub-tmp-obs4mZSJf",
+    "toolsDir": "/home/runner/.cache/nub/pm/tools",
+    "npmPrefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+    "ownPkg": "/home/runner/v2-TTPbLb/observe/node_modules/flow-bin",
+    "globalStore": "/home/runner/.cache/nub/pm/store",
+    "projectStore": "/home/runner/v2-TTPbLb/observe/node_modules/.store",
+    "interpreter": "/opt/hostedtoolcache/node/22.23.1/x64"
+  },
+  "observeEnv": {
+    "HOME": "/home/runner/v2-TTPbLb/jailhome",
+    "TMPDIR": "/tmp/nub-tmp-obs4mZSJf",
+    "NODE_COMPAT": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+    "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+    "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+    "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix"
+  },
+  "rawBytes": 3780004,
+  "rawLines": 18025,
+  "at": "2026-08-07T20:28:58.180Z"
+}
