@@ -1,0 +1,75 @@
+### agentdb@3.0.0-alpha.9   (/home/runner/v2-35MQzh)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=7373 trace=22335 lines
+  CLOSURE   184 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":589,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (589) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `postinstall` ends in a status-swallowing construct (`node scripts/postinstall.cjs || true`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-35MQzh/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-35MQzh/observe/capture.json
+  RAWLOG-BYTES raw=4864393 gz=140182
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-35MQzh/jailhome","TMPDIR":"/tmp/nub-tmp-obs9ujMAu","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-35MQzh/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 32
+    writes  script 1084  /  whole traced tree 1631
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-35MQzh/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-35MQzh/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-35MQzh/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs9ujMAu
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-35MQzh/observe/node_modules/agentdb
+  == WRITES the script actually performed ==
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-35MQzh/jailhome/.npm/_logs/2026-08-07T18_31_29_484Z-debug-0.log
+    jailTmp    1082  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/5cbc6b9d.QquANG
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/5cbc6b9d
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/50baf7db.yjaXtR
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/50baf7db
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd033fc9.DyGVh6
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/dd033fc9
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/8f5c5eb6.WbCAE1
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/8f5c5eb6
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/d3016196.cZpWjX
+        /tmp/nub-tmp-obs9ujMAu/node-compile-cache/v22.23.1-x64-9ac5647c-1001/d3016196
+        … and 1072 more
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.0.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    9304 distinct from 21900 calls (22336 lines, 386 rejoined, 0 unparsed)
+    PROCS     39   lifecycle shells 27
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×45 getsockopt×30 exit×25 setsockopt×23 wait4×15 recvmsg×12 exit_group×11 getcwd×7
+    wrote /home/runner/v2-35MQzh/observe/events.ndjson.gz (58174 bytes)
+  EVENTLOG-FILE /home/runner/v2-35MQzh/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":22336,"parsed":21900,"unparsed":0,"unfinished":386,"rejoined":386,"unresolvedDirfd":3,"truncatedArg":0,"procs":39,"lifecyclePids":27,"distinctEvents":9304,"unknownSyscall":{"getsockname":45,"getsockopt":30,"getcwd":7,"recvmsg":12,"exit":25,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":11,"wait4":15},"out":"/home/runner/v2-35MQzh/observe/events.ndjson.gz","gzipBytes":58174}
+  EVICT     63 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for agentdb
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=589/589 missing=0 shortfall=none (tree 26375/7373) OVERRIDDEN=1 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
