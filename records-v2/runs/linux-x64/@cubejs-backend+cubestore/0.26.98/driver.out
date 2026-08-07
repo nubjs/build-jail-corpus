@@ -1,0 +1,69 @@
+### @cubejs-backend/cubestore@0.26.98   (/home/runner/v2-ymeg76)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1202 trace=14937 lines
+  CLOSURE   113 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":36,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-ymeg76/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ymeg76/observe/capture.json
+  RAWLOG-BYTES raw=3174054 gz=95020
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ymeg76/jailhome","TMPDIR":"/tmp/nub-tmp-obsy2l06r","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ymeg76/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 23
+    writes  script 6  /  whole traced tree 1094
+    sockets script 9  /  whole traced tree 15
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ymeg76/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ymeg76/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ymeg76/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsy2l06r
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ymeg76/observe/node_modules/@cubejs-backend/cubestore
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-ymeg76/observe/node_modules/@cubejs-backend/cubestore/downloaded
+        /home/runner/v2-ymeg76/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest
+        /home/runner/v2-ymeg76/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest/bin
+        /home/runner/v2-ymeg76/observe/node_modules/@cubejs-backend/cubestore/downloaded/latest/bin/cubestored
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsy2l06r/1e94ed5da7281d2e0a93790886de5f15
+  == NETWORK ==
+    AF_INET sockets: 9   distinct peers: 3
+        127.0.0.53:53
+        104.16.8.34:443
+        140.82.116.5:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6452 distinct from 14784 calls (14938 lines, 114 rejoined, 0 unparsed)
+    PROCS     30   lifecycle shells 18
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×59 getsockname×35 exit×20 getsockopt×17 recvmsg×15 wait4×10 socketpair×9 exit_group×6
+    wrote /home/runner/v2-ymeg76/observe/events.ndjson.gz (42105 bytes)
+  EVENTLOG-FILE /home/runner/v2-ymeg76/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14938,"parsed":14784,"unparsed":0,"unfinished":114,"rejoined":114,"unresolvedDirfd":3,"truncatedArg":0,"procs":30,"lifecyclePids":18,"distinctEvents":6452,"unknownSyscall":{"getsockname":35,"getsockopt":17,"getcwd":5,"recvmsg":15,"exit":20,"setsockopt":59,"sendmmsg":5,"socketpair":9,"shutdown":5,"exit_group":6,"wait4":10},"out":"/home/runner/v2-ymeg76/observe/events.ndjson.gz","gzipBytes":42105}
+  EVICT     102 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @cubejs-backend/cubestore
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=36/36 missing=0 shortfall=none (tree 4324/1202) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     124 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @cubejs-backend/cubestore
+  VERIFY[drop-no-network] rc=1 artifacts=35/36 missing=1 shortfall=42c4af2b10bf (tree 4319/1202) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: downloaded/latest/bin/cubestored
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
