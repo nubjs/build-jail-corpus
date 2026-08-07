@@ -1,0 +1,69 @@
+### elm@1.5.2   (/home/runner/v2-Mz6mI7)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1993 trace=18394 lines
+  CLOSURE   282 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":30,"filesTheScriptProduced":6,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-Mz6mI7/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Mz6mI7/observe/capture.json
+  RAWLOG-BYTES raw=3821153 gz=114611
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Mz6mI7/jailhome","TMPDIR":"/tmp/nub-tmp-obs4CPxO2","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Mz6mI7/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 39
+    writes  script 7  /  whole traced tree 1095
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Mz6mI7/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Mz6mI7/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Mz6mI7/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs4CPxO2
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Mz6mI7/observe/node_modules/elm
+  == WRITES the script actually performed ==
+    ownPkg        7  (base profile already grants this — NOT billed)
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm-repl
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm-make
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm-doc
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm-reactor
+        /home/runner/v2-Mz6mI7/observe/node_modules/elm/vendor/elm-package
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 2
+        access /usr/bin/git
+        access /bin/git
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8359 distinct from 18025 calls (18395 lines, 309 rejoined, 0 unparsed)
+    PROCS     46   lifecycle shells 34
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×105 exit×35 getsockname×31 socketpair×21 shutdown×15 getsockopt×13 recvmsg×11 exit_group×9
+    wrote /home/runner/v2-Mz6mI7/observe/events.ndjson.gz (52499 bytes)
+  EVENTLOG-FILE /home/runner/v2-Mz6mI7/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":18395,"parsed":18025,"unparsed":0,"unfinished":309,"rejoined":309,"unresolvedDirfd":3,"truncatedArg":0,"procs":46,"lifecyclePids":34,"distinctEvents":8359,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":5,"recvmsg":11,"exit":35,"setsockopt":105,"sendmmsg":3,"socketpair":21,"shutdown":15,"exit_group":9,"wait4":9},"out":"/home/runner/v2-Mz6mI7/observe/events.ndjson.gz","gzipBytes":52499}
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for elm
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=30/30 missing=0 shortfall=none (tree 7594/1993) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     300 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for elm
+  VERIFY[drop-no-network] rc=0 artifacts=24/30 missing=6 shortfall=87dcbf78f85e (tree 7576/1993) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: vendor/elm, vendor/elm-doc, vendor/elm-make, vendor/elm-package, vendor/elm-reactor, vendor/elm-repl
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
