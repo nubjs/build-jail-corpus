@@ -1,0 +1,71 @@
+### taiko@1.5.0   (/home/runner/v2-PKl1ra)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=8286 trace=24153 lines
+  CLOSURE   322 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":399,"filesTheScriptProduced":306,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-PKl1ra/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-PKl1ra/observe/capture.json
+  RAWLOG-BYTES raw=4965593 gz=139943
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-PKl1ra/jailhome","TMPDIR":"/tmp/nub-tmp-obsrDsCYk","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-PKl1ra/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 321  /  whole traced tree 1409
+    sockets script 3  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-PKl1ra/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-PKl1ra/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-PKl1ra/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsrDsCYk
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-PKl1ra/observe/node_modules/taiko
+  == WRITES the script actually performed ==
+    ownPkg      321  (base profile already grants this — NOT billed)
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/download-linux64-1596535.zip
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/ABOUT
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/MEIPreload
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/MEIPreload/manifest.json
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/MEIPreload/preloaded_data.pb
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/PrivacySandboxAttestationsPreloaded
+        /home/runner/v2-PKl1ra/observe/node_modules/taiko/.local-chromium/linux64-1596535/chrome-linux64/PrivacySandboxAttestationsPreloaded/manifest.json
+        … and 311 more
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.2.34:443
+        142.251.219.155:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    10107 distinct from 23733 calls (24154 lines, 379 rejoined, 0 unparsed)
+    PROCS     37   lifecycle shells 25
+    ⛔ 15 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×137 getsockname×60 setsockopt×40 getsockopt×33 exit×29 recvmsg×9 socketpair×6 shutdown×6
+    wrote /home/runner/v2-PKl1ra/observe/events.ndjson.gz (63256 bytes)
+  EVENTLOG-FILE /home/runner/v2-PKl1ra/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":24154,"parsed":23733,"unparsed":0,"unfinished":379,"rejoined":379,"unresolvedDirfd":15,"truncatedArg":0,"procs":37,"lifecyclePids":25,"distinctEvents":10107,"unknownSyscall":{"getsockname":60,"getsockopt":33,"getcwd":137,"recvmsg":9,"exit":29,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":6,"exit_group":5,"wait4":6},"out":"/home/runner/v2-PKl1ra/observe/events.ndjson.gz","gzipBytes":63256}
+  EVICT     139 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for taiko
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=399/399 missing=0 shortfall=none (tree 29287/8286) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     331 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for taiko
+  VERIFY[drop-no-network] rc=1 artifacts=94/399 missing=306 shortfall=9279a6af3b62 (tree 28370/8286) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: .local-chromium/linux64-1596535/chrome-linux64/ABOUT, .local-chromium/linux64-1596535/chrome-linux64/MEIPreload/manifest.json, .local-chromium/linux64-1596535/chrome-linux64/MEIPreload/preloaded_data.pb, .local-chromium/linux64-1596535/chrome-linux64/PrivacySandboxAttestationsPreloaded/manifest.json, .local-chromium/linux64-1596535/chrome-linux64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat, .local-chromium/linux64-1596535/chrome-linux64/WidevineCdm/LICENSE (+300)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
