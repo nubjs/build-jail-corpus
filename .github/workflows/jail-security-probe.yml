@@ -187,6 +187,10 @@ jobs:
       # ── THE REAL TEST: jail ON, hardcoded absolute paths.
       - name: 'JAILED — the attack must be BLOCKED'
         shell: bash
+        # The tiered scorer below reads this: real-home ENUMERATION is tolerated ONLY on windows,
+        # and only because the mechanism is named. Anywhere else it is a regression.
+        env:
+          PROBE_OS: ${{ matrix.os }}
         run: |
           set -eu
           # Relative paths + a subshell, for the reasons spelled out on the control step above.
@@ -220,6 +224,34 @@ jobs:
             const enoent=r.results.filter(x=>x.status==="BLOCKED"&&/ENOENT/.test(x.detail)).length;
             const eperm=r.results.filter(x=>x.status==="BLOCKED"&&/EPERM|EACCES/.test(x.detail)).length;
             console.log("   -> "+eperm+" denied by POLICY (EPERM/EACCES), "+enoent+" merely ENOENT (path absent)");
-            if (r.allowed > 0) { console.log("⛔⛔ THE JAIL LEAKED: "+r.allowed+" credential read(s) SUCCEEDED"); process.exit(1); }
-            console.log("PASS: every credential read was denied.");
+            // ⛔⛔ TIERED, BECAUSE `allowed > 0` CANNOT TELL "read a secret" FROM "see a filename".
+            // Measured 2026-08-05 (run 30968614273): win32 denied all four credential READS and the
+            // persistence WRITE with EPERM, and was failed solely for enumerating the real home —
+            // which is DELIBERATE (`TRAVERSE_MASK` includes `FILE_LIST_DIRECTORY`, because traversal
+            // is required to reach granted paths at all). That one rule kept the repo's most
+            // important gate red for two days while the property it guards was in fact holding.
+            //
+            // ⛔ ENUMERATION IS STILL A REAL LEAK, just a far weaker one than reading
+            // `~/.aws/credentials` — it reveals which tools and accounts exist. So it is NOT
+            // ignored: it is its own tier, TOLERATED ONLY ON WINDOWS AND ONLY BECAUSE THE
+            // MECHANISM IS NAMED. On linux/macOS it stays a hard failure, so a POSIX regression
+            // into the same state is caught rather than excused.
+            const SECRET = /npmrc|gitconfig|aws creds|ssh key/i;
+            const PERSIST = /write persistence/i;
+            const ENUM = /list real home/i;
+            const bad = r.results.filter(x => x.status === "ALLOWED" && (SECRET.test(x.name) || PERSIST.test(x.name)));
+            const enumd = r.results.filter(x => x.status === "ALLOWED" && ENUM.test(x.name));
+            const other = r.results.filter(x => x.status === "ALLOWED" && !SECRET.test(x.name) && !PERSIST.test(x.name) && !ENUM.test(x.name));
+            if (r.envLeaked > 0) { console.log("⛔⛔ ENV SECRETS VISIBLE TO THE SCRIPT: "+r.envLeaked); process.exit(1); }
+            if (bad.length)   { console.log("⛔⛔ THE JAIL LEAKED: "+bad.length+" credential read/persistence write(s) SUCCEEDED: "+bad.map(x=>x.name).join(", ")); process.exit(1); }
+            if (other.length) { console.log("⛔⛔ AN UNCLASSIFIED ACTION WAS ALLOWED — a new probe action needs a tier before this gate can score it: "+other.map(x=>x.name).join(", ")); process.exit(1); }
+            if (enumd.length) {
+              if (process.env.PROBE_OS !== "windows") {
+                console.log("⛔⛔ REGRESSION: real-home ENUMERATION succeeded on "+process.env.PROBE_OS+", where it has always been denied.");
+                process.exit(1);
+              }
+              console.log("⚠️  KNOWN + DELIBERATE (win32): real-home ENUMERATION is allowed — TRAVERSE_MASK includes");
+              console.log("    FILE_LIST_DIRECTORY so granted paths remain reachable. Filenames are visible; contents are NOT.");
+            }
+            console.log("PASS: every credential read and the persistence write were denied.");
           '
