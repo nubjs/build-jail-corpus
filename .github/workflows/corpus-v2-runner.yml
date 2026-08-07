@@ -346,11 +346,32 @@ jobs:
           CAP_MIN=300; HEADROOM_MIN=40
           export NUB_CORPUS_DEADLINE=$(( JOB_START_EPOCH + (CAP_MIN - HEADROOM_MIN) * 60 ))
           echo "setup consumed $(( ($(date +%s) - JOB_START_EPOCH) / 60 )) min of the ${CAP_MIN}-min cap"
+          # ⛔ THE `||` IS STILL HERE ON PURPOSE, AND THE GATE BELOW IS WHAT MAKES IT SAFE. A batch that
+          # measured SOME packages and then died must reach the commit step or the whole slice dies
+          # with the ephemeral runner — so a non-zero rc may not fail the step by itself. What the
+          # `||` used to hide is the other case: MEASURED, run 31145732202, where the falsification
+          # control refused to start the batch, `run-batch-v2.mjs` exited non-zero 58 seconds into a
+          # claimed slice of 10, and this step reported `success` having measured nothing. Only a
+          # LATER step crashing revealed it.
+          #
+          # ⛔ `${PIPESTATUS[0]}`, NEVER `$?`, AND THE `set +e` IS NOT DECORATION. `$?` after a pipe is
+          # TEE's status, which is always 0. And GitHub invokes this shell with `-e`, which the step's
+          # own `set -uo pipefail` does not clear — so under `pipefail` a failing batch would abort the
+          # step here, before the gate could distinguish a partial slice from a lost one.
+          set +e
           node harness/v2/run-batch-v2.mjs --file /tmp/slice.txt --nub "$NUB_BIN" \
             --runs "$GITHUB_WORKSPACE/records-v2/runs" \
             ${{ (inputs.packages != '' || inputs.force) && '--force' || '' }} \
-            || echo "run-batch-v2 exited non-zero — the gate below decides whether that lost the slice"
+            2>&1 | tee /tmp/measure.log
+          BATCH_RC=${PIPESTATUS[0]}
+          set -e
+          echo "run-batch-v2 exited rc=$BATCH_RC"
           echo "v2 records on disk: $(find records-v2 -name results.json | wc -l)"
+          # ⛔ FAILS ONLY ON THE NOTHING-HAPPENED CASE. A partial slice passes; see the header of
+          # `assert-slice-measured.mjs` and its negative controls. Both paths are ARGUMENTS, which is
+          # the spelling msys2 rewrites — see the `/tmp` note in the job's `env:` block.
+          node harness/v2/assert-slice-measured.mjs \
+            --log /tmp/measure.log --slice /tmp/slice.txt --rc "$BATCH_RC"
 
       - name: Collect verdicts
         if: inputs.packages == '' && env.DRAINED != '1'
