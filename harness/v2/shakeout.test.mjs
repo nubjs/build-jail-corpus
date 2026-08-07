@@ -52,6 +52,19 @@ const DIRTY = {
   T8_replay: { notes: ['replay-confirmed'] },
 };
 
+test('⭑ T3 fires on the macOS spelling of no-state-passed, not just the Linux one', () => {
+  // ⛔ THE CONTROL FOR A TRIPWIRE THAT WAS BLIND ON A WHOLE PLATFORM. `measure-macos.sh` prints
+  // `=> UNDER-PREDICTED` for the same condition the other two drivers call `NO-STATE-PASSED`, so
+  // matching one string meant no macOS round could ever report T3 — it would read CLEAN on exactly
+  // the packages Linux reports DIRTY. Corpus split when this was found: linux 12/0, darwin 0/17.
+  assert.ok(TRIPWIRES.T3_noState({ ...CLEAN, verdict: 'UNDER-PREDICTED' }),
+    'T3 must fire on the macOS spelling, or macOS rounds pass without being checked');
+  assert.ok(TRIPWIRES.T3_noState({ ...CLEAN, verdict: 'NO-STATE-PASSED' }),
+    'T3 must still fire on the Linux spelling');
+  // …and it must stay a detector, not an alarm stuck on: MINIMUM is the modal verdict.
+  assert.equal(TRIPWIRES.T3_noState({ ...CLEAN, verdict: 'MINIMUM' }), null);
+});
+
 test('⭑ T8 fires only on CONFIRMED replay, never on the heuristic SUSPECTED note', () => {
   // `replay-suspected` comes from predicates that have measurably false-fired — treating it as a
   // finding would make most Windows records dirty for no reason and bury the real signal.

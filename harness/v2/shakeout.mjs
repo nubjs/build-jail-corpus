@@ -92,7 +92,21 @@ export const TRIPWIRES = {
     if (g.read === 'disk') hits.push('read:"disk"');
     return hits.length ? hits.join(' + ') : null;
   },
-  T3_noState: (r) => (r.verdict === 'NO-STATE-PASSED' ? 'NO-STATE-PASSED' : null),
+  // ⛔⛔ TWO SPELLINGS, ONE PHENOMENON — AND MATCHING ONLY ONE MADE THIS TRIPWIRE BLIND ON AN ENTIRE
+  // PLATFORM. `measure.sh` and `measure-windows.mjs` print `=> NO-STATE-PASSED even at write:disk`;
+  // `measure-macos.sh:1230` prints `=> UNDER-PREDICTED — no state passed, up to and including
+  // write:"disk"` for the IDENTICAL condition (every rung failed AND the shortfall responded to the
+  // grant).
+  //
+  // MEASURED 2026-08-07 across the published corpus, and the split is total: linux 12
+  // NO-STATE-PASSED / 0 UNDER-PREDICTED, darwin 0 / 17. So a macOS round could never report T3 and
+  // would have read CLEAN on exactly the packages Linux reports DIRTY — an unearned pass, which is
+  // worse than no check at all.
+  //
+  // Matched here rather than renamed in either driver: the recorded verdict is what the published
+  // records already carry, and rewriting that vocabulary mid-corpus would invalidate them.
+  T3_noState: (r) => (r.verdict === 'NO-STATE-PASSED' || r.verdict === 'UNDER-PREDICTED'
+    ? `${r.verdict} (no state passed even at write:"disk")` : null),
   T4_ladder: (r) => (r.verifiedBy === 'ladder' || /^ladder/.test(r.grantSource || '')
     ? `fell back to the ladder (verifiedBy=${r.verifiedBy}, grantSource=${r.grantSource})` : null),
   // ⛔ ATTRIBUTABLE MEANS "I CAN TELL WHICH BINARY PRODUCED THIS", NOT "one specific field is set".
