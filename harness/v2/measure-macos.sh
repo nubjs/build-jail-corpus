@@ -92,7 +92,15 @@ ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
 # it with `INTERPRETER` and `GLOBAL_STORE` cost a whole macOS run to `line 86: ROOT: unbound variable`
 # under `set -u`, which clobbered two good published records with HARNESS-ERROR.
 JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
-JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
+# ⛔ `${TMPDIR%/}`, NOT `$TMPDIR`. macOS sets TMPDIR WITH a trailing slash
+# (`/var/folders/<..>/T/`), so the naive form yields a root containing `T//nub-tmp-obsXXXXXX` while
+# every path the kernel reports carries a single slash — and `p.startsWith(root)` is then false for
+# every file in the driver's own private temp. MEASURED on cpu-features@0.0.10: 3,345 writes into
+# $JAIL_TMP were bucketed `outside` instead of free `jailTmp`, so the record warned about thousands
+# of writes "OUTSIDE project/home" that were in a directory this driver created. It did not inflate
+# the grant — `outside` bills nothing — but it made the temp root dead on this platform.
+JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}"/nub-tmp-obsXXXXXX)" || exit 1
+JAIL_TMP="$(cd "$JAIL_TMP" && pwd -P)"
 chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
 # The driver runs under sudo (dtrace needs uid 0) but every measured process is dropped back to the
 # invoking user — so the tree they write into must be theirs, or npm fails on its own fixture and

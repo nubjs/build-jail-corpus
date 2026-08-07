@@ -68,6 +68,13 @@ if (undeclared.length) {
 //
 // Only these three are destructured, and every use below is null-guarded — a `null` root must never
 // reach `startsWith`, which would match the literal string "null" and silently misclassify.
+// ⛔ COLLAPSE REPEATED SLASHES IN EVERY ROOT BEFORE COMPARING. A root is only ever used as a
+// `startsWith` prefix, and the kernel reports canonical single-slash paths — so one stray `//` from
+// however the root was built makes that root silently match NOTHING. Normalising here rather than
+// only at the producer means an archive already captured with a malformed root still re-parses
+// correctly, which is the whole point of retaining the raw trace.
+const norm = (p) => (typeof p === 'string' ? p.replace(/\/{2,}/g, '/').replace(/(.)\/$/, '$1') : p);
+for (const k of Object.keys(roots)) roots[k] = norm(roots[k]);
 const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix } = roots;
 const pkgName = capture.pkg ?? null;
 const lines = fs.readFileSync(file, 'utf8').split('\n');
