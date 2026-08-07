@@ -589,9 +589,18 @@ console.log(`  distinct: ${denials.size}`);
 // READ SCOPES ARE DELIBERATELY NOT SYNTHESIZED FROM THE READ CENSUS. Every process reads dyld's
 // shared cache and its own binary, so a read-derived grant would be `read:"disk"` for every package
 // on the platform — which is the widest grant available and would make the read axis meaningless.
-// The driver instead starts from the write+network grant and, if it fails to verify, escalates the
-// read axis explicitly. What the census above is for is telling a human WHY that escalation was
-// needed, and whether the reads were project-local or genuinely disk-wide.
+// ⛔ AND ON THIS PLATFORM NOTHING ESCALATES IT. This comment used to claim the driver "escalates the
+// read axis explicitly" when the write+network grant fails to verify. MEASURED: `measure.sh:1289`
+// and `measure-windows.mjs:1274` do carry a `read:"disk"` rung, in the bounded LADDER fallback —
+// `measure-macos.sh` has no ladder and no read rung anywhere, which `record.mjs` already states in
+// as many words ("it has no grant, because that driver has no ladder to repair one with"). So an
+// UNDER-PREDICTED is TERMINAL here where the other two platforms would walk a rung and might still
+// reach a MINIMUM. That asymmetry is deliberate; the sentence describing an escalation that does not
+// exist was not. Prose near a definition states intent, and only the call sites state behaviour.
+//
+// What the census above is for, then, is telling a human WHY a verification failed and whether the
+// reads were project-local or genuinely disk-wide — the input to a HUMAN decision, not to an
+// automatic escalation this driver does not perform.
 const g = {};
 if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
 if (w.project) g.write = { ...(g.write ?? {}), project: true };
