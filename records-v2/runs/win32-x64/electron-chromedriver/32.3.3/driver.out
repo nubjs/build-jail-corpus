@@ -1,0 +1,81 @@
+### electron-chromedriver@32.3.3   (C:\jail\m-electronchromedriver-msjd94ja)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3796 exit=0 events=37748 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 11 files  (C:\jail\m-electronchromedriver-msjd94ja\observe\node_modules\electron-chromedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":6,"reasons":[]}
+  CLOSURE 68 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-electronchromedriver-msjd94ja\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-electronchromedriver-msjd94ja\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-electronchromedriver-msjd94ja\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-electronchromedriver-msjd94ja\observe\node_modules\electron-chromedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 3796)
+    writes  script 19  /  whole traced tree 30
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    jailTmp       6
+    userHome      3
+    deps         10
+  == READS ==
+    deps        163
+    outside       6
+    project       1
+    systemfs     28
+    jailTmp       6
+    userHome      3
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.4:443
+        185.199.111.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true},"network":true}
+    NOTE 6 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  48718896 B xml -> 716072 B gz (68.0x)  sha256 0cc8d5b993dc8a9a…
+  HEADER    etw-header.json (5159 bytes)
+  DERIVED   6125 distinct from 13703 kept ops (37748 xml events, 2066 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 6 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (77835 bytes)
+  RAWLOG-CAPTURE C:\jail\m-electronchromedriver-msjd94ja\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-electronchromedriver-msjd94ja
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-electronchromedriver-msjd94ja\\npm-cache","TMP":"C:\\jail\\m-electronchromedriver-msjd94ja\\tmp","TEMP":"C:\\jail\\m-electronchromedriver-msjd94ja\\tmp","TMPDIR":"C:\\jail\\m-electronchromedriver-msjd94ja\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=5/11 missing=6 shortfall=33cf23f5ec03 (tree 6884/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-fb0\.cache
+  VERIFY[fb0] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6894/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true},"network":true} and this is what the trace missed
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=5/11 missing=6 shortfall=33cf23f5ec03 (tree 6884/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6894/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-nar-no-write-project\.cache
+  VERIFY[nar-no-write-project] rc=1 artifacts=5/11 missing=6 shortfall=33cf23f5ec03 (tree 6884/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
+     'no-write-project' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6894/893) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msjd94ja\verify-joint-narrow\.cache
