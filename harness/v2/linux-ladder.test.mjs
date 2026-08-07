@@ -79,13 +79,14 @@ const LEDGER_RESPONSIVE = ['1:aa11:ok:9', '1:bb22:ok:7', '1:cc33:ok:4', '1:dd44:
  */
 const run = (oracle, {
   src = 1, grant = '{"write":{"deps":true}}', source = REGION, ledger = LEDGER_RESPONSIVE,
+  here = HERE,
 } = {}) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'linux-ladder-'));
   const script = path.join(root, 'region.sh');
   fs.writeFileSync(script, [
     'set -uo pipefail',
     `ROOT=${JSON.stringify(root)}`,
-    `HERE=${JSON.stringify(HERE)}`,
+    `HERE=${JSON.stringify(here)}`,
     `ARM_LEDGER=${JSON.stringify(ledger)}`,
     `GRANT='${grant}'`,
     // `verify "$GRANT" "synth"; SRC=$?` sits just above the extracted region, so its result is the
@@ -302,6 +303,51 @@ test('the synth-verified path is untouched: it descends from GRANT and still say
   assert.equal(r.verifiedBy, 'synth');
   assert.deepEqual(r.overPredictedBy, ['no-write-deps']);
   assert.deepEqual(r.grant, { network: true });
+});
+
+// ── THE GRANT-INDEPENDENCE STAGE REFUSES A PREDICATE THAT NEVER RAN ───────────────────────────────
+//
+// ⛔ THE SHAPE OF THE DEFECT. `ARTIFACT-GATE-SUSPECT` is the one verdict that publishes a grant with no
+// leave-one-out descent behind it, and the branch that emits it tested `$IRC` alone. An exit code of 0
+// is not evidence the predicate ran: `shortfall-invariance.mjs`'s main-module guard compares
+// `import.meta.url` (physical) against `pathToFileURL(process.argv[1])` (as given), and `HERE` in the
+// driver is the LOGICAL path — so on any checkout reached through a symlink the CLI block never
+// executes and the script exits 0 having printed nothing. MEASURED by invoking it both ways: through
+// the real path a `1:aa:ok:9` ledger prints `NOT-ESTABLISHED an arm exited non-zero` and exits 1;
+// through a symlinked directory the identical invocation prints nothing and exits 0.
+//
+// ⛔ THE STUB IS THE PREDICATE, NOT THE ORACLE, WHICH IS WHY BOTH CASES BELOW EXIST. Only the silent
+// one can distinguish the guard from no guard; the printing one proves the refusal is caused by the
+// EMPTY output rather than by the stubbing itself. `$HERE` is used exactly once in the extracted
+// region — this call — so overriding it swaps the predicate and nothing else.
+const withPredicate = (body, fn) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'linux-inv-'));
+  fs.writeFileSync(path.join(dir, 'shortfall-invariance.mjs'), body);
+  try { return fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+};
+
+test('⭑ a predicate that exits 0 printing NOTHING is refused, not read as grant-independence', () => {
+  const out = withPredicate('process.exit(0);\n', (dir) => run('  return 1', { here: dir }));
+  assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/,
+    'the driver published its only un-descended grant off a predicate that never ran');
+  assert.doesNotMatch(out, /the SAME -artifact/, 'the verdict rendered an empty artifact count');
+  const r = parseDriverLog(out);
+  // ⛔ `HARNESS-ERROR` SPECIFICALLY, BECAUSE `claim-slice.mjs` RETURNS THAT ROW TO `pending`. Any other
+  // verdict closes the queue row, which would bake an instrument failure into the corpus as a result —
+  // and a re-run off a checkout with no symlink in its path would have answered the question.
+  assert.equal(r.verdict, 'HARNESS-ERROR',
+    'an instrument failure must reopen the queue row, not close it with a measurement it never made');
+});
+
+test('⭑ CONTROL: a predicate that PRINTS still yields ARTIFACT-GATE-SUSPECT, with its real count', () => {
+  // Without this, a guard that refused unconditionally would satisfy the case above while destroying
+  // the verdict the stage exists to produce — the shape of a harness that refuses everything.
+  const out = withPredicate('console.log("GRANT-INDEPENDENT 7 aa");\nprocess.exit(0);\n',
+    (dir) => run('  return 1', { here: dir }));
+  assert.doesNotMatch(out, /HARNESS-ERROR/, 'a predicate that printed was refused as if it had not run');
+  assert.match(out, /the SAME 7-artifact shortfall/, 'the count is not read out of the predicate\'s stdout');
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'ARTIFACT-GATE-SUSPECT');
 });
 
 // ── THE FALSIFICATION CONTROL ─────────────────────────────────────────────────────────────────────

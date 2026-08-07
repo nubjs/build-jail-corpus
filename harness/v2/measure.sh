@@ -1386,6 +1386,33 @@ done
 # publishing an unverified NARROW grant is the under-granting direction and that is the one that
 # breaks a real install.
 INV=$(printf '%s' "$ARM_LEDGER" | node "$HERE/shortfall-invariance.mjs" --arms 4); IRC=$?
+# ⛔⛔ AN EXIT CODE ALONE DOES NOT SAY THE PREDICATE RAN, AND THIS BRANCH USED TO ASSUME IT DID. The
+# CLI block below `classify` prints `GRANT-INDEPENDENT …` or `NOT-ESTABLISHED …` on every path it
+# takes, so an EMPTY `$INV` means it never executed — and the failure that produces that exits 0, so
+# `[ "$IRC" -eq 0 ]` on its own reads a script that did nothing as the strongest verdict this stage
+# can issue. `$MISS_N` would then be the empty string and the line would read "the SAME -artifact
+# shortfall", published off no evidence at all.
+#
+# MEASURED, and the trigger is not exotic: `shortfall-invariance.mjs`'s main-module guard compares
+# `import.meta.url` (physical) against `pathToFileURL(process.argv[1])` (as given), while `HERE` here
+# is `cd "$(dirname "$0")" && pwd`, i.e. the LOGICAL path. Reproduced by invoking the same script
+# through a symlinked directory: via the real path a `1:aa:ok:9` ledger prints `NOT-ESTABLISHED an arm
+# exited non-zero` and exits 1, and through the symlink the identical invocation prints NOTHING and
+# exits 0. macOS is where this bites first (`/tmp` is a symlink to `/private/tmp`), and whether a real
+# Linux runner ever traverses one is UNMEASURED — which is the argument for the guard, not against it.
+#
+# ⛔ `HARNESS-ERROR`, NOT A NEW NOUN AND NOT `NO-STATE-PASSED`. `record.mjs` already parses this
+# spelling (`measure-windows.mjs` produces it), and `claim-slice.mjs` returns a `HARNESS-*` row to
+# `pending` instead of closing it — which is exactly right, because a re-run off a checkout with no
+# symlink in its path would answer the question. Falling through to `NO-STATE-PASSED` would instead
+# record "nothing installed this package" as a MEASUREMENT, when the rescue never got to run. Tested
+# in the direction that matters: `linux-ladder.test.mjs` stubs the predicate to exit 0 silently and
+# asserts the refusal, with a printing stub as the control.
+if [ -z "$INV" ]; then
+  echo "  => HARNESS-ERROR: shortfall-invariance.mjs printed nothing (rc=$IRC) — the predicate never"
+  echo "     ran, so grant-independence is UNANSWERED and no verdict here would rest on evidence."
+  exit 1
+fi
 if [ "$IRC" -eq 0 ]; then
   MISS_N=$(printf '%s' "$INV" | cut -d' ' -f2)
   echo "  => ARTIFACT-GATE-SUSPECT $GRANT   (every arm rc=0 and the SAME $MISS_N-artifact shortfall at every"
