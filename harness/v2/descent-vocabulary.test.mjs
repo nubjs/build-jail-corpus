@@ -94,13 +94,19 @@ test('INSTRUMENT: the rule body was located and contains its literal matches', (
   assert.ok(RULE.length > 400, `applyGrantSourceRule was not found in record.mjs (got ${RULE.length} chars)`);
   assert.match(RULE, /'no-network'/, 'the rule no longer matches `no-network` — this test is looking at the wrong code');
   assert.match(RULE, /no-write-/, 'the rule no longer matches `no-write-` — this test is looking at the wrong code');
+  assert.match(RULE, /'no-read'/, 'the rule no longer matches `no-read` — this test is looking at the wrong code');
 });
 
 test('⭑ every driver emits the variant vocabulary record.mjs matches', () => {
   // ⛔ THE ASSERTION THE WHOLE FILE EXISTS FOR. Checked in executable code, per driver, by name.
+  //
+  // ⛔ `no-read` IS IN THIS LIST BECAUSE A ONE-DRIVER EDIT IS THE FAILURE MODE, NOT A MISSING FEATURE.
+  // Windows enumerated it while both POSIX drivers skipped it, and nothing here noticed — the same
+  // shape as macOS silently lacking a ladder the other two had. Now a driver taught the name alone
+  // takes this test down with it.
   const missing = [];
   for (const [platform, c] of Object.entries(CODE)) {
-    for (const token of ['no-network', 'no-write-']) {
+    for (const token of ['no-network', 'no-write-', 'no-read']) {
       if (!c.includes(token)) missing.push(`${DRIVERS[platform]} never produces \`${token}\``);
     }
   }
@@ -205,6 +211,7 @@ test('⭑ DRIFT GUARD: measure.sh emits the sentences and names these cases assu
   for (const re of [
     /out\.push\("no-network"\)/,
     /out\.push\("no-write-" \+ k\)/,
+    /out\.push\("no-read"\)/,
     /=> OVER-PREDICTED by:\$NARROWER/,
     /=> JOINT-NARROW VERIFIED \$JOINT/,
     /=> JOINT-NARROW FAILED \$JOINT/,

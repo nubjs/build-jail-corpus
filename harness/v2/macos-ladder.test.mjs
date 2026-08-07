@@ -156,6 +156,46 @@ test('⭑ the write:"disk" rung is NOT descended — Object.keys on a string wou
   assert.ok(!r.notes.includes('descent-name-unparsed'));
 });
 
+test('⭑ `read` DROPS on the one rung that carries it — the .env axis is questioned, not assumed', () => {
+  // ⛔ WHAT THIS BUYS, AND WHY IT IS NOT HOUSEKEEPING. Rung 1 is the only grant in this driver that
+  // carries a `read` key, and `read:"disk"` is the capability under which a project's `.env` files
+  // become readable. Until the descent enumerated it, every rung-1 record published that grant
+  // unquestioned. The arm below is what makes the drop a MEASUREMENT: `record.mjs` only ever keeps a
+  // drop whose arm VERIFIED, so a `read` that disappears here is one the install provably did not need.
+  //
+  // ⛔ THE POINT OF HAVING IT ON BOTH POSIX DRIVERS. `measure.sh` and this file were taught `no-read`
+  // in one change, because a Linux-only edit is exactly the cross-driver asymmetry that let macOS
+  // ship without a ladder at all. Its Linux twin is `linux-ladder.test.mjs`, same oracle shape.
+  //
+  // The oracle: only rung 1 passes (rung 0 has no `read`), and of its five terms only `read` drops.
+  const out = run(`
+    case "$label" in
+      fb*) case "$grant" in *'"read":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      nar-no-read) return 0 ;;
+      *) return 1 ;;
+    esac
+  `);
+  assert.match(out, /'no-read'/, 'no `read` variant was generated off the rung that carries one');
+  const r = parseDriverLog(out);
+  assert.deepEqual(r.overPredictedBy, ['no-read'], 'the descent did not put `read` to the question');
+  assert.ok(!r.notes.includes('descent-name-unparsed'),
+    'an unparseable variant name reached record.mjs, which discards every narrowing on the record');
+  assert.equal(r.grantSource, 'descended');
+  // ⛔ ASSERTED ON THE VALUE, NOT ON `overPredictedBy`. A driver that emits the name while the recorder
+  // fails to recompute would satisfy every assertion above and still publish `read:"disk"`.
+  assert.deepEqual(r.grant, { write: { deps: true, project: true, userHome: true }, network: true },
+    'the published grant still carries `read`, which an arm proved droppable off the RUNG');
+});
+
+test('⭑ NEGATIVE CONTROL: a grant with no `read` key emits no `no-read` arm', () => {
+  // ⛔ WITHOUT THIS, "the driver enumerates `read`" IS SATISFIED BY EMITTING THE VARIANT
+  // UNCONDITIONALLY — which would spend a full jail run per package measuring the removal of a key
+  // that was never there. Synthesis never produces a `read` key, so this is the common case.
+  const out = run('  return 1', { verified: 1, grant: '{"write":{"deps":true},"network":true}' });
+  assert.doesNotMatch(out, /no-read/, 'a `read` arm was generated for a grant that has no `read` key');
+  assert.match(out, /'no-network'/, 'the descent did not run at all, so this control proves nothing');
+});
+
 test('⭑ a VOID rung stops the ladder instead of climbing past a grant it never tested', () => {
   // Collapsing VOID into "this rung failed" makes the ladder publish the NEXT rung as the minimum on
   // the strength of no measurement at all.

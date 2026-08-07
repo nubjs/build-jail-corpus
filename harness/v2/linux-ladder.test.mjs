@@ -176,32 +176,48 @@ test('⭑ the write:"disk" rung is NOT descended — Object.keys on a string wou
   assert.ok(!r.notes.includes('descent-name-unparsed'));
 });
 
-test('`read` is not enumerated even on the ONE rung that carries it — a KNOWN GAP, pinned', () => {
-  // ⛔ THIS PINS CURRENT BEHAVIOUR, NOT A DESIRED INVARIANT, AND THE DISTINCTION IS THE WHOLE COMMENT.
-  // Rung 1 carries `read:"disk"` literally, so this is the only place in the Linux driver where a
-  // `read` key is reachable at all. The descent skips it because `applyGrantSourceRule` used to have
-  // no `no-read` case, which put a droppable `read` in `unparsedNames` and forced the whole record
-  // back to the wide grant — losing the write/network narrowings that DID parse.
+test('⭑ `read` DROPS on the one rung that carries it — the .env axis is questioned, not assumed', () => {
+  // ⛔ WHAT THIS BUYS, AND WHY IT IS NOT HOUSEKEEPING. Rung 1 is the only grant in this driver that
+  // carries a `read` key, and `read:"disk"` is the capability under which a project's `.env` files
+  // become readable. Until the descent enumerated it, every rung-1 record published that grant
+  // unquestioned. The arm below is what makes the drop a MEASUREMENT: `record.mjs` only ever keeps a
+  // drop whose arm VERIFIED, so a `read` that disappears here is one the install provably did not need.
   //
-  // ⇒ `366936ce3` ADDED that case, and `measure-windows.mjs` already emits `no-read`, so the reason
-  // has expired: Linux and macOS now leave a real narrowing on the table on every rung-1 record. The
-  // direction is over-granting, so nothing is at risk and this test is not a bug report — but when
-  // the two remaining drivers are taught `no-read`, THIS TEST IS THE ONE THAT MUST BE REWRITTEN, and
-  // it should fail loudly rather than silently certify the gap.
+  // ⛔ THIS TEST REPLACED ONE THAT PINNED THE OPPOSITE, and that is the intended lifecycle rather than
+  // a regression. `read` was skipped for as long as `applyGrantSourceRule` had no `no-read` case —
+  // a droppable `read` landed in `unparsedNames` and forced the WHOLE record back to the wide grant,
+  // discarding the write/network narrowings that did parse. `366936ce3` added the case; the two POSIX
+  // drivers were taught the name together, so no driver can be the odd one out.
+  //
+  // The oracle: only rung 1 passes (rung 0 has no `read`), and of its five terms only `read` drops.
   const out = run(`
     case "$label" in
       fb*) case "$grant" in *'"read":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
-      drop-no-network) return 0 ;;
+      drop-no-read) return 0 ;;
       *) return 1 ;;
     esac
   `);
-  assert.doesNotMatch(out, /drop-no-read|'no-read'/, 'a `read` variant was generated');
+  assert.match(out, /drop-no-read|'no-read'/, 'no `read` variant was generated off the rung that carries one');
   const r = parseDriverLog(out);
-  assert.deepEqual(r.overPredictedBy, ['no-network']);
+  assert.deepEqual(r.overPredictedBy, ['no-read'], 'the descent did not put `read` to the question');
   assert.ok(!r.notes.includes('descent-name-unparsed'),
     'an unparseable variant name reached record.mjs, which discards every narrowing on the record');
-  assert.deepEqual(r.grant, { write: { deps: true, project: true, userHome: true }, read: 'disk' },
-    '`read` must survive the descent untouched — granted, never questioned');
+  assert.equal(r.grantSource, 'descended');
+  // ⛔ ASSERTED ON THE VALUE, NOT ON `overPredictedBy`. A driver that emits the name while the recorder
+  // fails to recompute would satisfy every assertion above and still publish `read:"disk"` — which is
+  // precisely the shape of the defect the unparsed-name guard exists for.
+  assert.deepEqual(r.grant, { write: { deps: true, project: true, userHome: true }, network: true },
+    'the published grant still carries `read`, which an arm proved droppable off the RUNG');
+});
+
+test('⭑ NEGATIVE CONTROL: a grant with no `read` key emits no `no-read` arm', () => {
+  // ⛔ WITHOUT THIS, "the driver enumerates `read`" IS SATISFIED BY EMITTING THE VARIANT
+  // UNCONDITIONALLY — which would spend a full jail run per package measuring the removal of a key
+  // that was never there, and hand `record.mjs` a name for a capability the grant does not hold.
+  // Synthesis never produces a `read` key at all, so this is the common case, not the corner.
+  const out = run('  return 1', { src: 0, grant: '{"write":{"deps":true},"network":true}' });
+  assert.doesNotMatch(out, /no-read/, 'a `read` arm was generated for a grant that has no `read` key');
+  assert.match(out, /drop-no-network|'no-network'/, 'the descent did not run at all, so this control proves nothing');
 });
 
 test('⭑ N>=2 off a RUNG still keeps the wide grant until the joint arm verifies it', () => {

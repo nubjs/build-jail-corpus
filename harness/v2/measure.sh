@@ -1155,22 +1155,28 @@ descend () {
   # all five Linux records carrying an over-prediction re-parse with `descendedGrant === grant`.
   # macOS and Windows already use the `no-*` spelling; Linux was the odd one out.
   #
-  # ⛔ `read` IS NOT ENUMERATED HERE, AND AS OF `366936ce3` THAT IS AN OPEN GAP RATHER THAN A CARVE-OUT.
-  # `classify.mjs` never synthesizes a `read` key, but LADDER RUNG 1 carries `read:"disk"` literally
-  # and this function is now called from the ladder path, so the key is reachable. The reason it was
-  # left alone was that `record.mjs`'s `applyGrantSourceRule` had no `no-read` case, which put a
-  # droppable `read` in `unparsedNames` and forced the WHOLE record back to the wide grant — losing the
-  # network and write narrowings that DID parse. `366936ce3` ADDED that case, and `measure-windows.mjs`
-  # already emits `no-read`, so the recorder half is done and Windows is paired with it.
+  # ⛔ `read` IS ENUMERATED, AND ONLY BECAUSE `record.mjs` LEARNED THE NAME FIRST. `classify.mjs` never
+  # synthesizes a `read` key, but LADDER RUNG 1 carries `read:"disk"` literally and this function is
+  # called from the ladder path, so the key is reachable. It was skipped for as long as
+  # `applyGrantSourceRule` had no `no-read` case: a droppable `read` landed in `unparsedNames`, which
+  # forced the WHOLE record back to the wide grant and threw away the network and write narrowings that
+  # DID parse — a strictly worse record than not enumerating it. `366936ce3` added that case, so the
+  # drop now recomputes, and `measure-macos.sh` gained this in the same change so the two POSIX drivers
+  # cannot diverge. What it buys is not symmetry: `read:"disk"` is the grant under which a project's
+  # `.env` files are readable, and before this every rung-1 record kept it granted and unquestioned.
   #
-  # ⇒ Linux and macOS still skip it, which now costs a real narrowing on every rung-1 record: `read`
-  # stays granted unquestioned. That direction is over-granting, so it is safe and nothing is at risk —
-  # but it is no longer justified. Enumerating it is one coordinated change across BOTH remaining
-  # drivers, not a Linux-only edit, which is why it is recorded here rather than made here.
+  # ⛔ `write:"disk"` IS STILL NOT DESCENDED, AND IT IS NOT THE SAME CASE. `write` reaches this
+  # generator as a MAP of scopes, so `Object.keys` over the string form would fabricate four
+  # `no-write-<digit>` arms the recorder cannot parse; the ladder refuses the top rung outright for
+  # that reason ("no droppable terms, so no descent", below). `read` is a SCOPE rather than a map of
+  # scopes, so the whole key drops under ONE name — there is deliberately no `no-read-<scope>` spelling
+  # mirroring `no-write-<scope>`, because a second vocabulary is what the recorder's unparsed-name
+  # guard exists to prevent.
   CAPS=$(node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
     if (g.network) out.push("no-network");
     for (const k of Object.keys(g.write ?? {})) out.push("no-write-" + k);
+    if (g.read) out.push("no-read");
     console.log(out.join(" "));
   ' "$g0")
   if [ -z "$CAPS" ]; then
@@ -1192,6 +1198,7 @@ descend () {
       SUB=$(node -e '
         const [g0, cap] = process.argv.slice(1); const g = JSON.parse(g0);
         if (cap === "no-network") delete g.network;
+        else if (cap === "no-read") delete g.read;
         else { const k = /^no-write-(.+)$/.exec(cap)[1]; delete g.write[k];
                if (!Object.keys(g.write).length) delete g.write; }
         console.log(JSON.stringify(g));
@@ -1233,6 +1240,7 @@ descend () {
         const g = JSON.parse(process.argv[1]);
         for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
           if (n === "no-network") { delete g.network; continue; }
+          if (n === "no-read") { delete g.read; continue; }
           const w = /^no-write-(.+)$/.exec(n);
           if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
         }

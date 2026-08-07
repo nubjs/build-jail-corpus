@@ -46,11 +46,12 @@ import fs from 'node:fs';
 // capability: `{"network":false}` grants nothing and must not read as covering `network`.
 // ⛔ `write` AND `read` ARE EACH EITHER AN OBJECT OF SCOPES OR THE STRING `"disk"`, AND MISSING THE
 // STRING FORM MAKES THE LARGEST POSSIBLE NARROWING READ AS A NO-OP. The ladder's top rungs in
-// `measure.sh` are `{"write":{…},"read":"disk","network":true}` and `{"write":"disk","network":true}`,
-// and BOTH STRING FORMS STILL REACH THE RECORD INTACT NOW THAT THE WINNING RUNG DESCENDS — not by
-// luck, but because the two carve-outs that make the descent safe are exactly the two that preserve
-// them: `write:"disk"` is never descended at all (`Object.keys("disk")` would fabricate arms), and
-// `read` is never enumerated as droppable (`record.mjs` has no `no-read` case). An earlier
+// `measure.sh` are `{"write":{…},"read":"disk","network":true}` and `{"write":"disk","network":true}`.
+// `write:"disk"` still reaches the record intact because that rung is never descended at all
+// (`Object.keys("disk")` would fabricate arms). `read:"disk"` no longer does: all three drivers now
+// enumerate `no-read`, so a rung-1 record can arrive having DROPPED the whole `read` axis — which is
+// the single largest narrowing this guard will ever be asked to judge, and it is judged correctly
+// only because `scopeTokens` gives the string form its own token. An earlier
 // revision of this file gated on
 // `typeof w === 'object'`, so `{"write":"disk","network":true}` flattened to `{"network"}` alone —
 // and a re-measure narrowing that to `{"network":true}` reported "does not narrow" and would have

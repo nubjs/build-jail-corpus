@@ -875,12 +875,20 @@ descend () {
   # exist and `${arr[@]}` on an empty array is an unbound-variable error under `set -u`. A plain
   # file plus a read loop works on both.
   #
-  # ⛔ `read` IS DELIBERATELY NOT ENUMERATED, matching `measure.sh`. `record.mjs` has no `no-read`
-  # case in `applyGrantSourceRule`, so a droppable `read` would land in `unparsedNames` and force the
-  # WHOLE record back to the wide grant — discarding the network/write narrowings that did parse.
-  # Ladder rung 1 carries `read:"disk"`, so on that one rung `read` is granted and never questioned.
-  # That is the over-granting direction, which is the safe one; making it droppable means teaching
-  # `record.mjs` `no-read` in the same change, never here alone.
+  # ⛔ `read` IS ENUMERATED, matching `measure.sh` and `measure-windows.mjs`, and only because
+  # `record.mjs` learned the name first. It was skipped for as long as `applyGrantSourceRule` had no
+  # `no-read` case: a droppable `read` landed in `unparsedNames`, which forced the WHOLE record back to
+  # the wide grant and discarded the network/write narrowings that DID parse — strictly worse than not
+  # enumerating it at all. `366936ce3` added that case, and both POSIX drivers gained the arm in one
+  # change so they cannot diverge. Ladder rung 1 carries `read:"disk"`, the grant under which a
+  # project's `.env` files are readable, and before this that rung granted it unquestioned.
+  #
+  # ⛔ `write:"disk"` IS STILL NOT DESCENDED, AND IT IS NOT THE SAME CASE. `write` arrives here as a MAP
+  # of scopes, so `Object.keys` over the string form would fabricate four `no-write-<digit>` arms the
+  # recorder cannot parse; the ladder refuses the top rung outright for that reason. `read` is a SCOPE
+  # rather than a map of scopes, so the whole key drops under ONE name — there is deliberately no
+  # `no-read-<scope>` spelling mirroring `no-write-<scope>`, because a second vocabulary is exactly
+  # what the recorder's unparsed-name guard exists to prevent.
   node -e '
     const g = JSON.parse(process.argv[1]); const out = [];
     if (g.network) { const c = JSON.parse(JSON.stringify(g)); delete c.network; out.push(["no-network", c]); }
@@ -889,6 +897,7 @@ descend () {
       if (!Object.keys(c.write).length) delete c.write;
       out.push(["no-write-" + k, c]);
     }
+    if (g.read) { const c = JSON.parse(JSON.stringify(g)); delete c.read; out.push(["no-read", c]); }
     for (const [n, c] of out) console.log(n + "\t" + JSON.stringify(c));
   ' "$g0" > "$ROOT/variants.tsv" 2>/dev/null
   if [ ! -s "$ROOT/variants.tsv" ]; then
@@ -947,6 +956,7 @@ descend () {
       const g = JSON.parse(process.argv[1]);
       for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
         if (n === "no-network") delete g.network;
+        if (n === "no-read") delete g.read;
         const w = /^no-write-(.+)$/.exec(n);
         if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
       }
