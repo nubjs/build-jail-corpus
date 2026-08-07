@@ -107,6 +107,13 @@ export const TRIPWIRES = {
   // records already carry, and rewriting that vocabulary mid-corpus would invalidate them.
   T3_noState: (r) => (r.verdict === 'NO-STATE-PASSED' || r.verdict === 'UNDER-PREDICTED'
     ? `${r.verdict} (no state passed even at write:"disk")` : null),
+  // ⛔ ITS OWN TRIPWIRE, NOT FOLDED INTO T3, BECAUSE IT IS A DIFFERENT PROBLEM. `NO-STATE-PASSED`
+  // says the jail is the difference — a capability question. `BROKEN-UNJAILED-NUB` says nub cannot
+  // install the package with the jail OFF, which is a nub install defect the jail had no part in.
+  // Reporting both under one name is how a nub bug gets chased as a catalog gap; `@progress/
+  // kendo-licensing@0.1.2` was exactly that, and it cost a hand triage to tell apart.
+  T9_nubBroken: (r) => (r.verdict === 'BROKEN-UNJAILED-NUB'
+    ? 'nub cannot install this package even unjailed — a nub defect, not a jail finding' : null),
   T4_ladder: (r) => (r.verifiedBy === 'ladder' || /^ladder/.test(r.grantSource || '')
     ? `fell back to the ladder (verifiedBy=${r.verifiedBy}, grantSource=${r.grantSource})` : null),
   // ⛔ ATTRIBUTABLE MEANS "I CAN TELL WHICH BINARY PRODUCED THIS", NOT "one specific field is set".

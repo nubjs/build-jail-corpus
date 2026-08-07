@@ -93,6 +93,10 @@ const LEDGER_RESPONSIVE = ['0:aa11:ok:9', '0:bb22:ok:7', '0:cc33:ok:4', '0:dd44:
 const run = (oracle, {
   src = 1, grant = '{"write":{"deps":true}}', source = REGION, ledger = LEDGER_RESPONSIVE,
   here = HERE,
+  // ⛔ DEFAULT 0 = "nub CAN install this unjailed", which is what every pre-existing test in this
+  // file assumes: their subject is the LADDER, and the jail-off control must not silently change
+  // what they assert. Set 1 to drive the other branch.
+  unjailedNubRc = 0,
 } = {}) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'linux-ladder-'));
   const script = path.join(root, 'region.sh');
@@ -107,10 +111,16 @@ const run = (oracle, {
     // `verify "$GRANT" "synth"; SRC=$?` sits just above the extracted region, so its result is the
     // region's input: 0 means the synthesized grant verified and the ladder must never be reached.
     `SRC=${src}`,
+    // The terminal jail-off control names the package it is asking about; `set -u` makes these
+    // mandatory even though the stubbed control ignores them.
+    "PKG=demo", "VER=1.0.0",
     // The real driver prints this during OBSERVE, well above the extracted region. `record.mjs` gates
     // the whole grant-source rule on seeing it — absence is read as "the check never ran" — so a
     // round trip that omitted it would test the wrong branch of `applyGrantSourceRule`.
     'echo \'  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}\'',
+    // The jail-off control the terminal verdict now consults. Stubbed here for the same reason
+    // `verify` is: the real one runs two `nub` installs, which no unit test can afford.
+    `unjailed_nub_ok () { return ${unjailedNubRc}; }`,
     'verify () {',
     '  local grant="$1" label="$2"',
     oracle,
@@ -303,16 +313,32 @@ test('INSTRUMENT: the ledger reaches the predicate as FOUR arms, and refuses on 
   assert.match(out, /NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms/);
 });
 
-test('every rung failing is still NO-STATE-PASSED, with no grant and no descent', () => {
+test('every rung failing is NO-STATE-PASSED **when nub can install the package unjailed**', () => {
   // The honest end of the Linux ladder: nothing this harness can express installs the package, and
   // the shortfall responded to the grant, so the grant-independence escape does not apply either.
-  const out = run('  return 1');
+  // ⛔ THE UNJAILED CLAUSE IS LOAD-BEARING, NOT DECORATION — see the sibling test below.
+  const out = run('  return 1', { unjailedNubRc: 0 });
   assert.match(out, /=> NO-STATE-PASSED even at write:disk/);
   assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/,
     'a shortfall that responded to the grant was classified as grant-independent');
   assert.doesNotMatch(out, /OVER-PREDICTED|=> MINIMAL/, 'a descent ran with no rung to descend from');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'NO-STATE-PASSED');
+  assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+});
+
+test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it unjailed either', () => {
+  // ⛔ THE DISTINCTION THE OLD CONTROL COULD NOT MAKE. The jail-off control at the top of the driver
+  // keys on OBSERVE's rc, and OBSERVE runs `npm rebuild` — a DIFFERENT PROGRAM from the `nub install`
+  // every verify arm runs. So a package npm installs fine but nub cannot install even unjailed used
+  // to climb the whole ladder and be filed NO-STATE-PASSED, reading as "the jail blocks this" about
+  // a defect the jail had no part in. Measured on `@progress/kendo-licensing@0.1.2`.
+  const out = run('  return 1', { unjailedNubRc: 1 });
+  assert.match(out, /=> BROKEN-UNJAILED-NUB/);
+  assert.doesNotMatch(out, /=> NO-STATE-PASSED/,
+    'a nub install defect must not also claim the jail-capability verdict');
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
   assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
 });
 

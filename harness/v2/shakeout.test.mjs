@@ -50,7 +50,22 @@ const DIRTY = {
   T6_truncated: { grantSource: 'descended-incomplete' },
   T7_rc: { driverRc: 3221225477 },
   T8_replay: { notes: ['replay-confirmed'] },
+  T9_nubBroken: { verdict: 'BROKEN-UNJAILED-NUB' },
 };
+
+test('⭑ T9 separates a nub install defect from a jail capability finding', () => {
+  // ⛔ THE DISTINCTION IS THE POINT. Both verdicts mean "the ladder never passed", but only
+  // NO-STATE-PASSED implicates the jail. Folding them together is how a nub bug gets chased as a
+  // catalog gap — measured on `@progress/kendo-licensing@0.1.2`, which fails jailed AND unjailed
+  // while plain npm succeeds.
+  const nubBug = { ...CLEAN, verdict: 'BROKEN-UNJAILED-NUB' };
+  assert.ok(TRIPWIRES.T9_nubBroken(nubBug), 'a nub install defect must still be reported');
+  assert.equal(TRIPWIRES.T3_noState(nubBug), null,
+    'T3 must NOT claim a nub install defect as a jail finding');
+  const jailFinding = { ...CLEAN, verdict: 'NO-STATE-PASSED' };
+  assert.ok(TRIPWIRES.T3_noState(jailFinding));
+  assert.equal(TRIPWIRES.T9_nubBroken(jailFinding), null, 'T9 must not claim a jail finding');
+});
 
 test('⭑ T3 fires on the macOS spelling of no-state-passed, not just the Linux one', () => {
   // ⛔ THE CONTROL FOR A TRIPWIRE THAT WAS BLIND ON A WHOLE PLATFORM. `measure-macos.sh` prints

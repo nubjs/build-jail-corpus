@@ -675,6 +675,25 @@ else
 fi
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. The only arm whose result may enter the catalog. ──
+# Does nub install this package with the jail OFF? A shell FUNCTION, not an inline block, for the
+# same reason `verify` is one: `linux-ladder.test.mjs` stubs it to drive BOTH branches of the
+# decision it feeds. Inline, that branch would be unreachable from the test and would ship
+# unexercised — which is how the jail-off control it replaces stayed wrong for so long.
+unjailed_nub_ok () {
+  local p="$1" v="$2"
+  local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nsp-XXXXXX") || return 1
+  (
+    cd "$d" || exit 1
+    printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > package.json
+    printf '{"install":{"buildJail":false}}\n' > nub.jsonc
+    "$NUB" install > i.log 2>&1 || exit 1
+    "$NUB" approve-builds --all > a.log 2>&1 || exit 1
+  )
+  local rc=$?
+  rm -rf "$d"
+  return $rc
+}
+
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
   local v="$ROOT/verify-$label"; mkdir -p "$v/pkg"
@@ -1564,4 +1583,30 @@ if [ "$IRC" -eq 0 ]; then
   exit 0
 fi
 echo "  NOT-GRANT-INDEPENDENT ${INV#NOT-ESTABLISHED }"
+
+# ⛔⛔ THE JAIL-OFF CONTROL AT THE TOP OF THIS FILE ASKS ABOUT THE WRONG PROGRAM. It keys on OBSERVE's
+# rc, and OBSERVE runs `npm rebuild` — while every verify arm runs `nub install` + `nub
+# approve-builds`. So a package that npm installs fine but **nub itself cannot install even unjailed**
+# never earns `BROKEN-WITHOUT-JAIL-TOO`: it climbs the whole ladder, fails every rung, and is recorded
+# as `NO-STATE-PASSED`, which reads as "the jail blocks this" about a defect the jail had no part in.
+#
+# MEASURED 2026-08-07, and it is not hypothetical: of the four Linux `NO-STATE-PASSED` packages
+# triaged by hand, `@progress/kendo-licensing@0.1.2` is exactly this shape — jailed FAILS, unjailed
+# FAILS, and plain `npm install` SUCCEEDS.
+#
+# ⛔ RUN IT HERE, LAZILY, NOT AT THE TOP. This arm only fires on the path that would otherwise file
+# `NO-STATE-PASSED` — 3.8% of linux records — so the common case pays nothing. Running it up front
+# would add an install to every package in the corpus to answer a question almost none of them ask.
+unjailed_nub_ok "$PKG" "$VER"
+NSP_RC=$?
+if [ "$NSP_RC" -ne 0 ]; then
+  # ⛔ ONE `=>` LINE ONLY — `record.mjs` walks the log and the LAST match wins, so printing both
+  # verdicts here would silently overwrite this one with `NO-STATE-PASSED` and the stage would have
+  # no effect on any record.
+  echo "  => BROKEN-UNJAILED-NUB — nub cannot install this package even with the jail OFF, so the"
+  echo "     ladder's failures say nothing about capabilities. NOT a jail finding and NOT an"
+  echo "     under-grant: do not widen the catalog. This is a nub install defect to chase separately."
+  exit 0
+fi
+echo "  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference"
 echo "  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly"

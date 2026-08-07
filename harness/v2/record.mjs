@@ -48,6 +48,10 @@ export const firstObject = (line) => {
 const VERDICTS = {
   'BROKEN-WITHOUT-JAIL-TOO': /=>\s*BROKEN-WITHOUT-JAIL-TOO/,
   'NO-STATE-PASSED': /=>\s*NO-STATE-PASSED/,
+  // ⛔ nub cannot install the package even with the jail OFF, so the ladder's failures are not
+  // capability evidence. Distinct from BROKEN-WITHOUT-JAIL-TOO, which keys on `npm rebuild`: this
+  // one keys on the program the verify arms actually run. Neither collates.
+  'BROKEN-UNJAILED-NUB': /=>\s*BROKEN-UNJAILED-NUB/,
   VOID: /=>\s*(?:⛔\s*)?VOID/,
   UNKNOWN: /=>\s*UNKNOWN\b/,
   'OBSERVE-ONLY': /=>\s*OBSERVE-ONLY/,
