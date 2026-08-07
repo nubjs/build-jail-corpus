@@ -75,6 +75,14 @@ export function parseDriverLog(log) {
     storeLayout: null,
     interpreterPath: null,
     overrides: null,
+    // ⛔ WHICH DERIVED `writePaths` ENTRIES EMBED THE MEASURED VERSION. `collate.mjs` already reads
+    // `writePathsVersionPinned` off a record and turns it into a re-measure note — that reader has
+    // existed since v1 and has been inert for every v2 record, because no v2 driver emitted the
+    // marker. An entry like `.cache/foo-1.2.3` names a directory that MOVES on the next release, so
+    // without this the catalog would ship an entry that silently stops matching. Empty ARRAY, not
+    // null: the classifier always answers this question now, so "no pinned entries" is a measured
+    // answer rather than an absence.
+    writePathsVersionPinned: [],
     // ⛔ WHERE THE JAILED ARMS RAN. Two records from different venues can agree on every other field
     // and still have been measured under filesystem roots with different ACLs — and on Windows that
     // is not hypothetical: any jail root under `C:\Users\<user>` fails before a single script runs
@@ -154,6 +162,12 @@ export function parseDriverLog(log) {
     if (ov) {
       try { out.overrides = JSON.parse(ov[1]); }
       catch { out.notes.push('overrides-unparsable'); }
+      continue;
+    }
+    const wvp = /WRITEPATHS-VERSION-PINNED\s+(\[.*\])\s*$/.exec(l);
+    if (wvp) {
+      try { out.writePathsVersionPinned = JSON.parse(wvp[1]); }
+      catch { out.notes.push('writepaths-pinned-unparsable'); }
       continue;
     }
     const evs = /EVENTLOG-STATS\s+(\{.*)/.exec(l);
@@ -585,6 +599,15 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     verifiedBy: parsed.verifiedBy,
     minimality: parsed.minimality,
     overPredictedBy: parsed.overPredictedBy,
+    // ⛔ MIRRORED OUT OF THE GRANT, NOT PARSED SEPARATELY, AND KEPT IN BOTH PLACES ON PURPOSE.
+    // `writePaths` travels INSIDE the grant so the VERIFY arm actually builds a catalog carrying it
+    // and exercises nub's mover — a field the driver never puts in a catalog is a field no arm ever
+    // tests. But `collate.mjs` reads it from the RECORD's top level (`grantKey`, the `folded` union,
+    // and the `byVersion` fold all key on `r.writePaths`), which is the v1 shape. Mirroring is what
+    // lets an emitting v2 driver reach the existing collator with no change there; deriving it
+    // separately would give two values that can disagree.
+    writePaths: parsed.grant?.writePaths ?? [],
+    writePathsVersionPinned: parsed.writePathsVersionPinned ?? [],
     // ⛔ WHICH VALUE `grant` ABOVE IS, AND WHY. `rec` is an explicit whitelist, so the first version
     // of the grant-source rule narrowed `grant` correctly and then dropped every field explaining it
     // — a record whose grant had been narrowed with nothing saying on what basis, which is the exact

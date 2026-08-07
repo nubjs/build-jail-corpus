@@ -58,6 +58,37 @@
     "This also stops two vendors under one root collapsing into the root: a package writing",
     "Library/Caches/A and Library/Caches/B yields TWO entries, never their parent."
   ],
+  "_writePathsDeny_comment": [
+    "Directories the TOOLCHAIN owns inside the package's throwaway home. A derived `writePaths`",
+    "entry may never name one or anything inside one, because promotion COPIES INTO THE USER'S REAL",
+    "HOME — so an entry here would relocate npm's or node-gyp's own state on the strength of a",
+    "lifecycle script having shelled out to them.",
+    "",
+    "⛔ THIS IS THE ONE PLACE WHERE `when in doubt, loosen` DOES NOT APPLY, AND THE ASYMMETRY IS THE",
+    "REASON THE LIST EXISTS. Over-GRANTING is safe: a wider grant only widens reach inside a run that",
+    "is already happening. Over-PROMOTING is not: it writes files into $HOME that were never observed",
+    "to belong there. So the derivation refuses rather than widens whenever the answer is unclear.",
+    "",
+    "MEASURED, and each entry earns its place from something already in this repo:",
+    "  .npm            `.npm/_npx` derives from a symlink npm's OWN npx bootstrap creates inside the",
+    "                  lifecycle subtree (pinned by observe.test.mjs's two symlink cases, which went",
+    "                  red the first time this derivation ran without a denylist). The npm-config",
+    "                  entries above record the same directory producing `.npm/_logs` as a writePaths",
+    "                  entry for FOUR unrelated packages, and `_update-notifier-last-checked` as a",
+    "                  write a package had to buy with a grant. All three are npm's, not the",
+    "                  package's.",
+    "  .cache/node-gyp node-gyp's header/lib cache, shared by every native build and bootstrapped by",
+    "                  nub itself. `harness/search.mjs` records a 40-path evidence sample that was",
+    "                  entirely `$home/.cache/node-gyp` — a toolchain cache, and re-downloadable, so",
+    "                  moving it into the real home buys the package nothing.",
+    "",
+    "PREFER FIXING THE CAUSE, as the `env` entries above do, and add here only when there is no cause",
+    "to fix: node-gyp's cache is legitimate work that simply is not the package's artefact."
+  ],
+  "writePathsDeny": [
+    ".npm",
+    ".cache/node-gyp"
+  ],
   "sharedHomeRoots": [
     ".cache",
     ".npm",

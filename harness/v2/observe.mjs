@@ -55,6 +55,7 @@
 //   usage: node observe.mjs <trace-file> --capture <capture.json>
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
+import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
@@ -83,6 +84,9 @@ if (undeclared.length) {
 const { project: proj, home, jailHome, temp: jailTmp, npmPrefix: jailNpmPrefix,
         globalStore, projectStore, interpreter, toolsDir, ownPkg: ownPkgDir } = roots;
 const pkgName = capture.pkg ?? null;
+// The MEASURED version, used for one thing only: saying whether a derived `writePaths` entry
+// embeds it and therefore stops matching on the next release. Never used to guess a path.
+const pkgVersion = capture.version ?? null;
 const text = fs.readFileSync(file, 'utf8');
 const decoded = decode(text, { project: proj });
 
@@ -383,15 +387,72 @@ if (w.deps) g.write = { ...(g.write ?? {}), deps: true };
 if (w.project) g.write = { ...(g.write ?? {}), project: true };
 if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
 if (sockets > 0) g.network = true;
+
+// ── `writePaths`, DERIVED FROM THE PRIVATE HOME AND FROM NOTHING ELSE ──────────────────────────
+//
+// ⛔ THIS IS NOT A NARROWER SPELLING OF `write:{userHome}`, AND READING IT AS ONE SHIPS AN
+// UNDER-GRANT. nub's `persist_declared_home_writes` grants nothing: after the lifecycle scripts
+// finish it renames `private_jail_home/<rel>` to `real_home/<rel>` for each declared entry. So an
+// entry can only ever move something that ALREADY LANDED in the throwaway home — which is the
+// `jailHome` bucket above, and only that bucket.
+//
+// The two home buckets therefore have opposite answers, and the classifier already tells them apart
+// because this driver redirects `HOME` for the traced run exactly as the jail does:
+//
+//   jailHome  the write FOLLOWED `$HOME`. It succeeds in the jail and is then DISCARDED with the
+//             throwaway home, so nothing is refused and no scope is earned — what is lost is the
+//             artefact. Declaring it here is the only thing that keeps it. ⇒ the input below.
+//   userHome  the write named the REAL home by ABSOLUTE path. In the jail it is REFUSED unless
+//             `write:{userHome}` is granted, and promotion cannot help because there is nothing of
+//             its in the private home. ⇒ the scope STAYS, and `refuseUserHome` says so in the log.
+//
+// MEASURED, both halves, on this corpus: `@pulumi/gcp@0.16.9` wrote `/home/runner/.pulumi/...` with
+// `HOME` pointed at the jail home (so it resolves the home some way other than `$HOME`), and the two
+// playwright packages write into `$HOME/.cache/nub/pm/tools/ms-playwright` because nub itself sets
+// `PLAYWRIGHT_BROWSERS_PATH` to that absolute path. Both are `userHome`, and a `writePaths` entry
+// naming those directories would move nothing while removing the grant that makes the write legal.
+//
+// ⛔ AND THE DESCENT NEVER TESTS THIS FIELD, DELIBERATELY. `measure.sh`'s `descend` enumerates
+// `no-network` and `no-write-<scope>` only, so `writePaths` rides through every arm unchanged. That
+// is correct rather than an omission: a missing promotion does not fail the INSTALL — it fails the
+// package at RUN time, long after any arm has exited — so an arm could not detect its absence and a
+// `no-writePaths` arm would report "droppable" for every package on earth.
+const privateHomeRels = (w.jailHome ?? [])
+  .map((p) => relativizeUnder(p, jailHome))
+  .filter(Boolean);
+const wp = deriveWritePaths(privateHomeRels, { version: pkgVersion });
+if (wp.paths.length) g.writePaths = wp.paths;
+
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 console.log('  ' + JSON.stringify(g));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant`);
 
-// Could an ENUMERATION replace a scope grant? Only if the set outside project/deps is small AND
-// stable run to run. A version- or PID-stamped directory name makes it neither, so print the
-// candidate paths — a human reading them can tell a fixed `~/.cache/foo` from a random temp name
-// far more reliably than any heuristic here.
+// ⛔ THE DERIVATION SHOWS ITS WORK, INCLUDING WHEN IT DECLARES NOTHING. A silent empty is
+// indistinguishable from "this file does not derive writePaths at all", which is the state this
+// section replaced — and a reader auditing a `write:{userHome}` entry has to be able to see that the
+// question was asked and how it was answered.
+console.log('== writePaths (DERIVED — promotion out of the package\'s PRIVATE home) ==');
+console.log(`  private-home writes observed: ${privateHomeRels.length}`);
+if (wp.paths.length) {
+  wp.paths.forEach((p) => console.log(`      ${p}`));
+  if (wp.pinned.length) {
+    console.log(`  ⛔ VERSION-PINNED: ${wp.pinned.join(', ')} embed the measured version ${pkgVersion}`);
+    console.log('     — the directory MOVES on the next release; the collator records a re-measure note.');
+    console.log(`  WRITEPATHS-VERSION-PINNED ${JSON.stringify(wp.pinned)}`);
+  }
+} else {
+  console.log(`  none declared — ${wp.refused}`);
+}
+if (w.userHome) {
+  console.log(`  ${refuseUserHome(w.userHome.length).refused}`);
+}
+
+// The RAW candidate listing, kept as it was. It answers a different question from the derivation
+// above — "what did this package touch outside project/deps at all", including the `outside` writes
+// that no scope covers and no promotion can reach — and it is the listing a human reads when the
+// derivation declines. A version- or PID-stamped directory name is far easier to spot here than by
+// any heuristic, so the paths stay printed rather than being summarised away.
 const enumerable = [...(w.userHome ?? []), ...(w.outside ?? [])];
 console.log('== writePaths FEASIBILITY (distinct writes outside project/deps) ==');
 console.log(`  count: ${enumerable.length}`);

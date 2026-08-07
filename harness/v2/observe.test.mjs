@@ -220,7 +220,15 @@ test('symlinkat under a real dirfd bills the linkpath there — and INVENTS noth
   // which still classified into a scope and still earned a grant on evidence that does not exist.
   const open = '100 openat(AT_FDCWD, "/home/u/root/jailhome/d", O_RDONLY|O_DIRECTORY) = 5\n';
   const { grant, writes } = run(`${open}100 symlinkat("../../secret", 5, "link") = 0\n`);
-  assert.deepStrictEqual(grant, {}, 'the linkpath is inside the base-granted private home');
+  // ⛔ ASSERTS THE CAPABILITY AXES BY NAME, NOT `deepStrictEqual(grant, {})`, AND THE DIFFERENCE IS
+  // NOT COSMETIC. The synthesis now also derives `writePaths` from the private-home bucket, and a
+  // write at `<jailhome>/d/link` legitimately names `d` — a PERSISTENCE declaration, which is what
+  // stops the artefact being thrown away with the throwaway home, and not a capability. The
+  // whole-object form conflated the two and went red on a correct run. What this case is about is
+  // that the linkpath was not FABRICATED into a scope, so that is what it now says.
+  assert.equal(grant.write, undefined, 'the linkpath is inside the base-granted private home');
+  assert.equal(grant.read, undefined);
+  assert.equal(grant.network, undefined);
   assert.ok(writes.includes('/home/u/root/jailhome/d/link'), `got ${JSON.stringify(writes)}`);
   assert.ok(!writes.includes(`${PROJ}/link`), 'resolved the linkpath against the project root — a FABRICATED path');
 });

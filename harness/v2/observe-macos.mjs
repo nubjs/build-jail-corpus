@@ -34,6 +34,7 @@
 //
 //   usage: node observe-macos.mjs <dtrace-log> --capture <capture.json>
 import fs from 'node:fs';
+import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
@@ -77,6 +78,9 @@ const norm = (p) => (typeof p === 'string' ? p.replace(/\/{2,}/g, '/').replace(/
 for (const k of Object.keys(roots)) roots[k] = norm(roots[k]);
 const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix } = roots;
 const pkgName = capture.pkg ?? null;
+// The MEASURED version, used for one thing only: saying whether a derived `writePaths` entry embeds
+// it and therefore stops matching on the next release. Never used to guess a path.
+const pkgVersion = capture.version ?? null;
 // The package directory as it existed after OBSERVE, embedded in the capture. The cwd guard resolves
 // a relative write against the package dir and confirms it against this set. Absent on any archive
 // captured before it existed — and absence must NOT read as "nothing is confirmable", so the guard
@@ -634,6 +638,27 @@ if (w.userHome) g.write = { ...(g.write ?? {}), userHome: true };
 // re-measure. `userHome` now requires an ABSOLUTE observed write into the home.
 if (cwdUnobservedWrite) g.write = { ...(g.write ?? {}), deps: true, project: true };
 if (sockets > 0) g.network = true;
+
+// ── `writePaths`, DERIVED FROM THE PRIVATE HOME AND FROM NOTHING ELSE ──────────────────────────
+//
+// The full argument lives in `write-paths.mjs`'s header; the one sentence that must not be lost when
+// reading this line is that `writePaths` is NOT a narrower spelling of `write:{userHome}`. nub's
+// `persist_declared_home_writes` grants nothing — it renames `private_jail_home/<rel>` to
+// `real_home/<rel>` after the scripts finish — so it can only ever move something that already
+// landed in the throwaway home. That is the `jailHome` bucket, and only that bucket.
+//
+// A `userHome` write named the REAL home by absolute path, so in the jail it is REFUSED and there is
+// nothing of its in the private home to promote. The scope stays; `refuseUserHome` says so below.
+//
+// ⛔ `deriveWritePaths` IS THE SAME FUNCTION THE LINUX CLASSIFIER CALLS. The two classifiers already
+// drifted once on the strace decoder and every one of the eight resulting losses was in the
+// under-grant direction, which is why this one is shared from the outset rather than re-derived.
+const privateHomeRels = (w.jailHome ?? [])
+  .map((p) => relativizeUnder(p, jailHome))
+  .filter(Boolean);
+const wp = deriveWritePaths(privateHomeRels, { version: pkgVersion });
+if (wp.paths.length) g.writePaths = wp.paths;
+
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
 // ⛔ `{}` IS A REAL, VERIFIABLE ANSWER — a package whose script genuinely needs nothing. It has been
 // verified as such on another platform (Windows, husky@4.3.8). So it must NEVER double as the
@@ -644,6 +669,27 @@ console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
 console.log('  ' + (lifecycle.size === 0 ? 'UNKNOWN-ATTRIBUTION-FAILED' : JSON.stringify(g)));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 
+// ⛔ THE DERIVATION SHOWS ITS WORK, INCLUDING WHEN IT DECLARES NOTHING — a silent empty is
+// indistinguishable from "this file does not derive writePaths at all", which is what it replaced.
+console.log('== writePaths (DERIVED — promotion out of the package\'s PRIVATE home) ==');
+console.log(`  private-home writes observed: ${privateHomeRels.length}`);
+if (wp.paths.length) {
+  wp.paths.forEach((p) => console.log(`      ${p}`));
+  if (wp.pinned.length) {
+    console.log(`  ⛔ VERSION-PINNED: ${wp.pinned.join(', ')} embed the measured version ${pkgVersion}`);
+    console.log('     — the directory MOVES on the next release; the collator records a re-measure note.');
+    console.log(`  WRITEPATHS-VERSION-PINNED ${JSON.stringify(wp.pinned)}`);
+  }
+} else {
+  console.log(`  none declared — ${wp.refused}`);
+}
+if (w.userHome) {
+  console.log(`  ${refuseUserHome(w.userHome.length).refused}`);
+}
+
+// The RAW candidate listing, unchanged. It answers a different question from the derivation above —
+// what this package touched outside project/deps AT ALL, including the `outside` writes no scope
+// covers and no promotion can reach — and it is what a human reads when the derivation declines.
 const enumerable = [...(w.userHome ?? []), ...(w.outside ?? [])];
 console.log('== writePaths FEASIBILITY (distinct writes outside project/deps) ==');
 console.log(`  count: ${enumerable.length}`);

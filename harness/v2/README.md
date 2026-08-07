@@ -26,7 +26,9 @@ Nothing the harness uses has to be available to the jail. That single permission
 ## The v2 pipeline
 
 1. **OBSERVE** — install the package **unjailed**, under full tracing (`strace -f -e trace=file,network` on Linux). Extract every path opened for write, every path read, every AF_INET socket and peer, and every genuine refusal.
-2. **SYNTHESIZE** — map the observed paths onto the catalog's scopes (`deps` / `project` / `userHome`) and emit the narrowest grant covering them. Anything that maps to no scope — a write outside project and home, a `/proc` read — is surfaced explicitly rather than rounded up into `"disk"`.
+2. **SYNTHESIZE** — map the observed paths onto the catalog's scopes (`deps` / `project` / `userHome`) and emit the narrowest grant covering them, plus any `writePaths` the run earns. Anything that maps to no scope — a write outside project and home, a `/proc` read — is surfaced explicitly rather than rounded up into `"disk"`.
+
+   ⛔ **`writePaths` is not a narrower spelling of `write:{userHome}`, and reading it as one ships an under-grant.** nub's `persist_declared_home_writes` grants nothing: after the scripts finish it renames `private_jail_home/<rel>` into `real_home/<rel>` for each declared entry. So it can only move something that already landed in the throwaway home — the classifier's `jailHome` bucket, and only that bucket. A `userHome` write named the real home by absolute path, is REFUSED in the jail, and has nothing of its own in the private home to promote; the scope stays and `write-paths.mjs` says so in the log. The derivation, its collapse rule, its toolchain denylist and its scatter refusal all live in `harness/v2/write-paths.mjs`.
 3. **VERIFY** — run that grant in the real unprivileged jail and compare artifacts against the unjailed control. This is the arm that can fail, and it is the only one whose result goes in the catalog.
 4. **FALL BACK** — only if VERIFY fails, walk the ladder **upward from the synthesized grant**, not from zero. The search space is a handful of states, not 55.
 
