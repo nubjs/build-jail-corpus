@@ -1,0 +1,102 @@
+### saucectl@0.177.0   (/Users/runner/v2m-pb6QQS)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-pb6QQS/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-pb6QQS/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsPGbowh"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "saucectl" > "/Users/runner/v2m-pb6QQS/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-pb6QQS/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-pb6QQS/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-pb6QQS/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsPGbowh NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund saucectl
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002931050) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=634 (pre=631) trace=13085 lines
+  CLOSURE   42 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-pb6QQS/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-pb6QQS/Observe/capture.json
+  RAWLOG-BYTES raw=2221061 gz=70768
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-pb6QQS/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsPGbowh","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-pb6QQS/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13086,"parsed":13066,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4986,"enoent":4983,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":4983},"procs":6,"lifecyclePids":1,"distinctEvents":6073,"emitted":6073,"calls":12512,"bytes":1202243,"gzipBytes":40711,"out":"/Users/runner/v2m-pb6QQS/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3334 dropped-events=1
+    NOTE 16 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 2 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=39149 read  unproven .
+         pid=39149 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600002931050
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 3  /  whole traced subtree 1093
+    sockets script 2  /  whole traced subtree 3
+  == ROOTS (from /Users/runner/v2m-pb6QQS/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-pb6QQS/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-pb6QQS/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-pb6QQS/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsPGbowh
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-pb6QQS/Observe/node_modules/saucectl
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-pb6QQS/Observe/node_modules/saucectl/bin
+        /Users/runner/v2m-pb6QQS/Observe/node_modules/saucectl/bin/saucectl
+  == READS the script performed, by scope ==
+    outside       6
+    systemfs     10
+    userHome      2
+    ownPkg        5
+    deps        141
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /etc/localtime
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 2
+        140.82.116.4:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 44 store entries removed, 0 spared as nub tooling, 672 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 2169/634) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}
+  EVICT[nar-no-network] 44 store entries removed, 0 spared as nub tooling, 672 in store
+  VERIFY[nar-no-network] rc=1 artifacts=6/7 missing=1 shortfall=1f6a7b28e9d5 (tree 2164/634) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/saucectl
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  => MINIMAL — every capability in {"network":true} is independently necessary
+### DONE saucectl@0.177.0  synthesized={"network":true} verified=1
