@@ -1,0 +1,68 @@
+### hugo-extended@0.104.3   (/home/runner/v2-ZWHLR8)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1744 trace=16770 lines
+  CLOSURE   181 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-ZWHLR8/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ZWHLR8/observe/capture.json
+  RAWLOG-BYTES raw=3520878 gz=105553
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ZWHLR8/jailhome","TMPDIR":"/tmp/nub-tmp-obsrKvQl1","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ZWHLR8/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 25
+    writes  script 7  /  whole traced tree 1095
+    sockets script 10  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ZWHLR8/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ZWHLR8/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ZWHLR8/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsrKvQl1
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ZWHLR8/observe/node_modules/hugo-extended
+  == WRITES the script actually performed ==
+    jailTmp       3  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsrKvQl1/3bd27903beff60c91b87a1076bf56f7c
+        /tmp/nub-tmp-obsrKvQl1/3bd27903beff60c91b87a1076bf56f7c/hugo_extended_0.104.3_linux-amd64.tar.gz
+        /tmp/nub-tmp-obsrKvQl1/3bd27903beff60c91b87a1076bf56f7c/hugo_0.104.3_checksums.txt
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-ZWHLR8/observe/node_modules/hugo-extended/vendor
+        /home/runner/v2-ZWHLR8/observe/node_modules/hugo-extended/vendor/hugo
+        /home/runner/v2-ZWHLR8/observe/node_modules/hugo-extended/vendor/README.md
+        /home/runner/v2-ZWHLR8/observe/node_modules/hugo-extended/vendor/LICENSE
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 3
+        127.0.0.53:53
+        104.16.2.34:443
+        140.82.113.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7213 distinct from 16472 calls (16771 lines, 248 rejoined, 0 unparsed)
+    PROCS     32   lifecycle shells 20
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×55 getsockname×43 getsockopt×20 exit×20 getcwd×15 recvmsg×15 tgkill×15 socketpair×6
+    wrote /home/runner/v2-ZWHLR8/observe/events.ndjson.gz (46933 bytes)
+  EVENTLOG-FILE /home/runner/v2-ZWHLR8/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16771,"parsed":16472,"unparsed":0,"unfinished":248,"rejoined":248,"unresolvedDirfd":3,"truncatedArg":0,"procs":32,"lifecyclePids":20,"distinctEvents":7213,"unknownSyscall":{"getsockname":43,"getsockopt":20,"getcwd":15,"recvmsg":15,"exit":20,"setsockopt":55,"sendmmsg":5,"socketpair":6,"shutdown":4,"getpeername":5,"tgkill":15,"exit_group":4,"wait4":4},"out":"/home/runner/v2-ZWHLR8/observe/events.ndjson.gz","gzipBytes":46933}
+  EVICT     193 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for hugo-extended
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 6003/1744) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     189 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for hugo-extended
+  VERIFY[drop-no-network] rc=1 artifacts=9/12 missing=3 shortfall=219cbefac624 (tree 5994/1744) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: vendor/LICENSE, vendor/README.md, vendor/hugo
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
