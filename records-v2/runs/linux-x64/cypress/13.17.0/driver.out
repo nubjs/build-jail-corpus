@@ -1,0 +1,79 @@
+### cypress@13.17.0   (/home/runner/v2-hGELn5)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=6766 trace=345815 lines
+  CLOSURE   171 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":825,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (825) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-hGELn5/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-hGELn5/observe/capture.json
+  RAWLOG-BYTES raw=68223643 gz=1096164
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-hGELn5/jailhome","TMPDIR":"/tmp/nub-tmp-obsXnUmvl","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-hGELn5/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 20
+    writes  script 25517  /  whole traced tree 26605
+    sockets script 6  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-hGELn5/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-hGELn5/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-hGELn5/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXnUmvl
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-hGELn5/observe/node_modules/cypress
+  == WRITES the script actually performed ==
+    jailHome  25514  (base profile already grants this — NOT billed)
+        /home/runner/v2-hGELn5/jailhome/.cache
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/patches
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/patches/return-deep-diff+0.4.0.patch
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/patches/node-fetch+2.7.0.patch
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/patches/@urql+exchange-graphcache+4.3.6.patch
+        … and 25504 more
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsXnUmvl/cypress-39471.zip
+    bytecode      2  (jail REFUSES these and the build succeeds anyway — NOT billed)
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/node_modules/flatted/python/__pycache__
+        /home/runner/v2-hGELn5/jailhome/.cache/Cypress/13.17.0/Cypress/resources/app/node_modules/flatted/python/__pycache__/flatted.cpython-311.pyc
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        104.20.35.55:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".cache/Cypress"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 25514
+        .cache/Cypress
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    93746 distinct from 345559 calls (345816 lines, 225 rejoined, 0 unparsed)
+    PROCS     27   lifecycle shells 15
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×57 getsockname×42 getsockopt×25 exit×20 recvmsg×11 socketpair×9 shutdown×7 getcwd×5
+    wrote /home/runner/v2-hGELn5/observe/events.ndjson.gz (493596 bytes)
+  EVENTLOG-FILE /home/runner/v2-hGELn5/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":345816,"parsed":345559,"unparsed":0,"unfinished":225,"rejoined":225,"unresolvedDirfd":3,"truncatedArg":0,"procs":27,"lifecyclePids":15,"distinctEvents":93746,"unknownSyscall":{"getsockname":42,"getsockopt":25,"getcwd":5,"recvmsg":11,"exit":20,"setsockopt":57,"sendmmsg":3,"socketpair":9,"shutdown":7,"exit_group":5,"wait4":5},"out":"/home/runner/v2-hGELn5/observe/events.ndjson.gz","gzipBytes":493596}
+  EVICT     81 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cypress
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=825/825 missing=0 shortfall=none (tree 21014/6766) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/Cypress"]}
+  => VERIFIED {"network":true,"writePaths":[".cache/Cypress"]}   (observed, then verified)
+  EVICT     173 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cypress
+  VERIFY[drop-no-network] rc=1 artifacts=825/825 missing=0 shortfall=none (tree 21012/6766) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/Cypress"]}
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true,"writePaths":[".cache/Cypress"]} is independently necessary
