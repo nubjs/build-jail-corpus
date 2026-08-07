@@ -61,6 +61,32 @@ for attempt in 1 2 3; do
   # runner claimed while this package was measuring.
   git checkout -q "origin/$BRANCH" -- "$QUEUE" 2>/dev/null || true
 
+  # ⛔ THE ONE THING THAT MAY NOT BE OVERWRITTEN: a measured grant, replaced by a NARROWER one that
+  # no arm could have falsified. `arm-falsifiability.mjs` is "flag, never fail" — correct for a
+  # record that merely proves little, but it leaves a vacuous NARROWING to publish under a flag
+  # nobody is required to read, which is an under-grant. `publish-guard.mjs` is that missing act.
+  #
+  # ⛔ FAILS OPEN, DELIBERATELY. Exit 10 is the only verdict that withholds; a missing guard, a
+  # parse error or any other status publishes exactly as before. A publish path that starts dropping
+  # records because a helper broke would cost more than the case it protects — and the guard's own
+  # red-green lives in `publish-guard.test.mjs`, not in this script's behaviour.
+  #
+  # Read the PRIOR from origin rather than the working tree: the reset above has already put
+  # origin's copy there, but only for a record that exists upstream, and `--prior /dev/null` (no
+  # prior) must publish rather than compare against a half-written file.
+  PRIOR_JSON="$STASH/prior.json"
+  git show "origin/$BRANCH:$REL/results.json" > "$PRIOR_JSON" 2>/dev/null || : > "$PRIOR_JSON"
+  if [ -s "$PRIOR_JSON" ]; then
+    node harness/v2/publish-guard.mjs --prior "$PRIOR_JSON" --incoming "$STASH/rec/results.json" \
+      > "$STASH/guard.out" 2>/dev/null
+    if [ "$?" = "10" ]; then
+      echo "  ⛔ WITHHELD (not published): $REL" >&2
+      sed 's/^/     /' "$STASH/guard.out" >&2
+      echo "     The record stays on disk at $REC_DIR for inspection; the corpus keeps its prior grant." >&2
+      exit 0
+    fi
+  fi
+
   mkdir -p "$REL"
   cp -R "$STASH/rec/." "$REL/" 2>/dev/null
 
