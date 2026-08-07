@@ -1,64 +1,112 @@
-### @playwright/browser-chromium@1.61.1   (/home/runner/v2-XVgC8H)
-  OBSERVE   rc=0 files=117 trace=29356 lines
+### @playwright/browser-chromium@1.61.1   (/home/nub/v2-a3JZsx)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=118 trace=35084 lines
   CLOSURE   2 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 624  /  whole traced tree 627
-    sockets script 29  /  whole traced tree 29
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-a3JZsx/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-a3JZsx/observe/capture.json
+  RAWLOG-BYTES raw=6645395 gz=114774
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-a3JZsx/jailhome","TMPDIR":"/tmp/nub-tmp-obs5uYIAW","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-a3JZsx/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 50
+    writes  script 623  /  whole traced tree 1801
+    sockets script 30  /  whole traced tree 36
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-a3JZsx/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-a3JZsx/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-a3JZsx/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs5uYIAW
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-a3JZsx/observe/node_modules/@playwright/browser-chromium
   == WRITES the script actually performed ==
-    jailHome    618  (base profile already grants this — NOT billed)
-        /home/runner/v2-XVgC8H/jailhome/.cache
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/__dirlock
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/.links
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/.links/2424d6e29e8592bce305cbcf1445f16cd232fa23
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/ABOUT
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/MEIPreload
-        /home/runner/v2-XVgC8H/jailhome/.cache/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/manifest.json
-        … and 608 more
-    outside       6
-        /tmp/playwright-download-8zlprA
-        /tmp/playwright-download-8zlprA/playwright-download-chromium-ubuntu24.04-x64-1228.zip
-        /tmp/playwright-download-yjKhqN
-        /tmp/playwright-download-yjKhqN/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
-        /tmp/playwright-download-SxlO9v
-        /tmp/playwright-download-SxlO9v/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
+    userHome    617
+    jailTmp       6  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-IBXGVg
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-IBXGVg/playwright-download-chromium-ubuntu24.04-x64-1228.zip
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-3n5IyO
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-3n5IyO/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-fDtnza
+        /tmp/nub-tmp-obs5uYIAW/playwright-download-fDtnza/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
   == NETWORK ==
-    AF_INET sockets: 29   distinct peers: 18
+    AF_INET sockets: 30   distinct peers: 4
         127.0.0.53:53
-        150.171.109.72:443
-        34.153.2.27:0
-        34.144.171.27:0
-        34.3.0.27:0
-        104.154.124.27:0
-        34.153.3.27:0
-        104.154.125.27:0
-        34.3.1.27:0
-        34.144.170.27:0
+        104.16.5.34:443
+        150.171.110.195:443
+        150.171.109.183:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"network":true}
-    ⛔ 6 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    {"write":{"userHome":true},"network":true}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 6
-        /tmp/playwright-download-8zlprA
-        /tmp/playwright-download-8zlprA/playwright-download-chromium-ubuntu24.04-x64-1228.zip
-        /tmp/playwright-download-yjKhqN
-        /tmp/playwright-download-yjKhqN/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
-        /tmp/playwright-download-SxlO9v
-        /tmp/playwright-download-SxlO9v/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[synth] rc=1 artifacts=8/8 missing=0 (tree 351/117) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-  DIAGNOSE  refused paths under the failing grant (count, path):
-           3 "/proc/self/maps"
-           1 "/proc/version_signature"
-           1 "/proc/self/cgroup"
-     LAST REFUSAL BEFORE A NON-ZERO EXIT (a lead, not proof):
-       36063 <... mkdir resumed>)              = -1 EACCES (Permission denied)
-  synthesized grant did not verify — falling back to a bounded ladder
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[fb2126003217] rc=0 artifacts=8/8 missing=0 (tree 351/117) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
-  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+    count: 617
+        .cache/nub/pm/tools/ms-playwright
+        .cache/nub/pm/tools/ms-playwright/__dirlock
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/c2dd102418880e99b565f62b242e89553aed5eda
+        .cache/nub/pm/tools/ms-playwright/chromium-1228
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/ABOUT
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/preloaded_data.pb
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/LICENSE
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific/linux_x64
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome-wrapper
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_100_percent.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_200_percent.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_crashpad_handler
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_sandbox
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/deb.deps
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/icudtl.dat
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libEGL.so
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libGLESv2.so
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libvk_swiftshader.so
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libvulkan.so.1
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_FEMININE.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_MASCULINE.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_NEUTER.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_FEMININE.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_MASCULINE.pak
+        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_NEUTER.pak
+        … and 577 more
+    EVENTS    5898 distinct from 34916 calls (35085 lines, 107 rejoined, 0 unparsed)
+    PROCS     56   lifecycle shells 45
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: recvmsg×16416 getsockname×137 getsockopt×99 setsockopt×59 exit×45 getcwd×7 socketpair×6 exit_group×6
+    wrote /home/nub/v2-a3JZsx/observe/events.ndjson.gz (40149 bytes)
+  EVENTLOG-FILE /home/nub/v2-a3JZsx/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":35085,"parsed":34916,"unparsed":0,"unfinished":107,"rejoined":107,"unresolvedDirfd":3,"truncatedArg":0,"procs":56,"lifecyclePids":45,"distinctEvents":5898,"unknownSyscall":{"getsockname":137,"getsockopt":99,"getcwd":7,"recvmsg":16416,"setsockopt":59,"sendmmsg":1,"socketpair":6,"shutdown":3,"exit":45,"exit_group":6,"wait4":6},"out":"/home/nub/v2-a3JZsx/observe/events.ndjson.gz","gzipBytes":40149}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 351/118) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+  VERIFY[drop-no-network] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 351/118) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 351/118) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary

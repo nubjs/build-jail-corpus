@@ -1,51 +1,78 @@
-### sharp@0.32.6   (/home/runner/v2-CSAdeG)
-  OBSERVE   rc=0 files=564 trace=12366 lines
+### sharp@0.32.6   (/home/nub/v2-cnZqlc)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=565 trace=10880 lines
   CLOSURE   54 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 15
-    writes  script 17  /  whole traced tree 20
-    sockets script 10  /  whole traced tree 10
+  ARM-FALSIFIABILITY {"manifestFiles":47,"filesTheScriptProduced":5,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-cnZqlc/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-cnZqlc/observe/capture.json
+  RAWLOG-BYTES raw=2061195 gz=80046
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-cnZqlc/jailhome","TMPDIR":"/tmp/nub-tmp-obssdNGSs","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-cnZqlc/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 43
+    writes  script 19  /  whole traced tree 1197
+    sockets script 10  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-cnZqlc/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-cnZqlc/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-cnZqlc/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obssdNGSs
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-cnZqlc/observe/node_modules/sharp
   == WRITES the script actually performed ==
     kernelfs      1
         /dev/null
-    jailHome      3  (base profile already grants this — NOT billed)
-        /home/runner/v2-CSAdeG/jailhome/.npm/_libvips
-        /home/runner/v2-CSAdeG/jailhome/.npm/_prebuilds
-        /home/runner/v2-CSAdeG/jailhome/.npm/_prebuilds/dbcc16-sharp-v0.32.6-napi-v7-linux-x64.tar.gz.4370-83b790fc54b3.tmp
-    outside       1
-        /tmp/4371-libvips-8.14.5-linux-x64.tar.br
+    jailHome      5  (base profile already grants this — NOT billed)
+        /home/nub/v2-cnZqlc/jailhome/.npm/_libvips
+        /home/nub/v2-cnZqlc/jailhome/.npm/_libvips/libvips-8.14.5-linux-x64.tar.br
+        /home/nub/v2-cnZqlc/jailhome/.npm/_prebuilds
+        /home/nub/v2-cnZqlc/jailhome/.npm/_prebuilds/dbcc16-sharp-v0.32.6-napi-v7-linux-x64.tar.gz.198739-5183ea71f6fd7.tmp
+        /home/nub/v2-cnZqlc/jailhome/.npm/_prebuilds/dbcc16-sharp-v0.32.6-napi-v7-linux-x64.tar.gz
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obssdNGSs/198740-libvips-8.14.5-linux-x64.tar.br
     ownPkg       12  (base profile already grants this — NOT billed)
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/libvips-cpp.so.42
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/glib-2.0/
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/platform.json
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/versions.json
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/vendor/8.14.5/linux-x64/THIRD-PARTY-NOTICES.md
-        /home/runner/v2-CSAdeG/observe/node_modules/sharp/build
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/libvips-cpp.so.42
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/lib/glib-2.0
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/platform.json
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/versions.json
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/vendor/8.14.5/linux-x64/THIRD-PARTY-NOTICES.md
+        /home/nub/v2-cnZqlc/observe/node_modules/sharp/build
         … and 2 more
   == NETWORK ==
-    AF_INET sockets: 10   distinct peers: 7
+    AF_INET sockets: 10   distinct peers: 3
         127.0.0.53:53
-        140.82.114.4:443
-        185.199.111.133:0
-        185.199.109.133:0
-        185.199.108.133:0
-        185.199.110.133:0
-        185.199.111.133:443
+        104.16.3.34:443
+        140.82.112.4:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
-    ⛔ 1 writes OUTSIDE project/home — no scope covers these; inspect before granting
     NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 1
-        /tmp/4371-libvips-8.14.5-linux-x64.tar.br
-  VERIFY[synth] rc=0 artifacts=47/47 missing=0 (tree 2007/564) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+    count: 0
+    EVENTS    5997 distinct from 10689 calls (10881 lines, 134 rejoined, 0 unparsed)
+    PROCS     49   lifecycle shells 38
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×67 getsockname×48 exit×36 getsockopt×27 recvmsg×14 wait4×13 socketpair×9 exit_group×9
+    wrote /home/nub/v2-cnZqlc/observe/events.ndjson.gz (40698 bytes)
+  EVENTLOG-FILE /home/nub/v2-cnZqlc/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10881,"parsed":10689,"unparsed":0,"unfinished":134,"rejoined":134,"unresolvedDirfd":3,"truncatedArg":0,"procs":49,"lifecyclePids":38,"distinctEvents":5997,"unknownSyscall":{"getsockname":48,"getsockopt":27,"getcwd":7,"recvmsg":14,"setsockopt":67,"sendmmsg":5,"socketpair":9,"shutdown":5,"exit_group":9,"wait4":13,"getpeername":1,"exit":36},"out":"/home/nub/v2-cnZqlc/observe/events.ndjson.gz","gzipBytes":40698}
+  EVICT     54 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sharp
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=47/47 missing=0 shortfall=none (tree 2007/565) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  VERIFY[drop-network] rc=1 artifacts=42/47 missing=5 (tree 1990/564) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT     55 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for sharp
+  VERIFY[drop-no-network] rc=1 artifacts=42/47 missing=5 shortfall=340158757b47 (tree 1990/565) OVERRIDDEN=2 REJECTED=0 grant={}
        missing: build/Release/sharp-linux-x64.node, vendor/8.14.5/linux-x64/THIRD-PARTY-NOTICES.md, vendor/8.14.5/linux-x64/lib/libvips-cpp.so.42, vendor/8.14.5/linux-x64/platform.json, vendor/8.14.5/linux-x64/versions.json
-     'network' is NECESSARY — dropping it fails to verify
+     'no-network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true} is independently necessary

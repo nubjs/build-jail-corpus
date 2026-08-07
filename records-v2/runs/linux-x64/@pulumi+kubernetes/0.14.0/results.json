@@ -32,5 +32,24 @@
     "corpusGitSha": "95f5c248e5c47125424c8a67cc6f11e10a770af2",
     "node": "v22.23.1",
     "at": "2026-08-06T14:51:06.607Z"
+  },
+  "withheldRemeasure": {
+    "at": "2026-08-07T00:52:00Z",
+    "venue": "vm",
+    "host": "nub-corpus-linux",
+    "harnessCorpusGitSha": "c842f37c4c44fa94cc7eee426f0cb93b9ba0eb0b",
+    "missingPrecondition": "the pulumi CLI is not on PATH on the measuring host",
+    "remeasuredVerdict": "BROKEN-WITHOUT-JAIL-TOO",
+    "remeasuredGrant": null,
+    "whyWithheld": "LOUD failure. The install script is \"pulumi plugin install resource kubernetes v0.14.0\", invoking the CLI directly with no wrapper, so the unjailed OBSERVE control itself failed and there was nothing to measure. Replacing a measured grant with a non-measurement would lose information.",
+    "evidence": "OBSERVE rc=127; npm.log: \"npm error command sh -c pulumi plugin install resource kubernetes v0.14.0\" / \"npm error sh: 1: pulumi: not found\".",
+    "keptGrant": {
+      "write": {
+        "userHome": true
+      },
+      "network": true
+    },
+    "owed": "Re-measure on a host that HAS the pulumi CLI. Until then this record keeps its 2026-08-06 grant on purpose: the re-measure could not exercise the install script, so it is not evidence that the grant is wrong.",
+    "doNotFix": "Do NOT install pulumi on the measuring host to clear this. A measuring host that accumulates per-package tools silently changes what every other package measures."
   }
 }

@@ -1,19 +1,53 @@
-### contentful@9.3.7   (/home/runner/v2-4TkYzv)
-  OBSERVE   rc=0 files=716 trace=9629 lines
+### contentful@9.3.7   (/home/nub/v2-rAQ3HP)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=717 trace=8755 lines
   CLOSURE   43 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 0  /  whole traced tree 3
-    sockets script 0  /  whole traced tree 0
+  ARM-FALSIFIABILITY {"manifestFiles":26,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (26) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-rAQ3HP/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-rAQ3HP/observe/capture.json
+  RAWLOG-BYTES raw=1715462 gz=61954
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-rAQ3HP/jailhome","TMPDIR":"/tmp/nub-tmp-obsSH8dVA","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-rAQ3HP/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1178
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-rAQ3HP/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-rAQ3HP/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-rAQ3HP/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsSH8dVA
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-rAQ3HP/observe/node_modules/contentful
   == WRITES the script actually performed ==
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 0
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.0.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[synth] rc=0 artifacts=26/26 missing=0 (tree 2598/716) OVERRIDDEN=2 REJECTED=0 grant={}
+    EVENTS    4750 distinct from 8704 calls (8756 lines, 30 rejoined, 0 unparsed)
+    PROCS     19   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×25 setsockopt×23 exit×14 getsockopt×11 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/nub/v2-rAQ3HP/observe/events.ndjson.gz (33563 bytes)
+  EVENTLOG-FILE /home/nub/v2-rAQ3HP/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8756,"parsed":8704,"unparsed":0,"unfinished":30,"rejoined":30,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":4750,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-rAQ3HP/observe/events.ndjson.gz","gzipBytes":33563}
+  EVICT     35 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for contentful
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 2598/717) OVERRIDDEN=2 REJECTED=0 grant={}
   => VERIFIED {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

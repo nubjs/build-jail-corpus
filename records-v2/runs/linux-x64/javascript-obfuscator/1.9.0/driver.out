@@ -1,19 +1,62 @@
-### javascript-obfuscator@1.9.0   (/home/runner/v2-72MRvj)
-  OBSERVE   rc=0 files=2069 trace=10057 lines
+### javascript-obfuscator@1.9.0   (/home/nub/v2-bw71IO)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2070 trace=9231 lines
   CLOSURE   59 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 0  /  whole traced tree 3
-    sockets script 0  /  whole traced tree 0
+  ARM-FALSIFIABILITY {"manifestFiles":371,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (371) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `postinstall` ends in a status-swallowing construct (`opencollective || exit 0`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/nub/v2-bw71IO/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-bw71IO/observe/capture.json
+  RAWLOG-BYTES raw=1790371 gz=66659
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-bw71IO/jailhome","TMPDIR":"/tmp/nub-tmp-obsgGHQVO","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-bw71IO/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 1  /  whole traced tree 1179
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-bw71IO/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-bw71IO/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-bw71IO/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsgGHQVO
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-bw71IO/observe/node_modules/javascript-obfuscator
   == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 0
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.4.34:443
+        104.26.13.145:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {}
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[synth] rc=0 artifacts=371/371 missing=0 (tree 6212/2069) OVERRIDDEN=2 REJECTED=0 grant={}
-  => VERIFIED {}   (observed, then verified)
-  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+    EVENTS    5039 distinct from 9120 calls (9232 lines, 82 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×42 getsockname×31 exit×18 getsockopt×14 recvmsg×8 wait4×6 socketpair×5 exit_group×5
+    wrote /home/nub/v2-bw71IO/observe/events.ndjson.gz (35363 bytes)
+  EVENTLOG-FILE /home/nub/v2-bw71IO/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9232,"parsed":9120,"unparsed":0,"unfinished":82,"rejoined":82,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":14,"distinctEvents":5039,"unknownSyscall":{"getsockname":31,"getsockopt":14,"getcwd":4,"recvmsg":8,"setsockopt":42,"sendmmsg":2,"socketpair":5,"shutdown":4,"exit_group":5,"wait4":6,"exit":18},"out":"/home/nub/v2-bw71IO/observe/events.ndjson.gz","gzipBytes":35363}
+  EVICT     25 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for javascript-obfuscator
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=371/371 missing=0 shortfall=none (tree 6212/2070) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     67 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for javascript-obfuscator
+  VERIFY[drop-no-network] rc=0 artifacts=371/371 missing=0 shortfall=none (tree 6212/2070) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)

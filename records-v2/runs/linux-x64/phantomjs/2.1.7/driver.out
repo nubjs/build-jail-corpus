@@ -1,3 +1,80 @@
-### phantomjs@2.1.7   (/home/runner/v2-Dn5qbg)
-  OBSERVE   rc=1 files=2017 trace=12959 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+### phantomjs@2.1.7   (/home/nub/v2-1Sqzts)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=2069 trace=11707 lines
+  CLOSURE   100 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":64,"filesTheScriptProduced":51,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-1Sqzts/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-1Sqzts/observe/capture.json
+  RAWLOG-BYTES raw=2231390 gz=83692
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-1Sqzts/jailhome","TMPDIR":"/tmp/nub-tmp-obsxwX0Mt","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-1Sqzts/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 112  /  whole traced tree 1290
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-1Sqzts/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-1Sqzts/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-1Sqzts/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsxwX0Mt
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs
+  == WRITES the script actually performed ==
+    jailTmp      58  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/1786062494154.tmp
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-download-1786062494155
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64/examples
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64/examples/colorwheel.js
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64/examples/scandir.js
+        /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64/examples/page_events.js
+        … and 48 more
+    ownPkg       54  (base profile already grants this — NOT billed)
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/ChangeLog
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/LICENSE.BSD
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/README.md
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/bin
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/examples
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/third-party.txt
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/examples/arguments.js
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/examples/child_process-examples.js
+        /home/nub/v2-1Sqzts/observe/node_modules/phantomjs/lib/phantom/examples/colorwheel.js
+        … and 44 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        140.82.113.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        link /tmp/nub-tmp-obsxwX0Mt/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2-extract-1786062494736/phantomjs-2.1.1-linux-x86_64
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6614 distinct from 11479 calls (11708 lines, 199 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×37 getsockname×32 exit×18 getsockopt×14 recvmsg×10 shutdown×7 socketpair×6 exit_group×5
+    wrote /home/nub/v2-1Sqzts/observe/events.ndjson.gz (44294 bytes)
+  EVENTLOG-FILE /home/nub/v2-1Sqzts/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11708,"parsed":11479,"unparsed":0,"unfinished":199,"rejoined":199,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":14,"distinctEvents":6614,"unknownSyscall":{"getsockname":32,"getsockopt":14,"getcwd":4,"recvmsg":10,"setsockopt":37,"sendmmsg":3,"socketpair":6,"shutdown":7,"exit_group":5,"wait4":5,"exit":18},"out":"/home/nub/v2-1Sqzts/observe/events.ndjson.gz","gzipBytes":44294}
+  EVICT     86 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for phantomjs
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=63/63 missing=0 shortfall=none (tree 6322/2069) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     101 store entries removed, 3 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for phantomjs
+  VERIFY[drop-no-network] rc=1 artifacts=12/63 missing=51 shortfall=89ce38199c04 (tree 6167/2069) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: lib/location.js, lib/phantom/ChangeLog, lib/phantom/LICENSE.BSD, lib/phantom/README.md, lib/phantom/bin/phantomjs, lib/phantom/examples/arguments.js (+45)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

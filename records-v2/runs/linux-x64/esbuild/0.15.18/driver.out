@@ -1,20 +1,52 @@
-### esbuild@0.15.18   (/home/runner/v2-jwSv7Z)
-  OBSERVE   rc=0 files=13 trace=9589 lines
+### esbuild@0.15.18   (/home/nub/v2-4b6nZs)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=14 trace=8699 lines
   CLOSURE   2 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 1  /  whole traced tree 5
-    sockets script 0  /  whole traced tree 0
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-4b6nZs/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-4b6nZs/observe/capture.json
+  RAWLOG-BYTES raw=1702650 gz=61600
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-4b6nZs/jailhome","TMPDIR":"/tmp/nub-tmp-obsInmiFt","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-4b6nZs/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1180
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-4b6nZs/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-4b6nZs/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-4b6nZs/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsInmiFt
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-4b6nZs/observe/node_modules/esbuild
   == WRITES the script actually performed ==
-    ownPkg        1  (base profile already grants this — NOT billed)
-        /home/runner/v2-jwSv7Z/observe/node_modules/esbuild/bin-esbuild
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/nub/v2-4b6nZs/observe/node_modules/esbuild/bin-esbuild
+        /home/nub/v2-4b6nZs/observe/node_modules/esbuild/bin/esbuild
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 0
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.5.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  VERIFY[synth] rc=0 artifacts=7/7 missing=0 (tree 48/13) OVERRIDDEN=2 REJECTED=0 grant={}
+    EVENTS    4678 distinct from 8651 calls (8700 lines, 19 rejoined, 0 unparsed)
+    PROCS     24   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×21 exit×14 getsockopt×7 recvmsg×6 socketpair×6 getcwd×4 shutdown×4
+    wrote /home/nub/v2-4b6nZs/observe/events.ndjson.gz (33092 bytes)
+  EVENTLOG-FILE /home/nub/v2-4b6nZs/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8700,"parsed":8651,"unparsed":0,"unfinished":19,"rejoined":19,"unresolvedDirfd":3,"truncatedArg":0,"procs":24,"lifecyclePids":13,"distinctEvents":4678,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":6,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"tgkill":2,"exit_group":4,"wait4":4,"exit":14},"out":"/home/nub/v2-4b6nZs/observe/events.ndjson.gz","gzipBytes":33092}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for esbuild
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 48/14) OVERRIDDEN=2 REJECTED=0 grant={}
   => VERIFIED {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

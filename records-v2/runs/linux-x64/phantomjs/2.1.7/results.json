@@ -2,22 +2,94 @@
   "pkg": "phantomjs",
   "version": "2.1.7",
   "harnessVersion": 2,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
+  "synthesized": {
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
+  "eventLog": {
+    "lines": 11708,
+    "parsed": 11479,
+    "unparsed": 0,
+    "unfinished": 199,
+    "rejoined": 199,
+    "unresolvedDirfd": 3,
+    "truncatedArg": 0,
+    "procs": 25,
+    "lifecyclePids": 14,
+    "distinctEvents": 6614,
+    "unknownSyscall": {
+      "getsockname": 32,
+      "getsockopt": 14,
+      "getcwd": 4,
+      "recvmsg": 10,
+      "setsockopt": 37,
+      "sendmmsg": 3,
+      "socketpair": 6,
+      "shutdown": 7,
+      "exit_group": 5,
+      "wait4": 5,
+      "exit": 18
+    },
+    "out": "/home/nub/v2-1Sqzts/observe/events.ndjson.gz",
+    "gzipBytes": 44294
+  },
   "driverRc": 0,
-  "durationMs": 3787,
+  "durationMs": 21906,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
     "nubGitSha": null,
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "4cb3efa32ec1edddab3fce6147b9c7bddf8be32b",
-    "node": "v22.23.1",
-    "at": "2026-08-06T14:44:21.554Z"
+    "corpusGitSha": "c842f37c4c44fa94cc7eee426f0cb93b9ba0eb0b",
+    "node": "v22.20.0",
+    "at": "2026-08-07T00:28:31.825Z",
+    "venue": "vm",
+    "ciEnvSet": false,
+    "storeLayout": "isolated",
+    "interpreterPath": "/home/nub/node",
+    "interpreterInsideHome": true,
+    "jailRoot": null,
+    "observeUser": "{\"uid\":1001,\"user\":\"nub\",\"umask\":\"0002\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "ciChild": null,
+    "nubBinary": {
+      "path": "/home/nub/nub-catalog-override.bin",
+      "sha256": "0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd",
+      "bytes": 49587440,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "overrides": {
+      "set": {
+        "HOME": "/home/nub/v2-1Sqzts/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsxwX0Mt",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NUB_CACHE_DIR": "/home/nub/v2-1Sqzts/nubcache"
+      },
+      "unset": [],
+      "passedThrough": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "NODE_ENV": null
+      }
+    }
   }
 }

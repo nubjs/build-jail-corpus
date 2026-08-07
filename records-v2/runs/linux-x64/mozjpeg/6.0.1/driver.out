@@ -1,30 +1,58 @@
-### mozjpeg@6.0.1   (/home/runner/v2-LIiMl7)
-  OBSERVE   rc=0 files=1574 trace=14267 lines
+### mozjpeg@6.0.1   (/home/nub/v2-QwFGuO)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1575 trace=12788 lines
   CLOSURE   208 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 2  /  whole traced tree 5
-    sockets script 3  /  whole traced tree 3
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-QwFGuO/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-QwFGuO/observe/capture.json
+  RAWLOG-BYTES raw=2420188 gz=88258
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-QwFGuO/jailhome","TMPDIR":"/tmp/nub-tmp-obsTS93Og","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-QwFGuO/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1180
+    sockets script 4  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-QwFGuO/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-QwFGuO/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-QwFGuO/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsTS93Og
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-QwFGuO/observe/node_modules/mozjpeg
   == WRITES the script actually performed ==
     ownPkg        2  (base profile already grants this — NOT billed)
-        /home/runner/v2-LIiMl7/observe/node_modules/mozjpeg/vendor
-        /home/runner/v2-LIiMl7/observe/node_modules/mozjpeg/vendor/cjpeg
+        /home/nub/v2-QwFGuO/observe/node_modules/mozjpeg/vendor
+        /home/nub/v2-QwFGuO/observe/node_modules/mozjpeg/vendor/cjpeg
   == NETWORK ==
-    AF_INET sockets: 3   distinct peers: 6
+    AF_INET sockets: 4   distinct peers: 3
         127.0.0.53:53
-        185.199.111.133:0
-        185.199.108.133:0
-        185.199.109.133:0
-        185.199.110.133:0
-        185.199.111.133:443
+        104.16.0.34:443
+        185.199.108.133:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  VERIFY[synth] rc=0 artifacts=8/8 missing=0 (tree 5860/1574) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+    EVENTS    7319 distinct from 12278 calls (12789 lines, 483 rejoined, 0 unparsed)
+    PROCS     24   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×40 getsockname×30 exit×18 getsockopt×12 recvmsg×8 socketpair×6 shutdown×5 getcwd×4
+    wrote /home/nub/v2-QwFGuO/observe/events.ndjson.gz (46934 bytes)
+  EVENTLOG-FILE /home/nub/v2-QwFGuO/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12789,"parsed":12278,"unparsed":0,"unfinished":483,"rejoined":483,"unresolvedDirfd":3,"truncatedArg":0,"procs":24,"lifecyclePids":13,"distinctEvents":7319,"unknownSyscall":{"getsockname":30,"getsockopt":12,"getcwd":4,"recvmsg":8,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":5,"exit_group":4,"wait4":4,"exit":18},"out":"/home/nub/v2-QwFGuO/observe/events.ndjson.gz","gzipBytes":46934}
+  EVICT     160 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for mozjpeg
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5860/1575) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  VERIFY[drop-network] rc=0 artifacts=7/8 missing=1 (tree 5857/1574) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT     228 store entries removed, 5 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for mozjpeg
+  VERIFY[drop-no-network] rc=0 artifacts=7/8 missing=1 shortfall=cba5be472c0d (tree 5857/1575) OVERRIDDEN=2 REJECTED=0 grant={}
        missing: vendor/cjpeg
-     'network' is NECESSARY — dropping it fails to verify
+     'no-network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true} is independently necessary

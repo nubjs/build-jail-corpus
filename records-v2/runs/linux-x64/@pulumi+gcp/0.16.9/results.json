@@ -32,5 +32,27 @@
     "corpusGitSha": "4bb67537c02468baf3ab2aec1f5d9701b45c9e80",
     "node": "v22.23.2",
     "at": "2026-08-06T12:55:59.786Z"
+  },
+  "withheldRemeasure": {
+    "at": "2026-08-07T00:52:00Z",
+    "venue": "vm",
+    "host": "nub-corpus-linux",
+    "harnessCorpusGitSha": "c842f37c4c44fa94cc7eee426f0cb93b9ba0eb0b",
+    "missingPrecondition": "the pulumi CLI is not on PATH on the measuring host",
+    "remeasuredVerdict": "MINIMUM",
+    "remeasuredGrant": {},
+    "remeasuredNotes": [
+      "arms-unfalsifiable"
+    ],
+    "whyWithheld": "SILENT no-op. scripts/install-pulumi-plugin.js spawns pulumi, catches the ENOENT and calls process.exit(0) unconditionally, so the install script exits 0 having done nothing. OBSERVE attributed 0 writes and 0 sockets to the script, every arm is gate-vacuous, and the synthesized grant collapses to {}. Publishing {} over the prior grant would be an under-grant for every user who does have pulumi installed.",
+    "evidence": "MEASURED in the OBSERVE strace: 19 execve attempts for a pulumi basename across the whole PATH, every one = -1 ENOENT, last /snap/bin/pulumi.",
+    "keptGrant": {
+      "write": {
+        "userHome": true
+      },
+      "network": true
+    },
+    "owed": "Re-measure on a host that HAS the pulumi CLI. Until then this record keeps its 2026-08-06 grant on purpose: the re-measure could not exercise the install script, so it is not evidence that the grant is wrong.",
+    "doNotFix": "Do NOT install pulumi on the measuring host to clear this. A measuring host that accumulates per-package tools silently changes what every other package measures."
   }
 }

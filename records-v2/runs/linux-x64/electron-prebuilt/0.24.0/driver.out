@@ -1,40 +1,67 @@
-### electron-prebuilt@0.24.0   (/home/runner/v2-Dq7BT3)
-  OBSERVE   rc=0 files=1302 trace=14387 lines
+### electron-prebuilt@0.24.0   (/home/nub/v2-HWkSeD)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=1303 trace=12502 lines
   CLOSURE   122 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 1
-    writes  script 140  /  whole traced tree 143
-    sockets script 5  /  whole traced tree 5
+  ARM-FALSIFIABILITY {"manifestFiles":80,"filesTheScriptProduced":70,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-HWkSeD/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-HWkSeD/observe/capture.json
+  RAWLOG-BYTES raw=2465177 gz=82375
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-HWkSeD/jailhome","TMPDIR":"/tmp/nub-tmp-obsTpP5t9","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-HWkSeD/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 140  /  whole traced tree 1318
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-HWkSeD/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-HWkSeD/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-HWkSeD/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsTpP5t9
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt
   == WRITES the script actually performed ==
     ownPkg      140  (base profile already grants this — NOT billed)
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/electron-v0.24.0-linux-x64.zip
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/path.txt
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/run.bat
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/electron
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/content_shell.pak
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/icudtl.dat
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/libffmpegsumo.so
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/libnode.so
-        /home/runner/v2-Dq7BT3/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/electron-v0.24.0-linux-x64.zip
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/path.txt
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/run.bat
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/electron
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/libffmpegsumo.so
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/nub/v2-HWkSeD/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
         … and 130 more
   == NETWORK ==
-    AF_INET sockets: 5   distinct peers: 7
+    AF_INET sockets: 5   distinct peers: 3
         127.0.0.53:53
-        140.82.114.4:443
-        185.199.110.133:0
-        185.199.111.133:0
-        185.199.108.133:0
-        185.199.109.133:0
-        185.199.110.133:443
+        104.16.3.34:443
+        140.82.112.4:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  VERIFY[synth] rc=0 artifacts=79/79 missing=0 (tree 4114/1302) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+    EVENTS    6204 distinct from 12435 calls (12503 lines, 42 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×33 exit×18 getsockopt×15 recvmsg×10 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/nub/v2-HWkSeD/observe/events.ndjson.gz (41443 bytes)
+  EVENTLOG-FILE /home/nub/v2-HWkSeD/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12503,"parsed":12435,"unparsed":0,"unfinished":42,"rejoined":42,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":6204,"unknownSyscall":{"getsockname":33,"getsockopt":15,"getcwd":4,"recvmsg":10,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-HWkSeD/observe/events.ndjson.gz","gzipBytes":41443}
+  EVICT     97 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=79/79 missing=0 shortfall=none (tree 4114/1303) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  VERIFY[drop-network] rc=1 artifacts=9/79 missing=70 (tree 3746/1302) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT     126 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+  VERIFY[drop-no-network] rc=1 artifacts=9/79 missing=70 shortfall=504a7a270df1 (tree 3746/1303) OVERRIDDEN=2 REJECTED=0 grant={}
        missing: dist/LICENSE, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpegsumo.so, dist/libgcrypt.so.11 (+64)
-     'network' is NECESSARY — dropping it fails to verify
+     'no-network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true} is independently necessary

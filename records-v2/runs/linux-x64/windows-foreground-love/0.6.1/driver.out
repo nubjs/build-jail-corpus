@@ -1,118 +1,86 @@
-### windows-foreground-love@0.6.1   (/home/runner/v2-jZiiQj)
-  OBSERVE   rc=0 files=21 trace=91239 lines
+### windows-foreground-love@0.6.1   (/home/nub/v2-1WIyUk)
+  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=22 trace=27555 lines
   CLOSURE   1 packages evicted per arm
-  == ATTRIBUTION == lifecycle pids: 18
-    writes  script 6695  /  whole traced tree 6698
-    sockets script 3  /  whole traced tree 3
+  ARM-FALSIFIABILITY {"manifestFiles":18,"filesTheScriptProduced":10,"reasons":[]}
+  RAWLOG-FILE /home/nub/v2-1WIyUk/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-1WIyUk/observe/capture.json
+  RAWLOG-BYTES raw=5122759 gz=186312
+  VENUE-INTERPRETER /home/nub/node
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-1WIyUk/jailhome","TMPDIR":"/tmp/nub-tmp-obsgMVKk3","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-1WIyUk/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 57
+    writes  script 3356  /  whole traced tree 4534
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/nub/v2-1WIyUk/observe
+    home          /home/nub
+    jailHome      /home/nub/v2-1WIyUk/jailhome
+    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/nub/v2-1WIyUk/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /home/nub/node   [declared, not keyed on]
+    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsgMVKk3
+    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love
   == WRITES the script actually performed ==
     jailHome   3328  (base profile already grants this — NOT billed)
-        /home/runner/v2-jZiiQj/jailhome/.cache
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/common.gypi
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/config.gypi
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/allocation.h
-        /home/runner/v2-jZiiQj/jailhome/.cache/node-gyp/22.23.1/include/node/cppgc/common.h
+        /home/nub/v2-1WIyUk/jailhome/.cache
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
+        /home/nub/v2-1WIyUk/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
         … and 3318 more
-    outside    3343
-        /tmp/node-gyp-tmp-PbVcTl
-        /tmp/node-gyp-tmp-PbVcTl/include
-        /tmp/node-gyp-tmp-PbVcTl/include/node
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-platform.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-local-handle.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-script.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-debug.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-value.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api.h
-        … and 3333 more
-    ownPkg        4  (base profile already grants this — NOT billed)
-        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build
-        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/config.gypi
-        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/node_gyp_bins
-        /home/runner/v2-jZiiQj/observe/node_modules/windows-foreground-love/build/node_gyp_bins/python3
-    project      19
+    ownPkg       23  (base profile already grants this — NOT billed)
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/config.gypi
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/Makefile
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/foreground_love.target.mk
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/binding.Makefile
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/node_gyp_bins
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/node_gyp_bins/python3
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/Release
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/obj.target
+        /home/nub/v2-1WIyUk/observe/node_modules/windows-foreground-love/build/foreground_love
+        … and 13 more
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsgMVKk3/cc518U7x.s
+        /tmp/nub-tmp-obsgMVKk3/ccRsbFxv.res
+        /tmp/nub-tmp-obsgMVKk3/cctrZfMZ.cdtor.c
+        /tmp/nub-tmp-obsgMVKk3/ccc63Agh.cdtor.o
     kernelfs      1
         /dev/null
   == NETWORK ==
-    AF_INET sockets: 3   distinct peers: 4
+    AF_INET sockets: 4   distinct peers: 3
         127.0.0.53:53
-        104.16.212.131:0
-        104.16.213.131:0
-        104.16.212.131:443
+        104.16.6.34:443
+        104.16.213.131:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"project":true},"network":true}
-    ⛔ 3343 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    {"network":true}
     NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 3343
-        /tmp/node-gyp-tmp-PbVcTl
-        /tmp/node-gyp-tmp-PbVcTl/include
-        /tmp/node-gyp-tmp-PbVcTl/include/node
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-platform.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-local-handle.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-script.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-debug.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-value.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/posix.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/threadpool.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/win.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/bsd.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/sunos.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/aix.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/tree.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/os390.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/unix.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/linux.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/errno.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/darwin.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/uv/version.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-array-buffer.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/config.gypi
-        /tmp/node-gyp-tmp-PbVcTl/include/node/zlib.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-embedder-heap.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/zconf.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-locker.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-function-callback.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-cppgc.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-template.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-extension.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/node_api_types.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-statistics.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-context.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/v8-initialization.h
-        /tmp/node-gyp-tmp-PbVcTl/include/node/openssl
-        /tmp/node-gyp-tmp-PbVcTl/include/node/openssl/param_names.h
-        … and 3303 more
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[synth] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
-       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
-  DIAGNOSE  refused paths under the failing grant (count, path):
-          21 "/usr/share/locale/locale.alias"
-           5 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/gyp/__pycache__"
-           4 "/proc/mounts"
-           4 "/proc/filesystems"
-           3 "/proc/self/maps"
-           3 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/packaging/__pycache__"
-           2 "/home/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/gyp/pylib/gyp/generator/__pycache__"
-           1 "/proc/version_signature"
-           1 "/proc/self/cgroup"
-  synthesized grant did not verify — falling back to a bounded ladder
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[fb2126003217] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[fb3938809772] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
-     ⛔ REPLAY SUSPECTED — no 'running build scripts' line in any arm log; the script may not have run
-  VERIFY[fb2742342390] rc=0 artifacts=18/18 missing=3 (tree 62/21) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-       missing: build/Release/.deps/Release/obj.target/foreground_love/src/foreground-love.o.d (1775B < 2045B), build/config.gypi (18969B < 19424B), build/foreground_love.target.mk (4262B < 4514B)
-  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
+    count: 0
+    EVENTS    15094 distinct from 26896 calls (27556 lines, 577 rejoined, 0 unparsed)
+    PROCS     63   lifecycle shells 52
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×73 setsockopt×58 wait4×50 exit_group×43 getsockname×35 getsockopt×20 exit×18 socketpair×9
+    wrote /home/nub/v2-1WIyUk/observe/events.ndjson.gz (89299 bytes)
+  EVENTLOG-FILE /home/nub/v2-1WIyUk/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":27556,"parsed":26896,"unparsed":0,"unfinished":577,"rejoined":577,"unresolvedDirfd":3,"truncatedArg":0,"procs":63,"lifecyclePids":52,"distinctEvents":15094,"unknownSyscall":{"getsockname":35,"getsockopt":20,"getcwd":73,"recvmsg":8,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":43,"wait4":50,"exit":18},"out":"/home/nub/v2-1WIyUk/observe/events.ndjson.gz","gzipBytes":89299}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for windows-foreground-love
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=18/18 missing=0 shortfall=none (tree 44/22) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for windows-foreground-love
+  VERIFY[drop-no-network] rc=0 artifacts=18/18 missing=0 shortfall=none (tree 44/22) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
