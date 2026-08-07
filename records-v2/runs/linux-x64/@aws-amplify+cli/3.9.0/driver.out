@@ -1,37 +1,37 @@
-### @aws-amplify/cli@3.9.0   (/home/nub/v2-p6dlOb)
+### @aws-amplify/cli@3.9.0   (/home/nub/v2-Xp1tes)
   VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=40911 trace=14659 lines
+  OBSERVE   rc=0 files=40911 trace=15642 lines
   CLOSURE   996 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":428,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (428) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-p6dlOb/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-p6dlOb/observe/capture.json
-  RAWLOG-BYTES raw=2592620 gz=97137
+  RAWLOG-FILE /home/nub/v2-Xp1tes/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/nub/v2-Xp1tes/observe/capture.json
+  RAWLOG-BYTES raw=2637151 gz=99072
   VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-p6dlOb/jailhome","TMPDIR":"/tmp/nub-tmp-obsqw2dlK","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-p6dlOb/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-Xp1tes/jailhome","TMPDIR":"/tmp/nub-tmp-obsHTCSqV","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-Xp1tes/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
   == ATTRIBUTION == attributed pids: 13
     writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 4
+    sockets script 0  /  whole traced tree 6
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-p6dlOb/observe
+    project       /home/nub/v2-Xp1tes/observe
     home          /home/nub
-    jailHome      /home/nub/v2-p6dlOb/jailhome
+    jailHome      /home/nub/v2-Xp1tes/jailhome
     globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-p6dlOb/observe/node_modules/.store   [declared, not keyed on]
+    projectStore  /home/nub/v2-Xp1tes/observe/node_modules/.store   [declared, not keyed on]
     interpreter   /home/nub/node   [declared, not keyed on]
     toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsqw2dlK
+    temp          /tmp/nub-tmp-obsHTCSqV
     npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-p6dlOb/observe/node_modules/@aws-amplify/cli
+    ownPkg        /home/nub/v2-Xp1tes/observe/node_modules/@aws-amplify/cli
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 2
         127.0.0.53:53
-        104.16.8.34:443
+        104.16.4.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -41,15 +41,16 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    8479 distinct from 12448 calls (14660 lines, 2190 rejoined, 0 unparsed)
+    EVENTS    8477 distinct from 12443 calls (15643 lines, 3178 rejoined, 0 unparsed)
     PROCS     19   lifecycle shells 8
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×24 setsockopt×23 exit×14 getsockopt×11 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/nub/v2-p6dlOb/observe/events.ndjson.gz (57879 bytes)
-  EVENTLOG-FILE /home/nub/v2-p6dlOb/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":14660,"parsed":12448,"unparsed":0,"unfinished":2190,"rejoined":2190,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":8479,"unknownSyscall":{"getsockname":24,"getsockopt":11,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-p6dlOb/observe/events.ndjson.gz","gzipBytes":57879}
-  EVICT     1122 store entries removed, 11 spared as nub tooling
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×14 getsockopt×8 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/nub/v2-Xp1tes/observe/events.ndjson.gz (58028 bytes)
+  EVENTLOG-FILE /home/nub/v2-Xp1tes/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":15643,"parsed":12443,"unparsed":0,"unfinished":3178,"rejoined":3178,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":8477,"unknownSyscall":{"getcwd":4,"getsockname":22,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"getsockopt":8,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-Xp1tes/observe/events.ndjson.gz","gzipBytes":58028}
+  EVICT     1327 store entries removed, 11 spared as nub tooling
   SE-PURGE  1 side-effects-cache entry for @aws-amplify/cli
+  scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
   VENUE-STORE-LAYOUT isolated
   VERIFY[synth] rc=1 artifacts=428/428 missing=0 shortfall=none (tree 196801/40911) OVERRIDDEN=1 REJECTED=0 grant={}
   DIAGNOSE  ZERO filesystem refusals under the failing grant.
@@ -58,12 +59,15 @@
   synthesized grant did not verify — falling back to a bounded ladder
   EVICT     1213 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
   VERIFY[fb2126003217] rc=1 artifacts=428/428 missing=0 shortfall=none (tree 196801/40911) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
   EVICT     1213 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
   VERIFY[fb3938809772] rc=1 artifacts=428/428 missing=0 shortfall=none (tree 196801/40911) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
   EVICT     1213 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
   VERIFY[fb2742342390] rc=1 artifacts=428/428 missing=0 shortfall=none (tree 196801/40911) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
   NOT-GRANT-INDEPENDENT an arm exited non-zero
-  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
+  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)
