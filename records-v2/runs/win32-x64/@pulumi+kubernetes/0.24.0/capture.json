@@ -1,0 +1,110 @@
+{
+  "v": 1,
+  "kind": "capture",
+  "platform": "win32-x64",
+  "pkg": "@pulumi/kubernetes",
+  "version": "0.24.0",
+  "tracer": "etw",
+  "invocation": "powershell -File adapters/windows.ps1 -Command \"npm rebuild --no-audit --no-fund <pkg>\"",
+  "subscribes": {
+    "providers": [
+      {
+        "name": "Microsoft-Windows-Kernel-File",
+        "keywords": "0x1FF0",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Network",
+        "keywords": "0x30",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Process",
+        "keywords": "0x10",
+        "level": 5,
+        "exit": 0
+      }
+    ],
+    "fileMask": "0x1FF0",
+    "session": {
+      "name": "nubobs_3552_msjaylms",
+      "bufferSizeKB": 1024,
+      "minBuffers": 64,
+      "maxBuffers": 320,
+      "maxFileMB": 8192,
+      "mode": "sequential",
+      "settleMs": 1200
+    }
+  },
+  "decoders": {
+    "adapter": {
+      "path": "harness/v2/adapters/windows.mjs",
+      "sha256": "54d41f96ddaedcc2b78c3ce8a7cd4ac0d572cdbcdb234f8132dd33a2260204fe"
+    },
+    "classifier": {
+      "path": "harness/v2/classify.mjs",
+      "sha256": "d9fb149c35d45372f4757dabe50d08932d89ce80550755ad541a16e755740162"
+    },
+    "derived": {
+      "path": "harness/v2/adapters/windows-retain.mjs",
+      "sha256": "c6b046b953f4c5034e2a2dfc8fe724af9eb0084f13a4596d0e19bc9dfdd7ce87"
+    },
+    "shortnames": {
+      "path": "harness/v2/adapters/windows-shortnames.mjs",
+      "sha256": "3d036a7576980f1267c5bdbae46dc010b23e8e50b3ccfdbedfd604fd4e585455"
+    }
+  },
+  "os": {
+    "version": "Microsoft Windows NT 10.0.26100.0",
+    "host": "runnervm7vqe0",
+    "arch": "x64"
+  },
+  "identity": {
+    "whoami": "runnervm7vqe0\\runneradmin",
+    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "elevated": true,
+    "privDropped": {
+      "SeBackupPrivilege": "removed",
+      "SeRestorePrivilege": "removed",
+      "SeTakeOwnershipPrivilege": "removed"
+    }
+  },
+  "run": {
+    "command": "C:\\jail\\m-pulumikubernetes-msjattaw\\rebuild.cmd",
+    "workDir": "C:\\jail\\m-pulumikubernetes-msjattaw\\observe",
+    "rootPid": 3992,
+    "launcherPid": 6372,
+    "exitCode": 0,
+    "startedUtc": "2026-08-07T18:53:05.6194649Z",
+    "endedUtc": "2026-08-07T18:53:49.7942833Z"
+  },
+  "roots": {
+    "project": "C:\\jail\\m-pulumikubernetes-msjattaw\\observe",
+    "home": "C:\\Users\\runneradmin",
+    "jailHome": null,
+    "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
+    "projectStore": "C:\\jail\\m-pulumikubernetes-msjattaw\\observe\\node_modules\\.store",
+    "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+    "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
+    "temp": "C:\\jail\\m-pulumikubernetes-msjattaw\\tmp",
+    "npmPrefix": null,
+    "ownPkg": "C:\\jail\\m-pulumikubernetes-msjattaw\\observe\\node_modules\\@pulumi\\kubernetes",
+    "cwd": null
+  },
+  "observeEnv": {
+    "set": {
+      "npm_config_cache": "C:\\jail\\m-pulumikubernetes-msjattaw\\npm-cache"
+    },
+    "unset": []
+  },
+  "rawBytes": 77298066,
+  "at": "2026-08-07T18:53:52.964Z",
+  "shortNames": {
+    "schema": "nub-obs-win-shortnames/1",
+    "host": "runnervm7vqe0",
+    "resolvedAt": "2026-08-07T18:53:54.380Z",
+    "entries": {}
+  }
+}

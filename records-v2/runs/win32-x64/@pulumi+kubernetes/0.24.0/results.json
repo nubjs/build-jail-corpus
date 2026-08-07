@@ -1,0 +1,76 @@
+{
+  "pkg": "@pulumi/kubernetes",
+  "version": "0.24.0",
+  "harnessVersion": 2,
+  "verdict": "HARNESS-TIMEOUT",
+  "grant": null,
+  "synthesized": {
+    "write": {
+      "userHome": true
+    },
+    "network": true
+  },
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
+  "notes": [
+    "arms-unfalsifiable"
+  ],
+  "eventLog": null,
+  "driverRc": 3,
+  "durationMs": 1496081,
+  "provenance": {
+    "platform": "win32-x64",
+    "harness": "measure-windows.mjs",
+    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": "218d4712754492b8fb3dc6522e55f464a4589542",
+    "node": "v22.23.2",
+    "at": "2026-08-07T19:14:16.091Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": "hoisted",
+    "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+    "interpreterInsideHome": false,
+    "jailRoot": "C:\\jail\\m-pulumikubernetes-msjattaw",
+    "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
+    "nubBinary": {
+      "path": "C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe",
+      "sha256": "7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6",
+      "bytes": 68896768,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "overrides": {
+      "set": {
+        "npm_config_cache": "C:\\jail\\m-pulumikubernetes-msjattaw\\npm-cache",
+        "TMP": "C:\\jail\\m-pulumikubernetes-msjattaw\\tmp",
+        "TEMP": "C:\\jail\\m-pulumikubernetes-msjattaw\\tmp",
+        "TMPDIR": "C:\\jail\\m-pulumikubernetes-msjattaw\\tmp"
+      },
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "notRedirected": {
+        "USERPROFILE": "C:\\Users\\runneradmin",
+        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
+      },
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
+  }
+}
