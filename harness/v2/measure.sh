@@ -973,14 +973,60 @@ verify () {
   if [ -n "${AT_CATALOG:-}" ]; then
     cp "$AT_CATALOG" "$v/cat.json" || return 1
   else
+  # ⛔⛔ A DEPENDENCY'S DENIAL WAS BEING RECORDED AS THE TARGET'S VERDICT. Granting only $PKG leaves
+  # any DEPENDENCY that has its own lifecycle script running under the DEFAULT DENY. When such a
+  # dependency fails, `approve-builds` returns non-zero at EVERY rung and the driver files
+  # `NO-STATE-PASSED` against the TARGET — a statement about a package that was never the problem.
+  #
+  # MEASURED 2026-08-07 on `@hyperjump/json-schema@0.22.0`: `{network:true}` on the target alone gave
+  # rc=1 (`EAI_AGAIN`), and so did `{write:"disk",network:true}` and
+  # `{read:"disk",write:"disk",network:true}` — the widest grant the ladder can express. The SAME
+  # `{network:true}` applied to the target AND its three `@hyperjump/*` dependencies: rc=0. The
+  # failing `npm` belonged to `@hyperjump/json-schema-core@0.27.0`, which has its own postinstall.
+  #
+  # ⛔ THE SCAFFOLD IS DELIBERATELY *NOT* THE RUNG. Giving dependencies the same grant as the target
+  # would make the DESCENT unable to attribute a capability: dropping `network` would fail because a
+  # DEP still needed it, so the target would keep a capability it never used — silently widening the
+  # published grant, the one direction this project forbids. A CONSTANT wide scaffold keeps the
+  # target's rung the only variable in the arm, which is what makes the arm a measurement at all.
+  #
+  # This over-grants the SCAFFOLDING only, and it cannot reach the catalog: `collate.mjs` publishes
+  # the grant recorded for the package under test, and every dependency is measured in its own run.
   node -e '
-    const fs=require("fs");const [r,p,g]=process.argv.slice(1);
+    const fs=require("fs"),path=require("path");
+    const [r,p,g,obs]=process.argv.slice(1);
     const grant=JSON.parse(g);
-    const cat = Object.keys(grant).length
-      ? {packages:{[p]:{default:grant}}}
-      : {packages:{"__v2_empty_grant_sentinel__":{default:{network:true}}}};
-    fs.writeFileSync(r+"/cat.json",JSON.stringify(cat));
-  ' "$v" "$PKG" "$grant" || return 1
+    const packages={};
+    const SCAFFOLD={write:"disk",network:true};
+
+    // Every package in the OBSERVED tree that declares a lifecycle script, except the target.
+    const nm=path.join(obs,"node_modules");
+    const manifests=[];
+    if(fs.existsSync(nm)){
+      for(const e of fs.readdirSync(nm,{withFileTypes:true})){
+        if(!e.isDirectory()||e.name===".bin")continue;
+        if(e.name.startsWith("@")){
+          for(const s of fs.readdirSync(path.join(nm,e.name),{withFileTypes:true}))
+            if(s.isDirectory())manifests.push([e.name+"/"+s.name,path.join(nm,e.name,s.name,"package.json")]);
+        } else manifests.push([e.name,path.join(nm,e.name,"package.json")]);
+      }
+    }
+    for(const [name,mf] of manifests){
+      if(name===p)continue;
+      let sc; try{ sc=(JSON.parse(fs.readFileSync(mf,"utf8")).scripts)||{}; }catch(e){ continue; }
+      if(sc.install||sc.preinstall||sc.postinstall)packages[name]={default:SCAFFOLD};
+    }
+    const scaffolded=Object.keys(packages).length;
+
+    // The target carries the RUNG. An EMPTY grant is still expressed by OMITTING the target (the
+    // base profile already IS nothing); the sentinel is only needed when nothing else would make the
+    // override engage, so the downstream assertion stays meaningful.
+    if(Object.keys(grant).length)packages[p]={default:grant};
+    if(!Object.keys(packages).length)packages["__v2_empty_grant_sentinel__"]={default:{network:true}};
+
+    fs.writeFileSync(path.join(r,"cat.json"),JSON.stringify({packages}));
+    if(scaffolded)console.log("  scaffold: "+scaffolded+" dependency package(s) with lifecycle scripts granted a fixed wide grant");
+  ' "$v" "$PKG" "$grant" "$OBS" || return 1
   fi
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique
