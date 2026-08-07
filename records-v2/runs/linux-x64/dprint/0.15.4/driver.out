@@ -1,0 +1,66 @@
+### dprint@0.15.4   (/home/runner/v2-CmW2NR)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=14 trace=12455 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-CmW2NR/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-CmW2NR/observe/capture.json
+  RAWLOG-BYTES raw=2542663 gz=104297
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-CmW2NR/jailhome","TMPDIR":"/tmp/nub-tmp-obsest2Kx","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-CmW2NR/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 29
+    writes  script 4  /  whole traced tree 1092
+    sockets script 6  /  whole traced tree 12
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-CmW2NR/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-CmW2NR/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-CmW2NR/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsest2Kx
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-CmW2NR/observe/node_modules/dprint
+  == WRITES the script actually performed ==
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-CmW2NR/observe/node_modules/dprint/install.sh
+        /home/runner/v2-CmW2NR/observe/node_modules/dprint/dprint.zip
+        /home/runner/v2-CmW2NR/observe/node_modules/dprint/dprint
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.9.34:443
+        140.82.113.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4736 distinct from 12376 calls (12456 lines, 33 rejoined, 0 unparsed)
+    PROCS     36   lifecycle shells 24
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×39 setsockopt×33 exit×22 wait4×18 getsockopt×12 exit_group×11 recvmsg×9 getpeername×6
+    wrote /home/runner/v2-CmW2NR/observe/events.ndjson.gz (33220 bytes)
+  EVENTLOG-FILE /home/runner/v2-CmW2NR/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12456,"parsed":12376,"unparsed":0,"unfinished":33,"rejoined":33,"unresolvedDirfd":3,"truncatedArg":0,"procs":36,"lifecyclePids":24,"distinctEvents":4736,"unknownSyscall":{"getsockname":39,"getsockopt":12,"getcwd":5,"recvmsg":9,"exit":22,"setsockopt":33,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":11,"wait4":18,"getpeername":6},"out":"/home/runner/v2-CmW2NR/observe/events.ndjson.gz","gzipBytes":33220}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dprint
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 39/14) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dprint
+  VERIFY[drop-no-network] rc=1 artifacts=9/10 missing=1 shortfall=7f017aa8136b (tree 34/14) OVERRIDDEN=1 REJECTED=0 grant={}
+       missing: dprint
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
