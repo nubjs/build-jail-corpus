@@ -1,0 +1,91 @@
+### @pulumi/kubernetes@0.25.6   (/home/runner/v2-la9ulm)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"a65d1d04f24af4b9ed42a98099ef56cd11dab30ed9a13814d137ca48c6809836","bytes":207807096,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=10626 trace=13339 lines
+  CLOSURE   209 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":505,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (505) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-la9ulm/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-la9ulm/observe/capture.json
+  RAWLOG-BYTES raw=2638295 gz=83744
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-la9ulm/jailhome","TMPDIR":"/tmp/nub-tmp-obsrhpdJh","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-la9ulm/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 10  /  whole traced tree 1098
+    sockets script 26  /  whole traced tree 32
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-la9ulm/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-la9ulm/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-la9ulm/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsrhpdJh
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-la9ulm/observe/node_modules/@pulumi/kubernetes
+  == WRITES the script actually performed ==
+    userHome      9
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsrhpdJh/pulumi-plugin-tar35626362
+  == NETWORK ==
+    AF_INET sockets: 26   distinct peers: 6
+        127.0.0.53:53
+        104.16.2.34:443
+        13.226.238.103:53
+        13.226.238.103:443
+        140.82.113.4:443
+        140.82.112.6:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    9 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 9
+        .pulumi
+        .pulumi/logs
+        .pulumi/logs/pulumi-20260807T173721-37219-plugin_install.log
+        .pulumi/plugins
+        .pulumi/plugins/resource-kubernetes-v0.25.6.lock
+        .pulumi/plugins/resource-kubernetes-v0.25.6.partial
+        .pulumi/plugins/resource-kubernetes-v0.25.6
+        .pulumi/plugins/resource-kubernetes-v0.25.6/pulumi-resource-kubernetes
+        .pulumi/.cachedVersionInfo
+    EVENTS    5534 distinct from 12351 calls (13340 lines, 605 rejoined, 0 unparsed)
+    PROCS     29   lifecycle shells 17
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: tgkill×351 setsockopt×69 getsockname×41 getpeername×19 getsockopt×16 exit×15 recvmsg×7 getcwd×4
+    wrote /home/runner/v2-la9ulm/observe/events.ndjson.gz (39198 bytes)
+  EVENTLOG-FILE /home/runner/v2-la9ulm/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13340,"parsed":12351,"unparsed":0,"unfinished":605,"rejoined":605,"unresolvedDirfd":3,"truncatedArg":0,"procs":29,"lifecyclePids":17,"distinctEvents":5534,"unknownSyscall":{"getsockname":41,"getsockopt":16,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":69,"sendmmsg":1,"socketpair":3,"shutdown":3,"tgkill":351,"listen":1,"accept4":1,"getpeername":19,"exit_group":4,"wait4":4},"out":"/home/runner/v2-la9ulm/observe/events.ndjson.gz","gzipBytes":39198}
+  EVICT     48 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/kubernetes
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=505/505 missing=0 shortfall=none (tree 43720/10626) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     213 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/kubernetes
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb2126003217] rc=1 artifacts=505/505 missing=0 shortfall=none (tree 43720/10626) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  EVICT     213 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/kubernetes
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb3938809772] rc=1 artifacts=505/505 missing=0 shortfall=none (tree 43720/10626) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  EVICT     213 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/kubernetes
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  VERIFY[fb2742342390] rc=1 artifacts=505/505 missing=0 shortfall=none (tree 43720/10626) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)
