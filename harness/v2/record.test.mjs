@@ -393,3 +393,31 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   assert.match(rec.grantSourceReason, /verified in the real jail/, 'AND why');
   assert.deepEqual(rec.descendedGrant, { network: true });
 });
+
+// ⛔ WHICH HARNESS MEASURED THIS — DERIVED, NOT ONLY DECLARED.
+// `corpusGitSha` came exclusively from `--corpus-sha`, so any caller that forgot the flag silently
+// produced a record that cannot say which harness produced it. That is mission property 4
+// ("nothing measured by a harness we have since fixed") failing quietly, and it DID fail: a hand-run
+// re-measure on 2026-08-07 landed a record with `corpusGitSha: null` and nothing flagged it.
+test('⭑ a record with NO --corpus-sha still names the harness that produced it', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const head = execFileSync('git', ['-C', here, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-sha-'));
+  const log = path.join(d, 'log.txt');
+  fs.writeFileSync(log, '  => NO-STATE-PASSED even at write:disk\n');
+
+  const emit = (extra) => {
+    const out = execFileSync(process.execPath, [path.join(here, 'record.mjs'),
+      '--log', log, '--pkg', 'demo', '--version', '1.0.0', '--out', path.join(d, String(Math.random()).slice(2)),
+      '--platform', 'linux-x64', '--driver', 'measure.sh', '--rc', '0', '--duration-ms', '1', ...extra],
+      { encoding: 'utf8' }).trim().split('\n').pop();
+    return JSON.parse(fs.readFileSync(path.join(out, 'results.json'), 'utf8'));
+  };
+
+  assert.equal(emit([]).provenance.corpusGitSha, head,
+    'without the flag the sha must be DERIVED from the checkout, not left null');
+
+  // …and an explicit flag still WINS, so a CI job that checked out a specific ref is not second-guessed.
+  assert.equal(emit(['--corpus-sha', 'deadbeef']).provenance.corpusGitSha, 'deadbeef',
+    'an explicitly passed sha must override the derived one');
+});

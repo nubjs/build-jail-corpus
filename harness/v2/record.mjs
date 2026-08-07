@@ -28,6 +28,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 // A grant is a JSON object with no string values containing braces, so brace-depth scanning is
 // exact. `JSON.parse` on a regex-sliced tail is not: `(observed, then verified)` trails the object
@@ -44,6 +45,23 @@ export const firstObject = (line) => {
   }
   return null;
 };
+
+// ⛔ WHICH HARNESS MEASURED THIS — DERIVED, NOT ONLY DECLARED. `corpusGitSha` came exclusively from
+// `--corpus-sha`, so any caller that forgot the flag silently produced a record that cannot say
+// which harness produced it. That is mission property 4 ("nothing measured by a harness we have
+// since fixed") failing quietly, and it failed for a hand-run re-measure on 2026-08-07: the record
+// landed with `corpusGitSha: null` and nothing flagged it.
+//
+// The flag still WINS when passed — a caller that knows better (a CI job checking out a specific
+// ref) is not second-guessed. This only fills the gap where the answer was `null`.
+function corpusShaFromCheckout() {
+  try {
+    return execFileSync('git', ['-C', import.meta.dirname, 'rev-parse', 'HEAD'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null;
+  } catch {
+    return null; // not a checkout, or no git — honest null, same as before
+  }
+}
 
 const VERDICTS = {
   'BROKEN-WITHOUT-JAIL-TOO': /=>\s*BROKEN-WITHOUT-JAIL-TOO/,
@@ -711,7 +729,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       harness: opt('--driver', ''),
       nubGitSha: opt('--nub-sha', '') || null,
       nubVersion: opt('--nub-version', '') || null,
-      corpusGitSha: opt('--corpus-sha', '') || null,
+      corpusGitSha: opt('--corpus-sha', '') || corpusShaFromCheckout(),
       node: process.version,
       at: new Date().toISOString(),
       ...venueProvenance(parsed, platform),
