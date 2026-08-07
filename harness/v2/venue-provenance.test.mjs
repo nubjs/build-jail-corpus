@@ -107,3 +107,42 @@ test('the record is still written, and rc stays 0, when the venue is unknown', (
   assert.equal(rc, 0, 'an undeclared venue is a labelling gap, not a measurement failure');
   assert.equal(venue, 'unknown');
 });
+
+// ── a truncated run must say so, whatever its partial log printed ─────────────────────────────
+
+// ⛔ REGRESSION: `duckdb@1.4.4` timed out mid-descent and was recorded `verdict: "MINIMUM"`. The
+// driver prints `=> MINIMUM` as soon as the SYNTH arm verifies and only THEN descends, so a budget
+// kill arrives with a verdict already parsed and the rc===124 branch never fires.
+const writeRc = (rc, logLines) => {
+  const dir = mkdtempSync(join(tmpdir(), 'rc-'));
+  const log = join(dir, 'driver.txt');
+  writeFileSync(log, logLines.join('\n'));
+  spawnSync(process.execPath, [TOOL,
+    '--log', log, '--pkg', 'thing', '--version', '1.0.0',
+    '--out', join(dir, 'runs'), '--rc', String(rc), '--platform', 'linux-x64', '--duration-ms', '1'],
+  { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: dir, NUB_CORPUS_VENUE: 'vm' } });
+  return JSON.parse(readFileSync(
+    join(dir, 'runs', 'linux-x64', 'thing', '1.0.0', 'results.json'), 'utf8'));
+};
+
+const VERIFIED = ['  => VERIFIED {"network":true}   (observed, then verified)'];
+
+test('a driver killed by its budget carries `driver-timeout`, even having printed a verdict', () => {
+  const r = writeRc(124, VERIFIED);
+  assert.ok(r.notes.includes('driver-timeout'),
+    `a truncated run must say so; got notes ${JSON.stringify(r.notes)} with verdict ${r.verdict}`);
+  // The grant is deliberately KEPT: a cut-off descent narrows nothing, so the synthesized grant
+  // stands and dropping it would discard a real verification.
+  assert.deepEqual(r.grant, { network: true });
+});
+
+test('SIGKILL (137) is treated the same as a budget timeout', () => {
+  assert.ok(writeRc(137, VERIFIED).notes.includes('driver-timeout'));
+});
+
+test('CONTROL: a run that completed carries NO `driver-timeout`', () => {
+  // Without this, a note that fires on every record would satisfy both cases above and mean nothing.
+  const r = writeRc(0, VERIFIED);
+  assert.ok(!r.notes.includes('driver-timeout'),
+    `a clean run was marked truncated — the note is too wide: ${JSON.stringify(r.notes)}`);
+});

@@ -533,6 +533,25 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   // recording an absence as a result.
   if (!parsed.verdict) parsed.verdict = rc === 124 || rc === 137 ? 'HARNESS-TIMEOUT' : 'HARNESS-ERROR';
 
+  // ⛔ AND THE `!parsed.verdict` GUARD ABOVE IS EXACTLY WHY A TIMEOUT CAN STILL LAND AS `MINIMUM`.
+  // The driver prints its `=> MINIMUM` the moment the SYNTH arm verifies, then descends. A budget
+  // kill during the descent therefore arrives with a verdict ALREADY parsed, the `rc === 124` branch
+  // never runs, and a truncated run is recorded as a completed measurement.
+  //
+  // MEASURED on `duckdb@1.4.4`: `driverRc: 124`, `durationMs: 2400105` (the budget, exactly),
+  // killed with its cwd in `verify-drop-no-network` — recorded `verdict: "MINIMUM"`,
+  // `minimality: null`. The grant is SAFE, because a cut-off descent narrows nothing and leaves the
+  // synthesized grant standing, so this is a false claim of COMPLETENESS rather than an under-grant.
+  // But `minimality: null` was the only tell, and it is equally produced by a package that simply
+  // has no descent to run — so nothing downstream could distinguish them.
+  //
+  // The note is additive on purpose. Downgrading the verdict would drop the package from the catalog
+  // (`collate.mjs` keeps only `MINIMUM`) and discard a grant its synth arm really did verify — the
+  // same trade `ARTIFACT-GATE-SUSPECT` already settled the other way, for the same reason.
+  if (rc === 124 || rc === 137) {
+    parsed.notes = [...new Set([...(parsed.notes ?? []), 'driver-timeout'])];
+  }
+
   // ⛔ RESOLVED ONCE, ABOVE THE RECORD, BECAUSE `interpreterInsideHome` NEEDS IT. Reading it out of
   // `rec.provenance` while `rec` is still being built would evaluate to `undefined`, and the
   // containment test would then silently take its POSIX branch on Windows — the same class of
