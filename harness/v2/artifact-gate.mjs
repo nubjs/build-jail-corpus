@@ -207,6 +207,27 @@ if (!got) missing.push('<package absent>');
 //     reason worth stating: a denied write that truncated an object file fails the LINK, so the
 //     `.node` is then absent — and absence is checked for every file, toolchain-generated included.
 //     The linked output itself is never excused.
+//
+// ⛔ A LOCKFILE IS A RESOLVER'S RECORD, NOT A BUILD ARTIFACT, AND THE TWO ARMS RUN DIFFERENT
+// RESOLVERS. OBSERVE traces `npm rebuild`; VERIFY runs `nub install` — canon A8's first
+// structurally-valid reason a synthesized grant fails to verify with no observation gap.
+// `npm-shrinkwrap.json` serialises the RESOLVED TREE, so a different resolver writes a different,
+// legitimately shorter file. Nothing about that says a write was denied.
+//
+// MEASURED on `postman-code-generators@0.2.4`, win32-x64 — the SECOND package to hit this
+// comparison after `lmdb-store@2.0.0-alpha2`, which is what makes it a class and not a one-off.
+// All 25 "missing artifacts" were `codegens/*/npm-shrinkwrap.json`, present in every arm and merely
+// shorter:
+//     codegens/csharp-restsharp/npm-shrinkwrap.json   96B < 339B
+//     codegens/curl/npm-shrinkwrap.json               84B < 315B
+//     codegens/golang/npm-shrinkwrap.json             86B < 319B
+// Corroborated by the record's own `REFUSALS (adapter-classified) distinct: 0` and by a trace with
+// ZERO writes outside the arm root: nothing was refused. The identical shortfall digest at every
+// rung then published a spurious `write:"disk"` off that comparison alone.
+//
+// Same safety envelope as the toolchain entries — SIZE only. An ABSENT lockfile still fails and a
+// ZERO-BYTE one still fails: a resolver difference changes a lockfile's contents, it can never fail
+// to write it at all.
 const TOOLCHAIN_GENERATED = [
   /(^|\/)build\/config\.gypi$/,
   /(^|\/)build\/Makefile$/,
@@ -214,6 +235,8 @@ const TOOLCHAIN_GENERATED = [
   /(^|\/)build\/.*\.d$/,
   /(^|\/)build\/gyp-mac-tool$/,
   /(^|\/)build\/.*\.o$/,
+  /(^|\/)npm-shrinkwrap\.json$/,
+  /(^|\/)package-lock\.json$/,
 ];
 const isToolchainGenerated = (f) => TOOLCHAIN_GENERATED.some((r) => r.test(f));
 for (const [f, size] of got ? obs : []) {

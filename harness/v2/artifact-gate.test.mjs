@@ -370,3 +370,52 @@ test('⛔ a ZERO-BYTE `.o` still FAILS — the excusal covers shorter, never emp
   }));
   assert.equal(r.code, 1, `an empty object file is a real shortfall:\n${r.out}`);
 });
+
+// ── A LOCKFILE IS A RESOLVER'S RECORD, NOT A BUILD ARTIFACT ───────────────────────────────────────
+//
+// The `postman-code-generators@0.2.4` case, win32-x64 — the SECOND package to trip the size
+// comparison after `lmdb-store@2.0.0-alpha2`, which is what makes it a class. All 25 "missing
+// artifacts" were `codegens/*/npm-shrinkwrap.json`, PRESENT in every arm and merely shorter
+// (96B < 339B, 84B < 315B, 86B < 319B, …). The identical shortfall digest at every rung up to
+// `write:"disk"` published a spurious disk grant off that comparison alone, while the record's own
+// `REFUSALS (adapter-classified) distinct: 0` and a trace with ZERO writes outside the arm root both
+// said nothing had been refused.
+//
+// The reason is canon A8's first item: OBSERVE traces `npm rebuild`, VERIFY runs `nub install`. A
+// shrinkwrap serialises the RESOLVED TREE, so two resolvers legitimately write different files.
+
+test('a SHORTER npm-shrinkwrap.json passes — two resolvers write different lockfiles', () => {
+  const obs = tree('obs-lock', {
+    'codegens/curl/npm-shrinkwrap.json': 'x'.repeat(315),
+    'codegens/golang/npm-shrinkwrap.json': 'x'.repeat(319),
+    'index.js': 'x'.repeat(100),
+  });
+  const r = gate(obs, tree('arm-lock', {
+    'codegens/curl/npm-shrinkwrap.json': 'x'.repeat(84),
+    'codegens/golang/npm-shrinkwrap.json': 'x'.repeat(86),
+    'index.js': 'x'.repeat(100),
+  }));
+  assert.equal(r.code, 0, `the measured postman shape must pass:\n${r.out}`);
+  assert.match(r.out, /missing=0/);
+});
+
+test('⛔ an ABSENT npm-shrinkwrap.json still FAILS — the excusal is SIZE only', () => {
+  // A resolver difference changes a lockfile's contents; it can never fail to write it at all.
+  const obs = tree('obs-lock-abs', { 'npm-shrinkwrap.json': 'x'.repeat(315), 'index.js': 'x' });
+  const r = gate(obs, tree('arm-lock-abs', { 'index.js': 'x' }));
+  assert.notEqual(r.code, 0, `an absent lockfile must not be excused:\n${r.out}`);
+  assert.match(r.out, /npm-shrinkwrap\.json/);
+});
+
+test('⛔ a ZERO-BYTE npm-shrinkwrap.json still FAILS — that is the truncated-write shape', () => {
+  const obs = tree('obs-lock-zero', { 'npm-shrinkwrap.json': 'x'.repeat(315), 'index.js': 'x' });
+  const r = gate(obs, tree('arm-lock-zero', { 'npm-shrinkwrap.json': '', 'index.js': 'x' }));
+  assert.notEqual(r.code, 0, `a zero-byte lockfile must not be excused:\n${r.out}`);
+});
+
+test('CONTROL: a shorter NON-lockfile JSON still fails, so the excusal did not widen to all JSON', () => {
+  // Without this, `package.json` or any other shipped JSON could be silently excused too.
+  const obs = tree('obs-lock-ctl', { 'package.json': 'x'.repeat(315), 'index.js': 'x' });
+  const r = gate(obs, tree('arm-lock-ctl', { 'package.json': 'x'.repeat(84), 'index.js': 'x' }));
+  assert.notEqual(r.code, 0, `only lockfiles are excused, not JSON generally:\n${r.out}`);
+});
