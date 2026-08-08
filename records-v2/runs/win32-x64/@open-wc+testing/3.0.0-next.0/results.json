@@ -1,15 +1,10 @@
 {
-  "pkg": "@salesforce/cli",
-  "version": "2.144.6",
+  "pkg": "@open-wc/testing",
+  "version": "3.0.0-next.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
   "grant": null,
-  "synthesized": {
-    "write": {
-      "userHome": true
-    },
-    "network": true
-  },
+  "synthesized": null,
   "verifiedBy": null,
   "minimality": null,
   "overPredictedBy": [],
@@ -18,12 +13,10 @@
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
-  "notes": [
-    "arms-unfalsifiable"
-  ],
+  "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 702588,
+  "driverRc": 0,
+  "durationMs": 17429,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -31,13 +24,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "e092665c6059cfa434d0d30afad2a82fdf4ad631",
     "node": "v22.23.2",
-    "at": "2026-08-08T03:52:25.115Z",
+    "at": "2026-08-08T03:52:59.441Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": "hoisted",
+    "storeLayout": null,
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-salesforcecli-msjtt600",
+    "jailRoot": null,
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,26 +44,6 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": {
-      "set": {
-        "npm_config_cache": "D:\\jail\\m-salesforcecli-msjtt600\\npm-cache",
-        "TMP": "D:\\jail\\m-salesforcecli-msjtt600\\tmp",
-        "TEMP": "D:\\jail\\m-salesforcecli-msjtt600\\tmp",
-        "TMPDIR": "D:\\jail\\m-salesforcecli-msjtt600\\tmp"
-      },
-      "unset": [
-        "CI",
-        "GITHUB_ACTIONS"
-      ],
-      "notRedirected": {
-        "USERPROFILE": "C:\\Users\\runneradmin",
-        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
-      },
-      "passedThrough": {
-        "CI": "true",
-        "GITHUB_ACTIONS": "true",
-        "NODE_ENV": null
-      }
-    }
+    "overrides": null
   }
 }
