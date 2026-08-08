@@ -1,0 +1,71 @@
+### @nx-dotnet/core@2.5.0   (D:\jail\m-nxdotnetcore-msk02il9)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4640 exit=0 events=115984 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 227 files  (D:\jail\m-nxdotnetcore-msk02il9\observe\node_modules\@nx-dotnet\core)
+  ARM-FALSIFIABILITY {"manifestFiles":227,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (227) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 172 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-nxdotnetcore-msk02il9\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-nxdotnetcore-msk02il9\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-nxdotnetcore-msk02il9\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-nxdotnetcore-msk02il9\observe\node_modules\@nx-dotnet\core
+  == ATTRIBUTION == lifecycle pids: 5 (root 4640)
+    writes  script 40  /  whole traced tree 47
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    systemfs     40
+        c:\program files\dotnet\dotnet.exe:wofcompresseddata
+        c:\program files\dotnet\host\fxr\10.0.10\hostfxr.dll:wofcompresseddata
+        c:\program files\dotnet\sdk\10.0.110\dotnet.dll:wofcompresseddata
+        c:\program files\dotnet\sdk\10.0.204\dotnet.dll:wofcompresseddata
+        c:\program files\dotnet\sdk\10.0.302\dotnet.dll:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\microsoft.netcore.app.deps.json:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\hostpolicy.dll:wofcompresseddata
+        c:\program files\dotnet\sdk\10.0.302\dotnet.deps.json:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\coreclr.dll:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\system.private.corelib.dll:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\system.runtime.dll:wofcompresseddata
+        c:\program files\dotnet\shared\microsoft.netcore.app\10.0.10\system.runtime.interopservices.dll:wofcompresseddata
+  == READS ==
+    deps          6
+    outside      11
+    project       1
+    systemfs    263
+    userHome      1
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    !! 40 writes into system dirs -- an unprivileged user would be refused these
+  RAW       etw-raw.xml.gz  148475383 B xml -> 2109997 B gz (70.4x)  sha256 3c1d253612c6119d…
+  HEADER    etw-header.json (5102 bytes)
+  DERIVED   6455 distinct from 9089 kept ops (115984 xml events, 36370 out of subtree)
+  PROCS     7   thread-reattributed 0
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (83249 bytes)
+  RAWLOG-CAPTURE D:\jail\m-nxdotnetcore-msk02il9\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-nxdotnetcore-msk02il9
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-nxdotnetcore-msk02il9\\npm-cache","TMP":"D:\\jail\\m-nxdotnetcore-msk02il9\\tmp","TEMP":"D:\\jail\\m-nxdotnetcore-msk02il9\\tmp","TMPDIR":"D:\\jail\\m-nxdotnetcore-msk02il9\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-nxdotnetcore-msk02il9\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=227/227 missing=0 shortfall=none (tree 15171/7270) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
