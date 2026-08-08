@@ -1,0 +1,76 @@
+### @pulumi/postgresql@1.7.0   (C:\jail\m-pulumipostgresql-msjpjkdk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=1988 exit=0 events=155652 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 51 files  (C:\jail\m-pulumipostgresql-msjpjkdk\observe\node_modules\@pulumi\postgresql)
+  ARM-FALSIFIABILITY {"manifestFiles":51,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (51) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 188 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-pulumipostgresql-msjpjkdk\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-pulumipostgresql-msjpjkdk\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-pulumipostgresql-msjpjkdk\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-pulumipostgresql-msjpjkdk\observe\node_modules\@pulumi\postgresql
+  == ATTRIBUTION == lifecycle pids: 3 (root 1988)
+    writes  script 10  /  whole traced tree 17
+    peers   script 4  /  whole traced tree 4
+  == WRITES ==
+    userHome      9
+    jailTmp       1
+  == READS ==
+    deps          6
+    outside       6
+    project       1
+    systemfs     50
+    userHome      6
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 4
+        18.154.110.63:443
+        140.82.114.3:443
+        140.82.113.5:443
+        104.20.20.220:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  199886501 B xml -> 2856565 B gz (70.0x)  sha256 bc15af66bc696a3d…
+  HEADER    etw-header.json (5136 bytes)
+  DERIVED   5907 distinct from 18126 kept ops (155652 xml events, 45072 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (76432 bytes)
+  RAWLOG-CAPTURE C:\jail\m-pulumipostgresql-msjpjkdk\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-pulumipostgresql-msjpjkdk
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-pulumipostgresql-msjpjkdk\\npm-cache","TMP":"C:\\jail\\m-pulumipostgresql-msjpjkdk\\tmp","TEMP":"C:\\jail\\m-pulumipostgresql-msjpjkdk\\tmp","TMPDIR":"C:\\jail\\m-pulumipostgresql-msjpjkdk\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-pulumipostgresql-msjpjkdk\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=51/51 missing=0 shortfall=none (tree 22680/10339) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-pulumipostgresql-msjpjkdk\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=51/51 missing=0 shortfall=none (tree 22575/10339) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-pulumipostgresql-msjpjkdk\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=51/51 missing=0 shortfall=none (tree 22575/10339) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at C:\jail\m-pulumipostgresql-msjpjkdk\verify-fb2\.cache
+  VERIFY[fb2] rc=1 artifacts=51/51 missing=0 shortfall=none (tree 22575/10339) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly
