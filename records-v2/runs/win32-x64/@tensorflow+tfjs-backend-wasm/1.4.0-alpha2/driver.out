@@ -1,8 +1,8 @@
-### @tensorflow/tfjs-backend-wasm@1.4.0-alpha2   (C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb)
+### @tensorflow/tfjs-backend-wasm@1.4.0-alpha2   (D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5492 exit=0 events=2094439 lost=0
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=9188 exit=0 events=1864906 lost=0
   VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 244 files  (C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\observe\node_modules\@tensorflow\tfjs-backend-wasm)
+  OBSERVE artifacts: 244 files  (D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\observe\node_modules\@tensorflow\tfjs-backend-wasm)
   ARM-FALSIFIABILITY {"manifestFiles":244,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (244) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -11,40 +11,45 @@
   CLOSURE 8 packages evicted per arm
   8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\observe   [keyed on]
+    project       D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\observe\node_modules\.store
+    projectStore  D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\tmp   [keyed on]
+    temp          D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\observe\node_modules\@tensorflow\tfjs-backend-wasm
-  == ATTRIBUTION == lifecycle pids: 9 (root 5492)
-    writes  script 43238  /  whole traced tree 43243
+    ownPkg        D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\observe\node_modules\@tensorflow\tfjs-backend-wasm
+  == ATTRIBUTION == lifecycle pids: 9 (root 9188)
+    writes  script 43249  /  whole traced tree 43254
     peers   script 1  /  whole traced tree 1
   == WRITES ==
-    userHome  22787
-    kernelfs      5
-    deps      20421
-    outside       7
+    userHome  22789
+    kernelfs     10
+    outside      10
         c:\windowsazure\logs
-        c:\
-        c:\windowsazure\logs\aggregatestatus
-        c:\jail\m-tensorflowtfjsbackendwasm-msjou2qb
-        c:\cabal\bin\wsl.com
-        c:\hostedtoolcache\windows\ruby\3.3.12\x64\bin\wsl.wsf
         c:\npm\prefix\wsl.wsh
-    project       1
-    systemfs      3
-        c:\programdata\kind\wsl.vbs
-        c:\windows\winsxs\filemaps\program_files_mysql_mysql_server_8.0_bin_aacb29e36c145539.cdf-ms
+        c:\hostedtoolcache\windows\go\1.24.13\x64\bin\wsl.vbs
+        c:\hostedtoolcache\windows\python\3.12.10\x64\wsl.msc
+        c:\mingw64\bin\wsl.wsh
+        c:\hostedtoolcache\windows\stack\3.11.1\x64\wsl.cmd
+        c:\hostedtoolcache\windows\ruby\3.3.12\x64\bin\wsl.jse
+        d:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\node_modules\.bin
+        c:\windowsazure\logs\aggregatestatus
+        c:\seleniumwebdrivers\chromedriver\wsl.wsh
+    systemfs      6
+        c:\program files (x86)\github cli\wsl.com
+        c:\program files\git\bin\wsl.jse
+        c:\program files\mysql\mysql server 8.0\bin\wsl.bat
+        c:\program files\git\bin\wsl.js
+        c:\program files\microsoft sdks\azure\cli2\wbin\wsl.cmd
         c:\windows\syswow64\propsys.dll:wofcompresseddata
+    deps      20420
     jailTmp      14
   == READS ==
     deps        598
-    outside      22
+    outside      28
     project       2
     systemfs     72
     userHome  20363
@@ -52,37 +57,37 @@
     jailTmp       8
   == NETWORK ==
     distinct peers: 1
-        104.16.7.34:443
+        104.16.4.34:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"deps":true,"project":true,"userHome":true},"network":true}
+    {"write":{"deps":true,"userHome":true},"network":true}
     NOTE 14 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    !! 7 writes OUTSIDE project/home -- no scope covers these; inspect before granting
-    !! 3 writes into system dirs -- an unprivileged user would be refused these
-    NOTE 5 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  2689589891 B xml -> 54929759 B gz (49.0x)  sha256 fa8123e0328b5136…
-  HEADER    etw-header.json (5238 bytes)
-  DERIVED   402601 distinct from 616933 kept ops (2094439 xml events, 108672 out of subtree)
+    !! 10 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    !! 6 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 10 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  2402069910 B xml -> 49464047 B gz (48.6x)  sha256 bc79cb365c87bc6b…
+  HEADER    etw-header.json (5236 bytes)
+  DERIVED   403117 distinct from 614620 kept ops (1864906 xml events, 94256 out of subtree)
   PROCS     11   thread-reattributed 17454
-  ⛔ 10990 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 30 handle ops whose path no table could supply
+  ⛔ 11590 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (5222237 bytes)
-  RAWLOG-CAPTURE C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\cap\capture.json
+  wrote events.ndjson.gz (5227833 bytes)
+  RAWLOG-CAPTURE D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb
+  VENUE-JAIL-ROOT D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7
   VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-tensorflowtfjsbackendwasm-msjou2qb\\npm-cache","TMP":"C:\\jail\\m-tensorflowtfjsbackendwasm-msjou2qb\\tmp","TEMP":"C:\\jail\\m-tensorflowtfjsbackendwasm-msjou2qb\\tmp","TMPDIR":"C:\\jail\\m-tensorflowtfjsbackendwasm-msjou2qb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 7459/19154) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-tensorflowtfjsbackendwasm-msjqyln7\\npm-cache","TMP":"D:\\jail\\m-tensorflowtfjsbackendwasm-msjqyln7\\tmp","TEMP":"D:\\jail\\m-tensorflowtfjsbackendwasm-msjqyln7\\tmp","TMPDIR":"D:\\jail\\m-tensorflowtfjsbackendwasm-msjqyln7\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 7459/19154) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\verify-fb0\.cache
+  STORE   isolated virtual store at D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\verify-fb0\.cache
   VERIFY[fb0] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 7459/19154) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  STORE   isolated virtual store at C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\verify-fb1\.cache
-  VERIFY[fb1] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 25069/19154) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-  STORE   isolated virtual store at C:\jail\m-tensorflowtfjsbackendwasm-msjou2qb\verify-fb2\.cache
+  STORE   isolated virtual store at D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 7459/19154) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-tensorflowtfjsbackendwasm-msjqyln7\verify-fb2\.cache
   VERIFY[fb2] TIMED-OUT in `approve-builds` after 600000 ms -- no verdict; check for surviving children
   => TIMED-OUT on ladder rung 2 (approve-builds); the ladder is abandoned rather than continued
