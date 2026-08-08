@@ -102,6 +102,27 @@ export function collectInstalledSpecs(projectRoot) {
   const modules = path.join(projectRoot, 'node_modules');
   if (!real(modules)) throw new Error(`installed tree is absent: ${modules}`);
   visitModules(modules);
+
+  // Nub/pnpm-style isolated layouts keep the resolved graph in sibling virtual-store entries. The
+  // top-level target symlink does NOT necessarily lead back through its transitive dependencies:
+  // measured on es5-ext@0.10.64, a reachability-only walk found 1 package while `.store` held all 9
+  // that approve-builds could execute. Enumerate every materialized entry, including entries that
+  // are themselves symlinks to the global store. `.store/node_modules` is visited too because it is
+  // the flat link index on current Nub; the per-entry walk keeps this fail-closed if that index moves.
+  for (const storeName of ['.store', '.nub']) {
+    const store = path.join(modules, storeName);
+    if (!real(store)) continue;
+    let entries;
+    try { entries = fs.readdirSync(store, { withFileTypes: true }); } catch (e) {
+      throw new Error(`cannot enumerate virtual store ${store}: ${e.message}`);
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue;
+      const entryPath = path.join(store, entry.name);
+      if (entry.name === 'node_modules') visitModules(entryPath);
+      else visitModules(path.join(entryPath, 'node_modules'));
+    }
+  }
   return normalizeSpecs([...specs]);
 }
 

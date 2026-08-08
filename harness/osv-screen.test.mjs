@@ -21,14 +21,17 @@ test('collects a hoisted tree including scoped and nested package versions', () 
   assert.deepEqual(collectInstalledSpecs(root), ['@scope/dep@2.0.0', 'nested@3.0.0', 'target@1.0.0']);
 });
 
-test('follows an isolated-layout symlink once and refuses an unreadable package manifest', () => {
+test('screens every isolated virtual-store entry, not only dependencies nested under the target', () => {
   const root = fixture();
-  const store = path.join(root, 'store', 'target');
-  manifest(store, 'target', '1.0.0');
-  fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
-  fs.symlinkSync(store, path.join(root, 'node_modules', 'target'), 'dir');
-  assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0']);
-  fs.rmSync(path.join(store, 'package.json'));
+  const target = path.join(root, 'node_modules', '.store', 'target@1.0.0', 'node_modules', 'target');
+  const transitive = path.join(root, 'node_modules', '.store', 'transitive@2.0.0',
+    'node_modules', 'transitive');
+  manifest(target, 'target', '1.0.0');
+  manifest(transitive, 'transitive', '2.0.0');
+  fs.symlinkSync(path.relative(path.join(root, 'node_modules'), target),
+    path.join(root, 'node_modules', 'target'), 'dir');
+  assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0', 'transitive@2.0.0']);
+  fs.rmSync(path.join(transitive, 'package.json'));
   assert.throws(() => collectInstalledSpecs(root), /cannot read installed manifest/);
 });
 
