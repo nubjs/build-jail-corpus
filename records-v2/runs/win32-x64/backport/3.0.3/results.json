@@ -1,27 +1,34 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.103.1",
+  "pkg": "backport",
+  "version": "3.0.3",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "userHome": true
+    }
+  },
   "synthesized": {
     "write": {
-      "deps": true
-    },
-    "network": true
+      "userHome": true
+    }
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable"
+  ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 628216,
+  "driverRc": 0,
+  "durationMs": 190998,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +36,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "0c1bf73614e8660f223b67158bf02b070ee71b73",
     "node": "v22.23.2",
-    "at": "2026-08-08T01:56:53.190Z",
+    "at": "2026-08-08T02:00:33.135Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjpq6od",
+    "jailRoot": "D:\\jail\\m-backport-msjq49t9",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +58,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjpq6od\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjpq6od\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjpq6od\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjpq6od\\tmp"
+        "npm_config_cache": "D:\\jail\\m-backport-msjq49t9\\npm-cache",
+        "TMP": "D:\\jail\\m-backport-msjq49t9\\tmp",
+        "TEMP": "D:\\jail\\m-backport-msjq49t9\\tmp",
+        "TMPDIR": "D:\\jail\\m-backport-msjq49t9\\tmp"
       },
       "unset": [
         "CI",
