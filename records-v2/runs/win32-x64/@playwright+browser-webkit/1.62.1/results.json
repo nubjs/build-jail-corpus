@@ -1,27 +1,45 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.112.7",
+  "pkg": "@playwright/browser-webkit",
+  "version": "1.62.1",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
-  "synthesized": {
+  "verdict": "MINIMUM",
+  "grant": {
     "write": {
-      "deps": true
+      "deps": true,
+      "project": true,
+      "userHome": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "synthesized": {
+    "write": {
+      "userHome": true
+    },
+    "network": true
+  },
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
+  "notes": [
+    "arms-unfalsifiable",
+    "under-predicted"
+  ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 625510,
+  "driverRc": 0,
+  "durationMs": 369058,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +47,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "5669900f1267ff0ac4ae5d2c51b7004f733e2cc4",
     "node": "v22.23.2",
-    "at": "2026-08-08T07:12:44.299Z",
+    "at": "2026-08-08T07:32:02.604Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msk10fiz",
+    "jailRoot": "D:\\jail\\m-playwrightbrowserwebkit-msk1ur64",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +69,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msk10fiz\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msk10fiz\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msk10fiz\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msk10fiz\\tmp"
+        "npm_config_cache": "D:\\jail\\m-playwrightbrowserwebkit-msk1ur64\\npm-cache",
+        "TMP": "D:\\jail\\m-playwrightbrowserwebkit-msk1ur64\\tmp",
+        "TEMP": "D:\\jail\\m-playwrightbrowserwebkit-msk1ur64\\tmp",
+        "TMPDIR": "D:\\jail\\m-playwrightbrowserwebkit-msk1ur64\\tmp"
       },
       "unset": [
         "CI",
