@@ -1,27 +1,35 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.147.9",
+  "pkg": "electron-prebuilt",
+  "version": "0.36.9",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
-      "deps": true
+      "deps": true,
+      "userHome": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 666293,
+  "driverRc": 0,
+  "durationMs": 363993,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +37,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "a536dc82d63b3133d52cbca295562893eee68b2e",
     "node": "v22.23.2",
-    "at": "2026-08-08T06:40:58.582Z",
+    "at": "2026-08-08T06:47:02.649Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjzupm2",
+    "jailRoot": "D:\\jail\\m-electronprebuilt-msk08zsa",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +59,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjzupm2\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjzupm2\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjzupm2\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjzupm2\\tmp"
+        "npm_config_cache": "D:\\jail\\m-electronprebuilt-msk08zsa\\npm-cache",
+        "TMP": "D:\\jail\\m-electronprebuilt-msk08zsa\\tmp",
+        "TEMP": "D:\\jail\\m-electronprebuilt-msk08zsa\\tmp",
+        "TMPDIR": "D:\\jail\\m-electronprebuilt-msk08zsa\\tmp"
       },
       "unset": [
         "CI",
