@@ -1,15 +1,10 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.137.1",
+  "pkg": "flow-bin",
+  "version": "0.5.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
   "grant": null,
-  "synthesized": {
-    "write": {
-      "deps": true
-    },
-    "network": true
-  },
+  "synthesized": null,
   "verifiedBy": null,
   "minimality": null,
   "overPredictedBy": [],
@@ -20,8 +15,8 @@
   "descendedGrant": null,
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 635855,
+  "driverRc": 0,
+  "durationMs": 11689,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +24,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "47db1b2f8d6f4cde7f28ee05117f942f422729a8",
     "node": "v22.23.2",
-    "at": "2026-08-08T05:40:54.831Z",
+    "at": "2026-08-08T06:01:03.264Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": "hoisted",
+    "storeLayout": null,
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjxq4fi",
+    "jailRoot": null,
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -49,26 +44,6 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": {
-      "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjxq4fi\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjxq4fi\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjxq4fi\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjxq4fi\\tmp"
-      },
-      "unset": [
-        "CI",
-        "GITHUB_ACTIONS"
-      ],
-      "notRedirected": {
-        "USERPROFILE": "C:\\Users\\runneradmin",
-        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
-      },
-      "passedThrough": {
-        "CI": "true",
-        "GITHUB_ACTIONS": "true",
-        "NODE_ENV": null
-      }
-    }
+    "overrides": null
   }
 }
