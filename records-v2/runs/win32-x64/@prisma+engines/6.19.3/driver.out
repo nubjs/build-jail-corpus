@@ -1,0 +1,78 @@
+### @prisma/engines@6.19.3   (D:\jail\m-prismaengines-msk09o5t)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5548 exit=0 events=34792 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 12 files  (D:\jail\m-prismaengines-msk09o5t\observe\node_modules\@prisma\engines)
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 5 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-prismaengines-msk09o5t\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-prismaengines-msk09o5t\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-prismaengines-msk09o5t\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-prismaengines-msk09o5t\observe\node_modules\@prisma\engines
+  == ATTRIBUTION == lifecycle pids: 2 (root 5548)
+    writes  script 23  /  whole traced tree 30
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps         19
+    jailTmp       4
+  == READS ==
+    deps         47
+    outside       6
+    project       1
+    systemfs     29
+    jailTmp       4
+  == NETWORK ==
+    distinct peers: 1
+        104.20.43.103:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 4 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  44819559 B xml -> 748253 B gz (59.9x)  sha256 86e897f0bf20d366…
+  HEADER    etw-header.json (5108 bytes)
+  DERIVED   5535 distinct from 11193 kept ops (34792 xml events, 3342 out of subtree)
+  PROCS     4   thread-reattributed 80
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (70446 bytes)
+  RAWLOG-CAPTURE D:\jail\m-prismaengines-msk09o5t\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-prismaengines-msk09o5t
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-prismaengines-msk09o5t\\npm-cache","TMP":"D:\\jail\\m-prismaengines-msk09o5t\\tmp","TEMP":"D:\\jail\\m-prismaengines-msk09o5t\\tmp","TMPDIR":"D:\\jail\\m-prismaengines-msk09o5t\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=10/12 missing=2 shortfall=f89ddfe09189 (tree 5862/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: query_engine-windows.dll.node, schema-engine-windows.exe
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-fb0\.cache
+  VERIFY[fb0] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 5873/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=0 artifacts=10/12 missing=2 shortfall=f89ddfe09189 (tree 5865/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     missing artifacts: query_engine-windows.dll.node, schema-engine-windows.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 5873/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-nar-no-write-project\.cache
+  VERIFY[nar-no-write-project] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 5873/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"userHome":true},"network":true} also verifies; 'no-write-project' was not needed
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=10/12 missing=2 shortfall=f89ddfe09189 (tree 5862/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     missing artifacts: query_engine-windows.dll.node, schema-engine-windows.exe
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-prismaengines-msk09o5t\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 5873/114) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true},"network":true} — all 2 capabilities drop TOGETHER, measured
