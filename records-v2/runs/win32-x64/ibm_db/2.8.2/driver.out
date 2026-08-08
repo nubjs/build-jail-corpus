@@ -1,0 +1,107 @@
+### ibm_db@2.8.2   (C:\jail\m-ibmdb-msjphv5h)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5796 exit=0 events=663882 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 324 files  (C:\jail\m-ibmdb-msjphv5h\observe\node_modules\ibm_db)
+  ARM-FALSIFIABILITY {"manifestFiles":332,"filesTheScriptProduced":157,"reasons":[]}
+  CLOSURE 83 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-ibmdb-msjphv5h\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-ibmdb-msjphv5h\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-ibmdb-msjphv5h\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-ibmdb-msjphv5h\observe\node_modules\ibm_db
+  == ATTRIBUTION == lifecycle pids: 13 (root 5796)
+    writes  script 6958  /  whole traced tree 6963
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps        195
+    kernelfs      5
+    outside       9
+        c:\jail\m-sodiumnative-msjpgsmr\npm-cache\_cacache\content-v2\sha512
+        c:\jail\m-sodiumnative-msjpgsmr\observe\node_modules\call-bind-apply-helpers
+        c:\jail\m-sodiumnative-msjpgsmr\observe\node_modules\type
+        c:\jail\m-sodiumnative-msjpgsmr\observe\node_modules\nan
+        c:\jail\m-sodiumnative-msjpgsmr\observe\node_modules\math-intrinsics
+        c:\jail\m-sodiumnative-msjpgsmr\observe\node_modules\har-schema\lib
+        c:\jail
+        c:\jail\m-ibmdb-msjphv5h
+        c:\
+    project       1
+    userHome   3337
+    jailTmp    3344
+    systemfs     67
+        c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
+  == READS ==
+    deps        180
+    outside     525
+    project       1
+    systemfs    712
+    kernelfs      1
+    userHome     54
+    jailTmp    3345
+  == NETWORK ==
+    distinct peers: 2
+        170.225.126.18:443
+        104.16.213.131:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 2
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"project":true,"userHome":true},"network":true}
+    NOTE 3344 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 9 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    !! 67 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 5 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  851077647 B xml -> 14658750 B gz (58.1x)  sha256 28e6ca8170cb8654…
+  HEADER    etw-header.json (5058 bytes)
+  DERIVED   97642 distinct from 215776 kept ops (663882 xml events, 35127 out of subtree)
+  PROCS     15   thread-reattributed 2729
+  ⛔ 241 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 339 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (1260099 bytes)
+  RAWLOG-CAPTURE C:\jail\m-ibmdb-msjphv5h\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-ibmdb-msjphv5h
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-ibmdb-msjphv5h\\npm-cache","TMP":"C:\\jail\\m-ibmdb-msjphv5h\\tmp","TEMP":"C:\\jail\\m-ibmdb-msjphv5h\\tmp","TMPDIR":"C:\\jail\\m-ibmdb-msjphv5h\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=324/324 missing=0 shortfall=none (tree 8528/2334) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=0 artifacts=173/324 missing=152 shortfall=d7b9a8467b64 (tree 8373/2334) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     missing artifacts: build/Release/odbc_bindings.node, installer/clidriver/bin/amd64.VC12.CRT/amd64.VC12.CRT.manifest, installer/clidriver/bin/amd64.VC12.CRT/msvcp120.dll, installer/clidriver/bin/amd64.VC12.CRT/msvcr120.dll, installer/clidriver/bin/amd64.VC14.CRT/amd64.VC14.CRT.manifest, installer/clidriver/bin/amd64.VC14.CRT/concrt140.dll (+146)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=324/324 missing=0 shortfall=none (tree 8528/2334) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-nar-no-write-project\.cache
+  VERIFY[nar-no-write-project] rc=0 artifacts=324/324 missing=0 shortfall=none (tree 8528/2334) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"userHome":true},"network":true} also verifies; 'no-write-project' was not needed
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=324/324 missing=0 shortfall=none (tree 8528/2334) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-ibmdb-msjphv5h\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=324/324 missing=0 shortfall=none (tree 8528/2334) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => JOINT-NARROW VERIFIED {"network":true} — all 3 capabilities drop TOGETHER, measured
