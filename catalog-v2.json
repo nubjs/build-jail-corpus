@@ -1,5 +1,13 @@
 {
   "packages": {
+    "@apollo/protobufjs": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 1.2.7"
+      }
+    },
     "@apollo/rover": {
       "default": {
         "network": true,
@@ -15,13 +23,18 @@
         }
       }
     },
-    "@appsignal/nodejs": {
+    "@arbitrum/sdk": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "network": true,
-        "notes": "latest measured 3.8.1"
+        "notes": "latest measured 2.0.0"
+      },
+      "versions": {
+        "<2.0.0": {
+          "write": {
+            "deps": true
+          },
+          "network": true,
+          "notes": "measured 1.1.4; covers everything below 2.0.0"
+        }
       }
     },
     "@aws-amplify/cli": {
@@ -31,28 +44,37 @@
           ".amplify",
           ".config/configstore"
         ],
+        "write": {
+          "userHome": true
+        },
         "notes": "latest measured 14.5.1"
-      },
-      "versions": {
-        "<14.5.1": {
-          "network": true,
-          "writePaths": [
-            ".amplify",
-            ".config/configstore"
-          ],
-          "write": {
-            "deps": true
-          },
-          "notes": "measured 4.9.0, 8.5.1, 9.2.1, 10.8.1, 11.1.1, 12.9.0, 13.0.1; covers everything below 14.5.1"
-        }
       }
     },
-    "@badeball/cypress-cucumber-preprocessor": {
+    "@azure-devops/mcp": {
       "default": {
-        "read": {
-          "project": true
+        "write": {
+          "userHome": true
         },
-        "notes": "latest measured 23.2.1"
+        "notes": "latest measured 2.8.0"
+      }
+    },
+    "@bufbuild/buf": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 1.54.0"
+      }
+    },
+    "@clerk/shared": {
+      "default": {
+        "writePaths": [
+          "Library/Preferences/clerk"
+        ],
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 4.9.0"
       }
     },
     "@confluentinc/kafka-javascript": {
@@ -63,27 +85,33 @@
     },
     "@copilotkit/aimock": {
       "default": {
-        "notes": "latest measured 1.37.4"
+        "notes": "latest measured 1.38.0"
       },
       "versions": {
-        "<1.37.4": {
-          "write": "disk",
+        "<1.38.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/_cacache",
-            ".npm/_npx"
-          ],
-          "notes": "measured 1.14.8; covers everything below 1.37.4"
+          "notes": "measured 1.14.8; covers everything below 1.38.0"
         }
       }
     },
     "@coze/cli": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".coze"
-        ],
-        "notes": "latest measured 0.3.5"
+        "notes": "latest measured 0.3.6"
+      },
+      "versions": {
+        "<0.3.6": {
+          "network": true,
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 0.2.0-alpha.f62ab3, 0.3.5; covers everything below 0.3.6"
+        }
       }
     },
     "@cubejs-backend/cubestore": {
@@ -92,59 +120,152 @@
         "notes": "latest measured 1.7.9"
       }
     },
+    "@cypress/snapshot": {
+      "default": {
+        "write": {
+          "project": true
+        },
+        "notes": "latest measured 2.1.7"
+      }
+    },
+    "@danmarshall/deckgl-typings": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 4.9.9"
+      }
+    },
+    "@depot/cli": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 0.0.1-cli.2.99.1"
+      }
+    },
+    "@discordjs/opus": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 0.10.0"
+      }
+    },
     "@eth-optimism/core-utils": {
       "default": {
         "notes": "latest measured 0.13.2"
       },
       "versions": {
         "<0.13.2": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/_cacache",
-            ".npm/_npx"
-          ],
-          "notes": "measured 0.13.1; covers everything below 0.13.2"
+          "notes": "measured 0.0.0-develop-20230928190155, 0.13.1; covers everything below 0.13.2"
         }
       }
     },
     "@eth-optimism/sdk": {
       "default": {
-        "network": true,
-        "notes": "latest measured 3.2.1"
+        "notes": "latest measured 3.3.3"
+      },
+      "versions": {
+        "<3.3.3": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 0.0.0-will-20230915154458, 3.2.1; covers everything below 3.3.3"
+        }
       }
     },
-    "@evilmartians/lefthook": {
+    "@eversdk/lib-node": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.48.0"
+      }
+    },
+    "@firebase/util": {
       "default": {
         "write": {
+          "deps": true
+        },
+        "notes": "latest measured 1.15.1"
+      }
+    },
+    "@heroui/shared-utils": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 2.1.9"
+      }
+    },
+    "@hyperjump/json-pointer": {
+      "default": {
+        "write": {
+          "deps": true,
           "project": true
         },
-        "notes": "latest measured 2.1.10"
+        "notes": "latest measured 0.9.8"
       }
     },
     "@hyperjump/json-schema": {
       "default": {
-        "network": true,
-        "notes": "latest measured 0.22.0"
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "notes": "latest measured 0.23.5"
+      },
+      "versions": {
+        "<0.23.5": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 0.18.5, 0.22.0; covers everything below 0.23.5"
+        }
       }
     },
     "@hyperjump/json-schema-core": {
       "default": {
+        "write": {
+          "deps": true,
+          "project": true
+        },
         "notes": "latest measured 0.28.5"
       },
       "versions": {
         "<0.28.5": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/_cacache",
-            ".npm/_npx"
-          ],
           "notes": "measured 0.23.7, 0.27.0; covers everything below 0.28.5"
         }
+      }
+    },
+    "@hyperjump/pact": {
+      "default": {
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "notes": "latest measured 0.2.5"
       }
     },
     "@larksuite/cli": {
       "default": {
         "network": true,
+        "write": "disk",
         "notes": "latest measured 1.0.9"
       }
     },
@@ -154,11 +275,12 @@
       },
       "versions": {
         "<2.0.12": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/_cacache",
-            ".npm/_npx"
-          ],
           "notes": "measured 2.0.1; covers everything below 2.0.12"
         }
       }
@@ -172,10 +294,37 @@
     "@mongodb-js/zstd": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 7.0.0"
+      }
+    },
+    "@mui/x-telemetry": {
+      "default": {
+        "writePaths": [
+          "Library/Preferences/mui-x"
+        ],
+        "read": "disk",
+        "notes": "latest measured 9.10.0"
+      }
+    },
+    "@nestjs/core": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 11.1.19"
+      }
+    },
+    "@netlify/esbuild": {
+      "default": {
+        "notes": "latest measured 0.14.39"
+      },
+      "versions": {
+        "<0.14.39": {
+          "network": true,
+          "writePaths": [
+            ".cache/esbuild",
+            "Library/Caches/esbuild"
+          ],
+          "notes": "measured 0.13.6; covers everything below 0.14.39"
+        }
       }
     },
     "@notarize/qlc-cli": {
@@ -184,40 +333,99 @@
         "notes": "latest measured 4.2.0"
       }
     },
-    "@opencode-ai/cli": {
+    "@nuxt/components": {
       "default": {
-        "notes": "latest measured 1.18.11"
-      },
-      "versions": {
-        "<1.18.11": {
-          "write": "disk",
-          "writePaths": [
-            ".local/share/opencode"
-          ],
-          "notes": "measured 0.0.0-next-16573; covers everything below 1.18.11"
-        }
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 2.1.0"
       }
     },
-    "@pact-foundation/pact": {
+    "@openapitools/openapi-generator-cli": {
       "default": {
         "network": true,
-        "notes": "latest measured 10.0.0-beta.9"
+        "notes": "latest measured 2.39.1"
+      }
+    },
+    "@opencode-ai/cli": {
+      "default": {
+        "writePaths": [
+          ".cache/opencode",
+          ".local/share/opencode"
+        ],
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 0.0.0-next-16573"
+      }
+    },
+    "@pact-foundation/pact-node": {
+      "default": {
+        "write": {
+          "project": true,
+          "deps": true,
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 10.18.0"
+      }
+    },
+    "@paloaltonetworks/postman-code-generators": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 1.1.9"
+      }
+    },
+    "@pdftron/pdfnet-node": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 12.0.0"
       }
     },
     "@playwright/browser-chromium": {
       "default": {
+        "write": {
+          "userHome": true,
+          "deps": true,
+          "project": true
+        },
         "network": true,
-        "writePaths": [
-          ".cache/ms-playwright",
-          "Library/Caches/ms-playwright"
-        ],
         "notes": "latest measured 1.61.1"
+      }
+    },
+    "@playwright/browser-firefox": {
+      "default": {
+        "write": {
+          "userHome": true,
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "notes": "latest measured 1.62.1"
+      }
+    },
+    "@playwright/browser-webkit": {
+      "default": {
+        "write": {
+          "userHome": true,
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "notes": "latest measured 1.62.1"
       }
     },
     "@posthog/cli": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.7.34"
+        "notes": "latest measured 0.10.0"
+      }
+    },
+    "@prisma/client": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 6.19.3"
       }
     },
     "@prisma/engines": {
@@ -227,42 +435,202 @@
           ".cache/prisma"
         ],
         "notes": "latest measured 7.9.1"
+      },
+      "versions": {
+        "<7.9.1": {
+          "network": true,
+          "writePaths": [
+            ".cache/prisma"
+          ],
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 4.16.2, 5.22.0, 6.19.3, 7.8.0; covers everything below 7.9.1"
+        }
+      }
+    },
+    "@progress/kendo-licensing": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 1.9.1"
+      }
+    },
+    "@pulumi/aws-native": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 1.74.1"
+      }
+    },
+    "@pulumi/awsx": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 2.9.0"
+      }
+    },
+    "@pulumi/azuread": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 5.9.0"
+      }
+    },
+    "@pulumi/cloudflare": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 5.9.0"
+      }
+    },
+    "@pulumi/command": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 4.5.0"
+      }
+    },
+    "@pulumi/datadog": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 4.9.0"
+      }
+    },
+    "@pulumi/docker": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 3.6.1"
+      }
+    },
+    "@pulumi/docker-build": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 0.0.14"
+      }
+    },
+    "@pulumi/gcp": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 6.9.0"
+      }
+    },
+    "@pulumi/kubernetes": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 4.9.1"
+      }
+    },
+    "@pulumi/postgresql": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 3.9.0"
+      }
+    },
+    "@pulumi/tls": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 5.1.0-alpha.1694757639"
       }
     },
     "@salesforce/cli": {
       "default": {
-        "notes": "latest measured 2.145.6"
-      },
-      "versions": {
-        "<2.145.6": {
-          "read": {
-            "project": true
-          },
-          "writePaths": [
-            ".cache/sf"
-          ],
-          "notes": "measured 2.144.6; covers everything below 2.145.6"
-        }
+        "network": true,
+        "writePaths": [
+          ".cache/sf",
+          ".sf"
+        ],
+        "notes": "latest measured 2.146.3"
+      }
+    },
+    "@sap/hana-client": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 2.29.23"
+      }
+    },
+    "@sematext/gc-stats": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.5.9"
       }
     },
     "@sentry/cli": {
       "default": {
-        "notes": "latest measured 3.6.0"
+        "notes": "latest measured 3.6.2"
       },
       "versions": {
-        "<3.6.0": {
+        "<3.6.2": {
+          "write": {
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/sentry-cli"
-          ],
-          "notes": "measured 1.77.3, 2.58.6; covers everything below 3.6.0"
+          "notes": "measured 1.77.3, 2.58.6, 3.6.0; covers everything below 3.6.2"
         }
+      }
+    },
+    "@shoelace-style/shoelace": {
+      "default": {
+        "write": {
+          "userHome": true,
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 2.13.1"
+      }
+    },
+    "@shopify/ngrok": {
+      "default": {
+        "network": true,
+        "writePaths": [
+          ".ngrok"
+        ],
+        "notes": "latest measured 4.3.2"
       }
     },
     "@sitespeed.io/chromedriver": {
       "default": {
         "network": true,
-        "notes": "latest measured 148.0.7778"
+        "notes": "latest measured 149.0.7827"
       }
     },
     "@sitespeed.io/edgedriver": {
@@ -271,57 +639,232 @@
         "notes": "latest measured 149.0.4022"
       }
     },
+    "@stdlib/math-base-assert-is-infinite": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.7"
+      }
+    },
+    "@stdlib/math-base-assert-is-nan": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.6"
+      }
+    },
+    "@stdlib/math-base-assert-is-positive-zero": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.6"
+      }
+    },
+    "@stdlib/math-base-napi-binary": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.6"
+      }
+    },
+    "@stdlib/number-float64-base-to-words": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.4"
+      }
+    },
+    "@substrate/connect": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.8.0"
+      }
+    },
+    "@syncfusion/ej2-angular-base": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 34.1.29"
+      }
+    },
     "@team-plain/typescript-sdk": {
       "default": {
         "notes": "latest measured 5.12.1"
       },
       "versions": {
         "<5.12.1": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "writePaths": [
-            ".npm/_cacache",
-            ".npm/_npx"
-          ],
           "notes": "measured 2.9.0; covers everything below 5.12.1"
         }
       }
     },
-    "@vscode/ripgrep": {
+    "@tensorflow/tfjs-backend-wasm": {
+      "default": {
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 1.4.0-alpha2"
+      }
+    },
+    "@tensorflow/tfjs-node": {
       "default": {
         "network": true,
-        "notes": "latest measured 1.17.1"
+        "notes": "latest measured 4.22.0"
+      }
+    },
+    "@tloncorp/tlon-skill": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.4.5"
+      }
+    },
+    "@trufflesuite/bigint-buffer": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.1.9"
+      }
+    },
+    "@vscode/deviceid": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.1.5"
+      }
+    },
+    "@vscode/ripgrep": {
+      "default": {
+        "notes": "latest measured 1.18.0"
+      },
+      "versions": {
+        "<1.18.0": {
+          "network": true,
+          "notes": "measured 1.17.1; covers everything below 1.18.0"
+        }
+      }
+    },
+    "@vscode/windows-registry": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.2.0"
+      }
+    },
+    "angularx-qrcode": {
+      "default": {
+        "writePaths": [
+          ".config/configstore"
+        ],
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 1.7.0-beta.5"
       }
     },
     "apify-client": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 2.23.2"
+        "notes": "latest measured 2.24.0"
+      },
+      "versions": {
+        "<2.24.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 2.23.2; covers everything below 2.24.0"
+        }
       }
     },
     "appium-uiautomator2-driver": {
       "default": {
+        "notes": "latest measured 8.2.2"
+      },
+      "versions": {
+        "<8.2.2": {
+          "write": "disk",
+          "network": true,
+          "notes": "measured 0.0.9, 0.1.1, 0.2.9, 0.3.4, 0.4.6, 0.5.5, 0.6.6, 0.7.7, 0.8.1, 0.9.1, 0.10.0, 0.11.0; covers everything below 8.2.2"
+        }
+      }
+    },
+    "aws-iot-device-sdk-v2": {
+      "default": {
         "network": true,
-        "notes": "latest measured 0.11.0"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.8.3"
       }
     },
     "axios-cache-interceptor": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 1.1.0"
+        "notes": "latest measured 1.12.3"
+      },
+      "versions": {
+        "<1.12.3": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.1.0; covers everything below 1.12.3"
+        }
       }
     },
     "azure-functions-core-tools": {
       "default": {
         "network": true,
-        "notes": "latest measured 3.0.5682"
+        "notes": "latest measured 4.9.0"
+      }
+    },
+    "azure-streamanalytics-cicd": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 4.0.0"
+      }
+    },
+    "backport": {
+      "default": {
+        "writePaths": [
+          ".backport"
+        ],
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 12.0.4"
+      }
+    },
+    "base62": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.2.7"
       }
     },
     "bcrypt": {
@@ -337,54 +880,65 @@
     },
     "better-sqlite3": {
       "default": {
-        "notes": "latest measured 13.0.1"
+        "notes": "latest measured 13.0.3"
       },
       "versions": {
-        "<13.0.1": {
+        "<13.0.3": {
           "network": true,
           "writePaths": [
-            ".npm/_prebuilds"
+            "Library/Caches/node-gyp"
           ],
-          "notes": "measured 8.7.0, 12.11.1; covers everything below 13.0.1"
+          "notes": "measured 12.11.1, 13.0.1; covers everything below 13.0.3"
+        },
+        "<13.0.1": {
+          "network": true,
+          "notes": "measured 12.11.1; covers everything below 13.0.1"
         }
       }
     },
     "bigint-buffer": {
       "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
         "write": {
+          "deps": true,
           "userHome": true
         },
+        "network": true,
+        "notes": "latest measured 1.1.5"
+      }
+    },
+    "blake-hash": {
+      "default": {
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "network": true,
         "writePaths": [
-          ".npm/_logs"
+          "Library/Caches/node-gyp"
         ],
-        "notes": "latest measured 1.1.5; widened for unmeasured scopes (userHome)"
+        "notes": "latest measured 2.0.0"
+      }
+    },
+    "bootstrap-vue": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 2.23.1"
       }
     },
     "bun": {
       "default": {
-        "write": {
-          "userHome": true
-        },
+        "write": "disk",
+        "network": true,
         "notes": "latest measured 1.3.14"
       }
     },
     "canvas": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 3.2.3"
-      },
-      "versions": {
-        "<3.2.3": {
-          "network": true,
-          "writePaths": [
-            ".npm/_prebuilds"
-          ],
-          "write": "disk",
-          "notes": "measured 2.11.2; covers everything below 3.2.3"
-        }
       }
     },
     "cbor-extract": {
@@ -393,24 +947,75 @@
       },
       "versions": {
         "<2.2.2": {
-          "network": true,
           "writePaths": [
             "Library/Caches/node-gyp"
           ],
-          "notes": "measured 0.1.0, 1.0.0; covers everything below 2.2.2"
+          "notes": "measured 1.0.0; covers everything below 2.2.2"
         }
+      }
+    },
+    "ccxt": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 4.5.9"
       }
     },
     "chromedriver": {
       "default": {
         "network": true,
+        "write": {
+          "userHome": true
+        },
         "notes": "latest measured 151.0.1"
+      }
+    },
+    "chromium": {
+      "default": {
+        "network": true,
+        "writePaths": [
+          ".cache/node-chromium",
+          "Library/Caches/node-chromium"
+        ],
+        "write": {
+          "deps": true,
+          "userHome": true
+        },
+        "notes": "latest measured 3.0.3"
+      }
+    },
+    "cld": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 2.9.1"
       }
     },
     "cldr-data": {
       "default": {
         "network": true,
-        "notes": "latest measured 35.1.0"
+        "notes": "latest measured 36.0.5"
+      }
+    },
+    "cloudflared": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 0.7.1"
+      }
+    },
+    "codeceptjs": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 1.1.3"
+      }
+    },
+    "compresion": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 1.7.11"
       }
     },
     "contentlayer": {
@@ -420,29 +1025,128 @@
       "versions": {
         "<0.3.4": {
           "write": {
+            "deps": true,
             "project": true
           },
-          "notes": "measured 0.1.2, 0.2.9; covers everything below 0.3.4"
+          "notes": "measured 0.0.34, 0.1.2, 0.2.9; covers everything below 0.3.4"
         }
+      }
+    },
+    "ctrlc-windows": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 2.0.0"
+      }
+    },
+    "cwebp-bin": {
+      "default": {
+        "network": true,
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 8.0.0"
       }
     },
     "cypress": {
       "default": {
         "network": true,
         "writePaths": [
-          ".cache/Cypress",
-          "Library/Caches/Cypress"
+          ".cache/Cypress"
         ],
-        "notes": "latest measured 15.19.0"
+        "notes": "latest measured 15.20.0"
+      },
+      "versions": {
+        "<15.20.0": {
+          "network": true,
+          "writePaths": [
+            ".cache/Cypress",
+            "Library/Caches/Cypress"
+          ],
+          "write": {
+            "userHome": true,
+            "deps": true,
+            "project": true
+          },
+          "notes": "measured 9.7.0, 11.2.0, 12.17.4, 13.17.0, 14.5.4, 15.19.0; covers everything below 15.20.0"
+        },
+        "<15.19.0": {
+          "network": true,
+          "writePaths": [
+            ".cache/Cypress",
+            "Library/Caches/Cypress"
+          ],
+          "write": {
+            "userHome": true,
+            "deps": true
+          },
+          "notes": "measured 9.7.0, 11.2.0, 12.17.4, 13.17.0, 14.5.4; covers everything below 15.19.0"
+        },
+        "<13.17.0": {
+          "network": true,
+          "writePaths": [
+            ".cache/Cypress",
+            "Library/Caches/Cypress"
+          ],
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 9.7.0, 11.2.0, 12.17.4; covers everything below 13.17.0"
+        }
+      }
+    },
+    "cz-customizable": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 2.6.0"
       }
     },
     "detox": {
       "default": {
-        "write": "disk",
         "writePaths": [
           "Library/Detox"
         ],
         "notes": "latest measured 22.0.0-rc.0"
+      }
+    },
+    "device-detector-js": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.0.9"
+      }
+    },
+    "diskusage": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.2.0"
+      }
+    },
+    "docxtemplater": {
+      "default": {
+        "notes": "latest measured 3.31.3"
+      },
+      "versions": {
+        "<3.31.3": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.3.0, 0.5.2; covers everything below 3.31.3"
+        }
+      }
+    },
+    "dotnet-2.0.0": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 1.4.4"
       }
     },
     "dprint": {
@@ -451,33 +1155,111 @@
       },
       "versions": {
         "<0.55.2": {
+          "write": "disk",
           "network": true,
-          "notes": "measured 0.28.0, 0.29.1, 0.30.3, 0.31.1, 0.32.2, 0.33.0, 0.34.5, 0.36.1, 0.37.1, 0.39.1, 0.40.2, 0.41.0, 0.42.5, 0.43.2, 0.44.0, 0.46.3, 0.47.6, 0.49.1, 0.50.2, 0.51.1, 0.53.2; covers everything below 0.55.2"
+          "notes": "measured 0.14.1, 0.15.4, 0.16.3, 0.17.3, 0.18.2, 0.19.2, 0.20.0, 0.21.2, 0.22.2, 0.23.1, 0.24.4, 0.25.1, 0.26.0, 0.27.1, 0.28.0, 0.29.1, 0.30.3, 0.31.1, 0.32.2, 0.33.0, 0.34.5, 0.35.4, 0.36.1, 0.37.1, 0.38.3, 0.39.1, 0.40.2, 0.41.0, 0.42.5, 0.43.2, 0.44.0, 0.45.1, 0.46.3, 0.47.6, 0.48.0, 0.49.1, 0.50.2, 0.51.1, 0.52.0, 0.53.2, 0.54.0; covers everything below 0.55.2"
         }
+      }
+    },
+    "dtrace-provider": {
+      "default": {
+        "write": {
+          "deps": true,
+          "userHome": true
+        },
+        "notes": "latest measured 0.8.8"
+      }
+    },
+    "duckdb": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.4.4"
+      }
+    },
+    "dugite": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 3.2.2"
+      }
+    },
+    "eccrypto": {
+      "default": {
+        "network": true,
+        "write": {
+          "deps": true,
+          "userHome": true
+        },
+        "notes": "latest measured 1.1.6"
+      }
+    },
+    "eckles": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.4.0"
+      }
+    },
+    "egg-ci": {
+      "default": {
+        "write": {
+          "project": true
+        },
+        "notes": "latest measured 2.2.0"
       }
     },
     "electron": {
       "default": {
-        "notes": "latest measured 43.2.0"
+        "write": {
+          "userHome": true,
+          "project": true
+        },
+        "network": true,
+        "notes": "latest measured 41.1.0"
       },
       "versions": {
-        "<43.2.0": {
+        "<41.1.0": {
+          "write": {
+            "userHome": true,
+            "project": true,
+            "deps": true
+          },
           "network": true,
-          "writePaths": [
-            ".cache/electron",
-            "Library/Caches/electron"
-          ],
-          "notes": "measured 23.3.13, 31.7.7, 33.4.11, 39.8.9, 40.10.2, 41.1.0; covers everything below 43.2.0"
+          "notes": "measured 23.3.13, 31.7.7, 33.4.11, 39.8.9, 40.10.2; covers everything below 41.1.0"
         }
       }
     },
     "electron-chromedriver": {
       "default": {
+        "write": {
+          "userHome": true,
+          "project": true
+        },
         "network": true,
-        "writePaths": [
-          ".cache/electron"
-        ],
-        "notes": "latest measured 42.8.0"
+        "notes": "latest measured 43.2.0"
+      },
+      "versions": {
+        "<43.2.0": {
+          "write": {
+            "userHome": true,
+            "project": true,
+            "deps": true
+          },
+          "network": true,
+          "writePaths": [
+            ".cache/electron"
+          ],
+          "notes": "measured 0.37.1, 1.8.0, 2.0.0, 3.0.0, 4.2.0, 5.0.1, 6.0.0, 7.0.0, 8.0.0, 9.0.0, 10.0.0, 11.0.0, 12.0.0, 13.0.0, 14.0.0, 15.0.0, 16.0.0, 17.0.0, 18.0.0, 19.0.0, 20.0.0, 21.0.0, 22.3.27, 23.3.7, 24.8.8, 25.9.8, 26.6.9, 27.3.9, 28.3.3, 29.4.5, 30.5.0, 31.7.7, 32.3.3, 33.4.9, 34.5.8, 35.7.5, 36.9.5, 37.7.1, 38.8.6, 39.8.9, 40.9.2, 41.9.2, 42.8.0; covers everything below 43.2.0"
+        },
+        "<32.3.3": {
+          "write": {
+            "userHome": true,
+            "project": true
+          },
+          "network": true,
+          "writePaths": [
+            ".cache/electron"
+          ],
+          "notes": "measured 0.37.1, 1.8.0, 2.0.0, 3.0.0, 4.2.0, 5.0.1, 6.0.0, 7.0.0, 8.0.0, 9.0.0, 10.0.0, 11.0.0, 12.0.0, 13.0.0, 14.0.0, 15.0.0, 16.0.0, 17.0.0, 18.0.0, 19.0.0, 20.0.0, 21.0.0, 22.3.27, 23.3.7, 24.8.8, 25.9.8, 26.6.9, 27.3.9, 28.3.3, 29.4.5, 30.5.0, 31.7.7; covers everything below 32.3.3"
+        }
       }
     },
     "electron-prebuilt": {
@@ -491,18 +1273,36 @@
     },
     "electron-vite": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 1.0.26"
+        "notes": "latest measured 5.0.0"
+      },
+      "versions": {
+        "<5.0.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.0.26; covers everything below 5.0.0"
+        }
       }
     },
     "elm": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.19.1"
+        "write": "disk",
+        "notes": "latest measured 2.0.0"
+      }
+    },
+    "es-check": {
+      "default": {
+        "network": true,
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
+        "notes": "latest measured 6.2.0"
       }
     },
     "esbuild": {
@@ -514,48 +1314,93 @@
           "network": true,
           "writePaths": [
             ".cache/esbuild",
-            ".npm/_cacache",
-            ".npm/_logs",
             "Library/Caches/esbuild"
           ],
           "notes": "measured 0.11.23, 0.14.54, 0.15.18, 0.16.17, 0.17.19, 0.18.20, 0.19.12, 0.20.2, 0.21.5, 0.23.1, 0.24.2, 0.25.12, 0.26.0, 0.27.7; covers everything below 0.28.1"
         }
       }
     },
+    "eth-gas-reporter": {
+      "default": {
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.0.4"
+      }
+    },
+    "event-loop-stats": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.4.1"
+      }
+    },
+    "exiftool-vendored": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 3.1.1"
+      }
+    },
     "farmhash": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 4.0.2"
+      },
+      "versions": {
+        "<4.0.2": {
+          "network": true,
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 1.2.1, 2.1.0; covers everything below 4.0.2"
+        }
       }
     },
-    "ffi-napi": {
+    "fast-folder-size": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 4.0.3"
+        "network": true,
+        "notes": "latest measured 2.4.0"
+      }
+    },
+    "faunadb": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 4.8.2"
       }
     },
     "ffmpeg-static": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".cache/ffmpeg-static-nodejs",
-          "Library/Caches/ffmpeg-static-nodejs"
-        ],
-        "read": {
-          "project": true
-        },
         "notes": "latest measured 5.3.0"
       }
     },
     "flow-bin": {
       "default": {
         "network": true,
+        "write": "disk",
         "notes": "latest measured 0.31.1"
+      }
+    },
+    "fs-xattr": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.4.0"
+      }
+    },
+    "fsevents": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.2.13"
       }
     },
     "gatsby": {
@@ -564,35 +1409,68 @@
         "notes": "latest measured 5.9.1"
       }
     },
-    "ghooks": {
+    "gc-stats": {
       "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.4.1"
+      }
+    },
+    "gcstats.js": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.0.0"
+      }
+    },
+    "geckodriver": {
+      "default": {
+        "notes": "latest measured 6.1.0"
+      },
+      "versions": {
+        "<6.1.0": {
+          "network": true,
+          "notes": "measured 4.2.1, 5.0.0; covers everything below 6.1.0"
+        }
+      }
+    },
+    "gif2webp-bin": {
+      "default": {
+        "network": true,
         "write": {
-          "project": true
+          "userHome": true
         },
-        "notes": "latest measured 2.0.4"
+        "notes": "latest measured 5.0.0"
       }
     },
     "gifsicle": {
       "default": {
         "network": true,
-        "notes": "latest measured 7.0.1"
-      }
-    },
-    "git-commit-msg-linter": {
-      "default": {
         "write": {
-          "project": true
+          "userHome": true
         },
-        "notes": "latest measured 5.0.8"
+        "notes": "latest measured 7.0.1"
+      },
+      "versions": {
+        "<7.0.1": {
+          "network": true,
+          "write": "disk",
+          "notes": "measured 4.0.1, 5.3.0; covers everything below 7.0.1"
+        }
       }
     },
     "gl": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 8.1.6"
+      }
+    },
+    "graphql-shield": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 7.0.0"
       }
     },
     "grpc-tools": {
@@ -601,34 +1479,90 @@
         "notes": "latest measured 1.13.1"
       }
     },
+    "handbrake-js": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 8.0.2"
+      }
+    },
+    "hnswlib-node": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 3.0.0"
+      }
+    },
+    "hugo-bin": {
+      "default": {
+        "network": true,
+        "write": "disk",
+        "notes": "latest measured 0.161.0"
+      }
+    },
     "hugo-extended": {
       "default": {
         "network": true,
         "notes": "latest measured 0.164.0"
-      }
-    },
-    "husky": {
-      "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 4.3.8"
+      },
+      "versions": {
+        "<0.164.0": {
+          "network": true,
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 0.63.2, 0.64.1, 0.65.3, 0.66.0, 0.67.1, 0.68.3, 0.69.2, 0.70.0, 0.71.1, 0.72.0, 0.73.0, 0.74.3, 0.75.1, 0.76.5, 0.77.0, 0.78.2, 0.79.1, 0.80.0, 0.81.0, 0.82.1, 0.83.1, 0.84.4, 0.85.0, 0.86.1, 0.87.0, 0.88.1, 0.89.4, 0.90.1, 0.91.2, 0.92.2, 0.93.3, 0.94.2, 0.95.0, 0.96.0, 0.97.3, 0.98.0, 0.99.1, 0.100.2, 0.101.0, 0.102.3, 0.103.1, 0.104.3, 0.105.0, 0.106.0, 0.107.0, 0.108.0, 0.109.0, 0.110.0, 0.111.3, 0.112.7, 0.113.0, 0.114.1, 0.115.4, 0.116.1, 0.117.0, 0.118.2, 0.119.0, 0.120.4, 0.121.2, 0.122.0, 0.123.8, 0.124.1, 0.125.7, 0.126.3, 0.127.0, 0.128.2, 0.129.0, 0.130.0, 0.131.0, 0.132.2, 0.133.1, 0.134.3, 0.135.0, 0.136.5, 0.137.1, 0.138.0, 0.139.4, 0.140.2, 0.141.0, 0.142.0, 0.143.1, 0.144.2, 0.145.0, 0.146.7, 0.147.9, 0.148.2, 0.149.1, 0.150.1, 0.151.2, 0.152.2, 0.153.5, 0.154.5, 0.155.3, 0.156.0, 0.157.0, 0.158.0, 0.159.2, 0.160.1, 0.161.1, 0.162.1, 0.163.3; covers everything below 0.164.0"
+        }
       }
     },
     "ibm_db": {
       "default": {
         "network": true,
-        "notes": "latest measured 2.8.2"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 4.0.1"
+      }
+    },
+    "iconv": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 3.0.1"
+      }
+    },
+    "iedriver": {
+      "default": {
+        "network": true,
+        "write": {
+          "project": true
+        },
+        "notes": "latest measured 4.0.0"
+      }
+    },
+    "iltorb": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 2.4.5"
       }
     },
     "impit": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 0.14.0"
+        "notes": "latest measured 0.14.3"
+      },
+      "versions": {
+        "<0.14.3": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 0.13.1, 0.14.0; covers everything below 0.14.3"
+        }
       }
     },
     "inngest-cli": {
@@ -637,53 +1571,130 @@
         "notes": "latest measured 1.9.1"
       }
     },
+    "ip-num": {
+      "default": {
+        "network": true,
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
+        "notes": "latest measured 1.6.1"
+      }
+    },
+    "iso-constants": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.1.2"
+      }
+    },
     "isolated-vm": {
       "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
         "notes": "latest measured 7.0.0"
       },
       "versions": {
         "<7.0.0": {
-          "network": true,
           "writePaths": [
-            ".npm/_prebuilds"
+            "Library/Caches/node-gyp"
           ],
+          "network": true,
           "notes": "measured 5.0.4, 6.1.2; covers everything below 7.0.0"
         }
+      }
+    },
+    "javascript-obfuscator": {
+      "default": {
+        "notes": "latest measured 5.0.0"
+      },
+      "versions": {
+        "<5.0.0": {
+          "network": true,
+          "notes": "measured 0.1.4, 0.10.2, 0.19.4, 0.20.4, 1.9.0, 2.9.6, 3.2.7; covers everything below 5.0.0"
+        }
+      }
+    },
+    "jest-preview": {
+      "default": {
+        "notes": "latest measured 0.3.2"
+      },
+      "versions": {
+        "<0.3.2": {
+          "write": "disk",
+          "network": true,
+          "notes": "measured 0.1.7, 0.2.8; covers everything below 0.3.2"
+        }
+      }
+    },
+    "jotai-devtools": {
+      "default": {
+        "network": true,
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
+        "notes": "latest measured 0.5.1"
       }
     },
     "jpeg-recompress-bin": {
       "default": {
         "network": true,
-        "notes": "latest measured 5.1.2"
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 7.0.0"
       }
     },
     "jpegtran-bin": {
       "default": {
         "network": true,
+        "write": "disk",
         "notes": "latest measured 7.0.0"
       }
     },
     "json-schema-library": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 11.0.4"
+        "notes": "latest measured 11.6.2"
+      },
+      "versions": {
+        "<11.6.2": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 11.0.4; covers everything below 11.6.2"
+        }
       }
     },
     "keccak": {
       "default": {
-        "notes": "latest measured 3.0.4; widened for unmeasured scopes (userHome)"
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 3.0.4"
       },
       "versions": {
         "<3.0.4": {
           "write": {
+            "deps": true,
+            "project": true,
             "userHome": true
           },
+          "network": true,
           "writePaths": [
-            ".npm/_logs"
+            "Library/Caches/node-gyp"
           ],
           "notes": "measured 1.4.0; covers everything below 3.0.4"
         }
@@ -692,73 +1703,94 @@
     "kerberos": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 7.0.0"
       }
     },
     "keytar": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 7.9.0"
       }
     },
-    "lefthook": {
+    "leveldown": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 2.1.10"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 5.6.0"
+      }
+    },
+    "libxmljs": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.0.11"
       }
     },
     "libxmljs2": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 0.37.0"
       }
     },
-    "lzma-native": {
+    "lz4": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 7.0.1"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.6.5"
+      }
+    },
+    "macos-alias": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.2.12"
       }
     },
     "mbt": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.0.9"
+        "notes": "latest measured 1.2.49"
+      },
+      "versions": {
+        "<1.2.49": {
+          "network": true,
+          "write": {
+            "project": true
+          },
+          "notes": "measured 0.0.9, 0.1.0, 0.2.9, 1.2.7; covers everything below 1.2.49"
+        }
+      }
+    },
+    "modern-syslog": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.2.0"
       }
     },
     "mongodb-client-encryption": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 7.2.0"
       }
     },
-    "mongodb-crypt-library-version": {
+    "mongodb-crypt-library-dummy": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 2.0.1"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.0.2"
       }
     },
     "mongodb-memory-server": {
       "default": {
         "write": {
-          "project": true
+          "deps": true
         },
         "network": true,
         "notes": "latest measured 11.2.0"
@@ -767,50 +1799,88 @@
     "mozjpeg": {
       "default": {
         "network": true,
+        "write": "disk",
         "notes": "latest measured 8.0.0"
+      }
+    },
+    "muhammara": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 6.0.5"
       }
     },
     "n8n-nodes-evolution-api": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
         "notes": "latest measured 1.0.4"
+      }
+    },
+    "native-keymap": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 3.3.9"
       }
     },
     "netlify-cli": {
       "default": {
-        "notes": "latest measured 27.0.1"
-      },
-      "versions": {
-        "<27.0.1": {
-          "writePaths": [
-            ".npm/_logs"
-          ],
-          "notes": "measured 2.71.0, 3.9.0, 4.4.4, 5.4.9, 6.9.9, 7.1.0, 8.9.9, 9.9.3, 10.9.1, 12.9.2, 14.4.0, 15.9.1, 16.9.3, 17.9.0, 18.1.0, 21.6.0, 22.4.0, 23.9.5, 24.9.0, 25.6.2, 26.2.0; covers everything below 27.0.1"
-        }
-      }
-    },
-    "ngx-infinite-scroll": {
-      "default": {
+        "writePaths": [
+          "Library/Preferences/netlify"
+        ],
         "write": {
           "userHome": true
         },
+        "notes": "latest measured 25.6.2"
+      },
+      "versions": {
+        "<25.6.2": {
+          "writePaths": [
+            ".config/netlify",
+            "Library/Preferences/netlify"
+          ],
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 2.71.0, 3.9.0, 4.4.4, 5.4.9, 6.9.9, 7.1.0, 10.9.1, 11.8.3, 12.9.2, 13.2.2, 14.4.0, 15.9.1, 16.9.3, 24.9.0; covers everything below 25.6.2"
+        }
+      }
+    },
+    "ngrok": {
+      "default": {
+        "network": true,
         "writePaths": [
-          ".npm/_logs"
+          ".ngrok"
         ],
-        "notes": "latest measured 10.0.1; widened for unmeasured scopes (userHome)"
+        "notes": "latest measured 5.0.0-beta.2"
       }
     },
     "node": {
       "default": {
         "network": true,
+        "notes": "latest measured 26.7.0"
+      }
+    },
+    "node-expat": {
+      "default": {
         "writePaths": [
-          ".npm/_cacache"
+          "Library/Caches/node-gyp"
         ],
-        "notes": "latest measured 24.18.0"
+        "notes": "latest measured 2.4.1"
+      }
+    },
+    "node-jq": {
+      "default": {
+        "network": true,
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 6.3.1"
       }
     },
     "node-libcurl": {
@@ -819,165 +1889,313 @@
         "notes": "latest measured 5.1.2"
       }
     },
-    "node-liblzma": {
+    "nodejieba": {
       "default": {
-        "notes": "latest measured 5.1.1"
+        "network": true,
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 3.5.8"
       },
       "versions": {
-        "<5.1.1": {
-          "write": "disk",
-          "notes": "measured 0.4.5, 1.1.9, 2.2.0, 4.0.2; covers everything below 5.1.1"
-        },
-        "<2.2.0": {
+        "<3.5.8": {
+          "network": true,
           "write": {
-            "project": true
+            "userHome": true
           },
-          "notes": "measured 0.4.5, 1.1.9; covers everything below 2.2.0"
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 2.6.0; covers everything below 3.5.8"
         }
       }
     },
-    "node-pty": {
+    "nodemon": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "network": true,
         "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
+          ".config/configstore"
         ],
-        "notes": "latest measured 1.1.0-beta33"
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 2.0.14"
       }
     },
-    "node-sass": {
+    "nx": {
       "default": {
-        "notes": "latest measured 9.0.0"
+        "notes": "latest measured 23.1.0"
       },
       "versions": {
-        "<9.0.0": {
+        "<23.1.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
           "network": true,
-          "notes": "measured 4.14.1; covers everything below 9.0.0"
+          "notes": "measured 15.9.7, 16.10.0, 19.8.4, 20.8.4, 21.6.11, 22.7.5; covers everything below 23.1.0"
         }
       }
     },
     "odbc": {
       "default": {
         "network": true,
-        "notes": "latest measured 2.4.9"
+        "notes": "latest measured 2.5.0"
+      }
+    },
+    "oniguruma": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 7.2.3"
       }
     },
     "onnxruntime-node": {
       "default": {
         "network": true,
-        "notes": "latest measured 1.24.3"
+        "notes": "latest measured 1.27.0"
+      }
+    },
+    "openclaw": {
+      "default": {
+        "writePaths": [
+          ".openclaw"
+        ],
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 2026.6.10"
+      }
+    },
+    "opencode-ai": {
+      "default": {
+        "writePaths": [
+          ".cache/opencode",
+          ".local/share/opencode"
+        ],
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 1.18.4"
       }
     },
     "optipng-bin": {
       "default": {
         "network": true,
+        "write": {
+          "userHome": true
+        },
         "notes": "latest measured 9.0.0"
       },
       "versions": {
         "<9.0.0": {
           "network": true,
-          "read": {
-            "project": true
-          },
-          "notes": "measured 0.2.6, 1.0.1, 2.0.4, 3.1.4, 4.0.0, 5.1.0, 6.0.0, 7.0.1, 8.1.0; covers everything below 9.0.0"
+          "write": "disk",
+          "notes": "measured 3.1.4, 4.0.0, 5.1.0, 6.0.0, 7.0.1, 8.1.0; covers everything below 9.0.0"
         }
+      }
+    },
+    "phantomjs": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 2.1.7"
       }
     },
     "phantomjs-prebuilt": {
       "default": {
         "network": true,
+        "write": {
+          "userHome": true
+        },
         "notes": "latest measured 2.1.16"
+      }
+    },
+    "pizzip": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 3.0.5"
+      }
+    },
+    "pkcs11js": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 2.1.7"
       }
     },
     "playwright": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".cache/ms-playwright",
-          "Library/Caches/ms-playwright"
-        ],
-        "notes": "latest measured 1.31.0"
+        "notes": "latest measured 1.62.1"
+      },
+      "versions": {
+        "<1.62.1": {
+          "write": {
+            "userHome": true,
+            "deps": true,
+            "project": true
+          },
+          "network": true,
+          "notes": "measured 1.31.0; covers everything below 1.62.1"
+        }
       }
     },
     "playwright-chromium": {
       "default": {
+        "write": {
+          "userHome": true
+        },
         "network": true,
-        "writePaths": [
-          ".cache/ms-playwright"
-        ],
         "notes": "latest measured 1.9.2"
       },
       "versions": {
         "<1.9.2": {
-          "network": true,
-          "writePaths": [
-            ".cache/ms-playwright"
-          ],
           "write": {
+            "userHome": true,
+            "deps": true,
+            "project": true
+          },
+          "network": true,
+          "notes": "measured 0.9.24, 0.10.0, 0.11.1, 0.12.1, 0.13.0, 0.14.0, 0.15.0, 0.16.0, 0.17.0, 0.18.0; covers everything below 1.9.2"
+        },
+        "<0.16.0": {
+          "write": {
+            "userHome": true,
             "deps": true
           },
-          "notes": "measured 0.9.24, 0.10.0, 0.11.1, 0.12.1, 0.13.0, 0.14.0, 0.15.0, 0.16.0, 0.17.0, 0.18.0; covers everything below 1.9.2"
+          "network": true,
+          "notes": "measured 0.9.24, 0.10.0, 0.11.1, 0.12.1, 0.13.0, 0.14.0, 0.15.0; covers everything below 0.16.0"
         }
+      }
+    },
+    "playwright-webkit": {
+      "default": {
+        "write": {
+          "userHome": true,
+          "deps": true,
+          "project": true
+        },
+        "network": true,
+        "notes": "latest measured 1.62.1"
       }
     },
     "pngout-bin": {
       "default": {
         "network": true,
-        "notes": "latest measured 5.0.0"
+        "notes": "latest measured 6.0.1"
+      },
+      "versions": {
+        "<6.0.1": {
+          "network": true,
+          "write": "disk",
+          "notes": "measured 3.0.0, 4.0.0, 5.0.0; covers everything below 6.0.1"
+        }
       }
     },
     "pngquant-bin": {
       "default": {
         "network": true,
+        "write": {
+          "userHome": true
+        },
         "notes": "latest measured 9.0.0"
+      }
+    },
+    "posix": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 4.2.0"
       }
     },
     "postcss-rtlcss": {
       "default": {
+        "notes": "latest measured 6.0.0"
+      },
+      "versions": {
+        "<6.0.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 5.1.1; covers everything below 6.0.0"
+        }
+      }
+    },
+    "postman-code-generators": {
+      "default": {
         "network": true,
         "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
+          "Library/Caches/Yarn"
         ],
-        "notes": "latest measured 5.1.1"
+        "write": "disk",
+        "notes": "latest measured 2.1.1"
       }
     },
     "powerbi-models": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 1.10.3"
+        "notes": "latest measured 2.1.1"
+      },
+      "versions": {
+        "<2.1.1": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.10.3; covers everything below 2.1.1"
+        }
       }
     },
-    "pre-commit": {
+    "pprof": {
       "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 5.0.0"
+      }
+    },
+    "prettier-plugin-ember-template-tag": {
+      "default": {
+        "network": true,
         "write": {
-          "project": true
+          "deps": true,
+          "project": true,
+          "userHome": true
         },
-        "notes": "latest measured 2.0.0"
+        "notes": "latest measured 1.0.1"
       }
     },
     "prisma-json-types-generator": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 2.2.2"
+        "notes": "latest measured 5.1.1"
+      },
+      "versions": {
+        "<5.1.1": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 2.2.2; covers everything below 5.1.1"
+        }
       }
     },
     "protoc": {
       "default": {
-        "network": true,
-        "notes": "latest measured 1.1.3"
+        "notes": "latest measured 35.1.0"
+      },
+      "versions": {
+        "<35.1.0": {
+          "network": true,
+          "notes": "measured 1.1.3; covers everything below 35.1.0"
+        }
       }
     },
     "protoc-gen-grpc-web": {
@@ -993,174 +2211,303 @@
           ".cache/puppeteer"
         ],
         "notes": "latest measured 25.3.0"
+      },
+      "versions": {
+        "<25.3.0": {
+          "network": true,
+          "writePaths": [
+            ".cache/puppeteer"
+          ],
+          "write": {
+            "userHome": true
+          },
+          "notes": "measured 1.20.0, 2.1.1, 3.0.0, 9.1.1, 10.4.0, 13.7.0, 19.11.1, 22.15.0, 23.11.1, 24.43.1; covers everything below 25.3.0"
+        }
+      }
+    },
+    "purescript": {
+      "default": {
+        "network": true,
+        "writePaths": [
+          ".cache/purescript-npm-installer-nodejs",
+          "Library/Caches/purescript-npm-installer-nodejs"
+        ],
+        "write": "disk",
+        "notes": "latest measured 0.15.9"
+      },
+      "versions": {
+        "<0.15.9": {
+          "network": true,
+          "writePaths": [
+            ".cache/cabal",
+            ".cache/purescript-npm-installer-nodejs",
+            ".stack",
+            "Library/Caches/purescript-npm-installer-nodejs"
+          ],
+          "write": "disk",
+          "notes": "measured 0.0.1, 0.1.0, 0.6.9, 0.7.6, 0.9.3, 0.10.7, 0.13.8, 0.14.9; covers everything below 0.15.9"
+        },
+        "<0.9.3": {
+          "network": true,
+          "writePaths": [
+            ".cache/cabal",
+            ".cache/purescript-npm-installer-nodejs",
+            "Library/Caches/purescript-npm-installer-nodejs"
+          ],
+          "write": "disk",
+          "notes": "measured 0.0.1, 0.1.0, 0.6.9, 0.7.6; covers everything below 0.9.3"
+        }
       }
     },
     "qlobber": {
       "default": {
+        "notes": "latest measured 8.0.1"
+      },
+      "versions": {
+        "<8.0.1": {
+          "write": "disk",
+          "network": true,
+          "notes": "measured 4.2.0; covers everything below 8.0.1"
+        }
+      }
+    },
+    "rc-editor-core": {
+      "default": {
+        "writePaths": [
+          ".config/configstore"
+        ],
         "write": {
-          "project": true
+          "userHome": true
         },
-        "notes": "latest measured 4.2.0"
+        "notes": "latest measured 0.3.9"
+      }
+    },
+    "re2": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 1.26.1"
       }
     },
     "react-jsx-parser": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 2.0.0"
-      }
-    },
-    "react-native-nitro-modules": {
-      "default": {
-        "notes": "latest measured 0.31.9"
+        "notes": "latest measured 2.4.1"
       },
       "versions": {
-        "<0.31.9": {
-          "write": "disk",
-          "notes": "measured 0.0.8, 0.14.1, 0.15.0; covers everything below 0.31.9"
+        "<2.4.1": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.29.0, 2.0.0; covers everything below 2.4.1"
         }
       }
     },
     "react-native-purchases": {
       "default": {
-        "network": true,
-        "notes": "latest measured 4.6.3"
-      }
-    },
-    "react-native-vision-camera": {
-      "default": {
-        "write": "disk",
-        "notes": "latest measured 5.0.4"
-      }
-    },
-    "react-virtual": {
-      "default": {
-        "notes": "latest measured 2.3.1; widened for unmeasured scopes (userHome)"
+        "notes": "latest measured 10.7.0"
       },
       "versions": {
-        "<2.3.1": {
-          "write": {
-            "userHome": true
-          },
-          "writePaths": [
-            ".npm/_logs"
-          ],
-          "notes": "measured 1.1.0; covers everything below 2.3.1"
+        "<10.7.0": {
+          "network": true,
+          "write": "disk",
+          "notes": "measured 0.4.3, 0.5.1, 1.5.4, 2.4.1, 3.4.3, 4.6.3; covers everything below 10.7.0"
+        },
+        "<1.5.4": {
+          "network": true,
+          "notes": "measured 0.4.3, 0.5.1; covers everything below 1.5.4"
         }
       }
     },
     "realm": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 20.2.0"
+      }
+    },
+    "redis-memory-server": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 0.17.0"
+      }
+    },
+    "ref-napi": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 3.0.3"
+      }
+    },
+    "registry-js": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.16.1"
+      }
+    },
+    "robotjs": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.8.0"
+      }
+    },
+    "samlify": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 2.5.1"
       }
     },
     "saucectl": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.211.0"
+        "notes": "latest measured 0.213.0"
       }
     },
     "scrollmirror": {
       "default": {
-        "network": true,
+        "notes": "latest measured 1.2.4"
+      },
+      "versions": {
+        "<1.2.4": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.2.0; covers everything below 1.2.4"
+        }
+      }
+    },
+    "secp256k1": {
+      "default": {
+        "notes": "latest measured 5.0.1"
+      },
+      "versions": {
+        "<5.0.1": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 3.8.1, 4.0.4; covers everything below 5.0.1"
+        }
+      }
+    },
+    "segfault-handler": {
+      "default": {
         "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
+          "Library/Caches/node-gyp"
         ],
-        "notes": "latest measured 1.2.0"
+        "notes": "latest measured 1.3.0"
       }
     },
     "serverless": {
       "default": {
         "network": true,
+        "write": {
+          "deps": true
+        },
         "notes": "latest measured 4.40.0"
       }
     },
     "sharp": {
       "default": {
+        "network": true,
+        "writePaths": [
+          "Library/Caches/Homebrew"
+        ],
         "notes": "latest measured 0.34.5"
-      },
-      "versions": {
-        "<0.34.5": {
-          "write": "disk",
-          "network": true,
-          "writePaths": [
-            ".npm/_libvips",
-            ".npm/_prebuilds",
-            "Library/Caches/Homebrew"
-          ],
-          "notes": "measured 0.30.7, 0.32.6, 0.33.5; covers everything below 0.34.5"
-        },
-        "<0.32.6": {
-          "write": {
-            "project": true
-          },
-          "network": true,
-          "writePaths": [
-            ".npm/_libvips",
-            ".npm/_prebuilds",
-            "Library/Caches/Homebrew"
-          ],
-          "notes": "measured 0.30.7; covers everything below 0.32.6"
-        }
       }
     },
-    "simple-git-hooks": {
+    "skia-canvas": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 2.9.0"
+        "network": true,
+        "notes": "latest measured 3.0.8"
+      }
+    },
+    "sleep": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 6.1.0"
       }
     },
     "snappy": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
-        "notes": "latest measured 6.3.5"
+        "notes": "latest measured 7.3.3"
+      },
+      "versions": {
+        "<7.3.3": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 6.3.5; covers everything below 7.3.3"
+        }
       }
     },
     "snyk": {
       "default": {
         "network": true,
-        "notes": "latest measured 1.1306.1"
+        "notes": "latest measured 1.1306.3"
+      }
+    },
+    "spellchecker": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 3.7.1"
       }
     },
     "sqlite3": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_prebuilds"
-        ],
         "notes": "latest measured 6.0.1"
       }
     },
     "squawk-cli": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/squawk-cli"
-        ],
         "notes": "latest measured 2.9.0"
+      }
+    },
+    "ssh2": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "write": {
+          "deps": true,
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 1.17.0"
+      }
+    },
+    "storage-engine": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 3.0.7"
       }
     },
     "storybook-addon-remix-react-router": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 3.0.3--canary.85.7d8672d.0"
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
+        "notes": "latest measured 6.1.0"
       }
     },
     "stream-chat-react-native-core": {
@@ -1168,7 +2515,23 @@
         "write": {
           "deps": true
         },
-        "notes": "latest measured 8.13.9"
+        "notes": "latest measured 9.0.0-beta.9"
+      }
+    },
+    "subrequests": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 2.9.2"
+      }
+    },
+    "subrequests-json-merger": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 1.13.0"
       }
     },
     "supabase": {
@@ -1179,6 +2542,9 @@
     },
     "svf-lib": {
       "default": {
+        "write": {
+          "deps": true
+        },
         "network": true,
         "notes": "latest measured 1.0.999"
       }
@@ -1189,18 +2555,39 @@
         "notes": "latest measured 1.5.0"
       }
     },
-    "tree-sitter": {
+    "tiny-secp256k1": {
       "default": {
-        "write": {
-          "project": true
-        },
-        "notes": "latest measured 0.25.0"
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 1.1.7"
+      }
+    },
+    "tree-sitter-c-sharp": {
+      "default": {
+        "notes": "latest measured 0.23.5"
+      },
+      "versions": {
+        "<0.23.5": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.20.0, 0.21.3; covers everything below 0.23.5"
+        }
       }
     },
     "tree-sitter-cli": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.25.9"
+        "notes": "latest measured 0.26.9"
+      }
+    },
+    "tree-sitter-cpp": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.23.4"
       }
     },
     "tree-sitter-go": {
@@ -1209,11 +2596,72 @@
       },
       "versions": {
         "<0.25.0": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.20.0, 0.21.2; covers everything below 0.25.0"
+        }
+      }
+    },
+    "tree-sitter-kotlin": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 0.3.8"
+      },
+      "versions": {
+        "<0.3.8": {
+          "write": "disk",
           "network": true,
           "writePaths": [
             "Library/Caches/node-gyp"
           ],
-          "notes": "measured 0.1.4, 0.20.0, 0.21.2; covers everything below 0.25.0"
+          "notes": "measured 0.0.1, 0.2.9; covers everything below 0.3.8"
+        }
+      }
+    },
+    "tree-sitter-php": {
+      "default": {
+        "notes": "latest measured 0.24.2"
+      },
+      "versions": {
+        "<0.24.2": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.21.1, 0.22.8; covers everything below 0.24.2"
+        }
+      }
+    },
+    "tree-sitter-ruby": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.23.1"
+      },
+      "versions": {
+        "<0.23.1": {
+          "write": {
+            "deps": true
+          },
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.20.1, 0.21.0; covers everything below 0.23.1"
+        }
+      }
+    },
+    "tree-sitter-rust": {
+      "default": {
+        "notes": "latest measured 0.24.0"
+      },
+      "versions": {
+        "<0.24.0": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "notes": "measured 0.20.4, 0.21.0; covers everything below 0.24.0"
         }
       }
     },
@@ -1223,49 +2671,241 @@
       },
       "versions": {
         "<0.23.2": {
-          "network": true,
           "writePaths": [
             "Library/Caches/node-gyp"
           ],
-          "notes": "measured 0.1.0, 0.20.5, 0.21.2; covers everything below 0.23.2"
+          "notes": "measured 0.20.5, 0.21.2; covers everything below 0.23.2"
+        }
+      }
+    },
+    "tree-sitter-yaml": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.5.0"
+      }
+    },
+    "truffle": {
+      "default": {
+        "network": true,
+        "writePaths": [
+          "Library/Preferences/truffle-nodejs"
+        ],
+        "write": {
+          "userHome": true
+        },
+        "notes": "latest measured 5.11.5"
+      }
+    },
+    "ttf2woff2": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 8.0.1"
+      },
+      "versions": {
+        "<8.0.1": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 1.2.3, 2.0.3, 3.0.0, 7.0.0; covers everything below 8.0.1"
+        },
+        "<7.0.0": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "write": {
+            "deps": true,
+            "project": true
+          },
+          "notes": "measured 1.2.3, 2.0.3, 3.0.0; covers everything below 7.0.0"
+        },
+        "<2.0.3": {
+          "writePaths": [
+            "Library/Caches/node-gyp"
+          ],
+          "write": {
+            "deps": true
+          },
+          "notes": "measured 1.2.3; covers everything below 2.0.3"
         }
       }
     },
     "typia": {
       "default": {
-        "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
-        "notes": "latest measured 8.0.3"
+        "notes": "latest measured 13.2.0"
+      },
+      "versions": {
+        "<13.2.0": {
+          "write": {
+            "deps": true,
+            "project": true,
+            "userHome": true
+          },
+          "network": true,
+          "notes": "measured 8.0.3; covers everything below 13.2.0"
+        }
       }
     },
     "unicode": {
       "default": {
         "network": true,
-        "notes": "latest measured 0.5.3"
+        "notes": "latest measured 0.6.1"
+      }
+    },
+    "unix-dgram": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 2.0.7"
       }
     },
     "ursa-optional": {
       "default": {
         "write": {
+          "deps": true,
           "userHome": true
         },
+        "network": true,
+        "notes": "latest measured 0.10.2"
+      }
+    },
+    "use-mask-input": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 3.3.2"
+      }
+    },
+    "v8-profiler-next": {
+      "default": {
         "writePaths": [
-          ".npm/_logs"
+          "Library/Caches/node-gyp"
         ],
-        "notes": "latest measured 0.9.9; widened for unmeasured scopes (userHome)"
+        "notes": "latest measured 1.10.0"
       }
     },
     "vanilla-cookieconsent": {
       "default": {
         "network": true,
-        "writePaths": [
-          ".npm/_cacache",
-          ".npm/_npx"
-        ],
+        "write": {
+          "deps": true,
+          "project": true,
+          "userHome": true
+        },
         "notes": "latest measured 3.0.0-rc.9"
+      }
+    },
+    "victory-bar": {
+      "default": {
+        "notes": "latest measured 4.0.1"
+      },
+      "versions": {
+        "<4.0.1": {
+          "write": {
+            "deps": true
+          },
+          "notes": "measured 0.1.0, 1.0.3, 2.6.0; covers everything below 4.0.1"
+        }
+      }
+    },
+    "victory-scatter": {
+      "default": {
+        "notes": "latest measured 1.0.0"
+      },
+      "versions": {
+        "<1.0.0": {
+          "write": {
+            "deps": true
+          },
+          "notes": "measured 0.0.3, 0.2.0, 0.3.3, 0.4.0, 0.5.4, 0.6.0, 0.7.0; covers everything below 1.0.0"
+        }
+      }
+    },
+    "vnu-jar": {
+      "default": {
+        "write": {
+          "deps": true,
+          "project": true
+        },
+        "notes": "latest measured 26.8.6"
+      }
+    },
+    "vue-inbrowser-compiler-demi": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 4.71.1"
+      }
+    },
+    "wdeasync": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.1.120"
+      }
+    },
+    "windows-build-tools": {
+      "default": {
+        "write": "disk",
+        "network": true,
+        "notes": "latest measured 0.1.8"
+      }
+    },
+    "wordpos": {
+      "default": {
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 2.1.0"
+      }
+    },
+    "wrtc": {
+      "default": {
+        "network": true,
+        "write": {
+          "deps": true
+        },
+        "notes": "latest measured 0.2.1"
+      }
+    },
+    "xxhash": {
+      "default": {
+        "writePaths": [
+          "Library/Caches/node-gyp"
+        ],
+        "notes": "latest measured 0.3.0"
+      }
+    },
+    "yo": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 7.0.1"
+      }
+    },
+    "zopflipng-bin": {
+      "default": {
+        "write": {
+          "userHome": true
+        },
+        "network": true,
+        "notes": "latest measured 7.1.0"
+      }
+    },
+    "zstd-napi": {
+      "default": {
+        "network": true,
+        "notes": "latest measured 0.0.10"
       }
     }
   },
