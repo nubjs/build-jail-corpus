@@ -1,0 +1,76 @@
+### @pulumi/kubernetes@0.14.0   (D:\jail\m-pulumikubernetes-msjwhsjn)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7844 exit=0 events=50631 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 13 files  (D:\jail\m-pulumikubernetes-msjwhsjn\observe\node_modules\@pulumi\kubernetes)
+  ARM-FALSIFIABILITY {"manifestFiles":13,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (13) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 98 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-pulumikubernetes-msjwhsjn\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-pulumikubernetes-msjwhsjn\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-pulumikubernetes-msjwhsjn\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-pulumikubernetes-msjwhsjn\observe\node_modules\@pulumi\kubernetes
+  == ATTRIBUTION == lifecycle pids: 2 (root 7844)
+    writes  script 10  /  whole traced tree 17
+    peers   script 4  /  whole traced tree 4
+  == WRITES ==
+    userHome      9
+    jailTmp       1
+  == READS ==
+    deps          4
+    outside      20
+    project       1
+    systemfs     68
+    userHome      6
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 4
+        13.226.238.67:443
+        140.82.113.4:443
+        140.82.114.5:443
+        104.20.20.220:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  65245509 B xml -> 930869 B gz (70.1x)  sha256 9b329f15ef4dbdf2…
+  HEADER    etw-header.json (5130 bytes)
+  DERIVED   5632 distinct from 15982 kept ops (50631 xml events, 5601 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (72316 bytes)
+  RAWLOG-CAPTURE D:\jail\m-pulumikubernetes-msjwhsjn\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-pulumikubernetes-msjwhsjn
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pulumikubernetes-msjwhsjn\\npm-cache","TMP":"D:\\jail\\m-pulumikubernetes-msjwhsjn\\tmp","TEMP":"D:\\jail\\m-pulumikubernetes-msjwhsjn\\tmp","TMPDIR":"D:\\jail\\m-pulumikubernetes-msjwhsjn\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumikubernetes-msjwhsjn\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=13/13 missing=0 shortfall=none (tree 13959/5733) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumikubernetes-msjwhsjn\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=13/13 missing=0 shortfall=none (tree 13854/5733) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumikubernetes-msjwhsjn\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=13/13 missing=0 shortfall=none (tree 13854/5733) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumikubernetes-msjwhsjn\verify-fb2\.cache
+  VERIFY[fb2] rc=1 artifacts=13/13 missing=0 shortfall=none (tree 13854/5733) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  NOT-GRANT-INDEPENDENT an arm exited non-zero
+  => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly
