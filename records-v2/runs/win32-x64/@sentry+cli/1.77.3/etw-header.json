@@ -2,9 +2,9 @@
   "k": "h",
   "v": 1,
   "platform": "win32-x64",
-  "pkg": "git-win",
-  "version": "1.6.3",
-  "at": "2026-08-08T04:26:25.205Z",
+  "pkg": "@sentry/cli",
+  "version": "1.77.3",
+  "at": "2026-08-08T04:37:35.595Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_3592_msjvfr1v",
+      "name": "nubobs_3112_msjvu5ei",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-gitwin-msjvfn62\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-gitwin-msjvfn62\\observe",
-    "rootPid": 4048,
-    "launcherPid": 840,
+    "command": "D:\\jail\\m-sentrycli-msjvu438\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-sentrycli-msjvu438\\observe",
+    "rootPid": 2332,
+    "launcherPid": 9092,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T04:26:18.1508403Z",
-    "endedUtc": "2026-08-08T04:26:19.4366774Z"
+    "startedUtc": "2026-08-08T04:37:30.0341948Z",
+    "endedUtc": "2026-08-08T04:37:31.2275324Z"
   },
   "integrity": {
-    "eventsTotal": 51072,
+    "eventsTotal": 25411,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-gitwin-msjvfn62\\observe",
+    "project": "D:\\jail\\m-sentrycli-msjvu438\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-gitwin-msjvfn62\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-sentrycli-msjvu438\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-gitwin-msjvfn62\\tmp",
+    "temp": "D:\\jail\\m-sentrycli-msjvu438\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-gitwin-msjvfn62\\observe\\node_modules\\git-win",
+    "ownPkg": "D:\\jail\\m-sentrycli-msjvu438\\observe\\node_modules\\@sentry\\cli",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 65098970,
-    "gzBytes": 983077,
-    "sha256": "c70d44414522b55ce49d9b34eb539626af253615ae665c55867acd998e113e93",
+    "bytes": 32500074,
+    "gzBytes": 492897,
+    "sha256": "7a1096f9bdc62de422f7ef0883afa07cc9b25cd86793f101e6589d95f172ebfb",
     "of": "trace.xml",
-    "etlBytes": 9437184,
+    "etlBytes": 6291456,
     "etlRetained": false
   },
   "limits": {
@@ -106,25 +106,25 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 4048 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 2332 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
   },
   "stats": {
-    "xmlEvents": 51072,
-    "kept": 9082,
-    "distinct": 7606,
+    "xmlEvents": 25411,
+    "kept": 7968,
+    "distinct": 5628,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 51024,
-      "Microsoft-Windows-Kernel-Process": 21,
-      "Microsoft-Windows-Kernel-Network": 25
+      "Microsoft-Windows-Kernel-File": 25321,
+      "Microsoft-Windows-Kernel-Process": 12,
+      "Microsoft-Windows-Kernel-Network": 76
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
+    "unresolvedHandle": 1,
     "unsettled": 0,
-    "reattributedByThread": 0,
-    "outOfSubtree": 10250,
-    "destResolved": 1,
+    "reattributedByThread": 18,
+    "outOfSubtree": 1887,
+    "destResolved": 5,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
