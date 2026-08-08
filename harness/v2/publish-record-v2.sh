@@ -125,7 +125,8 @@ for attempt in 1 2 3; do
   printf '%s\n' "$REL" >> "$MANIFEST" 2>/dev/null
   sort -u -o "$MANIFEST" "$MANIFEST" 2>/dev/null
 
-  node harness/claim-slice.mjs --reconcile --records records-v2 --queue "$QUEUE" >/dev/null 2>&1 || true
+  node harness/claim-slice.mjs --reconcile --require-current-instrument \
+    --records records-v2 --queue "$QUEUE" >/dev/null 2>&1 || true
 
   while IFS= read -r rel; do
     [ -n "$rel" ] || continue

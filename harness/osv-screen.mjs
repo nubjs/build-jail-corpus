@@ -41,6 +41,34 @@ export function digestSpecs(specs) {
   return crypto.createHash('sha256').update(`${normalized.join('\n')}\n`).digest('hex');
 }
 
+const LOCKFILES = [
+  'package-lock.json', 'npm-shrinkwrap.json', 'nub.lock', 'pnpm-lock.yaml', 'yarn.lock',
+  'bun.lock', 'bun.lockb',
+];
+
+/** Identify every recognized resolved lockfile beside an installed tree. The installed spec digest
+ * remains the security cache key; lockfiles are provenance and may legitimately differ while
+ * resolving the same exact package versions. */
+export function collectLockfileIdentity(projectRoot) {
+  const files = [];
+  for (const name of LOCKFILES) {
+    const file = path.join(projectRoot, name);
+    let bytes;
+    try { bytes = fs.readFileSync(file); } catch (error) {
+      if (error?.code === 'ENOENT') continue;
+      throw new Error(`cannot read resolved lockfile ${file}: ${error.message}`);
+    }
+    files.push({
+      path: name,
+      sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+      bytes: bytes.length,
+    });
+  }
+  const digest = files.length ? crypto.createHash('sha256')
+    .update(`${files.map((file) => `${file.path}\0${file.sha256}`).join('\n')}\n`).digest('hex') : null;
+  return { digest, files };
+}
+
 /**
  * Enumerate the dependency graph reachable from a project's node_modules. Package directories may
  * be real directories, POSIX symlinks, or Windows junctions. We follow their real paths, but visit
@@ -170,9 +198,10 @@ export function queryOsvMalware(specs, request = null) {
   return flagged;
 }
 
-export function screenSpecs({ specs, kind, cacheDir, out, request = null }) {
+export function screenSpecs({ specs, kind, cacheDir, out, request = null, lockfiles = null }) {
   const normalized = normalizeSpecs(specs);
   const digest = digestSpecs(normalized);
+  const resolvedLockfiles = lockfiles ?? { digest: null, files: [] };
   const cachePath = cacheDir ? path.join(cacheDir, `${digest}.json`) : null;
   let result = null;
   if (cachePath) {
@@ -180,7 +209,7 @@ export function screenSpecs({ specs, kind, cacheDir, out, request = null }) {
       const candidate = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
       if (candidate.digest === digest && candidate.status === 'clean'
         && JSON.stringify(candidate.specs) === JSON.stringify(normalized)) {
-        result = { ...candidate, kind, cacheHit: true };
+        result = { ...candidate, kind, lockfiles: resolvedLockfiles, cacheHit: true };
       }
     } catch { /* a missing or malformed cache is not a clearance */ }
   }
@@ -193,6 +222,7 @@ export function screenSpecs({ specs, kind, cacheDir, out, request = null }) {
       digest,
       specCount: normalized.length,
       specs: normalized,
+      lockfiles: resolvedLockfiles,
       maliciousAdvisories,
       screenedAt: new Date().toISOString(),
       cacheHit: false,
@@ -226,11 +256,13 @@ function cli(argv) {
   }
   if (!kind) throw new Error('--kind is required');
   const selected = tree ? collectInstalledSpecs(tree) : specs;
-  const result = screenSpecs({ specs: selected, kind, cacheDir, out });
+  const lockfiles = tree ? collectLockfileIdentity(tree) : { digest: null, files: [] };
+  const result = screenSpecs({ specs: selected, kind, cacheDir, out, lockfiles });
   // One machine-readable line for record.mjs. Keep the full exact spec set in the clearance file,
   // but not in driver stdout: a large dependency graph would otherwise bloat every corpus record.
   const marker = { ...result };
   delete marker.specs;
+  marker.clearancePath = out;
   console.log(`OSV-SCREEN ${JSON.stringify(marker)}`);
   if (result.status === 'clean') {
     console.log(`  SECURITY ${kind} clean: ${result.specCount} exact package-version(s), tree ${result.digest.slice(0, 12)}`

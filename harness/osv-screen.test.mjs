@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import {
-  collectInstalledSpecs, digestSpecs, queryOsvMalware, screenSpecs, splitSpec,
+  collectInstalledSpecs, collectLockfileIdentity, digestSpecs, queryOsvMalware, screenSpecs, splitSpec,
 } from './osv-screen.mjs';
 
 const fixture = () => fs.mkdtempSync(path.join(os.tmpdir(), 'osv-screen-'));
@@ -57,4 +57,15 @@ test('refuses a short OSV batch and reuses only an exact clean tree digest', () 
   assert.equal(calls, 2);
   assert.notEqual(digestSpecs(['a@1.0.0']), digestSpecs(['a@1.0.1']));
   assert.deepEqual(splitSpec('@scope/a@1.2.3'), ['@scope/a', '1.2.3']);
+});
+
+test('records exact lockfile identity separately from the resolved tree digest', () => {
+  const root = fixture();
+  fs.writeFileSync(path.join(root, 'package-lock.json'), '{"lockfileVersion":3}\n');
+  fs.writeFileSync(path.join(root, 'nub.lock'), 'version = 1\n');
+  const first = collectLockfileIdentity(root);
+  assert.equal(first.files.length, 2);
+  assert.deepEqual(first.files.map((file) => file.path), ['package-lock.json', 'nub.lock']);
+  fs.appendFileSync(path.join(root, 'nub.lock'), 'changed = true\n');
+  assert.notEqual(collectLockfileIdentity(root).digest, first.digest);
 });

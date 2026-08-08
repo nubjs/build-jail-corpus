@@ -18,6 +18,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { computeHarnessIdentity, loadInvalidationPolicy } from './v2/instrument.mjs';
+import { recordValidity } from './v2/record-validity.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -34,7 +36,8 @@ const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
 // Silently-ignored input is the whole failure class here: a switch that stopped being read
 // (`dependenciesMeta.sandbox`), a grant that stopped being serialised, a canary whose refusal was
 // swallowed. A gate that tolerates unrecognised input cannot be trusted to report on anything.
-const KNOWN = new Set(['--records', '--expect', '--expect-specs', '--since']);
+const KNOWN = new Set(['--records', '--expect', '--expect-specs', '--expect-platform', '--since',
+  '--queue', '--current-instrument', '--strict', '--complete']);
 const unknown = argv.filter((a, i) => a.startsWith('--') && !KNOWN.has(a)
   // a VALUE that merely looks like a flag belongs to the preceding known flag, not to this check
   && !(i > 0 && KNOWN.has(argv[i - 1])));
@@ -47,6 +50,10 @@ if (unknown.length) {
 }
 
 const RECORDS = opt('--records', path.join(here, '..', 'records'));
+const QUEUE = opt('--queue', path.join(here, '..', 'queue.ndjson'));
+const CURRENT_INSTRUMENT = argv.includes('--current-instrument') || argv.includes('--strict');
+const STRICT = argv.includes('--strict');
+const COMPLETE = argv.includes('--complete');
 
 const failures = [];
 const notes = [];
@@ -61,6 +68,32 @@ const files = [];
     else if (x.name === 'results.json') files.push(f);
   }
 })(RECORDS);
+
+if (CURRENT_INSTRUMENT) {
+  const instrument = computeHarnessIdentity();
+  const invalidation = loadInvalidationPolicy();
+  let stale = 0;
+  const examples = [];
+  for (const file of files) {
+    let record;
+    try { record = JSON.parse(fs.readFileSync(file, 'utf8')); }
+    catch (error) {
+      stale++;
+      examples.push(`${path.relative(RECORDS, file)}: unreadable (${error.message})`);
+      continue;
+    }
+    const validity = recordValidity(record, instrument, invalidation);
+    if (!validity.reusable) {
+      stale++;
+      examples.push(`${record.pkg ?? path.relative(RECORDS, file)}@${record.version ?? '?'}: ${validity.reason}`);
+    }
+  }
+  if (stale) failures.push(`${stale} record(s) are not valid under current harness epoch `
+    + `${instrument.harnessEpoch} ${instrument.harnessSha256.slice(0, 16)}: `
+    + `${examples.slice(0, 5).join('; ')}${examples.length > 5 ? ' …' : ''}`);
+  else if (files.length) notes.push(`all records match current harness epoch ${instrument.harnessEpoch} `
+    + instrument.harnessSha256.slice(0, 16));
+}
 
 // ⛔ "NO RECORDS" IS ONLY OK IF NOTHING WAS CLAIMED. This exited 0 unconditionally, which is right
 // for a fresh repo and WRONG after a slice claimed work — and that is exactly how the first live
@@ -88,6 +121,7 @@ const EXPECT = Number(opt('--expect', '0'));
 // from a genuine refutation of a divergence that grants installs LESS than they need. A comparison
 // that cannot tell a fresh record from an old one is not a comparison.
 const EXPECT_SPECS = opt('--expect-specs', '');
+const EXPECT_PLATFORM = opt('--expect-platform', '');
 const SINCE = opt('--since', '');
 if (EXPECT_SPECS) {
   let want = [];
@@ -105,7 +139,9 @@ if (EXPECT_SPECS) {
   const seen = new Map();
   for (const f of files) {
     let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
-    if (r && r.pkg) seen.set(`${r.pkg}@${r.version}`, String((r.provenance || {}).at || ''));
+    if (r && r.pkg && (!EXPECT_PLATFORM || r.provenance?.platform === EXPECT_PLATFORM)) {
+      seen.set(`${r.pkg}@${r.version}`, String((r.provenance || {}).at || ''));
+    }
   }
   const missing = want.filter((s) => !seen.has(s));
   const stale = SINCE ? want.filter((s) => seen.has(s) && !(seen.get(s) > SINCE)) : [];
@@ -124,9 +160,11 @@ if (EXPECT_SPECS) {
   }
 }
 if (files.length === 0) {
-  if (EXPECT > 0) {
+  if (EXPECT > 0 || COMPLETE || STRICT) {
     console.error('CORPUS VERIFY FAILED:');
-    console.error(`  - ${EXPECT} row(s) were claimed but the corpus has NO records at all. The slice`);
+    console.error(`  - the gate requires records${EXPECT > 0 ? ` for ${EXPECT} claimed row(s)` : ''}, `
+      + 'but the corpus has NO records at all.');
+    console.error('    The slice');
     console.error('    produced nothing. Check the measure step: a refusal there is swallowed by');
     console.error('    `|| true`, so the job goes green while measuring nothing.');
     process.exit(1);
@@ -206,7 +244,8 @@ if (junkNames.length) {
 // other Windows box. `os.tmpdir()` already honours TMPDIR/TEMP/TMP, so it covers the runner too.
 const tmp = path.join(os.tmpdir(), `corpus-verify-${process.pid}.json`);
 const { spawnSync } = await import('node:child_process');
-const col = spawnSync(process.execPath, [path.join(here, 'collate.mjs'), '--runs', RECORDS, '--out', tmp], {
+const col = spawnSync(process.execPath, [path.join(here, 'collate.mjs'), '--runs', RECORDS, '--out', tmp,
+  ...(STRICT ? ['--strict'] : [])], {
   encoding: 'utf8',
 });
 if (col.status !== 0) {
@@ -288,7 +327,7 @@ if (col.status !== 0) {
 // of orphans against a live origin is that window; the same rows persisting across several slices is
 // the real defect.
 {
-  const queuePath = path.join(here, '..', 'queue.ndjson');
+  const queuePath = QUEUE;
   if (fs.existsSync(queuePath)) {
     const osOf = (p) => (p.startsWith('darwin') ? 'macos'
       : p.startsWith('linux') ? 'linux' : p.startsWith('win') ? 'windows' : null);
@@ -324,9 +363,18 @@ if (col.status !== 0) {
         + 'Expected under a parallel fleet — this runner cannot see other runners\' in-flight records. '
         + 'Check it against a full clone; if it persists there, run harness/restore-deleted-records.mjs.'
       );
+      if (COMPLETE) failures.push(`${orphans.length} done queue row(s) have no matching record in the complete corpus`);
     } else {
       notes.push(`every done row has its record (${rows.filter((r) => r.status === 'done').length} checked)`);
     }
+    if (COMPLETE) {
+      const unfinished = rows.filter((row) => !['done', 'refused-malicious'].includes(row.status));
+      if (unfinished.length) failures.push(`${unfinished.length} of ${rows.length} queue row(s) are not done `
+        + `(${unfinished.slice(0, 5).map((row) => `${row.pkg}@${row.version} [${row.os}:${row.status}]`).join(', ')}`
+        + `${unfinished.length > 5 ? ' …' : ''})`);
+    }
+  } else if (COMPLETE) {
+    failures.push(`complete-corpus gate cannot read queue ${queuePath}`);
   }
 }
 

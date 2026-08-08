@@ -29,6 +29,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { computeHarnessIdentity, loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
+import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
+import { digestSpecs } from '../osv-screen.mjs';
 
 // A grant is a JSON object with no string values containing braces, so brace-depth scanning is
 // exact. `JSON.parse` on a regex-sliced tail is not: `(observed, then verified)` trails the object
@@ -55,7 +58,7 @@ export const firstObject = (line) => {
 // The flag still WINS when passed — a caller that knows better (a CI job checking out a specific
 // ref) is not second-guessed. This only fills the gap where the answer was `null`.
 function corpusShaFromCheckout() {
-  const git = (args) => execFileSync('git', ['-C', import.meta.dirname, ...args],
+  const git = (args) => execFileSync('git', ['-C', REPO_ROOT, ...args],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   try {
     // ⛔⛔ HEAD IS NOT THE HARNESS unless the harness matches it. A measuring box is updated with
@@ -65,13 +68,47 @@ function corpusShaFromCheckout() {
     // wrong sha is worse than no sha: `null` says "I cannot tell you", a stale sha asserts something
     // false and nothing downstream can detect it. Caught 2026-08-07 on `nub-corpus-linux`, whose
     // HEAD said `e546d433` while its harness was `04ed4365`.
-    git(['diff', '--quiet', 'HEAD', '--', import.meta.dirname]);
+    // `git diff` ignores untracked files. A newly copied helper is still executable harness input,
+    // so status (with untracked files expanded) is the only honest cleanliness check here.
+    const status = git(['status', '--porcelain', '--untracked-files=all', '--',
+      ...loadInstrumentConfig(REPO_ROOT).inputs]);
+    if (status) return null;
     return git(['rev-parse', 'HEAD']) || null;
   } catch {
     // Either not a checkout / no git, or `diff --quiet` exited non-zero meaning the harness differs
     // from HEAD. Both are honestly "I cannot name the commit that produced this".
     return null;
   }
+}
+
+/** Load the exact spec list out of each per-screen clearance artifact and deduplicate identical
+ * resolved trees. Absolute temporary paths never enter the record. */
+export function hydrateResolvedTrees(screens, read = (file) => JSON.parse(fs.readFileSync(file, 'utf8'))) {
+  const trees = new Map();
+  for (const screen of screens) {
+    if (!screen?.clearancePath) throw new Error(`OSV screen ${screen?.kind ?? '<unknown>'} has no clearance artifact`);
+    const clearance = read(screen.clearancePath);
+    if (!Array.isArray(clearance.specs) || digestSpecs(clearance.specs) !== screen.digest
+      || clearance.specCount !== screen.specCount || clearance.kind !== screen.kind) {
+      throw new Error(`OSV screen ${screen.kind} clearance artifact does not match its marker`);
+    }
+    const lockfiles = clearance.lockfiles ?? { digest: null, files: [] };
+    const key = `${screen.digest}\0${lockfiles.digest ?? ''}`;
+    const existing = trees.get(key);
+    if (existing) {
+      existing.kinds.push(screen.kind);
+      continue;
+    }
+    trees.set(key, {
+      digest: screen.digest,
+      specCount: screen.specCount,
+      specs: clearance.specs,
+      lockfiles,
+      kinds: [screen.kind],
+      screenedAt: screen.screenedAt,
+    });
+  }
+  return [...trees.values()].map((tree) => ({ ...tree, kinds: [...new Set(tree.kinds)].sort() }));
 }
 
 const VERDICTS = {
@@ -581,6 +618,34 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const version = opt('--version');
   const rc = Number(opt('--rc', '0'));
   const parsed = parseDriverLog(log);
+  let harnessIdentity;
+  let runtime;
+  let resolvedTrees;
+  try {
+    harnessIdentity = computeHarnessIdentity();
+    const expectedEpoch = opt('--expected-harness-epoch', '');
+    const expectedSha = opt('--expected-harness-sha', '');
+    if ((expectedEpoch && Number(expectedEpoch) !== harnessIdentity.harnessEpoch)
+      || (expectedSha && expectedSha !== harnessIdentity.harnessSha256)) {
+      throw new Error('the harness changed after this batch started; refusing a mixed-instrument record');
+    }
+    runtime = opt('--runtime-json', '')
+      ? JSON.parse(opt('--runtime-json')) : collectRuntimeProvenance();
+    resolvedTrees = hydrateResolvedTrees(parsed.securityScreens);
+    const expectedNub = opt('--expected-nub-sha256', '');
+    if (expectedNub && parsed.verdict !== 'REFUSED-MALICIOUS'
+      && parsed.nubBinary?.sha256 !== expectedNub) {
+      throw new Error('the Nub binary observed by the driver does not match the batch identity');
+    }
+    const recorderNode = { version: process.version, ...fileIdentity(process.execPath) };
+    if (runtime?.node?.version !== recorderNode.version
+      || runtime?.node?.sha256 !== recorderNode.sha256) {
+      throw new Error('the Node runtime snapshot does not match the recorder executable');
+    }
+  } catch (error) {
+    console.error(`record.mjs: REFUSED ${error.message}`);
+    process.exit(2);
+  }
 
   // ⛔ WHAT MACHINE, IN WHAT STATE (VENUE-PORTABILITY R3 + R6). Before this, two records produced on
   // different venues were INDISTINGUISHABLE in the record, so a divergence between them could not be
@@ -725,6 +790,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // root is the structural guarantee that v2 can never overwrite v1; this field is what survives a
     // record being copied, collated or reported out of that tree, where the path is gone.
     harnessVersion: 2,
+    harnessEpoch: harnessIdentity.harnessEpoch,
     verdict: parsed.verdict,
     grant: parsed.grant,
     synthesized: parsed.synthesized ?? null,
@@ -740,7 +806,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // separately would give two values that can disagree.
     writePaths: parsed.grant?.writePaths ?? [],
     writePathsVersionPinned: parsed.writePathsVersionPinned ?? [],
-    securityScreens: parsed.securityScreens ?? [],
+    securityScreens: (parsed.securityScreens ?? []).map(({ clearancePath: _, ...screen }) => screen),
+    resolvedTrees,
     maliciousAdvisories: parsed.maliciousAdvisories ?? [],
     // ⛔ WHICH VALUE `grant` ABOVE IS, AND WHY. `rec` is an explicit whitelist, so the first version
     // of the grant-source rule narrowed `grant` correctly and then dropped every field explaining it
@@ -762,7 +829,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       nubGitSha: opt('--nub-sha', '') || null,
       nubVersion: opt('--nub-version', '') || null,
       corpusGitSha: opt('--corpus-sha', '') || corpusShaFromCheckout(),
+      harnessEpoch: harnessIdentity.harnessEpoch,
+      harnessSha256: harnessIdentity.harnessSha256,
+      harnessInputCount: harnessIdentity.inputCount,
+      invalidationPolicySha256: harnessIdentity.invalidationPolicySha256,
       node: process.version,
+      runtime,
       at: new Date().toISOString(),
       ...venueProvenance(parsed, platform),
     },

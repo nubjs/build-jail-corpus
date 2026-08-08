@@ -1,13 +1,12 @@
-// Emit one NDJSON line per record found under a runs directory: {pkg, version, verdict}.
+// Emit one NDJSON line per record with its verdict and resume-critical instrument identities.
 //
 // This is the bridge between "the harness wrote records" and "the queue can mark rows done". It
 // deliberately reports ONLY what is actually on disk: a row whose record is missing stays `claimed`
 // and gets reclaimed later, rather than being marked done on the strength of having been attempted.
 //
-// ⛔ A `HARNESS-*` VERDICT IS NOT A MEASUREMENT, but it IS a completed row for queue purposes — the
-// runner attempted it and produced a record saying the instrument failed. Re-running it needs a
-// harness fix first, so leaving it `pending` would make every subsequent slice pick it up again and
-// fail identically. It is recorded with its verdict so a sweep can find and re-queue it explicitly.
+// ⛔ A `HARNESS-*` VERDICT IS NOT A MEASUREMENT. It is still emitted here because `claim-slice.mjs`
+// owns bounded retry accounting: it returns the row to pending twice, then closes the third attempt
+// honestly so the queue can drain. Strict promotion rejects those instrument-failure records.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -36,7 +35,19 @@ for (const f of files) {
   try {
     const r = JSON.parse(fs.readFileSync(f, 'utf8'));
     if (!r.pkg || !r.version) continue;
-    lines.push(JSON.stringify({ pkg: r.pkg, version: r.version, verdict: r.verdict ?? null }));
+    lines.push(JSON.stringify({
+      pkg: r.pkg,
+      version: r.version,
+      verdict: r.verdict ?? null,
+      harnessVersion: r.harnessVersion ?? null,
+      harnessEpoch: r.harnessEpoch ?? r.provenance?.harnessEpoch ?? null,
+      harnessSha256: r.provenance?.harnessSha256 ?? null,
+      platform: r.provenance?.platform ?? null,
+      nubSha256: r.provenance?.nubBinary?.sha256 ?? null,
+      nubGitSha: r.provenance?.nubGitSha ?? null,
+      node: r.provenance?.node ?? null,
+      nodeSha256: r.provenance?.runtime?.node?.sha256 ?? null,
+    }));
   } catch {
     // A truncated record (killed mid-write) must not abort the whole collection — its row simply
     // stays claimed and is reclaimed.

@@ -20,6 +20,9 @@ import path from 'node:path';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { driverInvocation } from './driver-invocation.mjs';
+import { computeHarnessIdentity, loadInstrumentConfig, loadInvalidationPolicy } from './instrument.mjs';
+import { recordValidity } from './record-validity.mjs';
+import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -48,15 +51,35 @@ const gitSha = (dir) => {
   try { return execFileSync('git', ['-C', dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); }
   catch { return ''; }
 };
+const cleanCorpusSha = (dir) => {
+  try {
+    const status = execFileSync('git', ['-C', dir, 'status', '--porcelain', '--untracked-files=all', '--',
+      ...loadInstrumentConfig(dir).inputs], { encoding: 'utf8' }).trim();
+    return status ? '' : gitSha(dir);
+  } catch { return ''; }
+};
 const nubVersion = () => {
   if (!NUB) return '';
   const r = sh(NUB, ['--version'], 60_000);
   return (r.stdout ?? '').trim().split('\n').pop() ?? '';
 };
 
-const CORPUS_SHA = gitSha(path.join(HERE, '..', '..'));
+const CORPUS_SHA = cleanCorpusSha(path.join(HERE, '..', '..'));
 const NUB_VERSION = nubVersion();
 const NUB_SHA = process.env.NUB_GIT_SHA ?? '';
+const INSTRUMENT = computeHarnessIdentity();
+const INVALIDATION = loadInvalidationPolicy();
+const RUNTIME = collectRuntimeProvenance();
+const NUB_BINARY = fileIdentity(NUB);
+if (INVALIDATION.currentEpoch !== INSTRUMENT.harnessEpoch) {
+  console.error(`instrument policy epoch ${INVALIDATION.currentEpoch} does not match current epoch `
+    + `${INSTRUMENT.harnessEpoch}; refusing to measure`);
+  process.exit(2);
+}
+console.log(`instrument: epoch ${INSTRUMENT.harnessEpoch} ${INSTRUMENT.harnessSha256.slice(0, 16)} `
+  + `(${INSTRUMENT.inputCount} inputs)`);
+console.log(`runtime: ${process.version} ${RUNTIME.node.sha256?.slice(0, 16) ?? 'unhashed'}; `
+  + `nub ${NUB_BINARY?.sha256?.slice(0, 16) ?? 'unidentified'}`);
 
 // Extra argv appended to whichever driver the dispatch below selects, as a JSON array.
 //
@@ -137,16 +160,24 @@ for (const spec of specs) {
   const dir = path.join(RUNS, PLATFORM, pkg.replace(/\//g, '+'), version);
 
   if (!FORCE && fs.existsSync(path.join(dir, 'results.json'))) {
-    // ⛔ RESUME SKIPS A MEASUREMENT, NEVER AN INSTRUMENT FAILURE. A `HARNESS-*` record is the
-    // harness saying it could not measure — exactly the package a later fix needs to reach — so
-    // treating it as answered is how a defect becomes permanent.
+    // Resume only when the existing answer names this exact instrument, runtime and Nub binary.
+    // Compatibility across an epoch is possible solely through invalidation.json; an undeclared
+    // mismatch is stale, never "probably close enough".
     let prior = null;
     try { prior = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8')); } catch { /* re-measure */ }
-    if (prior && !String(prior.verdict ?? '').startsWith('HARNESS-')) {
-      console.log(`SKIP  ${spec} — already recorded (${prior.verdict})`);
+    const validity = recordValidity(prior, INSTRUMENT, INVALIDATION, {
+      platform: PLATFORM,
+      nodeVersion: process.version,
+      nodeSha256: RUNTIME.node.sha256,
+      nubSha256: NUB_BINARY?.sha256,
+      nubGitSha: NUB_SHA || null,
+    });
+    if (validity.reusable) {
+      console.log(`SKIP  ${spec} — current record (${prior.verdict}; ${validity.via})`);
       skipped++;
       continue;
     }
+    if (prior) console.log(`STALE ${spec} — ${validity.reason}; re-measuring`);
   }
 
   if (DEADLINE > 0) {
@@ -219,6 +250,10 @@ for (const spec of specs) {
     '--log', tmpLog, '--pkg', pkg, '--version', version, '--out', RUNS,
     '--rc', String(rc), '--platform', PLATFORM, '--duration-ms', String(ms),
     '--nub-sha', NUB_SHA, '--nub-version', NUB_VERSION, '--corpus-sha', CORPUS_SHA,
+    '--expected-harness-epoch', String(INSTRUMENT.harnessEpoch),
+    '--expected-harness-sha', INSTRUMENT.harnessSha256,
+    ...(NUB_BINARY?.sha256 ? ['--expected-nub-sha256', NUB_BINARY.sha256] : []),
+    '--runtime-json', JSON.stringify(RUNTIME),
     '--driver', process.platform === 'win32' ? 'measure-windows.mjs'
       : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh'], 120_000);
   fs.rmSync(tmpLog, { force: true });

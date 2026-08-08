@@ -141,6 +141,17 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
 
+      # Run the complete portable suite before paying for a probe build or executing third-party
+      # lifecycle scripts. A focused parser check is not an instrument gate: the driver, recorder,
+      # security boundary, publish path and queue validity all contribute to the answer.
+      - name: Run the complete harness test suite
+        shell: bash
+        run: |
+          set -eu
+          TESTS=$(find harness -type f -name '*.test.mjs' | sort)
+          [ -n "$TESTS" ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
+          node --test $TESTS
+
       - name: Stamp the job start
         shell: bash
         run: echo "JOB_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
@@ -374,7 +385,8 @@ jobs:
             # forever and the corpus could never reach a full count. Folding it here fixes that.
             node harness/claim-slice.mjs --queue queue-v2.ndjson --reclaim-stale 360 || true
             node harness/claim-slice.mjs --queue queue-v2.ndjson \
-              --claim "$SLICE" --os "$OS_NAME" --run "${{ github.run_id }}" > /tmp/slice.txt
+              --claim "$SLICE" --os "$OS_NAME" --run "${{ github.run_id }}" \
+              --subject-nub "$NUB_BIN" --subject-nub-git-sha "$NUB_GIT_SHA" > /tmp/slice.txt
             if [ ! -s /tmp/slice.txt ]; then
               echo "DRAINED=1" >> "$GITHUB_ENV"; CLAIMED=1; break
             fi
@@ -507,6 +519,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      - name: Verify this slice carries current substantive evidence
+        if: env.DRAINED != '1'
+        shell: bash
+        run: |
+          set -eu
+          node harness/verify-corpus.mjs --records records-v2/runs \
+            --queue queue-v2.ndjson --current-instrument
+
       # ⛔ ASK THE REAL PARSER WHETHER THE V2 CATALOG LOADS. Everything upstream is JavaScript
       # checking JavaScript. A rejected catalog does NOT fail — nub keeps running on the compiled-in
       # one and merely prints REJECTED — so this failure is silent by construction.
@@ -515,7 +535,9 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          node harness/collate.mjs --runs records-v2/runs --out /tmp/catalog-v2-gate.json >/dev/null 2>&1
+          # Keep the report visible. Promotion warnings fail in corpus-v2-promote.yml; a slice is
+          # necessarily incomplete, but hiding its diagnostics made every warning operationally inert.
+          node harness/collate.mjs --runs records-v2/runs --out /tmp/catalog-v2-gate.json
           GOOD=$(NUB_BUILD_JAIL_CATALOG=/tmp/catalog-v2-gate.json "$NUB_BIN" --version 2>&1 || true)
           case "$GOOD" in
             *REJECTED*) echo "⛔ THE V2 CATALOG WAS REJECTED BY NUB: $GOOD" >&2; exit 1 ;;

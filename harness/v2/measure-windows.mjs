@@ -952,20 +952,6 @@ emitBinaryProvenance();
 // venue comparison would read the second as the first.
 console.log(`  VENUE-JAIL-ROOT ${ROOT}`);
 
-// ⛔ OBSERVED, NEVER INFERRED FROM `CI`. Deriving the layout from the env var would encode the very
-// rule this field exists to let us CHECK, and would then agree with itself forever. What `CI`
-// actually moves is not the node-linker — that stays `Isolated` either way — it is WHERE the
-// isolated store lives: `install_report.rs` reaches `Source::Ci`, rendered as "global virtual store
-// auto-disabled in CI", which relocates every dependency's materialised directory from the user's
-// cache into the project. That relocation is why the same write can classify differently between
-// the two `CI` states, so it is read off the ARM TREE rather than off the variable.
-//
-// ⛔ AND THIS ARM IS NEITHER OF THOSE LAYOUTS. OBSERVE is `npm rebuild` in a flat HOISTED tree,
-// always — so a grant synthesized here has to hold in both nub layouts, neither of which it was
-// measured in. Saying `hoisted` is therefore a statement about the OBSERVE arm and not a prediction
-// about the verify arms, and a reader who conflates them will read this field as the wrong claim.
-console.log('  VENUE-STORE-LAYOUT hoisted');
-
 // ⛔ R6: EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED, WITH ITS VALUE — and `CI` listed with
 // its INHERITED value precisely because touching `CI` is the one override that would invalidate the
 // whole venue/CI acceptance test. Recording it unchanged is a claim a reader can check, where
@@ -1099,6 +1085,7 @@ if (OBSERVE_ONLY) {
 const ARM_LEDGER = [];
 
 let armSeq = 0;
+let storeLayoutReported = false;
 const verify = (grant, label) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
@@ -1231,6 +1218,19 @@ const verify = (grant, label) => {
   if (safeResolve.status !== 0) {
     console.log(`  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts (rc=${safeResolve.status}); no lifecycle script ran`);
     process.exit(1);
+  }
+  // Record the SUBJECT arm's materialized layout, never OBSERVE's npm layout and never a value
+  // inferred from CI. The old Windows marker unconditionally said `hoisted` before any Nub arm ran,
+  // while every arm actually uses Nub's isolated linker; it made the provenance field a confident
+  // description of the wrong resolver. Latch only after a successful safe resolution so an early
+  // failed arm cannot suppress the first real answer.
+  if (!storeLayoutReported) {
+    let targetIsLink = false;
+    try { targetIsLink = fs.lstatSync(path.join(v, 'node_modules', ...PKG.split('/'))).isSymbolicLink(); }
+    catch { /* `.store` below is the primary signal */ }
+    const isolated = fs.existsSync(path.join(v, 'node_modules', '.store')) || targetIsLink;
+    console.log(`  VENUE-STORE-LAYOUT ${isolated ? 'isolated' : 'hoisted'}`);
+    storeLayoutReported = true;
   }
   securityScreen(`nub-${label}-resolved`, ['--tree', v]);
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });

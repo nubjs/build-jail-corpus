@@ -18,6 +18,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { computeHarnessIdentity, loadInvalidationPolicy } from './v2/instrument.mjs';
+import { recordValidity } from './v2/record-validity.mjs';
+import { fileIdentity } from './v2/runtime-provenance.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -54,7 +57,26 @@ const returnForRetry = (r, v) => {
   delete r.run;
   delete r.at;
   delete r.verdict;
+  delete r.harnessVersion;
+  delete r.harnessEpoch;
+  delete r.harnessSha256;
+  delete r.platform;
+  delete r.nubSha256;
+  delete r.nubGitSha;
+  delete r.node;
+  delete r.nodeSha256;
   return true;
+};
+
+const stampIdentity = (row, record) => {
+  row.harnessVersion = record.harnessVersion ?? null;
+  row.harnessEpoch = record.harnessEpoch ?? record.provenance?.harnessEpoch ?? null;
+  row.harnessSha256 = record.harnessSha256 ?? record.provenance?.harnessSha256 ?? null;
+  row.platform = record.platform ?? record.provenance?.platform ?? null;
+  row.nubSha256 = record.nubSha256 ?? record.provenance?.nubBinary?.sha256 ?? null;
+  row.nubGitSha = record.nubGitSha ?? record.provenance?.nubGitSha ?? null;
+  row.node = record.node ?? record.provenance?.node ?? null;
+  row.nodeSha256 = record.nodeSha256 ?? record.provenance?.runtime?.node?.sha256 ?? null;
 };
 
 if (argv.includes('--status')) {
@@ -65,8 +87,8 @@ if (argv.includes('--status')) {
     by[r.os][r.status] = (by[r.os][r.status] || 0) + 1;
   }
   const total = rows.length;
-  const done = rows.filter((r) => r.status === 'done').length;
-  console.log(`queue: ${done}/${total} done (${Math.round((done / total) * 100)}%)`);
+  const terminal = rows.filter((r) => ['done', 'refused-malicious'].includes(r.status)).length;
+  console.log(`queue: ${terminal}/${total} terminal (${Math.round((terminal / total) * 100)}%)`);
   for (const [os, s] of Object.entries(by)) {
     console.log(`  ${os.padEnd(8)} ${Object.entries(s).map(([k, v]) => `${k}=${v}`).join('  ')}`);
   }
@@ -89,6 +111,9 @@ if (argv.includes('--status')) {
 // un-does one, and never returns a row to pending — `--reclaim-stale` owns that direction.
 if (argv.includes('--reconcile')) {
   const recordsDir = opt('--records', path.join(here, '..', 'records'));
+  const requireCurrentInstrument = argv.includes('--require-current-instrument');
+  const instrument = requireCurrentInstrument ? computeHarnessIdentity() : null;
+  const invalidation = requireCurrentInstrument ? loadInvalidationPolicy() : null;
   // platform dir (`darwin-arm64`) -> queue `os` (`macos`). The queue speaks in OS names because a
   // human writes it; records speak in `${process.platform}-${process.arch}` because the harness does.
   const osOf = (plat) => (plat.startsWith('darwin') ? 'macos'
@@ -105,23 +130,26 @@ if (argv.includes('--reconcile')) {
       let r; try { r = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { continue; }
       const os = osOf(r.provenance?.platform ?? '');
       if (!os || !r.pkg || !r.version || !r.verdict) continue;
-      have.set(`${r.pkg}@${r.version}\t${os}`, r.verdict);
+      if (requireCurrentInstrument && !recordValidity(r, instrument, invalidation).reusable) continue;
+      have.set(`${r.pkg}@${r.version}\t${os}`, r);
     }
   })(recordsDir);
 
   const rows = read();
-  let marked = 0; let already = 0; let noRecord = 0; let instrument = 0;
+  let marked = 0; let already = 0; let noRecord = 0; let instrumentFailures = 0;
   for (const r of rows) {
-    const v = have.get(key(r));
-    if (!v) { noRecord++; continue; }
+    const record = have.get(key(r));
+    const v = record?.verdict;
+    if (!record) { noRecord++; continue; }
     // ⛔ NEVER CLOSE A ROW ON AN INSTRUMENT FAILURE. Leave it untouched: `--complete` owns the retry
     // accounting because it knows which run produced the failure. Doing it here as well would
     // double-count attempts, and returning a row to `pending` from here could hand it to a second
     // runner while the one that claimed it is still measuring.
-    if (isInstrumentFailure(v)) { instrument++; continue; }
+    if (isInstrumentFailure(v)) { instrumentFailures++; continue; }
     if (r.status === 'done') { already++; continue; }
     r.status = 'done';
     r.verdict = v;
+    stampIdentity(r, record);
     r.reconciled = true;
     delete r.run;
     delete r.claimedAt;
@@ -129,7 +157,7 @@ if (argv.includes('--reconcile')) {
   }
   if (marked) write(rows);
   console.error(`reconciled against ${have.size} record(s): marked ${marked} row(s) done, `
-    + `${already} already done, ${instrument} instrument failure(s) left open, `
+    + `${already} already done, ${instrumentFailures} instrument failure(s) left open, `
     + `${noRecord} row(s) have no record yet`);
   process.exit(0);
 }
@@ -166,7 +194,7 @@ if (argv.includes('--complete')) {
     for (const line of fs.readFileSync(verdictFile, 'utf8').split('\n').filter(Boolean)) {
       try {
         const v = JSON.parse(line);
-        if (v.pkg && v.version) verdicts.set(`${v.pkg}@${v.version}`, v.verdict ?? null);
+        if (v.pkg && v.version) verdicts.set(`${v.pkg}@${v.version}`, v);
       } catch { /* a malformed line must not lose the whole slice */ }
     }
   }
@@ -174,11 +202,13 @@ if (argv.includes('--complete')) {
   let done = 0; let stranded = 0; let retry = 0;
   for (const r of rows) {
     if (r.status !== 'claimed' || r.run !== runId) continue;
-    const v = verdicts.get(`${r.pkg}@${r.version}`);
-    if (v === undefined) { stranded++; continue; }
+    const record = verdicts.get(`${r.pkg}@${r.version}`);
+    if (record === undefined) { stranded++; continue; }
+    const v = record.verdict;
     if (returnForRetry(r, v)) { retry++; continue; }
     r.status = 'done';
     r.verdict = v;
+    stampIdentity(r, record);
     delete r.run;
     delete r.at;
     done++;
@@ -196,6 +226,64 @@ const runId = opt('--run', '');
 if (!os || !runId) { console.error('--claim needs --os <os> and --run <id>'); process.exit(2); }
 
 const rows = read();
+// The queue is itself a resume index. Old `done` rows must not hide stale records from the batch:
+// stamp every completion with its instrument, then return any incompatible row to pending before
+// selecting a slice. Explicit inherited malware refusals are security decisions, not measurements,
+// and remain terminal until their separate revalidation policy changes.
+if (path.basename(QUEUE) === 'queue-v2.ndjson') {
+  const instrument = computeHarnessIdentity();
+  const invalidation = loadInvalidationPolicy();
+  const subjectNub = opt('--subject-nub', '');
+  const subjectNubGitSha = opt('--subject-nub-git-sha', '');
+  const nodeIdentity = subjectNub ? fileIdentity(process.execPath) : null;
+  const nubIdentity = subjectNub ? fileIdentity(subjectNub) : null;
+  if (subjectNub && (!nodeIdentity?.sha256 || !nubIdentity?.sha256 || !subjectNubGitSha)) {
+    console.error('v2 claim refused: --subject-nub requires readable Node/Nub binaries and '
+      + '--subject-nub-git-sha so stale done rows cannot hide a changed subject');
+    process.exit(2);
+  }
+  for (const row of rows) {
+    if (row.status !== 'done') continue;
+    const pseudoRecord = {
+      ...row,
+      provenance: {
+        platform: row.platform ?? (row.os === 'macos' ? 'darwin-unknown'
+          : row.os === 'windows' ? 'win32-unknown' : `${row.os}-unknown`),
+        harnessEpoch: row.harnessEpoch,
+        harnessSha256: row.harnessSha256,
+        node: row.node,
+        runtime: { node: { sha256: row.nodeSha256 } },
+        nubGitSha: row.nubGitSha,
+        nubBinary: { sha256: row.nubSha256 },
+      },
+    };
+    const validity = recordValidity(pseudoRecord, instrument, invalidation, subjectNub ? {
+      nodeVersion: process.version,
+      nodeSha256: nodeIdentity?.sha256,
+      nubSha256: nubIdentity?.sha256,
+      nubGitSha: subjectNubGitSha || null,
+    } : {});
+    if (validity.reusable) continue;
+    row.status = 'pending';
+    row.invalidated = {
+      at: new Date().toISOString(),
+      reason: validity.reason,
+      priorVerdict: row.verdict ?? null,
+      priorHarnessEpoch: row.harnessEpoch ?? null,
+      priorHarnessSha256: row.harnessSha256 ?? null,
+    };
+    delete row.verdict;
+    delete row.harnessVersion;
+    delete row.harnessEpoch;
+    delete row.harnessSha256;
+    delete row.platform;
+    delete row.nubSha256;
+    delete row.nubGitSha;
+    delete row.node;
+    delete row.nodeSha256;
+    delete row.attempts;
+  }
+}
 const now = new Date().toISOString();
 const claimed = [];
 for (const r of rows) {

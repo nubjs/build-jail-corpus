@@ -16,7 +16,8 @@ import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDriverLog, firstObject } from './record.mjs';
+import { parseDriverLog, firstObject, hydrateResolvedTrees } from './record.mjs';
+import { loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
 
 const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const load = (f) => fs.readFileSync(path.join(FIX, f), 'utf8');
@@ -79,6 +80,30 @@ test('a resolved-tree malware refusal persists the exact advisory and screen ide
   assert.deepEqual(r.securityScreens, [screen]);
   assert.deepEqual(r.maliciousAdvisories,
     [{ spec: 'bad-transitive@2.0.0', ids: ['MAL-2025-12345'] }]);
+});
+
+test('resolved-tree provenance is hydrated from the exact clearance artifact and path-free', () => {
+  const screens = [{
+    schemaVersion: 1,
+    kind: 'npm-observe-resolved',
+    digest: '579a93fcc5630908833044d68d0d74d2555eba72a600220617be15e0dce4942e',
+    specCount: 2,
+    screenedAt: '2026-08-08T00:00:00.000Z',
+    clearancePath: '/temporary/clearance.json',
+  }];
+  const trees = hydrateResolvedTrees(screens, () => ({
+    ...screens[0],
+    specs: ['a@1.0.0', 'b@2.0.0'],
+    lockfiles: { digest: 'lock', files: [{ path: 'package-lock.json', sha256: 'hash', bytes: 12 }] },
+  }));
+  assert.deepEqual(trees, [{
+    digest: screens[0].digest,
+    specCount: 2,
+    specs: ['a@1.0.0', 'b@2.0.0'],
+    lockfiles: { digest: 'lock', files: [{ path: 'package-lock.json', sha256: 'hash', bytes: 12 }] },
+    kinds: ['npm-observe-resolved'],
+    screenedAt: '2026-08-08T00:00:00.000Z',
+  }]);
 });
 
 test('a trailing paren does not get swallowed into the grant', () => {
@@ -413,6 +438,10 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   assert.equal(rec.grantSource, 'descended', 'AND the record says which value it is');
   assert.match(rec.grantSourceReason, /verified in the real jail/, 'AND why');
   assert.deepEqual(rec.descendedGrant, { network: true });
+  assert.equal(rec.harnessEpoch, 3);
+  assert.match(rec.provenance.harnessSha256, /^[0-9a-f]{64}$/);
+  assert.equal(rec.provenance.runtime.node.version, process.version);
+  assert.match(rec.provenance.runtime.node.sha256, /^[0-9a-f]{64}$/);
 });
 
 // ⛔ WHICH HARNESS MEASURED THIS — DERIVED, NOT ONLY DECLARED.
@@ -440,8 +469,9 @@ test('⭑ a record with NO --corpus-sha still names the harness that produced it
   // such commit, and `null` is the only honest answer. Asserting HEAD unconditionally would demand
   // the very false attestation the sibling test forbids.
   let clean = true;
-  try { execFileSync('git', ['-C', here, 'diff', '--quiet', 'HEAD', '--', here], { stdio: 'ignore' }); }
-  catch { clean = false; }
+  const status = execFileSync('git', ['-C', here, 'status', '--porcelain', '--untracked-files=all', '--',
+    ...loadInstrumentConfig().inputs.map((input) => path.join(REPO_ROOT, input))], { encoding: 'utf8' }).trim();
+  clean = status.length === 0;
   assert.equal(emit([]).provenance.corpusGitSha, clean ? head : null,
     clean ? 'on a clean tree the sha must be DERIVED, not left null'
           : 'with uncommitted harness edits the sha must be null, never a stale HEAD');

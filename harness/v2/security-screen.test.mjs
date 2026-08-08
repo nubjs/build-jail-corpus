@@ -63,6 +63,16 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
   ], 'windows verify');
 });
 
+test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
+  assert.doesNotMatch(drivers.windows.slice(0, drivers.windows.indexOf('const verify =')),
+    /VENUE-STORE-LAYOUT hoisted/);
+  inOrder(drivers.windows, [
+    "run(NUB, ['install', '--ignore-scripts']",
+    'VENUE-STORE-LAYOUT ${isolated',
+    'securityScreen(`nub-${label}-resolved`',
+  ], 'windows layout provenance');
+});
+
 const runHelper = (rc) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'security-helper-'));
   const bin = path.join(dir, 'bin');

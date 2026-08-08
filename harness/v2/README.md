@@ -146,9 +146,22 @@ The unit suites are worth their cost because they cover the *same* semantic haza
 
 ⛔ **`chain` defaults to FALSE, inverting the v1 runner's default.** A full-corpus v2 re-measure is a large compute commitment and a separate decision; a lane that self-dispatches by default takes that decision by accident, one hop at a time, and the tell arrives hours later as a drained queue.
 
+### Instrument identity and promotion
+
+Every record carries the current `harnessEpoch` and a canonical SHA-256 over the complete `harness/` tree, the v2 workflows, and `.gitattributes`. The hash normalizes CRLF to LF and includes untracked harness files; generated v1 results are excluded. The record also identifies the Node and Nub executables by content, npm and Python versions, build tools, runner image, selected environment values, resolved package-version sets, and lockfiles.
+
+Resume requires the same harness, Node executable, Nub binary, platform, and Nub commit. A queue completion carries the same instrument stamp, so an old `done` row returns to `pending` before a slice is claimed. Cross-epoch reuse requires a targeted transition in `invalidation.json`; missing or malformed policy invalidates the record.
+
+The slice workflow runs every portable harness test and verifies that each local record belongs to the current instrument. Run the full promotion workflow only after the queue drains. It materializes the complete record tree and refuses stale or mixed instruments, incomplete rows, missing latest versions, unresolved warnings, and unsafe record verdicts.
+
+```sh
+node harness/v2/instrument.mjs --json
+node harness/verify-corpus.mjs --records records-v2/runs --queue queue-v2.ndjson --strict --complete
+```
+
 ### The drivers print; `record.mjs` is what makes a record
 
-None of the three drivers writes a file — they were built to be read by a human on a probe branch, so every v2 result so far has lived in a workflow log that expires. `record.mjs` parses a driver's terminal vocabulary into a record shaped like a v1 one, which is what lets `collate.mjs --runs records-v2/runs` and `claim-slice.mjs --reconcile --records records-v2` read it with no changes.
+The three drivers print their result instead of writing a corpus record. The recorder parses that terminal vocabulary, persists the retained trace, and adds the instrument, runtime, resolved-tree, lockfile, runner, and environment provenance required for replay and promotion.
 
 The vocabularies differ, and one pair is a false friend. The POSIX drivers print `=> VERIFIED <grant>` where the Windows driver prints `=> MINIMUM <grant> (observed, then verified)` for the **same** outcome — and all three print `=> MINIMUM <grant> (ladder fallback)` for a materially different one, where OBSERVE under-predicted and the ladder repaired it. Keying on the word `MINIMUM` alone merges the arm that proves synthesis works with the arm that proves it failed, so the record carries `verifiedBy: synth | ladder`.
 

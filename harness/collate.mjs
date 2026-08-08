@@ -16,8 +16,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import crypto from 'node:crypto';
 // The state space, for reconstructing a grant a record never serialised — see the backfill below.
 import { STATES, grantForState } from './states.mjs';
+import { computeHarnessIdentity, loadInvalidationPolicy } from './v2/instrument.mjs';
+import { recordValidity } from './v2/record-validity.mjs';
 
 const argv = process.argv.slice(2);
 const opt = (name, dflt) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : dflt);
@@ -39,6 +42,7 @@ const BASELINE = opt('--baseline', path.join(here, 'baseline.json'));
 const OUT = opt('--out', path.join(here, 'catalog-v2.json'));
 const PLATFORM = opt('--platform', null);
 const OVERRIDES = opt('--overrides', path.join(here, 'overrides'));
+const STRICT = argv.includes('--strict');
 
 // ⛔ REFUSE AN UNRECOGNISED FLAG — THIS SCRIPT BUILDS THE SHIPPED CATALOG. Every option above falls
 // back to a default, so a typo'd or wrong-script flag is silently ignored and the default is used
@@ -52,7 +56,7 @@ const OVERRIDES = opt('--overrides', path.join(here, 'overrides'));
 // larger blast radius, so it gets the same treatment rather than a comment warning readers to be
 // careful.
 {
-  const KNOWN = new Set(['--runs', '--only-platform', '--baseline', '--out', '--platform', '--overrides']);
+  const KNOWN = new Set(['--runs', '--only-platform', '--baseline', '--out', '--platform', '--overrides', '--strict']);
   const unknown = argv.filter(
     (a, i) => a.startsWith('--') && !KNOWN.has(a) && !(i > 0 && KNOWN.has(argv[i - 1])),
   );
@@ -68,6 +72,7 @@ const OVERRIDES = opt('--overrides', path.join(here, 'overrides'));
 // ── read ──────────────────────────────────────────────────────────────────────
 
 const records = [];
+const recordInputs = [];
 /** Every record under `dir`, at any depth. Records are partitioned
  *  `<platform>/<package>/<version>/results.json`, so this walks rather than lists — and it still
  *  reads a FLAT directory, which keeps older result sets collatable. */
@@ -88,7 +93,8 @@ function walk(dir) {
 for (const [root, full] of RUNS.flatMap((d) => walk(d).map((f) => [d, f]))) {
   const f = path.relative(root, full);
   try {
-    const rec = { file: f, ...JSON.parse(fs.readFileSync(full, 'utf8')) };
+    const bytes = fs.readFileSync(full);
+    const rec = { file: f, ...JSON.parse(bytes.toString('utf8')) };
     // The platform is the top directory level, but the record's own provenance is the
     // authority — a file moved between directories must not silently change platform.
     if (PLATFORM_FILTER && rec.provenance?.platform !== PLATFORM_FILTER) continue;
@@ -118,6 +124,7 @@ for (const [root, full] of RUNS.flatMap((d) => walk(d).map((f) => [d, f]))) {
       }
     }
     records.push(rec);
+    recordInputs.push({ path: f.split(path.sep).join('/'), bytes });
   } catch (e) { console.error(`  SKIP ${f}: ${e.message}`); }
 }
 
@@ -127,10 +134,30 @@ for (const [root, full] of RUNS.flatMap((d) => walk(d).map((f) => [d, f]))) {
 // experiment ever produced, so the mix is reported and the majority hash named.
 const harnessHashes = {};
 for (const r of records) {
-  const h = r.provenance?.harnessSha256 ?? 'unknown';
+  const h = `${r.harnessEpoch ?? r.provenance?.harnessEpoch ?? 'unknown'}:`
+    + `${r.provenance?.harnessSha256 ?? 'unknown'}`;
   harnessHashes[h] = (harnessHashes[h] ?? 0) + 1;
 }
 const platforms = new Set(records.map((r) => r.provenance?.platform).filter(Boolean));
+const currentInstrument = computeHarnessIdentity();
+const invalidationPolicy = loadInvalidationPolicy();
+const provenanceFailures = [];
+for (const r of records) {
+  const validity = recordValidity(r, currentInstrument, invalidationPolicy);
+  if (!validity.reusable) provenanceFailures.push(`${r.pkg}@${r.version}: ${validity.reason}`);
+  const runtime = r.provenance?.runtime;
+  if (!runtime?.node?.sha256 || !runtime?.npm?.version || !runtime?.os?.release
+    || !runtime?.runner || !runtime?.environment) {
+    provenanceFailures.push(`${r.pkg}@${r.version}: incomplete Node/npm/OS/runner provenance`);
+  }
+  if (r.verdict === 'MINIMUM') {
+    const kinds = new Set((r.resolvedTrees ?? []).flatMap((tree) => tree.kinds ?? []));
+    if (!kinds.has('direct') || !kinds.has('npm-observe-resolved')
+      || ![...kinds].some((kind) => kind.startsWith('nub-'))) {
+      provenanceFailures.push(`${r.pkg}@${r.version}: incomplete direct/reference/Nub resolved-tree provenance`);
+    }
+  }
+}
 
 // ── group by package ──────────────────────────────────────────────────────────
 
@@ -529,9 +556,59 @@ const baseline = fs.existsSync(BASELINE)
 // compiled-in table. Fixed in `e3cdc0e7f9` and pinned by
 // `crates/nub-sandbox/tests/generated_catalog_round_trip.rs`, which asserts THIS output shape
 // reaches the lookup the jail uses.
-const catalog = { packages, baseline: baseline.baseline ?? [], env: baseline.env ?? [] };
-fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, `${JSON.stringify(catalog, null, 2)}\n`);
+const recordsHash = crypto.createHash('sha256');
+for (const input of recordInputs.sort((a, b) => a.path.localeCompare(b.path))) {
+  recordsHash.update(`${Buffer.byteLength(input.path)}:${input.path}:${input.bytes.length}:`);
+  recordsHash.update(input.bytes);
+}
+const runtimeCells = {};
+const canonical = (value) => {
+  if (value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map(canonical);
+  return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
+};
+for (const record of records) {
+  const runtime = record.provenance?.runtime;
+  const cell = {
+    platform: record.provenance?.platform ?? null,
+    node: runtime?.node?.version ?? record.provenance?.node ?? null,
+    nodeSha256: runtime?.node?.sha256 ?? null,
+    npm: runtime?.npm?.version ?? null,
+    python: (runtime?.python ?? []).map((tool) => tool.version),
+    buildTools: Object.fromEntries(Object.entries(runtime?.buildTools ?? {})
+      .map(([name, tool]) => [name, tool?.version ?? null]).sort()),
+    runnerImage: runtime?.runner?.imageVersion ?? null,
+    nubSha256: record.provenance?.nubBinary?.sha256 ?? null,
+    venue: record.provenance?.venue ?? null,
+    ciEnvSet: record.provenance?.ciEnvSet ?? null,
+    storeLayout: record.provenance?.storeLayout ?? null,
+    environmentAxes: runtime?.environment?.values ?? null,
+    runtimeSha256: runtime ? crypto.createHash('sha256')
+      .update(JSON.stringify(canonical(runtime))).digest('hex') : null,
+    overridesSha256: record.provenance?.overrides ? crypto.createHash('sha256')
+      .update(JSON.stringify(canonical(record.provenance.overrides))).digest('hex') : null,
+  };
+  const key = JSON.stringify(cell);
+  runtimeCells[key] = (runtimeCells[key] ?? 0) + 1;
+}
+const catalog = {
+  packages,
+  baseline: baseline.baseline ?? [],
+  env: baseline.env ?? [],
+  provenance: {
+    schemaVersion: 1,
+    harnessEpoch: currentInstrument.harnessEpoch,
+    harnessSha256: currentInstrument.harnessSha256,
+    invalidationPolicySha256: currentInstrument.invalidationPolicySha256,
+    recordsSha256: recordsHash.digest('hex'),
+    recordCount: records.length,
+    sourceHarnesses: Object.fromEntries(Object.entries(harnessHashes).sort()),
+    runtimeCells: Object.entries(runtimeCells).sort(([a], [b]) => a.localeCompare(b))
+      .map(([identity, count]) => ({ ...JSON.parse(identity), count })),
+    resolvedTreeDigests: [...new Set(records.flatMap((record) =>
+      (record.resolvedTrees ?? []).map((tree) => tree.digest)))].sort(),
+  },
+};
 
 // ── report ────────────────────────────────────────────────────────────────────
 
@@ -556,10 +633,15 @@ console.log(`harness revisions   ${hh.map(([h, n]) => `${h}:${n}`).join('  ')}`)
 // a target at all. It reports the SPAN and the harness->binary pairing; choosing the target needs
 // `git merge-base --is-ancestor` against the fixes, which belongs to whoever runs the re-measure.
 if (hh.length > 1) {
-  console.log(`  ⚠ RECORDS SPAN ${hh.length} HARNESS REVISIONS — this catalog mixes measurement regimes`);
-  console.log('    ⛔ the MODAL revision is NOT the target: it is the oldest era by construction (a spec');
-  console.log('       holding a record is never re-measured, so the first sweep keeps the largest share).');
-  console.log('       Pick the revision paired with a FIX-CARRYING nub commit, verified by ancestry.');
+  if (provenanceFailures.length) {
+    console.log(`  ⚠ RECORDS SPAN ${hh.length} HARNESS REVISIONS — this catalog mixes unapproved measurement regimes`);
+    console.log('    ⛔ the MODAL revision is NOT the target: it is the oldest era by construction (a spec');
+    console.log('       holding a record is never re-measured, so the first sweep keeps the largest share).');
+    console.log('       Re-measure the invalid records or add a narrowly scoped, reviewed invalidation transition.');
+  } else {
+    console.log(`  records span ${hh.length} source harness revisions; every older source is explicitly`);
+    console.log('  preserved by the current targeted invalidation policy and is effective in this epoch.');
+  }
   const pairing = {};
   for (const r of records) {
     const h = String(r.provenance?.harnessSha256 ?? 'unknown').slice(0, 16);
@@ -604,4 +686,28 @@ if (applied.length) {
 }
 for (const d of deadWeight) console.log(`  ⚠ ${d}: override MATCHES the measured result — prune it`);
 for (const r of rejected) console.log(`  ⛔ REJECTED ${r}`);
+const strictFailures = [];
+if (provenanceFailures.length) {
+  strictFailures.push(`${provenanceFailures.length} record provenance failure(s): `
+    + `${provenanceFailures.slice(0, 5).join('; ')}${provenanceFailures.length > 5 ? ' …' : ''}`);
+}
+if (staleDefaults.length) strictFailures.push(`${staleDefaults.length} package default(s) are not latest`);
+if (missingTag.length) strictFailures.push(`${missingTag.length} package(s) have no recorded latest dist-tag`);
+if (unprovenMinimality.length) strictFailures.push(`${unprovenMinimality.length} record(s) have unproven minimality`);
+if (deadWeight.length) strictFailures.push(`${deadWeight.length} override(s) duplicate measured grants`);
+if (rejected.length) strictFailures.push(`${rejected.length} override(s) were rejected`);
+if (excluded.harnessError.length || excluded.noVerdict.length || excluded.noStatePassed.length
+  || excluded.artifactGateSuspect.length) {
+  strictFailures.push('incomplete record verdicts remain: '
+    + `harness=${excluded.harnessError.length}, noVerdict=${excluded.noVerdict.length}, `
+    + `noState=${excluded.noStatePassed.length}, artifactSuspect=${excluded.artifactGateSuspect.length}`);
+}
+if (STRICT && strictFailures.length) {
+  console.error('\nCOLLATE STRICT FAILED:');
+  for (const failure of strictFailures) console.error(`  - ${failure}`);
+  console.error(`  refusing to write ${OUT}`);
+  process.exit(1);
+}
+fs.mkdirSync(path.dirname(OUT), { recursive: true });
+fs.writeFileSync(OUT, `${JSON.stringify(catalog, null, 2)}\n`);
 console.log(`\nwrote ${OUT}`);

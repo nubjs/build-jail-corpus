@@ -1,8 +1,9 @@
 # ⛔ PIN LINE ENDINGS, BECAUSE THE HARNESS HASHES ITS OWN SOURCE AND GIT REWRITES IT ON CHECKOUT.
 #
-# Every record carries `provenance.harnessSha256`, a sha256 of `search.mjs` + `states.mjs`, so a
-# reader can tell which methodology produced it. Without this file that hash is NOT a property of the
-# harness — it is a property of the harness AS CHECKED OUT, and Git converts LF to CRLF on Windows.
+# Legacy records hash `search.mjs` + `states.mjs` as checked-out bytes. V2 normalizes CRLF while
+# hashing the complete instrument, but still relies on LF shell sources and byte-stable generated
+# records. Without this file, the legacy hash remains a property of the checkout rather than the
+# harness commit.
 #
 # MEASURED: identical committed source hashed 0de2d34e463a748a on the Linux and macOS runners and
 # 6fa2b6be501b4b5d on the Windows runner. Re-hashing the committed bytes with \n -> \r\n reproduces
@@ -24,4 +25,6 @@
 
 # Records are generated JSON; keep them byte-stable so a re-commit is a no-op rather than a diff.
 records/** -text
+records-v2/** -text
 queue.ndjson -text
+queue-v2.ndjson -text

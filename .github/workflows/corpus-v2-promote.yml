@@ -1,0 +1,49 @@
+# Full-corpus promotion gate. It is manual because it materializes the complete ~1.2 GB record tree;
+# the slice runner stays sparse and cannot authoritatively decide completeness while peers are live.
+name: corpus-v2-promote
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - harness/**
+      - .github/workflows/corpus-v2-runner.yml
+      - .github/workflows/corpus-v2-promote.yml
+      - .gitattributes
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Run the complete harness test suite
+        shell: bash
+        run: |
+          set -eu
+          TESTS=$(find harness -type f -name '*.test.mjs' | sort)
+          [ -n "$TESTS" ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
+          node --test $TESTS
+
+  promote:
+    if: github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Refuse incomplete, stale, mixed, or warning-bearing corpus input
+        shell: bash
+        run: |
+          set -eu
+          node harness/verify-corpus.mjs --records records-v2/runs \
+            --queue queue-v2.ndjson --strict --complete
