@@ -1,0 +1,62 @@
+### hugo-bin@0.161.0   (D:\jail\m-hugobin-msjzazyq)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4932 exit=0 events=49613 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-hugobin-msjzazyq\observe\node_modules\hugo-bin)
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":3,"reasons":[]}
+  CLOSURE 120 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-hugobin-msjzazyq\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-hugobin-msjzazyq\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-hugobin-msjzazyq\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-hugobin-msjzazyq\observe\node_modules\hugo-bin
+  == ATTRIBUTION == lifecycle pids: 8 (root 4932)
+    writes  script 4  /  whole traced tree 15
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          4
+  == READS ==
+    deps        574
+    outside       8
+    project       2
+    systemfs     41
+  == NETWORK ==
+    distinct peers: 2
+        140.82.112.4:443
+        185.199.111.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  64400017 B xml -> 866230 B gz (74.3x)  sha256 0e620483873df2a7…
+  HEADER    etw-header.json (5057 bytes)
+  DERIVED   15818 distinct from 19503 kept ops (49613 xml events, 1527 out of subtree)
+  PROCS     10   thread-reattributed 0
+  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (169605 bytes)
+  RAWLOG-CAPTURE D:\jail\m-hugobin-msjzazyq\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-hugobin-msjzazyq
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugobin-msjzazyq\\npm-cache","TMP":"D:\\jail\\m-hugobin-msjzazyq\\tmp","TEMP":"D:\\jail\\m-hugobin-msjzazyq\\tmp","TMPDIR":"D:\\jail\\m-hugobin-msjzazyq\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-hugobin-msjzazyq\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=10/10 missing=0 shortfall=none (tree 7532/1384) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-hugobin-msjzazyq\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=10/10 missing=0 shortfall=none (tree 7532/1384) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-hugobin-msjzazyq\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=10/10 missing=0 shortfall=none (tree 7532/1384) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-hugobin-msjzazyq\verify-fb2\.cache
+  VERIFY[fb2] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7535/1384) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
