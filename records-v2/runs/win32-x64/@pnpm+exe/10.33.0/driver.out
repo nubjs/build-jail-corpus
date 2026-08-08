@@ -1,0 +1,54 @@
+### @pnpm/exe@10.33.0   (D:\jail\m-pnpmexe-msjshbzn)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8156 exit=0 events=429428 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-pnpmexe-msjshbzn\observe\node_modules\@pnpm\exe)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-pnpmexe-msjshbzn\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-pnpmexe-msjshbzn\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-pnpmexe-msjshbzn\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-pnpmexe-msjshbzn\observe\node_modules\@pnpm\exe
+  == ATTRIBUTION == lifecycle pids: 2 (root 8156)
+    writes  script 3  /  whole traced tree 13
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          3
+  == READS ==
+    deps          8
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  547137004 B xml -> 7134312 B gz (76.7x)  sha256 5ef3f8bf20e8aa84…
+  HEADER    etw-header.json (5018 bytes)
+  DERIVED   5267 distinct from 6437 kept ops (429428 xml events, 151978 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (66828 bytes)
+  RAWLOG-CAPTURE D:\jail\m-pnpmexe-msjshbzn\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-pnpmexe-msjshbzn
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pnpmexe-msjshbzn\\npm-cache","TMP":"D:\\jail\\m-pnpmexe-msjshbzn\\tmp","TEMP":"D:\\jail\\m-pnpmexe-msjshbzn\\tmp","TMPDIR":"D:\\jail\\m-pnpmexe-msjshbzn\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-pnpmexe-msjshbzn\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5694/20) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-pnpmexe-msjshbzn\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5694/20) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
