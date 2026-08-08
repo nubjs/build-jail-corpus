@@ -1,0 +1,59 @@
+### puppeteer@1.20.0   (D:\jail\m-puppeteer-msjsd35e)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7216 exit=0 events=137978 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 149 files  (D:\jail\m-puppeteer-msjsd35e\observe\node_modules\puppeteer)
+  ARM-FALSIFIABILITY {"manifestFiles":149,"filesTheScriptProduced":76,"reasons":[]}
+  CLOSURE 41 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-puppeteer-msjsd35e\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-puppeteer-msjsd35e\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-puppeteer-msjsd35e\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-puppeteer-msjsd35e\observe\node_modules\puppeteer
+  == ATTRIBUTION == lifecycle pids: 2 (root 7216)
+    writes  script 83  /  whole traced tree 90
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps         83
+  == READS ==
+    deps        150
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 1
+        142.250.69.187:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  180835557 B xml -> 2701089 B gz (66.9x)  sha256 9120d3dd1357bde1…
+  HEADER    etw-header.json (5074 bytes)
+  DERIVED   6192 distinct from 62935 kept ops (137978 xml events, 3543 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (80120 bytes)
+  RAWLOG-CAPTURE D:\jail\m-puppeteer-msjsd35e\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-puppeteer-msjsd35e
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-msjsd35e\\npm-cache","TMP":"D:\\jail\\m-puppeteer-msjsd35e\\tmp","TEMP":"D:\\jail\\m-puppeteer-msjsd35e\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-msjsd35e\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-msjsd35e\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=149/149 missing=0 shortfall=none (tree 6383/486) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-puppeteer-msjsd35e\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=73/149 missing=76 shortfall=6ba7f2d26234 (tree 6304/486) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: .local-chromium/win64-686378/chrome-win/78.0.3882.0.manifest, .local-chromium/win64-686378/chrome-win/chrome.dll, .local-chromium/win64-686378/chrome-win/chrome.exe, .local-chromium/win64-686378/chrome-win/chrome_100_percent.pak, .local-chromium/win64-686378/chrome-win/chrome_200_percent.pak, .local-chromium/win64-686378/chrome-win/chrome_child.dll (+70)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-puppeteer-msjsd35e\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=149/149 missing=0 shortfall=none (tree 6383/486) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
