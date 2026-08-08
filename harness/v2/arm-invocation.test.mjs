@@ -61,7 +61,8 @@ function runArm(block, { installLine, installRc = 0, approveRc = 0 }) {
   // The sentinel is what makes a command that did NOT run observable.
   fs.writeFileSync(nub, `#!/bin/sh
 case "$1" in
-  install)        printf '%s\\n' ${JSON.stringify(installLine)}; exit ${installRc} ;;
+  install)        if [ "\${2:-}" = "--ignore-scripts" ]; then exit 0; fi
+                  printf '%s\\n' ${JSON.stringify(installLine)}; exit ${installRc} ;;
   approve-builds) : > "${dir}/APPROVE_RAN"; exit ${approveRc} ;;
 esac
 exit 99
@@ -72,6 +73,7 @@ v=${JSON.stringify(dir)}
 NUB=${JSON.stringify(nub)}
 tracer=""
 rc=x
+security_screen_tree () { :; }
 ${block}
 echo "ARM_RC=$rc"
 `;

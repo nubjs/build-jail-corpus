@@ -127,6 +127,9 @@ const run = (oracle, {
     // Shadows the real `npm_ok` defined inside the branch; a function defined later wins in bash,
     // so this is set via an env the branch's definition cannot see. Stub `npm` itself instead.
     `npm () { return ${npmRc}; }`,
+    // The extracted terminal control now screens the safely-resolved npm tree. This suite's subject
+    // is the ladder, so the screen is stubbed clean just as both installers are.
+    'security_screen_tree () { :; }',
     'verify () {',
     '  local grant="$1" label="$2"',
     oracle,

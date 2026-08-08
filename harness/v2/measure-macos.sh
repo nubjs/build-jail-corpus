@@ -130,6 +130,9 @@ fi
 # ⛔ NOT UNDER /tmp — that path is inside the jail's own private-temp redirect, so a fixture placed
 # there cannot test a filesystem-denial claim at all.
 ROOT="$(mktemp -d "$HOME/v2m-XXXXXX")" || exit 1
+# shellcheck source=harness/v2/security-screen.sh
+. "$HERE/security-screen.sh"
+security_screen_direct "$PKG@$VER"
 # ⛔ THESE LIVE HERE, AFTER `$ROOT`, AND NOT BESIDE THE OTHER ROOT DERIVATIONS ABOVE. The jail home is
 # a subdirectory of the per-run fixture, so it cannot be computed before the fixture exists — placing
 # it with `INTERPRETER` and `GLOBAL_STORE` cost a whole macOS run to `line 86: ROOT: unbound variable`
@@ -312,6 +315,7 @@ npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log"
 if [ $? -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
+security_screen_tree "$OBS" npm-observe-resolved
 # ⛔ CHOWN AFTER THE FETCH, NOT ONLY BEFORE IT. The chown at $ROOT creation predates this fetch, and
 # the fetch runs as ROOT (the driver is under sudo for dtrace) — so every file npm just wrote is
 # root-owned, and the traced `npm rebuild`, which is dropped back to $RUNUSER, then dies on
@@ -791,6 +795,17 @@ verify () {
   else
     echo "  EVICT[$label] no store at $STORE yet (first arm on this box)"
   fi
+  # The lifecycle arm resolves with Nub, not npm. Pre-resolve with scripts disabled under the same
+  # user, cache and catalog, then clear that exact tree before either execution path. A clearance
+  # from npm's OBSERVE tree is deliberately not transferable across resolvers.
+  chown -R "$RUNUSER" "$v" 2>/dev/null
+  sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
+    NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
+    "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
+      echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
+      exit 1
+    }
+  security_screen_tree "$v" "nub-$label-resolved"
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW

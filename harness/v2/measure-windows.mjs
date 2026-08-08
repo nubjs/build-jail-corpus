@@ -214,6 +214,19 @@ if (!fs.existsSync(NPM)) { console.error(`FATAL npm-cli.js not found at ${NPM}`)
 const run = (exe, args, opts = {}) =>
   spawnSync(exe, args, { encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, ...opts });
 
+const SECURITY_CACHE = path.join(ROOT, 'security', 'clearances');
+const securityScreen = (kind, inputArgs) => {
+  const out = path.join(ROOT, 'security', `${kind}.json`);
+  const r = run(NODE, [path.join(HERE, '..', 'osv-screen.mjs'), ...inputArgs,
+    '--kind', kind, '--cache-dir', SECURITY_CACHE, '--out', out]);
+  const output = `${r.stdout ?? ''}${r.stderr ?? ''}`.trimEnd();
+  if (output) console.log(output);
+  if (r.status === 0) return;
+  if (r.status === 42) process.exit(0); // terminal REFUSED-MALICIOUS marker is in the output above
+  console.log(`  => HARNESS-ERROR: fail-closed OSV ${kind} screen did not complete (rc=${r.status}); no lifecycle script ran`);
+  process.exit(1);
+};
+
 // A spawnSync deadline surfaces as `error.code === 'ETIMEDOUT'`, but a killed child also reports
 // status null with a signal, so both spellings are treated as the deadline firing. Distinguishing a
 // timeout from a non-zero exit is what keeps a hung arm out of the "grant insufficient" bucket.
@@ -372,6 +385,9 @@ if ((process.env.NUB_CORPUS_CI_ENV ?? 'unset') === 'inherit') {
 }
 
 // ── 1. OBSERVE ────────────────────────────────────────────────────────────────────────────────
+// Query the direct target before fetching it. The resolved-tree screen below remains mandatory:
+// a clean target can resolve a compromised transitive package.
+securityScreen('direct', ['--spec', `${PKG}@${VER}`]);
 // ⛔ THE FETCH IS NOT TRACED, AND THAT IS THE POINT. Tracing `npm install` traces NPM: its registry
 // TLS and its cache writes under the user profile land in the same event stream as the lifecycle
 // script's, so every package synthesizes network + write:userHome no matter what its script does.
@@ -513,6 +529,7 @@ if (fetch.status !== 0) {
   emitBinaryProvenance();
   process.exit(0);
 }
+securityScreen('npm-observe-resolved', ['--tree', OBS]);
 
 // ⛔ TAKEN NOW, BECAUSE NOW IS THE ONLY MOMENT IT EXISTS. The fetch above ran `--ignore-scripts`, so
 // the package directory at this instant is exactly what the tarball shipped. Once the lifecycle
@@ -1202,6 +1219,20 @@ const verify = (grant, label) => {
   // assertion below cannot observe what it asserts on, which is why this lane was still running the
   // predicate `measure.sh` had already measured to be wrong.
   const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
+  // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
+  // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.
+  const safeResolve = run(NUB, ['install', '--ignore-scripts'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
+  fs.writeFileSync(path.join(v, 'security-resolve.log'),
+    (safeResolve.stdout ?? '') + (safeResolve.stderr ?? ''));
+  if (timedOut(safeResolve)) {
+    console.log(`  => TIMED-OUT in safe Nub resolution after ${ARM_TIMEOUT_MS} ms -- no lifecycle script ran`);
+    process.exit(3);
+  }
+  if (safeResolve.status !== 0) {
+    console.log(`  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts (rc=${safeResolve.status}); no lifecycle script ran`);
+    process.exit(1);
+  }
+  securityScreen(`nub-${label}-resolved`, ['--tree', v]);
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
   // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the

@@ -103,6 +103,12 @@ echo "### $PKG@$VER   ($ROOT)"
 # `ci-env-scrub.test.mjs` asserts all three agree. The full reasoning lives in the sourced file.
 # shellcheck source=harness/v2/ci-env-scrub.sh
 . "$HERE/ci-env-scrub.sh"
+# shellcheck source=harness/v2/security-screen.sh
+. "$HERE/security-screen.sh"
+
+# Direct-package screening comes before npm fetches the requested tarball. It cannot replace the
+# resolved-tree screens below, because a clean target may resolve a compromised transitive package.
+security_screen_direct "$PKG@$VER"
 
 # ── 0. R7 — OBSERVE RUNS WITH FULL USER PERMISSIONS, AND ASSERTS IT ────────────────────────────
 #
@@ -345,6 +351,9 @@ FETCH_RC=$?
 if [ "$FETCH_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi
+# The fetch materialized the exact npm tree without executing scripts. Clear that tree before the
+# traced rebuild; this is the boundary a direct name@version query cannot cover.
+security_screen_tree "$OBS" npm-observe-resolved
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 # ⛔ TAKEN BEFORE THE TRACE, WHICH IS THE ONLY MOMENT IT EXISTS. The fetch above ran with
 # `--ignore-scripts`, so the package dir right now is exactly what the tarball shipped. After the
@@ -682,10 +691,13 @@ fi
 unjailed_nub_ok () {
   local p="$1" v="$2"
   local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nsp-XXXXXX") || return 1
+  printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > "$d/package.json"
+  printf '{"install":{"buildJail":false}}\n' > "$d/nub.jsonc"
+  ( cd "$d" && "$NUB" install --ignore-scripts > security-resolve.log 2>&1 ) || {
+    rm -rf "$d"; return 1; }
+  security_screen_tree "$d" nub-unjailed-resolved
   (
     cd "$d" || exit 1
-    printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > package.json
-    printf '{"install":{"buildJail":false}}\n' > nub.jsonc
     "$NUB" install > i.log 2>&1 || exit 1
     "$NUB" approve-builds --all > a.log 2>&1 || exit 1
   )
@@ -1047,6 +1059,19 @@ verify () {
   # something. Any path that prints neither marker keeps the old behaviour of running
   # approve-builds, so an unrecognised trust path can only ever cost a redundant no-op — never a
   # script that silently never ran.
+  #
+  # Resolve and materialize THIS arm's exact Nub tree with every lifecycle hook disabled. Only a
+  # clearance for its sorted exact spec set may precede the ordinary install below; npm's OBSERVE
+  # clearance is not transferable across resolvers. Nub's own regression suite proves an
+  # `--ignore-scripts` install does not make the subsequent ordinary install look fresh.
+  ( cd "$v"
+    RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+      "$NUB" install --ignore-scripts > "$v/security-resolve.log" 2>&1
+  ) || {
+    echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
+    exit 1
+  }
+  security_screen_tree "$v" "nub-$label-resolved"
   ( cd "$v"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
@@ -1587,7 +1612,13 @@ if [ "$NSP_RC" -ne 0 ]; then
   # SUCCEEDS for amplify while a fresh `npm install` fails. Different npm verb, different answer.
   npm_ok () {
     local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
-    ( cd "$d" && npm install --no-audit --no-fund "$1@$2" > n.log 2>&1 )
+    printf '{"name":"nspnpm","version":"1.0.0"}\n' > "$d/package.json"
+    ( cd "$d" && npm install --no-audit --no-fund --ignore-scripts "$1@$2" > fetch.log 2>&1 ) || {
+      rm -rf "$d"; return 1; }
+    security_screen_tree "$d" npm-fallback-resolved
+    # Rebuild the whole cleared tree: an ordinary npm install runs dependency lifecycle scripts as
+    # well as the target's, so targeting only `$1` would change the reference arm.
+    ( cd "$d" && npm rebuild --no-audit --no-fund > n.log 2>&1 )
     local rc=$?; rm -rf "$d"; return $rc
   }
   # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a

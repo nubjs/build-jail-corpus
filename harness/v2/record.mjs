@@ -75,6 +75,7 @@ function corpusShaFromCheckout() {
 }
 
 const VERDICTS = {
+  'REFUSED-MALICIOUS': /=>\s*REFUSED-MALICIOUS/,
   'BROKEN-WITHOUT-JAIL-TOO': /=>\s*BROKEN-WITHOUT-JAIL-TOO/,
   'NO-STATE-PASSED': /=>\s*NO-STATE-PASSED/,
   // ⛔ nub cannot install the package even with the jail OFF, so the ladder's failures are not
@@ -116,6 +117,11 @@ export function parseDriverLog(log) {
     // null: the classifier always answers this question now, so "no pinned entries" is a measured
     // answer rather than an absence.
     writePathsVersionPinned: [],
+    // Every completed direct/resolved-tree OSV screen prints one compact marker. The exact spec set
+    // stays in the clearance artifact during the run; the record persists the digest/count and every
+    // advisory that caused a terminal refusal.
+    securityScreens: [],
+    maliciousAdvisories: [],
     // ⛔ WHERE THE JAILED ARMS RAN. Two records from different venues can agree on every other field
     // and still have been measured under filesystem roots with different ACLs — and on Windows that
     // is not hypothetical: any jail root under `C:\Users\<user>` fails before a single script runs
@@ -135,6 +141,17 @@ export function parseDriverLog(log) {
 
   let synthesizedNext = false;
   for (const l of lines) {
+    const security = /^OSV-SCREEN\s+(\{.*\})\s*$/.exec(l);
+    if (security) {
+      try {
+        const parsed = JSON.parse(security[1]);
+        out.securityScreens.push(parsed);
+        for (const finding of parsed.maliciousAdvisories ?? []) {
+          if (finding?.spec && Array.isArray(finding.ids)) out.maliciousAdvisories.push(finding);
+        }
+      } catch { out.notes.push('osv-screen-marker-unparsable'); }
+      continue;
+    }
     // ⛔ THE RETAINED EVENT LOG. The driver writes the file and prints its PATH; this reader only
     // learns where it is. That keeps the contract at two stdout lines, so a platform adopts
     // retention by printing them and this file never learns a trace format.
@@ -351,6 +368,8 @@ export function parseDriverLog(log) {
   }
   out.notes = [...new Set(out.notes)];
   out.overPredictedBy = [...new Set(out.overPredictedBy)];
+  out.maliciousAdvisories = [...new Map(out.maliciousAdvisories
+    .map((finding) => [`${finding.spec}\0${finding.ids.join(',')}`, finding])).values()];
   applyGrantSourceRule(out, lines);
   return out;
 }
@@ -721,6 +740,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // separately would give two values that can disagree.
     writePaths: parsed.grant?.writePaths ?? [],
     writePathsVersionPinned: parsed.writePathsVersionPinned ?? [],
+    securityScreens: parsed.securityScreens ?? [],
+    maliciousAdvisories: parsed.maliciousAdvisories ?? [],
     // ⛔ WHICH VALUE `grant` ABOVE IS, AND WHY. `rec` is an explicit whitelist, so the first version
     // of the grant-source rule narrowed `grant` correctly and then dropped every field explaining it
     // — a record whose grant had been narrowed with nothing saying on what basis, which is the exact

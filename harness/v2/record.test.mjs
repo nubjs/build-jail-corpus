@@ -60,6 +60,27 @@ test('a log with no terminal line yields no verdict, so the caller must call it 
   assert.equal(r.grant, null);
 });
 
+test('a resolved-tree malware refusal persists the exact advisory and screen identity', () => {
+  const screen = {
+    schemaVersion: 1,
+    kind: 'npm-observe-resolved',
+    status: 'refused-malicious',
+    digest: 'a'.repeat(64),
+    specCount: 2,
+    maliciousAdvisories: [{ spec: 'bad-transitive@2.0.0', ids: ['MAL-2025-12345'] }],
+    screenedAt: '2026-08-08T00:00:00.000Z',
+    cacheHit: false,
+  };
+  const r = parseDriverLog([
+    `OSV-SCREEN ${JSON.stringify(screen)}`,
+    '  => REFUSED-MALICIOUS (npm-observe-resolved OSV screen): bad-transitive@2.0.0 [MAL-2025-12345]',
+  ].join('\n'));
+  assert.equal(r.verdict, 'REFUSED-MALICIOUS');
+  assert.deepEqual(r.securityScreens, [screen]);
+  assert.deepEqual(r.maliciousAdvisories,
+    [{ spec: 'bad-transitive@2.0.0', ids: ['MAL-2025-12345'] }]);
+});
+
 test('a trailing paren does not get swallowed into the grant', () => {
   assert.deepEqual(
     firstObject('  => VERIFIED {"write":{"deps":true}}   (observed, then verified)'),

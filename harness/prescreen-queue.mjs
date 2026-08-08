@@ -19,8 +19,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { queryOsvMalware } from './osv-screen.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -43,42 +43,7 @@ const DRY = argv.includes('--dry-run');
  *  silent partial screen. Body goes over stdin: a large batch is hundreds of KB and argv has its own
  *  ceiling. */
 function osvMalicious(specs) {
-  const queries = specs.map((sp) => {
-    const at = sp.lastIndexOf('@');
-    const name = at > 0 ? sp.slice(0, at) : sp;
-    const version = at > 0 ? sp.slice(at + 1) : undefined;
-    return version
-      ? { package: { name, ecosystem: 'npm' }, version }
-      : { package: { name, ecosystem: 'npm' } };
-  });
-  const CHUNK = 500;
-  const results = [];
-  for (let i = 0; i < queries.length; i += CHUNK) {
-    const slice = queries.slice(i, i + CHUNK);
-    const r = spawnSync('curl', ['-sS', '--max-time', '120', '-X', 'POST',
-      'https://api.osv.dev/v1/querybatch', '-H', 'Content-Type: application/json',
-      '--data-binary', '@-'],
-    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, input: JSON.stringify({ queries: slice }) });
-    if (r.status !== 0) {
-      throw new Error(`OSV pre-screen FAILED (curl ${r.status}): ${(r.stderr || '').slice(0, 200)}`);
-    }
-    let parsed;
-    try { parsed = JSON.parse(r.stdout); } catch (e) {
-      throw new Error(`OSV pre-screen FAILED to parse: ${e.message}`);
-    }
-    const got = parsed.results ?? [];
-    if (got.length !== slice.length) {
-      throw new Error(`OSV pre-screen returned ${got.length} results for ${slice.length} queries `
-        + `(chunk ${i / CHUNK} of ${Math.ceil(queries.length / CHUNK)}) — refusing a partial screen`);
-    }
-    results.push(...got);
-  }
-  const flagged = new Map();
-  results.forEach((res, i) => {
-    const ids = (res.vulns ?? []).map((v) => v.id ?? '').filter((id) => id.startsWith('MAL-'));
-    if (ids.length) flagged.set(specs[i], ids);
-  });
-  return flagged;
+  return new Map(queryOsvMalware(specs).map(({ spec, ids }) => [spec, ids]));
 }
 
 /** Build the distinct spec list, REFUSING any row that does not carry the keys this screen reads.
