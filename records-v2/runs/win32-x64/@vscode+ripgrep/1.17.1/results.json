@@ -1,27 +1,33 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.119.0",
+  "pkg": "@vscode/ripgrep",
+  "version": "1.17.1",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 649108,
+  "driverRc": 0,
+  "durationMs": 102215,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "8cf542834bcc0c1ff8c335ec995d7418fcc6a0e0",
     "node": "v22.23.2",
-    "at": "2026-08-08T01:46:26.938Z",
+    "at": "2026-08-08T02:52:31.972Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-hugoextended-msjpcbca",
+    "jailRoot": "C:\\jail\\m-vscoderipgrep-msjs10rh",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-hugoextended-msjpcbca\\npm-cache",
-        "TMP": "C:\\jail\\m-hugoextended-msjpcbca\\tmp",
-        "TEMP": "C:\\jail\\m-hugoextended-msjpcbca\\tmp",
-        "TMPDIR": "C:\\jail\\m-hugoextended-msjpcbca\\tmp"
+        "npm_config_cache": "C:\\jail\\m-vscoderipgrep-msjs10rh\\npm-cache",
+        "TMP": "C:\\jail\\m-vscoderipgrep-msjs10rh\\tmp",
+        "TEMP": "C:\\jail\\m-vscoderipgrep-msjs10rh\\tmp",
+        "TMPDIR": "C:\\jail\\m-vscoderipgrep-msjs10rh\\tmp"
       },
       "unset": [
         "CI",
