@@ -2,9 +2,9 @@
   "k": "h",
   "v": 1,
   "platform": "win32-x64",
-  "pkg": "agent-browser",
-  "version": "0.27.0",
-  "at": "2026-08-08T06:23:44.457Z",
+  "pkg": "saucectl",
+  "version": "0.132.0",
+  "at": "2026-08-08T06:47:55.857Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7868_msjzmloh",
+      "name": "nubobs_1240_msk0hrh0",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-agentbrowser-msjzmjzq\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-agentbrowser-msjzmjzq\\observe",
-    "rootPid": 2156,
-    "launcherPid": 1256,
+    "command": "D:\\jail\\m-saucectl-msk0hovx\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-saucectl-msk0hovx\\observe",
+    "rootPid": 6772,
+    "launcherPid": 6160,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T06:23:36.4572494Z",
-    "endedUtc": "2026-08-08T06:23:37.4712654Z"
+    "startedUtc": "2026-08-08T06:47:50.2727158Z",
+    "endedUtc": "2026-08-08T06:47:51.9199933Z"
   },
   "integrity": {
-    "eventsTotal": 69075,
+    "eventsTotal": 25449,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-agentbrowser-msjzmjzq\\observe",
+    "project": "D:\\jail\\m-saucectl-msk0hovx\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-agentbrowser-msjzmjzq\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-saucectl-msk0hovx\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-agentbrowser-msjzmjzq\\tmp",
+    "temp": "D:\\jail\\m-saucectl-msk0hovx\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-agentbrowser-msjzmjzq\\observe\\node_modules\\agent-browser",
+    "ownPkg": "D:\\jail\\m-saucectl-msk0hovx\\observe\\node_modules\\saucectl",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 88432278,
-    "gzBytes": 1303608,
-    "sha256": "01e3a8d87958c7c29dfa4cc014df9b21dcef74ab0d883b0d3b6c6f21c2bc7711",
+    "bytes": 32655558,
+    "gzBytes": 488616,
+    "sha256": "1051e37b7146ec4b070d8dc275c513a1461407221e1e5b00546664bb0ddc705e",
     "of": "trace.xml",
-    "etlBytes": 12582912,
+    "etlBytes": 7340032,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,25 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2156 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 6772 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
   },
   "stats": {
-    "xmlEvents": 69075,
-    "kept": 8251,
-    "distinct": 6496,
+    "xmlEvents": 25449,
+    "kept": 8560,
+    "distinct": 5964,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 69055,
-      "Microsoft-Windows-Kernel-Process": 18
+      "Microsoft-Windows-Kernel-File": 24432,
+      "Microsoft-Windows-Kernel-Process": 12,
+      "Microsoft-Windows-Kernel-Network": 1003
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
-    "unsettled": 1,
+    "unsettled": 2,
     "reattributedByThread": 0,
-    "outOfSubtree": 18798,
-    "destResolved": 5,
+    "outOfSubtree": 1713,
+    "destResolved": 4,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
