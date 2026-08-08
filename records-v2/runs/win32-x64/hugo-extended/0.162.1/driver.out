@@ -1,28 +1,30 @@
-### hugo-extended@0.162.1   (C:\jail\m-hugoextended-msjno1ce)
+### hugo-extended@0.162.1   (C:\jail\m-hugoextended-msjpffc5)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3444 exit=0 events=30192 lost=0
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7552 exit=0 events=32595 lost=0
   VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 23 files  (C:\jail\m-hugoextended-msjno1ce\observe\node_modules\hugo-extended)
+  OBSERVE artifacts: 23 files  (C:\jail\m-hugoextended-msjpffc5\observe\node_modules\hugo-extended)
   ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":3,"reasons":[]}
   CLOSURE 8 packages evicted per arm
   8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-hugoextended-msjno1ce\observe   [keyed on]
+    project       C:\jail\m-hugoextended-msjpffc5\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-hugoextended-msjno1ce\observe\node_modules\.store
+    projectStore  C:\jail\m-hugoextended-msjpffc5\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-hugoextended-msjno1ce\tmp   [keyed on]
+    temp          C:\jail\m-hugoextended-msjpffc5\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-hugoextended-msjno1ce\observe\node_modules\hugo-extended
-  == ATTRIBUTION == lifecycle pids: 3 (root 3444)
-    writes  script 6  /  whole traced tree 19
+    ownPkg        C:\jail\m-hugoextended-msjpffc5\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 7552)
+    writes  script 7  /  whole traced tree 20
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     deps          5
     kernelfs      1
+    outside       1
+        c:\hostedtoolcache\windows\node\22.23.2\x64\node_modules\npm\node_modules\@npmcli\metavuln-calculator\node_modules\npm-packlist\package.json
   == READS ==
     deps         33
     outside       8
@@ -30,27 +32,28 @@
     systemfs     42
   == NETWORK ==
     distinct peers: 2
-        140.82.112.4:443
-        185.199.110.133:443
+        140.82.116.3:443
+        185.199.111.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
+    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  38907653 B xml -> 550140 B gz (70.7x)  sha256 8a94a52256b3ce1a…
-  HEADER    etw-header.json (5094 bytes)
-  DERIVED   8431 distinct from 10606 kept ops (30192 xml events, 1478 out of subtree)
+  RAW       etw-raw.xml.gz  42334160 B xml -> 590048 B gz (71.7x)  sha256 7b2dac3f63ae9755…
+  HEADER    etw-header.json (5096 bytes)
+  DERIVED   8430 distinct from 12737 kept ops (32595 xml events, 1460 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 3 handle ops whose path no table could supply
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 4 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (96366 bytes)
-  RAWLOG-CAPTURE C:\jail\m-hugoextended-msjno1ce\cap\capture.json
+  wrote events.ndjson.gz (96674 bytes)
+  RAWLOG-CAPTURE C:\jail\m-hugoextended-msjpffc5\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-hugoextended-msjno1ce
+  VENUE-JAIL-ROOT C:\jail\m-hugoextended-msjpffc5
   VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-hugoextended-msjno1ce\\npm-cache","TMP":"C:\\jail\\m-hugoextended-msjno1ce\\tmp","TEMP":"C:\\jail\\m-hugoextended-msjno1ce\\tmp","TMPDIR":"C:\\jail\\m-hugoextended-msjno1ce\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-hugoextended-msjno1ce\verify-synth\.cache
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-hugoextended-msjpffc5\\npm-cache","TMP":"C:\\jail\\m-hugoextended-msjpffc5\\tmp","TEMP":"C:\\jail\\m-hugoextended-msjpffc5\\tmp","TMPDIR":"C:\\jail\\m-hugoextended-msjpffc5\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-hugoextended-msjpffc5\verify-synth\.cache
   VERIFY[synth] TIMED-OUT in `approve-builds` after 600000 ms -- no verdict; check for surviving children
   => TIMED-OUT at the synthesized grant (approve-builds); no verdict, and the ladder is NOT walked

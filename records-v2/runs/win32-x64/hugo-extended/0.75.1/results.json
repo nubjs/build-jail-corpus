@@ -1,27 +1,33 @@
 {
   "pkg": "hugo-extended",
-  "version": "0.139.4",
+  "version": "0.75.1",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 660595,
+  "driverRc": 0,
+  "durationMs": 137736,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "6ca8e1a2f85791a8ff46f11d4d677ff7d283598d",
     "node": "v22.23.2",
-    "at": "2026-08-08T01:59:19.117Z",
+    "at": "2026-08-08T01:36:30.209Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-hugoextended-msjpsmal",
+    "jailRoot": "C:\\jail\\m-hugoextended-msjpahhb",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-hugoextended-msjpsmal\\npm-cache",
-        "TMP": "C:\\jail\\m-hugoextended-msjpsmal\\tmp",
-        "TEMP": "C:\\jail\\m-hugoextended-msjpsmal\\tmp",
-        "TMPDIR": "C:\\jail\\m-hugoextended-msjpsmal\\tmp"
+        "npm_config_cache": "C:\\jail\\m-hugoextended-msjpahhb\\npm-cache",
+        "TMP": "C:\\jail\\m-hugoextended-msjpahhb\\tmp",
+        "TEMP": "C:\\jail\\m-hugoextended-msjpahhb\\tmp",
+        "TMPDIR": "C:\\jail\\m-hugoextended-msjpahhb\\tmp"
       },
       "unset": [
         "CI",
