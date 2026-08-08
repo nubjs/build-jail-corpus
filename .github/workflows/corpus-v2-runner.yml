@@ -124,6 +124,20 @@ jobs:
       # the first place. One spelling that msys2 rewrites consistently is the smaller surface.
     steps:
       - uses: actions/checkout@v4
+        with:
+          # ⛔ SPARSE CHECKOUT. records-v2/ is ~1.2 GB / ~19,449 files; on the slow Windows C: drive
+          # writing that tree dominated the ~82s checkout. The job READS only harness/, .github/ and
+          # (cone mode ALWAYS includes root-level files) queue-v2.ndjson; it only WRITES new dirs
+          # under records-v2/runs/. Leaving records-v2/ un-materialized (skip-worktree) drops the
+          # checkout worktree-write AND makes the commit step's `git reset --hard origin` instant
+          # (skip-worktree paths are never stat-walked or rewritten), cutting commit ~166s -> ~25s,
+          # and scopes the backup artifact to this run's records for free. VERIFIED end-to-end in a
+          # scratch repo including the reset --hard retry loop preserving our untracked record AND
+          # other runners' records with zero reversion. ⛔ The commit step's `git add` MUST be
+          # `git add --sparse` or out-of-cone records stage NOTHING and the slice is silently lost.
+          sparse-checkout: |
+            harness
+            .github
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
 
@@ -543,7 +557,19 @@ jobs:
             # ~1-2s so the push lands. Self-healing of other runs' stranded rows is delegated to
             # `--reclaim-stale` (it re-measures), which does not need to sit in this hot loop.
             node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
-            git add records-v2 queue-v2.ndjson
+            # ⛔ --sparse IS MANDATORY under the sparse checkout: records-v2/runs/<plat>/... is
+            # OUTSIDE the cone, and a plain `git add records-v2` stages NOTHING there (it warns and
+            # skips), so the slice would be silently dropped. VERIFIED: with --sparse the new record
+            # stages and commits; without it, nothing.
+            git add --sparse records-v2 queue-v2.ndjson
+            # ⛔ LOUD-FAIL GUARD. If this run measured records (manifest non-empty) but git staged
+            # nothing, the sparse add failed — fail LOUD so the claim strands and --reclaim-stale
+            # re-measures it, rather than exit 0 and lose the slice. (A false trip only causes a safe
+            # re-measure; a missed silent-loss corrupts the corpus at 20x concurrency.)
+            if [ -s "$MANIFEST" ] && git diff --cached --quiet; then
+              echo "FATAL: non-empty publish manifest but git staged nothing — sparse add failed; refusing to drop the slice" >&2
+              exit 1
+            fi
             git diff --cached --quiet && { echo "already up to date — records already landed"; exit 0; }
             git commit -q -m "corpus-v2($OS_NAME): slice of $SLICE_N [run ${{ github.run_id }}]"
             git push -q && exit 0
