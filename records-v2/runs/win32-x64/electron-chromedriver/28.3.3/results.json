@@ -1,27 +1,43 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.139.4",
+  "pkg": "electron-chromedriver",
+  "version": "28.3.3",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
-  "synthesized": {
+  "verdict": "MINIMUM",
+  "grant": {
     "write": {
-      "deps": true
+      "project": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "synthesized": {
+    "write": {
+      "deps": true,
+      "userHome": true
+    },
+    "network": true
+  },
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
+  "notes": [
+    "under-predicted"
+  ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 626474,
+  "driverRc": 0,
+  "durationMs": 550127,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +45,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "14080b9f96c19bc24673920a838725024da87ee9",
     "node": "v22.23.2",
-    "at": "2026-08-08T02:28:34.697Z",
+    "at": "2026-08-08T02:38:54.033Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjquz8h",
+    "jailRoot": "D:\\jail\\m-electronchromedriver-msjr9w0z",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +67,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjquz8h\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjquz8h\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjquz8h\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjquz8h\\tmp"
+        "npm_config_cache": "D:\\jail\\m-electronchromedriver-msjr9w0z\\npm-cache",
+        "TMP": "D:\\jail\\m-electronchromedriver-msjr9w0z\\tmp",
+        "TEMP": "D:\\jail\\m-electronchromedriver-msjr9w0z\\tmp",
+        "TMPDIR": "D:\\jail\\m-electronchromedriver-msjr9w0z\\tmp"
       },
       "unset": [
         "CI",
