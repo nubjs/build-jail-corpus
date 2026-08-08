@@ -1,0 +1,70 @@
+### @aws-amplify/cli@10.8.1   (C:\jail\m-awsamplifycli-msjl3qh7)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7620 exit=0 events=1613454 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 26 files  (C:\jail\m-awsamplifycli-msjl3qh7\observe\node_modules\@aws-amplify\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":26,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (26) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 26 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-awsamplifycli-msjl3qh7\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-awsamplifycli-msjl3qh7\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-awsamplifycli-msjl3qh7\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-awsamplifycli-msjl3qh7\observe\node_modules\@aws-amplify\cli
+  == ATTRIBUTION == lifecycle pids: 3 (root 7620)
+    writes  script 163  /  whole traced tree 172
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    userHome    161
+    kernelfs      2
+  == READS ==
+    deps         94
+    outside      12
+    project       1
+    systemfs     33
+    userHome    146
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        18.238.96.101:443
+        65.8.20.121:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 2 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  2054416328 B xml -> 27289925 B gz (75.3x)  sha256 f7e65df352909b4b…
+  HEADER    etw-header.json (5122 bytes)
+  DERIVED   7249 distinct from 23664 kept ops (1613454 xml events, 551857 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 13 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (94478 bytes)
+  RAWLOG-CAPTURE C:\jail\m-awsamplifycli-msjl3qh7\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-awsamplifycli-msjl3qh7
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-awsamplifycli-msjl3qh7\\npm-cache","TMP":"C:\\jail\\m-awsamplifycli-msjl3qh7\\tmp","TEMP":"C:\\jail\\m-awsamplifycli-msjl3qh7\\tmp","TMPDIR":"C:\\jail\\m-awsamplifycli-msjl3qh7\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-awsamplifycli-msjl3qh7\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 6143/235) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-awsamplifycli-msjl3qh7\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 6015/235) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  STORE   isolated virtual store at C:\jail\m-awsamplifycli-msjl3qh7\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 6143/235) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at C:\jail\m-awsamplifycli-msjl3qh7\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 6015/235) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
