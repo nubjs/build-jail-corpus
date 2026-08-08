@@ -1,0 +1,61 @@
+### optipng-bin@3.1.4   (D:\jail\m-optipngbin-msk12egp)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=848 exit=0 events=34853 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-optipngbin-msk12egp\observe\node_modules\optipng-bin)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 290 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-optipngbin-msk12egp\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-optipngbin-msk12egp\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-optipngbin-msk12egp\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-optipngbin-msk12egp\observe\node_modules\optipng-bin
+  == ATTRIBUTION == lifecycle pids: 3 (root 848)
+    writes  script 3  /  whole traced tree 14
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps          3
+  == READS ==
+    deps        685
+    outside       6
+    project       1
+    systemfs     37
+  == NETWORK ==
+    distinct peers: 1
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  44549498 B xml -> 696563 B gz (64.0x)  sha256 1dd0b7b1a3ad514f…
+  HEADER    etw-header.json (5073 bytes)
+  DERIVED   8597 distinct from 9963 kept ops (34853 xml events, 3005 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 3 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (103556 bytes)
+  RAWLOG-CAPTURE D:\jail\m-optipngbin-msk12egp\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-optipngbin-msk12egp
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-optipngbin-msk12egp\\npm-cache","TMP":"D:\\jail\\m-optipngbin-msk12egp\\tmp","TEMP":"D:\\jail\\m-optipngbin-msk12egp\\tmp","TMPDIR":"D:\\jail\\m-optipngbin-msk12egp\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-optipngbin-msk12egp\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 9128/2065) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-optipngbin-msk12egp\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 9128/2065) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-optipngbin-msk12egp\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 9128/2065) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-optipngbin-msk12egp\verify-fb2\.cache
+  VERIFY[fb2] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 9131/2065) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here

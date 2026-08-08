@@ -1,16 +1,10 @@
 {
-  "pkg": "ttf2woff2",
-  "version": "8.0.1",
+  "pkg": "sodium-native",
+  "version": "2.4.9",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
   "grant": null,
-  "synthesized": {
-    "write": {
-      "deps": true,
-      "userHome": true
-    },
-    "network": true
-  },
+  "synthesized": null,
   "verifiedBy": null,
   "minimality": null,
   "overPredictedBy": [],
@@ -19,12 +13,10 @@
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
-  "notes": [
-    "arms-unfalsifiable"
-  ],
+  "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 677181,
+  "driverRc": 0,
+  "durationMs": 9689,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -32,13 +24,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "22cd871ae2c89c4be60f7b88e47dfbd47071b4d4",
     "node": "v22.23.2",
-    "at": "2026-08-08T07:02:48.775Z",
+    "at": "2026-08-08T07:02:58.550Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": "hoisted",
+    "storeLayout": null,
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-ttf2woff2-msk0mk5j",
+    "jailRoot": null,
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -52,26 +44,6 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": {
-      "set": {
-        "npm_config_cache": "D:\\jail\\m-ttf2woff2-msk0mk5j\\npm-cache",
-        "TMP": "D:\\jail\\m-ttf2woff2-msk0mk5j\\tmp",
-        "TEMP": "D:\\jail\\m-ttf2woff2-msk0mk5j\\tmp",
-        "TMPDIR": "D:\\jail\\m-ttf2woff2-msk0mk5j\\tmp"
-      },
-      "unset": [
-        "CI",
-        "GITHUB_ACTIONS"
-      ],
-      "notRedirected": {
-        "USERPROFILE": "C:\\Users\\runneradmin",
-        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
-      },
-      "passedThrough": {
-        "CI": "true",
-        "GITHUB_ACTIONS": "true",
-        "NODE_ENV": null
-      }
-    }
+    "overrides": null
   }
 }
