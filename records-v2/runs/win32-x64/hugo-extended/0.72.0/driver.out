@@ -1,0 +1,60 @@
+### hugo-extended@0.72.0   (D:\jail\m-hugoextended-msjrzc4j)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4040 exit=0 events=68397 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-hugoextended-msjrzc4j\observe\node_modules\hugo-extended)
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":3,"reasons":[]}
+  CLOSURE 152 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-hugoextended-msjrzc4j\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-hugoextended-msjrzc4j\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-hugoextended-msjrzc4j\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-hugoextended-msjrzc4j\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 4040)
+    writes  script 4  /  whole traced tree 15
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          4
+  == READS ==
+    deps        377
+    outside       7
+    project       1
+    systemfs     44
+  == NETWORK ==
+    distinct peers: 2
+        140.82.112.3:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  85434789 B xml -> 1415594 B gz (60.4x)  sha256 54c3e397f0e83ab7…
+  HEADER    etw-header.json (5097 bytes)
+  DERIVED   7176 distinct from 10510 kept ops (68397 xml events, 10095 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (88699 bytes)
+  RAWLOG-CAPTURE D:\jail\m-hugoextended-msjrzc4j\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-hugoextended-msjrzc4j
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-msjrzc4j\\npm-cache","TMP":"D:\\jail\\m-hugoextended-msjrzc4j\\tmp","TEMP":"D:\\jail\\m-hugoextended-msjrzc4j\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-msjrzc4j\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-msjrzc4j\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7617/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-hugoextended-msjrzc4j\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=0 artifacts=7/10 missing=3 shortfall=a63fd828aa49 (tree 7614/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-hugoextended-msjrzc4j\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7617/1130) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
