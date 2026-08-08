@@ -1,29 +1,43 @@
 {
-  "pkg": "puppeteer",
-  "version": "24.43.1",
+  "pkg": "electron-chromedriver",
+  "version": "30.5.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
   "synthesized": {
     "write": {
+      "deps": true,
       "userHome": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "write": {
+      "project": true
+    },
+    "network": true
+  },
   "notes": [
-    "arms-unfalsifiable"
+    "under-predicted"
   ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 648429,
+  "driverRc": 0,
+  "durationMs": 727749,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -31,13 +45,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "70a70eee266486152ffb42d9b487183d082ce25f",
     "node": "v22.23.2",
-    "at": "2026-08-08T02:13:35.797Z",
+    "at": "2026-08-08T02:25:54.515Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-puppeteer-msjqb8p7",
+    "jailRoot": "D:\\jail\\m-electronchromedriver-msjqpdio",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -53,10 +67,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-puppeteer-msjqb8p7\\npm-cache",
-        "TMP": "D:\\jail\\m-puppeteer-msjqb8p7\\tmp",
-        "TEMP": "D:\\jail\\m-puppeteer-msjqb8p7\\tmp",
-        "TMPDIR": "D:\\jail\\m-puppeteer-msjqb8p7\\tmp"
+        "npm_config_cache": "D:\\jail\\m-electronchromedriver-msjqpdio\\npm-cache",
+        "TMP": "D:\\jail\\m-electronchromedriver-msjqpdio\\tmp",
+        "TEMP": "D:\\jail\\m-electronchromedriver-msjqpdio\\tmp",
+        "TMPDIR": "D:\\jail\\m-electronchromedriver-msjqpdio\\tmp"
       },
       "unset": [
         "CI",
