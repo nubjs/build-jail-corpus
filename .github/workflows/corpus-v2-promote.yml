@@ -20,6 +20,12 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The history includes a multi-gigabyte record tree. Unit tests need the instrument only;
+          # promotion below deliberately performs the full checkout that completeness requires.
+          sparse-checkout: |
+            harness
+            .github
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
       - name: Run the complete harness test suite
