@@ -1,0 +1,66 @@
+### openclaw@2026.6.10   (D:\jail\m-openclaw-msjzabtc)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4416 exit=0 events=154645 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 9256 files  (D:\jail\m-openclaw-msjzabtc\observe\node_modules\openclaw)
+  ARM-FALSIFIABILITY {"manifestFiles":9257,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9257) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-openclaw-msjzabtc\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-openclaw-msjzabtc\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-openclaw-msjzabtc\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-openclaw-msjzabtc\observe\node_modules\openclaw
+  == ATTRIBUTION == lifecycle pids: 4 (root 4416)
+    writes  script 562  /  whole traced tree 570
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    jailTmp     553
+    kernelfs      3
+    userHome      6
+  == READS ==
+    deps       6903
+    outside      11
+    project       1
+    systemfs     23
+    jailTmp     554
+    userHome      6
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+    NOTE 553 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    NOTE 3 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  198412356 B xml -> 2653730 B gz (74.8x)  sha256 73a7a622f2c70e0b…
+  HEADER    etw-header.json (5070 bytes)
+  DERIVED   37226 distinct from 57824 kept ops (154645 xml events, 2412 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (434929 bytes)
+  RAWLOG-CAPTURE D:\jail\m-openclaw-msjzabtc\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-openclaw-msjzabtc
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-openclaw-msjzabtc\\npm-cache","TMP":"D:\\jail\\m-openclaw-msjzabtc\\tmp","TEMP":"D:\\jail\\m-openclaw-msjzabtc\\tmp","TMPDIR":"D:\\jail\\m-openclaw-msjzabtc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-openclaw-msjzabtc\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=9256/9256 missing=0 shortfall=none (tree 47919/31200) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  => MINIMUM {"write":{"userHome":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-openclaw-msjzabtc\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=9256/9256 missing=0 shortfall=none (tree 47919/31200) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
