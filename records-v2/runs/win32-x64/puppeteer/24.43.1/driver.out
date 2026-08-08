@@ -1,8 +1,8 @@
-### puppeteer@24.43.1   (D:\jail\m-puppeteer-msjqb8p7)
+### puppeteer@24.43.1   (D:\jail\m-puppeteer-msjrym48)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5056 exit=0 events=295544 lost=0
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=6040 exit=0 events=336822 lost=0
   VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 43 files  (D:\jail\m-puppeteer-msjqb8p7\observe\node_modules\puppeteer)
+  OBSERVE artifacts: 43 files  (D:\jail\m-puppeteer-msjrym48\observe\node_modules\puppeteer)
   ARM-FALSIFIABILITY {"manifestFiles":43,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (43) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -11,57 +11,54 @@
   CLOSURE 98 packages evicted per arm
   8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-puppeteer-msjqb8p7\observe   [keyed on]
+    project       D:\jail\m-puppeteer-msjrym48\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-puppeteer-msjqb8p7\observe\node_modules\.store
+    projectStore  D:\jail\m-puppeteer-msjrym48\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-puppeteer-msjqb8p7\tmp   [keyed on]
+    temp          D:\jail\m-puppeteer-msjrym48\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-puppeteer-msjqb8p7\observe\node_modules\puppeteer
-  == ATTRIBUTION == lifecycle pids: 4 (root 5056)
-    writes  script 631  /  whole traced tree 642
+    ownPkg        D:\jail\m-puppeteer-msjrym48\observe\node_modules\puppeteer
+  == ATTRIBUTION == lifecycle pids: 4 (root 6040)
+    writes  script 630  /  whole traced tree 641
     peers   script 1  /  whole traced tree 1
   == WRITES ==
     userHome    628
     kernelfs      1
-    outside       1
-        d:\jail\.config\puppeteerrc
     systemfs      1
         c:\windows\systemtemp\chromium_installer.log
   == READS ==
     deps        148
     outside       6
     project       2
-    systemfs     40
+    systemfs     39
     userHome    338
     kernelfs      1
   == NETWORK ==
     distinct peers: 1
-        142.251.218.27:443
+        142.250.73.123:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true},"network":true}
-    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
     !! 1 writes into system dirs -- an unprivileged user would be refused these
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  386996950 B xml -> 6116362 B gz (63.3x)  sha256 ab8283a60b6f34ef…
+  RAW       etw-raw.xml.gz  438620589 B xml -> 6762575 B gz (64.9x)  sha256 c8251787adb9c236…
   HEADER    etw-header.json (5078 bytes)
-  DERIVED   9785 distinct from 133275 kept ops (295544 xml events, 6372 out of subtree)
+  DERIVED   9797 distinct from 132563 kept ops (336822 xml events, 14824 out of subtree)
   PROCS     6   thread-reattributed 0
-  ⛔ 56 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 3 handle ops whose path no table could supply
+  ⛔ 72 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (125504 bytes)
-  RAWLOG-CAPTURE D:\jail\m-puppeteer-msjqb8p7\cap\capture.json
+  wrote events.ndjson.gz (125529 bytes)
+  RAWLOG-CAPTURE D:\jail\m-puppeteer-msjrym48\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-puppeteer-msjqb8p7
+  VENUE-JAIL-ROOT D:\jail\m-puppeteer-msjrym48
   VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-msjqb8p7\\npm-cache","TMP":"D:\\jail\\m-puppeteer-msjqb8p7\\tmp","TEMP":"D:\\jail\\m-puppeteer-msjqb8p7\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-msjqb8p7\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-puppeteer-msjqb8p7\verify-synth\.cache
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-msjrym48\\npm-cache","TMP":"D:\\jail\\m-puppeteer-msjrym48\\tmp","TEMP":"D:\\jail\\m-puppeteer-msjrym48\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-msjrym48\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-msjrym48\verify-synth\.cache
   VERIFY[synth] TIMED-OUT in `install` after 600000 ms -- no verdict; check for surviving children
   => TIMED-OUT at the synthesized grant (install); no verdict, and the ladder is NOT walked
