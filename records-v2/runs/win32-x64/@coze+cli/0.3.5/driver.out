@@ -1,0 +1,89 @@
+### @coze/cli@0.3.5   (D:\jail\m-cozecli-msjqwfn0)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7712 exit=0 events=555725 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 45 files  (D:\jail\m-cozecli-msjqwfn0\observe\node_modules\@coze\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":45,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (45) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 162 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-cozecli-msjqwfn0\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-cozecli-msjqwfn0\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-cozecli-msjqwfn0\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-cozecli-msjqwfn0\observe\node_modules\@coze\cli
+  == ATTRIBUTION == lifecycle pids: 20 (root 7712)
+    writes  script 777  /  whole traced tree 787
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    userHome    279
+    jailTmp     176
+    kernelfs      1
+    outside     321
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_logs\2026-08-08t02_19_41_228z-debug-0.log
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_logs\2026-08-08t02_19_42_175z-debug-0.log
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\8bb24e51
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\index-v5\46\a3\24ec67e5b2dbdb96bed64207a85cca6f1764146a1edae6887f0057f0b14e
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\b6ded337
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\b0429d1a
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\eb2e5fdb
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\index-v5\ca\f8\5fdf8973f1896e77c07a4919f6166c6a04ef8354c5efb0156670a06d24e3
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\index-v5\ce\6c\6784b50042cdd68bb13c22d986bc8dc172c2d2237823cbe7cc0e7c7b4033
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\index-v5\d6\4d\95351bd7b1c4630fa6590049d83b56ced950f5f2fd281f27e28527249cee
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\8903fba4
+        d:\jail\m-cozecli-msjqwfn0\npm-cache\_cacache\tmp\256abe8e
+  == READS ==
+    deps        370
+    outside    1330
+    project       2
+    systemfs     43
+    userHome    381
+    jailTmp     727
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        104.16.1.34:443
+        163.181.60.205:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 176 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 321 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  704303256 B xml -> 11858173 B gz (59.4x)  sha256 8c087b186b453171…
+  HEADER    etw-header.json (5074 bytes)
+  DERIVED   24094 distinct from 135916 kept ops (555725 xml events, 59684 out of subtree)
+  PROCS     22   thread-reattributed 2310
+  ⛔ 1056 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (323378 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cozecli-msjqwfn0\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-cozecli-msjqwfn0
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cozecli-msjqwfn0\\npm-cache","TMP":"D:\\jail\\m-cozecli-msjqwfn0\\tmp","TEMP":"D:\\jail\\m-cozecli-msjqwfn0\\tmp","TMPDIR":"D:\\jail\\m-cozecli-msjqwfn0\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-cozecli-msjqwfn0\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 12704/5788) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-cozecli-msjqwfn0\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 12704/5788) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  STORE   isolated virtual store at D:\jail\m-cozecli-msjqwfn0\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 12704/5788) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at D:\jail\m-cozecli-msjqwfn0\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 12704/5788) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured

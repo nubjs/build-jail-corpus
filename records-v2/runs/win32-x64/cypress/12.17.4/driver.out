@@ -1,0 +1,93 @@
+### cypress@12.17.4   (D:\jail\m-cypress-msjr4639)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7824 exit=0 events=1510268 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 785 files  (D:\jail\m-cypress-msjr4639\observe\node_modules\cypress)
+  ARM-FALSIFIABILITY {"manifestFiles":785,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (785) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 171 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-cypress-msjr4639\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-cypress-msjr4639\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-cypress-msjr4639\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-cypress-msjr4639\observe\node_modules\cypress
+  == ATTRIBUTION == lifecycle pids: 2 (root 7824)
+    writes  script 23427  /  whole traced tree 23438
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    userHome  23398
+    jailTmp       1
+    kernelfs      6
+    outside       5
+        c:\windowsazure\logs
+        c:\windowsazure\logs\aggregatestatus
+        c:\hostedtoolcache\windows\node\22.23.2\x64\node_modules\npm\node_modules\@sigstore\core\dist\asn1\package.json
+        c:\hostedtoolcache\windows\go\1.24.13\x64\bin\wsl.wsf
+        c:\hostedtoolcache\windows\ruby\3.3.12\x64\bin\wsl.com
+    systemfs     17
+        c:\windows\system32
+        c:\windows\winsxs\filemaps\program_files_microsoft_visual_studio_18_enterprise_vc_tools_llvm_x64_bin_121aee9aaf68ddc9.cdf-ms
+        c:\windows\system32\inetsrv
+        c:\windows\syswow64\inetsrv
+        c:\windows\microsoft.net\framework64\v2.0.50727
+        c:\windows\winsxs\filemaps\program_files_openssl_tests_10ce642bcc90368c.cdf-ms
+        c:\windows\winsxs\filemaps\program_files_x86_windows_kits_10_bin_10.0.26100.0_arm64_0dbe97dd230efcf4.cdf-ms
+        c:\windows\winsxs\filemaps\program_files_microsoft_visual_studio_18_enterprise_vc_tools_msvc_14.51.36231_bin_hostx64_arm64_397aec5a3a04c58b.cdf-ms
+        c:\windows\winsxs\filemaps\program_files_microsoft_visual_studio_18_enterprise_vc_tools_llvm_arm64_bin_db2cc28b411457ad.cdf-ms
+        c:\program files\dotnet\wsl.jse
+        c:\program files\imagemagick-7.1.2-q16-hdri\wsl.com
+        c:\program files\wsl\wsl.exe.config
+  == READS ==
+    deps        804
+    outside      11
+    project       1
+    systemfs     28
+    jailTmp       1
+    userHome   4325
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 1
+        172.66.146.119:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 5 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    !! 17 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 6 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  1952930184 B xml -> 35253435 B gz (55.4x)  sha256 cd6ba5014ba8981f…
+  HEADER    etw-header.json (5070 bytes)
+  DERIVED   94753 distinct from 543587 kept ops (1510268 xml events, 66757 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 905 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 7 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (1444900 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cypress-msjr4639\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-cypress-msjr4639
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cypress-msjr4639\\npm-cache","TMP":"D:\\jail\\m-cypress-msjr4639\\tmp","TEMP":"D:\\jail\\m-cypress-msjr4639\\tmp","TMPDIR":"D:\\jail\\m-cypress-msjr4639\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-cypress-msjr4639\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=785/785 missing=0 shortfall=none (tree 13713/6551) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-cypress-msjr4639\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=785/785 missing=0 shortfall=none (tree 13710/6551) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-cypress-msjr4639\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=785/785 missing=0 shortfall=none (tree 13710/6551) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
