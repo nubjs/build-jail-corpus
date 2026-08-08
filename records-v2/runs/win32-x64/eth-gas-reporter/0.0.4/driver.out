@@ -1,0 +1,81 @@
+### eth-gas-reporter@0.0.4   (D:\jail\m-ethgasreporter-msjqkd0w)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=6024 exit=0 events=338121 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 16 files  (D:\jail\m-ethgasreporter-msjqkd0w\observe\node_modules\eth-gas-reporter)
+  ARM-FALSIFIABILITY {"manifestFiles":15,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (15) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-ethgasreporter-msjqkd0w\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-ethgasreporter-msjqkd0w\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-ethgasreporter-msjqkd0w\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-ethgasreporter-msjqkd0w\observe\node_modules\eth-gas-reporter
+  == ATTRIBUTION == lifecycle pids: 8 (root 6024)
+    writes  script 12060  /  whole traced tree 12065
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    outside    4835
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_logs\2026-08-08t02_09_57_521z-debug-0.log
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\tmp\64f813b9
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\index-v5\ac\f2\f8e2559c6ee3e46daa20481669d32b76e10a0bf957ac07680549b07a774e
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\tmp\003dddf2
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\content-v2\sha512\df
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\content-v2\sha512\df\56
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\content-v2\sha512\df\56\41bc4982b1f06c1228ef5ffbbc5582ada6ef57ea18504cbb2b57787f471a85dcfde43123cfd9559c6c9c5ac4530fd04bc9b062dbfe4b70cf8a7f44b5e06c
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\index-v5\ec
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\index-v5\ec\34
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\index-v5\ec\34\3851275a9e75bf63ada60db6e6fdeac5a59485fa428967e1383728c5b299
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\tmp\1a5ef2fd
+        d:\jail\m-ethgasreporter-msjqkd0w\npm-cache\_cacache\content-v2\sha512\54
+    kernelfs      5
+    deps       7220
+  == READS ==
+    deps       6554
+    outside    2827
+    project       2
+    systemfs     33
+    jailTmp     551
+  == NETWORK ==
+    distinct peers: 1
+        104.16.2.34:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    !! 4835 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    NOTE 5 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  436482881 B xml -> 8019776 B gz (54.4x)  sha256 d1a00a8c7c872070…
+  HEADER    etw-header.json (5126 bytes)
+  DERIVED   80550 distinct from 135910 kept ops (338121 xml events, 8728 out of subtree)
+  PROCS     10   thread-reattributed 0
+  ⛔ 893 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 16 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (1179323 bytes)
+  RAWLOG-CAPTURE D:\jail\m-ethgasreporter-msjqkd0w\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-ethgasreporter-msjqkd0w
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-ethgasreporter-msjqkd0w\\npm-cache","TMP":"D:\\jail\\m-ethgasreporter-msjqkd0w\\tmp","TEMP":"D:\\jail\\m-ethgasreporter-msjqkd0w\\tmp","TMPDIR":"D:\\jail\\m-ethgasreporter-msjqkd0w\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-ethgasreporter-msjqkd0w\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=16/16 missing=0 shortfall=none (tree 11712/6053) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-ethgasreporter-msjqkd0w\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=15/16 missing=1 shortfall=6c7288067dff (tree 5678/6053) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: mock/package-lock.json
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-ethgasreporter-msjqkd0w\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=16/16 missing=0 shortfall=none (tree 11712/6053) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
