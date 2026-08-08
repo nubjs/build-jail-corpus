@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "ttf2woff2",
   "version": "8.0.1",
-  "at": "2026-08-08T05:57:22.643Z",
+  "at": "2026-08-08T06:16:48.402Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_1196_msjynprw",
+      "name": "nubobs_6436_msjzdfqn",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -26,7 +26,7 @@
         "name": "Microsoft-Windows-Kernel-File",
         "keywords": "0x1FF0",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       },
       {
         "name": "Microsoft-Windows-Kernel-Network",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-ttf2woff2-msjynmzv\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-ttf2woff2-msjynmzv\\observe",
-    "rootPid": 2248,
-    "launcherPid": 6856,
+    "command": "D:\\jail\\m-ttf2woff2-msjzdcxl\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-ttf2woff2-msjzdcxl\\observe",
+    "rootPid": 1900,
+    "launcherPid": 1372,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T05:56:28.6015940Z",
-    "endedUtc": "2026-08-08T05:56:49.6447680Z"
+    "startedUtc": "2026-08-08T06:16:29.6570049Z",
+    "endedUtc": "2026-08-08T06:16:46.6008708Z"
   },
   "integrity": {
-    "eventsTotal": 540987,
+    "eventsTotal": 1690,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-ttf2woff2-msjynmzv\\observe",
+    "project": "D:\\jail\\m-ttf2woff2-msjzdcxl\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-ttf2woff2-msjynmzv\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-ttf2woff2-msjzdcxl\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-ttf2woff2-msjynmzv\\tmp",
+    "temp": "D:\\jail\\m-ttf2woff2-msjzdcxl\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-ttf2woff2-msjynmzv\\observe\\node_modules\\ttf2woff2",
+    "ownPkg": "D:\\jail\\m-ttf2woff2-msjzdcxl\\observe\\node_modules\\ttf2woff2",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 693836992,
-    "gzBytes": 11980570,
-    "sha256": "c696115648020402812dd62693b8a88613d5a91a6fb87fbdb8cb0c576b1f5612",
+    "bytes": 2498648,
+    "gzBytes": 33607,
+    "sha256": "07800bdb0908bb3ad15a06a0ee030903127e42518663224f57e88040b6f32c27",
     "of": "trace.xml",
-    "etlBytes": 81788928,
+    "etlBytes": 5242880,
     "etlRetained": false
   },
   "limits": {
@@ -106,25 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2248 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 1900 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
   },
   "stats": {
-    "xmlEvents": 540987,
-    "kept": 198377,
-    "distinct": 96070,
+    "xmlEvents": 1690,
+    "kept": 1581,
+    "distinct": 1,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 539544,
-      "Microsoft-Windows-Kernel-Process": 30,
-      "Microsoft-Windows-Kernel-Network": 1411
+      "Microsoft-Windows-Kernel-Process": 37,
+      "Microsoft-Windows-Kernel-Network": 1651
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 100,
-    "unsettled": 185,
-    "reattributedByThread": 2729,
-    "outOfSubtree": 15881,
-    "destResolved": 3956,
+    "unresolvedHandle": 0,
+    "unsettled": 0,
+    "reattributedByThread": 0,
+    "outOfSubtree": 70,
+    "destResolved": 0,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
