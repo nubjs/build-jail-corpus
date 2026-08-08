@@ -192,9 +192,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          mapfile -t TESTS < <(find harness -type f -name '*.test.mjs' | sort)
-          [ "${#TESTS[@]}" -gt 0 ] || { echo "no harness tests discovered" >&2; exit 1; }
-          "$HARNESS_NODE" --test "${TESTS[@]}"
+          "$HARNESS_NODE" harness/run-tests.mjs
 
       - uses: actions/setup-node@v4
         with: { node-version: '${{ matrix.node }}' }

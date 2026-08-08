@@ -149,9 +149,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          mapfile -t TESTS < <(find harness -type f -name '*.test.mjs' | sort)
-          [ "${#TESTS[@]}" -gt 0 ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
-          node --test "${TESTS[@]}"
+          node harness/run-tests.mjs
 
       - name: Stamp the job start
         shell: bash

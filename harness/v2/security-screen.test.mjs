@@ -5,6 +5,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
+const shellTest = (name, fn) => test(name, { skip: process.platform === 'win32' }, fn);
+
 const here = import.meta.dirname;
 const drivers = {
   linux: fs.readFileSync(path.join(here, 'measure.sh'), 'utf8'),
@@ -92,7 +94,7 @@ touch ${JSON.stringify(path.join(dir, 'AFTER_SCREEN'))}
   return { ...result, reached: fs.existsSync(path.join(dir, 'AFTER_SCREEN')) };
 };
 
-test('a malicious or failed screen terminates before the lifecycle boundary; a clean one continues', () => {
+shellTest('a malicious or failed screen terminates before the lifecycle boundary; a clean one continues', () => {
   const malicious = runHelper(42);
   assert.equal(malicious.status, 0);
   assert.equal(malicious.reached, false);
