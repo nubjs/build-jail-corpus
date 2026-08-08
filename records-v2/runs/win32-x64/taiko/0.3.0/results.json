@@ -1,29 +1,33 @@
 {
-  "pkg": "device-detector-js",
-  "version": "1.0.9",
+  "pkg": "taiko",
+  "version": "0.3.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [
-    "arms-unfalsifiable"
-  ],
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
+  "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 1143980,
+  "driverRc": 0,
+  "durationMs": 124394,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -31,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "3fe8a37947d0d1ffa03f26517ba31503341d0f76",
     "node": "v22.23.2",
-    "at": "2026-08-08T01:45:28.692Z",
+    "at": "2026-08-08T01:47:33.155Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-devicedetectorjs-msjp0gk2",
+    "jailRoot": "C:\\jail\\m-taiko-msjpozb4",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -53,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-devicedetectorjs-msjp0gk2\\npm-cache",
-        "TMP": "C:\\jail\\m-devicedetectorjs-msjp0gk2\\tmp",
-        "TEMP": "C:\\jail\\m-devicedetectorjs-msjp0gk2\\tmp",
-        "TMPDIR": "C:\\jail\\m-devicedetectorjs-msjp0gk2\\tmp"
+        "npm_config_cache": "C:\\jail\\m-taiko-msjpozb4\\npm-cache",
+        "TMP": "C:\\jail\\m-taiko-msjpozb4\\tmp",
+        "TEMP": "C:\\jail\\m-taiko-msjpozb4\\tmp",
+        "TMPDIR": "C:\\jail\\m-taiko-msjpozb4\\tmp"
       },
       "unset": [
         "CI",
