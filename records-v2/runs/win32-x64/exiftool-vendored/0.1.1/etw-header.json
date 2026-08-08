@@ -1,0 +1,133 @@
+{
+  "k": "h",
+  "v": 1,
+  "platform": "win32-x64",
+  "pkg": "exiftool-vendored",
+  "version": "0.1.1",
+  "at": "2026-08-08T00:24:32.258Z",
+  "tracer": {
+    "kind": "etw",
+    "capture": "harness/v2/adapters/windows.ps1",
+    "captureScriptSha256": "0791258ef5aaa597ab2be67ebfcc7006986f74c72bfcb99815f3e51f2edb0335",
+    "captureSchema": "nub-obs-win/1",
+    "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
+    "tracerptExit": 0,
+    "session": {
+      "name": "nubobs_8032_msjmr215",
+      "bufferSizeKB": 1024,
+      "minBuffers": 64,
+      "maxBuffers": 320,
+      "maxFileMB": 8192,
+      "mode": "sequential",
+      "settleMs": 1200
+    },
+    "providers": [
+      {
+        "name": "Microsoft-Windows-Kernel-File",
+        "keywords": "0x1FF0",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Network",
+        "keywords": "0x30",
+        "level": 5,
+        "exit": 0
+      },
+      {
+        "name": "Microsoft-Windows-Kernel-Process",
+        "keywords": "0x10",
+        "level": 5,
+        "exit": 0
+      }
+    ]
+  },
+  "os": {
+    "version": "Microsoft Windows NT 10.0.26100.0",
+    "host": "runnervm7vqe0",
+    "arch": "x64"
+  },
+  "identity": {
+    "whoami": "runnervm7vqe0\\runneradmin",
+    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "elevated": true,
+    "privDropped": {
+      "SeBackupPrivilege": "removed",
+      "SeRestorePrivilege": "removed",
+      "SeTakeOwnershipPrivilege": "removed"
+    }
+  },
+  "run": {
+    "command": "C:\\jail\\m-exiftoolvendored-msjmquyq\\rebuild.cmd",
+    "workDir": "C:\\jail\\m-exiftoolvendored-msjmquyq\\observe",
+    "rootPid": 5360,
+    "launcherPid": 4580,
+    "exitCode": 0,
+    "startedUtc": "2026-08-08T00:23:09.0406075Z",
+    "endedUtc": "2026-08-08T00:23:52.4161584Z"
+  },
+  "integrity": {
+    "eventsTotal": 561129,
+    "eventsLost": 0,
+    "lostFrom": "tracerpt summary 'Total Events Lost'"
+  },
+  "roots": {
+    "project": "C:\\jail\\m-exiftoolvendored-msjmquyq\\observe",
+    "home": "C:\\Users\\runneradmin",
+    "jailHome": null,
+    "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
+    "projectStore": "C:\\jail\\m-exiftoolvendored-msjmquyq\\observe\\node_modules\\.store",
+    "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+    "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
+    "temp": "C:\\jail\\m-exiftoolvendored-msjmquyq\\tmp",
+    "npmPrefix": null,
+    "ownPkg": "C:\\jail\\m-exiftoolvendored-msjmquyq\\observe\\node_modules\\exiftool-vendored",
+    "cwd": null
+  },
+  "rootsFrom": "capture.json",
+  "devmap": {
+    "\\Device\\HarddiskVolume5": "D:",
+    "\\Device\\HarddiskVolume4": "C:"
+  },
+  "raw": {
+    "file": "etw-raw.xml.gz",
+    "bytes": 719195486,
+    "gzBytes": 13206452,
+    "sha256": "7363f933ae8336b1670084f7ddbe161fa3fb7889116d37cc7ded43348af8113f",
+    "of": "trace.xml",
+    "etlBytes": 84934656,
+    "etlRetained": false
+  },
+  "limits": {
+    "createHasNoDesiredAccess": "Create (12) carries no DesiredAccess; `d` is the CreateDisposition, not the requested access. `open-r` means disposition FILE_OPEN, NOT proof of read-only intent — a FILE_OPEN handle can be written through. Writes are evidenced by event 16.",
+    "noRundownForPreOpenHandles": "the FileObject/FileKey name tables hold nothing for a file already open when the session started (no rundown session is run); those handle ops are counted in stats.unresolvedHandle and are unnameable, not missing",
+    "hardlinkDestNeeds0x800": "a hardlink destination is carried ONLY by event 28 (keyword 0x800) — NTFS emits no NameCreate for a second name on an existing FileKey, so below 0x1FF0 it is unrecoverable by re-parse rather than merely unrelated. A rename destination by contrast also appears as its own NameCreate, so a narrow mask loses only the source-to-dest relation.",
+    "taskNamesAreMisleading": "events are keyed on the numeric EventID; event 27 (RenamePath) renders RenderingInfo/Task as `NameDelete`, so a task-name-keyed reader will be wrong"
+  },
+  "derived": {
+    "file": "events.ndjson.gz",
+    "filter": "subtree of rootPid 5360 (out-of-subtree events are in the raw only)",
+    "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+  },
+  "stats": {
+    "xmlEvents": 561129,
+    "kept": 154086,
+    "distinct": 85285,
+    "byProvider": {
+      "Microsoft-Windows-Kernel-File": 558359,
+      "Microsoft-Windows-Kernel-Network": 2729,
+      "Microsoft-Windows-Kernel-Process": 39
+    },
+    "unknownFileEvent": {},
+    "unresolvedHandle": 12,
+    "unsettled": 553,
+    "reattributedByThread": 1,
+    "outOfSubtree": 46699,
+    "destResolved": 644,
+    "destUnresolved": 0,
+    "shortExpanded": 0,
+    "shortUnexpanded": 0,
+    "shortUnmapped": 0
+  }
+}
