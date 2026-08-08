@@ -1,0 +1,61 @@
+### dprint@0.34.5   (C:\jail\m-dprint-msjnzi8i)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5400 exit=0 events=335940 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (C:\jail\m-dprint-msjnzi8i\observe\node_modules\dprint)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 9 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       C:\jail\m-dprint-msjnzi8i\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  C:\jail\m-dprint-msjnzi8i\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          C:\jail\m-dprint-msjnzi8i\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        C:\jail\m-dprint-msjnzi8i\observe\node_modules\dprint
+  == ATTRIBUTION == lifecycle pids: 2 (root 5400)
+    writes  script 2  /  whole traced tree 13
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          2
+  == READS ==
+    deps         30
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 2
+        140.82.112.4:443
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  428980512 B xml -> 5928442 B gz (72.4x)  sha256 ba7261cc1e387f32…
+  HEADER    etw-header.json (5051 bytes)
+  DERIVED   5408 distinct from 8513 kept ops (335940 xml events, 115390 out of subtree)
+  PROCS     4   thread-reattributed 1
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (68913 bytes)
+  RAWLOG-CAPTURE C:\jail\m-dprint-msjnzi8i\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT C:\jail\m-dprint-msjnzi8i
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-dprint-msjnzi8i\\npm-cache","TMP":"C:\\jail\\m-dprint-msjnzi8i\\tmp","TEMP":"C:\\jail\\m-dprint-msjnzi8i\\tmp","TMPDIR":"C:\\jail\\m-dprint-msjnzi8i\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at C:\jail\m-dprint-msjnzi8i\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5754/68) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at C:\jail\m-dprint-msjnzi8i\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=7/8 missing=1 shortfall=bfd2cfd888e8 (tree 5750/68) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: dprint.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at C:\jail\m-dprint-msjnzi8i\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5754/68) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
