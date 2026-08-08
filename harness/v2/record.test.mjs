@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDriverLog, firstObject, hydrateResolvedTrees } from './record.mjs';
-import { loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
+import { computeHarnessIdentity, loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
 
 const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const load = (f) => fs.readFileSync(path.join(FIX, f), 'utf8');
@@ -442,6 +442,18 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   assert.match(rec.provenance.harnessSha256, /^[0-9a-f]{64}$/);
   assert.equal(rec.provenance.runtime.node.version, process.version);
   assert.match(rec.provenance.runtime.node.sha256, /^[0-9a-f]{64}$/);
+});
+
+test('a production recorder refuses to write without dated latest and demand metadata', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rec-standing-'));
+  const log = path.join(dir, 'driver.out');
+  fs.writeFileSync(log, '  => NO-STATE-PASSED even at write:disk\n');
+  const instrument = computeHarnessIdentity();
+  assert.throws(() => execFileSync(process.execPath, [path.join(HARNESS, 'record.mjs'),
+    '--log', log, '--pkg', 'demo', '--version', '1.0.0', '--out', path.join(dir, 'out'),
+    '--rc', '0', '--expected-harness-epoch', String(instrument.harnessEpoch),
+    '--expected-harness-sha', instrument.harnessSha256], { encoding: 'utf8' }),
+  /incomplete package standing metadata/);
 });
 
 // ⛔ WHICH HARNESS MEASURED THIS — DERIVED, NOT ONLY DECLARED.

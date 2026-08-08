@@ -23,6 +23,7 @@ import { driverInvocation } from './driver-invocation.mjs';
 import { computeHarnessIdentity, loadInstrumentConfig, loadInvalidationPolicy } from './instrument.mjs';
 import { recordValidity } from './record-validity.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
+import { fetchPackageStanding } from './package-standing.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -148,6 +149,7 @@ if (hasCase.status !== 0) {
 }
 
 let attempted = 0; let recorded = 0; let skipped = 0; let deadlineStopped = 0;
+const standingByPackage = new Map();
 // Sized from the SLOWEST package seen, not the mean: a native rebuild and a JS postinstall differ by
 // an order of magnitude, so an average-sized reservation routinely starts a package that cannot
 // finish and loses the whole slice to the job cap.
@@ -192,6 +194,15 @@ for (const spec of specs) {
   }
 
   attempted++;
+  let standing;
+  try {
+    if (!standingByPackage.has(pkg)) standingByPackage.set(pkg, fetchPackageStanding(pkg));
+    standing = await standingByPackage.get(pkg);
+  } catch (error) {
+    standingByPackage.delete(pkg);
+    console.log(`FAIL  ${spec} — package standing unavailable: ${error.message}; no lifecycle arm ran`);
+    continue;
+  }
   // ⛔ THE RECORD DIR HAS TO EXIST BEFORE THE DRIVER RUNS, because the driver writes the retained
   // event log straight into it. `record.mjs` also mkdirs it later; both are `recursive: true`.
   //
@@ -254,6 +265,7 @@ for (const spec of specs) {
     '--expected-harness-sha', INSTRUMENT.harnessSha256,
     ...(NUB_BINARY?.sha256 ? ['--expected-nub-sha256', NUB_BINARY.sha256] : []),
     '--runtime-json', JSON.stringify(RUNTIME),
+    '--standing-json', JSON.stringify(standing),
     '--driver', process.platform === 'win32' ? 'measure-windows.mjs'
       : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh'], 120_000);
   fs.rmSync(tmpLog, { force: true });

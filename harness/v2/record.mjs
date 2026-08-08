@@ -621,6 +621,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   let harnessIdentity;
   let runtime;
   let resolvedTrees;
+  let standing = null;
   try {
     harnessIdentity = computeHarnessIdentity();
     const expectedEpoch = opt('--expected-harness-epoch', '');
@@ -631,6 +632,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     }
     runtime = opt('--runtime-json', '')
       ? JSON.parse(opt('--runtime-json')) : collectRuntimeProvenance();
+    standing = opt('--standing-json', '') ? JSON.parse(opt('--standing-json')) : null;
+    if (expectedSha && (!standing?.observedAt || !standing?.latestVersion
+      || !Number.isSafeInteger(standing?.weeklyDownloads))) {
+      throw new Error('production record has incomplete package standing metadata');
+    }
     resolvedTrees = hydrateResolvedTrees(parsed.securityScreens);
     const expectedNub = opt('--expected-nub-sha256', '');
     if (expectedNub && parsed.verdict !== 'REFUSED-MALICIOUS'
@@ -809,6 +815,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     securityScreens: (parsed.securityScreens ?? []).map(({ clearancePath: _, ...screen }) => screen),
     resolvedTrees,
     maliciousAdvisories: parsed.maliciousAdvisories ?? [],
+    standing,
     // ⛔ WHICH VALUE `grant` ABOVE IS, AND WHY. `rec` is an explicit whitelist, so the first version
     // of the grant-source rule narrowed `grant` correctly and then dropped every field explaining it
     // — a record whose grant had been narrowed with nothing saying on what basis, which is the exact

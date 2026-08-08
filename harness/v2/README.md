@@ -148,7 +148,7 @@ The unit suites are worth their cost because they cover the *same* semantic haza
 
 ### Instrument identity and promotion
 
-Every record carries the current `harnessEpoch` and a canonical SHA-256 over the complete `harness/` tree, the v2 workflows, and `.gitattributes`. The hash normalizes CRLF to LF and includes untracked harness files; generated v1 results are excluded. The record also identifies the Node and Nub executables by content, npm and Python versions, build tools, runner image, selected environment values, resolved package-version sets, and lockfiles.
+Every record carries the current `harnessEpoch` and a canonical SHA-256 over the complete `harness/` tree, the v2 workflows, and `.gitattributes`. The hash normalizes CRLF to LF and includes untracked harness files; generated v1 results are excluded. The record also identifies the Node and Nub executables by content, npm and Python versions, build tools, runner image, selected environment values, resolved package-version sets, lockfiles, and the dated `latest` tag plus weekly-download weight used during collation.
 
 Resume requires the same harness, Node executable, Nub binary, platform, and Nub commit. A queue completion carries the same instrument stamp, so an old `done` row returns to `pending` before a slice is claimed. Cross-epoch reuse requires a targeted transition in `invalidation.json`; missing or malformed policy invalidates the record.
 
