@@ -1,8 +1,8 @@
-### puppeteer@25.3.0   (D:\jail\m-puppeteer-msjxddr0)
+### puppeteer@25.3.0   (D:\jail\m-puppeteer-msjyq3ee)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=2212 exit=0 events=122304 lost=0
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8256 exit=0 events=239322 lost=0
   VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 24 files  (D:\jail\m-puppeteer-msjxddr0\observe\node_modules\puppeteer)
+  OBSERVE artifacts: 24 files  (D:\jail\m-puppeteer-msjyq3ee\observe\node_modules\puppeteer)
   ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (24) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -11,17 +11,17 @@
   CLOSURE 25 packages evicted per arm
   8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-puppeteer-msjxddr0\observe   [keyed on]
+    project       D:\jail\m-puppeteer-msjyq3ee\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-puppeteer-msjxddr0\observe\node_modules\.store
+    projectStore  D:\jail\m-puppeteer-msjyq3ee\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-puppeteer-msjxddr0\tmp   [keyed on]
+    temp          D:\jail\m-puppeteer-msjyq3ee\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-puppeteer-msjxddr0\observe\node_modules\puppeteer
-  == ATTRIBUTION == lifecycle pids: 6 (root 2212)
+    ownPkg        D:\jail\m-puppeteer-msjyq3ee\observe\node_modules\puppeteer
+  == ATTRIBUTION == lifecycle pids: 6 (root 8256)
     writes  script 632  /  whole traced tree 643
     peers   script 1  /  whole traced tree 1
   == WRITES ==
@@ -33,34 +33,34 @@
     kernelfs      1
   == READS ==
     deps         31
-    outside       9
+    outside       8
     project       2
-    systemfs     49
+    systemfs     48
     userHome    339
     kernelfs      1
   == NETWORK ==
     distinct peers: 1
-        104.154.124.27:443
+        34.153.3.27:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true},"network":true}
     !! 3 writes into system dirs -- an unprivileged user would be refused these
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  159109796 B xml -> 2409163 B gz (66.0x)  sha256 042be479af110928…
-  HEADER    etw-header.json (5075 bytes)
-  DERIVED   9887 distinct from 50421 kept ops (122304 xml events, 2689 out of subtree)
+  RAW       etw-raw.xml.gz  308903609 B xml -> 4696879 B gz (65.8x)  sha256 814d3b01af795fa3…
+  HEADER    etw-header.json (5076 bytes)
+  DERIVED   9874 distinct from 50026 kept ops (239322 xml events, 48710 out of subtree)
   PROCS     8   thread-reattributed 0
-  ⛔ 5 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
   ⛔ 1 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (123144 bytes)
-  RAWLOG-CAPTURE D:\jail\m-puppeteer-msjxddr0\cap\capture.json
+  wrote events.ndjson.gz (123209 bytes)
+  RAWLOG-CAPTURE D:\jail\m-puppeteer-msjyq3ee\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-puppeteer-msjxddr0
+  VENUE-JAIL-ROOT D:\jail\m-puppeteer-msjyq3ee
   VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-msjxddr0\\npm-cache","TMP":"D:\\jail\\m-puppeteer-msjxddr0\\tmp","TEMP":"D:\\jail\\m-puppeteer-msjxddr0\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-msjxddr0\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-puppeteer-msjxddr0\verify-synth\.cache
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-msjyq3ee\\npm-cache","TMP":"D:\\jail\\m-puppeteer-msjyq3ee\\tmp","TEMP":"D:\\jail\\m-puppeteer-msjyq3ee\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-msjyq3ee\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-msjyq3ee\verify-synth\.cache
   VERIFY[synth] TIMED-OUT in `install` after 600000 ms -- no verdict; check for surviving children
   => TIMED-OUT at the synthesized grant (install); no verdict, and the ladder is NOT walked
