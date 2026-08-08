@@ -1,0 +1,83 @@
+### playwright-webkit@1.62.1   (D:\jail\m-playwrightwebkit-msk140w2)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7392 exit=0 events=180676 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 9 files  (D:\jail\m-playwrightwebkit-msk140w2\observe\node_modules\playwright-webkit)
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-playwrightwebkit-msk140w2\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-playwrightwebkit-msk140w2\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-playwrightwebkit-msk140w2\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-playwrightwebkit-msk140w2\observe\node_modules\playwright-webkit
+  == ATTRIBUTION == lifecycle pids: 4 (root 7392)
+    writes  script 395  /  whole traced tree 406
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    userHome    391
+    jailTmp       4
+  == READS ==
+    deps         10
+    outside      11
+    project       1
+    systemfs     30
+    userHome     50
+    jailTmp       4
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        150.171.109.145:443
+        23.67.33.145:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 4 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  231991132 B xml -> 3647641 B gz (63.6x)  sha256 8069e37dafd0deff…
+  HEADER    etw-header.json (5135 bytes)
+  DERIVED   7017 distinct from 42628 kept ops (180676 xml events, 29765 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 13 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (95013 bytes)
+  RAWLOG-CAPTURE D:\jail\m-playwrightwebkit-msk140w2\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-playwrightwebkit-msk140w2
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-playwrightwebkit-msk140w2\\npm-cache","TMP":"D:\\jail\\m-playwrightwebkit-msk140w2\\tmp","TEMP":"D:\\jail\\m-playwrightwebkit-msk140w2\\tmp","TMPDIR":"D:\\jail\\m-playwrightwebkit-msk140w2\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 5893/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-fb0\.cache
+  VERIFY[fb0] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 6242/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"userHome":true},"network":true} and this is what the trace missed
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 5894/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 6242/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-nar-no-write-project\.cache
+  VERIFY[nar-no-write-project] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 5893/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     'no-write-project' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-nar-no-write-userHome\.cache
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 6242/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at D:\jail\m-playwrightwebkit-msk140w2\verify-joint-narrow\.cache
+  VERIFY[joint-narrow] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 6242/129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"project":true},"network":true} — all 2 capabilities drop TOGETHER, measured
