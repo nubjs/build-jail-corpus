@@ -433,6 +433,22 @@ jobs:
           CAP_MIN=300; HEADROOM_MIN=40
           export NUB_CORPUS_DEADLINE=$(( JOB_START_EPOCH + (CAP_MIN - HEADROOM_MIN) * 60 ))
           echo "setup consumed $(( ($(date +%s) - JOB_START_EPOCH) / 60 )) min of the ${CAP_MIN}-min cap"
+          # ⛔ WINDOWS: move the harness install root to the FAST D: drive. windows-latest C: is ~10x
+          # slower IOPS than the ephemeral D: temp disk (~14 GB), and the measure step is copy-bound
+          # (the jailed linker copies dep trees). `measure-windows.mjs` defaults --root to C:\jail;
+          # run-batch-v2.mjs appends NUB_V2_DRIVER_ARGS (JSON) to the driver. GRANT-INVARIANT:
+          # classify.mjs keys scopes on capture.json's DECLARED roots by longest-prefix, and every
+          # --root-relative root (jailHome/temp/ownPkg/...) moves together while the absolute roots
+          # (home/globalStore/interpreter) are unchanged, so no write can change its classification.
+          # Defensive: fall back to C: if D: is somehow absent.
+          if [ "$OS_NAME" = "windows" ]; then
+            if mkdir -p /d/jail 2>/dev/null; then
+              export NUB_V2_DRIVER_ARGS='["--root","D:\\jail"]'
+              echo "windows: install root -> D:\\jail (fast ephemeral disk)"
+            else
+              echo "windows: D: unavailable, staying on C:\\jail"
+            fi
+          fi
           # ⛔ THE `||` IS STILL HERE ON PURPOSE, AND THE GATE BELOW IS WHAT MAKES IT SAFE. A batch that
           # measured SOME packages and then died must reach the commit step or the whole slice dies
           # with the ephemeral runner — so a non-zero rc may not fail the step by itself. What the
