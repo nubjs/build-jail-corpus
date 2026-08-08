@@ -3,6 +3,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 export function fileIdentity(file) {
@@ -19,12 +20,42 @@ export function fileIdentity(file) {
 
 const outputOf = (result) => `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
 
+export function endpointIdentity(value) {
+  if (!value) return null;
+  let display = '<configured-non-url>';
+  try {
+    const parsed = new URL(value);
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    display = parsed.toString();
+  } catch { /* retain only the digest for a non-URL endpoint spelling */ }
+  return {
+    display,
+    sha256: crypto.createHash('sha256').update(value).digest('hex'),
+  };
+}
+
 function commandPath(command) {
+  if (path.isAbsolute(command) && fs.existsSync(command)) return command;
   const lookup = process.platform === 'win32'
     ? spawnSync('where.exe', [command], { encoding: 'utf8', windowsHide: true })
     : spawnSync('which', [command], { encoding: 'utf8' });
   if (lookup.status !== 0) return null;
   return String(lookup.stdout ?? '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
+}
+
+function runtimeLibc() {
+  if (process.platform !== 'linux') return null;
+  const header = process.report?.getReport?.().header ?? {};
+  if (header.glibcVersionRuntime) return { family: 'glibc', version: header.glibcVersionRuntime };
+  try {
+    if (fs.readdirSync('/lib').some((entry) => /^ld-musl-.*\.so\.1$/.test(entry))) {
+      return { family: 'musl', version: null };
+    }
+  } catch { /* a minimal image may not expose /lib */ }
+  return { family: null, version: null };
 }
 
 export function probeTool(command, args = ['--version']) {
@@ -39,6 +70,17 @@ export function probeTool(command, args = ['--version']) {
   };
 }
 
+export function probeNodeRuntime(executable) {
+  const result = spawnSync(executable, ['--version'], {
+    encoding: 'utf8', windowsHide: true, timeout: 30_000,
+  });
+  const version = outputOf(result).split(/\r?\n/).find(Boolean) ?? null;
+  if (result.error || result.status !== 0 || !/^v\d+\.\d+\.\d+$/.test(version ?? '')) {
+    throw new Error(`could not execute target Node runtime ${executable}: ${result.error?.message ?? version ?? `exit ${result.status}`}`);
+  }
+  return { version, ...fileIdentity(executable) };
+}
+
 export function collectRuntimeProvenance(env = process.env) {
   const python = [
     probeTool('python3'),
@@ -47,9 +89,10 @@ export function collectRuntimeProvenance(env = process.env) {
   ].filter(Boolean).filter((tool, index, all) =>
     all.findIndex((other) => other.path === tool.path && other.version === tool.version) === index);
   const buildTools = process.platform === 'win32'
-    ? { cl: probeTool('cl', []), msbuild: probeTool('msbuild', ['-version']) }
+    ? { cl: probeTool('cl', ['/?']), msbuild: probeTool('msbuild', ['-version']) }
     : { cc: probeTool('cc'), cxx: probeTool('c++'), make: probeTool('make') };
-  const exposedEnv = ['CI', 'GITHUB_ACTIONS', 'NODE_ENV', 'RUNNER_OS', 'RUNNER_ARCH',
+  const exposedEnv = ['CI', 'GITHUB_ACTIONS', 'NODE_ENV', 'NODE_EXECUTABLE',
+    'RUNNER_OS', 'RUNNER_ARCH',
     'RUNNER_ENVIRONMENT', 'ImageOS', 'ImageVersion', 'LANG', 'LC_ALL'];
   return {
     node: { version: process.version, ...fileIdentity(process.execPath) },
@@ -59,6 +102,7 @@ export function collectRuntimeProvenance(env = process.env) {
     os: {
       platform: process.platform,
       arch: process.arch,
+      libc: runtimeLibc(),
       type: os.type(),
       release: os.release(),
       version: os.version(),
@@ -74,6 +118,7 @@ export function collectRuntimeProvenance(env = process.env) {
     },
     environment: {
       values: Object.fromEntries(exposedEnv.map((key) => [key, env[key] ?? null])),
+      endpoints: { nodeMirror: endpointIdentity(env.NODEJS_ORG_MIRROR) },
       pathSha256: crypto.createHash('sha256').update(env.PATH ?? '').digest('hex'),
       shell: env.SHELL ?? env.ComSpec ?? null,
     },

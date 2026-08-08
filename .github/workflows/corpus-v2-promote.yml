@@ -8,8 +8,11 @@ on:
     branches: [main]
     paths:
       - harness/**
+      - inputs/reference-legacy-failures.manifest.json
+      - inputs/reference-legacy-failures.ndjson.gz
       - .github/workflows/corpus-v2-runner.yml
       - .github/workflows/corpus-v2-promote.yml
+      - .github/workflows/reference-accounting.yml
       - .gitattributes
 
 jobs:
@@ -25,6 +28,7 @@ jobs:
           # promotion below deliberately performs the full checkout that completeness requires.
           sparse-checkout: |
             harness
+            inputs
             .github
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
@@ -32,9 +36,9 @@ jobs:
         shell: bash
         run: |
           set -eu
-          TESTS=$(find harness -type f -name '*.test.mjs' | sort)
-          [ -n "$TESTS" ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
-          node --test $TESTS
+          mapfile -t TESTS < <(find harness -type f -name '*.test.mjs' | sort)
+          [ "${#TESTS[@]}" -gt 0 ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
+          node --test "${TESTS[@]}"
 
   promote:
     if: github.event_name == 'workflow_dispatch'

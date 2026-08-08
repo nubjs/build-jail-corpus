@@ -137,6 +137,7 @@ jobs:
           # `git add --sparse` or out-of-cone records stage NOTHING and the slice is silently lost.
           sparse-checkout: |
             harness
+            inputs
             .github
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
@@ -148,9 +149,9 @@ jobs:
         shell: bash
         run: |
           set -eu
-          TESTS=$(find harness -type f -name '*.test.mjs' | sort)
-          [ -n "$TESTS" ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
-          node --test $TESTS
+          mapfile -t TESTS < <(find harness -type f -name '*.test.mjs' | sort)
+          [ "${#TESTS[@]}" -gt 0 ] || { echo "⛔ no harness tests discovered" >&2; exit 1; }
+          node --test "${TESTS[@]}"
 
       - name: Stamp the job start
         shell: bash
@@ -412,7 +413,7 @@ jobs:
           # Split on commas and newlines as well as spaces: a comma list is what a human types, and
           # space-only splitting turns one into a SINGLE spec that measures a package which does not
           # exist while still producing a well-formed record.
-          printf '%s' "$PKGS" | tr ' ,\n' '\n\n\n' | grep . > /tmp/slice.txt || true
+          printf '%s' "$PKGS" | tr ', ' '\n' | grep . > /tmp/slice.txt || true
           test -s /tmp/slice.txt || { echo "⛔ empty package list — the input did not arrive"; exit 1; }
           while read -r spec; do
             printf '%s' "$spec" | grep -qE '^@?[^@]+@[^@]+$' \

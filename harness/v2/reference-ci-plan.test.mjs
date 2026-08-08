@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { test } from 'node:test';
+import { loadNodeMatrix } from './node-matrix.mjs';
+import { planReferenceCells } from './reference-ci-plan.mjs';
+
+test('the full CI plan crosses all supported Node versions with every corpus OS', () => {
+  const { matrix } = loadNodeMatrix();
+  const plan = planReferenceCells(matrix, { os: 'all', node: 'all' });
+  assert.equal(plan.include.length, 27);
+  assert.deepEqual(new Set(plan.include.map((cell) => cell.os)), new Set(['linux', 'macos', 'windows']));
+  assert.deepEqual(new Set(plan.include.map((cell) => cell.node)),
+    new Set(matrix.versions.map((entry) => entry.version)));
+  assert.ok(plan.include.every((cell) => !cell.runner.endsWith('-latest') && cell.shard === 0 && cell.shards === 1));
+});
+
+test('a selected CI cell must name a checked-in runtime and OS', () => {
+  const { matrix } = loadNodeMatrix();
+  assert.deepEqual(planReferenceCells(matrix, { os: 'linux', node: '26.7.0' }), {
+    include: [{ os: 'linux', runner: 'ubuntu-24.04', node: '26.7.0', npm: '11.19.0', shard: 0, shards: 1 }],
+  });
+  assert.throws(() => planReferenceCells(matrix, { os: 'solaris', node: '26.7.0' }), /unknown reference OS/);
+  assert.throws(() => planReferenceCells(matrix, { os: 'linux', node: '26.7.1' }), /unknown reference Node/);
+});
+
+test('eight shards keep a complete all-platform matrix under the GitHub job limit', () => {
+  const { matrix } = loadNodeMatrix();
+  const plan = planReferenceCells(matrix, { os: 'all', node: 'all', shards: 8 });
+  assert.equal(plan.include.length, 216);
+  assert.equal(new Set(plan.include.map((cell) => `${cell.os}/${cell.node}/${cell.shard}`)).size, 216);
+});
+
+test('the workflow separates the fixed harness runtime from the exact package runtime', () => {
+  const { matrix } = loadNodeMatrix();
+  const workflow = fs.readFileSync(new URL('../../.github/workflows/reference-accounting.yml', import.meta.url), 'utf8');
+  assert.match(workflow, new RegExp(`node-version: '${matrix.harnessNode.replaceAll('.', '\\.')}'`));
+  assert.match(workflow, /HARNESS_NODE=.*node/);
+  assert.match(workflow, /NODE_EXECUTABLE=\$TARGET_NODE/);
+  assert.match(workflow, /"\$HARNESS_NODE" harness\/v2\/run-reference-batch\.mjs/);
+  assert.match(workflow, /--node "\$TARGET_NODE"/);
+  assert.match(workflow, /--npm npm/);
+  assert.match(workflow, /actions\/download-artifact@v4/);
+  assert.match(workflow, /reference-report\.mjs/);
+  assert.match(workflow, /needs: \[plan, build\]/);
+  assert.match(workflow, /Nub subject cache was not populated by the build job/);
+  assert.match(workflow, /--nub-git-sha/);
+  assert.match(workflow, /ARGS\+=\(--strict --complete\)/);
+});

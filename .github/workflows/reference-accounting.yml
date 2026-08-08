@@ -1,0 +1,375 @@
+# Differential accounting for legacy rows the old observer could not establish. Nub is the subject
+# and primary observer; npm is a separate ecosystem oracle. Each selected cell uses one exact Node
+# version, an isolated versioned fixture profile, and the same resolved-tree malware gate.
+name: reference-accounting
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: operating-system cells to run
+        type: choice
+        options: [linux, macos, windows, all]
+        default: linux
+      node_version:
+        description: exact checked-in Node cell to run
+        type: choice
+        options: [26.7.0, 25.9.0, 24.19.0, 23.11.1, 22.23.2, 21.7.3, 20.20.2, 19.9.0, 18.20.8, all]
+        default: 26.7.0
+      limit:
+        description: maximum legacy rows per cell (positive integer or all)
+        type: string
+        default: "25"
+      shards:
+        description: deterministic shards per OS/Node cell (8 makes a full 216-job matrix)
+        type: choice
+        options: [1, 2, 4, 8]
+        default: 1
+      prior_bucket:
+        description: old failure bucket to select
+        type: choice
+        options: [all, brokenWithoutJailToo, noVerdict, noStatePassed, harnessError, artifactGateSuspect]
+        default: all
+      packages:
+        description: optional comma-separated exact package@version specs
+        type: string
+        default: ""
+      attempts:
+        description: maximum fresh attempts used to establish a stable result
+        type: choice
+        options: [2, 3]
+        default: 3
+      deadline_minutes:
+        description: stop each cell cleanly by this deadline and preserve partial evidence
+        type: string
+        default: "300"
+      nub_sha:
+        description: nubjs/nub commit or ref to build as the subject
+        type: string
+        default: sandbox/integration
+
+concurrency:
+  group: reference-accounting-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.cells.outputs.matrix }}
+      build_matrix: ${{ steps.cells.outputs.build_matrix }}
+      nub_sha: ${{ steps.nub.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.23.2' }
+      - name: Resolve the Nub commit under test once
+        id: nub
+        shell: bash
+        env:
+          NUB_REF: ${{ inputs.nub_sha }}
+        run: |
+          set -eu
+          if printf '%s' "$NUB_REF" | grep -Eq '^[0-9a-f]{40}$'; then
+            SHA="$NUB_REF"
+          else
+            SHA=$(git ls-remote https://github.com/nubjs/nub.git "$NUB_REF" | cut -f1)
+          fi
+          printf '%s' "$SHA" | grep -Eq '^[0-9a-f]{40}$' \
+            || { echo "could not resolve one exact Nub commit from '$NUB_REF'" >&2; exit 1; }
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - name: Validate inputs and construct exact runtime cells
+        id: cells
+        shell: bash
+        env:
+          CELL_OS: ${{ inputs.os }}
+          CELL_NODE: ${{ inputs.node_version }}
+          CELL_SHARDS: ${{ inputs.shards }}
+          ROW_LIMIT: ${{ inputs.limit }}
+          DEADLINE_MINUTES: ${{ inputs.deadline_minutes }}
+        run: |
+          set -eu
+          case "$ROW_LIMIT" in
+            all) ;;
+            *[!0-9]*|0|'') echo "limit must be a positive integer or all" >&2; exit 2 ;;
+          esac
+          case "$DEADLINE_MINUTES" in
+            *[!0-9]*|0|'') echo "deadline_minutes must be a positive integer" >&2; exit 2 ;;
+          esac
+          node harness/v2/reference-ci-plan.mjs --os "$CELL_OS" \
+            --node "$CELL_NODE" --shards "$CELL_SHARDS" --github-output "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.build_matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      OS_NAME: ${{ matrix.os }}
+      NUB_GIT_SHA: ${{ needs.plan.outputs.nub_sha }}
+    steps:
+      - name: Resolve the native probe-binary cache path
+        shell: bash
+        run: |
+          set -eu
+          P=/tmp/nub/target/release/nub
+          [ "$OS_NAME" = windows ] && P="$P.exe"
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+      - name: Restore the exact Nub subject binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+      - name: Build the exact Nub subject binary once per OS
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          git checkout --detach "$NUB_GIT_SHA"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          mkdir -p /tmp/nub/target/release
+          cp "target/fast/nub${{ matrix.os == 'windows' && '.exe' || '' }}" \
+             "/tmp/nub/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}"
+      - name: Save the exact Nub subject binary
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+
+  measure:
+    needs: [plan, build]
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    env:
+      OS_NAME: ${{ matrix.os }}
+      NUB_GIT_SHA: ${{ needs.plan.outputs.nub_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.23.2' }
+
+      - name: Capture the fixed harness runtime
+        shell: bash
+        run: |
+          set -eu
+          if [ "$OS_NAME" = windows ]; then
+            HARNESS_NODE=$(where.exe node.exe | tr -d '\r' | head -1)
+          else
+            HARNESS_NODE=$(command -v node)
+          fi
+          [ "$("$HARNESS_NODE" --version)" = v22.23.2 ]
+          echo "HARNESS_NODE=$HARNESS_NODE" >> "$GITHUB_ENV"
+
+      - name: Run the complete harness test suite
+        shell: bash
+        run: |
+          set -eu
+          mapfile -t TESTS < <(find harness -type f -name '*.test.mjs' | sort)
+          [ "${#TESTS[@]}" -gt 0 ] || { echo "no harness tests discovered" >&2; exit 1; }
+          "$HARNESS_NODE" --test "${TESTS[@]}"
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ matrix.node }}' }
+
+      - name: Capture the exact package runtime
+        shell: bash
+        run: |
+          set -eu
+          if [ "$OS_NAME" = windows ]; then
+            TARGET_NODE=$(where.exe node.exe | tr -d '\r' | head -1)
+          else
+            TARGET_NODE=$(command -v node)
+          fi
+          [ "$("$TARGET_NODE" --version)" = "v${{ matrix.node }}" ]
+          [ "$(npm --version)" = "${{ matrix.npm }}" ] \
+            || { echo "Node v${{ matrix.node }} did not supply npm ${{ matrix.npm }}" >&2; exit 1; }
+          echo "TARGET_NODE=$TARGET_NODE" >> "$GITHUB_ENV"
+          echo "NODE_EXECUTABLE=$TARGET_NODE" >> "$GITHUB_ENV"
+
+      - name: Resolve the native probe-binary cache path
+        shell: bash
+        run: |
+          set -eu
+          P=/tmp/nub/target/release/nub
+          [ "$OS_NAME" = windows ] && P="$P.exe"
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+
+      - name: Restore the exact Nub subject binary
+        id: nubbin
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.NUB_BIN_CACHE_PATH }}
+          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+      - name: Refuse measurement without the prepared subject
+        if: steps.nubbin.outputs.cache-matched-key == ''
+        shell: bash
+        run: |
+          echo "Nub subject cache was not populated by the build job" >&2
+          exit 1
+
+      - name: Select and prove the subject and runtime executables
+        shell: bash
+        run: |
+          set -eu
+          NUB_BIN=/tmp/nub/target/release/nub
+          [ "$OS_NAME" = windows ] && NUB_BIN="$NUB_BIN.exe"
+          chmod +x "$NUB_BIN" 2>/dev/null || true
+          "$NUB_BIN" --version
+          [ "$("$TARGET_NODE" --version)" = "v${{ matrix.node }}" ] \
+            || { echo "setup-node did not select v${{ matrix.node }}" >&2; exit 1; }
+          [ "$("$HARNESS_NODE" --version)" = v22.23.2 ] \
+            || { echo "fixed harness runtime changed" >&2; exit 1; }
+          command -v npm >/dev/null
+          [ "$(npm --version)" = "${{ matrix.npm }}" ] \
+            || { echo "Node v${{ matrix.node }} did not supply npm ${{ matrix.npm }}" >&2; exit 1; }
+          echo "NUB_BIN=$NUB_BIN" >> "$GITHUB_ENV"
+
+      - name: Run one differential reference cell
+        id: batch
+        shell: bash
+        env:
+          PACKAGE_SPECS: ${{ inputs.packages }}
+          PRIOR_BUCKET: ${{ inputs.prior_bucket }}
+          ROW_LIMIT: ${{ inputs.limit }}
+          DEADLINE_MINUTES: ${{ inputs.deadline_minutes }}
+        run: |
+          set -uo pipefail
+          ARGS=(--worklist inputs/reference-legacy-failures.ndjson.gz
+            --out reference-output
+            --nub "$NUB_BIN"
+            --nub-git-sha "$NUB_GIT_SHA"
+            --node "$TARGET_NODE"
+            --npm npm
+            --attempts "${{ inputs.attempts }}"
+            --shard-index "${{ matrix.shard }}"
+            --shard-count "${{ matrix.shards }}"
+            --deadline-seconds "$(( DEADLINE_MINUTES * 60 ))")
+          [ "$ROW_LIMIT" = all ] || ARGS+=(--limit "$ROW_LIMIT")
+          [ "$PRIOR_BUCKET" = all ] || ARGS+=(--prior-bucket "$PRIOR_BUCKET")
+          [ -z "$PACKAGE_SPECS" ] || ARGS+=(--specs "$PACKAGE_SPECS")
+          set +e
+          "$HARNESS_NODE" harness/v2/run-reference-batch.mjs "${ARGS[@]}" 2>&1 | tee reference-batch.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+
+      - name: Produce the partial accounting and remediation backlog
+        if: always()
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p reference-output
+          "$HARNESS_NODE" harness/v2/reference-report.mjs \
+            --records reference-output \
+            --worklist inputs/reference-legacy-failures.ndjson.gz \
+            --nub-git-sha "$NUB_GIT_SHA" \
+            --out reference-output/accounting.json \
+            --backlog reference-output/remediation-backlog.json
+
+      - name: Preserve compact records for aggregate accounting
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reference-records-${{ matrix.os }}-node-${{ matrix.node }}-shard-${{ matrix.shard }}-of-${{ matrix.shards }}-${{ github.run_id }}
+          path: |
+            reference-output/**/reference.json
+            reference-output/batch-*.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Preserve bounded raw evidence and the partial accounting
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reference-evidence-${{ matrix.os }}-node-${{ matrix.node }}-shard-${{ matrix.shard }}-of-${{ matrix.shards }}-${{ github.run_id }}
+          path: |
+            reference-output/
+            reference-batch.log
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail on an incomplete or broken observer
+        if: always()
+        shell: bash
+        run: |
+          RC="${{ steps.batch.outputs.rc }}"
+          [ "$RC" = 0 ] || [ "$RC" = 75 ] \
+            || { echo "reference batch exited ${RC:-before-start}" >&2; exit 1; }
+
+  summarize:
+    if: always() && needs.plan.result == 'success'
+    needs: [plan, measure]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.23.2' }
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: reference-records-*-${{ github.run_id }}
+          path: downloaded-reference
+      - name: Combine all available cells without hiding missing or unclassified work
+        shell: bash
+        env:
+          CELL_OS: ${{ inputs.os }}
+          CELL_NODE: ${{ inputs.node_version }}
+          ROW_LIMIT: ${{ inputs.limit }}
+          PRIOR_BUCKET: ${{ inputs.prior_bucket }}
+          PACKAGE_SPECS: ${{ inputs.packages }}
+        run: |
+          set -eu
+          ARGS=(--records downloaded-reference
+            --worklist inputs/reference-legacy-failures.ndjson.gz
+            --nub-git-sha "${{ needs.plan.outputs.nub_sha }}"
+            --out reference-accounting.json
+            --backlog reference-remediation-backlog.json)
+          if [ "$CELL_OS" = all ] && [ "$CELL_NODE" = all ] && [ "$ROW_LIMIT" = all ] \
+            && [ "$PRIOR_BUCKET" = all ] && [ -z "$PACKAGE_SPECS" ]; then
+            ARGS+=(--strict --complete)
+          fi
+          node harness/v2/reference-report.mjs "${ARGS[@]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reference-accounting-${{ github.run_id }}
+          path: |
+            reference-accounting.json
+            reference-remediation-backlog.json
+          if-no-files-found: error
+          retention-days: 90
