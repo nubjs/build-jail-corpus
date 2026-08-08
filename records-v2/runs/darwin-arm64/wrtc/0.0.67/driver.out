@@ -1,0 +1,181 @@
+### wrtc@0.0.67   (/Users/runner/v2m-wxwUMp)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-wxwUMp/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-wxwUMp/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "wrtc" > "/Users/runner/v2m-wxwUMp/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-wxwUMp/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-wxwUMp/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-wxwUMp/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund wrtc
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d58000) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 102 (ID 849: syscall::lstat64:return): invalid address (0x16d61e598) in action #8 at DIF offset 12
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=1629 (pre=1613) trace=46987 lines
+  CLOSURE   173 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-wxwUMp/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-wxwUMp/Observe/capture.json
+  RAWLOG-BYTES raw=7158342 gz=291897
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-wxwUMp/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":84,"filesTheScriptProduced":14,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-wxwUMp/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":46988,"parsed":46927,"unparsed":0,"live":true,"tracerErrors":2,"tracerErrorTotal":2,"unresolvedDirfd":300,"unresolvedFd":0,"pairedTwoPath":574,"danglingPair":0,"failed":17300,"enoent":17157,"refusals":0,"byErrno":{"ENXIO":18,"ENOENT":17157,"ENOTDIR":2,"EINVAL":10,"EEXIST":113},"procs":71,"lifecyclePids":10,"distinctEvents":26051,"emitted":26051,"calls":46196,"bytes":4330613,"gzipBytes":160437,"out":"/Users/runner/v2m-wxwUMp/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=10114 dropped-events=2
+    NOTE 200 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 30 relative path(s) (4 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=58259 read  unproven .
+         pid=58259 read  unproven .
+         pid=58267 read  unproven .
+         pid=58286 read  unproven .
+         pid=58299 read  unproven .
+         pid=58303 read  unproven .
+         pid=58518 read  unproven .
+         pid=58571 WRITE unproven a.out
+         pid=58586 read  unproven .
+         pid=58613 read  unproven .
+         … and 20 more
+    CWD-UNPLACEABLE-WRITES ["a.out","cmTC_03366","cmTC_15a54"]
+    CWD-RESOLVED 5 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 2 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600003d58000
+             1 x  epid=102 action=8 fault=1 addr=0x16d61e598
+  == ATTRIBUTION == lifecycle pids: 10
+    writes  script 91  /  whole traced subtree 1181
+    sockets script 0  /  whole traced subtree 1
+  == ROOTS (from /Users/runner/v2m-wxwUMp/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-wxwUMp/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-wxwUMp/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-wxwUMp/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      2
+        /dev/dtracehelper
+        /dev/null
+    ownPkg       79  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/pkgRedirects
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/CMakeConfigureLog.yaml
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0/CMakeSystem.cmake.tmp
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0/CMakeSystem.cmake
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0/CompilerIdC
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0/CompilerIdC/tmp
+        /Users/runner/v2m-wxwUMp/Observe/node_modules/wrtc/build/CMakeFiles/4.4.0/CompilerIdC/CMakeCCompilerId.c
+        … and 69 more
+    outside       6
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-r2XO9NJ7
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosyncE4F6.ozaDhi
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-c28iR7X3
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-o8d3UXrA
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1/CMakeCCompilerId-35a5b1.o
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1/CMakeCCompilerId-35a5b1-e824e421.o.tmp
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1/CMakeCXXCompilerId-0d3bf6.o
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9MWub1/CMakeCXXCompilerId-0d3bf6-49538928.o.tmp
+  == READS the script performed, by scope ==
+    outside     922
+    systemfs    643
+    userHome     28
+    ownPkg       43
+    deps        190
+    project       2
+    jailTmp       2
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /bin/sh
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /opt/homebrew/Cellar/cmake/4.4.0/bin/cmake
+        outside: /opt/homebrew/Cellar/cmake/4.4.0/bin
+        outside: /Users
+        outside: /opt
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"project":true}}
+    ⛔ 6 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-r2XO9NJ7
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosyncE4F6.ozaDhi
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-c28iR7X3
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-o8d3UXrA
+  EVICT[synth] 165 store entries removed, 5 spared as nub tooling, 1433 in store
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=84/84 missing=1 shortfall=15048f9dbd60 (tree 6158/1629) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true}}
+       missing: build/CMakeFiles/CMakeConfigureLog.yaml (126547B < 132692B)
+  !! OBSERVE UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+     The bounded ladder below is the repair; the terminal verdict waits on its outcome.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 30979
+     refused paths under the failing grant (count, path):
+         97 System/Cryptexes/OS
+         21 /System/Library/CoreServices/SystemVersion.bundle
+         12 /Library/Developer/CommandLineTools/SDKs
+          8 /Users/runner/.CFUserTextEncoding
+          7 /System/Library/CoreServices/SystemVersion.bundle/
+          7 /opt
+          6 /System/Cryptexes/OS/System/Library/CoreServices/SystemVersion.plist
+          3 /Users/runner/v2m-wxwUMp
+          3 /Users/runner
+          3 /Users
+          1 /usr
+          1 /Users/runner/Library/Android/sdk/tools
+          1 /Users/runner/Library/Android/sdk/platform-tools
+          1 /Users/runner/Library/Android/sdk
+          1 /Users/runner/Library/Android
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT[fb903772438] 179 store entries removed, 5 spared as nub tooling, 1447 in store
+  VERIFY[fb903772438] rc=0 artifacts=84/84 missing=1 shortfall=f62d8ebf8dcd (tree 6158/1629) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/CMakeFiles/CMakeConfigureLog.yaml (127447B < 132692B)
+  EVICT[fb2128993570] 179 store entries removed, 5 spared as nub tooling, 1447 in store
+  VERIFY[fb2128993570] rc=0 artifacts=84/84 missing=1 shortfall=38e47f427760 (tree 6158/1629) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/CMakeFiles/CMakeConfigureLog.yaml (127597B < 132692B)
+  EVICT[fb1962834996] 179 store entries removed, 5 spared as nub tooling, 1447 in store
+  VERIFY[fb1962834996] rc=0 artifacts=84/84 missing=1 shortfall=38e47f427760 (tree 6158/1629) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/CMakeFiles/CMakeConfigureLog.yaml (127597B < 132692B)
+  NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms (15048f9dbd60, f62d8ebf8dcd, 38e47f427760) — it responded to the grant
+  => UNDER-PREDICTED — no state passed, up to and including write:"disk". OBSERVE saw a run
+     the jail then refused on some axis it did not cover, and widening did not repair it.
+### DONE wrtc@0.0.67  synthesized={"write":{"deps":true,"project":true}} verified=0
