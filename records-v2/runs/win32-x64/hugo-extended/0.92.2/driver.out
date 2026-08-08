@@ -1,64 +1,62 @@
-### hugo-extended@0.92.2   (D:\jail\m-hugoextended-msjz07fc)
+### hugo-extended@0.92.2   (D:\jail\m-hugoextended-msk1qzwp)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4732 exit=0 events=43016 lost=0
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=1488 exit=0 events=45700 lost=0
   VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 12 files  (D:\jail\m-hugoextended-msjz07fc\observe\node_modules\hugo-extended)
+  OBSERVE artifacts: 12 files  (D:\jail\m-hugoextended-msk1qzwp\observe\node_modules\hugo-extended)
   ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":3,"reasons":[]}
   CLOSURE 181 packages evicted per arm
   8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-hugoextended-msjz07fc\observe   [keyed on]
+    project       D:\jail\m-hugoextended-msk1qzwp\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-hugoextended-msjz07fc\observe\node_modules\.store
+    projectStore  D:\jail\m-hugoextended-msk1qzwp\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-hugoextended-msjz07fc\tmp   [keyed on]
+    temp          D:\jail\m-hugoextended-msk1qzwp\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-hugoextended-msjz07fc\observe\node_modules\hugo-extended
-  == ATTRIBUTION == lifecycle pids: 3 (root 4732)
-    writes  script 8  /  whole traced tree 22
+    ownPkg        D:\jail\m-hugoextended-msk1qzwp\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 1488)
+    writes  script 7  /  whole traced tree 22
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     jailTmp       3
     deps          4
-    systemfs      1
-        c:\programdata\usoprivate\updatestore\store.db-journal
   == READS ==
     deps        554
-    outside       6
+    outside       7
     project       1
     systemfs     45
     jailTmp       3
   == NETWORK ==
     distinct peers: 2
-        140.82.112.3:443
-        185.199.111.133:443
+        140.82.112.4:443
+        185.199.108.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
     NOTE 3 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    !! 1 writes into system dirs -- an unprivileged user would be refused these
-  RAW       etw-raw.xml.gz  54965158 B xml -> 796995 B gz (69.0x)  sha256 64d09c504baa3d86…
+  RAW       etw-raw.xml.gz  58998896 B xml -> 912692 B gz (64.6x)  sha256 e504072dc32204e7…
   HEADER    etw-header.json (5095 bytes)
-  DERIVED   7960 distinct from 11800 kept ops (43016 xml events, 4945 out of subtree)
+  DERIVED   7970 distinct from 11857 kept ops (45700 xml events, 7162 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 4 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (98492 bytes)
-  RAWLOG-CAPTURE D:\jail\m-hugoextended-msjz07fc\cap\capture.json
+  wrote events.ndjson.gz (98930 bytes)
+  RAWLOG-CAPTURE D:\jail\m-hugoextended-msk1qzwp\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-hugoextended-msjz07fc
+  VENUE-JAIL-ROOT D:\jail\m-hugoextended-msk1qzwp
   VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-msjz07fc\\npm-cache","TMP":"D:\\jail\\m-hugoextended-msjz07fc\\tmp","TEMP":"D:\\jail\\m-hugoextended-msjz07fc\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-msjz07fc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-hugoextended-msjz07fc\verify-synth\.cache
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-msk1qzwp\\npm-cache","TMP":"D:\\jail\\m-hugoextended-msk1qzwp\\tmp","TEMP":"D:\\jail\\m-hugoextended-msk1qzwp\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-msk1qzwp\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-msk1qzwp\verify-synth\.cache
   VERIFY[synth] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 8224/1762) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
      missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-hugoextended-msjz07fc\verify-fb0\.cache
+  STORE   isolated virtual store at D:\jail\m-hugoextended-msk1qzwp\verify-fb0\.cache
   VERIFY[fb0] TIMED-OUT in `approve-builds` after 600000 ms -- no verdict; check for surviving children
   => TIMED-OUT on ladder rung 0 (approve-builds); the ladder is abandoned rather than continued
