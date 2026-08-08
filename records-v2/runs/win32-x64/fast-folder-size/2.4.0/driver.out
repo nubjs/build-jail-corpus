@@ -1,0 +1,64 @@
+### fast-folder-size@2.4.0   (D:\jail\m-fastfoldersize-msjtke95)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5472 exit=0 events=34494 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 25 files  (D:\jail\m-fastfoldersize-msjtke95\observe\node_modules\fast-folder-size)
+  ARM-FALSIFIABILITY {"manifestFiles":26,"filesTheScriptProduced":4,"reasons":[]}
+  CLOSURE 76 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-fastfoldersize-msjtke95\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-fastfoldersize-msjtke95\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-fastfoldersize-msjtke95\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-fastfoldersize-msjtke95\observe\node_modules\fast-folder-size
+  == ATTRIBUTION == lifecycle pids: 2 (root 5472)
+    writes  script 6  /  whole traced tree 16
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    jailTmp       1
+    deps          5
+  == READS ==
+    deps        205
+    outside       6
+    project       1
+    systemfs     30
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 1
+        150.171.109.147:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  43470567 B xml -> 658062 B gz (66.1x)  sha256 10c869b734ebb486…
+  HEADER    etw-header.json (5110 bytes)
+  DERIVED   6205 distinct from 7621 kept ops (34494 xml events, 3814 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (76914 bytes)
+  RAWLOG-CAPTURE D:\jail\m-fastfoldersize-msjtke95\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-fastfoldersize-msjtke95
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-fastfoldersize-msjtke95\\npm-cache","TMP":"D:\\jail\\m-fastfoldersize-msjtke95\\tmp","TEMP":"D:\\jail\\m-fastfoldersize-msjtke95\\tmp","TMPDIR":"D:\\jail\\m-fastfoldersize-msjtke95\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-fastfoldersize-msjtke95\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 6697/698) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-fastfoldersize-msjtke95\verify-nar-no-network\.cache
+  VERIFY[nar-no-network] rc=1 artifacts=22/25 missing=3 shortfall=04846aac904b (tree 6691/698) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/du.exe, bin/du64.exe, bin/du64a.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-fastfoldersize-msjtke95\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=25/25 missing=0 shortfall=none (tree 6697/698) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
