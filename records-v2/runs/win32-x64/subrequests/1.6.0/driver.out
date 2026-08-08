@@ -1,0 +1,64 @@
+### subrequests@1.6.0   (D:\jail\m-subrequests-msjvg3hc)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=6040 exit=0 events=34292 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 44 files  (D:\jail\m-subrequests-msjvg3hc\observe\node_modules\subrequests)
+  ARM-FALSIFIABILITY {"manifestFiles":44,"filesTheScriptProduced":14,"reasons":[]}
+  CLOSURE 253 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-subrequests-msjvg3hc\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-subrequests-msjvg3hc\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-subrequests-msjvg3hc\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-subrequests-msjvg3hc\observe\node_modules\subrequests
+  == ATTRIBUTION == lifecycle pids: 7 (root 6040)
+    writes  script 18  /  whole traced tree 25
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    outside       1
+        d:\jail\m-subrequests-msjvg3hc\npm-cache\_logs\2026-08-08t04_26_43_634z-debug-0.log
+    deps         15
+    jailTmp       2
+  == READS ==
+    deps        203
+    outside     136
+    project       2
+    systemfs     33
+    jailTmp      93
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+    NOTE 2 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  43814163 B xml -> 664775 B gz (65.9x)  sha256 c6d574712aa58859…
+  HEADER    etw-header.json (5082 bytes)
+  DERIVED   8088 distinct from 10593 kept ops (34292 xml events, 2539 out of subtree)
+  PROCS     9   thread-reattributed 7
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (101665 bytes)
+  RAWLOG-CAPTURE D:\jail\m-subrequests-msjvg3hc\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-subrequests-msjvg3hc
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-subrequests-msjvg3hc\\npm-cache","TMP":"D:\\jail\\m-subrequests-msjvg3hc\\tmp","TEMP":"D:\\jail\\m-subrequests-msjvg3hc\\tmp","TMPDIR":"D:\\jail\\m-subrequests-msjvg3hc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-subrequests-msjvg3hc\verify-synth\.cache
+  VERIFY[synth] rc=0 artifacts=44/44 missing=0 shortfall=none (tree 10741/3888) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-subrequests-msjvg3hc\verify-nar-no-write-deps\.cache
+  VERIFY[nar-no-write-deps] rc=0 artifacts=44/44 missing=0 shortfall=none (tree 10741/3888) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
