@@ -1,0 +1,112 @@
+### playwright-webkit@1.62.1   (/home/runner/v2-jJIjkJ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  OBSERVE   rc=0 files=124 trace=16379 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-jJIjkJ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-jJIjkJ/observe/capture.json
+  RAWLOG-BYTES raw=3463973 gz=83273
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-jJIjkJ/jailhome","TMPDIR":"/tmp/nub-tmp-obsJIexvB","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-jJIjkJ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 73  /  whole traced tree 1161
+    sockets script 10  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-jJIjkJ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-jJIjkJ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-jJIjkJ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsJIexvB
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-jJIjkJ/observe/node_modules/playwright-webkit
+  == WRITES the script actually performed ==
+    userHome     71
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsJIexvB/playwright-download-7dCOKC
+        /tmp/nub-tmp-obsJIexvB/playwright-download-7dCOKC/playwright-download-webkit-ubuntu24.04-x64-2336.zip
+  == NETWORK ==
+    AF_INET sockets: 10   distinct peers: 3
+        127.0.0.53:53
+        104.16.7.34:443
+        150.171.109.183:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    71 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 71
+        .cache/nub/pm/tools/ms-playwright
+        .cache/nub/pm/tools/ms-playwright/__dirlock
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/945b766462ef4c63cf37d13bcf45a61cb1391799
+        .cache/nub/pm/tools/ms-playwright/webkit-2336
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/install-dependencies.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libsoup-3.0.so.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlidec.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlienc.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlicommon.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libsoup-3.0.so.0.7.4
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlienc.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbacktrace.so.0.0.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbacktrace.so.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlidec.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libbrotlicommon.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libjxl.so.0.8
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/sys/lib/libjxl.so.0.8.2
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/MiniBrowser
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/README.txt
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/bin
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/bin/WebKitWebProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/bin/WebKitGPUProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/bin/MiniBrowser
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/bin/WebKitNetworkProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib/libwebkitgtk-6.0.so.4
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib/libwebkitgtkinjectedbundle.so
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib/libjavascriptcoregtk-6.0.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib/libwebkitgtk-6.0.so.4.18.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-gtk/lib/libjavascriptcoregtk-6.0.so.1.8.3
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/protocol.json
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/pw_run.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-wpe
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-wpe/install-dependencies.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-wpe/sys
+        .cache/nub/pm/tools/ms-playwright/webkit-2336/minibrowser-wpe/sys/lib
+        … and 31 more
+    EVENTS    4786 distinct from 16285 calls (16380 lines, 54 rejoined, 0 unparsed)
+    PROCS     37   lifecycle shells 25
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: recvmsg×4209 getsockname×69 getsockopt×51 setsockopt×35 exit×30 getcwd×6 socketpair×4 exit_group×4
+    wrote /home/runner/v2-jJIjkJ/observe/events.ndjson.gz (34062 bytes)
+  EVENTLOG-FILE /home/runner/v2-jJIjkJ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16380,"parsed":16285,"unparsed":0,"unfinished":54,"rejoined":54,"unresolvedDirfd":3,"truncatedArg":0,"procs":37,"lifecyclePids":25,"distinctEvents":4786,"unknownSyscall":{"getsockname":69,"getsockopt":51,"getcwd":6,"recvmsg":4209,"exit":30,"setsockopt":35,"sendmmsg":1,"socketpair":4,"shutdown":3,"exit_group":4,"wait4":4},"out":"/home/runner/v2-jJIjkJ/observe/events.ndjson.gz","gzipBytes":34062}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for playwright-webkit
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 370/124) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for playwright-webkit
+  VERIFY[drop-no-network] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 368/124) OVERRIDDEN=1 REJECTED=0 grant={"write":{"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for playwright-webkit
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 368/124) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
