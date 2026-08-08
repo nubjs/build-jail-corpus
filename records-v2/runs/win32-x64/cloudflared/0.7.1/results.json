@@ -1,27 +1,33 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.98.0",
+  "pkg": "cloudflared",
+  "version": "0.7.1",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 637805,
+  "driverRc": 0,
+  "durationMs": 25945,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "209f3b081b973702c90970c16977b56ef7a0293e",
     "node": "v22.23.2",
-    "at": "2026-08-08T06:03:20.727Z",
+    "at": "2026-08-08T06:03:46.731Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjyixez",
+    "jailRoot": "D:\\jail\\m-cloudflared-msjywlli",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjyixez\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjyixez\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjyixez\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjyixez\\tmp"
+        "npm_config_cache": "D:\\jail\\m-cloudflared-msjywlli\\npm-cache",
+        "TMP": "D:\\jail\\m-cloudflared-msjywlli\\tmp",
+        "TEMP": "D:\\jail\\m-cloudflared-msjywlli\\tmp",
+        "TMPDIR": "D:\\jail\\m-cloudflared-msjywlli\\tmp"
       },
       "unset": [
         "CI",

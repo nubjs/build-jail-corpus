@@ -1,27 +1,37 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.98.0",
+  "pkg": "mongodb-memory-server",
+  "version": "11.2.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "deps": true
+    },
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network",
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable"
+  ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 637805,
+  "driverRc": 0,
+  "durationMs": 61207,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +39,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "209f3b081b973702c90970c16977b56ef7a0293e",
     "node": "v22.23.2",
-    "at": "2026-08-08T06:03:20.727Z",
+    "at": "2026-08-08T06:05:10.002Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjyixez",
+    "jailRoot": "D:\\jail\\m-mongodbmemoryserver-msjyxmn0",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +61,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjyixez\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjyixez\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjyixez\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjyixez\\tmp"
+        "npm_config_cache": "D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\npm-cache",
+        "TMP": "D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp",
+        "TEMP": "D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp",
+        "TMPDIR": "D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp"
       },
       "unset": [
         "CI",
