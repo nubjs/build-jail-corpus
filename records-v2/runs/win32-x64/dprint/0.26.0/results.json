@@ -1,27 +1,36 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.150.1",
+  "pkg": "dprint",
+  "version": "0.26.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": "disk",
+    "network": true
+  },
   "synthesized": {
     "write": {
-      "deps": true
+      "deps": true,
+      "userHome": true
     },
     "network": true
   },
-  "verifiedBy": null,
+  "verifiedBy": "ladder",
   "minimality": null,
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {
+    "write": "disk",
+    "network": true
+  },
+  "notes": [
+    "under-predicted"
+  ],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 634825,
+  "driverRc": 0,
+  "durationMs": 550494,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +38,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "2300152ff32389e551657f79ff609f9e371becca",
     "node": "v22.23.2",
-    "at": "2026-08-08T06:55:38.658Z",
+    "at": "2026-08-08T07:06:39.847Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msk0e8yi",
+    "jailRoot": "D:\\jail\\m-dprint-msk0u87q",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +60,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msk0e8yi\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msk0e8yi\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msk0e8yi\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msk0e8yi\\tmp"
+        "npm_config_cache": "D:\\jail\\m-dprint-msk0u87q\\npm-cache",
+        "TMP": "D:\\jail\\m-dprint-msk0u87q\\tmp",
+        "TEMP": "D:\\jail\\m-dprint-msk0u87q\\tmp",
+        "TMPDIR": "D:\\jail\\m-dprint-msk0u87q\\tmp"
       },
       "unset": [
         "CI",
