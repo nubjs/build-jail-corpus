@@ -1,27 +1,33 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.121.2",
+  "pkg": "taiko",
+  "version": "0.4.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 628160,
+  "driverRc": 0,
+  "durationMs": 70851,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "45b8d7ed30fc769e2033950c357bb0a4dde545df",
     "node": "v22.23.2",
-    "at": "2026-08-08T03:19:11.233Z",
+    "at": "2026-08-08T03:32:17.332Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-hugoextended-msjso0xi",
+    "jailRoot": "D:\\jail\\m-taiko-msjtgtht",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-hugoextended-msjso0xi\\npm-cache",
-        "TMP": "D:\\jail\\m-hugoextended-msjso0xi\\tmp",
-        "TEMP": "D:\\jail\\m-hugoextended-msjso0xi\\tmp",
-        "TMPDIR": "D:\\jail\\m-hugoextended-msjso0xi\\tmp"
+        "npm_config_cache": "D:\\jail\\m-taiko-msjtgtht\\npm-cache",
+        "TMP": "D:\\jail\\m-taiko-msjtgtht\\tmp",
+        "TEMP": "D:\\jail\\m-taiko-msjtgtht\\tmp",
+        "TMPDIR": "D:\\jail\\m-taiko-msjtgtht\\tmp"
       },
       "unset": [
         "CI",
