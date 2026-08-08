@@ -1,41 +1,49 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.139.4",
+  "pkg": "esbuild",
+  "version": "0.11.23",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
-      "deps": true
+      "deps": true,
+      "userHome": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 671191,
+  "driverRc": 0,
+  "durationMs": 670764,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
     "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "d68530ef9351dfd1a0d585f58be6e362ad90aac9",
+    "corpusGitSha": "6e46ff8529eec1e841bd34d8c0f764e34bb68b79",
     "node": "v22.23.2",
-    "at": "2026-08-07T21:40:20.930Z",
+    "at": "2026-08-08T00:50:30.700Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-hugoextended-msjgjcrw",
+    "jailRoot": "C:\\jail\\m-esbuild-msjnbwwc",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +59,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-hugoextended-msjgjcrw\\npm-cache",
-        "TMP": "C:\\jail\\m-hugoextended-msjgjcrw\\tmp",
-        "TEMP": "C:\\jail\\m-hugoextended-msjgjcrw\\tmp",
-        "TMPDIR": "C:\\jail\\m-hugoextended-msjgjcrw\\tmp"
+        "npm_config_cache": "C:\\jail\\m-esbuild-msjnbwwc\\npm-cache",
+        "TMP": "C:\\jail\\m-esbuild-msjnbwwc\\tmp",
+        "TEMP": "C:\\jail\\m-esbuild-msjnbwwc\\tmp",
+        "TMPDIR": "C:\\jail\\m-esbuild-msjnbwwc\\tmp"
       },
       "unset": [
         "CI",
