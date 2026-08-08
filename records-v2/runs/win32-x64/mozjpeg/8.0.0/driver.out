@@ -1,0 +1,62 @@
+### mozjpeg@8.0.0   (D:\jail\m-mozjpeg-msjxvbj7)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=2032 exit=0 events=475983 lost=0
+  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 9 files  (D:\jail\m-mozjpeg-msjxvbj7\observe\node_modules\mozjpeg)
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 158 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-mozjpeg-msjxvbj7\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-mozjpeg-msjxvbj7\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-mozjpeg-msjxvbj7\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-mozjpeg-msjxvbj7\observe\node_modules\mozjpeg
+  == ATTRIBUTION == lifecycle pids: 3 (root 2032)
+    writes  script 1  /  whole traced tree 12
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps          1
+  == READS ==
+    deps        419
+    outside       7
+    project       1
+    systemfs     35
+  == NETWORK ==
+    distinct peers: 1
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  606270490 B xml -> 8053746 B gz (75.3x)  sha256 327ffef2d09b74a0…
+  HEADER    etw-header.json (5057 bytes)
+  DERIVED   7340 distinct from 8730 kept ops (475983 xml events, 166527 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
+  wrote events.ndjson.gz (90072 bytes)
+  RAWLOG-CAPTURE D:\jail\m-mozjpeg-msjxvbj7\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-mozjpeg-msjxvbj7
+  VENUE-STORE-LAYOUT hoisted
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-mozjpeg-msjxvbj7\\npm-cache","TMP":"D:\\jail\\m-mozjpeg-msjxvbj7\\tmp","TEMP":"D:\\jail\\m-mozjpeg-msjxvbj7\\tmp","TMPDIR":"D:\\jail\\m-mozjpeg-msjxvbj7\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-mozjpeg-msjxvbj7\verify-synth\.cache
+  VERIFY[synth] rc=1 artifacts=8/9 missing=1 shortfall=7ce3f556c014 (tree 7748/1223) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: vendor/cjpeg.exe
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-mozjpeg-msjxvbj7\verify-fb0\.cache
+  VERIFY[fb0] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 7749/1223) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-mozjpeg-msjxvbj7\verify-fb1\.cache
+  VERIFY[fb1] rc=1 artifacts=9/9 missing=0 shortfall=none (tree 7749/1223) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-mozjpeg-msjxvbj7\verify-fb2\.cache
+  VERIFY[fb2] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 7752/1223) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
