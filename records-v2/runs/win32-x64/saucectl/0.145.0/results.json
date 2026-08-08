@@ -1,27 +1,33 @@
 {
-  "pkg": "hugo-extended",
-  "version": "0.139.4",
+  "pkg": "saucectl",
+  "version": "0.145.0",
   "harnessVersion": 2,
-  "verdict": "HARNESS-TIMEOUT",
-  "grant": null,
+  "verdict": "MINIMUM",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [],
   "eventLog": null,
-  "driverRc": 3,
-  "durationMs": 650779,
+  "driverRc": 0,
+  "durationMs": 97521,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
@@ -29,13 +35,13 @@
     "nubVersion": "v0.7.1",
     "corpusGitSha": "a0e04dcbb992585ce65324ef057f5b895cdfa9ee",
     "node": "v22.23.2",
-    "at": "2026-08-08T01:09:52.805Z",
+    "at": "2026-08-08T00:48:45.441Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "hoisted",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-hugoextended-msjo191u",
+    "jailRoot": "C:\\jail\\m-saucectl-msjnly1b",
     "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -51,10 +57,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-hugoextended-msjo191u\\npm-cache",
-        "TMP": "C:\\jail\\m-hugoextended-msjo191u\\tmp",
-        "TEMP": "C:\\jail\\m-hugoextended-msjo191u\\tmp",
-        "TMPDIR": "C:\\jail\\m-hugoextended-msjo191u\\tmp"
+        "npm_config_cache": "C:\\jail\\m-saucectl-msjnly1b\\npm-cache",
+        "TMP": "C:\\jail\\m-saucectl-msjnly1b\\tmp",
+        "TEMP": "C:\\jail\\m-saucectl-msjnly1b\\tmp",
+        "TMPDIR": "C:\\jail\\m-saucectl-msjnly1b\\tmp"
       },
       "unset": [
         "CI",
