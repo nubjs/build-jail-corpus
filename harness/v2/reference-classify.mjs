@@ -33,15 +33,17 @@ export function firstErrorFrom(output, roots = {}) {
   const useful = lines.filter((line) => !/^(?:npm )?warn(?:ing)?\b|^throw err;?$|^\^$|complete log of this run/i.test(line));
   const rank = (line) => {
     if (/\bwarning:/i.test(line)) return 0;
-    if (/^(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
+    if (/\b(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
     if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
       || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
+    if (/THIS PACKAGE WAS RENAMED/i.test(line)) return 98;
     if (/GNU Make version is too old/i.test(line)
       || /^make(?:\[\d+\])?: \*\*\* \[[^\]]*verify-deps[^\]]*\] Error/i.test(line)) return 97;
+    if (/Could not find any Visual Studio|gyp ERR! find VS/i.test(line)) return 97;
     if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
-    if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
-    if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
+    if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
+    if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
     if (/^make\[\d+\]: \*\*\* \[[^\]]+\] Error/i.test(line)) return 95;
     if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
     if (/^Error:\s+/i.test(line)) return 90;
@@ -86,8 +88,8 @@ const listAllows = (value, list) => {
 };
 
 const allFailureText = (record) => Object.values(record.arms ?? {}).flatMap((arm) => arm.attempts ?? [])
-  .flatMap((attempt) => Object.values(attempt.stages ?? {}))
-  .flatMap((stage) => [stage?.error?.summary, ...(stage?.error?.excerpts ?? [])])
+  .flatMap((attempt) => [...Object.values(attempt.stages ?? {}), ...(attempt.auxiliaryLogs?.files ?? [])])
+  .flatMap((source) => [source?.error?.summary, ...(source?.error?.excerpts ?? [])])
   .filter(Boolean).join('\n');
 
 const passed = (arm) => arm?.quorum?.outcome === 'pass';
@@ -189,7 +191,8 @@ export function classifyReference(record) {
       [`engines.node=${engineRange}`, `node=${nodeVersion}`]);
   }
   if (platformMismatch
-    || /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
+    || /EBADPLATFORM|not compatible with your operating system|Unsupported platform|unsupported target (?:win32|darwin|linux)-/i.test(text)
+    || /Failed to find Electron .+ for darwin-arm64/i.test(text)) {
     return result('OS_CPU_MISMATCH', osAllowed === false || cpuAllowed === false || libcAllowed === false
       ? 'metadata' : 'signature',
       'the package excludes this operating-system, CPU, or libc cell',
@@ -230,17 +233,23 @@ export function classifyReference(record) {
       'the Autotools build requires Libtool macros absent from the selected toolchain profile',
       ['tool=libtool']);
   }
+  if (/rustup could not choose a version of cargo to run.*no default is configured/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the native build requires a configured Rust toolchain absent from this profile',
+      ['tool=rustup', 'default-toolchain=missing']);
+  }
   if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|Cannot open include file: ['"](?:cairo\.h|pango(?:\/|\\)|pixman(?:\.h|-1)|jpeglib\.h|gif_lib\.h|librsvg(?:\/|\\))|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
     return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
       'the native build expects a system development library absent from this profile',
       ['profile experiment required']);
   }
-  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]/im.test(text)) {
+  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]|ENOENT.*node_modules.*(?:package-lock\.json|postinstall\.sh)|postinstall\.sh: not found/im.test(text)
+    || (metadata.scripts?.postinstall === 'tsc' && /aka\.ms\/tsc/i.test(text))) {
     return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
       'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
       ['published source/configuration missing']);
   }
-  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|size of array element is not a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
   }
@@ -252,7 +261,19 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a compiler or native build tool absent from this profile',
       ['tool=native-build-chain']);
   }
+  if (platform === 'win32' && (/was unexpected at this time/i.test(text)
+    || /ENOENT: no such file or directory, (?:chmod|rename).*(?:chromedriver|binary[\\/]rover)/i.test(text))) {
+    return result('PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'signature',
+      'the published lifecycle script uses a POSIX-only path or command on Windows',
+      ['platform=win32']);
+  }
+  if (metadata.scripts?.install && /^(?:npm|pnpm|yarn|nub) install\s*$/i.test(metadata.scripts.install)) {
+    return result('PUBLISHED_SCRIPT_RECURSION', 'metadata',
+      'the published install lifecycle recursively invokes a package-manager install',
+      [`scripts.install=${metadata.scripts.install}`]);
+  }
   const missingCommand = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
+    ?? text.match(/\bspawn ([A-Za-z0-9_.-]+) ENOENT\b/i)?.[1]
     ?? text.match(/(?:^|\n)['"]?([@A-Za-z0-9_.-]+)['"]? is not recognized as an internal or external command\b/im)?.[1];
   if (missingCommand && (metadata.devDependencies ?? []).includes(missingCommand)) {
     return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
@@ -268,7 +289,7 @@ export function classifyReference(record) {
     return result('PROJECT_FIXTURE_PREREQUISITE', 'signature', 'the lifecycle script expects additional project shape',
       ['profile experiment required']);
   }
-  if (/(?:failed to download\/install|download|binary|artifact).*(?:Status Code is )?(?:404|410)|(?:404|410).*(?:download|binary|artifact)/i.test(text)) {
+  if (/(?:failed to download\/install|download|binary|artifact)[\s\S]{0,1200}(?:Status Code is )?(?:404|410)|(?:404|410)[\s\S]{0,1200}(?:download|binary|artifact)/i.test(text)) {
     return result('EXTERNAL_ARTIFACT_UNAVAILABLE', 'signature',
       'the lifecycle script points at an external artifact that is consistently unavailable',
       ['consistent HTTP 404/410']);
@@ -277,7 +298,7 @@ export function classifyReference(record) {
     return result('ENVIRONMENT_PREREQUISITE', 'signature', 'the lifecycle script requires an environment value not supplied by this profile',
       ['profile experiment required']);
   }
-  if (/No matching version found|ETARGET|E404|404 Not Found|410 Gone|checksum (?:failed|mismatch)|integrity checksum failed|unsupported URL type|Cannot find module .*node_modules.*(?:scripts|bin|install|postinstall)|MODULE_NOT_FOUND/i.test(text)) {
+  if (/No matching version found|ERR_NUB_NO_MATCHING_VERSION|ETARGET|E404|404 Not Found|410 Gone|checksum (?:failed|mismatch)|integrity checksum failed|unsupported URL type|Cannot find module .*node_modules.*(?:scripts|bin|install|postinstall)|MODULE_NOT_FOUND|THIS PACKAGE WAS RENAMED|The git reference could not be found|pathspec .+ did not match|provided mimeType .+ is not valid|blockExoticSubdeps|Error downloading binary; invalid response status code: 400/i.test(text)) {
     return result('PACKAGE_BROKEN_OR_UNAVAILABLE', 'signature', 'a pinned package or external artifact is unavailable or permanently invalid',
       ['consistent reference failure']);
   }

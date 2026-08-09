@@ -138,6 +138,108 @@ export async function runProcess(command, args, {
   };
 }
 
+const AUXILIARY_LOG_NAME = /(?:^|\.)(?:log|trace|out|err)$/i;
+const MAX_AUXILIARY_LOGS = 16;
+const MAX_AUXILIARY_SCAN_ENTRIES = 20_000;
+const MAX_AUXILIARY_BYTES = 4 * 1024 * 1024;
+const AUXILIARY_SOURCE_PRIORITY = new Map(
+  ['home', 'temp', 'package', 'cache', 'npmCache'].map((label, index) => [label, index]),
+);
+
+const readBoundedFile = (file, size, limit) => {
+  if (size <= limit) return fs.readFileSync(file);
+  const headBytes = Math.min(CAPTURE_HEAD, Math.floor(limit / 2));
+  const tailBytes = limit - headBytes;
+  const output = Buffer.alloc(limit);
+  const descriptor = fs.openSync(file, 'r');
+  try {
+    fs.readSync(descriptor, output, 0, headBytes, 0);
+    fs.readSync(descriptor, output, headBytes, tailBytes, size - tailBytes);
+  } finally {
+    fs.closeSync(descriptor);
+  }
+  return output;
+};
+
+export function collectAuxiliaryLogs(sources, retainedRoot, recordRoot = retainedRoot) {
+  const candidates = [];
+  const seenFiles = new Set();
+  let scannedEntries = 0;
+  let scanTruncated = false;
+  const visit = (label, root, dir) => {
+    if (scanTruncated) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      scannedEntries += 1;
+      if (scannedEntries > MAX_AUXILIARY_SCAN_ENTRIES) { scanTruncated = true; return; }
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) visit(label, root, file);
+      else if (entry.isFile() && AUXILIARY_LOG_NAME.test(entry.name)) {
+        let real; let stat;
+        try { real = fs.realpathSync(file); stat = fs.statSync(real); } catch { continue; }
+        if (!seenFiles.has(real)) {
+          seenFiles.add(real);
+          candidates.push({
+            label,
+            root,
+            file: real,
+            relativePath: path.relative(root, file),
+            size: stat.size,
+            mtimeMs: stat.mtimeMs,
+          });
+        }
+      }
+      if (scanTruncated) return;
+    }
+  };
+  for (const [label, root] of Object.entries(sources)) if (root) visit(label, root, root);
+
+  let remaining = MAX_AUXILIARY_BYTES;
+  const files = [];
+  const captureFailures = [];
+  for (const candidate of candidates
+    .sort((a, b) => (AUXILIARY_SOURCE_PRIORITY.get(a.label) ?? 99)
+      - (AUXILIARY_SOURCE_PRIORITY.get(b.label) ?? 99)
+      || b.mtimeMs - a.mtimeMs
+      || `${a.label}/${a.relativePath}`.localeCompare(`${b.label}/${b.relativePath}`))
+    .slice(0, MAX_AUXILIARY_LOGS)) {
+    if (remaining <= 0) break;
+    try {
+      const limit = Math.min(MAX_CAPTURE, remaining);
+      const bytes = readBoundedFile(candidate.file, candidate.size, limit);
+      const destination = path.join(retainedRoot, 'auxiliary', candidate.label, candidate.relativePath);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, bytes);
+      remaining -= bytes.length;
+      files.push({
+        sourceRoot: candidate.label,
+        relativePath: candidate.relativePath.split(path.sep).join('/'),
+        retainedPath: path.relative(recordRoot, destination).split(path.sep).join('/'),
+        bytes: candidate.size,
+        retainedBytes: bytes.length,
+        truncated: bytes.length < candidate.size,
+        sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+        error: firstErrorFrom(bytes.toString(), sources),
+      });
+    } catch (error) {
+      captureFailures.push({
+        sourceRoot: candidate.label,
+        relativePath: candidate.relativePath.split(path.sep).join('/'),
+        errorCode: error.code ?? 'UNKNOWN',
+      });
+    }
+  }
+  return {
+    files,
+    captureFailures,
+    scanTruncated,
+    scannedEntries,
+    candidateCount: candidates.length,
+    retentionTruncated: files.length < candidates.length,
+  };
+}
+
 const lifecycleHooks = ['preinstall', 'install', 'postinstall'];
 const normalizeLifecycleVersion = (version) => /^v\d+\./.test(version) ? version.slice(1) : version;
 
@@ -283,6 +385,25 @@ export async function runManagerAttempt({
     profile, pkg, version, arm: `${manager}-${attempt}`, buildJail: false, manager,
   });
   const { env, roots } = referenceEnvironment(attemptRoot, profile);
+  const finish = (value) => {
+    if (value.outcome !== 'pass') {
+      const packageRoot = path.join(project, 'node_modules', ...pkg.split('/'));
+      const auxiliaryLogs = collectAuxiliaryLogs({
+        home: roots.home,
+        temp: roots.temp,
+        cache: roots.cache,
+        package: fs.existsSync(packageRoot) ? fs.realpathSync(packageRoot) : null,
+        npmCache: roots.npmCache,
+      }, retainedRoot, recordRoot);
+      if (auxiliaryLogs.candidateCount || auxiliaryLogs.scanTruncated) {
+        value.auxiliaryLogs = auxiliaryLogs;
+        const fingerprints = [value.fingerprint,
+          ...auxiliaryLogs.files.map((file) => file.error?.fingerprint)].filter(Boolean).sort();
+        value.fingerprint = crypto.createHash('sha256').update(fingerprints.join('\n')).digest('hex');
+      }
+    }
+    return value;
+  };
   env.NODE_EXECUTABLE = targetNode;
   const targetNodeDir = path.dirname(targetNode);
   if (env.PATH?.split(path.delimiter)[0] !== targetNodeDir) {
@@ -315,9 +436,9 @@ export async function runManagerAttempt({
   const actualRuntime = stages.runtime.output.trim().split(/\r?\n/)[0];
   if (!stageOk(stages.runtime) || actualRuntime !== targetNodeVersion) {
     stages.runtime.error ??= firstErrorFrom(`RUNTIME-MISMATCH expected ${targetNodeVersion} got ${actualRuntime || '(none)'}`);
-    return { manager, attempt, outcome: stages.runtime.timedOut ? 'timeout' : 'harness-error',
+    return finish({ manager, attempt, outcome: stages.runtime.timedOut ? 'timeout' : 'harness-error',
       fingerprint: stages.runtime.error.fingerprint,
-      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null };
+      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null });
   }
 
   if (profile.fixture.gitRepository) {
@@ -336,8 +457,8 @@ export async function runManagerAttempt({
       delete env.GIT_COMMITTER_DATE;
       if (!stageOk(stages[name])) {
         const terminal = terminalStage(stages);
-        return { manager, attempt, outcome: terminal.timedOut ? 'timeout' : 'fail', fingerprint: terminal.error?.fingerprint ?? null,
-          stages, roots, packageMetadata: null, lifecyclePackages: [], security: null };
+        return finish({ manager, attempt, outcome: terminal.timedOut ? 'timeout' : 'fail', fingerprint: terminal.error?.fingerprint ?? null,
+          stages, roots, packageMetadata: null, lifecyclePackages: [], security: null });
       }
     }
   }
@@ -347,8 +468,8 @@ export async function runManagerAttempt({
   stages.preflight = await run('preflight', invocation.command, [...invocation.prefixArgs, ...preflightArgs]);
   if (!stageOk(stages.preflight)) {
     const terminal = terminalStage(stages);
-    return { manager, attempt, outcome: terminal.timedOut ? 'timeout' : 'fail', fingerprint: terminal.error?.fingerprint ?? null,
-      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null };
+    return finish({ manager, attempt, outcome: terminal.timedOut ? 'timeout' : 'fail', fingerprint: terminal.error?.fingerprint ?? null,
+      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null });
   }
 
   let security;
@@ -357,12 +478,12 @@ export async function runManagerAttempt({
       path.join(retainedRoot, 'clearance.json'));
   } catch (error) {
     stages.security = { error: firstErrorFrom(`OSV-SCREEN-ERROR ${error.message}`, { project, ...roots }) };
-    return { manager, attempt, outcome: 'harness-error', fingerprint: stages.security.error.fingerprint,
-      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null };
+    return finish({ manager, attempt, outcome: 'harness-error', fingerprint: stages.security.error.fingerprint,
+      stages, roots, packageMetadata: null, lifecyclePackages: [], security: null });
   }
   if (security.status !== 'clean') {
-    return { manager, attempt, outcome: 'refused-malicious', fingerprint: null, stages, roots,
-      packageMetadata: null, lifecyclePackages: [], security };
+    return finish({ manager, attempt, outcome: 'refused-malicious', fingerprint: null, stages, roots,
+      packageMetadata: null, lifecyclePackages: [], security });
   }
   const packageMetadata = targetManifest(project, pkg);
   const lifecyclePackages = collectLifecyclePackages(project);
@@ -371,8 +492,8 @@ export async function runManagerAttempt({
     const output = `TARGET-NOT-INSTALLED expected ${pkg}@${version} got ${packageMetadata?.name ?? '(missing)'}@${packageMetadata?.version ?? '(missing)'}`;
     stages.target = { exitCode: null, signal: null, timedOut: false, spawnError: null,
       error: firstErrorFrom(output, { project, ...roots }), output };
-    return { manager, attempt, outcome: 'invalid-tree', fingerprint: stages.target.error.fingerprint,
-      stages, roots, packageMetadata, lifecyclePackages, security };
+    return finish({ manager, attempt, outcome: 'invalid-tree', fingerprint: stages.target.error.fingerprint,
+      stages, roots, packageMetadata, lifecyclePackages, security });
   }
   fs.rmSync(path.join(project, 'node_modules'), { recursive: true, force: true });
 
@@ -384,7 +505,7 @@ export async function runManagerAttempt({
   }
   const terminal = terminalStage(stages);
   const ok = stageOk(stages.install) && (!stages.approve || stageOk(stages.approve));
-  return {
+  return finish({
     manager,
     attempt,
     outcome: ok ? 'pass' : terminal.timedOut ? 'timeout' : 'fail',
@@ -395,7 +516,7 @@ export async function runManagerAttempt({
     lifecyclePackages,
     lifecycle: lifecycleEvidence(manager, stages, lifecyclePackages),
     security,
-  };
+  });
 }
 
 const shouldRetry = (attempts, maxAttempts) => {

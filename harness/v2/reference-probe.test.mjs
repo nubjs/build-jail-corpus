@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import {
+  collectAuxiliaryLogs,
   collectLifecyclePackages,
   lifecycleEvidence,
   quorumForAttempts,
@@ -82,6 +83,42 @@ test('process logs retain their beginning and end without allowing unbounded out
   assert.match(result.output, /^BEGIN\n/);
   assert.match(result.output, /\nEND\n/);
   assert.ok(fs.statSync(path.join(root, 'large.stdout')).size <= 2 * 1024 * 1024);
+});
+
+test('failed lifecycle diagnostics written to private log files are retained as evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-auxiliary-log-'));
+  const home = path.join(root, 'work', 'home');
+  const cache = path.join(root, 'work', 'cache');
+  const overflow = path.join(root, 'work', 'overflow');
+  const retained = path.join(root, 'records', 'attempts', 'npm-1');
+  const log = path.join(home, 'Library', 'Detox', 'ios', 'build', 'detox_ios.log');
+  fs.mkdirSync(path.dirname(log), { recursive: true });
+  fs.writeFileSync(log, 'xcodebuild: error: unsupported architecture\n');
+  fs.writeFileSync(path.join(home, 'unrelated.json'), '{"ignored":true}\n');
+  fs.mkdirSync(cache, { recursive: true });
+  for (let index = 0; index < 15; index += 1) {
+    fs.writeFileSync(path.join(cache, `${String(index).padStart(2, '0')}.log`), `cache log ${index}\n`);
+  }
+  fs.mkdirSync(overflow, { recursive: true });
+  fs.writeFileSync(path.join(overflow, 'omitted.log'), 'overflow log\n');
+
+  const captured = collectAuxiliaryLogs({ home, cache, overflow }, retained, path.join(root, 'records'));
+  assert.equal(captured.candidateCount, 17);
+  assert.equal(captured.files.length, 16);
+  assert.equal(captured.retentionTruncated, true);
+  assert.deepEqual(captured.captureFailures, []);
+  const detox = captured.files.find((file) => file.sourceRoot === 'home');
+  assert.equal(detox.relativePath, 'Library/Detox/ios/build/detox_ios.log');
+  assert.match(detox.error.summary, /xcodebuild: error/);
+  assert.equal(fs.readFileSync(path.join(root, 'records', detox.retainedPath), 'utf8'),
+    'xcodebuild: error: unsupported architecture\n');
+
+  const blocked = path.join(root, 'blocked-retained-root');
+  fs.writeFileSync(blocked, 'not a directory');
+  const failedCapture = collectAuxiliaryLogs({ home }, blocked, path.join(root, 'records'));
+  assert.equal(failedCapture.files.length, 0);
+  assert.equal(failedCapture.retentionTruncated, true);
+  assert.equal(failedCapture.captureFailures[0].errorCode, 'ENOTDIR');
 });
 
 test('lifecycle evidence is manager-specific and counts actual spawn markers', () => {
@@ -195,6 +232,7 @@ test('a Nub attempt approves an implicit binding.gyp lifecycle instead of report
     }
     if (args[0] === 'install') return stage('WARN ignored build scripts for native-addon');
     if (args[0] === 'approve-builds') {
+      fs.writeFileSync(path.join(options.env.HOME, 'native-build.log'), 'compiler: fatal error\n');
       return stage('DEBUG ran install for native-addon@1.0.0\nError: native build failed', 1);
     }
     return stage();
@@ -207,6 +245,7 @@ test('a Nub attempt approves an implicit binding.gyp lifecycle instead of report
   });
   assert.equal(result.outcome, 'fail');
   assert.equal(result.lifecyclePackages[0].scripts.install, 'node-gyp rebuild');
+  assert.equal(result.auxiliaryLogs.files[0].relativePath, 'native-build.log');
   assert.ok(calls.some((call) => call.includes('approve-builds')));
 });
 

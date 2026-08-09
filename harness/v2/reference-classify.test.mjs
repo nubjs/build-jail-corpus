@@ -68,6 +68,8 @@ test('toolchain, transient, permanent and unknown failures stay mutually exclusi
     ['make[2]: *** [Makefile:255: verify-deps] Error 1', 'TOOLCHAIN_PREREQUISITE'],
     ['RangeError [ERR_CHILD_PROCESS_STDIO_MAXBUFFER]: stderr maxBuffer length exceeded',
       'PUBLISHED_INSTALLER_OUTPUT_LIMIT'],
+    ["error: rustup could not choose a version of cargo to run, because one wasn't specified explicitly, and no default is configured.",
+      'TOOLCHAIN_PREREQUISITE'],
     ['npm ERR! code ECONNRESET', 'TRANSIENT_EXTERNAL_DOWNLOAD'],
     ['npm ERR! code ETARGET No matching version found', 'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['Error: surprising opaque failure', 'UNCLASSIFIED'],
@@ -192,12 +194,57 @@ test('current stratified failures resolve to durable remediation classes from ca
       'OBSOLETE_NATIVE_ASSUMPTION'],
     ['Error: spawn EINVAL\nat build (node_modules/fibers/build.js:62:5)', {},
       'OBSOLETE_NATIVE_ASSUMPTION'],
+    ['Error: spawn node-waf ENOENT', {}, 'OBSOLETE_NATIVE_ASSUMPTION'],
+    ['Error: spawn runhaskell ENOENT', {}, 'UNDECLARED_EXTERNAL_TOOL_REQUIRED'],
+    ['Error: unsupported target win32-x64', {}, 'OS_CPU_MISMATCH'],
+    ['Error: Failed to find Electron v8.0.0 for darwin-arm64', {}, 'OS_CPU_MISMATCH'],
+    ['Error: The git reference could not be found\nerror: pathspec 4.0 did not match', {},
+      'PACKAGE_BROKEN_OR_UNAVAILABLE'],
+    ['TypeError: DOMParser.parseFromString: the provided mimeType undefined is not valid.', {},
+      'PACKAGE_BROKEN_OR_UNAVAILABLE'],
   ];
   for (const [message, metadata, code] of cases) {
     const classified = classifyReference(record(arm('consistent-failure', message),
       arm('consistent-failure', message), { packageMetadata: metadata }));
     assert.equal(classified.code, code, message);
   }
+});
+
+test('published lifecycle mistakes are separated from missing host tools', () => {
+  const windows = record(
+    arm('consistent-failure', '-f was unexpected at this time.'),
+    arm('consistent-failure', '-f was unexpected at this time.'),
+  );
+  windows.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(windows).code, 'PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION');
+
+  const recursion = record(arm('consistent-failure', 'error Command failed with exit code 1.'),
+    arm('consistent-failure', 'error Command failed with exit code 1.'), {
+      packageMetadata: { scripts: { install: 'yarn install' } },
+    });
+  assert.equal(classifyReference(recursion).code, 'PUBLISHED_SCRIPT_RECURSION');
+});
+
+test('causal compaction retains prefixed runtime errors and Visual Studio discovery failures', () => {
+  const parser = firstErrorFrom('ERR! CDInstaller TypeError: DOMParser.parseFromString: invalid mime type\nnpm error command failed');
+  assert.match(parser.summary, /TypeError: DOMParser/);
+  const visualStudio = firstErrorFrom('Error: Command failed: node-gyp\ngyp ERR! find VS Could not find any Visual Studio installation to use');
+  assert.match(visualStudio.summary, /Could not find any Visual Studio/);
+  assert.match(firstErrorFrom('npm error command failed\n* * THIS PACKAGE WAS RENAMED! * *').summary,
+    /PACKAGE WAS RENAMED/);
+  assert.match(firstErrorFrom('source.c:434:5: error: size of array element is not a multiple of its alignment\nmake[3]: *** [target] Error 1').summary,
+    /size of array element/);
+});
+
+test('classifier evidence includes bounded auxiliary logs written outside process stdio', () => {
+  const both = record(arm('consistent-failure', 'Error: opaque lifecycle wrapper'),
+    arm('consistent-failure', 'Error: opaque lifecycle wrapper'));
+  for (const attempt of [both.arms.nubUnjailed.attempts[0], both.arms.npmUnjailed.attempts[0]]) {
+    attempt.auxiliaryLogs = { files: [{ error: firstErrorFrom(
+      "src/addon.cc:4:2: error: no member named 'OldApi' in namespace 'v8'",
+    ) }] };
+  }
+  assert.equal(classifyReference(both).code, 'OBSOLETE_NATIVE_ASSUMPTION');
 });
 
 test('compiler errors outrank warnings and classify native ABI incompatibility', () => {
