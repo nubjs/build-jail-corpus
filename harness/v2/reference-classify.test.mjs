@@ -264,6 +264,8 @@ test('current stratified failures resolve to durable remediation classes from ca
       'TOOLCHAIN_PREREQUISITE'],
     ['Error: Unsupported architecture arm64. Only x64 binaries are available.', {},
       'OS_CPU_MISMATCH'],
+    ['dotnet-2.0.0-osx@1.0.5: The CPU architecture "arm64" is incompatible with this module.', {},
+      'OS_CPU_MISMATCH'],
     ['Error: Playwright does not support chromium on mac15.7', {}, 'OS_CPU_MISMATCH'],
     ['Error: Request failed with status code 404', {}, 'EXTERNAL_ARTIFACT_UNAVAILABLE'],
     ['./build.sh: line 3: node-waf: command not found', {}, 'OBSOLETE_NATIVE_ASSUMPTION'],

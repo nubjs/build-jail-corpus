@@ -207,7 +207,7 @@ export function classifyReference(record) {
   }
   if (platformMismatch
     || /EBADPLATFORM|not compatible with your operating system|Unsupported platform|unsupported target (?:win32|darwin|linux)-/i.test(text)
-    || /Failed to find Electron .+ for darwin-arm64|(?:M1 Chip system with )?arm64 architecture is not supported|Unsupported \(\?\) architecture: [`'"]?arm64|Unsupported architecture arm64|Installation is not supported for this architecture|(?:no|unable to find) .*binaries?.*(?:platform|operating system|architecture|darwin|arm64)|cannot install.*(?:arm64|architecture)|Only x64 binaries are available|does not support chromium on mac|pre-built .+ binary was not found for darwin arm64|RELATIVE_EXECUTABLE_PATHS\[browser\]\[platform\].*undefined|`git-win` not support this platform/i.test(text)
+    || /Failed to find Electron .+ for darwin-arm64|(?:M1 Chip system with )?arm64 architecture is not supported|The CPU architecture .+ is incompatible with this module|Unsupported \(\?\) architecture: [`'"]?arm64|Unsupported architecture arm64|Installation is not supported for this architecture|(?:no|unable to find) .*binaries?.*(?:platform|operating system|architecture|darwin|arm64)|cannot install.*(?:arm64|architecture)|Only x64 binaries are available|does not support chromium on mac|pre-built .+ binary was not found for darwin arm64|RELATIVE_EXECUTABLE_PATHS\[browser\]\[platform\].*undefined|`git-win` not support this platform/i.test(text)
     || (arch === 'arm64' && record.pkg === 'electron-chromedriver'
       && /Download failed: ENOENT: no such file or directory, chmod .*chromedriver/i.test(text))) {
     return result('OS_CPU_MISMATCH', osAllowed === false || cpuAllowed === false || libcAllowed === false

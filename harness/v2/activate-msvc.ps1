@@ -41,4 +41,15 @@ foreach ($name in $required) {
   "$name=$($values[$name])" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 }
 
-Write-Host "Activated MSVC from $installation"
+# Git for Windows prepends its POSIX tool directory when it starts bash, so an unqualified
+# `link.exe` resolves to `/usr/bin/link` even though VsDevCmd put MSVC first in the Windows PATH.
+# Cargo's target-specific override is build plumbing only; reference profiles intentionally do not
+# inherit it into third-party lifecycle scripts.
+$linker = Join-Path $values['VCToolsInstallDir'] 'bin\HostX64\x64\link.exe'
+if (-not (Test-Path $linker -PathType Leaf)) {
+  throw "MSVC linker is absent: $linker"
+}
+"CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER=$linker" |
+  Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+Write-Host "Activated MSVC from $installation with linker $linker"
