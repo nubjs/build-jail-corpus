@@ -7,6 +7,7 @@ import {
   loadReferenceProfile,
   referenceEnvironment,
   referenceProfileIdentity,
+  targetManifest,
   validateReferenceProfile,
   writeReferenceProject,
 } from './reference-profile.mjs';
@@ -66,4 +67,22 @@ test('profiles use platform-neutral safe paths and cannot replace generated cont
     assert.throws(() => validateReferenceProfile(profile));
   }
   assert.throws(() => validateReferenceProfile({ ...base, id: '../escape' }), /path-safe id/);
+});
+
+test('target metadata retains dependency classes needed to explain published lifecycle failures', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-target-metadata-'));
+  const packageRoot = path.join(root, 'node_modules', 'example');
+  fs.mkdirSync(packageRoot, { recursive: true });
+  fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+    name: 'example', version: '1.0.0',
+    dependencies: { runtime: '^1.0.0' },
+    devDependencies: { husky: '^5.0.0' },
+    optionalDependencies: { optional: '^1.0.0' },
+    peerDependencies: { peer: '^1.0.0' },
+  }));
+  assert.deepEqual(targetManifest(root, 'example'), {
+    name: 'example', version: '1.0.0', engines: null, os: null, cpu: null, libc: null,
+    scripts: {}, dependencies: ['runtime'], devDependencies: ['husky'],
+    optionalDependencies: ['optional'], peerDependencies: ['peer'], deprecated: null,
+  });
 });

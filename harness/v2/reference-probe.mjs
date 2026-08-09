@@ -156,8 +156,16 @@ export function collectLifecyclePackages(projectRoot) {
     const scripts = Object.fromEntries(lifecycleHooks
       .filter((hook) => typeof manifest.scripts?.[hook] === 'string')
       .map((hook) => [hook, manifest.scripts[hook]]));
+    const implicitNodeGyp = !scripts.preinstall && !scripts.install
+      && fs.existsSync(path.join(pkgDir, 'binding.gyp'));
+    if (implicitNodeGyp) scripts.install = 'node-gyp rebuild';
     if (manifest.name && manifest.version && Object.keys(scripts).length) {
-      packages.set(`${manifest.name}@${manifest.version}`, { name: manifest.name, version: manifest.version, scripts });
+      packages.set(`${manifest.name}@${manifest.version}`, {
+        name: manifest.name,
+        version: manifest.version,
+        scripts,
+        implicitLifecycle: implicitNodeGyp ? ['install'] : [],
+      });
     }
     visitModules(path.join(pkgDir, 'node_modules'));
   };

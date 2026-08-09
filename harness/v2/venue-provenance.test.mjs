@@ -19,6 +19,21 @@ import { join } from 'node:path';
 const HERE = import.meta.dirname;
 const TOOL = join(HERE, 'record.mjs');
 
+const childEnvironment = (home, extra = {}) => ({
+  ...Object.fromEntries(['PATH', 'SystemRoot', 'WINDIR', 'ComSpec', 'PATHEXT']
+    .filter((name) => process.env[name] != null).map((name) => [name, process.env[name]])),
+  HOME: home,
+  USERPROFILE: home,
+  ...extra,
+});
+
+const assertChildCompleted = (result, label) => {
+  assert.equal(result.error, undefined, `${label} could not launch: ${result.error?.message}`);
+  assert.equal(result.signal, null, `${label} was terminated by ${result.signal}`);
+  assert.equal(result.status, 0,
+    `${label} exited ${result.status}: ${(result.stderr ?? '') + (result.stdout ?? '')}`);
+};
+
 // A minimal driver log that parses to a complete record, so nothing else can be the reason a field
 // is missing.
 const LOG = [
@@ -39,7 +54,8 @@ const write = (env) => {
   const r = spawnSync(process.execPath, [TOOL,
     '--log', log, '--pkg', 'thing', '--version', '1.0.0',
     '--out', join(dir, 'runs'), '--rc', '0', '--platform', 'linux-x64', '--duration-ms', '1000'],
-  { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: dir, ...env } });
+  { encoding: 'utf8', env: childEnvironment(dir, env) });
+  assertChildCompleted(r, 'venue record helper');
   const rec = JSON.parse(readFileSync(
     join(dir, 'runs', 'linux-x64', 'thing', '1.0.0', 'results.json'), 'utf8'));
   return { venue: rec.provenance.venue, stderr: (r.stderr ?? '') + (r.stdout ?? ''), rc: r.status };
@@ -117,10 +133,11 @@ const writeRc = (rc, logLines) => {
   const dir = mkdtempSync(join(tmpdir(), 'rc-'));
   const log = join(dir, 'driver.txt');
   writeFileSync(log, logLines.join('\n'));
-  spawnSync(process.execPath, [TOOL,
+  const result = spawnSync(process.execPath, [TOOL,
     '--log', log, '--pkg', 'thing', '--version', '1.0.0',
     '--out', join(dir, 'runs'), '--rc', String(rc), '--platform', 'linux-x64', '--duration-ms', '1'],
-  { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: dir, NUB_CORPUS_VENUE: 'vm' } });
+  { encoding: 'utf8', env: childEnvironment(dir, { NUB_CORPUS_VENUE: 'vm' }) });
+  assertChildCompleted(result, `rc ${rc} record helper`);
   return JSON.parse(readFileSync(
     join(dir, 'runs', 'linux-x64', 'thing', '1.0.0', 'results.json'), 'utf8'));
 };

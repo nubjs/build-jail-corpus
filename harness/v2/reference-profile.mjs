@@ -154,6 +154,10 @@ export function targetManifest(project, pkg) {
       scripts: Object.fromEntries(Object.entries(manifest.scripts ?? {})
         .filter(([name, value]) => ['preinstall', 'install', 'postinstall', 'prepare'].includes(name)
           && typeof value === 'string')),
+      dependencies: Object.keys(manifest.dependencies ?? {}).sort(),
+      devDependencies: Object.keys(manifest.devDependencies ?? {}).sort(),
+      optionalDependencies: Object.keys(manifest.optionalDependencies ?? {}).sort(),
+      peerDependencies: Object.keys(manifest.peerDependencies ?? {}).sort(),
       deprecated: manifest.deprecated ?? null,
     };
   } catch {

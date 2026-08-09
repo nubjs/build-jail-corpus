@@ -97,6 +97,38 @@ test('the lifecycle census follows hoisted packages and virtual-store entries', 
   assert.deepEqual(collectLifecyclePackages(root).map((pkg) => pkg.name), ['a', 'b']);
 });
 
+test('the lifecycle census includes npm implicit node-gyp installs from binding.gyp', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'implicit-node-gyp-census-'));
+  const packageRoot = path.join(root, 'node_modules', 'native-addon');
+  fs.mkdirSync(packageRoot, { recursive: true });
+  fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+    name: 'native-addon', version: '1.0.0', scripts: { test: 'node test.js' },
+  }));
+  fs.writeFileSync(path.join(packageRoot, 'binding.gyp'), '{}');
+  assert.deepEqual(collectLifecyclePackages(root), [{
+    name: 'native-addon',
+    version: '1.0.0',
+    scripts: { install: 'node-gyp rebuild' },
+    implicitLifecycle: ['install'],
+  }]);
+});
+
+test('an explicit install lifecycle overrides npm implicit node-gyp behavior', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'explicit-node-gyp-census-'));
+  const packageRoot = path.join(root, 'node_modules', 'native-addon');
+  fs.mkdirSync(packageRoot, { recursive: true });
+  fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+    name: 'native-addon', version: '1.0.0', scripts: { install: 'node custom.js' },
+  }));
+  fs.writeFileSync(path.join(packageRoot, 'binding.gyp'), '{}');
+  assert.deepEqual(collectLifecyclePackages(root)[0], {
+    name: 'native-addon',
+    version: '1.0.0',
+    scripts: { install: 'node custom.js' },
+    implicitLifecycle: [],
+  });
+});
+
 test('a manager attempt screens the resolved tree before deleting it and running lifecycle scripts', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-attempt-'));
   const profile = loadReferenceProfile();
@@ -135,6 +167,38 @@ test('a manager attempt screens the resolved tree before deleting it and running
   assert.equal(result.outcome, 'pass');
   assert.equal(result.lifecycle.provenCount, 1);
   assert.ok(calls.some((call) => call.includes('commit')), 'fixture repository has no initial commit');
+  assert.ok(calls.some((call) => call.includes('approve-builds')));
+});
+
+test('a Nub attempt approves an implicit binding.gyp lifecycle instead of reporting a false pass', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-implicit-attempt-'));
+  const calls = [];
+  const execute = async (command, args, options) => {
+    calls.push([command, ...args]);
+    if (command === '/target/node' && args[0] === '--version') return stage('v18.20.8\n');
+    if (args.includes('--ignore-scripts')) {
+      const packageRoot = path.join(options.cwd, 'node_modules', 'native-addon');
+      fs.mkdirSync(packageRoot, { recursive: true });
+      fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+        name: 'native-addon', version: '1.0.0', scripts: {},
+      }));
+      fs.writeFileSync(path.join(packageRoot, 'binding.gyp'), '{}');
+      return stage();
+    }
+    if (args[0] === 'install') return stage('WARN ignored build scripts for native-addon');
+    if (args[0] === 'approve-builds') {
+      return stage('DEBUG ran install for native-addon@1.0.0\nError: native build failed', 1);
+    }
+    return stage();
+  };
+  const result = await runManagerAttempt({
+    manager: 'nub', attempt: 1, pkg: 'native-addon', version: '1.0.0', executable: '/fake/nub',
+    profile: loadReferenceProfile(), root, timeoutMs: 1_000, execute,
+    targetNode: '/target/node', targetNodeVersion: 'v18.20.8',
+    screenTree: () => ({ status: 'clean', digest: 'd', specCount: 1, specs: ['native-addon@1.0.0'] }),
+  });
+  assert.equal(result.outcome, 'fail');
+  assert.equal(result.lifecyclePackages[0].scripts.install, 'node-gyp rebuild');
   assert.ok(calls.some((call) => call.includes('approve-builds')));
 });
 

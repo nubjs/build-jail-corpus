@@ -21,19 +21,39 @@ export function firstErrorFrom(output, roots = {}) {
   const text = sanitizeFailureText(output, roots);
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   const useful = lines.filter((line) => !/^(?:npm )?warn(?:ing)?\b|^throw err;?$|^\^$|complete log of this run/i.test(line));
-  const ranked = [
-    /^(?:Error|TypeError|RangeError|SyntaxError):\s+/i,
-    /^(?:<[^>]+>|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i,
-    /^(?:npm (?:error|ERR!)|gyp ERR!|fatal:)\s+/i,
-    /\b(?:ERR_[A-Z0-9_]+|MODULE_NOT_FOUND|EACCES|ENOENT|ETIMEDOUT|ECONNRESET|EAI_AGAIN)\b/,
-    /(?:failed|exception)\b/i,
-  ];
-  const summary = (ranked.map((pattern) => useful.find((line) => pattern.test(line))).find(Boolean)
-    ?? useful.at(-1) ?? 'process exited without diagnostic output').slice(0, 800);
+  const rank = (line) => {
+    if (/\bwarning:/i.test(line)) return 0;
+    if (/^(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
+      || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
+    if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)) return 98;
+    if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
+    if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
+    if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
+    if (/^Error:\s+/i.test(line)) return 90;
+    if (/\b(?:ERR_[A-Z0-9_]+|EACCES|ENOENT|ETIMEDOUT|ECONNRESET|EAI_AGAIN|EBADPLATFORM)\b/.test(line)) return 85;
+    if (/(?:failed|exception|not found|unsupported|incompatible|404|410)\b/i.test(line)) return 75;
+    if (/^(?:npm (?:error|ERR!)|gyp ERR!|node-pre-gyp ERR!|fatal:)\s+/i.test(line)) return 40;
+    return 0;
+  };
+  const ranked = useful.map((line, index) => ({ line, index, rank: rank(line) }))
+    .filter((entry) => entry.rank > 0)
+    .sort((a, b) => b.rank - a.rank || a.index - b.index);
+  const summary = (ranked[0]?.line ?? useful.at(-1) ?? 'process exited without diagnostic output').slice(0, 800);
+  const selected = new Set([summary]);
+  for (const entry of ranked) {
+    if (selected.size >= 12) break;
+    for (let index = Math.max(0, entry.index - 3); index <= Math.min(useful.length - 1, entry.index + 3); index += 1) {
+      selected.add(useful[index].slice(0, 800));
+      if (selected.size >= 12) break;
+    }
+  }
+  const excerpts = useful.filter((line) => selected.has(line.slice(0, 800)))
+    .map((line) => line.slice(0, 800)).filter((line, index, all) => all.indexOf(line) === index);
   const codes = [...new Set(text.match(/\b(?:ERR_[A-Z0-9_]+|MODULE_NOT_FOUND|E(?:ACCES|AI_AGAIN|CONNREFUSED|CONNRESET|HOSTUNREACH|NETUNREACH|NOENT|NOTFOUND|PERM|PIPE|PROTO|TIMEDOUT|TARGET|BADPLATFORM)|HTTP\s+[45]\d\d)\b/gi) ?? [])]
     .map((code) => code.toUpperCase()).sort();
   return {
     summary,
+    excerpts,
     codes,
     fingerprint: crypto.createHash('sha256').update(`${summary}\n${codes.join(',')}\n`).digest('hex'),
   };
@@ -51,7 +71,8 @@ const listAllows = (value, list) => {
 
 const allFailureText = (record) => Object.values(record.arms ?? {}).flatMap((arm) => arm.attempts ?? [])
   .flatMap((attempt) => Object.values(attempt.stages ?? {}))
-  .map((stage) => stage?.error?.summary ?? '').filter(Boolean).join('\n');
+  .flatMap((stage) => [stage?.error?.summary, ...(stage?.error?.excerpts ?? [])])
+  .filter(Boolean).join('\n');
 
 const passed = (arm) => arm?.quorum?.outcome === 'pass';
 const refused = (arm) => arm?.quorum?.outcome === 'refused-malicious';
@@ -70,6 +91,10 @@ export function classifyReference(record) {
   const arch = record.provenance?.runtime?.os?.arch ?? process.arch;
   const libc = record.provenance?.runtime?.os?.libc?.family ?? null;
   const text = allFailureText(record);
+  const osAllowed = listAllows(platform, metadata.os);
+  const cpuAllowed = listAllows(arch, metadata.cpu);
+  const libcAllowed = libc ? listAllows(libc, metadata.libc) : null;
+  const platformMismatch = osAllowed === false || cpuAllowed === false || libcAllowed === false;
 
   if (record.security?.status === 'refused-malicious' || refused(nub) || refused(npm)) {
     return result('REFUSED_MALICIOUS', 'deterministic', 'OSV refused the direct package or a resolved dependency tree',
@@ -130,6 +155,13 @@ export function classifyReference(record) {
       [nub?.quorum?.fingerprint, 'npm=pass'].filter(Boolean));
   }
   if (passed(nub) && !passed(npm)) {
+    if (platformMismatch && /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
+      return result('NUB_PLATFORM_CONSTRAINT_DIVERGENCE', 'differential',
+        'Nub installed and ran a package whose declared operating-system, CPU, or libc constraints exclude this cell',
+        [`os=${platform}`, `cpu=${arch}`, `package.os=${JSON.stringify(metadata.os ?? null)}`,
+          `package.cpu=${JSON.stringify(metadata.cpu ?? null)}`, `libc=${libc}`,
+          `package.libc=${JSON.stringify(metadata.libc ?? null)}`]);
+    }
     return result('NPM_PM_DIVERGENCE', 'differential', 'unjailed Nub passes while npm fails on the same fixture and runtime',
       ['nub=pass', npm?.quorum?.fingerprint].filter(Boolean));
   }
@@ -140,10 +172,7 @@ export function classifyReference(record) {
     return result('INCOMPATIBLE_NODE', 'metadata', `the package declares Node ${engineRange}, not ${nodeVersion}`,
       [`engines.node=${engineRange}`, `node=${nodeVersion}`]);
   }
-  const osAllowed = listAllows(platform, metadata.os);
-  const cpuAllowed = listAllows(arch, metadata.cpu);
-  const libcAllowed = libc ? listAllows(libc, metadata.libc) : null;
-  if (osAllowed === false || cpuAllowed === false || libcAllowed === false
+  if (platformMismatch
     || /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
     return result('OS_CPU_MISMATCH', osAllowed === false || cpuAllowed === false || libcAllowed === false
       ? 'metadata' : 'signature',
@@ -153,7 +182,12 @@ export function classifyReference(record) {
         `package.libc=${JSON.stringify(metadata.libc ?? null)}`]);
   }
 
-  if (/Could not find any Python|find Python|python(?:3)?(?:\.exe)?: (?:not found|No such file)|No module named (?:distutils|setuptools)|invalid mode: ['"]rU['"]|Missing parentheses in call to ['"]print['"]|gyp ERR!.*python/i.test(text)) {
+  if (/invalid mode: ['"]rU['"]|Missing parentheses in call to ['"]print['"]/i.test(text)) {
+    return result('OBSOLETE_PYTHON_ASSUMPTION', 'signature',
+      'the package build chain requires Python 2 behavior that is obsolete in the supported toolchain profile',
+      ['python=obsolete-behavior']);
+  }
+  if (/Could not find any Python|find Python|python(?:3)?(?:\.exe)?: (?:not found|No such file)|No module named (?:distutils|setuptools)|gyp ERR!.*python/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a Python installation or Python behavior absent from this profile',
       ['tool=python']);
   }
@@ -161,13 +195,39 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a compiler or native build tool absent from this profile',
       ['tool=native-build-chain']);
   }
-  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|nan\.h.*(?:not found|error)|node-gyp|gyp ERR! build error|C\+\+.*error:/i.test(text)) {
+  if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
+    return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
+      'the native build expects a system development library absent from this profile',
+      ['profile experiment required']);
+  }
+  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]/i.test(text)) {
+    return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
+      'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
+      ['published source/configuration missing']);
+  }
+  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error:.*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h):\d+(?::\d+)?: (?:fatal )?error:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
+  }
+  const missingCommand = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1];
+  if (missingCommand && (metadata.devDependencies ?? []).includes(missingCommand)) {
+    return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
+      'the published lifecycle script invokes a tool declared only as a development dependency',
+      [`missingCommand=${missingCommand}`, `devDependency=${missingCommand}`]);
+  }
+  if (missingCommand) {
+    return result('UNDECLARED_EXTERNAL_TOOL_REQUIRED', 'signature',
+      'the published lifecycle script invokes a tool that is not installed by the package dependency tree',
+      [`missingCommand=${missingCommand}`, 'profile experiment required']);
   }
   if (/not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
     return result('PROJECT_FIXTURE_PREREQUISITE', 'signature', 'the lifecycle script expects additional project shape',
       ['profile experiment required']);
+  }
+  if (/(?:failed to download\/install|download|binary|artifact).*(?:Status Code is )?(?:404|410)|(?:404|410).*(?:download|binary|artifact)/i.test(text)) {
+    return result('EXTERNAL_ARTIFACT_UNAVAILABLE', 'signature',
+      'the lifecycle script points at an external artifact that is consistently unavailable',
+      ['consistent HTTP 404/410']);
   }
   if (/(?:environment variable|env var)\s+[A-Z][A-Z0-9_]+.*(?:required|missing|not set)|(?:Please|must) set [A-Z][A-Z0-9_]+/i.test(text)) {
     return result('ENVIRONMENT_PREREQUISITE', 'signature', 'the lifecycle script requires an environment value not supplied by this profile',
