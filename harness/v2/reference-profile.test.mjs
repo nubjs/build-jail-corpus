@@ -9,6 +9,8 @@ import {
   referenceEnvironment,
   referenceHostCommands,
   referenceHostPathEntries,
+  referenceHostToolchainCommands,
+  referenceHostToolchainEnvironment,
   referenceProfileIdentity,
   targetManifest,
   toolProbesForPlatform,
@@ -146,6 +148,51 @@ test('the Redis output-bound follow-up suppresses compiler warnings without hidi
   ]);
 });
 
+test('the Redis Linux profile pre-provisions exact source-pinned Rust toolchains outside attempt homes', () => {
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-redis-build-linux.json', import.meta.url),
+  );
+  assert.equal(profile.id, 'redis-build-linux-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['linux']);
+  assert.equal(profile.environment.set.REDISEARCH_GENERATE_HEADERS, '0');
+  assert.deepEqual(profile.hostToolchains.linux.rustup, {
+    profile: 'minimal', toolchains: ['1.94.0', '1.92.0'],
+  });
+  assert.deepEqual(referenceHostToolchainCommands(profile, 'linux'), [
+    ['rustup', 'toolchain', 'install', '1.94.0', '1.92.0',
+      '--profile', 'minimal', '--no-self-update'],
+    ['cargo', '+1.94.0', '--version'],
+    ['rustc', '+1.94.0', '--version', '--verbose'],
+    ['cargo', '+1.92.0', '--version'],
+    ['rustc', '+1.92.0', '--version', '--verbose'],
+  ]);
+  const toolchainEnv = referenceHostToolchainEnvironment(profile, 'linux', { tempDir: '/controlled' });
+  assert.match(toolchainEnv.RUSTUP_HOME,
+    /^\/controlled\/nub-reference-toolchains\/redis-build-linux-v1-[a-f0-9]{16}\/rustup$/);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-redis-linux-env-'));
+  const { env, roots } = referenceEnvironment(root, profile, {
+    PATH: '/usr/bin', HOME: '/ambient', CARGO_HOME: '/ambient/cargo', RUSTUP_HOME: '/ambient/rustup',
+  }, {
+    platform: 'linux',
+    resolveHostToolchainEnvironment: () => ({ RUSTUP_HOME: '/controlled/rustup' }),
+  });
+  assert.equal(env.HOME, roots.home);
+  assert.equal(env.RUSTUP_HOME, '/controlled/rustup');
+  assert.equal(env.CARGO_HOME, undefined);
+  assert.match(toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n'),
+    /cargo \+1\.94\.0 --version[\s\S]*cargo \+1\.92\.0 --version/);
+  const provisioned = [];
+  provisionReferenceHost(profile, 'linux', (command, args, options) => {
+    provisioned.push({ command: [command, ...args], rustupHome: options.env.RUSTUP_HOME });
+    return { status: 0, error: null };
+  });
+  assert.deepEqual(provisioned.map((entry) => entry.command),
+    referenceHostToolchainCommands(profile, 'linux'));
+  assert.ok(provisioned.every((entry) => /nub-reference-toolchains/.test(entry.rustupHome)));
+  assert.throws(() => referenceHostToolchainCommands(profile, 'darwin'), /does not support darwin/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {
@@ -223,6 +270,27 @@ test('host package declarations reject shell arguments, manager drift and undecl
     assert.throws(() => validateReferenceProfile({ ...base, hostPackages }), /invalid host packages/);
   }
   assert.throws(() => validateReferenceProfile({ ...base, supportedPlatforms: [] }), /supportedPlatforms/);
+});
+
+test('host toolchain declarations accept only exact minimal Rust releases on supported platforms', () => {
+  const base = loadReferenceProfile();
+  const valid = {
+    ...base,
+    supportedPlatforms: ['linux'],
+    hostToolchains: { linux: { rustup: { profile: 'minimal', toolchains: ['1.94.0'] } } },
+  };
+  assert.doesNotThrow(() => validateReferenceProfile(valid));
+  for (const hostToolchains of [
+    [],
+    { darwin: { rustup: { profile: 'minimal', toolchains: ['1.94.0'] } } },
+    { linux: { rustup: { profile: 'default', toolchains: ['1.94.0'] } } },
+    { linux: { rustup: { profile: 'minimal', toolchains: ['stable'] } } },
+    { linux: { rustup: { profile: 'minimal', toolchains: ['1.94.0', '1.94.0'] } } },
+    { linux: { rustup: { profile: 'minimal', toolchains: ['1.94.0'], components: ['clippy'] } } },
+  ]) {
+    assert.throws(() => validateReferenceProfile({ ...valid, hostToolchains }),
+      /hostToolchains|host toolchains/);
+  }
 });
 
 test('target metadata retains dependency classes needed to explain published lifecycle failures', () => {

@@ -1,22 +1,35 @@
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   DEFAULT_REFERENCE_PROFILE,
   loadReferenceProfile,
   referenceHostCommands,
+  referenceHostToolchainCommands,
+  referenceHostToolchainEnvironment,
 } from './reference-profile.mjs';
 
 export function provisionReferenceHost(profile, platform = process.platform, execute = spawnSync) {
-  const commands = referenceHostCommands(profile, platform);
-  for (const [command, ...args] of commands) {
-    const result = execute(command, args, { stdio: 'inherit' });
+  const packageCommands = referenceHostCommands(profile, platform);
+  for (const [command, ...args] of packageCommands) {
+    const result = execute(command, args, { stdio: 'inherit', env: process.env });
     if (result.error || result.status !== 0) {
       throw new Error(`reference profile host command failed: ${[command, ...args].join(' ')} `
         + `(${result.error?.message ?? `exit ${result.status}`})`);
     }
   }
-  return commands;
+  const toolchainEnv = { ...process.env, ...referenceHostToolchainEnvironment(profile, platform) };
+  if (toolchainEnv.RUSTUP_HOME) fs.mkdirSync(toolchainEnv.RUSTUP_HOME, { recursive: true });
+  const toolchainCommands = referenceHostToolchainCommands(profile, platform);
+  for (const [command, ...args] of toolchainCommands) {
+    const result = execute(command, args, { stdio: 'inherit', env: toolchainEnv });
+    if (result.error || result.status !== 0) {
+      throw new Error(`reference profile host command failed: ${[command, ...args].join(' ')} `
+        + `(${result.error?.message ?? `exit ${result.status}`})`);
+    }
+  }
+  return [...packageCommands, ...toolchainCommands];
 }
 
 const parseArgs = (argv) => {

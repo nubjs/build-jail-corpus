@@ -254,6 +254,7 @@ test('an unexpected per-package exception becomes a durable harness classificati
   assert.equal(record.classification.status, 'incomplete');
   assert.deepEqual(record.profile.supportedPlatforms, ['linux', 'darwin', 'win32']);
   assert.deepEqual(record.profile.hostPackages, {});
+  assert.deepEqual(record.profile.hostToolchains, {});
   assert.ok(record.profile.toolProbes.common.length > 0);
   assert.match(record.provenance.probeError.summary, /synthetic execution failure/);
   assert.ok(fs.existsSync(path.join(root, 'reference.json')));

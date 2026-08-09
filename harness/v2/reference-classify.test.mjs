@@ -148,6 +148,19 @@ make: *** [Makefile:109: build] Error 1`);
   assert.equal(dependencyCheck.summary, 'make[2]: *** [Makefile:255: verify-deps] Error 1');
   assert.equal(classifyReference(record(arm('consistent-failure', dependencyCheck.summary),
     arm('consistent-failure', dependencyCheck.summary))).code, 'TOOLCHAIN_PREREQUISITE');
+
+  const sourcePinnedRust = firstErrorFrom(`info: syncing channel updates for '1.94.0-x86_64-unknown-linux-gnu'
+info: downloading 6 components
+make[2]: *** [Makefile:251: build] Error 1
+make[1]: *** [modules/common.mk:80: /tmp/redisearch.so] Error 2
+make: *** [Makefile:109: build] Error 1`);
+  assert.equal(sourcePinnedRust.summary, 'make[2]: *** [Makefile:251: build] Error 1');
+  assert.match(sourcePinnedRust.excerpts.join('\n'), /syncing channel updates/);
+  const rustEvidence = sourcePinnedRust.excerpts.join('\n');
+  const classifiedRust = classifyReference(record(arm('consistent-failure', rustEvidence),
+    arm('consistent-failure', rustEvidence)));
+  assert.equal(classifiedRust.code, 'TOOLCHAIN_PREREQUISITE');
+  assert.match(classifiedRust.summary, /source-pinned Rust toolchain/);
 });
 
 test('current stratified failures resolve to durable remediation classes from causal excerpts', () => {

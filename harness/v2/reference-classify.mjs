@@ -42,6 +42,7 @@ export function firstErrorFrom(output, roots = {}) {
     if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
     if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
     if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
+    if (/^make\[\d+\]: \*\*\* \[[^\]]+\] Error/i.test(line)) return 95;
     if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
     if (/^Error:\s+/i.test(line)) return 90;
     if (/\b(?:ERR_[A-Z0-9_]+|EACCES|ENOENT|ETIMEDOUT|ECONNRESET|EAI_AGAIN|EBADPLATFORM)\b/.test(line)) return 85;
@@ -216,6 +217,13 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',
       'the build dependency verification target rejected the selected toolchain profile',
       ['build-target=verify-deps']);
+  }
+  if (/info: syncing channel updates for ['"]?\d+\.\d+\.\d+/i.test(text)
+    && /info: downloading \d+ components/i.test(text)
+    && /make\[\d+\]: \*\*\* \[[^\]]*:\s*build\] Error/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the build attempted to provision a source-pinned Rust toolchain during the lifecycle and could not complete the module build',
+      ['tool=rustup', 'source-pinned-toolchain=true']);
   }
   if (/Libtool library used but ['"]LIBTOOL['"] is undefined/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',

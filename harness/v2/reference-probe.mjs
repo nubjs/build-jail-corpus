@@ -486,6 +486,7 @@ export async function runReferenceProbe({
       source: profileSource.split(path.sep).join('/'),
       supportedPlatforms: profile.supportedPlatforms,
       hostPackages: profile.hostPackages ?? {},
+      hostToolchains: profile.hostToolchains ?? {},
       fixture: profile.fixture,
       environment: profile.environment,
       toolProbes: profile.toolProbes ?? {},

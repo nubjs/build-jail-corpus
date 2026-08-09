@@ -1,12 +1,14 @@
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 export const DEFAULT_REFERENCE_PROFILE = path.join(import.meta.dirname, 'reference-profile.json');
 
 const REFERENCE_PLATFORMS = new Set(['linux', 'darwin', 'win32']);
 const HOST_PACKAGE_MANAGERS = { linux: 'apt', darwin: 'brew' };
+const RUSTUP_PROFILES = new Set(['minimal']);
 
 const canonicalJson = (value) => {
   if (Array.isArray(value)) return value.map(canonicalJson);
@@ -48,6 +50,25 @@ export function validateReferenceProfile(profile) {
         || Object.keys(entry).sort().join(',') !== 'package,relative'
         || !provision.packages.includes(entry.package) || !safeRelative(entry.relative))) {
       throw new Error(`reference profile has invalid host packages for ${platform}`);
+    }
+  }
+  const hostToolchains = profile.hostToolchains ?? {};
+  if (!hostToolchains || typeof hostToolchains !== 'object' || Array.isArray(hostToolchains)) {
+    throw new Error('reference profile hostToolchains must be an object');
+  }
+  for (const [platform, provision] of Object.entries(hostToolchains)) {
+    const rustup = provision?.rustup;
+    const toolchains = rustup?.toolchains;
+    if (!supportedPlatforms.includes(platform) || !provision || typeof provision !== 'object'
+      || Array.isArray(provision) || Object.keys(provision).sort().join(',') !== 'rustup'
+      || !rustup || typeof rustup !== 'object' || Array.isArray(rustup)
+      || Object.keys(rustup).sort().join(',') !== 'profile,toolchains'
+      || !RUSTUP_PROFILES.has(rustup.profile)
+      || !Array.isArray(toolchains) || toolchains.length === 0
+      || new Set(toolchains).size !== toolchains.length
+      || toolchains.some((toolchain) => typeof toolchain !== 'string'
+        || !/^\d+\.\d+\.\d+$/.test(toolchain))) {
+      throw new Error(`reference profile has invalid host toolchains for ${platform}`);
     }
   }
   const files = profile.fixture?.files;
@@ -133,6 +154,31 @@ export function referenceHostCommands(profile, platform = process.platform) {
   throw new Error(`reference profile ${profile.id} uses unsupported host package manager ${provision.manager}`);
 }
 
+export function referenceHostToolchainEnvironment(profile, platform = process.platform, {
+  tempDir = os.tmpdir(),
+} = {}) {
+  assertReferenceProfilePlatform(profile, platform);
+  if (!profile.hostToolchains?.[platform]) return {};
+  const identity = referenceProfileIdentity(profile);
+  const root = path.resolve(tempDir, 'nub-reference-toolchains',
+    `${identity.id}-${identity.sha256.slice(0, 16)}`);
+  return { RUSTUP_HOME: path.join(root, 'rustup') };
+}
+
+export function referenceHostToolchainCommands(profile, platform = process.platform) {
+  assertReferenceProfilePlatform(profile, platform);
+  const rustup = profile.hostToolchains?.[platform]?.rustup;
+  if (!rustup) return [];
+  return [
+    ['rustup', 'toolchain', 'install', ...rustup.toolchains,
+      '--profile', rustup.profile, '--no-self-update'],
+    ...rustup.toolchains.flatMap((toolchain) => [
+      ['cargo', `+${toolchain}`, '--version'],
+      ['rustc', `+${toolchain}`, '--version', '--verbose'],
+    ]),
+  ];
+}
+
 export function referenceHostPathEntries(profile, platform = process.platform, execute = spawnSync) {
   assertReferenceProfilePlatform(profile, platform);
   const provision = profile.hostPackages?.[platform];
@@ -189,12 +235,14 @@ export function writeReferenceProject(root, { profile, pkg, version, arm, buildJ
 export function referenceEnvironment(root, profile, base = process.env, {
   platform = process.platform,
   resolveHostPaths = referenceHostPathEntries,
+  resolveHostToolchainEnvironment = referenceHostToolchainEnvironment,
 } = {}) {
   validateReferenceProfile(profile);
   const env = Object.fromEntries((profile.environment?.inherit ?? [])
     .filter((key) => base[key] != null).map((key) => [key, base[key]]));
   for (const key of profile.environment?.unset ?? []) delete env[key];
   Object.assign(env, profile.environment?.set ?? {});
+  Object.assign(env, resolveHostToolchainEnvironment(profile, platform));
   const hostPaths = resolveHostPaths(profile, platform);
   env.PATH = [...hostPaths, env.PATH].filter(Boolean).join(path.delimiter);
   if (env.NODE_EXECUTABLE) {
