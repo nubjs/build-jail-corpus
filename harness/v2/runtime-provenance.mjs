@@ -18,6 +18,17 @@ export function fileIdentity(file) {
   } catch { return null; }
 }
 
+export function nubSubjectIdentity(executable, platform = process.platform) {
+  const identity = fileIdentity(executable);
+  if (!identity) return null;
+  return {
+    ...identity,
+    sidecars: platform === 'win32'
+      ? { busybox: fileIdentity(path.join(path.dirname(executable), 'busybox.exe')) }
+      : {},
+  };
+}
+
 const outputOf = (result) => `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
 
 export function endpointIdentity(value) {

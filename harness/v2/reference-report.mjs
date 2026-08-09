@@ -126,7 +126,11 @@ export function buildReferenceAccounting({
     else if (wanted.npmVersion && record.provenance?.npm?.version !== wanted.npmVersion) reason = 'runtime-npm';
     else if (!/^[a-f0-9]{64}$/.test(record.provenance?.npm?.executable?.sha256 ?? '')) reason = 'runtime-npm';
     else if (!nubGitSha || record.provenance?.nub?.gitSha !== nubGitSha
-      || !/^[a-f0-9]{64}$/.test(record.provenance?.nub?.sha256 ?? '')) reason = 'nub-subject';
+      || !/^[a-f0-9]{64}$/.test(record.provenance?.nub?.sha256 ?? '')
+      || (record.provenance?.runtime?.os?.platform === 'win32'
+        && !/^[a-f0-9]{64}$/.test(record.provenance?.nub?.sidecars?.busybox?.sha256 ?? ''))) {
+      reason = 'nub-subject';
+    }
     else if (JSON.stringify(record.provenance?.instrument) !== JSON.stringify(instrument)) reason = 'instrument';
     else if (referenceEvidenceSha(record) !== record.provenance?.evidenceSha256) reason = 'evidence-hash';
     else if (!record.classification?.code || !record.classification?.status) reason = 'classification';

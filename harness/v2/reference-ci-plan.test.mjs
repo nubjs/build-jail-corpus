@@ -73,6 +73,13 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.equal([...workflow.matchAll(/harness\/run-tests\.mjs/g)].length, 1);
   assert.match(workflow, /Run the complete harness test suite once per OS/);
   assert.match(workflow, /Nub subject cache was not populated by the build job/);
+  assert.match(workflow, /key: nub-subject-v2-/);
+  assert.doesNotMatch(workflow, /key: nub-bin-v1-/);
+  assert.match(workflow, /path: \$\{\{ env\.NUB_SUBJECT_CACHE_PATH \}\}/);
+  assert.doesNotMatch(workflow, /NUB_BIN_CACHE_PATH/);
+  assert.match(workflow,
+    /cp vendor\/busybox-w32\/busybox64\.exe \/tmp\/nub\/target\/release\/busybox\.exe/);
+  assert.match(workflow, /Windows Nub subject is missing its bundled POSIX shell/);
   assert.match(workflow, /--nub-git-sha/);
   assert.match(workflow, /ARGS\+=\(--strict --complete\)/);
 });

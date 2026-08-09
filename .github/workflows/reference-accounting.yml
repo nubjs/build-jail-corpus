@@ -149,21 +149,20 @@ jobs:
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
 
-      - name: Resolve the native probe-binary cache path
+      - name: Resolve the native subject cache path
         shell: bash
         run: |
           set -eu
-          P=/tmp/nub/target/release/nub
-          [ "$OS_NAME" = windows ] && P="$P.exe"
+          P=/tmp/nub/target/release
           if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
-          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
-      - name: Restore the exact Nub subject binary
+          echo "NUB_SUBJECT_CACHE_PATH=$P" >> "$GITHUB_ENV"
+      - name: Restore the exact Nub subject
         id: nubbin
         uses: actions/cache/restore@v6
         with:
-          path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
-      - name: Build the exact Nub subject binary once per OS
+          path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
+          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+      - name: Build the exact Nub subject once per OS
         if: steps.nubbin.outputs.cache-matched-key == ''
         shell: bash
         run: |
@@ -175,12 +174,15 @@ jobs:
           mkdir -p /tmp/nub/target/release
           cp "target/fast/nub${{ matrix.os == 'windows' && '.exe' || '' }}" \
              "/tmp/nub/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}"
-      - name: Save the exact Nub subject binary
+          if [ "$OS_NAME" = windows ]; then
+            cp vendor/busybox-w32/busybox64.exe /tmp/nub/target/release/busybox.exe
+          fi
+      - name: Save the exact Nub subject
         if: steps.nubbin.outputs.cache-matched-key == ''
         uses: actions/cache/save@v6
         with:
-          path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+          path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
+          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
 
   test:
     needs: plan
@@ -272,21 +274,20 @@ jobs:
           echo "TARGET_NODE=$TARGET_NODE" >> "$GITHUB_ENV"
           echo "NODE_EXECUTABLE=$TARGET_NODE" >> "$GITHUB_ENV"
 
-      - name: Resolve the native probe-binary cache path
+      - name: Resolve the native subject cache path
         shell: bash
         run: |
           set -eu
-          P=/tmp/nub/target/release/nub
-          [ "$OS_NAME" = windows ] && P="$P.exe"
+          P=/tmp/nub/target/release
           if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
-          echo "NUB_BIN_CACHE_PATH=$P" >> "$GITHUB_ENV"
+          echo "NUB_SUBJECT_CACHE_PATH=$P" >> "$GITHUB_ENV"
 
-      - name: Restore the exact Nub subject binary
+      - name: Restore the exact Nub subject
         id: nubbin
         uses: actions/cache/restore@v6
         with:
-          path: ${{ env.NUB_BIN_CACHE_PATH }}
-          key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+          path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
+          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
       - name: Refuse measurement without the prepared subject
         if: steps.nubbin.outputs.cache-matched-key == ''
         shell: bash
@@ -301,6 +302,10 @@ jobs:
           NUB_BIN=/tmp/nub/target/release/nub
           [ "$OS_NAME" = windows ] && NUB_BIN="$NUB_BIN.exe"
           chmod +x "$NUB_BIN" 2>/dev/null || true
+          if [ "$OS_NAME" = windows ]; then
+            [ -f /tmp/nub/target/release/busybox.exe ] \
+              || { echo "Windows Nub subject is missing its bundled POSIX shell" >&2; exit 1; }
+          fi
           "$NUB_BIN" --version
           [ "$("$TARGET_NODE" --version)" = "v${{ matrix.node }}" ] \
             || { echo "setup-node did not select v${{ matrix.node }}" >&2; exit 1; }

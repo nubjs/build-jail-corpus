@@ -128,6 +128,26 @@ test('mixed Nub subjects and the wrong harness runtime are integrity failures', 
   assert.equal(report.integrity.invalid[0].reason, 'orchestrator');
 });
 
+test('a Windows reference record is invalid without the shell that actually ran lifecycle scripts', () => {
+  const sourceRow = { ...row('windows-package'), os: 'windows' };
+  const value = record(sourceRow, '18.20.8', 'REFERENCE_PASSES');
+  value.provenance.runtime.os.platform = 'win32';
+  value.provenance.evidenceSha256 = referenceEvidenceSha(value);
+  const options = {
+    rows: [sourceRow], worklistSha256: 'w',
+    matrix: { harnessNode: '22.23.2', versions: [{ version: '18.20.8' }] },
+    matrixSha256: 'm', profile, instrument,
+  };
+  let report = buildReferenceAccounting({ ...options, records: [value] });
+  assert.equal(report.integrity.invalid[0].reason, 'nub-subject');
+
+  value.provenance.nub.sidecars = { busybox: { sha256: 'f'.repeat(64), bytes: 123 } };
+  value.provenance.evidenceSha256 = referenceEvidenceSha(value);
+  report = buildReferenceAccounting({ ...options, records: [value] });
+  assert.equal(report.integrity.invalid.length, 0);
+  assert.equal(report.observed.rows, 1);
+});
+
 test('an unreadable reference record is an integrity failure rather than disappearing', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-report-'));
   const dir = path.join(root, 'one');

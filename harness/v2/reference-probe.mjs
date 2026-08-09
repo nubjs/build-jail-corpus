@@ -20,7 +20,13 @@ import {
   toolProbesForPlatform,
   writeReferenceProject,
 } from './reference-profile.mjs';
-import { collectRuntimeProvenance, fileIdentity, probeNodeRuntime, probeTool } from './runtime-provenance.mjs';
+import {
+  collectRuntimeProvenance,
+  fileIdentity,
+  nubSubjectIdentity,
+  probeNodeRuntime,
+  probeTool,
+} from './runtime-provenance.mjs';
 
 const MAX_CAPTURE = 2 * 1024 * 1024;
 const CAPTURE_HEAD = 256 * 1024;
@@ -570,6 +576,11 @@ export const collectReferenceProvenance = (
   targetNode = process.env.NODE_EXECUTABLE ?? process.execPath,
 ) => {
   const orchestrator = collectRuntimeProvenance();
+  const nubSubject = nubSubjectIdentity(nub);
+  if (!nubSubject) throw new Error(`could not read Nub subject executable ${nub}`);
+  if (process.platform === 'win32' && !nubSubject.sidecars.busybox) {
+    throw new Error(`Windows Nub subject is missing its bundled POSIX shell beside ${nub}`);
+  }
   const provenanceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'nub-reference-provenance-'));
   try {
     const { env } = referenceEnvironment(provenanceRoot, profile, {
@@ -585,7 +596,7 @@ export const collectReferenceProvenance = (
         environment: collectRuntimeProvenance(env).environment,
       },
       toolchain: collectToolchain(profile, nub, env),
-      nub: { ...fileIdentity(nub), gitSha: nubGitSha },
+      nub: { ...nubSubject, gitSha: nubGitSha },
       npm: probeNpm(targetNode, npm),
     };
   } finally {

@@ -3,7 +3,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { endpointIdentity, fileIdentity, probeNodeRuntime, probeTool } from './runtime-provenance.mjs';
+import {
+  endpointIdentity,
+  fileIdentity,
+  nubSubjectIdentity,
+  probeNodeRuntime,
+  probeTool,
+} from './runtime-provenance.mjs';
 
 test('endpoint provenance distinguishes mirrors without retaining credentials or query secrets', () => {
   const endpoint = endpointIdentity('https://user:secret@mirror.example.test/node?token=private#fragment');
@@ -39,4 +45,17 @@ test('tool provenance resolves and executes through the supplied lifecycle PATH'
   const expectedIdentity = fileIdentity(file);
   assert.equal(result.executable.sha256, expectedIdentity.sha256);
   assert.equal(result.executable.bytes, expectedIdentity.bytes);
+});
+
+test('Windows Nub subject provenance includes the bundled shell sidecar', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nub-subject-'));
+  const nub = path.join(root, 'nub.exe');
+  const busybox = path.join(root, 'busybox.exe');
+  fs.writeFileSync(nub, 'nub binary');
+  fs.writeFileSync(busybox, 'busybox sidecar');
+  const identity = nubSubjectIdentity(nub, 'win32');
+  assert.deepEqual(identity.sidecars.busybox, fileIdentity(busybox));
+  fs.rmSync(busybox);
+  assert.equal(nubSubjectIdentity(nub, 'win32').sidecars.busybox, null);
+  assert.deepEqual(nubSubjectIdentity(nub, 'linux').sidecars, {});
 });
