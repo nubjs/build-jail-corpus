@@ -132,6 +132,20 @@ test('the Redis downstream-build profile activates LLVM without regenerating che
   assert.match(probes, /llvm-config --version/);
 });
 
+test('the Redis output-bound follow-up suppresses compiler warnings without hiding build exits', () => {
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-redis-build-darwin-v2.json', import.meta.url),
+  );
+  assert.equal(profile.id, 'redis-build-darwin-v2');
+  assert.equal(profile.environment.set.REDISEARCH_GENERATE_HEADERS, '0');
+  assert.equal(profile.environment.set.CFLAGS, '-w');
+  assert.equal(profile.environment.set.CXXFLAGS, '-w');
+  assert.equal(profile.environment.set.MAKEFLAGS, undefined);
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [
+    ['brew', 'install', 'make', 'automake', 'libtool', 'llvm@21'],
+  ]);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {

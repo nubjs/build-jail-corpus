@@ -202,6 +202,11 @@ export function classifyReference(record) {
       'the package build chain requires Python 2 behavior that is obsolete in the supported toolchain profile',
       ['python=obsolete-behavior']);
   }
+  if (/ERR_CHILD_PROCESS_STDIO_MAXBUFFER|(?:stdout|stderr) maxBuffer length exceeded/i.test(text)) {
+    return result('PUBLISHED_INSTALLER_OUTPUT_LIMIT', 'signature',
+      'the published lifecycle wrapper exceeded its child-process output buffer',
+      ['node.child_process=maxBuffer']);
+  }
   if (/GNU Make version is too old/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',
       'the build requires a newer GNU Make than the selected toolchain profile provides',

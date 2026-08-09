@@ -60,6 +60,16 @@ test('a no-lifecycle false positive is reported separately from a recovered inst
   assert.equal(report.backlog.some((group) => group.code === 'NO_LIFECYCLE_SCRIPT'), false);
 });
 
+test('a published child-output limit remains a bounded profile experiment', () => {
+  const a = row('a');
+  const report = buildReferenceAccounting({ rows: [a], worklistSha256: 'w',
+    matrix: { harnessNode: '22.23.2', versions: [{ version: '18.20.8' }] }, matrixSha256: 'm', profile, instrument,
+    records: [record(a, '18.20.8', 'PUBLISHED_INSTALLER_OUTPUT_LIMIT')] });
+  const group = report.backlog.find((entry) => entry.code === 'PUBLISHED_INSTALLER_OUTPUT_LIMIT');
+  assert.equal(group.priority, 'P1');
+  assert.equal(group.disposition, 'profile-experiment');
+});
+
 test('an expected pnpm platform policy differential is counted without creating a Nub-fix backlog', () => {
   const a = row('a');
   const report = buildReferenceAccounting({ rows: [a], worklistSha256: 'w',

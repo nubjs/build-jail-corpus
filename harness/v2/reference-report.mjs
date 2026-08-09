@@ -63,6 +63,7 @@ const remediationFor = (code) => ({
   ENVIRONMENT_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add only the evidenced non-secret environment value to a versioned profile and compare before/after cells' },
   PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   PUBLISHED_SOURCE_PREREQUISITE: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
+  PUBLISHED_INSTALLER_OUTPUT_LIMIT: { priority: 'P1', disposition: 'profile-experiment', experiment: 'suppress only evidenced non-semantic build diagnostics in a versioned profile; if the limit repeats, retain it as a terminal package failure' },
   EXTERNAL_ARTIFACT_UNAVAILABLE: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   OBSOLETE_PYTHON_ASSUMPTION: { priority: 'none', disposition: 'runtime-compatibility', experiment: null },
   TRANSIENT_EXTERNAL_DOWNLOAD: { priority: 'P1', disposition: 'retry', experiment: 'rerun isolated attempts and retain endpoint/checksum evidence until quorum' },

@@ -66,6 +66,8 @@ test('toolchain, transient, permanent and unknown failures stay mutually exclusi
     ['./autogen.sh: line 18: aclocal: command not found', 'TOOLCHAIN_PREREQUISITE'],
     ["Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined", 'TOOLCHAIN_PREREQUISITE'],
     ['make[2]: *** [Makefile:255: verify-deps] Error 1', 'TOOLCHAIN_PREREQUISITE'],
+    ['RangeError [ERR_CHILD_PROCESS_STDIO_MAXBUFFER]: stderr maxBuffer length exceeded',
+      'PUBLISHED_INSTALLER_OUTPUT_LIMIT'],
     ['npm ERR! code ECONNRESET', 'TRANSIENT_EXTERNAL_DOWNLOAD'],
     ['npm ERR! code ETARGET No matching version found', 'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['Error: surprising opaque failure', 'UNCLASSIFIED'],
