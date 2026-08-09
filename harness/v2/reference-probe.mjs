@@ -403,7 +403,6 @@ export async function runManagerAttempt({
         home: roots.home,
         temp: roots.temp,
         package: fs.existsSync(packageRoot) ? fs.realpathSync(packageRoot) : null,
-        cache: roots.cache,
         npmCache: roots.npmCache,
       }, retainedRoot, recordRoot, {
         project,

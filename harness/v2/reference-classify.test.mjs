@@ -242,6 +242,10 @@ test('causal compaction retains prefixed runtime errors and Visual Studio discov
     /PACKAGE WAS RENAMED/);
   assert.match(firstErrorFrom('source.c:434:5: error: size of array element is not a multiple of its alignment\nmake[3]: *** [target] Error 1').summary,
     /size of array element/);
+  const xcodeA = firstErrorFrom("error: Could not delete '/tmp/one/EarlGrey/build' because it was not created by the build system.");
+  const xcodeB = firstErrorFrom('error: Could not delete `/tmp/two/SocketRocket/build` because it was not created by the build system.');
+  assert.equal(xcodeA.summary, 'error: Could not delete <BUILD_DIR> because it was not created by the build system.');
+  assert.equal(xcodeA.fingerprint, xcodeB.fingerprint);
 });
 
 test('classifier evidence includes bounded auxiliary logs written outside process stdio', () => {

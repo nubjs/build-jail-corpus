@@ -24,6 +24,10 @@ export function sanitizeFailureText(value, roots = {}) {
     /[A-Za-z]:[\\/][^\r\n]*?[\\/]nub-reference-[A-Za-z0-9_-]+[\\/]attempts[\\/](?:nub|npm)-\d+[\\/](project|home|tmp|cache|config|npm-cache)/gi,
     (_, name) => `<${scratchNames[name.toLowerCase()]}>`,
   );
+  text = text.replace(
+    /(error: Could not delete )[`'"]?[^\r\n]+?[`'"]?( because it was not created by the build system\.?)/gi,
+    '$1<BUILD_DIR>$2',
+  );
   return text;
 }
 
