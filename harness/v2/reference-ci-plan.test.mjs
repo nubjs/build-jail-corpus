@@ -58,7 +58,9 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /--profile "\$\{\{ needs\.plan\.outputs\.profile_file \}\}"/);
   assert.match(workflow, /actions\/download-artifact@v8/);
   assert.match(workflow, /reference-report\.mjs/);
-  assert.match(workflow, /needs: \[plan, build\]/);
+  assert.match(workflow, /needs: \[plan, build, test\]/);
+  assert.equal([...workflow.matchAll(/harness\/run-tests\.mjs/g)].length, 1);
+  assert.match(workflow, /Run the complete harness test suite once per OS/);
   assert.match(workflow, /Nub subject cache was not populated by the build job/);
   assert.match(workflow, /--nub-git-sha/);
   assert.match(workflow, /ARGS\+=\(--strict --complete\)/);

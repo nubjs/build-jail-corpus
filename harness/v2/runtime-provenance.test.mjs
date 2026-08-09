@@ -21,14 +21,16 @@ test('the target runtime identity comes from the selected executable rather than
 });
 
 test('tool provenance resolves and executes through the supplied lifecycle PATH', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-profile-tool-'));
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-profile-tool-'));
+  const root = path.join(parent, 'tool path');
+  fs.mkdirSync(root);
   const command = 'reference-profile-tool';
   const file = path.join(root, process.platform === 'win32' ? `${command}.cmd` : command);
   fs.writeFileSync(file, process.platform === 'win32'
-    ? '@echo reference-profile-tool 1.0\r\n' : '#!/bin/sh\necho reference-profile-tool 1.0\n');
+    ? '@echo reference-profile-tool %~1\r\n' : '#!/bin/sh\necho reference-profile-tool "$1"\n');
   if (process.platform !== 'win32') fs.chmodSync(file, 0o755);
   const env = { ...process.env, PATH: [root, process.env.PATH].filter(Boolean).join(path.delimiter) };
-  const result = probeTool(command, [], env);
-  assert.equal(result.version, 'reference-profile-tool 1.0');
+  const result = probeTool(command, ['argument with spaces'], env);
+  assert.equal(result.version, 'reference-profile-tool argument with spaces');
   assert.equal(path.resolve(result.path).toLowerCase(), path.resolve(file).toLowerCase());
 });

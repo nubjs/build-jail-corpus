@@ -182,8 +182,34 @@ jobs:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
 
+  test:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.build_matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@v7
+        with: { node-version: '22.23.2' }
+      - name: Activate the MSVC build environment
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: ./harness/v2/activate-msvc.ps1
+      - name: Run the complete harness test suite once per OS
+        shell: bash
+        run: node harness/run-tests.mjs
+
   measure:
-    needs: [plan, build]
+    needs: [plan, build, test]
     strategy:
       fail-fast: false
       max-parallel: 6
@@ -227,12 +253,6 @@ jobs:
         shell: bash
         run: |
           "$HARNESS_NODE" harness/v2/reference-profile-host.mjs --profile "$REFERENCE_PROFILE_FILE"
-
-      - name: Run the complete harness test suite
-        shell: bash
-        run: |
-          set -eu
-          "$HARNESS_NODE" harness/run-tests.mjs
 
       - uses: actions/setup-node@v7
         with: { node-version: '${{ matrix.node }}' }

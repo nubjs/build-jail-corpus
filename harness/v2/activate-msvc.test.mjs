@@ -18,13 +18,16 @@ test('MSVC activation locates the C++ workload and exports only the profile buil
   assert.doesNotMatch(source, /Get-ChildItem\s+Env:|\benv:\*|GITHUB_TOKEN|NPM_TOKEN/);
 });
 
-test('both production Windows measurement paths activate MSVC before running the harness', () => {
+test('Windows CI activates MSVC before the one-time harness suite and both measurement paths', () => {
+  const testStart = referenceWorkflow.indexOf('\n  test:\n');
   const measureStart = referenceWorkflow.indexOf('Capture the fixed harness runtime');
+  const testActivation = referenceWorkflow.indexOf('harness/v2/activate-msvc.ps1', testStart);
+  const referenceTests = referenceWorkflow.indexOf('harness/run-tests.mjs', testStart);
   const referenceActivation = referenceWorkflow.indexOf('harness/v2/activate-msvc.ps1', measureStart);
-  const referenceTests = referenceWorkflow.indexOf('harness/run-tests.mjs', measureStart);
-  assert.equal([...referenceWorkflow.matchAll(/harness\/v2\/activate-msvc\.ps1/g)].length, 2);
+  assert.equal([...referenceWorkflow.matchAll(/harness\/v2\/activate-msvc\.ps1/g)].length, 3);
+  assert.ok(testActivation > testStart);
+  assert.ok(testActivation < referenceTests);
   assert.ok(referenceActivation > measureStart);
-  assert.ok(referenceActivation < referenceTests);
 
   for (const [label, workflow] of [['corpus runner', corpusWorkflow]]) {
     const activation = workflow.indexOf('harness/v2/activate-msvc.ps1');

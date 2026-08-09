@@ -167,8 +167,10 @@ test('the Redis Linux profile pre-provisions exact source-pinned Rust toolchains
     ['rustc', '+1.92.0', '--version', '--verbose'],
   ]);
   const toolchainEnv = referenceHostToolchainEnvironment(profile, 'linux', { tempDir: '/controlled' });
-  assert.match(toolchainEnv.RUSTUP_HOME,
-    /^\/controlled\/nub-reference-toolchains\/redis-build-linux-v1-[a-f0-9]{16}\/rustup$/);
+  const profileRoot = path.dirname(toolchainEnv.RUSTUP_HOME);
+  assert.equal(path.basename(toolchainEnv.RUSTUP_HOME), 'rustup');
+  assert.equal(path.dirname(profileRoot), path.resolve('/controlled', 'nub-reference-toolchains'));
+  assert.match(path.basename(profileRoot), /^redis-build-linux-v1-[a-f0-9]{16}$/);
 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-redis-linux-env-'));
   const { env, roots } = referenceEnvironment(root, profile, {
