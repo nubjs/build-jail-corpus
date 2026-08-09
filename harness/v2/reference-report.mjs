@@ -48,13 +48,14 @@ const firstErrorsFor = (record) => [...new Set(Object.values(record.arms ?? {})
   .flatMap((attempt) => Object.values(attempt.stages ?? {}))
   .map((stage) => stage?.error?.summary).filter(Boolean))].sort();
 
-const remediationFor = (code) => ({
+export const remediationFor = (code) => ({
   HARNESS_INTERNAL: { priority: 'P0', disposition: 'instrument-fix', experiment: 'fix the recorded harness stage and invalidate affected evidence' },
   LIFECYCLE_NOT_PROVEN: { priority: 'P0', disposition: 'instrument-fix', experiment: 'repair exact package-hook proof before accepting either reference arm' },
   UNCLASSIFIED: { priority: 'P0', disposition: 'classify-evidence', experiment: 'inspect the retained first-error/signature cluster and add a general classifier or profile experiment' },
   UNSTABLE_REFERENCE: { priority: 'P0', disposition: 'retry', experiment: 'repeat fresh isolated arms until quorum or retain an unstable terminal class' },
   REFERENCE_TIMEOUT: { priority: 'P0', disposition: 'retry-or-bound', experiment: 'separate the batch deadline from a repeatable package hang, then set an evidence-backed bound' },
   NUB_PM_DIVERGENCE: { priority: 'P1', disposition: 'nub-fix', experiment: 'reproduce the npm-pass/Nub-fail differential as a Nub package-manager defect' },
+  REFERENCE_PASSES: { priority: 'none', disposition: 'recovered-reference', experiment: null },
   REQUIRED_PLATFORM_POLICY_DIFFERENTIAL: { priority: 'none', disposition: 'expected-pnpm-policy-differential', experiment: null },
   TOOLCHAIN_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the named build tool to a versioned toolchain profile and compare before/after cells' },
   SYSTEM_LIBRARY_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the evidenced native development library to a versioned toolchain profile and compare before/after cells' },
@@ -63,12 +64,15 @@ const remediationFor = (code) => ({
   ENVIRONMENT_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add only the evidenced non-secret environment value to a versioned profile and compare before/after cells' },
   PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   PUBLISHED_SOURCE_PREREQUISITE: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
+  PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
+  PUBLISHED_SCRIPT_RECURSION: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   PUBLISHED_INSTALLER_OUTPUT_LIMIT: { priority: 'P1', disposition: 'profile-experiment', experiment: 'suppress only evidenced non-semantic build diagnostics in a versioned profile; if the limit repeats, retain it as a terminal package failure' },
   EXTERNAL_ARTIFACT_UNAVAILABLE: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   OBSOLETE_PYTHON_ASSUMPTION: { priority: 'none', disposition: 'runtime-compatibility', experiment: null },
   TRANSIENT_EXTERNAL_DOWNLOAD: { priority: 'P1', disposition: 'retry', experiment: 'rerun isolated attempts and retain endpoint/checksum evidence until quorum' },
   NPM_PM_DIVERGENCE: { priority: 'P2', disposition: 'oracle-investigation', experiment: 'inspect why ordinary npm fails when Nub passes before changing the shared fixture' },
   OBSOLETE_NATIVE_ASSUMPTION: { priority: 'P2', disposition: 'runtime-compatibility', experiment: 'compare supported Node majors; do not hide an ABI failure with a broader jail grant' },
+  OBSOLETE_XCODE_ASSUMPTION: { priority: 'none', disposition: 'runtime-compatibility', experiment: null },
   INCOMPATIBLE_NODE: { priority: 'none', disposition: 'expected-runtime-exclusion', experiment: null },
   OS_CPU_MISMATCH: { priority: 'none', disposition: 'expected-platform-exclusion', experiment: null },
   PACKAGE_BROKEN_OR_UNAVAILABLE: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },

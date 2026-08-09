@@ -4,7 +4,7 @@ import { referenceEvidenceSha } from './reference-probe.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildReferenceAccounting, readReferenceRecords } from './reference-report.mjs';
+import { buildReferenceAccounting, readReferenceRecords, remediationFor } from './reference-report.mjs';
 
 const profile = { id: 'developer-v1', sha256: 'p' };
 const instrument = { harnessEpoch: 3, harnessSha256: 'i' };
@@ -78,6 +78,17 @@ test('an expected pnpm platform policy differential is counted without creating 
   assert.deepEqual(report.byClassification.REQUIRED_PLATFORM_POLICY_DIFFERENTIAL,
     { rows: 1, packageVersions: 1, packages: 1 });
   assert.equal(report.backlog.length, 0);
+});
+
+test('terminal and recovered reference outcomes do not create fix work', () => {
+  assert.deepEqual(remediationFor('REFERENCE_PASSES'),
+    { priority: 'none', disposition: 'recovered-reference', experiment: null });
+  for (const code of ['PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'PUBLISHED_SCRIPT_RECURSION']) {
+    assert.deepEqual(remediationFor(code),
+      { priority: 'none', disposition: 'terminal-package-failure', experiment: null });
+  }
+  assert.deepEqual(remediationFor('OBSOLETE_XCODE_ASSUMPTION'),
+    { priority: 'none', disposition: 'runtime-compatibility', experiment: null });
 });
 
 test('an altered evidence record is rejected instead of counted', () => {
