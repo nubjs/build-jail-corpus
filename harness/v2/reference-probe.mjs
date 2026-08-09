@@ -138,7 +138,7 @@ export async function runProcess(command, args, {
   };
 }
 
-const AUXILIARY_LOG_NAME = /(?:^|\.)(?:log|trace|out|err)$/i;
+const AUXILIARY_LOG_NAME = /\.(?:log|trace|out|err)$/i;
 const MAX_AUXILIARY_LOGS = 16;
 const MAX_AUXILIARY_SCAN_ENTRIES = 20_000;
 const MAX_AUXILIARY_BYTES = 4 * 1024 * 1024;
@@ -166,21 +166,28 @@ export function collectAuxiliaryLogs(
   retainedRoot,
   recordRoot = retainedRoot,
   redactionRoots = sources,
+  { scanEntryLimit = MAX_AUXILIARY_SCAN_ENTRIES } = {},
 ) {
   const candidates = [];
   const seenFiles = new Set();
-  let scannedEntries = 0;
-  let scanTruncated = false;
-  const visit = (label, root, dir) => {
-    if (scanTruncated) return;
+  const scans = [];
+  const ignoredDirectory = (label, root, file) => {
+    const relative = path.relative(root, file);
+    if (label === 'package' && relative.split(path.sep).includes('node_modules')) return true;
+    if (label !== 'home') return false;
+    return ['.rustup', path.join('.cargo', 'registry'), path.join('.cargo', 'git')]
+      .some((subtree) => relative === subtree || relative.startsWith(`${subtree}${path.sep}`));
+  };
+  const visit = (label, root, dir, scan) => {
+    if (scan.truncated) return;
     let entries;
     try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
     for (const entry of entries) {
-      scannedEntries += 1;
-      if (scannedEntries > MAX_AUXILIARY_SCAN_ENTRIES) { scanTruncated = true; return; }
+      if (scan.scannedEntries >= scanEntryLimit) { scan.truncated = true; return; }
+      scan.scannedEntries += 1;
       const file = path.join(dir, entry.name);
-      if (entry.isDirectory() && !(label === 'package' && entry.name === 'node_modules')) {
-        visit(label, root, file);
+      if (entry.isDirectory() && !ignoredDirectory(label, root, file)) {
+        visit(label, root, file, scan);
       }
       else if (entry.isFile() && AUXILIARY_LOG_NAME.test(entry.name)) {
         let real; let stat;
@@ -197,13 +204,16 @@ export function collectAuxiliaryLogs(
           });
         }
       }
-      if (scanTruncated) return;
+      if (scan.truncated) return;
     }
   };
   for (const [label, root] of Object.entries(sources)
     .sort((a, b) => (AUXILIARY_SOURCE_PRIORITY.get(a[0]) ?? 99)
       - (AUXILIARY_SOURCE_PRIORITY.get(b[0]) ?? 99))) {
-    if (root) visit(label, root, root);
+    if (!root) continue;
+    const scan = { sourceRoot: label, scannedEntries: 0, truncated: false };
+    visit(label, root, root, scan);
+    scans.push(scan);
   }
 
   let remaining = MAX_AUXILIARY_BYTES;
@@ -244,8 +254,9 @@ export function collectAuxiliaryLogs(
   return {
     files,
     captureFailures,
-    scanTruncated,
-    scannedEntries,
+    scans,
+    scanTruncated: scans.some((scan) => scan.truncated),
+    scannedEntries: scans.reduce((sum, scan) => sum + scan.scannedEntries, 0),
     candidateCount: candidates.length,
     retentionTruncated: files.length < candidates.length,
   };

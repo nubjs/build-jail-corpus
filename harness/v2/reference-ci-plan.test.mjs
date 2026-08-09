@@ -66,6 +66,8 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /--profile "\$REFERENCE_PROFILE_FILE"/);
   assert.match(workflow, /--profile "\$\{\{ needs\.plan\.outputs\.profile_file \}\}"/);
   assert.match(workflow, /actions\/download-artifact@v8/);
+  assert.match(workflow,
+    /name: reference-evidence-[\s\S]*?include-hidden-files: true[\s\S]*?if-no-files-found: error/);
   assert.match(workflow, /reference-report\.mjs/);
   assert.match(workflow, /needs: \[plan, build, test\]/);
   assert.equal([...workflow.matchAll(/harness\/run-tests\.mjs/g)].length, 1);

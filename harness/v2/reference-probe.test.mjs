@@ -126,6 +126,35 @@ test('failed lifecycle diagnostics written to private log files are retained as 
   const packageCapture = collectAuxiliaryLogs({ package: packageRoot }, path.join(root, 'package-retained'));
   assert.equal(packageCapture.candidateCount, 0, 'target scanning must not descend into its dependency tree');
   assert.equal(packageCapture.scanTruncated, false);
+
+  const cargoRegistry = path.join(home, '.cargo', 'registry', 'src', 'crate');
+  fs.mkdirSync(cargoRegistry, { recursive: true });
+  fs.writeFileSync(path.join(cargoRegistry, 'build.log'), 'tool cache noise\n');
+  fs.writeFileSync(path.join(home, 'log'), 'extensionless cache entry\n');
+  const toolCacheCapture = collectAuxiliaryLogs({ home }, path.join(root, 'tool-cache-retained'));
+  assert.equal(toolCacheCapture.candidateCount, 1);
+  assert.equal(toolCacheCapture.files[0].relativePath, 'Library/Detox/ios/build/detox_ios.log');
+});
+
+test('an oversized auxiliary source cannot starve later diagnostic roots', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-auxiliary-budget-'));
+  const home = path.join(root, 'home');
+  const temp = path.join(root, 'temp');
+  fs.mkdirSync(home, { recursive: true });
+  fs.mkdirSync(temp, { recursive: true });
+  for (let index = 0; index < 4; index += 1) fs.writeFileSync(path.join(home, `noise-${index}`), 'noise\n');
+  fs.writeFileSync(path.join(temp, 'failure.log'), 'build failed in temp\n');
+
+  const captured = collectAuxiliaryLogs({ home, temp }, path.join(root, 'retained'), undefined, undefined,
+    { scanEntryLimit: 3 });
+  assert.equal(captured.scanTruncated, true);
+  assert.deepEqual(captured.scans, [
+    { sourceRoot: 'home', scannedEntries: 3, truncated: true },
+    { sourceRoot: 'temp', scannedEntries: 1, truncated: false },
+  ]);
+  assert.equal(captured.files.length, 1);
+  assert.equal(captured.files[0].sourceRoot, 'temp');
+  assert.equal(captured.files[0].relativePath, 'failure.log');
 });
 
 test('lifecycle evidence is manager-specific and counts actual spawn markers', () => {
