@@ -407,10 +407,10 @@ const shouldRetry = (attempts, maxAttempts) => {
   return quorum.outcome === 'unstable' && attempts.length < maxAttempts;
 };
 
-export const collectToolchain = (profile, nub) => ({
-  nub: { ...probeTool(nub), executable: fileIdentity(nub) },
+export const collectToolchain = (profile, nub, env = process.env) => ({
+  nub: { ...probeTool(nub, ['--version'], env), executable: fileIdentity(nub) },
   probes: toolProbesForPlatform(profile).map(([command, ...args]) => ({
-    requested: [command, ...args], result: probeTool(command, args),
+    requested: [command, ...args], result: probeTool(command, args, env),
   })),
 });
 
@@ -419,19 +419,27 @@ export const collectReferenceProvenance = (
   targetNode = process.env.NODE_EXECUTABLE ?? process.execPath,
 ) => {
   const orchestrator = collectRuntimeProvenance();
-  return {
-    instrument: computeHarnessIdentity(),
-    orchestrator,
-    runtime: {
-      node: probeNodeRuntime(targetNode),
-      os: orchestrator.os,
-      runner: orchestrator.runner,
-      environment: orchestrator.environment,
-    },
-    toolchain: collectToolchain(profile, nub),
-    nub: { ...fileIdentity(nub), gitSha: nubGitSha },
-    npm: probeNpm(targetNode, npm),
-  };
+  const provenanceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'nub-reference-provenance-'));
+  try {
+    const { env } = referenceEnvironment(provenanceRoot, profile, {
+      ...process.env, NODE_EXECUTABLE: targetNode,
+    });
+    return {
+      instrument: computeHarnessIdentity(),
+      orchestrator,
+      runtime: {
+        node: probeNodeRuntime(targetNode),
+        os: orchestrator.os,
+        runner: orchestrator.runner,
+        environment: collectRuntimeProvenance(env).environment,
+      },
+      toolchain: collectToolchain(profile, nub, env),
+      nub: { ...fileIdentity(nub), gitSha: nubGitSha },
+      npm: probeNpm(targetNode, npm),
+    };
+  } finally {
+    fs.rmSync(provenanceRoot, { recursive: true, force: true });
+  }
 };
 
 export async function runReferenceProbe({

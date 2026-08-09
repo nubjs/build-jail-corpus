@@ -37,11 +37,11 @@ export function endpointIdentity(value) {
   };
 }
 
-function commandPath(command) {
+function commandPath(command, env = process.env) {
   if (path.isAbsolute(command) && fs.existsSync(command)) return command;
   const lookup = process.platform === 'win32'
-    ? spawnSync('where.exe', [command], { encoding: 'utf8', windowsHide: true })
-    : spawnSync('which', [command], { encoding: 'utf8' });
+    ? spawnSync('where.exe', [command], { encoding: 'utf8', windowsHide: true, env })
+    : spawnSync('which', [command], { encoding: 'utf8', env });
   if (lookup.status !== 0) return null;
   return String(lookup.stdout ?? '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
 }
@@ -58,10 +58,12 @@ function runtimeLibc() {
   return { family: null, version: null };
 }
 
-export function probeTool(command, args = ['--version']) {
-  const result = spawnSync(command, args, { encoding: 'utf8', windowsHide: true, timeout: 30_000 });
+export function probeTool(command, args = ['--version'], env = process.env) {
+  const result = spawnSync(command, args, {
+    encoding: 'utf8', windowsHide: true, timeout: 30_000, env,
+  });
   if (result.error || result.status !== 0) return null;
-  const resolvedPath = commandPath(command);
+  const resolvedPath = commandPath(command, env);
   return {
     command: [command, ...args],
     path: resolvedPath,
@@ -83,20 +85,21 @@ export function probeNodeRuntime(executable) {
 
 export function collectRuntimeProvenance(env = process.env) {
   const python = [
-    probeTool('python3'),
-    probeTool('python'),
-    ...(process.platform === 'win32' ? [probeTool('py', ['-3', '--version'])] : []),
+    probeTool('python3', ['--version'], env),
+    probeTool('python', ['--version'], env),
+    ...(process.platform === 'win32' ? [probeTool('py', ['-3', '--version'], env)] : []),
   ].filter(Boolean).filter((tool, index, all) =>
     all.findIndex((other) => other.path === tool.path && other.version === tool.version) === index);
   const buildTools = process.platform === 'win32'
-    ? { cl: probeTool('cl', ['/?']), msbuild: probeTool('msbuild', ['-version']) }
-    : { cc: probeTool('cc'), cxx: probeTool('c++'), make: probeTool('make') };
+    ? { cl: probeTool('cl', ['/?'], env), msbuild: probeTool('msbuild', ['-version'], env) }
+    : { cc: probeTool('cc', ['--version'], env), cxx: probeTool('c++', ['--version'], env),
+      make: probeTool('make', ['--version'], env) };
   const exposedEnv = ['CI', 'GITHUB_ACTIONS', 'NODE_ENV', 'NODE_EXECUTABLE',
     'RUNNER_OS', 'RUNNER_ARCH',
     'RUNNER_ENVIRONMENT', 'ImageOS', 'ImageVersion', 'LANG', 'LC_ALL'];
   return {
     node: { version: process.version, ...fileIdentity(process.execPath) },
-    npm: probeTool('npm'),
+    npm: probeTool('npm', ['--version'], env),
     python,
     buildTools,
     os: {

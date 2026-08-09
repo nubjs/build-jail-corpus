@@ -62,6 +62,8 @@ test('a package libc constraint excludes the wrong Linux runtime cell', () => {
 test('toolchain, transient, permanent and unknown failures stay mutually exclusive', () => {
   const cases = [
     ['gyp ERR! find Python Could not find any Python installation', 'TOOLCHAIN_PREREQUISITE'],
+    ['deps/readies/mk/main:6: *** GNU Make version is too old. Aborting.', 'TOOLCHAIN_PREREQUISITE'],
+    ['./autogen.sh: line 18: aclocal: command not found', 'TOOLCHAIN_PREREQUISITE'],
     ['npm ERR! code ECONNRESET', 'TRANSIENT_EXTERNAL_DOWNLOAD'],
     ['npm ERR! code ETARGET No matching version found', 'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['Error: surprising opaque failure', 'UNCLASSIFIED'],
@@ -121,6 +123,13 @@ Package 'pixman-1', required by 'virtual:world', not found`);
   assert.equal(error.summary, "Package 'pixman-1', required by 'virtual:world', not found");
   assert.ok(error.excerpts.includes('gyp ERR! configure error'));
   assert.ok(error.excerpts.some((line) => /pkg-config search path/.test(line)));
+
+  const make = firstErrorFrom(`failed to download/install Redis binaries. The error: Error: Command failed: make
+deps/readies/mk/main:6: *** GNU Make version is too old. Aborting.. Stop.
+make: *** [build] Error 1`);
+  assert.match(make.summary, /GNU Make version is too old/);
+  assert.equal(classifyReference(record(arm('consistent-failure', make.summary),
+    arm('consistent-failure', make.summary))).code, 'TOOLCHAIN_PREREQUISITE');
 });
 
 test('current stratified failures resolve to durable remediation classes from causal excerpts', () => {

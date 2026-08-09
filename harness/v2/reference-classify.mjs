@@ -37,6 +37,7 @@ export function firstErrorFrom(output, roots = {}) {
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
     if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
       || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
+    if (/GNU Make version is too old/i.test(line)) return 97;
     if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
     if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
     if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
@@ -199,6 +200,11 @@ export function classifyReference(record) {
       'the package build chain requires Python 2 behavior that is obsolete in the supported toolchain profile',
       ['python=obsolete-behavior']);
   }
+  if (/GNU Make version is too old/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the build requires a newer GNU Make than the selected toolchain profile provides',
+      ['tool=make', 'version=too-old']);
+  }
   if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|Cannot open include file: ['"](?:cairo\.h|pango(?:\/|\\)|pixman(?:\.h|-1)|jpeglib\.h|gif_lib\.h|librsvg(?:\/|\\))|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
     return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
       'the native build expects a system development library absent from this profile',
@@ -217,7 +223,7 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a Python installation or Python behavior absent from this profile',
       ['tool=python']);
   }
-  if (/not found: (?:make|gcc|g\+\+|cc|c\+\+|cmake|ninja)|(?:make|gcc|g\+\+|cc|c\+\+|cmake|ninja): (?:command )?not found|could not find (?:Visual Studio|MSBuild)|gyp ERR! find VS|No CMAKE_C_COMPILER|C compiler cannot create executables/i.test(text)) {
+  if (/not found: (?:make|gcc|g\+\+|cc|c\+\+|cmake|ninja|aclocal|autoconf|automake|libtoolize)|(?:make|gcc|g\+\+|cc|c\+\+|cmake|ninja|aclocal|autoconf|automake|libtoolize): (?:command )?not found|could not find (?:Visual Studio|MSBuild)|gyp ERR! find VS|No CMAKE_C_COMPILER|C compiler cannot create executables/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a compiler or native build tool absent from this profile',
       ['tool=native-build-chain']);
   }

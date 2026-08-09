@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
-import { endpointIdentity, probeNodeRuntime } from './runtime-provenance.mjs';
+import { endpointIdentity, probeNodeRuntime, probeTool } from './runtime-provenance.mjs';
 
 test('endpoint provenance distinguishes mirrors without retaining credentials or query secrets', () => {
   const endpoint = endpointIdentity('https://user:secret@mirror.example.test/node?token=private#fragment');
@@ -15,4 +18,17 @@ test('the target runtime identity comes from the selected executable rather than
   assert.equal(identity.version, process.version);
   assert.equal(identity.path, process.execPath);
   assert.equal(identity.sha256.length, 64);
+});
+
+test('tool provenance resolves and executes through the supplied lifecycle PATH', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-profile-tool-'));
+  const command = 'reference-profile-tool';
+  const file = path.join(root, process.platform === 'win32' ? `${command}.cmd` : command);
+  fs.writeFileSync(file, process.platform === 'win32'
+    ? '@echo reference-profile-tool 1.0\r\n' : '#!/bin/sh\necho reference-profile-tool 1.0\n');
+  if (process.platform !== 'win32') fs.chmodSync(file, 0o755);
+  const env = { ...process.env, PATH: [root, process.env.PATH].filter(Boolean).join(path.delimiter) };
+  const result = probeTool(command, [], env);
+  assert.equal(result.version, 'reference-profile-tool 1.0');
+  assert.equal(path.resolve(result.path).toLowerCase(), path.resolve(file).toLowerCase());
 });
