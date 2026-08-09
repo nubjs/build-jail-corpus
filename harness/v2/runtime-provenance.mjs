@@ -43,7 +43,14 @@ function commandPath(command, env = process.env) {
     ? spawnSync('where.exe', [command], { encoding: 'utf8', windowsHide: true, env })
     : spawnSync('which', [command], { encoding: 'utf8', env });
   if (lookup.status !== 0) return null;
-  return String(lookup.stdout ?? '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
+  const candidates = String(lookup.stdout ?? '').split(/\r?\n/)
+    .map((line) => line.trim()).filter(Boolean);
+  if (process.platform !== 'win32') return candidates[0] ?? null;
+  // GitHub's Node toolcache installs both a POSIX `npm` shim and `npm.cmd` in the same
+  // directory. `where.exe npm` reports the extensionless file first even though CreateProcess
+  // cannot execute it. Prefer candidates Windows can actually launch.
+  return candidates.find((candidate) => /\.(?:com|exe|cmd|bat)$/i.test(candidate))
+    ?? candidates[0] ?? null;
 }
 
 function runtimeLibc() {

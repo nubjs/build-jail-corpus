@@ -26,6 +26,9 @@ test('tool provenance resolves and executes through the supplied lifecycle PATH'
   fs.mkdirSync(root);
   const command = 'reference-profile-tool';
   const file = path.join(root, process.platform === 'win32' ? `${command}.cmd` : command);
+  if (process.platform === 'win32') {
+    fs.writeFileSync(path.join(root, command), '#!/bin/sh\necho wrong shim\n');
+  }
   fs.writeFileSync(file, process.platform === 'win32'
     ? '@echo reference-profile-tool %~1\r\n' : '#!/bin/sh\necho reference-profile-tool "$1"\n');
   if (process.platform !== 'win32') fs.chmodSync(file, 0o755);
