@@ -81,6 +81,17 @@ test('the GNU Make profile activates and probes Homebrew keg-only commands', () 
     /brew list --versions make/);
 });
 
+test('the Automake follow-up profile adds only the newly evidenced build prerequisite', () => {
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-gnu-make-automake-darwin.json', import.meta.url),
+  );
+  assert.equal(profile.id, 'gnu-make-automake-darwin-v1');
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [['brew', 'install', 'make', 'automake']]);
+  const probes = toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n');
+  assert.match(probes, /aclocal --version/);
+  assert.match(probes, /brew list --versions make automake/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {
