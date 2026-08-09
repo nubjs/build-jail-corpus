@@ -50,8 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       - name: Install strace and prove it traces
@@ -94,7 +94,7 @@ jobs:
 
       - name: Restore a feature-enabled nub binary
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-linux-${{ env.NUB_GIT_SHA }}
@@ -122,7 +122,7 @@ jobs:
       # merely convenient. Saving is what makes the amortisation argument true.
       - name: Save the built binary under its exact SHA
         if: steps.nubbin.outputs.cache-matched-key == ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-linux-${{ env.NUB_GIT_SHA }}
@@ -228,7 +228,7 @@ jobs:
           echo "SUMMARY"
           cat /tmp/arms/summary.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: tmp-redirect-probe

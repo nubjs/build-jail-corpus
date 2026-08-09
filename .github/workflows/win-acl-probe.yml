@@ -56,8 +56,8 @@ jobs:
     env:
       PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       # ── STEP 0 ─────────────────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ jobs:
 
       - name: Restore a feature-enabled nub binary
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-windows-none
@@ -228,7 +228,7 @@ jobs:
 
       - name: Preserve the arm logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-acl-probe-${{ github.run_id }}
           path: |

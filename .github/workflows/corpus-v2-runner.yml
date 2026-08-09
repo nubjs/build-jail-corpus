@@ -123,7 +123,7 @@ jobs:
       # and introducing a second spelling alongside `/tmp` is what creates writer/reader divergence in
       # the first place. One spelling that msys2 rewrites consistently is the smaller surface.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # ⛔ SPARSE CHECKOUT. records-v2/ is ~1.2 GB / ~19,449 files; on the slow Windows C: drive
           # writing that tree dominated the ~82s checkout. The job READS only harness/, .github/ and
@@ -139,8 +139,13 @@ jobs:
             harness
             inputs
             .github
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
+
+      - name: Activate the MSVC build environment
+        if: env.OS_NAME == 'windows'
+        shell: pwsh
+        run: ./harness/v2/activate-msvc.ps1
 
       # Run the complete portable suite before paying for a probe build or executing third-party
       # lifecycle scripts. A focused parser check is not an instrument gate: the driver, recorder,
@@ -262,7 +267,7 @@ jobs:
 
       - name: Restore a feature-enabled nub binary
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
@@ -302,7 +307,7 @@ jobs:
       # measures at that SHA.
       - name: Save the built binary under its exact SHA
         if: steps.nubbin.outputs.cache-matched-key == ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
@@ -511,7 +516,7 @@ jobs:
       # gate is deliberate too — records that fail verification are the ones worth diagnosing.
       - name: Preserve this slice's records as an artifact
         if: always() && env.DRAINED != '1'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: records-v2-${{ env.OS_NAME }}-${{ github.run_id }}
           path: records-v2/

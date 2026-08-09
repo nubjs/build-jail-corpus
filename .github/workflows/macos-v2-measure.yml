@@ -25,7 +25,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 75
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Host facts + dtrace gate
         run: |
@@ -71,7 +71,7 @@ jobs:
 
       - name: Restore a feature-enabled nub binary
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: /tmp/nub/target/release/nub
           key: nub-bin-v1-macos-${{ env.NUB_GIT_SHA }}
@@ -156,7 +156,7 @@ jobs:
       # exist fails the job over an optimisation.
       - name: Save the built binary under its exact SHA
         if: always() && steps.locate.outputs.staged == 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: /tmp/nub/target/release/nub
           key: nub-bin-v1-macos-${{ env.NUB_GIT_SHA }}
@@ -173,7 +173,7 @@ jobs:
             sudo -E harness/v2/measure-macos.sh "$P" "$V" "$NUB_BIN" 2>&1 | tee -a /tmp/verify.txt
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: macos-v2-measure

@@ -41,7 +41,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Host facts + dtrace gate
         run: |
@@ -239,7 +239,7 @@ jobs:
           git show "origin/probe/macos-at-family:$DEST/events.ndjson.gz" | gzcat | head -3 | cut -c1-300
           echo "  ⇒ decompressed and readable straight out of the remote's object store"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: macos-eventlog

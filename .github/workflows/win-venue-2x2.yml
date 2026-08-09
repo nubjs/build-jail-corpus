@@ -48,9 +48,9 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.15.0'   # pinned to the VM's Node, so the interpreter is not a variable
 
@@ -159,7 +159,7 @@ jobs:
             Write-Output "components: $(($m.entries.PSObject.Properties | Measure-Object).Count)  host: $($m.host)"
           } else { Write-Output 'none' }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cell-ci-${{ inputs.ci_env }}

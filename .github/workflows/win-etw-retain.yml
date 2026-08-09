@@ -73,7 +73,7 @@ jobs:
     env:
       SPEC: ${{ inputs.package || 'hugo-extended@0.141.0' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Unit tests for the retention decoder
         shell: pwsh
@@ -176,7 +176,7 @@ jobs:
       # loose XML are the bulk of the disk cost and are NOT the deliverable.
       - name: Upload the retained archive
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-etw-retain-out
           path: C:\obs\out

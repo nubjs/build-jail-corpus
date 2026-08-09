@@ -58,8 +58,8 @@ jobs:
       PKG: ${{ inputs.pkg || '@apollo/rover@0.2.1' }}
       NUB_REF: ${{ inputs.nub_ref || 'win-jail-copy' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       # ── S0: the premise, with the mangling fixed ───────────────────────────────────────────────
@@ -112,7 +112,7 @@ jobs:
       # measure a new commit: it silently serves an older binary and the run reads as a result.
       - name: Restore a nub built from THIS commit
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
@@ -129,7 +129,7 @@ jobs:
 
       - name: Save the built binary
         if: steps.nubbin.outputs.cache-matched-key == ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-jailcopy-v1-windows-${{ env.NUB_SHA }}
@@ -260,7 +260,7 @@ jobs:
 
       - name: Preserve the arm logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-jail-copy-verify-${{ github.run_id }}
           path: |

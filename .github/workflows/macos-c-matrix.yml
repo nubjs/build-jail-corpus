@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Host facts + dtrace positive control
         run: |
           set +e
@@ -39,7 +39,7 @@ jobs:
           sudo -E harness/v2/probes/dtrace-c-matrix.sh "$HOME/cmatrix" > /tmp/matrix.txt 2>&1
           echo "MATRIX_EXIT=$?"
           cat /tmp/matrix.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dtrace-c-matrix
@@ -54,7 +54,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: KNOWN-ANSWER lifecycle attribution + path-op selection
         run: |
           set +e
@@ -62,7 +62,7 @@ jobs:
           sudo -E harness/v2/probes/lifecycle-attribution.sh "$HOME/attr" > /tmp/attr.txt 2>&1
           echo "ATTR_EXIT=$?"
           cat /tmp/attr.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lifecycle-attribution
@@ -77,7 +77,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: KNOWN-ANSWER FIXTURE
         run: |
           set +e
@@ -85,7 +85,7 @@ jobs:
           sudo -E harness/v2/probes/copyinstr-fixture.sh "$HOME/kaf-work" > /tmp/kaf.txt 2>&1
           echo "FIXTURE_EXIT=$?"
           cat /tmp/kaf.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: copyinstr-fixture

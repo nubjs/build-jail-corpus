@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # The history includes a multi-gigabyte record tree. Unit tests need the instrument only;
           # promotion below deliberately performs the full checkout that completeness requires.
@@ -30,7 +30,7 @@ jobs:
             harness
             inputs
             .github
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
       - name: Run the complete harness test suite
         shell: bash
@@ -46,8 +46,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
       - name: Refuse incomplete, stale, mixed, or warning-bearing corpus input
         shell: bash

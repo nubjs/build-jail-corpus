@@ -36,7 +36,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Host facts + dtrace gate
         run: |
@@ -112,7 +112,7 @@ jobs:
           done
           cp "$W/census.txt" /tmp/real-census.txt 2>/dev/null
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: macos-at-family

@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-14
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Host facts
         run: |
@@ -91,7 +91,7 @@ jobs:
           echo "--- denied ---"; grep '"result":"denied"' "$OBS/events.ndjson" | head -20
           echo "--- distinct pids ---"; awk -F'"pid":' '{split($2,a,","); print a[1]}' "$OBS/events.ndjson" | sort -u | tr '\n' ' '
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: macos-observe-probe

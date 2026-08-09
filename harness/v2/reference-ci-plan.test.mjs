@@ -39,7 +39,7 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /"\$HARNESS_NODE" harness\/v2\/run-reference-batch\.mjs/);
   assert.match(workflow, /--node "\$TARGET_NODE"/);
   assert.match(workflow, /--npm npm/);
-  assert.match(workflow, /actions\/download-artifact@v4/);
+  assert.match(workflow, /actions\/download-artifact@v8/);
   assert.match(workflow, /reference-report\.mjs/);
   assert.match(workflow, /needs: \[plan, build\]/);
   assert.match(workflow, /Nub subject cache was not populated by the build job/);

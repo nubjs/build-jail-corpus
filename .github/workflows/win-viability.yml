@@ -46,8 +46,8 @@ jobs:
       PACKAGES: ${{ inputs.packages || 'hugo-extended@0.141.0' }}
       STORM: ${{ inputs.storm || '500' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       # ── Host facts. Elevation is a PRECONDITION, not a detail: windows.ps1 throws without it,
@@ -258,7 +258,7 @@ jobs:
 
       - name: Upload probe output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-viability-out
           path: C:\obs\out

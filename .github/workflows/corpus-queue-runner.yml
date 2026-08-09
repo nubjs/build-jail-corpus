@@ -182,9 +182,9 @@ jobs:
       NUB_SANDBOX_WIN_FAIL_CLOSED_READ_GRANTS: ${{ inputs.fail_closed_read_grants && '1' || '' }}
       NUB_CORPUS_PKG_BUDGET: ${{ inputs.pkg_budget_seconds }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       # The probe binary comes from nubjs/nub at an explicit SHA, never from a floating branch: every
@@ -389,7 +389,7 @@ jobs:
       # it beyond the reach of any post-step cleanup.
       - name: Restore a previously built nub for this exact commit
         id: nubbin
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           # `v1` is a manual epoch: bump it if the build FLAGS change, since the flags are not in the
@@ -422,7 +422,7 @@ jobs:
       # why a post-phase save silently never happened.
       - name: Save the built nub for the next slice
         if: steps.nubbin.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ env.NUB_BIN_CACHE_PATH }}
           key: nub-bin-v1-${{ inputs.os }}-${{ env.NUB_FULL_SHA }}
@@ -506,7 +506,7 @@ jobs:
       # instead of producing an empty artifact that reads as a working escape hatch.
       - name: Publish the Windows probe binary for off-CI reproduction
         if: inputs.os == 'windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nub-exe-${{ github.run_id }}
           path: ${{ env.NUB_BIN_CACHE_PATH }}
@@ -728,7 +728,7 @@ jobs:
       # keeping for diagnosis.
       - name: Preserve this slice's records as an artifact
         if: always() && env.DRAINED != '1'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: records-${{ inputs.os }}-${{ github.run_id }}
           path: records/

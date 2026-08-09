@@ -58,9 +58,9 @@ jobs:
     env:
       STORM: ${{ inputs.storm || '500' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: '22' }
 
       - name: Host facts
@@ -399,7 +399,7 @@ jobs:
       # already copied out are.
       - name: Upload probe output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-etw-dest-out
           path: C:\obs\out
