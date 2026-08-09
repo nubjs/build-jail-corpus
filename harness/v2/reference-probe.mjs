@@ -654,6 +654,7 @@ export async function runReferenceProbe({
       hostToolchains: profile.hostToolchains ?? {},
       fixture: profile.fixture,
       environment: profile.environment,
+      diagnostics: profile.diagnostics ?? {},
       toolProbes: profile.toolProbes ?? {},
     },
     security: null,

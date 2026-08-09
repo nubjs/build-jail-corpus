@@ -9,6 +9,7 @@ export const DEFAULT_REFERENCE_PROFILE = path.join(import.meta.dirname, 'referen
 const REFERENCE_PLATFORMS = new Set(['linux', 'darwin', 'win32']);
 const HOST_PACKAGE_MANAGERS = { linux: 'apt', darwin: 'brew' };
 const RUSTUP_PROFILES = new Set(['minimal']);
+const CHILD_STDIO_PRELOAD = path.join(import.meta.dirname, 'reference-child-stdio.cjs');
 
 const canonicalJson = (value) => {
   if (Array.isArray(value)) return value.map(canonicalJson);
@@ -55,6 +56,12 @@ export function validateReferenceProfile(profile) {
   const hostToolchains = profile.hostToolchains ?? {};
   if (!hostToolchains || typeof hostToolchains !== 'object' || Array.isArray(hostToolchains)) {
     throw new Error('reference profile hostToolchains must be an object');
+  }
+  const diagnostics = profile.diagnostics ?? {};
+  if (!diagnostics || typeof diagnostics !== 'object' || Array.isArray(diagnostics)
+    || Object.keys(diagnostics).some((key) => key !== 'captureChildStdio')
+    || (diagnostics.captureChildStdio != null && typeof diagnostics.captureChildStdio !== 'boolean')) {
+    throw new Error('reference profile diagnostics supports only boolean captureChildStdio');
   }
   for (const [platform, provision] of Object.entries(hostToolchains)) {
     const rustup = provision?.rustup;
@@ -242,6 +249,9 @@ export function referenceEnvironment(root, profile, base = process.env, {
     .filter((key) => base[key] != null).map((key) => [key, base[key]]));
   for (const key of profile.environment?.unset ?? []) delete env[key];
   Object.assign(env, profile.environment?.set ?? {});
+  if (profile.diagnostics?.captureChildStdio) {
+    env.NODE_OPTIONS = `--require=${CHILD_STDIO_PRELOAD}`;
+  }
   Object.assign(env, resolveHostToolchainEnvironment(profile, platform));
   const hostPaths = resolveHostPaths(profile, platform);
   env.PATH = [...hostPaths, env.PATH].filter(Boolean).join(path.delimiter);

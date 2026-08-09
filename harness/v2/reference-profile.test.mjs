@@ -36,6 +36,22 @@ test('the checked-in profile deterministically creates the same realistic projec
   assert.equal(referenceProfileIdentity(profile).sha256.length, 64);
 });
 
+test('the child-stdio profile changes only platform scope and diagnostic capture', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-child-stdio-linux.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'child-stdio-linux-v1';
+  expected.supportedPlatforms = ['linux'];
+  expected.diagnostics = { captureChildStdio: true };
+  delete expected.toolProbes.win32;
+  assert.deepEqual(profile, expected);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-child-stdio-env-'));
+  const { env } = referenceEnvironment(root, profile, { PATH: '/usr/bin' }, { platform: 'linux' });
+  assert.match(env.NODE_OPTIONS, /--require=.*reference-child-stdio\.cjs$/);
+});
+
 test('the lifecycle debug profile changes only platform scope and diagnostic output', () => {
   const base = loadReferenceProfile();
   const profile = loadReferenceProfile(
@@ -246,6 +262,10 @@ test('profiles use platform-neutral safe paths and cannot replace generated cont
     assert.throws(() => validateReferenceProfile(profile));
   }
   assert.throws(() => validateReferenceProfile({ ...base, id: '../escape' }), /path-safe id/);
+  assert.throws(() => validateReferenceProfile({ ...base, diagnostics: { captureChildStdio: 'yes' } }),
+    /diagnostics/);
+  assert.throws(() => validateReferenceProfile({ ...base, diagnostics: { captureGrandchildren: true } }),
+    /diagnostics/);
 });
 
 test('a profile declares and provisions only its supported host platforms', () => {
