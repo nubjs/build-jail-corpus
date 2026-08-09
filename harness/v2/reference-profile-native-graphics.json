@@ -1,10 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "developer-v1",
+  "id": "native-graphics-posix-v1",
   "supportedPlatforms": [
     "linux",
-    "darwin",
-    "win32"
+    "darwin"
   ],
   "fixture": {
     "gitRepository": true,
@@ -166,6 +165,118 @@
         "ninja",
         "--version"
       ]
+    ],
+    "linux": [
+      [
+        "dpkg-query",
+        "-W",
+        "-f=${binary:Package}=${Version}\\n",
+        "libcairo2-dev",
+        "libpango1.0-dev",
+        "libjpeg-dev",
+        "libgif-dev",
+        "librsvg2-dev"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "pixman-1"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "cairo"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "pangocairo"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "libpng"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "libjpeg"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "librsvg-2.0"
+      ]
+    ],
+    "darwin": [
+      [
+        "brew",
+        "list",
+        "--versions",
+        "pkg-config",
+        "cairo",
+        "pango",
+        "libpng",
+        "jpeg-turbo",
+        "giflib",
+        "librsvg",
+        "pixman"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "pixman-1"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "cairo"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "pangocairo"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "libpng"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "libjpeg"
+      ],
+      [
+        "pkg-config",
+        "--modversion",
+        "librsvg-2.0"
+      ]
     ]
+  },
+  "hostPackages": {
+    "linux": {
+      "manager": "apt",
+      "packages": [
+        "libcairo2-dev",
+        "libpango1.0-dev",
+        "libjpeg-dev",
+        "libgif-dev",
+        "librsvg2-dev"
+      ]
+    },
+    "darwin": {
+      "manager": "brew",
+      "packages": [
+        "pkg-config",
+        "cairo",
+        "pango",
+        "libpng",
+        "jpeg-turbo",
+        "giflib",
+        "librsvg",
+        "pixman"
+      ]
+    }
   }
 }

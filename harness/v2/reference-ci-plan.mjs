@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { loadNodeMatrix } from './node-matrix.mjs';
+import { loadReferenceProfile } from './reference-profile.mjs';
 
 const runners = {
   linux: 'ubuntu-24.04',
@@ -8,11 +9,19 @@ const runners = {
   windows: 'windows-2025',
 };
 
+const platformForOs = { linux: 'linux', macos: 'darwin', windows: 'win32' };
+
 export function planReferenceCells(matrix, {
-  os = 'linux', node = matrix.versions.at(-1)?.version, shards = 1,
+  os = 'linux', node = matrix.versions.at(-1)?.version, shards = 1, profile = null,
 } = {}) {
   const operatingSystems = os === 'all' ? Object.keys(runners) : [os];
   if (operatingSystems.some((name) => !runners[name])) throw new Error(`unknown reference OS ${os}`);
+  if (profile) {
+    const unsupported = operatingSystems.filter((name) => !profile.supportedPlatforms.includes(platformForOs[name]));
+    if (unsupported.length) {
+      throw new Error(`reference profile ${profile.id} does not support ${unsupported.join(', ')}`);
+    }
+  }
   const selected = node === 'all' ? matrix.versions
     : matrix.versions.filter((entry) => entry.version === node);
   if (!selected.length) throw new Error(`unknown reference Node version ${node}`);
@@ -32,7 +41,7 @@ export function planReferenceCells(matrix, {
 }
 
 const parseArgs = (argv) => {
-  const valued = new Set(['--os', '--node', '--shards', '--node-matrix', '--github-output']);
+  const valued = new Set(['--os', '--node', '--shards', '--node-matrix', '--profile', '--github-output']);
   const options = {};
   for (let i = 0; i < argv.length; i += 1) {
     if (!valued.has(argv[i]) || argv[i + 1] == null) throw new Error(`unknown or incomplete option ${argv[i]}`);
@@ -44,8 +53,9 @@ const parseArgs = (argv) => {
 function cli(argv) {
   const options = parseArgs(argv);
   const { matrix } = loadNodeMatrix(options['node-matrix']);
+  const profile = options.profile ? loadReferenceProfile(options.profile) : null;
   const plan = planReferenceCells(matrix, {
-    os: options.os ?? 'linux', node: options.node, shards: options.shards ?? 1,
+    os: options.os ?? 'linux', node: options.node, shards: options.shards ?? 1, profile,
   });
   const value = JSON.stringify(plan);
   if (options['github-output']) {

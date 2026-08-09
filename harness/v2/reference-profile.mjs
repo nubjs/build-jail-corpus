@@ -4,6 +4,9 @@ import path from 'node:path';
 
 export const DEFAULT_REFERENCE_PROFILE = path.join(import.meta.dirname, 'reference-profile.json');
 
+const REFERENCE_PLATFORMS = new Set(['linux', 'darwin', 'win32']);
+const HOST_PACKAGE_MANAGERS = { linux: 'apt', darwin: 'brew' };
+
 const canonicalJson = (value) => {
   if (Array.isArray(value)) return value.map(canonicalJson);
   if (!value || typeof value !== 'object') return value;
@@ -19,6 +22,25 @@ const safeRelative = (name) => {
 export function validateReferenceProfile(profile) {
   if (!profile || profile.schemaVersion !== 1 || !/^[a-z0-9][a-z0-9._-]*$/.test(profile.id ?? '')) {
     throw new Error('reference profile must have schemaVersion 1 and a path-safe id');
+  }
+  const supportedPlatforms = profile.supportedPlatforms;
+  if (!Array.isArray(supportedPlatforms) || supportedPlatforms.length === 0
+    || supportedPlatforms.some((platform) => !REFERENCE_PLATFORMS.has(platform))
+    || new Set(supportedPlatforms).size !== supportedPlatforms.length) {
+    throw new Error('reference profile supportedPlatforms must contain unique Linux, Darwin, or Win32 names');
+  }
+  const hostPackages = profile.hostPackages ?? {};
+  if (!hostPackages || typeof hostPackages !== 'object' || Array.isArray(hostPackages)) {
+    throw new Error('reference profile hostPackages must be an object');
+  }
+  for (const [platform, provision] of Object.entries(hostPackages)) {
+    if (!supportedPlatforms.includes(platform) || HOST_PACKAGE_MANAGERS[platform] !== provision?.manager
+      || !Array.isArray(provision?.packages) || provision.packages.length === 0
+      || new Set(provision.packages).size !== provision.packages.length
+      || provision.packages.some((pkg) => typeof pkg !== 'string'
+        || !/^[A-Za-z0-9][A-Za-z0-9+._@/-]*$/.test(pkg))) {
+      throw new Error(`reference profile has invalid host packages for ${platform}`);
+    }
   }
   const files = profile.fixture?.files;
   if (!files || typeof files !== 'object' || Array.isArray(files)) {
@@ -79,6 +101,28 @@ export function referenceProfileIdentity(profile) {
     sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
     schemaVersion: profile.schemaVersion,
   };
+}
+
+export function assertReferenceProfilePlatform(profile, platform = process.platform) {
+  validateReferenceProfile(profile);
+  if (!profile.supportedPlatforms.includes(platform)) {
+    throw new Error(`reference profile ${profile.id} does not support ${platform}`);
+  }
+  return platform;
+}
+
+export function referenceHostCommands(profile, platform = process.platform) {
+  assertReferenceProfilePlatform(profile, platform);
+  const provision = profile.hostPackages?.[platform];
+  if (!provision) return [];
+  if (provision.manager === 'apt') {
+    return [
+      ['sudo', 'apt-get', 'update'],
+      ['sudo', 'apt-get', 'install', '--yes', '--no-install-recommends', ...provision.packages],
+    ];
+  }
+  if (provision.manager === 'brew') return [['brew', 'install', ...provision.packages]];
+  throw new Error(`reference profile ${profile.id} uses unsupported host package manager ${provision.manager}`);
 }
 
 export function writeReferenceProject(root, { profile, pkg, version, arm, buildJail, manager }) {
@@ -166,9 +210,10 @@ export function targetManifest(project, pkg) {
 }
 
 export function toolProbesForPlatform(profile, platform = process.platform) {
-  validateReferenceProfile(profile);
+  assertReferenceProfilePlatform(profile, platform);
   return [
     ...(profile.toolProbes?.common ?? []),
     ...(profile.toolProbes?.[platform === 'win32' ? 'win32' : 'posix'] ?? []),
+    ...(platform === 'win32' ? [] : profile.toolProbes?.[platform] ?? []),
   ];
 }

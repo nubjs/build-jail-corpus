@@ -23,6 +23,14 @@ test('a selected CI cell must name a checked-in runtime and OS', () => {
   assert.throws(() => planReferenceCells(matrix, { os: 'linux', node: '26.7.1' }), /unknown reference Node/);
 });
 
+test('a profile cannot silently omit one of the requested operating systems', () => {
+  const { matrix } = loadNodeMatrix();
+  const profile = { id: 'posix-v1', supportedPlatforms: ['linux', 'darwin'] };
+  assert.equal(planReferenceCells(matrix, { os: 'macos', node: '26.7.0', profile }).include.length, 1);
+  assert.throws(() => planReferenceCells(matrix, { os: 'all', node: '26.7.0', profile }),
+    /profile posix-v1 does not support windows/);
+});
+
 test('eight shards keep a complete all-platform matrix under the GitHub job limit', () => {
   const { matrix } = loadNodeMatrix();
   const plan = planReferenceCells(matrix, { os: 'all', node: 'all', shards: 8 });
@@ -39,6 +47,9 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /"\$HARNESS_NODE" harness\/v2\/run-reference-batch\.mjs/);
   assert.match(workflow, /--node "\$TARGET_NODE"/);
   assert.match(workflow, /--npm npm/);
+  assert.match(workflow, /reference-profile-host\.mjs --profile "\$REFERENCE_PROFILE_FILE"/);
+  assert.match(workflow, /--profile "\$REFERENCE_PROFILE_FILE"/);
+  assert.match(workflow, /--profile "\$\{\{ needs\.plan\.outputs\.profile_file \}\}"/);
   assert.match(workflow, /actions\/download-artifact@v8/);
   assert.match(workflow, /reference-report\.mjs/);
   assert.match(workflow, /needs: \[plan, build\]/);

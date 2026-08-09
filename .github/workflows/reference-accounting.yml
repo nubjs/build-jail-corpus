@@ -39,6 +39,11 @@ on:
         type: choice
         options: [2, 3]
         default: 3
+      reference_profile:
+        description: versioned project and host-tool profile
+        type: choice
+        options: [developer-v1, native-graphics-posix-v1]
+        default: developer-v1
       deadline_minutes:
         description: stop each cell cleanly by this deadline and preserve partial evidence
         type: string
@@ -62,6 +67,7 @@ jobs:
       matrix: ${{ steps.cells.outputs.matrix }}
       build_matrix: ${{ steps.cells.outputs.build_matrix }}
       nub_sha: ${{ steps.nub.outputs.sha }}
+      profile_file: ${{ steps.cells.outputs.profile_file }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -95,6 +101,7 @@ jobs:
           CELL_SHARDS: ${{ inputs.shards }}
           ROW_LIMIT: ${{ inputs.limit }}
           DEADLINE_MINUTES: ${{ inputs.deadline_minutes }}
+          REFERENCE_PROFILE: ${{ inputs.reference_profile }}
         run: |
           set -eu
           case "$ROW_LIMIT" in
@@ -104,8 +111,15 @@ jobs:
           case "$DEADLINE_MINUTES" in
             *[!0-9]*|0|'') echo "deadline_minutes must be a positive integer" >&2; exit 2 ;;
           esac
+          case "$REFERENCE_PROFILE" in
+            developer-v1) PROFILE_FILE=harness/v2/reference-profile.json ;;
+            native-graphics-posix-v1) PROFILE_FILE=harness/v2/reference-profile-native-graphics.json ;;
+            *) echo "unknown reference profile '$REFERENCE_PROFILE'" >&2; exit 2 ;;
+          esac
           node harness/v2/reference-ci-plan.mjs --os "$CELL_OS" \
-            --node "$CELL_NODE" --shards "$CELL_SHARDS" --github-output "$GITHUB_OUTPUT"
+            --node "$CELL_NODE" --shards "$CELL_SHARDS" --profile "$PROFILE_FILE" \
+            --github-output "$GITHUB_OUTPUT"
+          echo "profile_file=$PROFILE_FILE" >> "$GITHUB_OUTPUT"
 
   build:
     needs: plan
@@ -128,6 +142,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
+
       - name: Resolve the native probe-binary cache path
         shell: bash
         run: |
@@ -174,6 +189,7 @@ jobs:
     env:
       OS_NAME: ${{ matrix.os }}
       NUB_GIT_SHA: ${{ needs.plan.outputs.nub_sha }}
+      REFERENCE_PROFILE_FILE: ${{ needs.plan.outputs.profile_file }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -200,6 +216,11 @@ jobs:
         if: matrix.os == 'windows'
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
+
+      - name: Provision the selected reference profile
+        shell: bash
+        run: |
+          "$HARNESS_NODE" harness/v2/reference-profile-host.mjs --profile "$REFERENCE_PROFILE_FILE"
 
       - name: Run the complete harness test suite
         shell: bash
@@ -280,6 +301,7 @@ jobs:
             --nub-git-sha "$NUB_GIT_SHA"
             --node "$TARGET_NODE"
             --npm npm
+            --profile "$REFERENCE_PROFILE_FILE"
             --attempts "${{ inputs.attempts }}"
             --shard-index "${{ matrix.shard }}"
             --shard-count "${{ matrix.shards }}"
@@ -303,6 +325,7 @@ jobs:
             --records reference-output \
             --worklist inputs/reference-legacy-failures.ndjson.gz \
             --nub-git-sha "$NUB_GIT_SHA" \
+            --profile "$REFERENCE_PROFILE_FILE" \
             --out reference-output/accounting.json \
             --backlog reference-output/remediation-backlog.json
 
@@ -369,6 +392,7 @@ jobs:
           ARGS=(--records downloaded-reference
             --worklist inputs/reference-legacy-failures.ndjson.gz
             --nub-git-sha "${{ needs.plan.outputs.nub_sha }}"
+            --profile "${{ needs.plan.outputs.profile_file }}"
             --out reference-accounting.json
             --backlog reference-remediation-backlog.json)
           if [ "$CELL_OS" = all ] && [ "$CELL_NODE" = all ] && [ "$ROW_LIMIT" = all ] \
