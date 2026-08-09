@@ -44,9 +44,16 @@ test('deterministic shards partition eligible rows exactly once', () => {
   assert.equal(new Set(shards.flat().map((entry) => entry.pkg)).size, 6);
   assert.throws(() => selectReferenceRows(rows, { os: 'linux', priorBucket: 'typo' }), /unknown prior bucket/);
   assert.throws(() => selectReferenceRows(rows, { os: 'linux', limit: 0 }), /positive integer/);
+  const specs = ['package-0@1.2.3', 'package-3@1.2.3', 'package-7@1.2.3', 'package-10@1.2.3'];
+  const explicitShards = Array.from({ length: 3 }, (_, shardIndex) => selectReferenceRows(rows, {
+    os: 'linux', includeSpecs: specs, shardIndex, shardCount: 3,
+  }));
+  assert.deepEqual(explicitShards.flatMap((selection) => selection.rows)
+    .map((entry) => `${entry.pkg}@${entry.version}`).sort(), specs.sort());
+  assert.ok(explicitShards.every((selection) => selection.eligibleRows.length === specs.length));
   assert.throws(() => selectReferenceRows(rows, {
-    os: 'linux', includeSpecs: ['package-0@1.2.3'], shardCount: 2,
-  }), /explicit specs/);
+    os: 'linux', includeSpecs: ['package-missing@1.2.3'], shardCount: 2,
+  }), /selected specs have no linux worklist row/);
 });
 
 test('resume requires exact worklist, runtime cell, profile, instrument and subject identities', () => {

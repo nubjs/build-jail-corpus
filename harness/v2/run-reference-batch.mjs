@@ -100,7 +100,6 @@ export function selectReferenceRows(allRows, {
   if (priorBucket && !buckets.has(priorBucket)) throw new Error(`unknown prior bucket ${priorBucket}`);
   const selectedSpecs = includeSpecs ? new Set(includeSpecs) : null;
   if (selectedSpecs?.size === 0) throw new Error('includeSpecs cannot be empty');
-  if (selectedSpecs && shardCount !== 1) throw new Error('explicit specs cannot be combined with sharding');
   const eligibleRows = allRows.filter((row) => row.os === os
     && (!priorBucket || row.prior.bucket === priorBucket)
     && (!selectedSpecs || selectedSpecs.has(`${row.pkg}@${row.version}`)));
