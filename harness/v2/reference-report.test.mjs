@@ -83,12 +83,16 @@ test('an expected pnpm platform policy differential is counted without creating 
 test('terminal and recovered reference outcomes do not create fix work', () => {
   assert.deepEqual(remediationFor('REFERENCE_PASSES'),
     { priority: 'none', disposition: 'recovered-reference', experiment: null });
-  for (const code of ['PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'PUBLISHED_SCRIPT_RECURSION']) {
+  for (const code of ['PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'PUBLISHED_SCRIPT_RECURSION',
+    'PUBLISHED_SCRIPT_NOT_EXECUTABLE']) {
     assert.deepEqual(remediationFor(code),
       { priority: 'none', disposition: 'terminal-package-failure', experiment: null });
   }
   assert.deepEqual(remediationFor('OBSOLETE_XCODE_ASSUMPTION'),
     { priority: 'none', disposition: 'runtime-compatibility', experiment: null });
+  assert.equal(remediationFor('OBSOLETE_NODE_ASSUMPTION').disposition, 'runtime-compatibility');
+  assert.equal(remediationFor('OBSOLETE_TYPESCRIPT_ASSUMPTION').priority, 'none');
+  assert.equal(remediationFor('NUB_PM_RESOLVER_DEFECT').disposition, 'nub-fix');
 });
 
 test('an altered evidence record is rejected instead of counted', () => {

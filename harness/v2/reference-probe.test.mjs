@@ -299,6 +299,33 @@ test('a successful preflight that did not install the exact target cannot become
   assert.match(result.stages.target.error.summary, /TARGET-NOT-INSTALLED/);
 });
 
+test('registry aliases may publish equivalent SemVer build metadata in the target manifest', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-build-metadata-target-'));
+  const calls = [];
+  const result = await runManagerAttempt({
+    manager: 'npm', attempt: 1, pkg: '@pulumi/tls', version: '0.0.1-dev.1562759788', executable: 'npm',
+    profile: loadReferenceProfile(), root, timeoutMs: 1_000,
+    targetNode: '/target/node', targetNodeVersion: 'v18.20.8',
+    execute: async (command, args, options) => {
+      calls.push([command, ...args]);
+      if (command === '/target/node' && args[0] === '--version') return stage('v18.20.8\n');
+      if (args.includes('--ignore-scripts')) {
+        const packageRoot = path.join(options.cwd, 'node_modules', '@pulumi', 'tls');
+        fs.mkdirSync(packageRoot, { recursive: true });
+        fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+          name: '@pulumi/tls', version: 'v0.0.1-dev.1562759788+g7925e3a',
+          scripts: { install: 'node install.js' },
+        }));
+      }
+      return stage();
+    },
+    screenTree: () => ({ status: 'clean', digest: 'd', specCount: 1,
+      specs: ['@pulumi/tls@v0.0.1-dev.1562759788+g7925e3a'] }),
+  });
+  assert.equal(result.outcome, 'pass');
+  assert.ok(calls.some((call) => call.includes('--foreground-scripts')));
+});
+
 test('an exhausted batch deadline stops before spawning the next stage', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-deadline-'));
   let spawned = false;

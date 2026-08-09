@@ -28,6 +28,7 @@ export function sanitizeFailureText(value, roots = {}) {
     /(error: Could not delete )[`'"]?[^\r\n]+?[`'"]?( because it was not created by the build system\.?)/gi,
     '$1<BUILD_DIR>$2',
   );
+  text = text.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/gm, '');
   return text;
 }
 
@@ -37,8 +38,13 @@ export function firstErrorFrom(output, roots = {}) {
   const useful = lines.filter((line) => !/^(?:npm )?warn(?:ing)?\b|^throw err;?$|^\^$|complete log of this run/i.test(line));
   const rank = (line) => {
     if (/\bwarning:/i.test(line)) return 0;
+    if (line.length > 4096 && !/^(?:Error|TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)) return 0;
+    if (/^configure:\d+: error: no acceptable sed could be found in \$PATH/i.test(line)) return 101;
+    if (/^configure:\d+: result: \/usr\/bin\/sed\b/i.test(line)
+      || /^sed: conftest\.c: No such file or directory$/i.test(line)) return 100;
     if (/\b(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
+    if (/^(?:CMake|configure) Error\b|^configure: error:|\b(?:is not supported|not supported on|no .*binaries?.*available|unsupported architecture|installation is not supported|cannot install).*(?:arm64|x64|platform|architecture)?/i.test(line)) return 99;
     if (/^(?:(?:clang|swiftc|xcodebuild): (?:fatal )?error:|error: (?:SWIFT_VERSION|Could not delete))\s+/i.test(line)) return 99;
     if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
       || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
@@ -46,14 +52,16 @@ export function firstErrorFrom(output, roots = {}) {
     if (/GNU Make version is too old/i.test(line)
       || /^make(?:\[\d+\])?: \*\*\* \[[^\]]*verify-deps[^\]]*\] Error/i.test(line)) return 97;
     if (/Could not find any Visual Studio|gyp ERR! find VS/i.test(line)) return 97;
-    if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
+    if (/\b(?:Cannot read file|Cannot find module|Cannot find .+ folder|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|No such file|Permission denied|can't cd to|Local modules not found|Status Code is 4\d\d|libtool is required|must be installed with Yarn|incorrect header check)\b/i.test(line)
+      || /^tsc: The TypeScript Compiler\b/i.test(line)) return 96;
     if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
-    if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
+    if (/^(?:<[^>]+>|\.{0,2}[/\\]|[/\\]).*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
+    if (/(?:^|[/\\])esm[/\\]esm\.js:1$/i.test(line)) return 97;
     if (/^make\[\d+\]: \*\*\* \[[^\]]+\] Error/i.test(line)) return 95;
     if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
     if (/^Error:\s+/i.test(line)) return 90;
     if (/\b(?:ERR_[A-Z0-9_]+|EACCES|ENOENT|ETIMEDOUT|ECONNRESET|EAI_AGAIN|EBADPLATFORM)\b/.test(line)) return 85;
-    if (/(?:failed|exception|not found|unsupported|incompatible|404|410)\b/i.test(line)) return 75;
+    if (/(?:failed|exception|not found|unsupported|incompatible|403|404|410)\b/i.test(line)) return 75;
     if (/^(?:npm (?:error|ERR!)|gyp ERR!|node-pre-gyp ERR!|fatal:)\s+/i.test(line)) return 40;
     return 0;
   };
@@ -128,10 +136,16 @@ export function classifyReference(record) {
     return result('HARNESS_INTERNAL', 'deterministic', 'the probe did not produce two terminal reference outcomes',
       [nub?.quorum?.outcome, npm?.quorum?.outcome].filter(Boolean), 'incomplete');
   }
+
   if ([nub?.quorum?.outcome, npm?.quorum?.outcome].includes('timeout')) {
     return result('REFERENCE_TIMEOUT', 'bounded',
       'a reference arm did not finish within the recorded process or batch deadline',
       [nub?.quorum?.outcome, npm?.quorum?.outcome].filter(Boolean), 'incomplete');
+  }
+  if (/ERR_NUB_PEER_CONTEXT_NOT_CONVERGED/i.test(text)) {
+    return result('NUB_PM_RESOLVER_DEFECT', 'deterministic',
+      'Nub exhausted its peer-context resolver before it could run the package lifecycle',
+      ['ERR_NUB_PEER_CONTEXT_NOT_CONVERGED']);
   }
 
   if (/unknown key `buildJail`|ERR_NUB_LOCKFILE_AMBIGUOUS/i.test(text)) {
@@ -152,11 +166,6 @@ export function classifyReference(record) {
     return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry', 'an external download failed transiently or changed outcome across clean retries',
       quorumOutcomes.filter(Boolean));
   }
-  if (quorumOutcomes.some((outcome) => outcome === 'unstable')) {
-    return result('UNSTABLE_REFERENCE', 'retry', 'clean retries produced different failure fingerprints',
-      [nub?.quorum?.fingerprint, npm?.quorum?.fingerprint].filter(Boolean), 'incomplete');
-  }
-
   if (passed(nub) && passed(npm)) {
     const expected = record.lifecycle?.expectedCount ?? 0;
     const incompleteArms = [nub, npm].filter((arm) => (arm.lifecycle?.expectedCount ?? 0) === 0
@@ -198,7 +207,9 @@ export function classifyReference(record) {
   }
   if (platformMismatch
     || /EBADPLATFORM|not compatible with your operating system|Unsupported platform|unsupported target (?:win32|darwin|linux)-/i.test(text)
-    || /Failed to find Electron .+ for darwin-arm64/i.test(text)) {
+    || /Failed to find Electron .+ for darwin-arm64|(?:M1 Chip system with )?arm64 architecture is not supported|Unsupported \(\?\) architecture: [`'"]?arm64|Unsupported architecture arm64|Installation is not supported for this architecture|(?:no|unable to find) .*binaries?.*(?:platform|operating system|architecture|darwin|arm64)|cannot install.*(?:arm64|architecture)|Only x64 binaries are available|does not support chromium on mac|pre-built .+ binary was not found for darwin arm64|RELATIVE_EXECUTABLE_PATHS\[browser\]\[platform\].*undefined|`git-win` not support this platform/i.test(text)
+    || (arch === 'arm64' && record.pkg === 'electron-chromedriver'
+      && /Download failed: ENOENT: no such file or directory, chmod .*chromedriver/i.test(text))) {
     return result('OS_CPU_MISMATCH', osAllowed === false || cpuAllowed === false || libcAllowed === false
       ? 'metadata' : 'signature',
       'the package excludes this operating-system, CPU, or libc cell',
@@ -239,18 +250,47 @@ export function classifyReference(record) {
       'the Autotools build requires Libtool macros absent from the selected toolchain profile',
       ['tool=libtool']);
   }
+  if (/libtool is required, but (?:it )?wasn't found/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the native build requires Libtool absent from the selected toolchain profile',
+      ['tool=libtool']);
+  }
+  if (/Compatibility with CMake < [\d.]+ has been removed from CMake/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the published build requires a CMake compatibility policy absent from this profile',
+      ['tool=cmake', 'compatibility-policy=required']);
+  }
+  if (/Corepack must currently be enabled/i.test(text)
+    || (/packageManager['"]?:?\s*['"]?yarn@\d+|defines ['"]packageManager['"]: ['"]yarn@\d+/i.test(text)
+      && /current global version of Yarn is/i.test(text))) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the lifecycle requires its declared modern Yarn release through Corepack',
+      ['tool=corepack', 'package-manager=yarn']);
+  }
+  if (/must be installed with Yarn/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the lifecycle explicitly requires Yarn instead of the selected project tool profile',
+      ['tool=yarn']);
+  }
+  if (/Refusing to load formula .+ from untrusted tap/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the lifecycle requires an explicitly trusted Homebrew tap absent from the selected profile',
+      ['tool=homebrew', 'tap-trust=required']);
+  }
   if (/rustup could not choose a version of cargo to run.*no default is configured/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',
       'the native build requires a configured Rust toolchain absent from this profile',
       ['tool=rustup', 'default-toolchain=missing']);
   }
-  if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|Cannot open include file: ['"](?:cairo\.h|pango(?:\/|\\)|pixman(?:\.h|-1)|jpeglib\.h|gif_lib\.h|librsvg(?:\/|\\))|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
+  if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|Cannot open include file: ['"](?:cairo\.h|pango(?:\/|\\)|pixman(?:\.h|-1)|jpeglib\.h|gif_lib\.h|librsvg(?:\/|\\)|lzma\.h|curl(?:\/|\\)|curl\.h)|fatal error: ['"]?(?:lzma\.h|curl(?:\/|\\)[^'"\s]+|curl\.h)['"]?\s*:?\s*(?:(?:file )?not found|No such file or directory)|Cannot find curl['’]s header file|node-libcurl[/\\]tools[/\\]curl-config\.js.*returned exit status 1|(?:cairo|pango|pixman|libjpeg|libgif|librsvg|libcurl|liblzma|xz).*development (?:files|package)/i.test(text)) {
     return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
       'the native build expects a system development library absent from this profile',
       ['profile experiment required']);
   }
-  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]|ENOENT.*node_modules.*(?:package-lock\.json|postinstall\.sh)|postinstall\.sh: not found/im.test(text)
-    || (metadata.scripts?.postinstall === 'tsc' && /aka\.ms\/tsc/i.test(text))) {
+  const lifecycleScripts = Object.values(metadata.scripts ?? {}).filter((value) => typeof value === 'string').join('\n');
+  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|No rule to make target ['"`]clean_closure|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]|fatal error: ['"]config\.h['"] file not found|cannot find input file: [`'"]Doxyfile\.in|Patch file found for package .+ which is not present at node_modules|File:\s+.*node_modules.*(?:\.gyp|config\.h)\s+not found|ENOENT.*(?:node_modules.*)?(?:package-lock\.json|postinstall\.sh)|postinstall\.sh: not found|(?:^|\n).*cd:.*can't cd to|(?:^|\n).*(?:cd:|cp: cannot stat).*No such file|(?:^|\n).*(?:bash|sh): .*scripts[/\\][^\r\n]+: No such file|cp: node_modules[/\\][^\r\n]+: No such file/im.test(text)
+    || ((/\btsc(?:\s|$)/m.test(lifecycleScripts) || (metadata.devDependencies ?? []).includes('typescript'))
+      && /(?:aka\.ms\/tsc|^tsc: The TypeScript Compiler\b)/im.test(text))) {
     return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
       'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
       ['published source/configuration missing']);
@@ -260,9 +300,25 @@ export function classifyReference(record) {
       'the published Apple build requires behavior removed from the supported Xcode toolchain',
       ['tool=xcode', 'package-build=obsolete']);
   }
-  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+  if (/configure:\d+: result: \/usr\/bin\/sed\b/i.test(text)
+    && /configure:\d+: error: no acceptable sed could be found in \$PATH/i.test(text)) {
+    return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature',
+      'concurrent native configure probes clobbered their shared work files after finding the required host tool',
+      ['configure found /usr/bin/sed and concurrently reported no acceptable sed']);
+  }
+  if (/NODE_MODULE_VERSION|ERR_DLOPEN_FAILED|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|node-waf: (?:command )?not found|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.c|\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
+  }
+  if (/node: bad option: --harmony_|Function\.prototype\.apply was called on undefined|(?:^|[/\\])esm[/\\]esm\.js:1/im.test(text)) {
+    return result('OBSOLETE_NODE_ASSUMPTION', 'signature',
+      'the published lifecycle requires Node runtime behavior removed from this runtime cell',
+      [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
+  }
+  if (/error TS(?:5011|5108):|error TS\d+:.*(?:not assignable|has no initializer)/i.test(text)) {
+    return result('OBSOLETE_TYPESCRIPT_ASSUMPTION', 'signature',
+      'the published source or configuration is incompatible with the resolved TypeScript toolchain',
+      ['tool=typescript', 'package-source=obsolete']);
   }
   if (/Could not find any Python|find Python|python(?:3)?(?:\.exe)?: (?:not found|No such file)|No module named (?:distutils|setuptools)|gyp ERR!.*python/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a Python installation or Python behavior absent from this profile',
@@ -283,9 +339,30 @@ export function classifyReference(record) {
       'the published install lifecycle recursively invokes a package-manager install',
       [`scripts.install=${metadata.scripts.install}`]);
   }
-  const missingCommand = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
+  if (/Permission denied/i.test(text) && /(?:^|[ /\\])scripts?[/\\][^\r\n]+/i.test(text)) {
+    return result('PUBLISHED_SCRIPT_NOT_EXECUTABLE', 'signature',
+      'the published lifecycle script is present but lacks an executable file mode',
+      ['published script mode invalid']);
+  }
+  if (/The ['"]bootstrap['"] command was removed by default/i.test(text)
+    && (metadata.devDependencies ?? []).includes('lerna')) {
+    return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
+      'the published lifecycle resolved an incompatible host Lerna because its required version is only a development dependency',
+      ['missingCommand=lerna', 'devDependency=lerna']);
+  }
+  if (/Local modules not found in /i.test(text) && (metadata.devDependencies ?? []).length > 0) {
+    return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
+      'the published build lifecycle requires local modules declared only as development dependencies',
+      ['local build modules missing']);
+  }
+  const missingCommandRaw = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
     ?? text.match(/\bspawn ([A-Za-z0-9_.-]+) ENOENT\b/i)?.[1]
-    ?? text.match(/(?:^|\n)['"]?([@A-Za-z0-9_.-]+)['"]? is not recognized as an internal or external command\b/im)?.[1];
+    ?? text.match(/(?:^|\n)['"]?([@A-Za-z0-9_.-]+)['"]? is not recognized as an internal or external command\b/im)?.[1]
+    ?? text.match(/(?:^|[/\\])\.bin[/\\]([@A-Za-z0-9_.-]+)(?::|\s).*(?:not found|No such file)\b/im)?.[1]
+    ?? text.match(/node_modules[/\\]([@A-Za-z0-9_.-]+)[/\\][^\r\n:]+: (?:not found|No such file)\b/im)?.[1]
+    ?? text.match(/\bCommand ['"]([@A-Za-z0-9_.-]+)['"] not found\b/i)?.[1]
+    ?? text.match(/Unable to find local ([A-Za-z0-9_.-]+)/i)?.[1];
+  const missingCommand = missingCommandRaw?.replace(/\.+$/, '');
   if (missingCommand && (metadata.devDependencies ?? []).includes(missingCommand)) {
     return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
       'the published lifecycle script invokes a tool declared only as a development dependency',
@@ -296,22 +373,27 @@ export function classifyReference(record) {
       'the published lifecycle script invokes a tool that is not installed by the package dependency tree',
       [`missingCommand=${missingCommand}`, 'profile experiment required']);
   }
-  if (/not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
+  if (/Cannot find cypress folder|scaffold Cypress folder|not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
     return result('PROJECT_FIXTURE_PREREQUISITE', 'signature', 'the lifecycle script expects additional project shape',
       ['profile experiment required']);
   }
-  if (/(?:failed to download\/install|download|binary|artifact)[\s\S]{0,1200}(?:Status Code is )?(?:404|410)|(?:404|410)[\s\S]{0,1200}(?:download|binary|artifact)/i.test(text)) {
+  if (/(?:failed to download\/install|download|binary|artifact|tarball)[\s\S]{0,1200}(?:Status Code is )?(?:403|404|410)|(?:403|404|410)[\s\S]{0,1200}(?:download|binary|artifact|tarball)|Request failed with status code 404|Failed to download .+, caused by|incorrect header check|Download failed: ENOENT: no such file or directory, chmod/i.test(text)) {
     return result('EXTERNAL_ARTIFACT_UNAVAILABLE', 'signature',
       'the lifecycle script points at an external artifact that is consistently unavailable',
-      ['consistent HTTP 404/410']);
+      ['consistent HTTP 403/404/410']);
   }
-  if (/(?:environment variable|env var)\s+[A-Z][A-Z0-9_]+.*(?:required|missing|not set)|(?:Please|must) set [A-Z][A-Z0-9_]+/i.test(text)) {
+  if (/PUPPETEER_SKIP_CHROMIUM_DOWNLOAD|(?:environment variable|env var)\s+[A-Z][A-Z0-9_]+.*(?:required|missing|not set)|(?:Please|must) set [A-Z][A-Z0-9_]+/i.test(text)) {
     return result('ENVIRONMENT_PREREQUISITE', 'signature', 'the lifecycle script requires an environment value not supplied by this profile',
       ['profile experiment required']);
   }
-  if (/No matching version found|ERR_NUB_NO_MATCHING_VERSION|ETARGET|E404|404 Not Found|410 Gone|checksum (?:failed|mismatch)|integrity checksum failed|unsupported URL type|Cannot find module .*node_modules.*(?:scripts|bin|install|postinstall)|MODULE_NOT_FOUND|THIS PACKAGE WAS RENAMED|The git reference could not be found|pathspec .+ did not match|provided mimeType .+ is not valid|blockExoticSubdeps|Error downloading binary; invalid response status code: 400/i.test(text)) {
+  if (/No matching version found|ERR_NUB_NO_MATCHING_VERSION|ETARGET|E404|404 Not Found|410 Gone|checksum (?:failed|mismatch)|integrity checksum failed|unsupported URL type|Cannot find module .*node_modules.*(?:scripts|bin|install|postinstall)|MODULE_NOT_FOUND|THIS PACKAGE WAS RENAMED|The git reference could not be found|pathspec .+ did not match|provided mimeType .+ is not valid|blockExoticSubdeps|Error downloading binary; invalid response status code: 400|preinstall-always-fail|Cannot read properties of undefined \(reading ['"]has['"]\)|ERR_INVALID_ARG_TYPE.*(?:path|paths\[0\]).*(?:Object|undefined)/i.test(text)) {
     return result('PACKAGE_BROKEN_OR_UNAVAILABLE', 'signature', 'a pinned package or external artifact is unavailable or permanently invalid',
       ['consistent reference failure']);
+  }
+
+  if (quorumOutcomes.some((outcome) => outcome === 'unstable')) {
+    return result('UNSTABLE_REFERENCE', 'retry', 'clean retries produced different failure fingerprints',
+      [nub?.quorum?.fingerprint, npm?.quorum?.fingerprint].filter(Boolean), 'incomplete');
   }
 
   return result('UNCLASSIFIED', 'none', 'the retained evidence does not yet support one root-cause class',

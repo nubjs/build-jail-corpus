@@ -57,7 +57,7 @@ const expandToken = (token) => {
 };
 
 const predicatesForSet = (set) => {
-  const normalized = set.trim().replace(/,/g, ' ')
+  const normalized = set.trim().replace(/,/g, ' ').replace(/\s*&&\s*/g, ' ')
     .replace(/(\d+(?:\.\d+){0,2})\s+-\s+(\d+(?:\.\d+){0,2})/g, (_, start, end) => {
       const endParts = end.split('.').map(Number);
       const upper = endParts.length === 1 ? `<${endParts[0] + 1}.0.0`

@@ -26,6 +26,13 @@ test('a timed-out arm remains incomplete instead of becoming a package-manager v
   const classified = classifyReference(record(arm('timeout', 'REFERENCE-DEADLINE-REACHED'), arm('pass')));
   assert.equal(classified.code, 'REFERENCE_TIMEOUT');
   assert.equal(classified.status, 'incomplete');
+
+  const resolverThenTimeout = classifyReference(record(
+    arm('consistent-failure', 'ERR_NUB_PEER_CONTEXT_NOT_CONVERGED'),
+    arm('timeout', 'REFERENCE-DEADLINE-REACHED'),
+  ));
+  assert.equal(resolverThenTimeout.code, 'REFERENCE_TIMEOUT');
+  assert.equal(resolverThenTimeout.status, 'incomplete');
 });
 
 test('a recovered clean retry is transient evidence, not a package-manager divergence', () => {
@@ -113,6 +120,13 @@ test('Windows short-path aliases and attempt ids do not destabilize failure fing
   assert.doesNotMatch(JSON.stringify(first), /runneradmin|nub-reference|nub-1/i);
 });
 
+test('clock prefixes written by build tools do not manufacture unstable fingerprints', () => {
+  const first = firstErrorFrom('[12:02:55] Local modules not found in <PROJECT>/node_modules/pkg');
+  const second = firstErrorFrom('[12:03:19] Local modules not found in <PROJECT>/node_modules/pkg');
+  assert.equal(first.summary, 'Local modules not found in <PROJECT>/node_modules/pkg');
+  assert.equal(first.fingerprint, second.fingerprint);
+});
+
 test('incidental codes outside the causal excerpt do not make identical failures unstable', () => {
   const clean = firstErrorFrom("Error: spawn EINVAL\nnpm error command failed");
   const cleanupNoise = firstErrorFrom("npm warn cleanup EPERM unlink cache\nError: spawn EINVAL\nnpm error command failed");
@@ -163,6 +177,15 @@ make: *** [Makefile:109: build] Error 1`);
     arm('consistent-failure', rustEvidence)));
   assert.equal(classifiedRust.code, 'TOOLCHAIN_PREREQUISITE');
   assert.match(classifiedRust.summary, /source-pinned Rust toolchain/);
+
+  const compiler = firstErrorFrom(`<CACHE>/node-gyp/include/node/v8.h:123:25: error: obsolete native API
+gyp ERR! stack Error: make failed`);
+  assert.match(compiler.summary, /v8\.h:123:25: error/);
+
+  const minified = `esm/esm.js:1\n${'const TypeErrorAlias=global.TypeError;'.repeat(300)}\nnpm error command failed`;
+  const compacted = firstErrorFrom(minified);
+  assert.equal(compacted.summary, 'esm/esm.js:1');
+  assert.ok(compacted.excerpts.every((line) => line.length <= 800));
 });
 
 test('current stratified failures resolve to durable remediation classes from causal excerpts', () => {
@@ -210,12 +233,97 @@ test('current stratified failures resolve to durable remediation classes from ca
       'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['TypeError: DOMParser.parseFromString: the provided mimeType undefined is not valid.', {},
       'PACKAGE_BROKEN_OR_UNAVAILABLE'],
+    ["Cannot find curl's header file.", {}, 'SYSTEM_LIBRARY_PREREQUISITE'],
+    ["fatal error: 'lzma.h' file not found", {}, 'SYSTEM_LIBRARY_PREREQUISITE'],
+    ["libtool is required, but wasn't found on this system", {}, 'TOOLCHAIN_PREREQUISITE'],
+    ['CMake Error at CMakeLists.txt:1 (cmake_minimum_required):\nCompatibility with CMake < 3.5 has been removed from CMake.', {},
+      'TOOLCHAIN_PREREQUISITE'],
+    ['This project defines "packageManager": "yarn@4.10.3". The current global version of Yarn is 1.22.22.\nCorepack must currently be enabled.', {},
+      'TOOLCHAIN_PREREQUISITE'],
+    ['Cannot find cypress folder. Please scaffold Cypress folder by opening Cypress once.', {},
+      'PROJECT_FIXTURE_PREREQUISITE'],
+    ['if [ -z ${PUPPETEER_SKIP_CHROMIUM_DOWNLOAD+x} ]; then exit 1; fi', {},
+      'ENVIRONMENT_PREREQUISITE'],
+    ['403 status code downloading tarball https://example.test/addon.tar.gz', {},
+      'EXTERNAL_ARTIFACT_UNAVAILABLE'],
+    ['M1 Chip system with arm64 architecture is not supported. Please install x64 version of node.js.', {},
+      'OS_CPU_MISMATCH'],
+    ['node: bad option: --harmony_destructuring', {}, 'OBSOLETE_NODE_ASSUMPTION'],
+    ["ENOENT: no such file or directory, open './package-lock.json'", {},
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['sh: cd: docs: No such file or directory', {}, 'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['You can learn about all of the compiler options at https://aka.ms/tsc',
+      { scripts: { postinstall: 'tsc -b' } }, 'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['Fatal error: Unable to find local grunt.', { devDependencies: ['grunt'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['/work/node_modules/.bin/gulp: not found', { devDependencies: ['gulp'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['@lavamoat/preinstall-always-fail refuses lifecycle execution', {},
+      'PACKAGE_BROKEN_OR_UNAVAILABLE'],
+    ['Error: figma-js must be installed with Yarn: https://yarnpkg.com/', {},
+      'TOOLCHAIN_PREREQUISITE'],
+    ['Error: Unsupported architecture arm64. Only x64 binaries are available.', {},
+      'OS_CPU_MISMATCH'],
+    ['Error: Playwright does not support chromium on mac15.7', {}, 'OS_CPU_MISMATCH'],
+    ['Error: Request failed with status code 404', {}, 'EXTERNAL_ARTIFACT_UNAVAILABLE'],
+    ['./build.sh: line 3: node-waf: command not found', {}, 'OBSOLETE_NATIVE_ASSUMPTION'],
+    ["tsconfig.json(5,27): error TS5108: Option 'moduleResolution=node10' has been removed.", {},
+      'OBSOLETE_TYPESCRIPT_ASSUMPTION'],
+    ['Error: Patch file found for package hashes which is not present at node_modules/@noble/hashes', {},
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    ["make: *** No rule to make target 'clean_closure'. Stop.", {},
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    ["../src/liblzma-node.hpp:36:10: fatal error: lzma.h: No such file or directory", {},
+      'SYSTEM_LIBRARY_PREREQUISITE'],
+    ["gyp: Call to 'node /work/node-libcurl/tools/curl-config.js --cflags' returned exit status 1", {},
+      'SYSTEM_LIBRARY_PREREQUISITE'],
+    ['src/cdf.c:299:6: error: call to undeclared function lseek', {},
+      'OBSOLETE_NATIVE_ASSUMPTION'],
+    ["code: 'ERR_DLOPEN_FAILED'", {}, 'OBSOLETE_NATIVE_ASSUMPTION'],
+    ['oracledb ERR! a pre-built node-oracledb binary was not found for darwin arm64', {},
+      'OS_CPU_MISMATCH'],
+    ['/work/node_modules/typings/dist/bin.js: not found', { devDependencies: ['typings'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['Installation failed: TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received undefined', {},
+      'PACKAGE_BROKEN_OR_UNAVAILABLE'],
+    ['Unfortunately, there are currently no Elm Platform binaries available for your operating system and architecture.', {},
+      'OS_CPU_MISMATCH'],
+    ['Unsupported (?) architecture: `arm64`', {}, 'OS_CPU_MISMATCH'],
+    [String.raw`File: C:\work\node_modules\node-libcurl\deps\curl-for-windows\libssh2.gyp not found.`, {},
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    ["sh: 1: cd: can't cd to docs/storybook", {}, 'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['bash: ./scripts/postinstall.sh: No such file or directory', {}, 'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['tsc: The TypeScript Compiler - Version 7.0.2', { devDependencies: ['typescript'] },
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    ['sh: ./node_modules/.bin/bower: No such file or directory', { devDependencies: ['bower'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['Local modules not found in <PROJECT>/node_modules/pkg', { devDependencies: ['gulp'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['sh: scripts/postinstall.mts: Permission denied', {}, 'PUBLISHED_SCRIPT_NOT_EXECUTABLE'],
+    ['ERR! bootstrap The "bootstrap" command was removed by default in v7', { devDependencies: ['lerna'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ['Error: Refusing to load formula facebook/fb/fbsimctl from untrusted tap facebook/fb.', {},
+      'TOOLCHAIN_PREREQUISITE'],
+    ['`git-win` not support this platform, please install from Windows.', {}, 'OS_CPU_MISMATCH'],
+    ['/work/node_modules/esm/esm.js:1', { dependencies: ['esm'] }, 'OBSOLETE_NODE_ASSUMPTION'],
+    ['ERROR peer-context hit MAX_ITERATIONS=16 without convergence code=ERR_NUB_PEER_CONTEXT_NOT_CONVERGED', {},
+      'NUB_PM_RESOLVER_DEFECT'],
   ];
   for (const [message, metadata, code] of cases) {
     const classified = classifyReference(record(arm('consistent-failure', message),
       arm('consistent-failure', message), { packageMetadata: metadata }));
     assert.equal(classified.code, code, message);
   }
+});
+
+test('an unstable retry with one durable cause is classified before the instability fallback', () => {
+  const unstable = arm('unstable', "ENOENT: no such file or directory, open './package-lock.json'");
+  assert.equal(classifyReference(record(unstable, structuredClone(unstable))).code,
+    'PUBLISHED_SOURCE_PREREQUISITE');
+  const opaque = arm('unstable', 'Error: varying opaque wrapper');
+  const classification = classifyReference(record(opaque, structuredClone(opaque)));
+  assert.equal(classification.code, 'UNSTABLE_REFERENCE');
+  assert.equal(classification.status, 'incomplete');
 });
 
 test('published lifecycle mistakes are separated from missing host tools', () => {
@@ -231,6 +339,15 @@ test('published lifecycle mistakes are separated from missing host tools', () =>
       packageMetadata: { scripts: { install: 'yarn install' } },
     });
   assert.equal(classifyReference(recursion).code, 'PUBLISHED_SCRIPT_RECURSION');
+
+  const chromedriver = record(
+    arm('consistent-failure', "Download failed: ENOENT: no such file or directory, chmod '/work/chromedriver'"),
+    arm('consistent-failure', "Download failed: ENOENT: no such file or directory, chmod '/work/chromedriver'"),
+    { pkg: 'electron-chromedriver' },
+  );
+  chromedriver.provenance.runtime.os.platform = 'darwin';
+  chromedriver.provenance.runtime.os.arch = 'arm64';
+  assert.equal(classifyReference(chromedriver).code, 'OS_CPU_MISMATCH');
 });
 
 test('causal compaction retains prefixed runtime errors and Visual Studio discovery failures', () => {
@@ -276,6 +393,19 @@ gyp ERR! build error`;
   assert.match(error.summary, /error: no member named/);
   assert.equal(classifyReference(record(arm('consistent-failure', message),
     arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+});
+
+test('interleaved configure probes expose a published native build race instead of a missing host tool', () => {
+  const message = `configure:7321: checking for a sed that does not truncate output
+configure:7385: result: /usr/bin/sed
+configure:7378: error: no acceptable sed could be found in $PATH`;
+  const error = firstErrorFrom(message);
+  assert.match(error.summary, /no acceptable sed/);
+  assert.match(error.excerpts.join('\n'), /result: \/usr\/bin\/sed/);
+  const classified = classifyReference(record(arm('consistent-failure', message),
+    arm('consistent-failure', message)));
+  assert.equal(classified.code, 'OBSOLETE_NATIVE_ASSUMPTION');
+  assert.match(classified.summary, /concurrent native configure probes/);
 });
 
 test('MSVC compiler diagnostics in stdout outrank a generic node-gyp stderr wrapper', () => {

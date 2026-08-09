@@ -36,6 +36,19 @@ test('the checked-in profile deterministically creates the same realistic projec
   assert.equal(referenceProfileIdentity(profile).sha256.length, 64);
 });
 
+test('the lifecycle debug profile changes only platform scope and diagnostic output', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-lifecycle-debug-darwin.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'lifecycle-debug-darwin-v1';
+  expected.supportedPlatforms = ['darwin'];
+  expected.environment.set.DEBUG = '1';
+  delete expected.toolProbes.win32;
+  assert.deepEqual(profile, expected);
+});
+
 test('the native graphics profile binds its POSIX packages and exact library probes', () => {
   const profile = loadReferenceProfile(new URL('./reference-profile-native-graphics.json', import.meta.url));
   assert.equal(profile.id, 'native-graphics-posix-v1');

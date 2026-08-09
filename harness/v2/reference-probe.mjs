@@ -269,7 +269,10 @@ export function collectAuxiliaryLogs(
 }
 
 const lifecycleHooks = ['preinstall', 'install', 'postinstall'];
-const normalizeLifecycleVersion = (version) => /^v\d+\./.test(version) ? version.slice(1) : version;
+const normalizeLifecycleVersion = (version) => {
+  const unprefixed = /^v\d+\./.test(version) ? version.slice(1) : version;
+  return unprefixed.replace(/\+[^+]+$/, '');
+};
 
 export function collectLifecyclePackages(projectRoot) {
   const packages = new Map();

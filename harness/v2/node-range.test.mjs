@@ -26,6 +26,8 @@ test('common Node engine range forms are evaluated without treating unknown synt
     ['21.7.3', '18 - 20', false],
     ['20.20.2', '18.19 - 20.20', true],
     ['21.0.0', '18.19 - 20.20', false],
+    ['0.10.48', '>= 0.8.0 && < 0.11.0', true],
+    ['22.23.2', '>= 0.8.0 && < 0.11.0', false],
     ['0.2.5', '^0.2.3', true],
     ['0.3.0', '^0.2.3', false],
     ['18.20.8', 'workspace:*', null],
