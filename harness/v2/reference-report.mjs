@@ -55,7 +55,7 @@ const remediationFor = (code) => ({
   UNSTABLE_REFERENCE: { priority: 'P0', disposition: 'retry', experiment: 'repeat fresh isolated arms until quorum or retain an unstable terminal class' },
   REFERENCE_TIMEOUT: { priority: 'P0', disposition: 'retry-or-bound', experiment: 'separate the batch deadline from a repeatable package hang, then set an evidence-backed bound' },
   NUB_PM_DIVERGENCE: { priority: 'P1', disposition: 'nub-fix', experiment: 'reproduce the npm-pass/Nub-fail differential as a Nub package-manager defect' },
-  NUB_PLATFORM_CONSTRAINT_DIVERGENCE: { priority: 'P1', disposition: 'nub-fix', experiment: 'reproduce and fix Nub accepting a package whose published platform constraints exclude the current cell' },
+  REQUIRED_PLATFORM_POLICY_DIFFERENTIAL: { priority: 'none', disposition: 'expected-pnpm-policy-differential', experiment: null },
   TOOLCHAIN_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the named build tool to a versioned toolchain profile and compare before/after cells' },
   SYSTEM_LIBRARY_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the evidenced native development library to a versioned toolchain profile and compare before/after cells' },
   UNDECLARED_EXTERNAL_TOOL_REQUIRED: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the evidenced common build command to a versioned project tool profile and compare before/after cells' },

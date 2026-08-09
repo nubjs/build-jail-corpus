@@ -212,12 +212,13 @@ test('generic native-build wrappers remain unclassified without a causal diagnos
   assert.equal(classified.code, 'UNCLASSIFIED');
 });
 
-test('Nub accepting an npm-rejected platform constraint is a Nub defect, not an oracle mystery', () => {
+test('Nub accepting a required npm-rejected platform constraint is an expected pnpm policy differential', () => {
   const classified = classifyReference(record(arm('pass'),
     arm('consistent-failure', 'npm error code EBADPLATFORM'), {
       packageMetadata: { os: ['linux'], cpu: ['arm64'] },
     }));
-  assert.equal(classified.code, 'NUB_PLATFORM_CONSTRAINT_DIVERGENCE');
+  assert.equal(classified.code, 'REQUIRED_PLATFORM_POLICY_DIFFERENTIAL');
+  assert.match(classified.summary, /follows pnpm/);
 });
 
 test('Node module errors outrank deprecation warnings and source snippets', () => {

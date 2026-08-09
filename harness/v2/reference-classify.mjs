@@ -168,8 +168,8 @@ export function classifyReference(record) {
   }
   if (passed(nub) && !passed(npm)) {
     if (platformMismatch && /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
-      return result('NUB_PLATFORM_CONSTRAINT_DIVERGENCE', 'differential',
-        'Nub installed and ran a package whose declared operating-system, CPU, or libc constraints exclude this cell',
+      return result('REQUIRED_PLATFORM_POLICY_DIFFERENTIAL', 'differential',
+        'Nub follows pnpm by accepting a required package that npm rejects under its published platform constraints',
         [`os=${platform}`, `cpu=${arch}`, `package.os=${JSON.stringify(metadata.os ?? null)}`,
           `package.cpu=${JSON.stringify(metadata.cpu ?? null)}`, `libc=${libc}`,
           `package.libc=${JSON.stringify(metadata.libc ?? null)}`]);
