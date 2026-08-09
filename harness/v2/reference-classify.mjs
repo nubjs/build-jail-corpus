@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { satisfiesNodeRange } from './node-range.mjs';
 
 const stripAnsi = (value) => String(value ?? '').replace(/\x1b\[[0-9;]*m/g, '');
+const regexEscape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export function sanitizeFailureText(value, roots = {}) {
   let text = stripAnsi(value).replace(/https?:\/\/[^\s/@]+:[^\s/@]+@/g, 'https://<credentials>@');
@@ -11,9 +12,18 @@ export function sanitizeFailureText(value, roots = {}) {
     const aliases = new Set([String(root)]);
     try { aliases.add(fs.realpathSync(String(root))); } catch { /* path may no longer exist */ }
     for (const alias of [...aliases].sort((a, b) => b.length - a.length)) {
-      text = text.split(alias).join(`<${name.toUpperCase()}>`);
+      const flags = /^[A-Za-z]:[\\/]/.test(alias) ? 'gi' : 'g';
+      const placeholder = name.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+      text = text.replace(new RegExp(regexEscape(alias), flags), `<${placeholder}>`);
     }
   }
+  const scratchNames = {
+    project: 'PROJECT', home: 'HOME', tmp: 'TEMP', cache: 'CACHE', config: 'CONFIG', 'npm-cache': 'NPM_CACHE',
+  };
+  text = text.replace(
+    /[A-Za-z]:[\\/][^\r\n]*?[\\/]nub-reference-[A-Za-z0-9_-]+[\\/]attempts[\\/](?:nub|npm)-\d+[\\/](project|home|tmp|cache|config|npm-cache)/gi,
+    (_, name) => `<${scratchNames[name.toLowerCase()]}>`,
+  );
   return text;
 }
 
@@ -25,7 +35,8 @@ export function firstErrorFrom(output, roots = {}) {
     if (/\bwarning:/i.test(line)) return 0;
     if (/^(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
-    if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)) return 98;
+    if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
+      || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
     if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
     if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
     if (/^(?:make: \*\*\*|gyp: Call to|failed to download\/install)\b/i.test(line)) return 92;
@@ -49,7 +60,8 @@ export function firstErrorFrom(output, roots = {}) {
   }
   const excerpts = useful.filter((line) => selected.has(line.slice(0, 800)))
     .map((line) => line.slice(0, 800)).filter((line, index, all) => all.indexOf(line) === index);
-  const codes = [...new Set(text.match(/\b(?:ERR_[A-Z0-9_]+|MODULE_NOT_FOUND|E(?:ACCES|AI_AGAIN|CONNREFUSED|CONNRESET|HOSTUNREACH|NETUNREACH|NOENT|NOTFOUND|PERM|PIPE|PROTO|TIMEDOUT|TARGET|BADPLATFORM)|HTTP\s+[45]\d\d)\b/gi) ?? [])]
+  const causalText = [summary, ...excerpts].join('\n');
+  const codes = [...new Set(causalText.match(/\b(?:ERR_[A-Z0-9_]+|MODULE_NOT_FOUND|E(?:ACCES|AI_AGAIN|CONNREFUSED|CONNRESET|HOSTUNREACH|NETUNREACH|NOENT|NOTFOUND|PERM|PIPE|PROTO|TIMEDOUT|TARGET|BADPLATFORM)|HTTP\s+[45]\d\d)\b/gi) ?? [])]
     .map((code) => code.toUpperCase()).sort();
   return {
     summary,
@@ -187,6 +199,20 @@ export function classifyReference(record) {
       'the package build chain requires Python 2 behavior that is obsolete in the supported toolchain profile',
       ['python=obsolete-behavior']);
   }
+  if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|Cannot open include file: ['"](?:cairo\.h|pango(?:\/|\\)|pixman(?:\.h|-1)|jpeglib\.h|gif_lib\.h|librsvg(?:\/|\\))|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
+    return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
+      'the native build expects a system development library absent from this profile',
+      ['profile experiment required']);
+  }
+  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]/im.test(text)) {
+    return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
+      'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
+      ['published source/configuration missing']);
+  }
+  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+    return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
+      [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
+  }
   if (/Could not find any Python|find Python|python(?:3)?(?:\.exe)?: (?:not found|No such file)|No module named (?:distutils|setuptools)|gyp ERR!.*python/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a Python installation or Python behavior absent from this profile',
       ['tool=python']);
@@ -195,21 +221,8 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a compiler or native build tool absent from this profile',
       ['tool=native-build-chain']);
   }
-  if (/pkg-config.*(?:not found|exit status)|Package ['"].+['"].*not found|not found in the pkg-config search path|(?:cairo|pango|pixman|libjpeg|libgif|librsvg).*development (?:files|package)/i.test(text)) {
-    return result('SYSTEM_LIBRARY_PREREQUISITE', 'signature',
-      'the native build expects a system development library absent from this profile',
-      ['profile experiment required']);
-  }
-  if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]/i.test(text)) {
-    return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
-      'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
-      ['published source/configuration missing']);
-  }
-  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error:.*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h):\d+(?::\d+)?: (?:fatal )?error:/i.test(text)) {
-    return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
-      [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
-  }
-  const missingCommand = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1];
+  const missingCommand = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
+    ?? text.match(/(?:^|\n)['"]?([@A-Za-z0-9_.-]+)['"]? is not recognized as an internal or external command\b/im)?.[1];
   if (missingCommand && (metadata.devDependencies ?? []).includes(missingCommand)) {
     return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
       'the published lifecycle script invokes a tool declared only as a development dependency',

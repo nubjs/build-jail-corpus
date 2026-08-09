@@ -45,6 +45,14 @@ test('retry quorum distinguishes stable, unstable and recovered reference outcom
     { outcome: 'fail', fingerprint: 'a' }, { outcome: 'fail', fingerprint: 'b' },
   ]).outcome, 'unstable');
   assert.deepEqual(quorumForAttempts([
+    { outcome: 'fail', fingerprint: 'a' },
+    { outcome: 'fail', fingerprint: 'b' },
+    { outcome: 'fail', fingerprint: 'a' },
+  ]), { outcome: 'consistent-failure', fingerprint: 'a' });
+  assert.equal(quorumForAttempts([
+    { outcome: 'fail', fingerprint: 'a' }, { outcome: 'timeout', fingerprint: null },
+  ]).outcome, 'unstable');
+  assert.deepEqual(quorumForAttempts([
     { outcome: 'invalid-tree', fingerprint: 'missing' },
     { outcome: 'invalid-tree', fingerprint: 'missing' },
   ]), { outcome: 'invalid-tree', fingerprint: 'missing' });

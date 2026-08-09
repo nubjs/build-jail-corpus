@@ -238,13 +238,21 @@ export function quorumForAttempts(attempts) {
   if (passes.length) return { outcome: attempts[0].outcome === 'pass' ? 'pass' : 'pass-after-failure', fingerprint: null };
   if (attempts.every((attempt) => attempt.outcome === 'timeout')) return { outcome: 'timeout', fingerprint: null };
   if (attempts.some((attempt) => attempt.outcome === 'harness-error')) return { outcome: 'harness-error', fingerprint: null };
-  const fingerprints = [...new Set(attempts.map((attempt) => attempt.fingerprint).filter(Boolean))];
-  if (attempts.every((attempt) => attempt.outcome === 'invalid-tree') && fingerprints.length === 1) {
-    return { outcome: 'invalid-tree', fingerprint: fingerprints[0] };
+  const counts = new Map();
+  for (const attempt of attempts) {
+    if (!attempt.fingerprint) continue;
+    const key = `${attempt.outcome}\0${attempt.fingerprint}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  return fingerprints.length === 1
-    ? { outcome: 'consistent-failure', fingerprint: fingerprints[0] }
-    : { outcome: 'unstable', fingerprint: fingerprints.length ? fingerprints.join(',') : null };
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const [dominantKey, dominantCount] = ranked[0] ?? ['', 0];
+  const [dominantOutcome, dominantFingerprint] = dominantKey.split('\0');
+  if (dominantCount > attempts.length / 2) {
+    if (dominantOutcome === 'invalid-tree') return { outcome: 'invalid-tree', fingerprint: dominantFingerprint };
+    if (dominantOutcome === 'fail') return { outcome: 'consistent-failure', fingerprint: dominantFingerprint };
+  }
+  const fingerprints = [...new Set(attempts.map((attempt) => attempt.fingerprint).filter(Boolean))];
+  return { outcome: 'unstable', fingerprint: fingerprints.length ? fingerprints.join(',') : null };
 }
 
 const realScreenTree = (project, kind, cacheDir, out) => {

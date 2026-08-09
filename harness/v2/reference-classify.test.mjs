@@ -91,6 +91,27 @@ test('failure excerpts remove credentials and machine roots before fingerprintin
   assert.match(error.summary, /<PROJECT>/);
 });
 
+test('Windows short-path aliases and attempt ids do not destabilize failure fingerprints', () => {
+  const first = firstErrorFrom(
+    String.raw`C:\Users\runneradmin\AppData\Local\Temp\nub-reference-ABC123\attempts\nub-1\project\src\addon.cc(4,2): error C2665: no overload`,
+    { project: String.raw`C:\Users\RUNNER~1\AppData\Local\Temp\nub-reference-ABC123\attempts\nub-1\project` },
+  );
+  const second = firstErrorFrom(
+    String.raw`C:\Users\runneradmin\AppData\Local\Temp\nub-reference-ZYX987\attempts\nub-3\project\src\addon.cc(4,2): error C2665: no overload`,
+    { project: String.raw`C:\Users\RUNNER~1\AppData\Local\Temp\nub-reference-ZYX987\attempts\nub-3\project` },
+  );
+  assert.equal(first.summary, String.raw`<PROJECT>\src\addon.cc(4,2): error C2665: no overload`);
+  assert.equal(first.fingerprint, second.fingerprint);
+  assert.doesNotMatch(JSON.stringify(first), /runneradmin|nub-reference|nub-1/i);
+});
+
+test('incidental codes outside the causal excerpt do not make identical failures unstable', () => {
+  const clean = firstErrorFrom("Error: spawn EINVAL\nnpm error command failed");
+  const cleanupNoise = firstErrorFrom("npm warn cleanup EPERM unlink cache\nError: spawn EINVAL\nnpm error command failed");
+  assert.equal(clean.fingerprint, cleanupNoise.fingerprint);
+  assert.deepEqual(clean.codes, cleanupNoise.codes);
+});
+
 test('causal diagnostics outrank package-manager wrappers and remain in the compact record', () => {
   const error = firstErrorFrom(`npm error code 2
 npm error command failed
@@ -112,13 +133,25 @@ test('current stratified failures resolve to durable remediation classes from ca
       'OBSOLETE_NATIVE_ASSUMPTION'],
     ["gyp ERR! configure error\nPackage 'pixman-1', required by 'virtual:world', not found", {},
       'SYSTEM_LIBRARY_PREREQUISITE'],
+    [String.raw`C:\work\canvas\Backend.h(3,10): error C1083: Cannot open include file: 'cairo.h': No such file or directory`, {},
+      'SYSTEM_LIBRARY_PREREQUISITE'],
     ['failed to download/install Redis binaries. The error: Error: Status Code is 404', {},
       'EXTERNAL_ARTIFACT_UNAVAILABLE'],
     ["make: *** No rule to make target 'Release/obj.target/addon/src/bindings/addon.o'", {},
       'PUBLISHED_SOURCE_PREREQUISITE'],
+    [String.raw`C:\work\node-liblzma.cpp(1,1): error C1083: Cannot open source file: '..\src\bindings\node-liblzma.cpp': No such file or directory`, {},
+      'PUBLISHED_SOURCE_PREREQUISITE'],
     ["gyp ERR! stack SyntaxError: Missing parentheses in call to 'print'", {},
       'OBSOLETE_PYTHON_ASSUMPTION'],
     ['sh: tsc: command not found', {}, 'UNDECLARED_EXTERNAL_TOOL_REQUIRED'],
+    ["'tsc' is not recognized as an internal or external command", {},
+      'UNDECLARED_EXTERNAL_TOOL_REQUIRED'],
+    ["'husky' is not recognized as an internal or external command", { devDependencies: ['husky'] },
+      'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY'],
+    ["TypeError: 'process.env' only accepts a configurable, writable, and enumerable data descriptor", {},
+      'OBSOLETE_NATIVE_ASSUMPTION'],
+    ['Error: spawn EINVAL\nat build (node_modules/fibers/build.js:62:5)', {},
+      'OBSOLETE_NATIVE_ASSUMPTION'],
   ];
   for (const [message, metadata, code] of cases) {
     const classified = classifyReference(record(arm('consistent-failure', message),
@@ -135,6 +168,32 @@ gyp ERR! build error`;
   assert.match(error.summary, /error: no member named/);
   assert.equal(classifyReference(record(arm('consistent-failure', message),
     arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+});
+
+test('MSVC compiler diagnostics in stdout outrank a generic node-gyp stderr wrapper', () => {
+  const message = String.raw`C:\work\src\util\macros.lzz(150,35): error C2665: 'v8::ObjectTemplate::SetAccessor': no overloaded function could convert all the argument types
+Previous IPDB not found, fall back to full compilation.
+gyp ERR! build error
+gyp ERR! stack Error: MSBuild.exe failed with exit code: 1`;
+  const error = firstErrorFrom(message);
+  assert.match(error.summary, /macros\.lzz\(150,35\): error C2665/);
+  assert.equal(classifyReference(record(arm('consistent-failure', message),
+    arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+});
+
+test('a causal failure in one arm outranks the other arm generic toolchain wrapper', () => {
+  const generic = arm('consistent-failure', 'gyp ERR! find VS could not find Visual Studio');
+  const cases = [
+    [String.raw`Backend.h(3,10): error C1083: Cannot open include file: 'cairo.h': No such file or directory`,
+      'SYSTEM_LIBRARY_PREREQUISITE'],
+    [String.raw`addon.cpp(1,1): error C1083: Cannot open source file: '..\src\addon.cpp': No such file or directory`,
+      'PUBLISHED_SOURCE_PREREQUISITE'],
+    [String.raw`conversions.cc(31,48): error C2661: 'v8::ArrayBuffer::New': no overloaded function takes 3 arguments`,
+      'OBSOLETE_NATIVE_ASSUMPTION'],
+  ];
+  for (const [message, code] of cases) {
+    assert.equal(classifyReference(record(arm('consistent-failure', message), generic)).code, code, message);
+  }
 });
 
 test('generated-source compiler errors against V8 are native ABI incompatibilities', () => {
