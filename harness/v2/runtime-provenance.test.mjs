@@ -32,5 +32,5 @@ test('tool provenance resolves and executes through the supplied lifecycle PATH'
   const env = { ...process.env, PATH: [root, process.env.PATH].filter(Boolean).join(path.delimiter) };
   const result = probeTool(command, ['argument with spaces'], env);
   assert.equal(result.version, 'reference-profile-tool argument with spaces');
-  assert.equal(path.resolve(result.path).toLowerCase(), path.resolve(file).toLowerCase());
+  assert.equal(fs.realpathSync(result.path).toLowerCase(), fs.realpathSync(file).toLowerCase());
 });
