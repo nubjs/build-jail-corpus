@@ -64,6 +64,7 @@ test('toolchain, transient, permanent and unknown failures stay mutually exclusi
     ['gyp ERR! find Python Could not find any Python installation', 'TOOLCHAIN_PREREQUISITE'],
     ['deps/readies/mk/main:6: *** GNU Make version is too old. Aborting.', 'TOOLCHAIN_PREREQUISITE'],
     ['./autogen.sh: line 18: aclocal: command not found', 'TOOLCHAIN_PREREQUISITE'],
+    ["Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined", 'TOOLCHAIN_PREREQUISITE'],
     ['npm ERR! code ECONNRESET', 'TRANSIENT_EXTERNAL_DOWNLOAD'],
     ['npm ERR! code ETARGET No matching version found', 'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['Error: surprising opaque failure', 'UNCLASSIFIED'],
@@ -130,6 +131,13 @@ make: *** [build] Error 1`);
   assert.match(make.summary, /GNU Make version is too old/);
   assert.equal(classifyReference(record(arm('consistent-failure', make.summary),
     arm('consistent-failure', make.summary))).code, 'TOOLCHAIN_PREREQUISITE');
+
+  const libtool = firstErrorFrom(`failed to download/install Redis binaries
+Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined
+autoreconf: error: automake failed with exit status: 1`);
+  assert.equal(libtool.summary, "Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined");
+  assert.equal(classifyReference(record(arm('consistent-failure', libtool.summary),
+    arm('consistent-failure', libtool.summary))).code, 'TOOLCHAIN_PREREQUISITE');
 });
 
 test('current stratified failures resolve to durable remediation classes from causal excerpts', () => {
