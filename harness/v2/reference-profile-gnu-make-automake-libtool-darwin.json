@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "id": "gnu-make-automake-libtool-darwin-v1",
+  "supportedPlatforms": [
+    "darwin"
+  ],
+  "fixture": {
+    "gitRepository": true,
+    "files": {
+      ".gitignore": "node_modules/\n",
+      "README.md": "# Lifecycle install fixture\n",
+      "index.js": "export {};\n",
+      "src/index.js": "export {};\n"
+    },
+    "npmrc": {
+      "audit": "false",
+      "fund": "false",
+      "update-notifier": "false"
+    },
+    "managerNpmrc": {
+      "nub": {
+        "side-effects-cache": "false"
+      }
+    }
+  },
+  "environment": {
+    "set": {
+      "NODE_COMPAT": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC",
+      "GIT_CONFIG_NOSYSTEM": "1"
+    },
+    "unset": [
+      "BUILD_ID",
+      "BUILD_NUMBER",
+      "BUILDKITE",
+      "CIRCLECI",
+      "CI",
+      "CONTINUOUS_INTEGRATION",
+      "GITHUB_ACTIONS",
+      "GITLAB_CI",
+      "JENKINS_URL",
+      "RUN_ID",
+      "TEAMCITY_VERSION",
+      "TF_BUILD",
+      "TRAVIS"
+    ],
+    "inherit": [
+      "PATH",
+      "SHELL",
+      "LANG",
+      "LC_ALL",
+      "TERM",
+      "COLORTERM",
+      "USER",
+      "LOGNAME",
+      "NODE_EXECUTABLE",
+      "NODEJS_ORG_MIRROR",
+      "SystemRoot",
+      "WINDIR",
+      "ComSpec",
+      "PATHEXT",
+      "INCLUDE",
+      "LIB",
+      "LIBPATH",
+      "VCINSTALLDIR",
+      "VSINSTALLDIR",
+      "WindowsSdkDir",
+      "VCToolsInstallDir",
+      "UCRTVersion",
+      "WindowsSDKVersion",
+      "SDKROOT",
+      "DEVELOPER_DIR"
+    ]
+  },
+  "toolProbes": {
+    "common": [
+      [
+        "git",
+        "--version"
+      ],
+      [
+        "curl",
+        "--version"
+      ],
+      [
+        "tar",
+        "--version"
+      ]
+    ],
+    "posix": [
+      [
+        "python3",
+        "--version"
+      ],
+      [
+        "python",
+        "--version"
+      ],
+      [
+        "make",
+        "--version"
+      ],
+      [
+        "cc",
+        "--version"
+      ],
+      [
+        "c++",
+        "--version"
+      ],
+      [
+        "cmake",
+        "--version"
+      ],
+      [
+        "ninja",
+        "--version"
+      ],
+      [
+        "pkg-config",
+        "--version"
+      ],
+      [
+        "autoconf",
+        "--version"
+      ],
+      [
+        "automake",
+        "--version"
+      ],
+      [
+        "libtool",
+        "--version"
+      ],
+      [
+        "unzip",
+        "-v"
+      ]
+    ],
+    "win32": [
+      [
+        "python",
+        "--version"
+      ],
+      [
+        "py",
+        "-3",
+        "--version"
+      ],
+      [
+        "cl",
+        "/?"
+      ],
+      [
+        "msbuild",
+        "-version"
+      ],
+      [
+        "cmake",
+        "--version"
+      ],
+      [
+        "ninja",
+        "--version"
+      ]
+    ],
+    "darwin": [
+      [
+        "brew",
+        "list",
+        "--versions",
+        "make",
+        "automake",
+        "libtool"
+      ],
+      [
+        "brew",
+        "--prefix",
+        "make"
+      ],
+      [
+        "brew",
+        "--prefix",
+        "automake"
+      ],
+      [
+        "brew",
+        "--prefix",
+        "libtool"
+      ],
+      [
+        "aclocal",
+        "--version"
+      ],
+      [
+        "glibtool",
+        "--version"
+      ],
+      [
+        "glibtoolize",
+        "--version"
+      ]
+    ]
+  },
+  "hostPackages": {
+    "darwin": {
+      "manager": "brew",
+      "packages": [
+        "make",
+        "automake",
+        "libtool"
+      ],
+      "pathPrepend": [
+        {
+          "package": "make",
+          "relative": "libexec/gnubin"
+        }
+      ]
+    }
+  }
+}

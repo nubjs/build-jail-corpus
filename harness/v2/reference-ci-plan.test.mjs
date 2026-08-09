@@ -50,6 +50,7 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /reference-profile-host\.mjs --profile "\$REFERENCE_PROFILE_FILE"/);
   assert.match(workflow, /gnu-make-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-darwin\.json/);
   assert.match(workflow, /gnu-make-automake-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-automake-darwin\.json/);
+  assert.match(workflow, /gnu-make-automake-libtool-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-automake-libtool-darwin\.json/);
   assert.match(workflow, /--profile "\$REFERENCE_PROFILE_FILE"/);
   assert.match(workflow, /--profile "\$\{\{ needs\.plan\.outputs\.profile_file \}\}"/);
   assert.match(workflow, /actions\/download-artifact@v8/);

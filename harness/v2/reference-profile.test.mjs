@@ -92,6 +92,20 @@ test('the Automake follow-up profile adds only the newly evidenced build prerequ
   assert.match(probes, /brew list --versions make automake/);
 });
 
+test('the Libtool follow-up profile proves Homebrew GNU tool aliases', () => {
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-gnu-make-automake-libtool-darwin.json', import.meta.url),
+  );
+  assert.equal(profile.id, 'gnu-make-automake-libtool-darwin-v1');
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [
+    ['brew', 'install', 'make', 'automake', 'libtool'],
+  ]);
+  const probes = toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n');
+  assert.match(probes, /glibtool --version/);
+  assert.match(probes, /glibtoolize --version/);
+  assert.match(probes, /brew list --versions make automake libtool/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {
