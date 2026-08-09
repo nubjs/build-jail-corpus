@@ -37,7 +37,8 @@ export function firstErrorFrom(output, roots = {}) {
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
     if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
       || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
-    if (/GNU Make version is too old/i.test(line)) return 97;
+    if (/GNU Make version is too old/i.test(line)
+      || /^make(?:\[\d+\])?: \*\*\* \[[^\]]*verify-deps[^\]]*\] Error/i.test(line)) return 97;
     if (/\b(?:Cannot read file|Cannot find module|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|Status Code is 4\d\d)\b/i.test(line)) return 96;
     if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
     if (/^(?:<[^>]+>|\.{0,2}[/\\].*|[/\\].*):\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 94;
@@ -205,6 +206,11 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',
       'the build requires a newer GNU Make than the selected toolchain profile provides',
       ['tool=make', 'version=too-old']);
+  }
+  if (/make(?:\[\d+\])?: \*\*\* \[[^\]]*verify-deps[^\]]*\] Error/i.test(text)) {
+    return result('TOOLCHAIN_PREREQUISITE', 'signature',
+      'the build dependency verification target rejected the selected toolchain profile',
+      ['build-target=verify-deps']);
   }
   if (/Libtool library used but ['"]LIBTOOL['"] is undefined/i.test(text)) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature',

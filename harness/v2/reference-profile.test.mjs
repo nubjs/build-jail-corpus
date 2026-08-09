@@ -106,6 +106,32 @@ test('the Libtool follow-up profile proves Homebrew GNU tool aliases', () => {
   assert.match(probes, /brew list --versions make automake libtool/);
 });
 
+test('the Redis downstream-build profile activates LLVM without regenerating checked-in headers', () => {
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-redis-build-darwin.json', import.meta.url),
+  );
+  assert.equal(profile.id, 'redis-build-darwin-v1');
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [
+    ['brew', 'install', 'make', 'automake', 'libtool', 'llvm@21'],
+  ]);
+  assert.equal(profile.environment.set.REDISEARCH_GENERATE_HEADERS, '0');
+  assert.deepEqual(profile.hostPackages.darwin.pathPrepend, [
+    { package: 'make', relative: 'libexec/gnubin' },
+    { package: 'llvm@21', relative: 'bin' },
+  ]);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-redis-build-env-'));
+  const { env } = referenceEnvironment(root, profile, {
+    PATH: '/usr/bin', NODE_EXECUTABLE: '/runtime/node',
+  }, { platform: 'darwin', resolveHostPaths: () => ['/homebrew/make', '/homebrew/llvm'] });
+  assert.equal(env.REDISEARCH_GENERATE_HEADERS, '0');
+  assert.deepEqual(env.PATH.split(path.delimiter),
+    ['/runtime', '/homebrew/make', '/homebrew/llvm', '/usr/bin']);
+  const probes = toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n');
+  assert.match(probes, /brew list --versions make automake libtool llvm@21/);
+  assert.match(probes, /clang --version/);
+  assert.match(probes, /llvm-config --version/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {

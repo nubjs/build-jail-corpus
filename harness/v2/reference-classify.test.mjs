@@ -65,6 +65,7 @@ test('toolchain, transient, permanent and unknown failures stay mutually exclusi
     ['deps/readies/mk/main:6: *** GNU Make version is too old. Aborting.', 'TOOLCHAIN_PREREQUISITE'],
     ['./autogen.sh: line 18: aclocal: command not found', 'TOOLCHAIN_PREREQUISITE'],
     ["Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined", 'TOOLCHAIN_PREREQUISITE'],
+    ['make[2]: *** [Makefile:255: verify-deps] Error 1', 'TOOLCHAIN_PREREQUISITE'],
     ['npm ERR! code ECONNRESET', 'TRANSIENT_EXTERNAL_DOWNLOAD'],
     ['npm ERR! code ETARGET No matching version found', 'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['Error: surprising opaque failure', 'UNCLASSIFIED'],
@@ -138,6 +139,13 @@ autoreconf: error: automake failed with exit status: 1`);
   assert.equal(libtool.summary, "Makefile.am:161: error: Libtool library used but 'LIBTOOL' is undefined");
   assert.equal(classifyReference(record(arm('consistent-failure', libtool.summary),
     arm('consistent-failure', libtool.summary))).code, 'TOOLCHAIN_PREREQUISITE');
+
+  const dependencyCheck = firstErrorFrom(`failed to download/install Redis binaries
+make[2]: *** [Makefile:255: verify-deps] Error 1
+make: *** [Makefile:109: build] Error 1`);
+  assert.equal(dependencyCheck.summary, 'make[2]: *** [Makefile:255: verify-deps] Error 1');
+  assert.equal(classifyReference(record(arm('consistent-failure', dependencyCheck.summary),
+    arm('consistent-failure', dependencyCheck.summary))).code, 'TOOLCHAIN_PREREQUISITE');
 });
 
 test('current stratified failures resolve to durable remediation classes from causal excerpts', () => {
