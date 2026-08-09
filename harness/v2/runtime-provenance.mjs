@@ -62,14 +62,13 @@ export function probeTool(command, args = ['--version'], env = process.env) {
   const resolvedPath = commandPath(command, env);
   if (!resolvedPath) return null;
   const windowsScript = process.platform === 'win32' && /\.(?:cmd|bat)$/i.test(resolvedPath);
-  const executable = windowsScript ? (env.ComSpec ?? process.env.ComSpec ?? 'cmd.exe') : resolvedPath;
-  const executableArgs = windowsScript
-    ? ['/d', '/s', '/c', `"${[resolvedPath, ...args]
-      .map((value) => `"${String(value).replaceAll('"', '""')}"`).join(' ')}"`]
-    : args;
-  const result = spawnSync(executable, executableArgs, {
-    encoding: 'utf8', windowsHide: true, timeout: 30_000, env,
-  });
+  const options = { encoding: 'utf8', windowsHide: true, timeout: 30_000, env };
+  const result = windowsScript
+    ? spawnSync([resolvedPath, ...args]
+      .map((value) => `"${String(value).replaceAll('"', '""')}"`).join(' '), {
+      ...options, shell: env.ComSpec ?? process.env.ComSpec ?? 'cmd.exe',
+    })
+    : spawnSync(resolvedPath, args, options);
   if (result.error || result.status !== 0) return null;
   return {
     command: [command, ...args],
