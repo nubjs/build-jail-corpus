@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { endpointIdentity, probeNodeRuntime, probeTool } from './runtime-provenance.mjs';
+import { endpointIdentity, fileIdentity, probeNodeRuntime, probeTool } from './runtime-provenance.mjs';
 
 test('endpoint provenance distinguishes mirrors without retaining credentials or query secrets', () => {
   const endpoint = endpointIdentity('https://user:secret@mirror.example.test/node?token=private#fragment');
@@ -32,5 +32,8 @@ test('tool provenance resolves and executes through the supplied lifecycle PATH'
   const env = { ...process.env, PATH: [root, process.env.PATH].filter(Boolean).join(path.delimiter) };
   const result = probeTool(command, ['argument with spaces'], env);
   assert.equal(result.version, 'reference-profile-tool argument with spaces');
-  assert.equal(fs.realpathSync(result.path).toLowerCase(), fs.realpathSync(file).toLowerCase());
+  assert.deepEqual(result.executable, fileIdentity(result.path));
+  const expectedIdentity = fileIdentity(file);
+  assert.equal(result.executable.sha256, expectedIdentity.sha256);
+  assert.equal(result.executable.bytes, expectedIdentity.bytes);
 });
