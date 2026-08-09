@@ -161,7 +161,12 @@ const readBoundedFile = (file, size, limit) => {
   return output;
 };
 
-export function collectAuxiliaryLogs(sources, retainedRoot, recordRoot = retainedRoot) {
+export function collectAuxiliaryLogs(
+  sources,
+  retainedRoot,
+  recordRoot = retainedRoot,
+  redactionRoots = sources,
+) {
   const candidates = [];
   const seenFiles = new Set();
   let scannedEntries = 0;
@@ -174,7 +179,9 @@ export function collectAuxiliaryLogs(sources, retainedRoot, recordRoot = retaine
       scannedEntries += 1;
       if (scannedEntries > MAX_AUXILIARY_SCAN_ENTRIES) { scanTruncated = true; return; }
       const file = path.join(dir, entry.name);
-      if (entry.isDirectory()) visit(label, root, file);
+      if (entry.isDirectory() && !(label === 'package' && entry.name === 'node_modules')) {
+        visit(label, root, file);
+      }
       else if (entry.isFile() && AUXILIARY_LOG_NAME.test(entry.name)) {
         let real; let stat;
         try { real = fs.realpathSync(file); stat = fs.statSync(real); } catch { continue; }
@@ -193,7 +200,11 @@ export function collectAuxiliaryLogs(sources, retainedRoot, recordRoot = retaine
       if (scanTruncated) return;
     }
   };
-  for (const [label, root] of Object.entries(sources)) if (root) visit(label, root, root);
+  for (const [label, root] of Object.entries(sources)
+    .sort((a, b) => (AUXILIARY_SOURCE_PRIORITY.get(a[0]) ?? 99)
+      - (AUXILIARY_SOURCE_PRIORITY.get(b[0]) ?? 99))) {
+    if (root) visit(label, root, root);
+  }
 
   let remaining = MAX_AUXILIARY_BYTES;
   const files = [];
@@ -220,7 +231,7 @@ export function collectAuxiliaryLogs(sources, retainedRoot, recordRoot = retaine
         retainedBytes: bytes.length,
         truncated: bytes.length < candidate.size,
         sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
-        error: firstErrorFrom(bytes.toString(), sources),
+        error: firstErrorFrom(bytes.toString(), redactionRoots),
       });
     } catch (error) {
       captureFailures.push({
@@ -391,15 +402,24 @@ export async function runManagerAttempt({
       const auxiliaryLogs = collectAuxiliaryLogs({
         home: roots.home,
         temp: roots.temp,
-        cache: roots.cache,
         package: fs.existsSync(packageRoot) ? fs.realpathSync(packageRoot) : null,
+        cache: roots.cache,
         npmCache: roots.npmCache,
-      }, retainedRoot, recordRoot);
+      }, retainedRoot, recordRoot, {
+        project,
+        attempt: attemptRoot,
+        hostHome: process.env.HOME,
+        ...roots,
+      });
       if (auxiliaryLogs.candidateCount || auxiliaryLogs.scanTruncated) {
         value.auxiliaryLogs = auxiliaryLogs;
-        const fingerprints = [value.fingerprint,
-          ...auxiliaryLogs.files.map((file) => file.error?.fingerprint)].filter(Boolean).sort();
-        value.fingerprint = crypto.createHash('sha256').update(fingerprints.join('\n')).digest('hex');
+        const auxiliaryFingerprints = auxiliaryLogs.files
+          .filter((file) => file.sourceRoot !== 'npmCache')
+          .map((file) => file.error?.fingerprint).filter(Boolean);
+        if (auxiliaryFingerprints.length) {
+          const fingerprints = [value.fingerprint, ...auxiliaryFingerprints].filter(Boolean).sort();
+          value.fingerprint = crypto.createHash('sha256').update(fingerprints.join('\n')).digest('hex');
+        }
       }
     }
     return value;

@@ -35,6 +35,7 @@ export function firstErrorFrom(output, roots = {}) {
     if (/\bwarning:/i.test(line)) return 0;
     if (/\b(?:TypeError|RangeError|ReferenceError|SyntaxError):\s+/i.test(line)
       || /^Error: Cannot (?:find module|read file)/i.test(line)) return 100;
+    if (/^(?:(?:clang|swiftc|xcodebuild): (?:fatal )?error:|error: (?:SWIFT_VERSION|Could not delete))\s+/i.test(line)) return 99;
     if (/\b(?:error TS\d+|fatal error:|MODULE_NOT_FOUND|Missing parentheses in call to ['"]print['"])/i.test(line)
       || /\(\d+(?:,\d+)?\):\s+(?:fatal )?error\s+[A-Z]+\d*:/i.test(line)) return 98;
     if (/THIS PACKAGE WAS RENAMED/i.test(line)) return 98;
@@ -88,7 +89,8 @@ const listAllows = (value, list) => {
 };
 
 const allFailureText = (record) => Object.values(record.arms ?? {}).flatMap((arm) => arm.attempts ?? [])
-  .flatMap((attempt) => [...Object.values(attempt.stages ?? {}), ...(attempt.auxiliaryLogs?.files ?? [])])
+  .flatMap((attempt) => [...Object.values(attempt.stages ?? {}),
+    ...(attempt.auxiliaryLogs?.files ?? []).filter((file) => file.sourceRoot !== 'npmCache')])
   .flatMap((source) => [source?.error?.summary, ...(source?.error?.excerpts ?? [])])
   .filter(Boolean).join('\n');
 
@@ -249,7 +251,12 @@ export function classifyReference(record) {
       'the published lifecycle script expects source-tree configuration that is absent from the package tarball',
       ['published source/configuration missing']);
   }
-  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|size of array element is not a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+  if (/SWIFT_VERSION ['"]?3\.0['"]? is unsupported|SDK does not contain ['"]libarclite['"]|Could not delete .+ because it was not created by the build system/i.test(text)) {
+    return result('OBSOLETE_XCODE_ASSUMPTION', 'signature',
+      'the published Apple build requires behavior removed from the supported Xcode toolchain',
+      ['tool=xcode', 'package-build=obsolete']);
+  }
+  if (/NODE_MODULE_VERSION|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
   }

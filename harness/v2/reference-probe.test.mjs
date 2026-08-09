@@ -119,6 +119,13 @@ test('failed lifecycle diagnostics written to private log files are retained as 
   assert.equal(failedCapture.files.length, 0);
   assert.equal(failedCapture.retentionTruncated, true);
   assert.equal(failedCapture.captureFailures[0].errorCode, 'ENOTDIR');
+
+  const packageRoot = path.join(root, 'package');
+  fs.mkdirSync(path.join(packageRoot, 'node_modules', 'dependency'), { recursive: true });
+  fs.writeFileSync(path.join(packageRoot, 'node_modules', 'dependency', 'hidden.log'), 'not package-owned\n');
+  const packageCapture = collectAuxiliaryLogs({ package: packageRoot }, path.join(root, 'package-retained'));
+  assert.equal(packageCapture.candidateCount, 0, 'target scanning must not descend into its dependency tree');
+  assert.equal(packageCapture.scanTruncated, false);
 });
 
 test('lifecycle evidence is manager-specific and counts actual spawn markers', () => {

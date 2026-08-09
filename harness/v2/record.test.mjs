@@ -500,22 +500,32 @@ test('⭑ a record with NO --corpus-sha still names the harness that produced it
 // asserts something false and nothing downstream can catch it. Observed on `nub-corpus-linux`,
 // HEAD `e546d433` while its harness was `04ed4365`.
 test('⭑ the derived sha is null when the harness does NOT match HEAD, rather than naming HEAD', () => {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  // Simulate the pathspec-checkout state: harness content differs from HEAD.
-  const probe = path.join(here, '__sha_probe__.tmp');
-  fs.writeFileSync(probe, '// transient probe file to make harness/ differ from HEAD\n');
-  try {
-    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sha-dirty-'));
-    const log = path.join(d, 'log.txt');
-    fs.writeFileSync(log, '  => NO-STATE-PASSED even at write:disk\n');
-    const out = execFileSync(process.execPath, [path.join(here, 'record.mjs'),
-      '--log', log, '--pkg', 'demo', '--version', '1.0.0', '--out', path.join(d, 'r'),
-      '--platform', 'linux-x64', '--driver', 'measure.sh', '--rc', '0', '--duration-ms', '1'],
-      { encoding: 'utf8' }).trim().split('\n').pop();
-    const rec = JSON.parse(fs.readFileSync(path.join(out, 'results.json'), 'utf8'));
-    assert.equal(rec.provenance.corpusGitSha, null,
-      'with harness/ differing from HEAD the sha must be null, never a stale HEAD');
-  } finally {
-    fs.rmSync(probe, { force: true });
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sha-dirty-'));
+  const repo = path.join(d, 'repo');
+  fs.mkdirSync(repo, { recursive: true });
+  // Use an isolated current-source fixture. A transient file in the real harness raced every other
+  // test process computing the instrument digest and intermittently invalidated the whole CI gate.
+  for (const input of loadInstrumentConfig().inputs) {
+    const source = path.join(REPO_ROOT, input);
+    const destination = path.join(repo, input);
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.cpSync(source, destination, { recursive: true });
   }
+  execFileSync('git', ['-C', repo, 'init', '--quiet']);
+  execFileSync('git', ['-C', repo, 'add', '--all']);
+  execFileSync('git', ['-C', repo, '-c', 'user.name=Corpus test',
+    '-c', 'user.email=corpus@example.invalid', 'commit', '--quiet', '-m', 'fixture']);
+  fs.writeFileSync(path.join(repo, 'harness', 'v2', '__sha_probe__.tmp'),
+    '// transient probe file to make harness/ differ from HEAD\n');
+
+  const log = path.join(d, 'log.txt');
+  fs.writeFileSync(log, '  => NO-STATE-PASSED even at write:disk\n');
+  const tool = fs.realpathSync(path.join(repo, 'harness', 'v2', 'record.mjs'));
+  const out = execFileSync(process.execPath, [tool,
+    '--log', log, '--pkg', 'demo', '--version', '1.0.0', '--out', path.join(d, 'r'),
+    '--platform', 'linux-x64', '--driver', 'measure.sh', '--rc', '0', '--duration-ms', '1'],
+    { encoding: 'utf8' }).trim().split('\n').pop();
+  const rec = JSON.parse(fs.readFileSync(path.join(out, 'results.json'), 'utf8'));
+  assert.equal(rec.provenance.corpusGitSha, null,
+    'with harness/ differing from HEAD the sha must be null, never a stale HEAD');
 });

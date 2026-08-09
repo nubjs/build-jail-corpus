@@ -198,6 +198,14 @@ test('current stratified failures resolve to durable remediation classes from ca
     ['Error: spawn runhaskell ENOENT', {}, 'UNDECLARED_EXTERNAL_TOOL_REQUIRED'],
     ['Error: unsupported target win32-x64', {}, 'OS_CPU_MISMATCH'],
     ['Error: Failed to find Electron v8.0.0 for darwin-arm64', {}, 'OS_CPU_MISMATCH'],
+    ["error: SWIFT_VERSION '3.0' is unsupported, supported versions are: 4.0, 5.0, 6.0.", {},
+      'OBSOLETE_XCODE_ASSUMPTION'],
+    ["clang: error: SDK does not contain 'libarclite'; try increasing the minimum deployment target", {},
+      'OBSOLETE_XCODE_ASSUMPTION'],
+    ["error: Could not delete '/tmp/build' because it was not created by the build system.", {},
+      'OBSOLETE_XCODE_ASSUMPTION'],
+    ["source.c:398:20: error: size of array element isn't a multiple of its alignment", {},
+      'OBSOLETE_NATIVE_ASSUMPTION'],
     ['Error: The git reference could not be found\nerror: pathspec 4.0 did not match', {},
       'PACKAGE_BROKEN_OR_UNAVAILABLE'],
     ['TypeError: DOMParser.parseFromString: the provided mimeType undefined is not valid.', {},
@@ -245,6 +253,15 @@ test('classifier evidence includes bounded auxiliary logs written outside proces
     ) }] };
   }
   assert.equal(classifyReference(both).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+
+  const cacheOnly = record(arm('consistent-failure', 'Error: opaque lifecycle wrapper'),
+    arm('consistent-failure', 'Error: opaque lifecycle wrapper'));
+  for (const attempt of [cacheOnly.arms.nubUnjailed.attempts[0], cacheOnly.arms.npmUnjailed.attempts[0]]) {
+    attempt.auxiliaryLogs = { files: [{ sourceRoot: 'npmCache', error: firstErrorFrom(
+      'npm error code E404\nnpm error package not found',
+    ) }] };
+  }
+  assert.equal(classifyReference(cacheOnly).code, 'UNCLASSIFIED');
 });
 
 test('compiler errors outrank warnings and classify native ABI incompatibility', () => {
