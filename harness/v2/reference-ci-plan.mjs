@@ -26,18 +26,20 @@ export function planReferenceCells(matrix, {
     : matrix.versions.filter((entry) => entry.version === node);
   if (!selected.length) throw new Error(`unknown reference Node version ${node}`);
   shards = Number(shards);
-  if (![1, 2, 4, 8].includes(shards)) throw new Error(`reference shards must be one of 1, 2, 4, or 8`);
-  return {
-    include: operatingSystems.flatMap((name) => selected.flatMap((entry) =>
-      Array.from({ length: shards }, (_, shard) => ({
-        os: name,
-        runner: runners[name],
-        node: entry.version,
-        npm: entry.npm,
-        shard,
-        shards,
-      })))),
-  };
+  if (![1, 2, 4, 8, 16].includes(shards)) throw new Error(`reference shards must be one of 1, 2, 4, 8, or 16`);
+  const include = operatingSystems.flatMap((name) => selected.flatMap((entry) =>
+    Array.from({ length: shards }, (_, shard) => ({
+      os: name,
+      runner: runners[name],
+      node: entry.version,
+      npm: entry.npm,
+      shard,
+      shards,
+    }))));
+  if (include.length > 256) {
+    throw new Error(`reference plan has ${include.length} jobs, exceeding the GitHub matrix limit of 256`);
+  }
+  return { include };
 }
 
 const parseArgs = (argv) => {

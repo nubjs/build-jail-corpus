@@ -21,9 +21,9 @@ on:
         type: string
         default: "25"
       shards:
-        description: deterministic shards per OS/Node cell (8 makes a full 216-job matrix)
+        description: deterministic shards per OS/Node cell (16 is for bounded selected-cell runs)
         type: choice
-        options: [1, 2, 4, 8]
+        options: [1, 2, 4, 8, 16]
         default: 1
       prior_bucket:
         description: old failure bucket to select

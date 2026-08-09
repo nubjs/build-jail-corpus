@@ -38,6 +38,15 @@ test('eight shards keep a complete all-platform matrix under the GitHub job limi
   assert.equal(new Set(plan.include.map((cell) => `${cell.os}/${cell.node}/${cell.shard}`)).size, 216);
 });
 
+test('sixteen shards are available for a selected cell but cannot overflow the full matrix', () => {
+  const { matrix } = loadNodeMatrix();
+  const plan = planReferenceCells(matrix, { os: 'windows', node: '22.23.2', shards: 16 });
+  assert.equal(plan.include.length, 16);
+  assert.equal(new Set(plan.include.map((cell) => cell.shard)).size, 16);
+  assert.throws(() => planReferenceCells(matrix, { os: 'all', node: 'all', shards: 16 }),
+    /exceeding the GitHub matrix limit of 256/);
+});
+
 test('the workflow separates the fixed harness runtime from the exact package runtime', () => {
   const { matrix } = loadNodeMatrix();
   const workflow = fs.readFileSync(new URL('../../.github/workflows/reference-accounting.yml', import.meta.url), 'utf8');
