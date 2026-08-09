@@ -42,7 +42,7 @@ on:
       reference_profile:
         description: versioned project and host-tool profile
         type: choice
-        options: [developer-v1, native-graphics-posix-v1]
+        options: [developer-v1, native-graphics-posix-v1, gnu-make-darwin-v1]
         default: developer-v1
       deadline_minutes:
         description: stop each cell cleanly by this deadline and preserve partial evidence
@@ -114,6 +114,7 @@ jobs:
           case "$REFERENCE_PROFILE" in
             developer-v1) PROFILE_FILE=harness/v2/reference-profile.json ;;
             native-graphics-posix-v1) PROFILE_FILE=harness/v2/reference-profile-native-graphics.json ;;
+            gnu-make-darwin-v1) PROFILE_FILE=harness/v2/reference-profile-gnu-make-darwin.json ;;
             *) echo "unknown reference profile '$REFERENCE_PROFILE'" >&2; exit 2 ;;
           esac
           node harness/v2/reference-ci-plan.mjs --os "$CELL_OS" \

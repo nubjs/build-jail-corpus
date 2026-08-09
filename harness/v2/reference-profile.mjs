@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -34,11 +35,18 @@ export function validateReferenceProfile(profile) {
     throw new Error('reference profile hostPackages must be an object');
   }
   for (const [platform, provision] of Object.entries(hostPackages)) {
+    const pathPrepend = provision?.pathPrepend ?? [];
     if (!supportedPlatforms.includes(platform) || HOST_PACKAGE_MANAGERS[platform] !== provision?.manager
       || !Array.isArray(provision?.packages) || provision.packages.length === 0
       || new Set(provision.packages).size !== provision.packages.length
       || provision.packages.some((pkg) => typeof pkg !== 'string'
-        || !/^[A-Za-z0-9][A-Za-z0-9+._@/-]*$/.test(pkg))) {
+        || !/^[A-Za-z0-9][A-Za-z0-9+._@/-]*$/.test(pkg))
+      || !Array.isArray(pathPrepend)
+      || (pathPrepend.length > 0 && provision.manager !== 'brew')
+      || new Set(pathPrepend.map((entry) => JSON.stringify(entry))).size !== pathPrepend.length
+      || pathPrepend.some((entry) => !entry || typeof entry !== 'object' || Array.isArray(entry)
+        || Object.keys(entry).sort().join(',') !== 'package,relative'
+        || !provision.packages.includes(entry.package) || !safeRelative(entry.relative))) {
       throw new Error(`reference profile has invalid host packages for ${platform}`);
     }
   }
@@ -125,6 +133,31 @@ export function referenceHostCommands(profile, platform = process.platform) {
   throw new Error(`reference profile ${profile.id} uses unsupported host package manager ${provision.manager}`);
 }
 
+export function referenceHostPathEntries(profile, platform = process.platform, execute = spawnSync) {
+  assertReferenceProfilePlatform(profile, platform);
+  const provision = profile.hostPackages?.[platform];
+  const entries = provision?.pathPrepend ?? [];
+  return entries.map((entry) => {
+    const result = execute('brew', ['--prefix', entry.package], {
+      encoding: 'utf8', maxBuffer: 1024 * 1024,
+    });
+    const lines = String(result.stdout ?? '').trim().split(/\r?\n/).filter(Boolean);
+    if (result.error || result.status !== 0 || lines.length !== 1 || !path.isAbsolute(lines[0])) {
+      throw new Error(`reference profile cannot resolve brew prefix for ${entry.package}: `
+        + `${result.error?.message ?? (String(result.stderr ?? '').trim() || `exit ${result.status}`)}`);
+    }
+    const candidate = path.join(lines[0], entry.relative);
+    let resolved;
+    try { resolved = fs.realpathSync(candidate); } catch (error) {
+      throw new Error(`reference profile host PATH entry is absent: ${candidate} (${error.message})`);
+    }
+    if (!fs.statSync(resolved).isDirectory()) {
+      throw new Error(`reference profile host PATH entry is not a directory: ${resolved}`);
+    }
+    return resolved;
+  });
+}
+
 export function writeReferenceProject(root, { profile, pkg, version, arm, buildJail, manager }) {
   validateReferenceProfile(profile);
   fs.mkdirSync(root, { recursive: true });
@@ -153,12 +186,17 @@ export function writeReferenceProject(root, { profile, pkg, version, arm, buildJ
   return packageJson;
 }
 
-export function referenceEnvironment(root, profile, base = process.env) {
+export function referenceEnvironment(root, profile, base = process.env, {
+  platform = process.platform,
+  resolveHostPaths = referenceHostPathEntries,
+} = {}) {
   validateReferenceProfile(profile);
   const env = Object.fromEntries((profile.environment?.inherit ?? [])
     .filter((key) => base[key] != null).map((key) => [key, base[key]]));
   for (const key of profile.environment?.unset ?? []) delete env[key];
   Object.assign(env, profile.environment?.set ?? {});
+  const hostPaths = resolveHostPaths(profile, platform);
+  env.PATH = [...hostPaths, env.PATH].filter(Boolean).join(path.delimiter);
   if (env.NODE_EXECUTABLE) {
     env.PATH = [path.dirname(env.NODE_EXECUTABLE), env.PATH].filter(Boolean).join(path.delimiter);
   }

@@ -8,6 +8,7 @@ import {
   loadReferenceProfile,
   referenceEnvironment,
   referenceHostCommands,
+  referenceHostPathEntries,
   referenceProfileIdentity,
   targetManifest,
   toolProbesForPlatform,
@@ -45,6 +46,39 @@ test('the native graphics profile binds its POSIX packages and exact library pro
     /brew list --versions .*jpeg-turbo/);
   assert.throws(() => referenceHostCommands(profile, 'win32'), /does not support win32/);
   assert.equal(referenceProfileIdentity(profile).sha256.length, 64);
+});
+
+test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-gnu-make-darwin.json', import.meta.url));
+  assert.equal(profile.id, 'gnu-make-darwin-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['darwin']);
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [['brew', 'install', 'make']]);
+
+  const prefix = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-make-prefix-'));
+  const gnubin = path.join(prefix, 'libexec', 'gnubin');
+  fs.mkdirSync(gnubin, { recursive: true });
+  const calls = [];
+  assert.deepEqual(referenceHostPathEntries(profile, 'darwin', (command, args) => {
+    calls.push([command, ...args]);
+    return { status: 0, error: null, stdout: `${prefix}\n`, stderr: '' };
+  }), [fs.realpathSync(gnubin)]);
+  assert.deepEqual(calls, [['brew', '--prefix', 'make']]);
+  assert.throws(() => referenceHostPathEntries(profile, 'darwin', () => ({
+    status: 1, error: null, stdout: '', stderr: 'unknown formula',
+  })), /cannot resolve brew prefix for make: unknown formula/);
+
+  const absentPrefix = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-make-absent-'));
+  assert.throws(() => referenceHostPathEntries(profile, 'darwin', () => ({
+    status: 0, error: null, stdout: `${absentPrefix}\n`, stderr: '',
+  })), /host PATH entry is absent/);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-gnu-make-env-'));
+  const { env } = referenceEnvironment(root, profile, {
+    PATH: '/usr/bin', NODE_EXECUTABLE: '/runtime/node',
+  }, { platform: 'darwin', resolveHostPaths: () => [gnubin] });
+  assert.deepEqual(env.PATH.split(path.delimiter), ['/runtime', gnubin, '/usr/bin']);
+  assert.match(toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n'),
+    /brew list --versions make/);
 });
 
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
@@ -117,6 +151,9 @@ test('host package declarations reject shell arguments, manager drift and undecl
     { linux: { manager: 'brew', packages: ['libexample'] } },
     { linux: { manager: 'apt', packages: ['--option'] } },
     { solaris: { manager: 'apt', packages: ['libexample'] } },
+    { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'other', relative: 'bin' }] } },
+    { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: '../bin' }] } },
+    { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: 'bin', extra: true }] } },
   ]) {
     assert.throws(() => validateReferenceProfile({ ...base, hostPackages }), /invalid host packages/);
   }
