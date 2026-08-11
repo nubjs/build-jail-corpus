@@ -9,6 +9,7 @@ import {
   lifecycleEvidence,
   quorumForAttempts,
   referenceEvidenceSha,
+  removeReferenceTree,
   resolveNpmInvocation,
   runManagerAttempt,
   runProcess,
@@ -32,6 +33,45 @@ test('npm is launched through the CLI bundled with the exact target Node', () =>
   assert.deepEqual(resolveNpmInvocation(targetNode), {
     command: targetNode, prefixArgs: [npmCli], cliPath: npmCli,
   });
+});
+
+test('reference tree cleanup requests bounded retries and distinguishes required from disposable trees', () => {
+  const calls = [];
+  const warnings = [];
+  const error = Object.assign(new Error('directory not empty'), { code: 'ENOTEMPTY' });
+  const removed = removeReferenceTree('/scratch/reference', {
+    remove(target, options) { calls.push({ target, options }); throw error; },
+    warn(message) { warnings.push(message); },
+  });
+  assert.equal(removed, false);
+  assert.deepEqual(calls, [{
+    target: '/scratch/reference',
+    options: { recursive: true, force: true, maxRetries: 10, retryDelay: 200 },
+  }]);
+  assert.match(warnings[0], /ENOTEMPTY.*leaving it for runner cleanup/);
+  assert.throws(() => removeReferenceTree('/required/pre-clean', {
+    mustSucceed: true,
+    remove() { throw error; },
+  }), { code: 'ENOTEMPTY' });
+});
+
+test('a disposable scratch cleanup failure cannot discard a persisted reference record', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-cleanup-failure-'));
+  const cleaned = [];
+  const record = await runReferenceProbe({
+    pkg: 'example', version: '1.0.0', nub: '/fake/nub', outRoot: root,
+    profile: loadReferenceProfile(),
+    staticProvenance: {
+      instrument: { harnessEpoch: 3, harnessSha256: 'test' },
+      runtime: { node: { version: process.version }, os: { platform: process.platform, arch: process.arch } },
+      toolchain: {}, nub: null, npm: null,
+    },
+    directScreen: () => { throw new Error('synthetic screen failure'); },
+    cleanupTree(target) { cleaned.push(target); return false; },
+  });
+  assert.equal(record.classification.code, 'HARNESS_INTERNAL');
+  assert.equal(cleaned.length, 1);
+  assert.ok(fs.existsSync(path.join(root, 'reference.json')));
 });
 
 test('retry quorum distinguishes stable, unstable and recovered reference outcomes', () => {

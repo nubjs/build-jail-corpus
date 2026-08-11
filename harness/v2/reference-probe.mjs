@@ -31,6 +31,21 @@ import {
 const MAX_CAPTURE = 2 * 1024 * 1024;
 const CAPTURE_HEAD = 256 * 1024;
 
+export function removeReferenceTree(target, {
+  mustSucceed = false,
+  remove = fs.rmSync,
+  warn = console.error,
+} = {}) {
+  try {
+    remove(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    return true;
+  } catch (error) {
+    if (mustSucceed) throw error;
+    warn(`warning: could not remove reference scratch tree ${target} (${error.code ?? error.message}); leaving it for runner cleanup`);
+    return false;
+  }
+}
+
 export function resolveNpmInvocation(targetNode, npm = 'npm') {
   if (npm !== 'npm') return { command: npm, prefixArgs: [], cliPath: null };
   const nodeDir = path.dirname(targetNode);
@@ -411,7 +426,7 @@ export async function runManagerAttempt({
   const attemptRoot = path.join(workRoot, 'attempts', `${manager}-${attempt}`);
   const retainedRoot = path.join(recordRoot, 'attempts', `${manager}-${attempt}`);
   const project = path.join(attemptRoot, 'project');
-  fs.rmSync(retainedRoot, { recursive: true, force: true });
+  removeReferenceTree(retainedRoot, { mustSucceed: true });
   writeReferenceProject(project, {
     profile, pkg, version, arm: `${manager}-${attempt}`, buildJail: false, manager,
   });
@@ -534,7 +549,7 @@ export async function runManagerAttempt({
     return finish({ manager, attempt, outcome: 'invalid-tree', fingerprint: stages.target.error.fingerprint,
       stages, roots, packageMetadata, lifecyclePackages, security });
   }
-  fs.rmSync(path.join(project, 'node_modules'), { recursive: true, force: true });
+  removeReferenceTree(path.join(project, 'node_modules'), { mustSucceed: true });
 
   const installArgs = manager === 'npm'
     ? ['install', '--no-audit', '--no-fund', '--foreground-scripts'] : ['install'];
@@ -603,7 +618,7 @@ export const collectReferenceProvenance = (
       npm: probeNpm(targetNode, npm),
     };
   } finally {
-    fs.rmSync(provenanceRoot, { recursive: true, force: true });
+    removeReferenceTree(provenanceRoot);
   }
 };
 
@@ -620,6 +635,7 @@ export async function runReferenceProbe({
   securityCacheDir = path.join(outRoot, 'osv-cache'),
   directScreen = ({ spec, cacheDir, out }) => screenSpecs({ specs: [spec], kind: 'direct', cacheDir, out }),
   screenTree = realScreenTree,
+  cleanupTree = removeReferenceTree,
 }) {
   if (!pkg || !version || !nub || !outRoot) throw new Error('pkg, version, nub and outRoot are required');
   fs.mkdirSync(outRoot, { recursive: true });
@@ -630,7 +646,7 @@ export async function runReferenceProbe({
     stripCapturedOutput(record);
     record.provenance.evidenceSha256 = referenceEvidenceSha(record);
     fs.writeFileSync(path.join(outRoot, 'reference.json'), `${JSON.stringify(record, null, 2)}\n`);
-    if (ownedWorkRoot) fs.rmSync(scratchRoot, { recursive: true, force: true });
+    if (ownedWorkRoot) cleanupTree(scratchRoot);
     return record;
   };
   const captured = staticProvenance ?? collectReferenceProvenance(profile, nub, npm, nubGitSha, targetNode);
