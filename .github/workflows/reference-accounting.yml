@@ -51,7 +51,7 @@ on:
       nub_sha:
         description: nubjs/nub commit or ref to build as the subject
         type: string
-        default: sandbox/integration
+        default: main
 
 concurrency:
   group: reference-accounting-${{ github.run_id }}
@@ -163,7 +163,7 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
-          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+          key: nub-reference-subject-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
       - name: Build the exact Nub subject once per OS
         if: steps.nubbin.outputs.cache-matched-key == ''
         shell: bash
@@ -172,7 +172,7 @@ jobs:
           git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
           cd /tmp/nubsrc
           git checkout --detach "$NUB_GIT_SHA"
-          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          cargo build -p nub-cli --profile fast
           mkdir -p /tmp/nub/target/release
           cp "target/fast/nub${{ matrix.os == 'windows' && '.exe' || '' }}" \
              "/tmp/nub/target/release/nub${{ matrix.os == 'windows' && '.exe' || '' }}"
@@ -184,7 +184,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
-          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+          key: nub-reference-subject-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
 
   test:
     needs: plan
@@ -289,7 +289,7 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: ${{ env.NUB_SUBJECT_CACHE_PATH }}
-          key: nub-subject-v2-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
+          key: nub-reference-subject-v1-${{ env.OS_NAME }}-${{ env.NUB_GIT_SHA }}
       - name: Refuse measurement without the prepared subject
         if: steps.nubbin.outputs.cache-matched-key == ''
         shell: bash

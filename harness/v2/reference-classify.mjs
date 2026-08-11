@@ -53,6 +53,7 @@ export function firstErrorFrom(output, roots = {}) {
       || /^make(?:\[\d+\])?: \*\*\* \[[^\]]*verify-deps[^\]]*\] Error/i.test(line)) return 97;
     if (/Could not find any Visual Studio|gyp ERR! find VS/i.test(line)) return 97;
     if (/\b(?:Cannot read file|Cannot find module|Cannot find .+ folder|Package ['"].+['"].*not found|No rule to make target|command not found|not found: command|No such file|Permission denied|can't cd to|Local modules not found|Status Code is 4\d\d|libtool is required|must be installed with Yarn|incorrect header check)\b/i.test(line)
+      || /^The system cannot find the path specified\.?$/i.test(line)
       || /^tsc: The TypeScript Compiler\b/i.test(line)) return 96;
     if (/^[A-Za-z0-9_.@+-]+(?:[/\\][^:\r\n]+)*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
     if (/^(?:<[^>]+>|\.{0,2}[/\\]|[/\\]).*:\d+(?::\d+)?:\s+(?:fatal )?error:/i.test(line)) return 98;
@@ -289,6 +290,8 @@ export function classifyReference(record) {
   }
   const lifecycleScripts = Object.values(metadata.scripts ?? {}).filter((value) => typeof value === 'string').join('\n');
   if (/Cannot read file .*node_modules.*(?:tsconfig|lerna|rush|angular)\.json|error TS\d+: Cannot read file .*node_modules|No rule to make target .*node_modules.*(?:src|source)|No rule to make target .*[/\\](?:src|source)[/\\]|No rule to make target ['"`]clean_closure|Cannot open source file:.*(?:^|[/\\])(?:src|source)[/\\]|fatal error: ['"]config\.h['"] file not found|cannot find input file: [`'"]Doxyfile\.in|Patch file found for package .+ which is not present at node_modules|File:\s+.*node_modules.*(?:\.gyp|config\.h)\s+not found|ENOENT.*(?:node_modules.*)?(?:package-lock\.json|postinstall\.sh)|postinstall\.sh: not found|(?:^|\n).*cd:.*can't cd to|(?:^|\n).*(?:cd:|cp: cannot stat).*No such file|(?:^|\n).*(?:bash|sh): .*scripts[/\\][^\r\n]+: No such file|cp: node_modules[/\\][^\r\n]+: No such file/im.test(text)
+    || (platform === 'win32' && /The system cannot find the path specified/i.test(text)
+      && /(?:^|\n)>\s*cd\s+[^\r\n]+?\s*&&/im.test(text))
     || ((/\btsc(?:\s|$)/m.test(lifecycleScripts) || (metadata.devDependencies ?? []).includes('typescript'))
       && /(?:aka\.ms\/tsc|^tsc: The TypeScript Compiler\b)/im.test(text))) {
     return result('PUBLISHED_SOURCE_PREREQUISITE', 'signature',
@@ -355,14 +358,21 @@ export function classifyReference(record) {
       'the published build lifecycle requires local modules declared only as development dependencies',
       ['local build modules missing']);
   }
-  const missingCommandRaw = text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
+  const missingBinCommand = text.match(/(?:^|[/\\])\.bin[/\\]([@A-Za-z0-9_.-]+)(?::|\s).*(?:not found|No such file)\b/im)?.[1];
+  const missingCommandRaw = missingBinCommand
+    ?? text.match(/(?:^|\n)(?:(?:\/bin\/)?sh: (?:(?:line )?\d+: )?)?([@A-Za-z0-9_.-]+): (?:command )?not found\b/im)?.[1]
     ?? text.match(/\bspawn ([A-Za-z0-9_.-]+) ENOENT\b/i)?.[1]
     ?? text.match(/(?:^|\n)['"]?([@A-Za-z0-9_.-]+)['"]? is not recognized as an internal or external command\b/im)?.[1]
-    ?? text.match(/(?:^|[/\\])\.bin[/\\]([@A-Za-z0-9_.-]+)(?::|\s).*(?:not found|No such file)\b/im)?.[1]
     ?? text.match(/node_modules[/\\]([@A-Za-z0-9_.-]+)[/\\][^\r\n:]+: (?:not found|No such file)\b/im)?.[1]
     ?? text.match(/\bCommand ['"]([@A-Za-z0-9_.-]+)['"] not found\b/i)?.[1]
     ?? text.match(/Unable to find local ([A-Za-z0-9_.-]+)/i)?.[1];
   const missingCommand = missingCommandRaw?.replace(/\.+$/, '');
+  if (platform === 'win32' && missingBinCommand
+    && (metadata.dependencies ?? []).includes(missingCommand)) {
+    return result('PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'metadata',
+      'the published Windows lifecycle invokes a dependency through a POSIX-only .bin path',
+      [`missingCommand=${missingCommand}`, `dependency=${missingCommand}`, 'platform=win32']);
+  }
   if (missingCommand && (metadata.devDependencies ?? []).includes(missingCommand)) {
     return result('PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY', 'metadata',
       'the published lifecycle script invokes a tool declared only as a development dependency',

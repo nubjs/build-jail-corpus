@@ -75,7 +75,11 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.equal([...workflow.matchAll(/harness\/run-tests\.mjs/g)].length, 1);
   assert.match(workflow, /Run the complete harness test suite once per OS/);
   assert.match(workflow, /Nub subject cache was not populated by the build job/);
-  assert.match(workflow, /key: nub-subject-v2-/);
+  assert.match(workflow, /default: main/);
+  assert.match(workflow, /cargo build -p nub-cli --profile fast/);
+  assert.doesNotMatch(workflow, /cargo build[^\n]*build-jail-catalog-override/);
+  assert.match(workflow, /key: nub-reference-subject-v1-/);
+  assert.doesNotMatch(workflow, /key: nub-subject-v2-/);
   assert.doesNotMatch(workflow, /key: nub-bin-v1-/);
   assert.match(workflow, /path: \$\{\{ env\.NUB_SUBJECT_CACHE_PATH \}\}/);
   assert.doesNotMatch(workflow, /NUB_BIN_CACHE_PATH/);

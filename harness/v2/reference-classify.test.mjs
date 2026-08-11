@@ -336,6 +336,32 @@ test('published lifecycle mistakes are separated from missing host tools', () =>
   windows.provenance.runtime.os.platform = 'win32';
   assert.equal(classifyReference(windows).code, 'PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION');
 
+  const missingPublishedDirectory = record(
+    arm('consistent-failure', '> cd docs/storybook && npm ci\nThe system cannot find the path specified.'),
+    arm('consistent-failure', '> cd docs/storybook && npm ci\nThe system cannot find the path specified.'),
+  );
+  missingPublishedDirectory.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(missingPublishedDirectory).code, 'PUBLISHED_SOURCE_PREREQUISITE');
+
+  const missingWindowsDevTool = record(
+    arm('consistent-failure', 'sh: line 0: ./node_modules/.bin/typings: not found'),
+    arm('consistent-failure', "'.' is not recognized as an internal or external command\n"
+      + 'node_modules/.bin/typings: not found'),
+    { packageMetadata: { devDependencies: ['typings'], dependencies: [] } },
+  );
+  missingWindowsDevTool.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(missingWindowsDevTool).code,
+    'PUBLISHED_SCRIPT_REQUIRES_DEV_DEPENDENCY');
+
+  const posixBinPath = record(
+    arm('consistent-failure', 'sh: line 0: ./node_modules/.bin/bower: not found'),
+    arm('consistent-failure', "'.' is not recognized as an internal or external command\n"
+      + 'node_modules/.bin/bower: not found'),
+    { packageMetadata: { dependencies: ['bower'], devDependencies: ['bower'] } },
+  );
+  posixBinPath.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(posixBinPath).code, 'PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION');
+
   const recursion = record(arm('consistent-failure', 'error Command failed with exit code 1.'),
     arm('consistent-failure', 'error Command failed with exit code 1.'), {
       packageMetadata: { scripts: { install: 'yarn install' } },
