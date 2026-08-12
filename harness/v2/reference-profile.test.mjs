@@ -112,6 +112,19 @@ test('the native graphics profile binds its POSIX packages and exact library pro
   assert.equal(referenceProfileIdentity(profile).sha256.length, 64);
 });
 
+test('the liblzma profile provisions one development library on each POSIX platform', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-liblzma-posix.json', import.meta.url));
+  assert.equal(profile.id, 'liblzma-posix-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['linux', 'darwin']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-1), ['liblzma-dev']);
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [['brew', 'install', 'xz']]);
+  assert.match(toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n'),
+    /pkg-config --modversion liblzma/);
+  assert.match(toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n'),
+    /brew list --versions xz/);
+  assert.throws(() => referenceHostCommands(profile, 'win32'), /does not support win32/);
+});
+
 test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
   const profile = loadReferenceProfile(new URL('./reference-profile-gnu-make-darwin.json', import.meta.url));
   assert.equal(profile.id, 'gnu-make-darwin-v1');
