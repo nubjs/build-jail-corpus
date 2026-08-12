@@ -331,7 +331,9 @@ export function classifyReference(record) {
     return result('TOOLCHAIN_PREREQUISITE', 'signature', 'the build expects a compiler or native build tool absent from this profile',
       ['tool=native-build-chain']);
   }
-  if (platform === 'win32' && (/was unexpected at this time/i.test(text)
+  const directPosixScriptOnWindows = /['"]\.['"] is not recognized as an internal or external command/i.test(text)
+    && (/(?:^|\n)>\s*\.\/\S+/m.test(text) || /(?:^|\s)\.\/[^\s]+/.test(lifecycleScripts));
+  if (platform === 'win32' && (/was unexpected at this time/i.test(text) || directPosixScriptOnWindows
     || /ENOENT: no such file or directory, (?:chmod|rename).*(?:chromedriver|binary[\\/]rover)/i.test(text))) {
     return result('PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION', 'signature',
       'the published lifecycle script uses a POSIX-only path or command on Windows',

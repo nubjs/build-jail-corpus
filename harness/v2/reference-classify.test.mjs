@@ -336,6 +336,14 @@ test('published lifecycle mistakes are separated from missing host tools', () =>
   windows.provenance.runtime.os.platform = 'win32';
   assert.equal(classifyReference(windows).code, 'PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION');
 
+  const directPosixScript = record(
+    arm('consistent-failure', "> ./postinstall.sh\n'.' is not recognized as an internal or external command"),
+    arm('consistent-failure', "> ./postinstall.sh\n'.' is not recognized as an internal or external command"),
+    { packageMetadata: { scripts: { postinstall: './postinstall.sh' } } },
+  );
+  directPosixScript.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(directPosixScript).code, 'PUBLISHED_SCRIPT_PLATFORM_ASSUMPTION');
+
   const missingPublishedDirectory = record(
     arm('consistent-failure', '> cd docs/storybook && npm ci\nThe system cannot find the path specified.'),
     arm('consistent-failure', '> cd docs/storybook && npm ci\nThe system cannot find the path specified.'),
