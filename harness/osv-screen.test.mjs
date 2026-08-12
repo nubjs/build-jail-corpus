@@ -35,6 +35,19 @@ test('screens every isolated virtual-store entry, not only dependencies nested u
   assert.throws(() => collectInstalledSpecs(root), /cannot read installed manifest/);
 });
 
+test('screens every package in a pnpm virtual store', () => {
+  const root = fixture();
+  const target = path.join(root, 'node_modules', '.pnpm', 'target@1.0.0',
+    'node_modules', 'target');
+  const transitive = path.join(root, 'node_modules', '.pnpm', 'transitive@2.0.0',
+    'node_modules', 'transitive');
+  manifest(target, 'target', '1.0.0');
+  manifest(transitive, 'transitive', '2.0.0');
+  fs.symlinkSync(path.relative(path.join(root, 'node_modules'), target),
+    path.join(root, 'node_modules', 'target'), 'dir');
+  assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0', 'transitive@2.0.0']);
+});
+
 test('attributes a transitive MAL advisory to the exact positional query', () => {
   const specs = ['clean-target@1.0.0', '@scope/bad-transitive@2.0.0'];
   const flagged = queryOsvMalware(specs, (queries) => ({
