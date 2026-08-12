@@ -241,7 +241,29 @@ function rmTree(p, { mustSucceed = false } = {}) {
   }
 }
 
-function makeFixture(dir, pkg, version, { jailOff }) {
+// Common build tools a lifecycle script shells from `node_modules/.bin` (tsc / rollup / run-p /
+// husky / patch-package / …). Installed LOCAL in the fixture, NOT global: nub reconstructs the
+// lifecycle-script PATH and discards the ambient/global npm bin (see runCell's PATH comment), so a
+// globally-installed tool is invisible; `node_modules/.bin` IS on that PATH (every `npm run build`
+// relies on it). ⛔ EVERY ENTRY MUST BE INSTALL-SCRIPT-FREE — a tool with its own install script
+// (e.g. esbuild's prebuilt download) would be confined in a jailed VERIFY cell and fail, breaking
+// the TARGET's measurement. Verified script-free via corgi hasInstallScript before adding; esbuild
+// and other script-carrying tools are DELIBERATELY excluded. ⛔ husky is IN (v9 dropped its
+// postinstall), but its git-hook siblings `simple-git-hooks` and `lefthook` are OUT — both still
+// ship install scripts (lefthook's DOWNLOADS a platform binary, i.e. network), so a jailed VERIFY
+// cell would confine them and corrupt the target's grant. Rust/cargo is a system toolchain (CI),
+// not here.
+const BUILD_TOOLS = {
+  typescript: '^5', rollup: '^4', webpack: '^5', 'webpack-cli': '^5',
+  '@babel/core': '^7', '@babel/cli': '^7',
+  'node-gyp': '^10', 'prebuild-install': '^7', 'node-gyp-build': '^4',
+  'patch-package': '^8', 'npm-force-resolutions': 'latest',
+  'npm-run-all': '^4', pnpm: '^9', husky: '^9',
+  typings: '^2', bower: '^1', grunt: '^1', 'grunt-cli': '^1', gulp: '^4',
+  'cross-env': '^7', rimraf: '^5', shx: '^0.3',
+};
+
+function makeFixture(dir, pkg, version, { jailOff, peerDeps }) {
   rmTree(dir, { mustSucceed: true });
   const proj = path.join(dir, 'proj');
   fs.mkdirSync(proj, { recursive: true });
@@ -288,7 +310,12 @@ function makeFixture(dir, pkg, version, { jailOff }) {
     main: 'src/index.ts',
     engines: { node: '>=18' },
     scripts: { build: 'echo build', test: 'echo test' },
-    dependencies: { [pkg]: version },
+    // The target under test PLUS the common build tools (BUILD_TOOLS, on node_modules/.bin for the
+    // lifecycle PATH) PLUS its declared peerDependencies (`peerDepsOf`), so a lifecycle script that
+    // shells a tool or imports a peer does not fail for the lack of it — a real consumer's project
+    // carries them. Target version wins a key collision; a declared peer/dep of the target overrides
+    // the generic tool pin (a package that really depends on `typescript@4` gets its own).
+    dependencies: { ...BUILD_TOOLS, ...(peerDeps || {}), [pkg]: version },
     'simple-git-hooks': { 'pre-commit': 'echo nub-fixture' },
     husky: { hooks: { 'pre-commit': 'echo nub-fixture' } },
   };
@@ -720,6 +747,24 @@ function enginesAndDate(pkg, version) {
   } catch { return { engines: null, published: null }; }
 }
 
+// The package's declared `peerDependencies`, installed into the fixture so a lifecycle script that
+// imports a peer (or a build that resolves one) does not fail for the lack of it. A REAL consumer
+// carries these; the bare single-package fixture did not, so packages whose postinstall needs a
+// peer were dropped as BROKEN-WITHOUT-JAIL-TOO. Peers are almost always script-less framework
+// packages (react/three/vue), so installing them jailed is harmless; the rare peer with its own
+// install script is measured as its own pid, never charged to the target. `npm view <one field>`
+// returns that field's VALUE directly — the peer map, or "" when none — so no shape-collapse dance.
+function peerDepsOf(pkg, version) {
+  try {
+    const [c, ...pre] = toolArgv('npm');
+    const r = spawnSync(c, [...pre, 'view', `${pkg}@${version}`, 'peerDependencies', '--json'],
+      { encoding: 'utf8', timeout: 30_000 });
+    if (r.status !== 0) return {};
+    const j = JSON.parse(r.stdout || '{}');
+    return (j && typeof j === 'object' && !Array.isArray(j)) ? j : {};
+  } catch { return {}; }
+}
+
 // ⛔ THE FLOOR IS NUB'S OWN SUPPORTED FLOOR (18), NOT THE OLDEST NODE INSTALLED.
 //
 // This was briefly set to the oldest installed major (4), on the reasoning that `nub install`
@@ -1072,8 +1117,8 @@ function provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt = null) {
  *  background grant must name each one — the catalog is keyed by name and has no wildcard,
  *  deliberately (a wildcard would be `disk` for everything, which is the shape this whole
  *  model exists to avoid). Learned by one cheap `--ignore-scripts` install. */
-function discoverTree(nub, dir, pkg, version, nodeBin) {
-  const fx = makeFixture(dir, pkg, version, { jailOff: true });
+function discoverTree(nub, dir, pkg, version, nodeBin, peerDeps) {
+  const fx = makeFixture(dir, pkg, version, { jailOff: true, peerDeps });
   // The discovery arm installs with `--ignore-scripts`, so the tree is on disk and its manifests
   // are readable — which makes this the cheapest honest place to answer "does it declare a
   // script", without a second install and without asking the packument.
@@ -1522,9 +1567,15 @@ const baseCase = (r, root) => ({
 
 function search(nub, pkg, version, root, keep, runDir) {
   const logDir = runDirFor(runDir, pkg, version);
+  // Fetch declared peerDependencies ONCE for the whole probe; installed into every fixture so a
+  // lifecycle script that imports/resolves a peer does not fail for its absence — recovers packages
+  // the bare single-package fixture dropped as BROKEN-WITHOUT-JAIL-TOO. Build TOOLS are ambient
+  // (global on PATH in CI, like gcc/python), NOT here — a tool with its own install script would be
+  // jailed and fail in a VERIFY cell; peers are almost always script-less and install fine jailed.
+  const peerDeps = peerDepsOf(pkg, version);
   const cell = (name, opts) => {
     const dir = path.join(root, name);
-    const fx = makeFixture(dir, pkg, version, { jailOff: !!opts.jailOff });
+    const fx = makeFixture(dir, pkg, version, { jailOff: !!opts.jailOff, peerDeps });
     const r = runCell(nub, fx, { ...opts, pkg, logDir, nodeBin });
     if (!keep) rmTree(dir);
     return r;
@@ -1551,7 +1602,7 @@ function search(nub, pkg, version, root, keep, runDir) {
 
   // CONTROL — scripts on, jail off. EVERY cell runs the identical two steps, so full path
   // sets are directly comparable and no baseline subtraction is needed.
-  const tree = discoverTree(nub, path.join(root, 'discover'), pkg, version, nodeBin);
+  const tree = discoverTree(nub, path.join(root, 'discover'), pkg, version, nodeBin, peerDeps);
   const others = tree.names;
 
   // Read from the INSTALLED tree, never the packument, because the two disagree and only the
@@ -1849,6 +1900,24 @@ function search(nub, pkg, version, root, keep, runDir) {
         jailOffControl: {
           rc: jailOffFirst.rc, digest: jailOffFirst.digest, files: jailOffFirst.files,
           note: 'ran BEFORE the oracles and short-circuited them',
+          // ⛔ THE ACTUAL INSTALL ERROR, not just rc. Without it a BROKEN-WITHOUT-JAIL-TOO record
+          // says only "the unjailed control failed" — indistinguishable between a genuine package
+          // break (husky/tsc/node-gyp) and a RECOVERABLE harness gap (a missing peer dep or build
+          // tool). MEASURED 2026-08-08: 413 of 430 linux broken records carried no error text, so
+          // categorising the ~1,498 bucket meant re-running every one.
+          //
+          // ⛔ FIRST REAL ERROR, NOT THE TAIL. An npm summary ENDS with `npm error Node.js v22` and
+          // `A complete log …`, so a tail grabs the banner and hides the deciding line — the exact
+          // trap documented at run-batch.sh:437. Strip the `npm error `/`npm ERR! ` prefix, drop the
+          // pure boilerplate, then prefer lines that NAME a failure and take the first of them.
+          errorTail: (() => {
+            const lines = (jailOffFirst.log || '').split('\n')
+              .map((l) => l.replace(/^\s*npm (error|ERR!)\s?/i, '').trimEnd())
+              .filter((l) => l && !/^(warn|notice)\b/i.test(l)
+                && !/^(A complete log|Node\.js v|code E[A-Z]+$|path\s|signal\s|To see)/i.test(l));
+            const errish = lines.filter((l) => /\b(ERR!|error|fatal|failed|not ok|not found|cannot|ENOENT|EACCES|EBADPLATFORM|notsup|gyp|TS\d|exited with code|Missing script|MODULE_NOT_FOUND)\b/i.test(l));
+            return (errish.length ? errish : lines).slice(0, 12).join('\n').slice(0, 1200) || null;
+          })(),
         },
         cells, control: baseCase(control), controlB: baseCase(controlB),
         provenance: provenance(nub, nodePin, enginesNode, nodeMajor, publishedAt),
