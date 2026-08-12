@@ -428,7 +428,7 @@ export async function runManagerAttempt({
   const project = path.join(attemptRoot, 'project');
   removeReferenceTree(retainedRoot, { mustSucceed: true });
   writeReferenceProject(project, {
-    profile, pkg, version, arm: `${manager}-${attempt}`, buildJail: false, manager,
+    profile, pkg, version, arm: `${manager}-${attempt}`, manager,
   });
   const { env, roots } = referenceEnvironment(attemptRoot, profile);
   const finish = (value) => {

@@ -23,13 +23,12 @@ test('the checked-in profile deterministically creates the same realistic projec
   const profile = loadReferenceProfile();
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-profile-'));
   writeReferenceProject(root, {
-    profile, pkg: '@scope/example', version: '1.2.3', arm: 'nub-unjailed-1', buildJail: false,
-    manager: 'npm',
+    profile, pkg: '@scope/example', version: '1.2.3', arm: 'nub-unjailed-1', manager: 'npm',
   });
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).dependencies,
     { '@scope/example': '1.2.3' });
-  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'nub.jsonc'), 'utf8')),
-    { install: { buildJail: false } });
+  assert.equal(fs.existsSync(path.join(root, 'nub.jsonc')), false,
+    'an unjailed reference must not require jail-only project configuration');
   assert.ok(fs.existsSync(path.join(root, 'README.md')));
   assert.ok(fs.existsSync(path.join(root, 'src', 'index.js')));
   assert.doesNotMatch(fs.readFileSync(path.join(root, '.npmrc'), 'utf8'), /side-effects-cache/);
@@ -228,7 +227,7 @@ test('the Nub fixture disables its private side-effects cache without changing n
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {
     profile: loadReferenceProfile(), pkg: 'example', version: '1.0.0', arm: 'nub-1',
-    buildJail: false, manager: 'nub',
+    manager: 'nub',
   });
   assert.match(fs.readFileSync(path.join(root, '.npmrc'), 'utf8'), /side-effects-cache=false/);
 });

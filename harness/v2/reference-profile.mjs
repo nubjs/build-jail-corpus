@@ -211,7 +211,7 @@ export function referenceHostPathEntries(profile, platform = process.platform, e
   });
 }
 
-export function writeReferenceProject(root, { profile, pkg, version, arm, buildJail, manager }) {
+export function writeReferenceProject(root, { profile, pkg, version, arm, manager }) {
   validateReferenceProfile(profile);
   fs.mkdirSync(root, { recursive: true });
   const packageJson = {
@@ -222,7 +222,6 @@ export function writeReferenceProject(root, { profile, pkg, version, arm, buildJ
     dependencies: { [pkg]: version },
   };
   fs.writeFileSync(path.join(root, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
-  fs.writeFileSync(path.join(root, 'nub.jsonc'), `${JSON.stringify({ install: { buildJail } }, null, 2)}\n`);
   if (!['npm', 'nub'].includes(manager)) throw new Error('reference project manager must be npm or nub');
   const npmrcValues = {
     ...(profile.fixture.npmrc ?? {}),
