@@ -51,6 +51,23 @@ test('the child-stdio profile changes only platform scope and diagnostic capture
   assert.match(env.NODE_OPTIONS, /--require=.*reference-child-stdio\.cjs$/);
 });
 
+test('the Cypress consumer profile adds only the scaffold expected from an ordinary project', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-cypress-consumer.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'cypress-consumer-v1';
+  expected.fixture.files['cypress/plugins/.gitkeep'] = '';
+  assert.deepEqual(profile, expected);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-cypress-consumer-'));
+  writeReferenceProject(root, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'nub-1', manager: 'nub',
+  });
+  assert.ok(fs.existsSync(path.join(root, 'cypress', 'plugins', '.gitkeep')));
+});
+
 test('the lifecycle debug profile changes only platform scope and diagnostic output', () => {
   const base = loadReferenceProfile();
   const profile = loadReferenceProfile(

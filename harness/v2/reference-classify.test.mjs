@@ -87,10 +87,17 @@ test('an npm-era flat-tree lifecycle assumption is terminal when pnpm-compatible
     `Error: Cannot find module '/store/victory-axis/node_modules/builder/bin/builder-core.js'
 POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3`,
     "[builder:local-detect] Error importing local builder: Cannot find module '<CACHE>/store/victory-axis/node_modules/victory-axis/node_modules/builder/bin/builder-core.js'",
+    'Cannot find "cypress" folder in <PROJECT>/node_modules/.store/@bahmutov+add-typescript-to-cypress@2.1.2',
+    'Cannot find "cypress" folder in <PROJECT>/node_modules/.pnpm/@bahmutov+add-typescript-to-cypress@2.1.2',
   ]) {
     assert.equal(classifyReference(record(arm('consistent-failure', failure), arm('pass'))).code,
       'NPM_FLAT_TREE_ASSUMPTION');
   }
+
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Cannot find "cypress" folder in <PROJECT>'),
+    arm('consistent-failure', 'Cannot find "cypress" folder in <PROJECT>'),
+  )).code, 'PROJECT_FIXTURE_PREREQUISITE');
 });
 
 test('an incompatible Nub binary or contaminated fixture is an instrument failure, not a package differential', () => {

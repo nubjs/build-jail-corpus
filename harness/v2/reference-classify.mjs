@@ -201,7 +201,8 @@ export function classifyReference(record) {
     }
     if ((/POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3/i.test(text)
       && /(?:Cannot find module|not found|can't cd to).*(?:node_modules|\blib\b)/i.test(text))
-      || /\[builder:local-detect\] Error importing local builder: Cannot find module .*node_modules[/\\][^\r\n]+[/\\]node_modules[/\\]builder[/\\]bin[/\\]builder-core\.js/i.test(text)) {
+      || /\[builder:local-detect\] Error importing local builder: Cannot find module .*node_modules[/\\][^\r\n]+[/\\]node_modules[/\\]builder[/\\]bin[/\\]builder-core\.js/i.test(text)
+      || /Cannot find ["']cypress["'] folder in <PROJECT>[/\\]node_modules[/\\](?:\.store|\.pnpm)(?:[/\\]|$)/i.test(text)) {
       return result('NPM_FLAT_TREE_ASSUMPTION', 'signature',
         'the published lifecycle requires npm-era flattened dependency layout that pnpm-compatible managers do not provide',
         ['package-script=npm-v3-layout', 'npm=pass']);
@@ -416,7 +417,7 @@ export function classifyReference(record) {
       'the published lifecycle script invokes a tool that is not installed by the package dependency tree',
       [`missingCommand=${missingCommand}`, 'profile experiment required']);
   }
-  if (/Cannot find cypress folder|scaffold Cypress folder|not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
+  if (/Cannot find ["']?cypress["']? folder|scaffold Cypress folder|not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
     return result('PROJECT_FIXTURE_PREREQUISITE', 'signature', 'the lifecycle script expects additional project shape',
       ['profile experiment required']);
   }
