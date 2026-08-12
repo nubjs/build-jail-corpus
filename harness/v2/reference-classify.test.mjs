@@ -22,6 +22,30 @@ test('the classifier preserves package-manager differentials instead of blaming 
     'NPM_PM_DIVERGENCE');
 });
 
+test('known pnpm-compatible policy differences are not reported as Nub defects', () => {
+  const exotic = record(
+    arm('consistent-failure', 'registry error: uses exotic specifier "git+https://example.test/repo" which is blocked by blockExoticSubdeps'),
+    arm('pass'),
+  );
+  assert.equal(classifyReference(exotic).code, 'EXOTIC_SUBDEP_POLICY_DIFFERENTIAL');
+
+  const goIos = record(
+    arm('consistent-failure', String.raw`TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received null
+    at getInstallationPath (C:\work\node_modules\go-ios\postinstall.js:56:11)`),
+    arm('pass'),
+  );
+  goIos.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(goIos).code, 'NPM_GLOBAL_PREFIX_ASSUMPTION');
+
+  const mbt = record(
+    arm('consistent-failure', String.raw`TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received null
+    at C:\work\node_modules\go-npm\bin\index.js:51:16`),
+    arm('pass'),
+  );
+  mbt.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(mbt).code, 'NPM_GLOBAL_PREFIX_ASSUMPTION');
+});
+
 test('a timed-out arm remains incomplete instead of becoming a package-manager verdict', () => {
   const classified = classifyReference(record(arm('timeout', 'REFERENCE-DEADLINE-REACHED'), arm('pass')));
   assert.equal(classified.code, 'REFERENCE_TIMEOUT');

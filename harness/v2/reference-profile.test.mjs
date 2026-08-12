@@ -223,6 +223,29 @@ test('the Redis Linux profile pre-provisions exact source-pinned Rust toolchains
   assert.throws(() => referenceHostToolchainCommands(profile, 'darwin'), /does not support darwin/);
 });
 
+test('the screened exotic-dependency profile changes only Nub source policy', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-screened-exotic-subdeps.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'screened-exotic-subdeps-v1';
+  expected.fixture.managerNpmrc.nub.blockExoticSubdeps = 'false';
+  assert.deepEqual(profile, expected);
+
+  const nubRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-screened-exotic-nub-'));
+  writeReferenceProject(nubRoot, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'nub-1', manager: 'nub',
+  });
+  assert.match(fs.readFileSync(path.join(nubRoot, '.npmrc'), 'utf8'), /blockExoticSubdeps=false/);
+
+  const npmRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-screened-exotic-npm-'));
+  writeReferenceProject(npmRoot, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'npm-1', manager: 'npm',
+  });
+  assert.doesNotMatch(fs.readFileSync(path.join(npmRoot, '.npmrc'), 'utf8'), /blockExoticSubdeps/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {

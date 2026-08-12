@@ -185,6 +185,18 @@ export function classifyReference(record) {
       ['nub=pass', 'npm=pass']);
   }
   if (passed(npm) && !passed(nub)) {
+    if (/uses exotic specifier[\s\S]*blocked by\s*blockExoticSubdeps|blocked exotic transitive dependency|ERR_(?:NUB|AUBE)_BLOCKED_EXOTIC_SUBDEP/i.test(text)) {
+      return result('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'differential',
+        'Nub follows pnpm by blocking an exotic transitive dependency that npm permits',
+        ['blockExoticSubdeps=true', 'npm=pass']);
+    }
+    if (platform === 'win32'
+      && /paths\[0\].*must be of type string[\s\S]*Received (?:null|undefined)/i.test(text)
+      && /(?:getInstallationPath[\s\S]*go-ios|go-npm[\\/]bin[\\/]index\.js)/i.test(text)) {
+      return result('NPM_GLOBAL_PREFIX_ASSUMPTION', 'signature',
+        'the published Windows lifecycle requires npm\'s user-global prefix, which pnpm-compatible managers do not export',
+        ['platform=win32', 'npm_config_prefix=required', 'npm=pass']);
+    }
     return result('NUB_PM_DIVERGENCE', 'differential', 'npm passes while unjailed Nub fails on the same fixture and runtime',
       [nub?.quorum?.fingerprint, 'npm=pass'].filter(Boolean));
   }

@@ -80,6 +80,16 @@ test('an expected pnpm platform policy differential is counted without creating 
   assert.equal(report.backlog.length, 0);
 });
 
+test('other expected package-manager policy differences do not create fix work', () => {
+  for (const code of ['EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'NPM_GLOBAL_PREFIX_ASSUMPTION']) {
+    assert.equal(remediationFor(code).priority, 'none');
+  }
+  assert.equal(remediationFor('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL').disposition,
+    'expected-pnpm-policy-differential');
+  assert.equal(remediationFor('NPM_GLOBAL_PREFIX_ASSUMPTION').disposition,
+    'terminal-package-failure');
+});
+
 test('terminal and recovered reference outcomes do not create fix work', () => {
   assert.deepEqual(remediationFor('REFERENCE_PASSES'),
     { priority: 'none', disposition: 'recovered-reference', experiment: null });
