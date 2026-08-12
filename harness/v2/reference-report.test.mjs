@@ -106,6 +106,7 @@ test('terminal and recovered reference outcomes do not create fix work', () => {
   assert.equal(remediationFor('OBSOLETE_NODE_ASSUMPTION').disposition, 'runtime-compatibility');
   assert.equal(remediationFor('OBSOLETE_TYPESCRIPT_ASSUMPTION').priority, 'none');
   assert.equal(remediationFor('NUB_PM_RESOLVER_DEFECT').disposition, 'nub-fix');
+  assert.equal(remediationFor('NUB_MANIFEST_PARSE_DEFECT').disposition, 'nub-fix');
 });
 
 test('an altered evidence record is rejected instead of counted', () => {

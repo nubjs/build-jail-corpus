@@ -148,6 +148,11 @@ export function classifyReference(record) {
       'Nub exhausted its peer-context resolver before it could run the package lifecycle',
       ['ERR_NUB_PEER_CONTEXT_NOT_CONVERGED']);
   }
+  if (/ERR_NUB_MANIFEST_PARSE[\s\S]*duplicate field/i.test(text)) {
+    return result('NUB_MANIFEST_PARSE_DEFECT', 'deterministic',
+      'Nub rejected duplicate package manifest fields that npm accepts with last-value semantics',
+      ['ERR_NUB_MANIFEST_PARSE', 'duplicate-field=last-value']);
+  }
 
   if (/unknown key `buildJail`|ERR_NUB_LOCKFILE_AMBIGUOUS/i.test(text)) {
     return result('HARNESS_INTERNAL', 'deterministic',

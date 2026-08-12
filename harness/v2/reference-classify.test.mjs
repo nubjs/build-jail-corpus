@@ -108,6 +108,14 @@ test('an incompatible Nub binary or contaminated fixture is an instrument failur
   }
 });
 
+test('Nub rejecting duplicate manifest fields is a package-manager defect even when npm later fails', () => {
+  const classified = classifyReference(record(
+    arm('consistent-failure', 'ERR_NUB_MANIFEST_PARSE: duplicate field `scripts` at line 43 column 10'),
+    arm('consistent-failure', "../src/addon.cc:20:10: fatal error: 'v8.h' file not found"),
+  ));
+  assert.equal(classified.code, 'NUB_MANIFEST_PARSE_DEFECT');
+});
+
 test('metadata classes outrank failure signatures when both managers fail', () => {
   const both = record(arm('consistent-failure', 'gyp ERR! build error'), arm('consistent-failure', 'gyp ERR! build error'), {
     packageMetadata: { engines: { node: '<=16' } },
