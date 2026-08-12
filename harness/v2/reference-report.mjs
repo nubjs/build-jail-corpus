@@ -58,6 +58,7 @@ export const remediationFor = (code) => ({
   NUB_PM_RESOLVER_DEFECT: { priority: 'P1', disposition: 'nub-fix', experiment: 'reproduce and fix the peer-context non-convergence before comparing lifecycle behavior' },
   EXOTIC_SUBDEP_POLICY_DIFFERENTIAL: { priority: 'none', disposition: 'expected-pnpm-policy-differential', experiment: null },
   NPM_GLOBAL_PREFIX_ASSUMPTION: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
+  NPM_FLAT_TREE_ASSUMPTION: { priority: 'none', disposition: 'terminal-package-failure', experiment: null },
   REFERENCE_PASSES: { priority: 'none', disposition: 'recovered-reference', experiment: null },
   REQUIRED_PLATFORM_POLICY_DIFFERENTIAL: { priority: 'none', disposition: 'expected-pnpm-policy-differential', experiment: null },
   TOOLCHAIN_PREREQUISITE: { priority: 'P1', disposition: 'profile-experiment', experiment: 'add the named build tool to a versioned toolchain profile and compare before/after cells' },

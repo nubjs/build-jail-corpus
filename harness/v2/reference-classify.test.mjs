@@ -66,6 +66,33 @@ test('a recovered clean retry is transient evidence, not a package-manager diver
     'TRANSIENT_EXTERNAL_DOWNLOAD');
 });
 
+test('a recovered arm does not hide the other manager consistently failing', () => {
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Error: deterministic lifecycle failure'),
+    arm('pass-after-failure'),
+  )).code, 'NUB_PM_DIVERGENCE');
+  assert.equal(classifyReference(record(
+    arm('pass-after-failure'),
+    arm('consistent-failure', 'Error: install failed'),
+  )).code, 'NPM_PM_DIVERGENCE');
+
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Error: invalid central directory file header signature'),
+    arm('pass-after-failure'),
+  )).code, 'TRANSIENT_EXTERNAL_DOWNLOAD');
+});
+
+test('an npm-era flat-tree lifecycle assumption is terminal when pnpm-compatible layout fails', () => {
+  for (const failure of [
+    `Error: Cannot find module '/store/victory-axis/node_modules/builder/bin/builder-core.js'
+POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3`,
+    "[builder:local-detect] Error importing local builder: Cannot find module '<CACHE>/store/victory-axis/node_modules/victory-axis/node_modules/builder/bin/builder-core.js'",
+  ]) {
+    assert.equal(classifyReference(record(arm('consistent-failure', failure), arm('pass'))).code,
+      'NPM_FLAT_TREE_ASSUMPTION');
+  }
+});
+
 test('an incompatible Nub binary or contaminated fixture is an instrument failure, not a package differential', () => {
   for (const message of ['Error: unknown key `buildJail` in install', 'Error: ERR_NUB_LOCKFILE_AMBIGUOUS']) {
     const classified = classifyReference(record(arm('consistent-failure', message), arm('pass')));

@@ -81,12 +81,15 @@ test('an expected pnpm platform policy differential is counted without creating 
 });
 
 test('other expected package-manager policy differences do not create fix work', () => {
-  for (const code of ['EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'NPM_GLOBAL_PREFIX_ASSUMPTION']) {
+  for (const code of ['EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'NPM_GLOBAL_PREFIX_ASSUMPTION',
+    'NPM_FLAT_TREE_ASSUMPTION']) {
     assert.equal(remediationFor(code).priority, 'none');
   }
   assert.equal(remediationFor('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL').disposition,
     'expected-pnpm-policy-differential');
   assert.equal(remediationFor('NPM_GLOBAL_PREFIX_ASSUMPTION').disposition,
+    'terminal-package-failure');
+  assert.equal(remediationFor('NPM_FLAT_TREE_ASSUMPTION').disposition,
     'terminal-package-failure');
 });
 

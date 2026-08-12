@@ -107,7 +107,7 @@ const allFailureText = (record) => Object.values(record.arms ?? {}).flatMap((arm
   .flatMap((source) => [source?.error?.summary, ...(source?.error?.excerpts ?? [])])
   .filter(Boolean).join('\n');
 
-const passed = (arm) => arm?.quorum?.outcome === 'pass';
+const eventuallyPassed = (arm) => ['pass', 'pass-after-failure'].includes(arm?.quorum?.outcome);
 const refused = (arm) => arm?.quorum?.outcome === 'refused-malicious';
 const harnessFailed = (arm) => arm?.quorum?.outcome === 'harness-error';
 
@@ -162,12 +162,14 @@ export function classifyReference(record) {
   }
 
   const quorumOutcomes = [nub?.quorum?.outcome, npm?.quorum?.outcome];
-  if (quorumOutcomes.some((outcome) => outcome === 'pass-after-failure' || outcome === 'transient')
-    || /ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket hang up|network timeout|HTTP\s+429|HTTP\s+5\d\d|TLS handshake/i.test(text)) {
-    return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry', 'an external download failed transiently or changed outcome across clean retries',
-      quorumOutcomes.filter(Boolean));
-  }
-  if (passed(nub) && passed(npm)) {
+  const recovered = quorumOutcomes.includes('pass-after-failure');
+  const transientSignature = /ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket hang up|network timeout|HTTP\s+429|HTTP\s+5\d\d|TLS handshake|invalid central directory file header|incorrect header check/i.test(text);
+  if (eventuallyPassed(nub) && eventuallyPassed(npm)) {
+    if (recovered) {
+      return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry',
+        'an external download failed transiently or changed outcome across clean retries',
+        quorumOutcomes.filter(Boolean));
+    }
     const expected = record.lifecycle?.expectedCount ?? 0;
     const incompleteArms = [nub, npm].filter((arm) => (arm.lifecycle?.expectedCount ?? 0) === 0
       || (arm.lifecycle?.provenCount ?? 0) !== arm.lifecycle?.expectedCount);
@@ -184,7 +186,7 @@ export function classifyReference(record) {
     return result('REFERENCE_PASSES', 'deterministic', 'ordinary unjailed installs pass through both Nub and npm',
       ['nub=pass', 'npm=pass']);
   }
-  if (passed(npm) && !passed(nub)) {
+  if (eventuallyPassed(npm) && !eventuallyPassed(nub)) {
     if (/uses exotic specifier[\s\S]*blocked by\s*blockExoticSubdeps|blocked exotic transitive dependency|ERR_(?:NUB|AUBE)_BLOCKED_EXOTIC_SUBDEP/i.test(text)) {
       return result('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'differential',
         'Nub follows pnpm by blocking an exotic transitive dependency that npm permits',
@@ -197,10 +199,22 @@ export function classifyReference(record) {
         'the published Windows lifecycle requires npm\'s user-global prefix, which pnpm-compatible managers do not export',
         ['platform=win32', 'npm_config_prefix=required', 'npm=pass']);
     }
+    if ((/POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3/i.test(text)
+      && /(?:Cannot find module|not found|can't cd to).*(?:node_modules|\blib\b)/i.test(text))
+      || /\[builder:local-detect\] Error importing local builder: Cannot find module .*node_modules[/\\][^\r\n]+[/\\]node_modules[/\\]builder[/\\]bin[/\\]builder-core\.js/i.test(text)) {
+      return result('NPM_FLAT_TREE_ASSUMPTION', 'signature',
+        'the published lifecycle requires npm-era flattened dependency layout that pnpm-compatible managers do not provide',
+        ['package-script=npm-v3-layout', 'npm=pass']);
+    }
+    if (transientSignature) {
+      return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry',
+        'an external download failed transiently or changed outcome across clean retries',
+        quorumOutcomes.filter(Boolean));
+    }
     return result('NUB_PM_DIVERGENCE', 'differential', 'npm passes while unjailed Nub fails on the same fixture and runtime',
       [nub?.quorum?.fingerprint, 'npm=pass'].filter(Boolean));
   }
-  if (passed(nub) && !passed(npm)) {
+  if (eventuallyPassed(nub) && !eventuallyPassed(npm)) {
     if (platformMismatch && /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
       return result('REQUIRED_PLATFORM_POLICY_DIFFERENTIAL', 'differential',
         'Nub follows pnpm by accepting a required package that npm rejects under its published platform constraints',
@@ -210,6 +224,11 @@ export function classifyReference(record) {
     }
     return result('NPM_PM_DIVERGENCE', 'differential', 'unjailed Nub passes while npm fails on the same fixture and runtime',
       ['nub=pass', npm?.quorum?.fingerprint].filter(Boolean));
+  }
+
+  if (quorumOutcomes.includes('transient') || transientSignature) {
+    return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry', 'an external download failed transiently or changed outcome across clean retries',
+      quorumOutcomes.filter(Boolean));
   }
 
   const engineRange = metadata.engines?.node;
