@@ -57,6 +57,7 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /--node "\$TARGET_NODE"/);
   assert.match(workflow, /--npm npm/);
   assert.match(workflow, /reference-profile-host\.mjs --profile "\$REFERENCE_PROFILE_FILE"/);
+  assert.match(workflow, /browser-download-skip-v1\) PROFILE_FILE=harness\/v2\/reference-profile-browser-download-skip\.json/);
   assert.match(workflow, /cypress-consumer-v1\) PROFILE_FILE=harness\/v2\/reference-profile-cypress-consumer\.json/);
   assert.match(workflow, /screened-exotic-subdeps-v1\) PROFILE_FILE=harness\/v2\/reference-profile-screened-exotic-subdeps\.json/);
   assert.match(workflow, /child-stdio-linux-v1\) PROFILE_FILE=harness\/v2\/reference-profile-child-stdio-linux\.json/);

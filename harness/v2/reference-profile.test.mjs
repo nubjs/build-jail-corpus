@@ -68,6 +68,23 @@ test('the Cypress consumer profile adds only the scaffold expected from an ordin
   assert.ok(fs.existsSync(path.join(root, 'cypress', 'plugins', '.gitkeep')));
 });
 
+test('the browser-download-skip profile adds only the standard non-secret opt-out', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-browser-download-skip.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'browser-download-skip-v1';
+  expected.supportedPlatforms = ['linux', 'darwin'];
+  expected.environment.set.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = '1';
+  delete expected.toolProbes.win32;
+  assert.deepEqual(profile, expected);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-browser-download-skip-'));
+  const { env } = referenceEnvironment(root, profile, { PATH: '/usr/bin' }, { platform: 'linux' });
+  assert.equal(env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD, '1');
+});
+
 test('the lifecycle debug profile changes only platform scope and diagnostic output', () => {
   const base = loadReferenceProfile();
   const profile = loadReferenceProfile(
