@@ -546,6 +546,13 @@ recv->InstanceTemplate()->SetAccessor(
     arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
 });
 
+test('C++ header diagnostics classify native ABI incompatibility', () => {
+  const message = `../src/liblzma-node.hpp:95:47: error: ‘Arguments’ does not name a type
+make: *** [lzma_native.target.mk:112: Release/obj.target/lzma_native/src/liblzma-node.o] Error 1`;
+  assert.equal(classifyReference(record(arm('consistent-failure', message),
+    arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+});
+
 test('generic native-build wrappers remain unclassified without a causal diagnostic', () => {
   const classified = classifyReference(record(arm('consistent-failure', 'gyp ERR! build error'),
     arm('consistent-failure', 'gyp ERR! build error')));

@@ -346,7 +346,7 @@ export function classifyReference(record) {
       'concurrent native configure probes clobbered their shared work files after finding the required host tool',
       ['configure found /usr/bin/sed and concurrently reported no acceptable sed']);
   }
-  if (/NODE_MODULE_VERSION|ERR_DLOPEN_FAILED|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|node-waf: (?:command )?not found|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.c|\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+  if (/NODE_MODULE_VERSION|ERR_DLOPEN_FAILED|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|node-waf: (?:command )?not found|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.c|\.cc|\.cpp|\.h|\.hpp|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
   }
