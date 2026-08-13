@@ -107,7 +107,7 @@ const allFailureText = (record) => Object.values(record.arms ?? {}).flatMap((arm
   .flatMap((source) => [source?.error?.summary, ...(source?.error?.excerpts ?? [])])
   .filter(Boolean).join('\n');
 
-const passed = (arm) => arm?.quorum?.outcome === 'pass';
+const eventuallyPassed = (arm) => ['pass', 'pass-after-failure'].includes(arm?.quorum?.outcome);
 const refused = (arm) => arm?.quorum?.outcome === 'refused-malicious';
 const harnessFailed = (arm) => arm?.quorum?.outcome === 'harness-error';
 
@@ -148,6 +148,11 @@ export function classifyReference(record) {
       'Nub exhausted its peer-context resolver before it could run the package lifecycle',
       ['ERR_NUB_PEER_CONTEXT_NOT_CONVERGED']);
   }
+  if (/ERR_NUB_MANIFEST_PARSE[\s\S]*duplicate field/i.test(text)) {
+    return result('NUB_MANIFEST_PARSE_DEFECT', 'deterministic',
+      'Nub rejected duplicate package manifest fields that npm accepts with last-value semantics',
+      ['ERR_NUB_MANIFEST_PARSE', 'duplicate-field=last-value']);
+  }
 
   if (/unknown key `buildJail`|ERR_NUB_LOCKFILE_AMBIGUOUS/i.test(text)) {
     return result('HARNESS_INTERNAL', 'deterministic',
@@ -162,12 +167,14 @@ export function classifyReference(record) {
   }
 
   const quorumOutcomes = [nub?.quorum?.outcome, npm?.quorum?.outcome];
-  if (quorumOutcomes.some((outcome) => outcome === 'pass-after-failure' || outcome === 'transient')
-    || /ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket hang up|network timeout|HTTP\s+429|HTTP\s+5\d\d|TLS handshake/i.test(text)) {
-    return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry', 'an external download failed transiently or changed outcome across clean retries',
-      quorumOutcomes.filter(Boolean));
-  }
-  if (passed(nub) && passed(npm)) {
+  const recovered = quorumOutcomes.includes('pass-after-failure');
+  const transientSignature = /ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket hang up|network timeout|HTTP\s+429|HTTP\s+5\d\d|TLS handshake|invalid central directory file header|incorrect header check/i.test(text);
+  if (eventuallyPassed(nub) && eventuallyPassed(npm)) {
+    if (recovered) {
+      return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry',
+        'an external download failed transiently or changed outcome across clean retries',
+        quorumOutcomes.filter(Boolean));
+    }
     const expected = record.lifecycle?.expectedCount ?? 0;
     const incompleteArms = [nub, npm].filter((arm) => (arm.lifecycle?.expectedCount ?? 0) === 0
       || (arm.lifecycle?.provenCount ?? 0) !== arm.lifecycle?.expectedCount);
@@ -184,11 +191,36 @@ export function classifyReference(record) {
     return result('REFERENCE_PASSES', 'deterministic', 'ordinary unjailed installs pass through both Nub and npm',
       ['nub=pass', 'npm=pass']);
   }
-  if (passed(npm) && !passed(nub)) {
+  if (eventuallyPassed(npm) && !eventuallyPassed(nub)) {
+    if (/uses exotic specifier[\s\S]*blocked by\s*blockExoticSubdeps|blocked exotic transitive dependency|ERR_(?:NUB|AUBE)_BLOCKED_EXOTIC_SUBDEP/i.test(text)) {
+      return result('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'differential',
+        'Nub follows pnpm by blocking an exotic transitive dependency that npm permits',
+        ['blockExoticSubdeps=true', 'npm=pass']);
+    }
+    if (platform === 'win32'
+      && /paths\[0\].*must be of type string[\s\S]*Received (?:null|undefined)/i.test(text)
+      && /(?:getInstallationPath[\s\S]*go-ios|go-npm[\\/]bin[\\/]index\.js)/i.test(text)) {
+      return result('NPM_GLOBAL_PREFIX_ASSUMPTION', 'signature',
+        'the published Windows lifecycle requires npm\'s user-global prefix, which pnpm-compatible managers do not export',
+        ['platform=win32', 'npm_config_prefix=required', 'npm=pass']);
+    }
+    if ((/POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3/i.test(text)
+      && /(?:Cannot find module|not found|can't cd to).*(?:node_modules|\blib\b)/i.test(text))
+      || /\[builder:local-detect\] Error importing local builder: Cannot find module .*node_modules[/\\][^\r\n]+[/\\]node_modules[/\\]builder[/\\]bin[/\\]builder-core\.js/i.test(text)
+      || /Cannot find ["']cypress["'] folder in <PROJECT>[/\\]node_modules[/\\](?:\.store|\.pnpm)(?:[/\\]|$)/i.test(text)) {
+      return result('NPM_FLAT_TREE_ASSUMPTION', 'signature',
+        'the published lifecycle requires npm-era flattened dependency layout that pnpm-compatible managers do not provide',
+        ['package-script=npm-v3-layout', 'npm=pass']);
+    }
+    if (transientSignature) {
+      return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry',
+        'an external download failed transiently or changed outcome across clean retries',
+        quorumOutcomes.filter(Boolean));
+    }
     return result('NUB_PM_DIVERGENCE', 'differential', 'npm passes while unjailed Nub fails on the same fixture and runtime',
       [nub?.quorum?.fingerprint, 'npm=pass'].filter(Boolean));
   }
-  if (passed(nub) && !passed(npm)) {
+  if (eventuallyPassed(nub) && !eventuallyPassed(npm)) {
     if (platformMismatch && /EBADPLATFORM|not compatible with your operating system|Unsupported platform/i.test(text)) {
       return result('REQUIRED_PLATFORM_POLICY_DIFFERENTIAL', 'differential',
         'Nub follows pnpm by accepting a required package that npm rejects under its published platform constraints',
@@ -198,6 +230,11 @@ export function classifyReference(record) {
     }
     return result('NPM_PM_DIVERGENCE', 'differential', 'unjailed Nub passes while npm fails on the same fixture and runtime',
       ['nub=pass', npm?.quorum?.fingerprint].filter(Boolean));
+  }
+
+  if (quorumOutcomes.includes('transient') || transientSignature) {
+    return result('TRANSIENT_EXTERNAL_DOWNLOAD', 'retry', 'an external download failed transiently or changed outcome across clean retries',
+      quorumOutcomes.filter(Boolean));
   }
 
   const engineRange = metadata.engines?.node;
@@ -309,7 +346,7 @@ export function classifyReference(record) {
       'concurrent native configure probes clobbered their shared work files after finding the required host tool',
       ['configure found /usr/bin/sed and concurrently reported no acceptable sed']);
   }
-  if (/NODE_MODULE_VERSION|ERR_DLOPEN_FAILED|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|node-waf: (?:command )?not found|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.c|\.cc|\.cpp|\.h|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
+  if (/NODE_MODULE_VERSION|ERR_DLOPEN_FAILED|V8.*(?:has no member|was not declared)|error(?::|\s+[A-Z]+\d*:).*(?:\bv8::|SetAccessor|WeakCallbackType)|nan\.h.*(?:not found|error)|primordials is not defined|ERR_INVALID_OBJECT_DEFINE_PROPERTY|process\.env.*only accepts a configurable, writable, and enumerable data descriptor|Error: spawn EINVAL|spawn node-waf ENOENT|node-waf: (?:command )?not found|size of array element .*(?:is not|isn't) a multiple of its alignment|C\+\+.*error:|(?:^|\n).*(?:\.c|\.cc|\.cpp|\.h|\.hpp|\.lzz)(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)): (?:fatal )?error(?:\s+[A-Z]+\d*)?:/i.test(text)) {
     return result('OBSOLETE_NATIVE_ASSUMPTION', 'signature', 'the native build reached its toolchain but does not compile or match this Node ABI',
       [engineRange ? `engines.node=${engineRange}` : 'engines.node=undeclared']);
   }
@@ -385,7 +422,7 @@ export function classifyReference(record) {
       'the published lifecycle script invokes a tool that is not installed by the package dependency tree',
       [`missingCommand=${missingCommand}`, 'profile experiment required']);
   }
-  if (/Cannot find cypress folder|scaffold Cypress folder|not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
+  if (/Cannot find ["']?cypress["']? folder|scaffold Cypress folder|not a git repository|Cannot find.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)|ENOENT.*(?:README|lerna\.json|rush\.json|angular\.json|tsconfig\.json)/i.test(text)) {
     return result('PROJECT_FIXTURE_PREREQUISITE', 'signature', 'the lifecycle script expects additional project shape',
       ['profile experiment required']);
   }

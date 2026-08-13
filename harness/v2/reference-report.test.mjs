@@ -80,6 +80,19 @@ test('an expected pnpm platform policy differential is counted without creating 
   assert.equal(report.backlog.length, 0);
 });
 
+test('other expected package-manager policy differences do not create fix work', () => {
+  for (const code of ['EXOTIC_SUBDEP_POLICY_DIFFERENTIAL', 'NPM_GLOBAL_PREFIX_ASSUMPTION',
+    'NPM_FLAT_TREE_ASSUMPTION']) {
+    assert.equal(remediationFor(code).priority, 'none');
+  }
+  assert.equal(remediationFor('EXOTIC_SUBDEP_POLICY_DIFFERENTIAL').disposition,
+    'expected-pnpm-policy-differential');
+  assert.equal(remediationFor('NPM_GLOBAL_PREFIX_ASSUMPTION').disposition,
+    'terminal-package-failure');
+  assert.equal(remediationFor('NPM_FLAT_TREE_ASSUMPTION').disposition,
+    'terminal-package-failure');
+});
+
 test('terminal and recovered reference outcomes do not create fix work', () => {
   assert.deepEqual(remediationFor('REFERENCE_PASSES'),
     { priority: 'none', disposition: 'recovered-reference', experiment: null });
@@ -93,6 +106,7 @@ test('terminal and recovered reference outcomes do not create fix work', () => {
   assert.equal(remediationFor('OBSOLETE_NODE_ASSUMPTION').disposition, 'runtime-compatibility');
   assert.equal(remediationFor('OBSOLETE_TYPESCRIPT_ASSUMPTION').priority, 'none');
   assert.equal(remediationFor('NUB_PM_RESOLVER_DEFECT').disposition, 'nub-fix');
+  assert.equal(remediationFor('NUB_MANIFEST_PARSE_DEFECT').disposition, 'nub-fix');
 });
 
 test('an altered evidence record is rejected instead of counted', () => {

@@ -22,6 +22,30 @@ test('the classifier preserves package-manager differentials instead of blaming 
     'NPM_PM_DIVERGENCE');
 });
 
+test('known pnpm-compatible policy differences are not reported as Nub defects', () => {
+  const exotic = record(
+    arm('consistent-failure', 'registry error: uses exotic specifier "git+https://example.test/repo" which is blocked by blockExoticSubdeps'),
+    arm('pass'),
+  );
+  assert.equal(classifyReference(exotic).code, 'EXOTIC_SUBDEP_POLICY_DIFFERENTIAL');
+
+  const goIos = record(
+    arm('consistent-failure', String.raw`TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received null
+    at getInstallationPath (C:\work\node_modules\go-ios\postinstall.js:56:11)`),
+    arm('pass'),
+  );
+  goIos.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(goIos).code, 'NPM_GLOBAL_PREFIX_ASSUMPTION');
+
+  const mbt = record(
+    arm('consistent-failure', String.raw`TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received null
+    at C:\work\node_modules\go-npm\bin\index.js:51:16`),
+    arm('pass'),
+  );
+  mbt.provenance.runtime.os.platform = 'win32';
+  assert.equal(classifyReference(mbt).code, 'NPM_GLOBAL_PREFIX_ASSUMPTION');
+});
+
 test('a timed-out arm remains incomplete instead of becoming a package-manager verdict', () => {
   const classified = classifyReference(record(arm('timeout', 'REFERENCE-DEADLINE-REACHED'), arm('pass')));
   assert.equal(classified.code, 'REFERENCE_TIMEOUT');
@@ -42,12 +66,54 @@ test('a recovered clean retry is transient evidence, not a package-manager diver
     'TRANSIENT_EXTERNAL_DOWNLOAD');
 });
 
+test('a recovered arm does not hide the other manager consistently failing', () => {
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Error: deterministic lifecycle failure'),
+    arm('pass-after-failure'),
+  )).code, 'NUB_PM_DIVERGENCE');
+  assert.equal(classifyReference(record(
+    arm('pass-after-failure'),
+    arm('consistent-failure', 'Error: install failed'),
+  )).code, 'NPM_PM_DIVERGENCE');
+
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Error: invalid central directory file header signature'),
+    arm('pass-after-failure'),
+  )).code, 'TRANSIENT_EXTERNAL_DOWNLOAD');
+});
+
+test('an npm-era flat-tree lifecycle assumption is terminal when pnpm-compatible layout fails', () => {
+  for (const failure of [
+    `Error: Cannot find module '/store/victory-axis/node_modules/builder/bin/builder-core.js'
+POSTINSTALL FAILED: If using npm v2, please upgrade to npm v3`,
+    "[builder:local-detect] Error importing local builder: Cannot find module '<CACHE>/store/victory-axis/node_modules/victory-axis/node_modules/builder/bin/builder-core.js'",
+    'Cannot find "cypress" folder in <PROJECT>/node_modules/.store/@bahmutov+add-typescript-to-cypress@2.1.2',
+    'Cannot find "cypress" folder in <PROJECT>/node_modules/.pnpm/@bahmutov+add-typescript-to-cypress@2.1.2',
+  ]) {
+    assert.equal(classifyReference(record(arm('consistent-failure', failure), arm('pass'))).code,
+      'NPM_FLAT_TREE_ASSUMPTION');
+  }
+
+  assert.equal(classifyReference(record(
+    arm('consistent-failure', 'Cannot find "cypress" folder in <PROJECT>'),
+    arm('consistent-failure', 'Cannot find "cypress" folder in <PROJECT>'),
+  )).code, 'PROJECT_FIXTURE_PREREQUISITE');
+});
+
 test('an incompatible Nub binary or contaminated fixture is an instrument failure, not a package differential', () => {
   for (const message of ['Error: unknown key `buildJail` in install', 'Error: ERR_NUB_LOCKFILE_AMBIGUOUS']) {
     const classified = classifyReference(record(arm('consistent-failure', message), arm('pass')));
     assert.equal(classified.code, 'HARNESS_INTERNAL');
     assert.equal(classified.status, 'incomplete');
   }
+});
+
+test('Nub rejecting duplicate manifest fields is a package-manager defect even when npm later fails', () => {
+  const classified = classifyReference(record(
+    arm('consistent-failure', 'ERR_NUB_MANIFEST_PARSE: duplicate field `scripts` at line 43 column 10'),
+    arm('consistent-failure', "../src/addon.cc:20:10: fatal error: 'v8.h' file not found"),
+  ));
+  assert.equal(classified.code, 'NUB_MANIFEST_PARSE_DEFECT');
 });
 
 test('metadata classes outrank failure signatures when both managers fail', () => {
@@ -476,6 +542,13 @@ recv->InstanceTemplate()->SetAccessor(
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /node/v8-template.h:1049:8: note: candidate function not viable`;
   assert.match(firstErrorFrom(message).excerpts.join('\n'), /v8-template/);
+  assert.equal(classifyReference(record(arm('consistent-failure', message),
+    arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
+});
+
+test('C++ header diagnostics classify native ABI incompatibility', () => {
+  const message = `../src/liblzma-node.hpp:95:47: error: ‘Arguments’ does not name a type
+make: *** [lzma_native.target.mk:112: Release/obj.target/lzma_native/src/liblzma-node.o] Error 1`;
   assert.equal(classifyReference(record(arm('consistent-failure', message),
     arm('consistent-failure', message))).code, 'OBSOLETE_NATIVE_ASSUMPTION');
 });

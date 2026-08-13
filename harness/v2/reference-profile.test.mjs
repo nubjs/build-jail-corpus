@@ -8,6 +8,7 @@ import {
   loadReferenceProfile,
   referenceEnvironment,
   referenceHostCommands,
+  referenceHostPathEnvironment,
   referenceHostPathEntries,
   referenceHostToolchainCommands,
   referenceHostToolchainEnvironment,
@@ -51,6 +52,40 @@ test('the child-stdio profile changes only platform scope and diagnostic capture
   assert.match(env.NODE_OPTIONS, /--require=.*reference-child-stdio\.cjs$/);
 });
 
+test('the Cypress consumer profile adds only the scaffold expected from an ordinary project', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-cypress-consumer.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'cypress-consumer-v1';
+  expected.fixture.files['cypress/plugins/.gitkeep'] = '';
+  assert.deepEqual(profile, expected);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-cypress-consumer-'));
+  writeReferenceProject(root, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'nub-1', manager: 'nub',
+  });
+  assert.ok(fs.existsSync(path.join(root, 'cypress', 'plugins', '.gitkeep')));
+});
+
+test('the browser-download-skip profile adds only the standard non-secret opt-out', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-browser-download-skip.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'browser-download-skip-v1';
+  expected.supportedPlatforms = ['linux', 'darwin'];
+  expected.environment.set.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = '1';
+  delete expected.toolProbes.win32;
+  assert.deepEqual(profile, expected);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-browser-download-skip-'));
+  const { env } = referenceEnvironment(root, profile, { PATH: '/usr/bin' }, { platform: 'linux' });
+  assert.equal(env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD, '1');
+});
+
 test('the lifecycle debug profile changes only platform scope and diagnostic output', () => {
   const base = loadReferenceProfile();
   const profile = loadReferenceProfile(
@@ -76,6 +111,78 @@ test('the native graphics profile binds its POSIX packages and exact library pro
     /brew list --versions .*jpeg-turbo/);
   assert.throws(() => referenceHostCommands(profile, 'win32'), /does not support win32/);
   assert.equal(referenceProfileIdentity(profile).sha256.length, 64);
+});
+
+test('the liblzma profile provisions one development library on each POSIX platform', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-liblzma-posix.json', import.meta.url));
+  assert.equal(profile.id, 'liblzma-posix-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['linux', 'darwin']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-1), ['liblzma-dev']);
+  assert.deepEqual(referenceHostCommands(profile, 'darwin'), [['brew', 'install', 'xz']]);
+  assert.match(toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n'),
+    /pkg-config --modversion liblzma/);
+  assert.match(toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n'),
+    /brew list --versions xz/);
+  assert.throws(() => referenceHostCommands(profile, 'win32'), /does not support win32/);
+});
+
+test('the liblzma follow-up derives compiler paths from the actual Homebrew prefix', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-liblzma-posix-v2.json', import.meta.url));
+  const expected = loadReferenceProfile(new URL('./reference-profile-liblzma-posix.json', import.meta.url));
+  expected.id = 'liblzma-posix-v2';
+  expected.hostPackages.darwin.environmentPrepend = {
+    CPATH: [{ package: 'xz', relative: 'include' }],
+    LIBRARY_PATH: [{ package: 'xz', relative: 'lib' }],
+    PKG_CONFIG_PATH: [{ package: 'xz', relative: 'lib/pkgconfig' }],
+  };
+  assert.deepEqual(profile, expected);
+
+  const prefix = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-xz-prefix-'));
+  for (const relative of ['include', 'lib', 'lib/pkgconfig']) {
+    fs.mkdirSync(path.join(prefix, relative), { recursive: true });
+  }
+  const execute = (command, args) => {
+    assert.deepEqual([command, ...args], ['brew', '--prefix', 'xz']);
+    return { status: 0, error: null, stdout: `${prefix}\n`, stderr: '' };
+  };
+  assert.deepEqual(referenceHostPathEnvironment(profile, 'darwin', execute), {
+    CPATH: [fs.realpathSync(path.join(prefix, 'include'))],
+    LIBRARY_PATH: [fs.realpathSync(path.join(prefix, 'lib'))],
+    PKG_CONFIG_PATH: [fs.realpathSync(path.join(prefix, 'lib/pkgconfig'))],
+  });
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-liblzma-v2-env-'));
+  const { env } = referenceEnvironment(root, profile, { PATH: '/usr/bin' }, {
+    platform: 'darwin', resolveHostPaths: () => [],
+    resolveHostPathEnvironment: () => ({
+      CPATH: ['/brew/xz/include'], LIBRARY_PATH: ['/brew/xz/lib'],
+      PKG_CONFIG_PATH: ['/brew/xz/lib/pkgconfig'],
+    }),
+  });
+  assert.equal(env.CPATH, '/brew/xz/include');
+  assert.equal(env.LIBRARY_PATH, '/brew/xz/lib');
+  assert.equal(env.PKG_CONFIG_PATH, '/brew/xz/lib/pkgconfig');
+});
+
+test('the X11 profile provisions and probes only the Linux development package', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-x11-linux.json', import.meta.url));
+  assert.equal(profile.id, 'x11-linux-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['linux']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-1), ['libx11-dev']);
+  assert.match(toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n'),
+    /pkg-config --modversion x11/);
+  assert.throws(() => referenceHostCommands(profile, 'darwin'), /does not support darwin/);
+});
+
+test('the expanded X11 profile includes the XKB file development package', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-x11-linux-v2.json', import.meta.url));
+  assert.equal(profile.id, 'x11-linux-v2');
+  assert.deepEqual(profile.supportedPlatforms, ['linux']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-2),
+    ['libx11-dev', 'libxkbfile-dev']);
+  const probes = toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n');
+  assert.match(probes, /pkg-config --modversion x11/);
+  assert.match(probes, /pkg-config --modversion xkbfile/);
 });
 
 test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
@@ -223,6 +330,29 @@ test('the Redis Linux profile pre-provisions exact source-pinned Rust toolchains
   assert.throws(() => referenceHostToolchainCommands(profile, 'darwin'), /does not support darwin/);
 });
 
+test('the screened exotic-dependency profile changes only Nub source policy', () => {
+  const base = loadReferenceProfile();
+  const profile = loadReferenceProfile(
+    new URL('./reference-profile-screened-exotic-subdeps.json', import.meta.url),
+  );
+  const expected = structuredClone(base);
+  expected.id = 'screened-exotic-subdeps-v1';
+  expected.fixture.managerNpmrc.nub.blockExoticSubdeps = 'false';
+  assert.deepEqual(profile, expected);
+
+  const nubRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-screened-exotic-nub-'));
+  writeReferenceProject(nubRoot, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'nub-1', manager: 'nub',
+  });
+  assert.match(fs.readFileSync(path.join(nubRoot, '.npmrc'), 'utf8'), /blockExoticSubdeps=false/);
+
+  const npmRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-screened-exotic-npm-'));
+  writeReferenceProject(npmRoot, {
+    profile, pkg: 'example', version: '1.0.0', arm: 'npm-1', manager: 'npm',
+  });
+  assert.doesNotMatch(fs.readFileSync(path.join(npmRoot, '.npmrc'), 'utf8'), /blockExoticSubdeps/);
+});
+
 test('the Nub fixture disables its private side-effects cache without changing npm configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-nub-fixture-'));
   writeReferenceProject(root, {
@@ -300,6 +430,10 @@ test('host package declarations reject shell arguments, manager drift and undecl
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'other', relative: 'bin' }] } },
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: '../bin' }] } },
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: 'bin', extra: true }] } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CFLAGS: [{ package: 'xz', relative: 'include' }] } } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CPATH: [{ package: 'other', relative: 'include' }] } } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CPATH: [{ package: 'xz', relative: '../include' }] } } },
+    { linux: { manager: 'apt', packages: ['liblzma-dev'], environmentPrepend: { CPATH: [{ package: 'liblzma-dev', relative: 'include' }] } } },
   ]) {
     assert.throws(() => validateReferenceProfile({ ...base, hostPackages }), /invalid host packages/);
   }
