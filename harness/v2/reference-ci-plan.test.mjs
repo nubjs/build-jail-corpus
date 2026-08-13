@@ -63,6 +63,7 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /child-stdio-linux-v1\) PROFILE_FILE=harness\/v2\/reference-profile-child-stdio-linux\.json/);
   assert.match(workflow, /gnu-make-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-darwin\.json/);
   assert.match(workflow, /liblzma-posix-v1\) PROFILE_FILE=harness\/v2\/reference-profile-liblzma-posix\.json/);
+  assert.match(workflow, /liblzma-posix-v2\) PROFILE_FILE=harness\/v2\/reference-profile-liblzma-posix-v2\.json/);
   assert.match(workflow, /lifecycle-debug-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-lifecycle-debug-darwin\.json/);
   assert.match(workflow, /gnu-make-automake-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-automake-darwin\.json/);
   assert.match(workflow, /gnu-make-automake-libtool-darwin-v1\) PROFILE_FILE=harness\/v2\/reference-profile-gnu-make-automake-libtool-darwin\.json/);

@@ -8,6 +8,7 @@ import {
   loadReferenceProfile,
   referenceEnvironment,
   referenceHostCommands,
+  referenceHostPathEnvironment,
   referenceHostPathEntries,
   referenceHostToolchainCommands,
   referenceHostToolchainEnvironment,
@@ -123,6 +124,44 @@ test('the liblzma profile provisions one development library on each POSIX platf
   assert.match(toolProbesForPlatform(profile, 'darwin').map((probe) => probe.join(' ')).join('\n'),
     /brew list --versions xz/);
   assert.throws(() => referenceHostCommands(profile, 'win32'), /does not support win32/);
+});
+
+test('the liblzma follow-up derives compiler paths from the actual Homebrew prefix', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-liblzma-posix-v2.json', import.meta.url));
+  const expected = loadReferenceProfile(new URL('./reference-profile-liblzma-posix.json', import.meta.url));
+  expected.id = 'liblzma-posix-v2';
+  expected.hostPackages.darwin.environmentPrepend = {
+    CPATH: [{ package: 'xz', relative: 'include' }],
+    LIBRARY_PATH: [{ package: 'xz', relative: 'lib' }],
+    PKG_CONFIG_PATH: [{ package: 'xz', relative: 'lib/pkgconfig' }],
+  };
+  assert.deepEqual(profile, expected);
+
+  const prefix = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-xz-prefix-'));
+  for (const relative of ['include', 'lib', 'lib/pkgconfig']) {
+    fs.mkdirSync(path.join(prefix, relative), { recursive: true });
+  }
+  const execute = (command, args) => {
+    assert.deepEqual([command, ...args], ['brew', '--prefix', 'xz']);
+    return { status: 0, error: null, stdout: `${prefix}\n`, stderr: '' };
+  };
+  assert.deepEqual(referenceHostPathEnvironment(profile, 'darwin', execute), {
+    CPATH: [fs.realpathSync(path.join(prefix, 'include'))],
+    LIBRARY_PATH: [fs.realpathSync(path.join(prefix, 'lib'))],
+    PKG_CONFIG_PATH: [fs.realpathSync(path.join(prefix, 'lib/pkgconfig'))],
+  });
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-liblzma-v2-env-'));
+  const { env } = referenceEnvironment(root, profile, { PATH: '/usr/bin' }, {
+    platform: 'darwin', resolveHostPaths: () => [],
+    resolveHostPathEnvironment: () => ({
+      CPATH: ['/brew/xz/include'], LIBRARY_PATH: ['/brew/xz/lib'],
+      PKG_CONFIG_PATH: ['/brew/xz/lib/pkgconfig'],
+    }),
+  });
+  assert.equal(env.CPATH, '/brew/xz/include');
+  assert.equal(env.LIBRARY_PATH, '/brew/xz/lib');
+  assert.equal(env.PKG_CONFIG_PATH, '/brew/xz/lib/pkgconfig');
 });
 
 test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
@@ -370,6 +409,10 @@ test('host package declarations reject shell arguments, manager drift and undecl
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'other', relative: 'bin' }] } },
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: '../bin' }] } },
     { darwin: { manager: 'brew', packages: ['make'], pathPrepend: [{ package: 'make', relative: 'bin', extra: true }] } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CFLAGS: [{ package: 'xz', relative: 'include' }] } } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CPATH: [{ package: 'other', relative: 'include' }] } } },
+    { darwin: { manager: 'brew', packages: ['xz'], environmentPrepend: { CPATH: [{ package: 'xz', relative: '../include' }] } } },
+    { linux: { manager: 'apt', packages: ['liblzma-dev'], environmentPrepend: { CPATH: [{ package: 'liblzma-dev', relative: 'include' }] } } },
   ]) {
     assert.throws(() => validateReferenceProfile({ ...base, hostPackages }), /invalid host packages/);
   }

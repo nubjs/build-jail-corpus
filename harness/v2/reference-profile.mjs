@@ -9,6 +9,7 @@ export const DEFAULT_REFERENCE_PROFILE = path.join(import.meta.dirname, 'referen
 const REFERENCE_PLATFORMS = new Set(['linux', 'darwin', 'win32']);
 const HOST_PACKAGE_MANAGERS = { linux: 'apt', darwin: 'brew' };
 const RUSTUP_PROFILES = new Set(['minimal']);
+const HOST_PATH_ENVIRONMENT = new Set(['CPATH', 'LIBRARY_PATH', 'PKG_CONFIG_PATH']);
 const CHILD_STDIO_PRELOAD = path.join(import.meta.dirname, 'reference-child-stdio.cjs');
 
 const canonicalJson = (value) => {
@@ -39,6 +40,7 @@ export function validateReferenceProfile(profile) {
   }
   for (const [platform, provision] of Object.entries(hostPackages)) {
     const pathPrepend = provision?.pathPrepend ?? [];
+    const environmentPrepend = provision?.environmentPrepend ?? {};
     if (!supportedPlatforms.includes(platform) || HOST_PACKAGE_MANAGERS[platform] !== provision?.manager
       || !Array.isArray(provision?.packages) || provision.packages.length === 0
       || new Set(provision.packages).size !== provision.packages.length
@@ -49,7 +51,16 @@ export function validateReferenceProfile(profile) {
       || new Set(pathPrepend.map((entry) => JSON.stringify(entry))).size !== pathPrepend.length
       || pathPrepend.some((entry) => !entry || typeof entry !== 'object' || Array.isArray(entry)
         || Object.keys(entry).sort().join(',') !== 'package,relative'
-        || !provision.packages.includes(entry.package) || !safeRelative(entry.relative))) {
+        || !provision.packages.includes(entry.package) || !safeRelative(entry.relative))
+      || !environmentPrepend || typeof environmentPrepend !== 'object'
+      || Array.isArray(environmentPrepend)
+      || (Object.keys(environmentPrepend).length > 0 && provision.manager !== 'brew')
+      || Object.entries(environmentPrepend).some(([variable, entries]) =>
+        !HOST_PATH_ENVIRONMENT.has(variable) || !Array.isArray(entries) || entries.length === 0
+        || new Set(entries.map((entry) => JSON.stringify(entry))).size !== entries.length
+        || entries.some((entry) => !entry || typeof entry !== 'object' || Array.isArray(entry)
+          || Object.keys(entry).sort().join(',') !== 'package,relative'
+          || !provision.packages.includes(entry.package) || !safeRelative(entry.relative)))) {
       throw new Error(`reference profile has invalid host packages for ${platform}`);
     }
   }
@@ -211,6 +222,34 @@ export function referenceHostPathEntries(profile, platform = process.platform, e
   });
 }
 
+const resolveBrewPackagePath = (entry, execute) => {
+  const result = execute('brew', ['--prefix', entry.package], {
+    encoding: 'utf8', maxBuffer: 1024 * 1024,
+  });
+  const lines = String(result.stdout ?? '').trim().split(/\r?\n/).filter(Boolean);
+  if (result.error || result.status !== 0 || lines.length !== 1 || !path.isAbsolute(lines[0])) {
+    throw new Error(`reference profile cannot resolve brew prefix for ${entry.package}: `
+      + `${result.error?.message ?? (String(result.stderr ?? '').trim() || `exit ${result.status}`)}`);
+  }
+  const candidate = path.join(lines[0], entry.relative);
+  let resolved;
+  try { resolved = fs.realpathSync(candidate); } catch (error) {
+    throw new Error(`reference profile host path is absent: ${candidate} (${error.message})`);
+  }
+  if (!fs.statSync(resolved).isDirectory()) {
+    throw new Error(`reference profile host path is not a directory: ${resolved}`);
+  }
+  return resolved;
+};
+
+export function referenceHostPathEnvironment(profile, platform = process.platform, execute = spawnSync) {
+  assertReferenceProfilePlatform(profile, platform);
+  const entries = profile.hostPackages?.[platform]?.environmentPrepend ?? {};
+  return Object.fromEntries(Object.entries(entries).map(([variable, values]) => [
+    variable, values.map((entry) => resolveBrewPackagePath(entry, execute)),
+  ]));
+}
+
 export function writeReferenceProject(root, { profile, pkg, version, arm, manager }) {
   validateReferenceProfile(profile);
   fs.mkdirSync(root, { recursive: true });
@@ -241,6 +280,7 @@ export function writeReferenceProject(root, { profile, pkg, version, arm, manage
 export function referenceEnvironment(root, profile, base = process.env, {
   platform = process.platform,
   resolveHostPaths = referenceHostPathEntries,
+  resolveHostPathEnvironment = referenceHostPathEnvironment,
   resolveHostToolchainEnvironment = referenceHostToolchainEnvironment,
 } = {}) {
   validateReferenceProfile(profile);
@@ -254,6 +294,9 @@ export function referenceEnvironment(root, profile, base = process.env, {
   Object.assign(env, resolveHostToolchainEnvironment(profile, platform));
   const hostPaths = resolveHostPaths(profile, platform);
   env.PATH = [...hostPaths, env.PATH].filter(Boolean).join(path.delimiter);
+  for (const [variable, values] of Object.entries(resolveHostPathEnvironment(profile, platform))) {
+    env[variable] = [...values, env[variable]].filter(Boolean).join(path.delimiter);
+  }
   if (env.NODE_EXECUTABLE) {
     env.PATH = [path.dirname(env.NODE_EXECUTABLE), env.PATH].filter(Boolean).join(path.delimiter);
   }
