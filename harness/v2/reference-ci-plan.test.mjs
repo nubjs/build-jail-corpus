@@ -71,6 +71,7 @@ test('the workflow separates the fixed harness runtime from the exact package ru
   assert.match(workflow, /redis-build-darwin-v2\) PROFILE_FILE=harness\/v2\/reference-profile-redis-build-darwin-v2\.json/);
   assert.match(workflow, /redis-build-linux-v1\) PROFILE_FILE=harness\/v2\/reference-profile-redis-build-linux\.json/);
   assert.match(workflow, /x11-linux-v1\) PROFILE_FILE=harness\/v2\/reference-profile-x11-linux\.json/);
+  assert.match(workflow, /x11-linux-v2\) PROFILE_FILE=harness\/v2\/reference-profile-x11-linux-v2\.json/);
   assert.match(workflow, /--profile "\$REFERENCE_PROFILE_FILE"/);
   assert.match(workflow, /--profile "\$\{\{ needs\.plan\.outputs\.profile_file \}\}"/);
   assert.match(workflow, /actions\/download-artifact@v8/);

@@ -174,6 +174,17 @@ test('the X11 profile provisions and probes only the Linux development package',
   assert.throws(() => referenceHostCommands(profile, 'darwin'), /does not support darwin/);
 });
 
+test('the expanded X11 profile includes the XKB file development package', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-x11-linux-v2.json', import.meta.url));
+  assert.equal(profile.id, 'x11-linux-v2');
+  assert.deepEqual(profile.supportedPlatforms, ['linux']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-2),
+    ['libx11-dev', 'libxkbfile-dev']);
+  const probes = toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n');
+  assert.match(probes, /pkg-config --modversion x11/);
+  assert.match(probes, /pkg-config --modversion xkbfile/);
+});
+
 test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
   const profile = loadReferenceProfile(new URL('./reference-profile-gnu-make-darwin.json', import.meta.url));
   assert.equal(profile.id, 'gnu-make-darwin-v1');
