@@ -164,6 +164,16 @@ test('the liblzma follow-up derives compiler paths from the actual Homebrew pref
   assert.equal(env.PKG_CONFIG_PATH, '/brew/xz/lib/pkgconfig');
 });
 
+test('the X11 profile provisions and probes only the Linux development package', () => {
+  const profile = loadReferenceProfile(new URL('./reference-profile-x11-linux.json', import.meta.url));
+  assert.equal(profile.id, 'x11-linux-v1');
+  assert.deepEqual(profile.supportedPlatforms, ['linux']);
+  assert.deepEqual(referenceHostCommands(profile, 'linux')[1].slice(-1), ['libx11-dev']);
+  assert.match(toolProbesForPlatform(profile, 'linux').map((probe) => probe.join(' ')).join('\n'),
+    /pkg-config --modversion x11/);
+  assert.throws(() => referenceHostCommands(profile, 'darwin'), /does not support darwin/);
+});
+
 test('the GNU Make profile activates and probes Homebrew keg-only commands', () => {
   const profile = loadReferenceProfile(new URL('./reference-profile-gnu-make-darwin.json', import.meta.url));
   assert.equal(profile.id, 'gnu-make-darwin-v1');

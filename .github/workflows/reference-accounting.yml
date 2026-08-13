@@ -42,7 +42,7 @@ on:
       reference_profile:
         description: versioned project and host-tool profile
         type: choice
-        options: [developer-v1, browser-download-skip-v1, cypress-consumer-v1, screened-exotic-subdeps-v1, child-stdio-linux-v1, lifecycle-debug-darwin-v1, liblzma-posix-v1, liblzma-posix-v2, native-graphics-posix-v1, gnu-make-darwin-v1, gnu-make-automake-darwin-v1, gnu-make-automake-libtool-darwin-v1, redis-build-darwin-v1, redis-build-darwin-v2, redis-build-linux-v1]
+        options: [developer-v1, browser-download-skip-v1, cypress-consumer-v1, screened-exotic-subdeps-v1, child-stdio-linux-v1, lifecycle-debug-darwin-v1, liblzma-posix-v1, liblzma-posix-v2, native-graphics-posix-v1, gnu-make-darwin-v1, gnu-make-automake-darwin-v1, gnu-make-automake-libtool-darwin-v1, redis-build-darwin-v1, redis-build-darwin-v2, redis-build-linux-v1, x11-linux-v1]
         default: developer-v1
       deadline_minutes:
         description: stop each cell cleanly by this deadline and preserve partial evidence
@@ -127,6 +127,7 @@ jobs:
             redis-build-darwin-v1) PROFILE_FILE=harness/v2/reference-profile-redis-build-darwin.json ;;
             redis-build-darwin-v2) PROFILE_FILE=harness/v2/reference-profile-redis-build-darwin-v2.json ;;
             redis-build-linux-v1) PROFILE_FILE=harness/v2/reference-profile-redis-build-linux.json ;;
+            x11-linux-v1) PROFILE_FILE=harness/v2/reference-profile-x11-linux.json ;;
             *) echo "unknown reference profile '$REFERENCE_PROFILE'" >&2; exit 2 ;;
           esac
           node harness/v2/reference-ci-plan.mjs --os "$CELL_OS" \
