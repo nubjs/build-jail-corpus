@@ -44,6 +44,7 @@ import { overrideProbeSaysHonoured } from './override-probe.mjs';
 // the data: records would simply disagree about which Node an era means, with nothing to flag it.
 import { chooseEraNode, enginesAndDate } from './era-node.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
+import { isProvisioned, nodeBinDir } from './provision-node-matrix.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -74,8 +75,14 @@ const ERA_NODE = (() => {
   } catch (e) {
     return { root, selection: { error: `era-node selection failed: ${e?.message ?? e}` }, bin: null };
   }
-  const bin = path.join(root, 'node', selection.version, 'bin');
-  const present = fs.existsSync(path.join(bin, 'node.exe')) || fs.existsSync(path.join(bin, 'node'));
+  // ⛔ THE SHARED HELPER, NEVER A LOCAL PATH JOIN. The Windows archive is FLAT — `node.exe` sits at the
+  // version ROOT with no `bin/` — so a hand-rolled `…/bin` here reads MISSING for every version even
+  // straight after a successful install, the pin silently never engages, and the gate blocks forever.
+  // That is not hypothetical: the provisioner reported `0/9 provisioned` while nub printed
+  // "Installed in 6.6s" nine times. One helper means the provisioner and the driver cannot disagree
+  // about where a provisioned Node lives.
+  const bin = nodeBinDir(root, selection.version);
+  const present = isProvisioned(root, selection.version);
   if (present) process.env.PATH = `${bin}${path.delimiter}${process.env.PATH ?? ''}`;
   return { root, selection, bin: present ? bin : null };
 })();

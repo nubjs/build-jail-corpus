@@ -31,16 +31,26 @@ export function eraNodeRoot(env = process.env) {
 
 /** Where a provisioned version's `node` executable sits, given the stable root.
  *
- *  ⛔ VERIFIED AGAINST A REAL INSTALL, not inferred from a doc: `nub node install 18.20.8` lands in
- *  `<root>/node/18.20.8/bin/node` — NO `v` prefix on the directory. `nub node ls` did NOT list that
- *  version afterwards even though the directory existed, so the DIRECTORY is the source of truth here
- *  and `ls` is not consulted. */
-export function nodeBinDir(root, version) {
-  return path.join(root, 'node', version, 'bin');
+ *  ⛔ THE WINDOWS ARCHIVE IS FLAT AND THAT IS NOT A DETAIL — IT IS A DIFFERENT PATH. On POSIX the
+ *  distribution has `bin/node`; the Windows zip puts `node.exe` at the version ROOT, with
+ *  `node_modules`, `npm.cmd` and `corepack.cmd` beside it and NO `bin/` at all. Verified by listing a
+ *  real `nub node install 18.20.8` on `nub-win3`, and it is the same flat/`bin` split the sandbox's
+ *  own `grant_build_jail_extra_reads` comment documents for the interpreter closure.
+ *
+ *  Getting this wrong is SILENT AND TOTAL on Windows: `bin/node.exe` never exists, so every version
+ *  reads as MISSING even straight after a successful install, the pin never engages, and the hard gate
+ *  blocks forever. That is exactly what happened — the provisioner reported `0/9 provisioned` while
+ *  nub printed "Installed in 6.6s" nine times.
+ *
+ *  ⛔ ALSO VERIFIED: no `v` prefix on the version directory, and `nub node ls` did NOT list a version
+ *  it had just installed — so the DIRECTORY is the source of truth here and `ls` is never consulted. */
+export function nodeBinDir(root, version, platform = process.platform) {
+  const versionRoot = path.join(root, 'node', version);
+  return platform === 'win32' ? versionRoot : path.join(versionRoot, 'bin');
 }
 
-export function isProvisioned(root, version, exists = fs.existsSync) {
-  const bin = nodeBinDir(root, version);
+export function isProvisioned(root, version, exists = fs.existsSync, platform = process.platform) {
+  const bin = nodeBinDir(root, version, platform);
   return exists(path.join(bin, 'node')) || exists(path.join(bin, 'node.exe'));
 }
 
