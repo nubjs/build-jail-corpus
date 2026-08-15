@@ -80,6 +80,12 @@ const LEDGER_RESPONSIVE = ['0:aa11:ok:9', '0:bb22:ok:7', '0:cc33:ok:4', '0:dd44:
  */
 const runRegion = (oracle, {
   grant = '{"write":{"deps":true}}', source = REGION, ledger = LEDGER_RESPONSIVE, here = HERE,
+  // Whether nub installs the package with the jail OFF, and whether npm can. The defaults say "nub
+  // can", so every case written before the jail-off control existed still reaches the verdict it was
+  // written for. Stubbed for the same reason `verify` is: the real ones run two `nub` installs each,
+  // which no unit test can afford.
+  unjailedNubOk = true,
+  npmOk = true,
 } = {}) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'win-inv-'));
   const script = path.join(dir, 'region.mjs');
@@ -96,6 +102,13 @@ const runRegion = (oracle, {
     `const GRANT = ${grant};`,
     `const ARM_LEDGER = ${JSON.stringify(ledger)};`,
     'const descend = (g, provenance) => console.log(`  DESCEND[${provenance}] ${JSON.stringify(g)}`);',
+    // The jail-off control the terminal verdict now consults, and the npm question that decides whose
+    // fault a nub failure is. Both are defined far above the extracted slice, like `run`.
+    `const unjailedNubOk = () => ${unjailedNubOk};`,
+    `const npmOk = () => ${npmOk};`,
+    // `emitBinaryProvenance` is also above the slice; the terminal branch calls it before exiting so
+    // the published record names the binary. A no-op here keeps the stdout the assertions read clean.
+    'const emitBinaryProvenance = () => {};',
     `const verify = ${oracle};`,
     source,
   ].join('\n'));
@@ -149,6 +162,38 @@ test('⭑ NEGATIVE CONTROL: a shortfall that VARIES across arms is not grant-ind
   assert.match(out, /NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms/,
     'the stage did not run, or refused on a clause other than the digest one');
   assert.equal(parseDriverLog(out).verdict, 'NO-STATE-PASSED');
+  // The jail-off control DID run and cleared. Without this the verdict above would be the old
+  // unconditional one, which named the jail without ever asking whether nub installs the package.
+  assert.match(out, /jail-off control: nub installs this package unjailed/,
+    'the terminal verdict was reached without consulting the jail-off control');
+});
+
+test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it unjailed either', () => {
+  // ⛔ THE CASE WINDOWS COULD NOT EXPRESS, and the one that mattered most: 45 of the 62 `write:"disk"`
+  // grants in the catalog rest on a win32 record ALONE, so the widest capability the jail hands out was
+  // decided by the only platform that could not tell "the jail blocked it" from "nub cannot install it
+  // here at all". Every rung fails, but nub cannot install the package with the jail OFF — so the
+  // ladder's failures say nothing about capabilities, and `NO-STATE-PASSED` would name the jail for a
+  // defect it had no part in. npm CAN install it, which is what makes this a nub defect.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true });
+  assert.match(out, /=> BROKEN-UNJAILED-NUB/);
+  assert.doesNotMatch(out, /=> NO-STATE-PASSED/,
+    'both verdicts were printed — record.mjs takes the LAST `=>`, so the stage would be inert');
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
+  assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+});
+
+test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot install it either', () => {
+  // The distinction the Linux arm learned from `@aws-amplify/cli@2.0.0`: nub failing unjailed is not
+  // yet nub's fault. With npm failing too, nothing installs this package and there is nothing to
+  // measure — naming nub here would send the next reader chasing a bug that is not there.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: false });
+  assert.match(out, /=> BROKEN-WITHOUT-JAIL-TOO/);
+  assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/, "npm's failure was not consulted before blaming nub");
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'BROKEN-WITHOUT-JAIL-TOO');
+  assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
 });
 
 test('⭑ an ABSENT package is refused even though its shortfall never moves', () => {

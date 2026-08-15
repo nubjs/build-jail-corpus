@@ -232,6 +232,60 @@ const securityScreen = (kind, inputArgs) => {
 // timeout from a non-zero exit is what keeps a hung arm out of the "grant insufficient" bucket.
 const timedOut = (r) => r.error?.code === 'ETIMEDOUT' || (r.status === null && r.signal != null);
 
+// ⛔ DOES NUB INSTALL THIS PACKAGE WITH THE JAIL ENTIRELY OFF? WINDOWS COULD NOT ASK.
+//
+// The control at the top of this driver keys on OBSERVE's rc, and OBSERVE runs `npm rebuild` — while
+// every verify arm runs `nub install` + `nub approve-builds`. So a package npm installs fine but nub
+// cannot install even unjailed climbs the whole ladder, fails every rung, and is recorded
+// `NO-STATE-PASSED`: a verdict that reads as "the jail refused this" about a defect the jail had no
+// part in. `measure.sh` grew this arm on 2026-08-07 and `measure-macos.sh` received it in this same
+// series; Windows was the last driver without it, which is why a Windows failure was the one failure
+// this corpus could not attribute.
+//
+// THAT MATTERED MORE HERE THAN ON EITHER POSIX PLATFORM: 45 of the 62 `write:"disk"` grants in the
+// catalog are justified by a win32 record ALONE, so the widest capability the jail hands out rested
+// on the one platform that could not tell "the jail blocked it" from "nub cannot install it here".
+let nspSeq = 0;
+const unjailedNubOk = () => {
+  const d = path.join(ROOT, `nsp-${nspSeq++}`);
+  fs.mkdirSync(d, { recursive: true });
+  // A UNIQUE ROOT PACKAGE NAME, for the same reason every verify arm uses one: nub memoises a
+  // lifecycle outcome keyed on package identity, so a reused name REPLAYS an earlier result with
+  // every precondition green — indistinguishable from a real pass by exit code alone.
+  fs.writeFileSync(
+    path.join(d, 'package.json'),
+    `${JSON.stringify({ name: `nsp${nspSeq}${Date.now().toString(36)}`, version: '1.0.0', dependencies: { [PKG]: VER } })}\n`,
+  );
+  fs.writeFileSync(path.join(d, 'nub.jsonc'), `${JSON.stringify({ install: { buildJail: false } })}\n`);
+  // The memo off at SOURCE, not merely swept afterwards — the same single point of failure the
+  // verify arms in this driver already close.
+  fs.writeFileSync(path.join(d, '.npmrc'), 'side-effects-cache=false\n');
+  // Resolve WITHOUT running anything, screen the tree while it is still inert, and only then install:
+  // a known-malicious dependency is refused before a single lifecycle script executes.
+  if (run(NUB, ['install', '--ignore-scripts'], { cwd: d }).status !== 0) return false;
+  securityScreen('nub-unjailed-resolved', ['--tree', d]);
+  if (run(NUB, ['install'], { cwd: d }).status !== 0) return false;
+  return run(NUB, ['approve-builds', '--all'], { cwd: d }).status === 0;
+};
+
+// ⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT. On Linux
+// this caught `@aws-amplify/cli@2.0.0`: the arm came back nub-broken, but plain `npm install` fails
+// too (gyp rejects Python 3.12), so a verdict naming nub would be true and still misleading. The
+// top-of-file control cannot answer it either — that one keys on OBSERVE, and OBSERVE runs `npm
+// rebuild` against an already-materialized tree, which succeeds where a fresh `npm install` fails.
+const npmOk = () => {
+  const d = path.join(ROOT, `nsp-npm-${nspSeq++}`);
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(d, 'package.json'), `${JSON.stringify({ name: 'nspnpm', version: '1.0.0' })}\n`);
+  if (run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: d }).status !== 0) {
+    return false;
+  }
+  securityScreen('npm-fallback-resolved', ['--tree', d]);
+  // Rebuild the WHOLE cleared tree: an ordinary npm install runs dependency lifecycle scripts as
+  // well as the target's, so targeting only PKG would change the reference arm.
+  return run(NODE, [NPM, 'rebuild', '--no-audit', '--no-fund'], { cwd: d }).status === 0;
+};
+
 const countFiles = (dir, skip = () => false) => {
   let n = 0;
   const walk = (d) => {
@@ -1619,6 +1673,40 @@ if (inv.status === 0) {
   process.exit(0);
 }
 console.log(`  NOT-GRANT-INDEPENDENT ${invOut.replace(/^NOT-ESTABLISHED /, '')}`);
+
+// ⛔ ASK WHETHER NUB CAN INSTALL THIS AT ALL BEFORE BLAMING THE JAIL. Every rung failed, but the
+// ladder only ever varied the GRANT — it never asked whether nub installs this package with the jail
+// switched off. If it does not, none of those failures say anything about capabilities, and the
+// verdict below would name the jail for a defect it had no part in.
+//
+// ⛔ RUN IT HERE, LAZILY. This is the only path that would otherwise file the terminal verdict, so the
+// common case pays nothing; hoisting it would add two installs to every package in the corpus to
+// answer a question almost none of them ask.
+if (!unjailedNubOk()) {
+  // ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
+  // second verdict after either branch would silently overwrite it and the stage would be inert.
+  // ⛔ NAME THE BINARY BEFORE EXITING. Both of these publish a record, and a record that cannot say
+  // which nub produced it is unattributable — `venue-provenance-on-exit.test.mjs` enforces it on the
+  // `BROKEN-WITHOUT-JAIL-TOO` path and caught this branch missing it. The emitter is idempotent, so
+  // calling it in both arms is free.
+  // ⛔ NAME THE BINARY BEFORE EXITING, AND KEEP IT TIGHT AGAINST THE VERDICT. Both branches publish a
+  // record, and one that cannot say which nub produced it is unattributable —
+  // `venue-provenance-on-exit.test.mjs` caught this branch missing the call. Its predicate scans
+  // FORWARD from the verdict line to the exit within a FIVE-LINE window, so the call must sit after
+  // the `console.log` and nothing verbose may come between: a comment block parked here pushed both
+  // the call and the `process.exit` out of the window and tripped a second guard.
+  if (npmOk()) {
+    console.log('  => BROKEN-UNJAILED-NUB -- npm installs this package but nub cannot, even with the jail');
+    console.log('     OFF. The ladder\'s failures say nothing about capabilities. NOT a jail finding and NOT');
+    console.log('     an under-grant: do not widen the catalog. This is a nub install defect to chase.');
+  } else {
+    console.log('  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)');
+  }
+  emitBinaryProvenance();
+  process.exit(0);
+}
+console.log('  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference');
+
 // ⛔ ONLY NOW, AND ONLY IN THIS BRANCH. `record.mjs` walks the log line by line and the LAST matching
 // `=>` wins, so printing both verdicts would silently overwrite `ARTIFACT-GATE-SUSPECT` with
 // `NO-STATE-PASSED` and this whole stage would have no effect on any record.
