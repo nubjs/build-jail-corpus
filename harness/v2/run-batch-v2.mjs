@@ -24,6 +24,7 @@ import { computeHarnessIdentity, loadInstrumentConfig, loadInvalidationPolicy } 
 import { recordValidity } from './record-validity.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 import { fetchPackageStanding } from './package-standing.mjs';
+import { provisionMatrix } from './provision-node-matrix.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -81,6 +82,39 @@ console.log(`instrument: epoch ${INSTRUMENT.harnessEpoch} ${INSTRUMENT.harnessSh
   + `(${INSTRUMENT.inputCount} inputs)`);
 console.log(`runtime: ${process.version} ${RUNTIME.node.sha256?.slice(0, 16) ?? 'unhashed'}; `
   + `nub ${NUB_BINARY?.sha256?.slice(0, 16) ?? 'unidentified'}`);
+
+// ── ERA-NODE PRE-FLIGHT ───────────────────────────────────────────────────────────────────────
+//
+// The drivers pin each package to the Node its author targeted, but only for versions ALREADY
+// provisioned: they READ the provisioned tree and never write it, because `NUB_CACHE_DIR` is per-run
+// and an install there would refetch ~20 MB per package. So an unprovisioned box measures everything
+// on the ambient Node — precisely the state the pin exists to end. Measured across 45 real records,
+// 93% ran on a Node the era rule would not have chosen, in BOTH directions.
+//
+// ⛔ REPORTED ON EVERY PATH, INCLUDING THE FULLY-PROVISIONED ONE, for the same reason the falsification
+// block below says so: a reader of a slice log must be able to tell "pinned" from "the pin never
+// engaged", and those look identical if the good case is quiet.
+//
+// ⛔ WARNS BY DEFAULT, REFUSES ONLY ON REQUEST. Refusing outright would break every existing caller on
+// a box that has not provisioned, and the records stay honest either way — each carries `pinned` and the
+// version it wanted. A run that MUST be pinned (the clean fresh corpus pass) sets
+// `NUB_V2_REQUIRE_ERA_NODE=1` and gets a hard gate instead.
+{
+  const { rows, root } = provisionMatrix({ check: true });
+  const missing = rows.filter((r) => !r.present);
+  const label = `era-node: ${rows.length - missing.length}/${rows.length} Node versions provisioned under ${root}`;
+  if (!missing.length) {
+    console.log(`${label} — every package can be pinned to its era`);
+  } else {
+    console.log(`${label}; MISSING majors ${missing.map((r) => r.major).join(', ')} — a package whose era `
+      + 'wants one of those falls back to the ambient Node and records pinned: false. Fix with '
+      + '`node harness/v2/provision-node-matrix.mjs`.');
+    if (process.env.NUB_V2_REQUIRE_ERA_NODE) {
+      console.error('era-node: refusing to start — NUB_V2_REQUIRE_ERA_NODE is set and the matrix is incomplete');
+      process.exit(2);
+    }
+  }
+}
 
 // Extra argv appended to whichever driver the dispatch below selects, as a JSON array.
 //
