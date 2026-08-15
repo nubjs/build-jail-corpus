@@ -322,15 +322,21 @@ function osOverlays(coveredVersions, baseCaps, byVersionOs, allPlatforms) {
     if (!Object.keys(overlay).length) continue;
 
     // The base is the union of every platform, so no platform can legitimately want MORE than it.
-    // If one does, the union is broken, and emitting the overlay would under-grant everyone else.
-    const widened = CAP_AXES.filter((axis) => {
-      const merged = unionGrant({ [axis]: baseCaps[axis] }, { [axis]: osCaps[axis] });
-      return capsKey(merged[axis] ?? null) !== capsKey(baseCaps[axis] ?? null);
-    });
-    if (widened.length) {
+    // If one does, the union is broken and emitting the overlay would under-grant everyone else.
+    //
+    // ⛔ TESTED ON THE WHOLE GRANT, NEVER AXIS BY AXIS, because the axes are not independent:
+    // `unionGrant` DROPS `read` once `write` widens to `"disk"` (whole-disk already covers every
+    // read, and the parser rejects the redundant pair). So a base of `{write:"disk"}` and a platform
+    // of `{write:{project},read:{userHome}}` compares as "macos widens read" on a per-axis reading
+    // while being a perfectly ordinary NARROWING — the base grants strictly more. An axis-wise
+    // assertion here fired on the real corpus for exactly that shape. Unioning the platform's caps
+    // INTO the base and checking the base is unchanged asks the subset question directly, and gets
+    // the write⇒read implication for free because `unionGrant` applies it.
+    if (capsKey(unionGrant({ ...baseCaps }, osCaps)) !== capsKey(baseCaps)) {
       throw new Error(
-        `per-OS overlay for ${os} widens ${widened.join(', ')} beyond the cross-platform union — `
-        + 'the union invariant is broken; refusing to emit an overlay that would under-grant the rest',
+        `per-OS overlay for ${os} would widen beyond the cross-platform union — the union invariant `
+        + 'is broken; refusing to emit an overlay that would under-grant the rest. '
+        + `base=${capsKey(baseCaps)} ${os}=${capsKey(osCaps)}`,
       );
     }
     overlays[os === 'windows' ? 'win' : os] = overlay;
