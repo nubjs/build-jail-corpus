@@ -174,6 +174,7 @@ export function parseDriverLog(log) {
     cwdUnplaceableWrites: null,
     cwdResolved: null,
     nubBinary: null,
+    nodeSelection: null,
   };
 
   let synthesizedNext = false;
@@ -243,6 +244,19 @@ export function parseDriverLog(log) {
     if (nb) {
       try { out.nubBinary = JSON.parse(nb[1]); }
       catch { out.notes.push('nub-binary-unparsable'); }
+      continue;
+    }
+    // WHICH NODE THIS VERSION SHOULD RUN ON, and whether the arm actually got it. The driver decides
+    // (`era-node.mjs`) and this file only learns, same contract as the markers above.
+    //
+    // ⛔ RECORDED EVEN WHILE THE PIN IS NOT YET BINDING, WHICH IS THE POINT. A record carrying the era
+    // pick beside the Node the arm really used is what tells us how often the two DIFFER, and on
+    // which packages, before the pin changes any verdict. Flipping it first would move every
+    // measurement at once with nothing to attribute the movement to.
+    const ns = /VENUE-NODE-SELECTION\s+(\{.*)/.exec(l);
+    if (ns) {
+      try { out.nodeSelection = JSON.parse(ns[1]); }
+      catch { out.notes.push('node-selection-unparsable'); }
       continue;
     }
     const ov = /VENUE-OVERRIDES\s+(\{.*)/.exec(l);
@@ -746,6 +760,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       // swap the artifact mid-batch, and the hash is what distinguishes a batch measured against one
       // binary from a batch measured against two.
       nubBinary: p.nubBinary ?? null,
+      // The era pin, mirroring v1's `nodeSelection` field names so the two corpora are comparable.
+      // v1 once shipped a whole Linux run whose every record said `pinnedTo: null` because the
+      // selection silently fell through, and nothing in the record could tell that from a deliberate
+      // no-pin — so the acceptance bar is POPULATED, not merely present.
+      nodeSelection: p.nodeSelection ?? null,
       // R6. Normalisation that is RECORDED is a covered axis; normalisation that is invisible is a
       // silent bet that it did not matter. The driver names each variable it set, unset or
       // redirected, so a reader can tell whether `CI` was touched — the one override that would

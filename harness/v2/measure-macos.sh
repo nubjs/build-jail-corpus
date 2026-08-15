@@ -559,6 +559,17 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
   echo "  RAWLOG-CAPTURE $CAPTURE"
   echo "  RAWLOG-BYTES raw=$(wc -c < "$OBS/trace.txt" | tr -d ' ') gz=$(wc -c < "$OBS/trace.txt.gz" | tr -d ' ')"
   echo "  VENUE-INTERPRETER $INTERPRETER"
+  # ⛔ WHICH NODE THIS VERSION *SHOULD* RUN ON, recorded while the pin is NOT yet binding. Paired with
+  # `VENUE-INTERPRETER` above — the Node the arm actually used — a record carries both, which is the
+  # only way to learn how often the era pick and the ambient Node DIFFER, and on which packages,
+  # BEFORE the pin changes any verdict.
+  #
+  # ⛔ ALWAYS EMITS, EVEN ON FAILURE. An absent marker leaves `nodeSelection: null`, indistinguishable
+  # from a deliberate no-pin — the ambiguity that let a v1 Linux run ship with `pinnedTo: null` on
+  # every record.
+  NODE_SELECTION="$(node "$HERE/era-node.mjs" "$PKG" "$VER" 2>/dev/null)"
+  [ -n "$NODE_SELECTION" ] || NODE_SELECTION='{"error":"era-node selection failed"}'
+  echo "  VENUE-NODE-SELECTION $NODE_SELECTION"
   # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
   # its INHERITED value precisely because the one override that would invalidate the whole venue/CI
   # acceptance test is touching it. Recording it unchanged is the claim a reader can check.

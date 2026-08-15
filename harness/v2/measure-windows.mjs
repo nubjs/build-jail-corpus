@@ -39,6 +39,11 @@ import { neverSpawned } from './never-spawned.mjs';
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
 import { overrideProbeSaysHonoured } from './override-probe.mjs';
+// IMPORTED rather than shelled out to. This driver is already JS, so it shares the SAME selector the
+// two shell drivers reach through `era-node.mjs`'s CLI. A second implementation would be invisible in
+// the data: records would simply disagree about which Node an era means, with nothing to flag it.
+import { chooseEraNode, enginesAndDate } from './era-node.mjs';
+import { loadNodeMatrix } from './node-matrix.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -994,6 +999,23 @@ function emitBinaryProvenance() {
     features: { buildJailCatalogOverride: hasOverride, pythonDontWriteBytecodeEnv: hasBytecodeEnv },
   })}`);
   console.log(`  VENUE-INTERPRETER ${NODE}`);
+  // ⛔ WHICH NODE THIS VERSION *SHOULD* RUN ON, recorded while the pin is NOT yet binding. Paired with
+  // `VENUE-INTERPRETER` above — the Node the arm actually used — a record carries both, which is the
+  // only way to learn how often the era pick and the ambient Node DIFFER, and on which packages,
+  // BEFORE the pin changes any verdict.
+  //
+  // ⛔ ALWAYS EMITS, EVEN ON FAILURE. An absent marker leaves `nodeSelection: null`, indistinguishable
+  // from a deliberate no-pin — the ambiguity that let a v1 Linux run ship with `pinnedTo: null` on
+  // every record. A registry hiccup must not silently become "no pin was intended".
+  let selection;
+  try {
+    const { matrix } = loadNodeMatrix();
+    const { engines, published } = enginesAndDate(PKG, VER, { spawnSync });
+    selection = { pkg: PKG, packageVersion: VER, ...chooseEraNode({ engines, publishedAt: published, matrix }) };
+  } catch (e) {
+    selection = { error: `era-node selection failed: ${e?.message ?? e}` };
+  }
+  console.log(`  VENUE-NODE-SELECTION ${JSON.stringify(selection)}`);
 }
 emitBinaryProvenance();
 // ⛔ WHERE THE JAILED ARMS RAN, BECAUSE ON THIS PLATFORM THE ROOT PATH CAN DECIDE THE OUTCOME BY

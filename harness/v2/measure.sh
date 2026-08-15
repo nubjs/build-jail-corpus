@@ -604,6 +604,18 @@ fi
 # is exactly the un-attributable record R6 exists to end — and it would have failed CLOSED-looking,
 # with `overrides: null` reading as "nothing was overridden" rather than as "we lost the answer".
 echo "  VENUE-INTERPRETER $INTERPRETER"
+# ⛔ WHICH NODE THIS VERSION *SHOULD* RUN ON, recorded while the pin is NOT yet binding. Paired with
+# `VENUE-INTERPRETER` above — the Node the arm actually used — a record now carries both, which is the
+# only way to learn how often the era pick and the ambient Node DIFFER, and on which packages, BEFORE
+# the pin changes any verdict. Making it binding first would move every measurement at once with
+# nothing to attribute the movement to.
+#
+# ⛔ ALWAYS EMITS, EVEN ON FAILURE. An absent marker leaves `nodeSelection: null`, which is
+# indistinguishable from a deliberate no-pin — the exact ambiguity that let a v1 Linux run ship with
+# `pinnedTo: null` on every record. A failure says so IN the field instead.
+NODE_SELECTION="$(node "$HERE/era-node.mjs" "$PKG" "$VER" 2>/dev/null)"
+[ -n "$NODE_SELECTION" ] || NODE_SELECTION='{"error":"era-node selection failed"}'
+echo "  VENUE-NODE-SELECTION $NODE_SELECTION"
 # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
 # its INHERITED value precisely because the one override that would invalidate the whole
 # venue/CI acceptance test is touching it. Recording it unchanged is the claim a reader can check.
