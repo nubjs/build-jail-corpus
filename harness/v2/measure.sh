@@ -96,6 +96,50 @@ ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
 # (see the long note in `verify()`). It is kept because a per-run primer cache is still worth
 # having, but the thing that makes two arms independent is the per-arm STORE EVICTION below.
 export NUB_CACHE_DIR="$ROOT/nubcache"
+
+# ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
+# Measure this version on the Node its author targeted. Computed HERE, before anything runs, because
+# the pin has to be on PATH for the measurement; the `VENUE-NODE-SELECTION` marker further down just
+# echoes this value rather than recomputing it, so the record cannot disagree with what actually ran.
+#
+# ⛔ THE PROVISIONED TREE IS READ, NEVER WRITTEN, AND THAT IS THE WHOLE DESIGN. `NUB_CACHE_DIR` above
+# is PER-RUN by design, so a `nub node install` here would fetch ~20 MB (measured: 20 MB / 3.2 s) and
+# throw it away for EVERY package — thousands of redundant downloads of the same nine tarballs across
+# a corpus. `provision-node-matrix.mjs` does it once per box into a stable root instead.
+#
+# ⛔ SELF-ENABLING ON THE DIRECTORY'S EXISTENCE, so provisioning is the only switch and there is no
+# flag to forget. A box that has not provisioned measures exactly as before, and the record still says
+# which Node was WANTED — so an unpinned run is visible in the data rather than silent.
+NODE_SELECTION="$(node "$HERE/era-node.mjs" "$PKG" "$VER" 2>/dev/null)"
+[ -n "$NODE_SELECTION" ] || NODE_SELECTION='{"error":"era-node selection failed"}'
+ERA_NODE_ROOT="${NUB_ERA_NODE_ROOT:-$HOME/.cache/nub}"
+ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).version||"")}catch{}})' 2>/dev/null)"
+ERA_NODE_BIN=""
+if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
+  ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"
+  PATH="$ERA_NODE_BIN:$PATH"
+  export PATH
+fi
+# The marker's payload is built ONCE, here, and echoed verbatim much later.
+#
+# ⛔ BUILT HERE RATHER THAN AT THE EMISSION SITE, FOR A REASON A GUARD FOUND. `measure-provenance.mjs`
+# slices the retention region from `gzip -9 -c` to the first line closing a `node -e` invocation, so an
+# augmenting `node -e` next to the marker TRUNCATED that slice and silently dropped `VENUE-OVERRIDES`
+# from the extracted block. The test failed loudly, which is exactly what its own comment predicted.
+# Composing the payload up here keeps the late emission a plain `echo`, which no slice boundary can
+# collide with — and removes a second node process from the per-package path.
+NODE_SELECTION_MARKER="$(printf '%s' "$NODE_SELECTION" | node -e '
+let s = "";
+process.stdin.on("data", (d) => { s += d; }).on("end", () => {
+  let o; try { o = JSON.parse(s); } catch { o = { error: "era-node selection unparsable" }; }
+  o.pinned = process.argv[1] !== "";
+  o.pinnedBin = process.argv[1] || null;
+  o.eraNodeRoot = process.argv[2];
+  process.stdout.write(JSON.stringify(o));
+});
+' "$ERA_NODE_BIN" "$ERA_NODE_ROOT" 2>/dev/null)"
+[ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker build failed"}'
+
 echo "### $PKG@$VER   ($ROOT)"
 
 # ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
@@ -613,9 +657,18 @@ echo "  VENUE-INTERPRETER $INTERPRETER"
 # ⛔ ALWAYS EMITS, EVEN ON FAILURE. An absent marker leaves `nodeSelection: null`, which is
 # indistinguishable from a deliberate no-pin — the exact ambiguity that let a v1 Linux run ship with
 # `pinnedTo: null` on every record. A failure says so IN the field instead.
-NODE_SELECTION="$(node "$HERE/era-node.mjs" "$PKG" "$VER" 2>/dev/null)"
-[ -n "$NODE_SELECTION" ] || NODE_SELECTION='{"error":"era-node selection failed"}'
-echo "  VENUE-NODE-SELECTION $NODE_SELECTION"
+# ⛔ REUSES the value computed at the top of the run, never recomputes it. A second `era-node.mjs`
+# call could disagree with the first (the registry can answer differently, or a version could be
+# provisioned mid-run), and the record would then name a Node the measurement did not use — the
+# un-attributable record this marker exists to prevent. `pinned` is what says the selection actually
+# took effect, so an unpinned box is visible in the data rather than looking like a pinned one.
+# ⛔ SELF-SUFFICIENT UNDER REPLAY. `measure-provenance.mjs` REPLAYS this sliced region as a standalone
+# script, where the marker built at the top of the run does not exist — and under `set -u` an unbound
+# reference here aborts the rest of the block, taking `VENUE-OVERRIDES` with it. Defining-then-defaulting
+# keeps the region runnable in isolation and makes a missing payload say so instead of emitting empty.
+: "${NODE_SELECTION_MARKER:=}"
+[ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker not built"}'
+echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
 # ⛔ EVERY VARIABLE THIS DRIVER SET, UNSET OR REDIRECTED (PORTABILITY R6) — and `CI` is listed with
 # its INHERITED value precisely because the one override that would invalidate the whole
 # venue/CI acceptance test is touching it. Recording it unchanged is the claim a reader can check.

@@ -51,6 +51,35 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const [PKG, VER] = positional;
 if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [--nub exe] [--root dir]'); process.exit(2); }
 
+// ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
+// Same selector and the same pin mechanism as the two shell drivers, so a record cannot mean
+// different things on two platforms. Resolved HERE, before any arm runs, because the pin has to be on
+// PATH for the measurement; the `VENUE-NODE-SELECTION` marker later reuses this object rather than
+// recomputing it, so the record cannot disagree with what actually ran.
+//
+// ⛔ READS the provisioned tree, never writes it — the drivers scope `NUB_CACHE_DIR` per run, so a
+// `nub node install` here would refetch ~20 MB per package. `provision-node-matrix.mjs` does it once
+// per box. Self-enabling on the directory's existence, so provisioning is the only switch.
+//
+// ⛔ `bin` on Windows, NOT `bin/node.exe`'s parent by another name: nub lays a provisioned version out
+// as `<root>/node/<version>/bin/`, verified against a real install rather than assumed, and `node.exe`
+// is checked alongside `node` because that is the Windows spelling.
+const ERA_NODE = (() => {
+  const root = process.env.NUB_ERA_NODE_ROOT || path.join(os.homedir(), '.cache', 'nub');
+  let selection;
+  try {
+    const { matrix } = loadNodeMatrix();
+    const { engines, published } = enginesAndDate(PKG, VER, { spawnSync });
+    selection = { pkg: PKG, packageVersion: VER, ...chooseEraNode({ engines, publishedAt: published, matrix }) };
+  } catch (e) {
+    return { root, selection: { error: `era-node selection failed: ${e?.message ?? e}` }, bin: null };
+  }
+  const bin = path.join(root, 'node', selection.version, 'bin');
+  const present = fs.existsSync(path.join(bin, 'node.exe')) || fs.existsSync(path.join(bin, 'node'));
+  if (present) process.env.PATH = `${bin}${path.delimiter}${process.env.PATH ?? ''}`;
+  return { root, selection, bin: present ? bin : null };
+})();
+
 // ── THE `NUB_V2_WINDOWS_EVICTION_VERIFIED` HARD STOP WAS LIFTED 2026-08-07. ────────────────────
 //
 // It blocked every jailed arm because every jailed arm failed at every grant on a read of the
@@ -1007,15 +1036,15 @@ function emitBinaryProvenance() {
   // ⛔ ALWAYS EMITS, EVEN ON FAILURE. An absent marker leaves `nodeSelection: null`, indistinguishable
   // from a deliberate no-pin — the ambiguity that let a v1 Linux run ship with `pinnedTo: null` on
   // every record. A registry hiccup must not silently become "no pin was intended".
-  let selection;
-  try {
-    const { matrix } = loadNodeMatrix();
-    const { engines, published } = enginesAndDate(PKG, VER, { spawnSync });
-    selection = { pkg: PKG, packageVersion: VER, ...chooseEraNode({ engines, publishedAt: published, matrix }) };
-  } catch (e) {
-    selection = { error: `era-node selection failed: ${e?.message ?? e}` };
-  }
-  console.log(`  VENUE-NODE-SELECTION ${JSON.stringify(selection)}`);
+  // ⛔ REUSES the module-scope selection computed before the arms ran; never recomputes it. A second
+  // lookup could answer differently and the record would then name a Node the measurement did not
+  // use. `pinned` is what distinguishes a pinned run from an unprovisioned box.
+  console.log(`  VENUE-NODE-SELECTION ${JSON.stringify({
+    ...ERA_NODE.selection,
+    pinned: ERA_NODE.bin !== null,
+    pinnedBin: ERA_NODE.bin,
+    eraNodeRoot: ERA_NODE.root,
+  })}`);
 }
 emitBinaryProvenance();
 // ⛔ WHERE THE JAILED ARMS RAN, BECAUSE ON THIS PLATFORM THE ROOT PATH CAN DECIDE THE OUTCOME BY
