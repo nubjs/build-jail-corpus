@@ -91,6 +91,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { driverInvocation } from './driver-invocation.mjs';
+import { driverReportedTimeout } from './driver-timeout.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -399,6 +400,23 @@ const runArm = (kase, grant, label, cacheHome) => {
     grant,
     driverRc: rc,
     timedOut: r.error?.code === 'ETIMEDOUT',
+    // ⛔ THE DRIVER HAS ITS OWN DEADLINE AND `timedOut` ABOVE CANNOT SEE IT. `timedOut` is
+    // spawnSync's, i.e. THIS file's `--budget` (900 s). `measure-windows.mjs` additionally imposes
+    // `--arm-timeout` (600 s, its line 188) on each of `install --ignore-scripts`, `install` and
+    // `approve-builds --all`; when that fires the driver prints a TIMED-OUT line and exits NORMALLY,
+    // so spawnSync never times out and `timedOut` stays false.
+    //
+    // MEASURED, and it blocked every win32 lane of the 25% run: `mozjpeg@6.0.1`'s control arm hit the
+    // driver's 600 s install deadline, so the driver printed
+    //   VERIFY[at-grant] TIMED-OUT in `install` after 600000 ms -- no verdict
+    // which carries no `rc=` and therefore cannot match the VERIFY regex above ⇒ `installRc: null`
+    // and `verdict: 'UNPARSED'` ⇒ `judgeRight` reported "CONTROL FAILED: the known-sufficient grant
+    // did NOT install". That is a MISDIAGNOSIS of exactly the kind the driver warns against at its
+    // line 186: "a failure says the grant was insufficient, a timeout says nothing about the grant."
+    //
+    // The predicate lives in `driver-timeout.mjs` so it is testable without running a driver, and so
+    // there is ONE copy of it — the lesson `driver-invocation.mjs` was extracted to learn.
+    driverTimedOut: driverReportedTimeout(out),
     durationMs: Date.now() - t0,
     root,
     // The driver's own terminal word. Read from its vocabulary rather than re-derived, so this file
@@ -511,7 +529,12 @@ const judgeWrong = (kase, arm) => {
   }
   if (arm.verdict === 'VOID') { inconclusive.push(noteVoid(arm)); return { fail, inconclusive }; }
   if (arm.verdict !== 'INSUFFICIENT') {
-    inconclusive.push(`arm did not reach a verdict (${arm.verdict}${arm.timedOut ? ', timed out' : ''})`);
+    // A wrong arm reaching no verdict is ALREADY inconclusive rather than a detection, which is what
+    // keeps a timeout from ever being miscounted as "the harness caught the under-grant". The timeout
+    // terms only make the reported reason accurate; `driverTimedOut` is the driver's own deadline.
+    inconclusive.push(`arm did not reach a verdict (${arm.verdict}`
+      + `${arm.timedOut ? ", exceeded falsify's --budget" : ''}`
+      + `${arm.driverTimedOut ? ", the driver hit its --arm-timeout" : ''})`);
     return { fail, inconclusive };
   }
   // INSUFFICIENT reached. Now: for the right reason?
@@ -612,8 +635,24 @@ const judgeRight = (kase, arm) => {
     return { fail, inconclusive };
   }
   if (arm.verdict === 'VOID') { inconclusive.push(`control ${noteVoid(arm)}`); return { fail, inconclusive }; }
-  if (arm.verdict === 'BROKEN-WITHOUT-JAIL-TOO' || arm.timedOut) {
-    inconclusive.push(`control could not run (${arm.verdict}${arm.timedOut ? ', timed out' : ''})`);
+  // ⛔ A TIMEOUT IS NOT A FAILED CONTROL, AND `driverTimedOut` IS WHAT MAKES THAT TRUE FOR THE
+  // DRIVER'S OWN DEADLINE AS WELL AS THIS FILE'S. Reading a timeout as a failure asserts something
+  // about the GRANT that the run never established — see the note on `driverTimedOut` in `runArm` for
+  // the win32 case where that misdiagnosis blocked a whole platform's sweep. The distinction is the
+  // driver's own (`measure-windows.mjs:186`): a failure says the grant was insufficient, a timeout
+  // says nothing about the grant at all.
+  //
+  // Still INCONCLUSIVE rather than PASS, and that is the load-bearing half: `overall` becomes
+  // INCONCLUSIVE, the process exits 2, and `run-batch-v2.mjs` refuses the batch on any non-zero. So
+  // this fix buys an accurate diagnosis and changes the gate not at all — a case whose control never
+  // completed has not proven its detector, and under CANON refusing to sweep is the safe answer.
+  if (arm.verdict === 'BROKEN-WITHOUT-JAIL-TOO' || arm.timedOut || arm.driverTimedOut) {
+    const why = arm.timedOut ? `exceeded falsify's own --budget after ${Math.round(arm.durationMs / 1000)}s`
+      : arm.driverTimedOut ? `the DRIVER hit its --arm-timeout and printed TIMED-OUT with no verdict, `
+        + `after ${Math.round(arm.durationMs / 1000)}s — raise --arm-timeout if this venue is simply slow`
+        : String(arm.verdict);
+    inconclusive.push(`control could not run: ${why}. This says nothing about whether the grant is `
+      + `sufficient, so the case is unproven rather than refuted.`);
     return { fail, inconclusive };
   }
   // ⛔ A FAILING CONTROL INVALIDATES THE WHOLE CASE, IT DOES NOT MERELY FAIL IT. Everything failing
