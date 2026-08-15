@@ -157,7 +157,7 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Identical to `measure.sh`'s block, deliberately: one selector, one pin mechanism, so a record cannot
 # mean different things on two platforms. Computed BEFORE anything runs, because the pin has to be on
-# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=$PATH"` chain
+# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=$ERA_PATH"` chain
 # further down.
 #
 # ⛔ READS the provisioned tree, never writes it. `NUB_CACHE_DIR` above is PER-RUN by design, so a
@@ -175,11 +175,16 @@ ERA_NODE_ROOT="${NUB_ERA_NODE_ROOT:-$HOME/.cache/nub}"
 # same case passes unpinned. Printing an empty version here disables the pin and leaves the record
 # saying what it wanted plus why it could not be honoured.
 ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(o.pinnable===false?"":(o.version||""))}catch{}})' 2>/dev/null)"
+# ⛔ SCOPED TO THE MEASURED INSTALL, NOT TO THIS PROCESS — same correction as `measure.sh`. Exporting
+# the era Node onto the driver's PATH moves the HARNESS onto it too (`record.mjs`, the capture
+# post-processing, every `node -e` helper), and the harness is modern JS by assumption. Measured on a
+# 25-package pilot: 7 of 8 records HARNESS-ERROR, all 7 pinned, all 7 on 18.20.8, unrelated packages.
+# `ERA_PATH` is threaded into the arm invocations ONLY.
 ERA_NODE_BIN=""
+ERA_PATH="$PATH"
 if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"
-  PATH="$ERA_NODE_BIN:$PATH"
-  export PATH
+  ERA_PATH="$ERA_NODE_BIN:$PATH"
 fi
 # ⛔ BUILT HERE, ECHOED LATER — same reason as `measure.sh`. `measure-provenance.mjs` slices the
 # retention region up to the first line CLOSING a `node -e`, so an augmenting `node -e` beside the
@@ -387,7 +392,7 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 # distinguishes them. Runs before the traced command, outside the trace, so it costs the measurement
 # nothing.
 cat > "$OBS/childenv.sh" <<WRAP
-sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
+sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" \
   "HOME=$JAIL_HOME" "TMPDIR=$JAIL_TMP" "NODE_COMPAT=1" \
   "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
@@ -421,7 +426,7 @@ fi
 
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
-sudo -u "$RUNUSER" -H env "PATH=\$PATH" \
+sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" \
   "HOME=$JAIL_HOME" \
   "TMPDIR=$JAIL_TMP" \
   "NODE_COMPAT=1" \
@@ -893,7 +898,7 @@ verify () {
   # user, cache and catalog, then clear that exact tree before either execution path. A clearance
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
   chown -R "$RUNUSER" "$v" 2>/dev/null
-  sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
+  sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
@@ -904,7 +909,7 @@ verify () {
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
-sudo -u "$RUNUSER" -H env "PATH=\$PATH" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
   "$NUB" install > "$v/i.log" 2>&1
 echo \$? > "$v/rc"
 JW
@@ -917,7 +922,7 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
+    sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?

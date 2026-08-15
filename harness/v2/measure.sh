@@ -119,11 +119,20 @@ ERA_NODE_ROOT="${NUB_ERA_NODE_ROOT:-$HOME/.cache/nub}"
 # same case passes unpinned. Printing an empty version here disables the pin and leaves the record
 # saying what it wanted plus why it could not be honoured.
 ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(o.pinnable===false?"":(o.version||""))}catch{}})' 2>/dev/null)"
+# ⛔ THE PIN IS SCOPED TO THE MEASURED INSTALL, NOT TO THIS PROCESS, AND THAT DISTINCTION IS THE WHOLE
+# CORRECTNESS OF IT. Exporting the era Node onto the driver's own PATH moves the HARNESS too --
+# `record.mjs`, the capture post-processing, every `node -e` helper -- and the harness is modern JS by
+# assumption. MEASURED on a 25-package pilot: 7 of 8 records came back HARNESS-ERROR, all 7 pinned, all
+# 7 on 18.20.8, across unrelated packages. `import.meta.filename` alone (used as the CLI guard in
+# era-node.mjs) needs Node >= 20.11 and is silently `undefined` on 18.
+#
+# So `ERA_PATH` is handed ONLY to the arms below. The harness keeps the Node it was started with; the
+# package under test gets the Node its author targeted.
 ERA_NODE_BIN=""
+ERA_PATH="$PATH"
 if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"
-  PATH="$ERA_NODE_BIN:$PATH"
-  export PATH
+  ERA_PATH="$ERA_NODE_BIN:$PATH"
 fi
 # The marker's payload is built ONCE, here, and echoed verbatim much later.
 #
@@ -501,7 +510,7 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
+PATH="$ERA_PATH" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
@@ -1143,6 +1152,8 @@ verify () {
   }
   security_screen_tree "$v" "nub-$label-resolved"
   ( cd "$v"
+    # The era pin applies to the MEASURED install only — see the ERA-NODE PIN block above.
+    PATH="$ERA_PATH"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
     if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then

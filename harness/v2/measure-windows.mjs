@@ -84,8 +84,12 @@ const ERA_NODE = (() => {
   const bin = nodeBinDir(root, selection.version);
   // Only pin when the selector says so — see `pinnable` in era-node.mjs for the measured reason.
   const present = selection.pinnable !== false && isProvisioned(root, selection.version);
-  if (present) process.env.PATH = `${bin}${path.delimiter}${process.env.PATH ?? ''}`;
-  return { root, selection, bin: present ? bin : null };
+  // ⛔ NOT `process.env.PATH`. Mutating this process's PATH moves the HARNESS onto the era Node too —
+  // record.mjs, the capture post-processing, every helper — and the harness is modern JS by assumption.
+  // Measured on a 25-package Linux pilot: 7 of 8 records HARNESS-ERROR, all 7 pinned, all on 18.20.8.
+  // `armPath` is threaded into the ARM child envs only, so the harness keeps the Node it started with.
+  const armPath = present ? `${bin}${path.delimiter}${process.env.PATH ?? ''}` : (process.env.PATH ?? '');
+  return { root, selection, bin: present ? bin : null, armPath };
 })();
 
 // ── THE `NUB_V2_WINDOWS_EVICTION_VERIFIED` HARD STOP WAS LIFTED 2026-08-07. ────────────────────
@@ -615,6 +619,8 @@ fs.mkdirSync(OBS_TMP, { recursive: true });
 // population on `windows-latest` is thin.
 const obsEnv = {
   ...process.env,
+  // The era pin applies to the measured install, never to the harness — see ERA_NODE above.
+  PATH: ERA_NODE.armPath,
   npm_config_cache: NPM_CACHE,
   TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
 };
@@ -1318,7 +1324,8 @@ const verify = (grant, label) => {
   // the ONLY line that distinguishes a built arm from a replayed one. Without it the replay
   // assertion below cannot observe what it asserts on, which is why this lane was still running the
   // predicate `measure.sh` had already measured to be wrong.
-  const env = { ...process.env, NUB_BUILD_JAIL_CATALOG: cat, XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
+  const env = { ...process.env, PATH: ERA_NODE.armPath, NUB_BUILD_JAIL_CATALOG: cat,
+    XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
   // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
   // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.
   const safeResolve = run(NUB, ['install', '--ignore-scripts'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
