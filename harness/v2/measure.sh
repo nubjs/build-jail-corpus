@@ -113,7 +113,12 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 NODE_SELECTION="$(node "$HERE/era-node.mjs" "$PKG" "$VER" 2>/dev/null)"
 [ -n "$NODE_SELECTION" ] || NODE_SELECTION='{"error":"era-node selection failed"}'
 ERA_NODE_ROOT="${NUB_ERA_NODE_ROOT:-$HOME/.cache/nub}"
-ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).version||"")}catch{}})' 2>/dev/null)"
+# ⛔ ONLY PIN WHEN THE SELECTOR SAYS IT IS PINNABLE. A package whose `engines` excludes every Node the
+# matrix carries (`@apollo/rover@0.4.8` declares ">=14 <=17"; the floor is 18) must NOT be forced onto a
+# runtime its own metadata rejects — measured, that took both falsification arms to UNPARSED while the
+# same case passes unpinned. Printing an empty version here disables the pin and leaves the record
+# saying what it wanted plus why it could not be honoured.
+ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(o.pinnable===false?"":(o.version||""))}catch{}})' 2>/dev/null)"
 ERA_NODE_BIN=""
 if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"

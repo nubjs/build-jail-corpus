@@ -89,6 +89,19 @@ export function chooseEraNode({ engines = null, publishedAt = null, matrix }) {
     major: chosen.major,
     version: chosen.version,
     npm: chosen.npm ?? null,
+    // ⛔ WHETHER A DRIVER SHOULD ACTUALLY PIN, WHICH IS NOT THE SAME AS WHETHER A PICK EXISTS.
+    //
+    // MEASURED, and it cost a falsification-control failure to find: `@apollo/rover@0.4.8` declares
+    // `engines: ">=14 <=17"` and the matrix floors at 18, so NOTHING it accepts is available. Pinning
+    // it to 18 anyway runs it on a Node its own metadata forbids — both falsify arms went UNPARSED in
+    // 6s, and the same case PASSES with the pin disabled. Forcing a Node the package explicitly
+    // rejects is strictly WORSE than the ambient default: the era pin exists to run a version on a
+    // runtime it was built for, and when no such runtime is on offer the honest answer is not to pin.
+    //
+    // `version` still names the era pick so the record can say what it WANTED, and
+    // `enginesUnsatisfiable` still says why it could not be honoured — the data stays complete either
+    // way. Only the PATH manipulation is withheld.
+    pinnable: !enginesUnsatisfiable,
     engines: engines ?? null,
     publishedAt: publishedAt ?? null,
     eraMajor,

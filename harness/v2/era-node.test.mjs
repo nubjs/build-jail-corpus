@@ -71,9 +71,13 @@ test('a pre-floor package is clamped to 18 and MARKED, never silently retargeted
     + '2011 package was measured on the Node it targeted');
 });
 
-test('an unsatisfiable engines string still yields a pin, and says it could not be honoured', () => {
+test('an unsatisfiable engines string still yields a PICK, which is not the same as a pin', () => {
   // Refusing to measure would drop the package from the corpus over a bad metadata string, which is
   // strictly worse than measuring it on its era and recording that engines was unsatisfiable.
+  //
+  // ⛔ THE PICK IS REPORTED, THE PIN IS WITHHELD — see the `pinnable` case below. This test's name said
+  // "yields a pin" before that distinction existed, and leaving it would have read as an assertion that
+  // an unsatisfiable range still gets pinned, which is now exactly wrong.
   const pick = chooseEraNode({ engines: '>=99', publishedAt: '2023-09-15', matrix });
   assert.equal(pick.major, 18, 'falls back to the era pick (Sept 2023 active LTS)');
   assert.equal(pick.enginesUnsatisfiable, true);
@@ -139,4 +143,25 @@ test('the CLI prints a full selection and does NOT let the Node version clobber 
   // Usage error is the ONLY non-zero exit: a package whose metadata cannot be fetched still gets a
   // pin, because dropping it would remove it from the corpus over a registry hiccup.
   assert.equal(spawnSync(process.execPath, [cli], { encoding: 'utf8' }).status, 2);
+});
+
+test('a package whose engines exclude every available Node is NOT pinnable', () => {
+  // ⛔ THE CASE THAT COST A FALSIFICATION-CONTROL FAILURE TO FIND. @apollo/rover@0.4.8 declares
+  // `engines: ">=14 <=17"` and the matrix floors at 18, so nothing it accepts exists. Pinning it to 18
+  // anyway runs it on a Node its own metadata forbids: both falsify arms went UNPARSED in 6s, and the
+  // identical case PASSES with the pin disabled. Forcing a rejected runtime is strictly worse than the
+  // ambient default, so the selector withholds the PIN while still reporting what it wanted.
+  const pick = chooseEraNode({ engines: '>=14 <=17', publishedAt: '2022-03-15', matrix });
+  assert.equal(pick.enginesUnsatisfiable, true, 'nothing in the matrix satisfies >=14 <=17');
+  assert.equal(pick.pinnable, false, 'an unsatisfiable range must not be pinned');
+  assert.equal(pick.version, '18.20.8',
+    'the pick is still REPORTED — the record must say what it wanted and why it was not honoured');
+});
+
+test('an ordinary satisfiable pick stays pinnable', () => {
+  // The control for the case above: without it, `pinnable: false` everywhere would pass just as well.
+  for (const [engines, published] of [[null, '2018-04-09'], ['>=18', '2023-09-15'], ['>=24', '2022-11-01']]) {
+    const pick = chooseEraNode({ engines, publishedAt: published, matrix });
+    assert.equal(pick.pinnable, true, `expected pinnable for engines=${engines} published=${published}`);
+  }
 });

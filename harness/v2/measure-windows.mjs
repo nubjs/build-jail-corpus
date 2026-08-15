@@ -82,7 +82,8 @@ const ERA_NODE = (() => {
   // "Installed in 6.6s" nine times. One helper means the provisioner and the driver cannot disagree
   // about where a provisioned Node lives.
   const bin = nodeBinDir(root, selection.version);
-  const present = isProvisioned(root, selection.version);
+  // Only pin when the selector says so — see `pinnable` in era-node.mjs for the measured reason.
+  const present = selection.pinnable !== false && isProvisioned(root, selection.version);
   if (present) process.env.PATH = `${bin}${path.delimiter}${process.env.PATH ?? ''}`;
   return { root, selection, bin: present ? bin : null };
 })();
