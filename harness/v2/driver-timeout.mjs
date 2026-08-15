@@ -24,18 +24,33 @@
 
 /** True when `out` carries a driver-reported timeout, i.e. the driver hit its own `--arm-timeout`.
  *
- *  ⛔ BOTH SPELLINGS ARE MATCHED, because the driver emits a different one before an arm has a label.
- *  `measure-windows.mjs` prints `VERIFY[<label>] TIMED-OUT in \`install\`|\`approve-builds\`` for the
- *  two labelled phases, and a bare `=> TIMED-OUT in safe Nub resolution` for the safe-resolve phase
- *  that runs first. Matching only the labelled form would miss a timeout in the phase MOST likely to
- *  hit one on a cold venue, and would do it silently.
+ *  ⛔ THERE ARE SIX EMISSION SITES IN FIVE SHAPES, AND MY FIRST PATTERN COVERED TWO OF THEM. I wrote it
+ *  against the two lines I had in hand and it passed its tests, because the DIRECT-mode output happens
+ *  to print a matching line and a non-matching one together. The full set in `measure-windows.mjs`:
  *
- *  ⛔ AND IT MUST NOT MATCH A MERE MENTION. The word appears in this codebase's own comments and in
- *  the `TIMED-OUT` verdict vocabulary, so the pattern requires the driver's full phrasing — the
- *  literal ` TIMED-OUT in ` with a preceding `VERIFY[...]` or `=>`. A looser pattern would classify a
- *  genuinely failing control as a timeout, which is the one direction that would LOWER the gate.
+ *    1335  => TIMED-OUT in safe Nub resolution after <n> ms -- no lifecycle script ran
+ *    1361  VERIFY[<label>] TIMED-OUT in `install` after <n> ms -- no verdict; check for surviving children
+ *    1367  VERIFY[<label>] TIMED-OUT in `approve-builds` after <n> ms -- no verdict; ...
+ *    1481  => TIMED-OUT (<stage>); no verdict -- a hang says nothing about the grant
+ *    1628  => TIMED-OUT at the synthesized grant (<stage>); no verdict, and the ladder is NOT walked
+ *    1663  => TIMED-OUT on ladder rung <i> (<stage>); the ladder is abandoned rather than continued
+ *
+ *  Three of those do NOT contain ` TIMED-OUT in `. A ladder-rung timeout (1663) prints ONLY shape 5, so
+ *  the narrow pattern would have missed it silently — the same class of miss this module exists to fix.
+ *  Hence the prefix is matched, not the phrasing after it: every site is either `=> TIMED-OUT` at the
+ *  start of a line or `VERIFY[<label>] TIMED-OUT`.
+ *
+ *  ⛔ AND IT MUST STILL NOT MATCH A MERE MENTION. `TIMED-OUT` appears in this codebase's comments and
+ *  in the verdict vocabulary, so the required prefix is what keeps prose out. Matching a bare
+ *  `TIMED-OUT` anywhere would let a genuinely FAILING control be reclassified as a timeout, which is
+ *  the one direction that would LOWER the gate rather than merely mis-describe it.
+ *
+ *  ⛔ WHY NOT THE EXIT CODE, WHICH LOOKS MORE ROBUST: every timeout site exits 3, but 3 is NOT
+ *  timeout-exclusive — `measure-windows.mjs:1479` also exits 3 for VOID ("the override did not
+ *  engage"). VOID is a different diagnosis with a different remedy, and `judgeRight` already handles it
+ *  in an earlier branch, so keying on rc alone would conflate the two.
  */
 export function driverReportedTimeout(out) {
   if (typeof out !== 'string' || !out) return false;
-  return /VERIFY\[[^\]]*\] TIMED-OUT in |=> TIMED-OUT in /.test(out);
+  return /^\s*=> TIMED-OUT\b|VERIFY\[[^\]]*\] TIMED-OUT\b/m.test(out);
 }

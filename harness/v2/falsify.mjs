@@ -120,7 +120,29 @@ const JSON_OUT = opt('--json', '');
 const QUICK = argv.includes('--quick');
 // Every arm's `$ROOT` is deleted once its case passes; see the sweep at the foot of the case loop.
 const KEEP_ROOTS = argv.includes('--keep-roots');
-const BUDGET_MS = Number(opt('--budget', '900')) * 1000;
+// ⛔ TWO NESTED DEADLINES, AND BEFORE THIS THEY WERE UNRELATED AND MIS-ORDERED ON win32.
+//
+// `measure-windows.mjs` imposes `--arm-timeout` (its default 600 s) on EACH of three phases —
+// `install --ignore-scripts`, `install`, `approve-builds --all` — so one arm can legitimately want
+// 3 × 600 s = 1800 s. This file's `--budget` was a flat 900 s applied to the whole arm by spawnSync.
+// So the OUTER deadline was shorter than the INNER one's worst case: on a slow venue falsify could cut
+// the driver before the driver's own phase deadlines had a chance to report, and neither number knew
+// the other existed. The POSIX drivers impose no per-phase deadline at all, so there `--budget` is the
+// only bound on an arm and must stay as tight as it was.
+//
+// Hence: one knob, and the outer budget DERIVED from it rather than picked independently. `--budget`
+// still overrides explicitly for a caller that wants a specific ceiling.
+//
+// ⛔ THE ENV VAR EXISTS BECAUSE `run-batch-v2.mjs` FORWARDS NO FLAGS TO THIS FILE. It invokes
+// `falsify.mjs --nub <bin>` and nothing else, so before this there was NO WAY to raise either deadline
+// from a batch run — which is what left win32 unable to measure at all once `mozjpeg@6.0.1`'s control
+// arm needed more than 600 s. `spawnSync` inherits the environment, so an env var reaches this file
+// through the batch runner with no change to it.
+const ARM_TIMEOUT_MS = Number(opt('--arm-timeout', process.env.NUB_V2_ARM_TIMEOUT_MS || '600000'));
+// Three phases plus slack for the driver's own observe/synthesize work, so the inner deadline is
+// always the one that fires first and the arm's own report survives.
+const BUDGET_MS = Number(opt('--budget', '0')) * 1000
+  || (process.platform === 'win32' ? ARM_TIMEOUT_MS * 3 + 300_000 : 900_000);
 
 // ⛔ EVERY GRANT AND EVERY MINIMALITY CLAIM BELOW IS READ OFF A COMMITTED RECORD, NEVER ASSUMED.
 // `records-v2/runs/linux-x64/<slug>/<ver>/results.json` carries `verdict: MINIMUM` with
@@ -358,8 +380,13 @@ const runArm = (kase, grant, label, cacheHome) => {
   // dispatch this morning. `cmd`/`pre` still come from the module — an alternate darwin script needs
   // `sudo -E` just as much as the default one does.
   const opts = { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS };
+  // ⛔ `--arm-timeout` IS FORWARDED ONLY ON win32, BECAUSE ONLY THAT DRIVER HAS THE FLAG. `measure.sh`
+  // and `measure-macos.sh` impose no per-phase deadline, so passing it would be a flag they parse as a
+  // stray argument — and an argument silently ignored is how this file previously ended up unable to
+  // influence the driver's own deadline at all.
   const args = process.platform === 'win32'
     ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant),
+      '--arm-timeout', String(ARM_TIMEOUT_MS),
       ...(cacheHome ? ['--cache-home', cacheHome] : [])]
     : [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
   const r = spawnSync(DRIVER_CMD, args, opts);
