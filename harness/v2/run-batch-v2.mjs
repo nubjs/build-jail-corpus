@@ -25,6 +25,7 @@ import { recordValidity } from './record-validity.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 import { fetchPackageStanding } from './package-standing.mjs';
 import { provisionMatrix } from './provision-node-matrix.mjs';
+import { sweepDecision } from './scratch-sweep.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -34,6 +35,9 @@ const NUB = opt('--nub', '');
 const RUNS = path.resolve(opt('--runs', path.join(HERE, '..', '..', 'records-v2', 'runs')));
 const PLATFORM = `${process.platform}-${process.arch}`;
 const BUDGET_MS = Number(opt('--budget', process.env.NUB_CORPUS_PKG_BUDGET ?? '2400')) * 1000;
+// Keep every driver scratch root instead of sweeping it after the record is written. For debugging a
+// single package by hand; a slice run with this on will fill the disk — see the sweep's own note.
+const KEEP_ROOTS = argv.includes('--keep-roots') || process.env.NUB_V2_KEEP_ROOTS === '1';
 const DEADLINE = Number(process.env.NUB_CORPUS_DEADLINE ?? '0');
 const ON_RECORD = process.env.NUB_CORPUS_ON_RECORD ?? '';
 
@@ -307,6 +311,37 @@ for (const spec of specs) {
 
   const rec = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8'));
   recorded++;
+
+  // ⛔⛔ SWEEP THE DRIVER'S SCRATCH ROOT, OR A LONG SLICE FILLS THE DISK AND DIES MID-RUN.
+  //
+  // MEASURED, and it killed both lanes of a 25% linux run: `measure.sh` creates
+  // `ROOT="$(mktemp -d "$HOME/v2-XXXXXX")"` per invocation and never removes it — no `trap`, no
+  // cleanup — and nothing here removed it either. A descent runs ~9 arms per package, each with its
+  // own root holding a full npm cache and node_modules, so 75 packages left **658 roots and 193 GB**,
+  // and lane 1 died `ENOSPC: no space left on device` inside this very file's `writeFileSync`.
+  //
+  // ⛔ IT IS SWEPT HERE, NOT IN THE DRIVER, AND THAT PLACEMENT IS THE WHOLE CORRECTNESS OF IT.
+  // A `trap ... rm -rf "$ROOT"` in `measure.sh` would be the obvious fix and would silently break
+  // `falsify.mjs`, which parses the root out of the driver's header and reads
+  // `verify-at-grant/{i,a}.log` from it AFTER the driver has exited — with no logs, `refusalSeen` and
+  // `scriptRan` are false and it reports refusal failures about arms that were fine. Only this file
+  // knows the root's true end of life: `record.mjs` has returned and the record has been read.
+  //
+  // ⛔ AND ONLY ONCE THE ARTIFACT OF RECORD IS SAFELY OUT. `record.mjs` COPIES `trace.txt.gz` and
+  // `capture.json` into the record dir (its `copyFileSync`), and notes `rawlog-copy-failed` /
+  // `capture-copy-failed` / `eventlog-copy-failed` when it cannot. The raw trace is the ARCHIVE — a
+  // decoder bug is a re-parse with it and a permanent hole without it — so a root whose copy failed
+  // is KEPT, deliberately trading disk for evidence. Deleting it would be strictly worse than a full
+  // disk: a full disk stops the run loudly, a lost archive is invisible.
+  // Every condition lives in `scratch-sweep.mjs` so it is testable; this file only acts on the verdict.
+  const sweep = sweepDecision({ log, notes: rec.notes ?? [], runs: RUNS, keepRoots: KEEP_ROOTS });
+  if (sweep.sweep) {
+    // A failure here must never cost a measured record: the record is already on disk, and the worst
+    // case is the disk pressure this sweep exists to relieve.
+    try { fs.rmSync(sweep.root, { recursive: true, force: true }); } catch { /* nothing to do but continue */ }
+  } else if (sweep.root && !KEEP_ROOTS) {
+    console.log(`      root KEPT (${sweep.root}) — ${sweep.reason}`);
+  }
   console.log(`REC   ${spec} [${Math.round(ms / 1000)}s] ${rec.verdict}`
     + `${rec.grant ? ` ${JSON.stringify(rec.grant)}` : ''}`
     + `${rec.verifiedBy ? ` via=${rec.verifiedBy}` : ''}`);
