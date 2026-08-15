@@ -157,7 +157,7 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Identical to `measure.sh`'s block, deliberately: one selector, one pin mechanism, so a record cannot
 # mean different things on two platforms. Computed BEFORE anything runs, because the pin has to be on
-# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=$ERA_PATH"` chain
+# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=${ERA_PATH:-$PATH}"` chain
 # further down.
 #
 # ⛔ READS the provisioned tree, never writes it. `NUB_CACHE_DIR` above is PER-RUN by design, so a
@@ -392,7 +392,7 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 # distinguishes them. Runs before the traced command, outside the trace, so it costs the measurement
 # nothing.
 cat > "$OBS/childenv.sh" <<WRAP
-sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" \
+sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" \
   "HOME=$JAIL_HOME" "TMPDIR=$JAIL_TMP" "NODE_COMPAT=1" \
   "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
@@ -426,7 +426,7 @@ fi
 
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
-sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" \
+sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" \
   "HOME=$JAIL_HOME" \
   "TMPDIR=$JAIL_TMP" \
   "NODE_COMPAT=1" \
@@ -898,7 +898,7 @@ verify () {
   # user, cache and catalog, then clear that exact tree before either execution path. A clearance
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
   chown -R "$RUNUSER" "$v" 2>/dev/null
-  sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" \
+  sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
@@ -909,7 +909,7 @@ verify () {
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
-sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
   "$NUB" install > "$v/i.log" 2>&1
 echo \$? > "$v/rc"
 JW
@@ -922,7 +922,7 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    sudo -u "$RUNUSER" -H env "PATH=$ERA_PATH" NUB_CACHE_DIR="$cache" \
+    sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?

@@ -510,7 +510,7 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-PATH="$ERA_PATH" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
+PATH="${ERA_PATH:-$PATH}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
@@ -1153,7 +1153,7 @@ verify () {
   security_screen_tree "$v" "nub-$label-resolved"
   ( cd "$v"
     # The era pin applies to the MEASURED install only — see the ERA-NODE PIN block above.
-    PATH="$ERA_PATH"
+    PATH="${ERA_PATH:-$PATH}"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
     if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then
