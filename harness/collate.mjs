@@ -273,6 +273,71 @@ function capsKey(g) {
   return JSON.stringify(norm(g ?? {}));
 }
 
+/** The capability axes a grant can carry. `notes`/`platforms` are metadata, not capabilities. */
+const CAP_AXES = ['read', 'write', 'network', 'writePaths', 'env'];
+
+/** Per-OS overlays for one grant, or `{}` when every platform wants exactly the base.
+ *
+ *  ⛔ WHY THIS EXISTS. `byVersion` unions grants ACROSS platforms, so a need measured only on
+ *  win32 became the answer everywhere. Measured on the shipped catalog: 0 of 453 bands carried an
+ *  overlay, and 45 of the 65 whole-disk grants are win32-ONLY by record — 45 packages reading the
+ *  whole filesystem on macOS and Linux because Windows needed it. The union is not WRONG (CANON
+ *  reconciles by union, and it can never under-grant); it is coarser than the vocabulary allows.
+ *
+ *  ⛔ THE SAFETY PROPERTY, and it is what makes this landable: the overlay is built so the
+ *  EFFECTIVE grant for an OS equals that OS's OWN measured union. Overlays merge per field
+ *  (`catalog_v2.rs`: "deliberately UNLIKE the per-OS overlays, which DO merge"), so emitting every
+ *  axis that DIFFERS — the value, or `null` where this OS needs the axis ABSENT — resolves to
+ *  exactly `osCaps`. That is a shape the parser already accepts, because it came from a record and
+ *  went through the same construction as any base. No new grant shape is invented here.
+ *
+ *  ⛔ A PLATFORM WITH NO RECORD GETS NO OVERLAY, which is the rule that keeps this from
+ *  under-granting: it inherits the union, exactly as today. Silence about a platform is not
+ *  evidence that it needs less.
+ *
+ *  ⛔ A REDUNDANT OVERLAY IS REJECTED BY THE PARSER, and a rejected catalog is SILENTLY discarded —
+ *  nub prints REJECTED and keeps running on the compiled-in table, so one bad entry invalidates all
+ *  338 packages. Emitting only DIFFERING axes is what avoids restating an outer value, and it
+ *  disposes of the `write` ⇒ `read` redundancy for free: where an OS needs no read, the axis is
+ *  emitted as `null` rather than left standing beneath a wider write.
+ */
+function osOverlays(coveredVersions, baseCaps, byVersionOs, allPlatforms) {
+  const overlays = {};
+  for (const os of allPlatforms) {
+    // Only the covered versions this OS actually measured. An OS that measured NONE of them says
+    // nothing, and silence must not narrow it.
+    const mine = coveredVersions
+      .map((v) => byVersionOs.get(v)?.get(os))
+      .filter((g) => g !== undefined);
+    if (!mine.length) continue;
+    let osCaps = {};
+    for (const g of mine) osCaps = unionGrant(osCaps, g);
+
+    const overlay = {};
+    for (const axis of CAP_AXES) {
+      if (capsKey(osCaps[axis] ?? null) === capsKey(baseCaps[axis] ?? null)) continue;
+      // `null` — not omission — is how the schema REMOVES an axis the outer grant carries.
+      overlay[axis] = osCaps[axis] ?? null;
+    }
+    if (!Object.keys(overlay).length) continue;
+
+    // The base is the union of every platform, so no platform can legitimately want MORE than it.
+    // If one does, the union is broken, and emitting the overlay would under-grant everyone else.
+    const widened = CAP_AXES.filter((axis) => {
+      const merged = unionGrant({ [axis]: baseCaps[axis] }, { [axis]: osCaps[axis] });
+      return capsKey(merged[axis] ?? null) !== capsKey(baseCaps[axis] ?? null);
+    });
+    if (widened.length) {
+      throw new Error(
+        `per-OS overlay for ${os} widens ${widened.join(', ')} beyond the cross-platform union — `
+        + 'the union invariant is broken; refusing to emit an overlay that would under-grant the rest',
+      );
+    }
+    overlays[os === 'windows' ? 'win' : os] = overlay;
+  }
+  return overlays;
+}
+
 /** The catalog names platforms `macos | linux | windows`; provenance records them as
  *  `darwin-arm64`, `linux-x64`, `win32-x64`. Map once, here, so nothing downstream has to
  *  know both vocabularies. Architecture is deliberately dropped: the grant model has no
@@ -378,17 +443,37 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   // for bcrypt, which grants 5.1.1 and leaves 5.0.0 on the base profile -- it BREAKS. That is
   // under-granting, the one direction this project rejects everywhere.
   const byVersion = new Map();
+  // The SAME folding, kept per OS. `byVersion` unions across platforms and that is what erases the
+  // per-OS answer, so the unerased form is retained alongside it for [`osOverlays`]. Built here
+  // rather than re-derived later so the two can never disagree about what a platform measured.
+  const byVersionOs = new Map();
   for (const [, group] of meaningful) {
     for (const r of group) {
       const cur = byVersion.get(r.version);
       const here = { ...(r.grant ?? {}) };
       if ((r.writePaths ?? []).length) here.writePaths = r.writePaths;
       byVersion.set(r.version, cur ? unionGrant(cur, here) : here);
+      const os = osOf(r);
+      if (!os) continue;
+      if (!byVersionOs.has(r.version)) byVersionOs.set(r.version, new Map());
+      const perOs = byVersionOs.get(r.version);
+      perOs.set(os, perOs.has(os) ? unionGrant(perOs.get(os), here) : here);
     }
   }
   // A version measured as needing NOTHING is absent from `meaningful` but is still evidence --
   // it bounds a band from above. Seed those as empty so the ordering below sees every version.
   for (const v of allVersions) if (!byVersion.has(v)) byVersion.set(v, {});
+  // The same seeding per OS, and it is load-bearing for NARROWING rather than for banding: an OS
+  // that measured a version and needed NOTHING is exactly the case an overlay should express (it
+  // gets `{}`, so every axis the union carries is emitted as `null` and the OS runs at the base
+  // profile). Without this it would look unmeasured and silently inherit the union instead.
+  for (const r of rs) {
+    const os = osOf(r);
+    if (!os) continue;
+    if (!byVersionOs.has(r.version)) byVersionOs.set(r.version, new Map());
+    const perOs = byVersionOs.get(r.version);
+    if (!perOs.has(os)) perOs.set(os, {});
+  }
 
   const ordered = [...allVersions].sort(cmpVer);
   // LATEST: the probe's recorded dist-tag when present, else the highest measured version. The
@@ -432,10 +517,16 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
 
   const entry = { default: dflt };
   dflt.notes = `latest measured ${latest}`;
+  // NARROW PER OS where the platforms disagree. The base stays the union — so a platform with no
+  // record is unaffected — and each platform that measured `latest` gets its own answer back.
+  Object.assign(dflt, osOverlays([latest], dflt, byVersionOs, allPlatforms));
 
   const versions = {};
   for (const b of [...widest.values()].sort((x, y) => cmpVer(y.bound, x.bound))) {
     b.caps.notes = `measured ${b.covers.join(', ')}; covers everything below ${b.bound}`;
+    // A band's own covered set, not `latest` — the platforms can disagree differently on old
+    // versions than on the current one, and a band resolves on its own with nothing merging in.
+    Object.assign(b.caps, osOverlays(b.covers, b.caps, byVersionOs, allPlatforms));
     versions[`<${b.bound}`] = b.caps;
   }
   if (Object.keys(versions).length) entry.versions = versions;
