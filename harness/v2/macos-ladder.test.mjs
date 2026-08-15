@@ -82,6 +82,13 @@ const LEDGER_RESPONSIVE = ['0:aa11:ok:9', '0:bb22:ok:7', '0:cc33:ok:4', '0:dd44:
 const run = (oracle, {
   verified = 0, grant = '{"write":{"deps":true}}', source = REGION, ledger = LEDGER_RESPONSIVE,
   here = HERE,
+  // Whether nub installs the package with the jail OFF. Default 0 — "it does" — so every case written
+  // before this arm existed still reaches the terminal verdict it was written for.
+  unjailedNubRc = 0,
+  // ⛔ WHOSE FAULT the failure is. `unjailedNubRc: 1` alone says only "nub cannot install it"; npm's
+  // answer is what separates a nub defect from a package nothing installs, and the driver refuses to
+  // name a culprit without asking.
+  npmRc = 0,
 } = {}) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'macos-ladder-'));
   const script = path.join(root, 'region.sh');
@@ -103,6 +110,15 @@ const run = (oracle, {
     // the whole grant-source rule on seeing it — absence is read as "the check never ran" — so a
     // round trip that omitted it would test the wrong branch of `applyGrantSourceRule`.
     'echo \'  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}\'',
+    // The jail-off control the terminal verdict now consults. Stubbed for the same reason `verify` is:
+    // the real one runs two `nub` installs, which no unit test can afford.
+    `unjailed_nub_ok () { return ${unjailedNubRc}; }`,
+    // Shadows the real `npm_ok`, which is defined INSIDE the branch — and a later definition wins in
+    // bash, so the branch's own would clobber a stub of that name. Stub `npm` itself instead.
+    `npm () { return ${npmRc}; }`,
+    // The terminal control screens the safely-resolved npm tree. This suite's subject is the ladder,
+    // so the screen is stubbed clean just as both installers are.
+    'security_screen_tree () { :; }',
     'verify () {',
     '  local grant="$1" label="$2"',
     oracle,
@@ -257,6 +273,36 @@ test('⭑ every rung failing is still the terminal UNDER-PREDICTED, with no gran
     'a shortfall that responded to the grant was classified as grant-independent');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'UNDER-PREDICTED');
+  assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+  // The jail-off control DID run and cleared: without this line the verdict above would be the old
+  // unconditional one, which named the jail without ever asking whether nub installs the package.
+  assert.match(out, /jail-off control: nub installs this package unjailed/,
+    'the terminal verdict was reached without consulting the jail-off control');
+});
+
+test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it unjailed either', () => {
+  // The case macOS could not express before this arm was ported from `measure.sh`. Every rung fails,
+  // but nub cannot install the package with the jail OFF — so the ladder's failures say nothing about
+  // capabilities, and calling it UNDER-PREDICTED would name the jail for a defect it had no part in.
+  // npm CAN install it (`npmRc: 0`), which is what makes it a nub defect rather than a dead package.
+  const out = run('  return 1', { unjailedNubRc: 1, npmRc: 0 });
+  assert.match(out, /=> BROKEN-UNJAILED-NUB/);
+  assert.doesNotMatch(out, /=> UNDER-PREDICTED/,
+    'both verdicts were printed — record.mjs takes the LAST `=>`, so the stage would be inert');
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
+  assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+});
+
+test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot install it either', () => {
+  // The distinction the Linux arm learned from `@aws-amplify/cli@2.0.0`: nub failing unjailed is not
+  // yet nub's fault. With npm failing too, nothing installs this package and there is nothing to
+  // measure — naming nub here would send the next reader chasing a bug that is not there.
+  const out = run('  return 1', { unjailedNubRc: 1, npmRc: 1 });
+  assert.match(out, /=> BROKEN-WITHOUT-JAIL-TOO/);
+  assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/, 'npm\'s failure was not consulted before blaming nub');
+  const r = parseDriverLog(out);
+  assert.equal(r.verdict, 'BROKEN-WITHOUT-JAIL-TOO');
   assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
 });
 

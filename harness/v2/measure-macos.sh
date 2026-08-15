@@ -687,6 +687,42 @@ if [ -z "$NUB" ] || [ ! -x "$NUB" ]; then
   exit 0
 fi
 
+# Does nub install this package with the jail entirely OFF?
+#
+# ⛔ WHY macOS NEEDS THIS AND DID NOT HAVE IT. The control at the top of this file keys on OBSERVE's
+# rc, and OBSERVE runs `npm rebuild` — while every verify arm runs `nub install` + `nub
+# approve-builds`. So a package npm installs fine but **nub cannot install even unjailed** climbs the
+# whole ladder, fails every rung, and is recorded as a terminal `UNDER-PREDICTED`: a verdict that
+# reads as "the jail refused this" about a defect the jail had no part in. `measure.sh` grew this arm
+# on 2026-08-07 (Linux `@progress/kendo-licensing@0.1.2` is exactly that shape — jailed FAILS,
+# unjailed FAILS, plain `npm install` SUCCEEDS) and macOS/Windows never received it, so two of three
+# platforms could not attribute a failure at all.
+#
+# A FUNCTION, not inline, for the same reason `verify` is one: `macos-ladder.test.mjs` stubs it to
+# drive BOTH branches of the decision it feeds. Inline, that branch would be unreachable from the
+# test and would ship unexercised — which is how the control this replaces stayed wrong for so long.
+#
+# The `--ignore-scripts` resolve comes FIRST and is screened before anything executes: the tree is
+# materialized without running a single lifecycle script, so a known-malicious dependency is refused
+# while it is still inert. Only then does the real install run.
+unjailed_nub_ok () {
+  local p="$1" v="$2"
+  local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nsp-XXXXXX") || return 1
+  printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > "$d/package.json"
+  printf '{"install":{"buildJail":false}}\n' > "$d/nub.jsonc"
+  ( cd "$d" && "$NUB" install --ignore-scripts > security-resolve.log 2>&1 ) || {
+    rm -rf "$d"; return 1; }
+  security_screen_tree "$d" nub-unjailed-resolved
+  (
+    cd "$d" || exit 1
+    "$NUB" install > i.log 2>&1 || exit 1
+    "$NUB" approve-builds --all > a.log 2>&1 || exit 1
+  )
+  local rc=$?
+  rm -rf "$d"
+  return $rc
+}
+
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. Runs as the invoking user, never root. ────────────
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
@@ -1238,10 +1274,54 @@ if [ "$VERIFIED" -eq 0 ]; then
     echo "        Triage the shortfall against the arm's toolchain, not against the jail."
   else
     echo "  NOT-GRANT-INDEPENDENT ${INV#NOT-ESTABLISHED }"
-    # ⛔ NOW the terminal verdict, and only now: every rung up to `write:"disk"` failed AND the
-    # shortfall responded to the grant, so no state this harness can express installs this package.
-    # `record.mjs` maps this `=>` line to the `UNDER-PREDICTED` verdict, which `collate.mjs` keeps out
-    # of the catalog — correct here, because there is genuinely no measured minimum to publish.
+    # ⛔ ASK WHETHER NUB CAN INSTALL THIS AT ALL BEFORE BLAMING THE JAIL. Every rung failed, but the
+    # ladder only ever varied the GRANT — it never asked whether nub installs this package with the
+    # jail switched off. If it does not, none of those failures say anything about capabilities, and
+    # the terminal verdict below would name the jail for a defect it had no part in. Ported from
+    # `measure.sh`, where this arm has existed since 2026-08-07; macOS shipped without it.
+    #
+    # ⛔ RUN IT HERE, LAZILY, NOT AT THE TOP. This path is the only one that would otherwise file the
+    # terminal verdict — a few percent of records — so the common case pays nothing. Hoisting it would
+    # add two installs to every package in the corpus to answer a question almost none of them ask.
+    unjailed_nub_ok "$PKG" "$VER"
+    NSP_RC=$?
+    if [ "$NSP_RC" -ne 0 ]; then
+      # ⛔⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT.
+      # On Linux this caught `@aws-amplify/cli@2.0.0`: the arm came back nub-broken, but plain `npm
+      # install` fails too (gyp rejects Python 3.12). A verdict naming nub would be true and still
+      # misleading, because it sends the next reader chasing a bug that is not there.
+      #
+      # The top-of-file control cannot answer this: it keys on OBSERVE, and OBSERVE runs `npm rebuild`
+      # against an already-materialized tree, which succeeds for amplify where a fresh `npm install`
+      # fails. Different npm verb, different answer.
+      npm_ok () {
+        local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
+        printf '{"name":"nspnpm","version":"1.0.0"}\n' > "$d/package.json"
+        ( cd "$d" && npm install --no-audit --no-fund --ignore-scripts "$1@$2" > fetch.log 2>&1 ) || {
+          rm -rf "$d"; return 1; }
+        security_screen_tree "$d" npm-fallback-resolved
+        # Rebuild the whole cleared tree: an ordinary npm install runs dependency lifecycle scripts as
+        # well as the target's, so targeting only `$1` would change the reference arm.
+        ( cd "$d" && npm rebuild --no-audit --no-fund > n.log 2>&1 )
+        local rc=$?; rm -rf "$d"; return $rc
+      }
+      # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
+      # second verdict after either branch would silently overwrite it and the stage would be inert.
+      if npm_ok "$PKG" "$VER"; then
+        echo "  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail"
+        echo "     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT"
+        echo "     an under-grant: do not widen the catalog. This is a nub install defect to chase."
+      else
+        echo "  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)"
+      fi
+      exit 0
+    fi
+    echo "  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference"
+    # ⛔ NOW the terminal verdict, and only now: every rung up to `write:"disk"` failed, the shortfall
+    # responded to the grant, AND nub installs the package unjailed — so no state this harness can
+    # express installs it, and the jail really is the difference. `record.mjs` maps this `=>` line to
+    # the `UNDER-PREDICTED` verdict, which `collate.mjs` keeps out of the catalog — correct here,
+    # because there is genuinely no measured minimum to publish.
     #
     # ⛔ IT IS IN THE `else`, AND THAT PLACEMENT IS THE CONTRACT. `record.mjs` walks the log line by
     # line and the LAST matching `=>` wins, so printing both verdicts would silently overwrite
