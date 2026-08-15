@@ -128,3 +128,48 @@ export function enginesAndDate(pkg, version, { spawnSync, npmArgv = ['npm'], tim
     return { engines: null, published: null };
   }
 }
+
+// ── CLI ───────────────────────────────────────────────────────────────────────
+//
+// ⛔ EXISTS SO THE SHELL DRIVERS SHARE ONE IMPLEMENTATION. `measure-macos.sh` and the Linux driver
+// are shell; `measure-windows.mjs` and `run-batch-v2.mjs` are JS. Reimplementing the era rule in awk
+// would give the corpus two selectors that drift, and a drifted selector is invisible in the data —
+// the records would simply disagree about which Node an era means, with nothing to flag it. One
+// process per package is a rounding error against an install.
+//
+//   node era-node.mjs <pkg> <version>            # queries npm for engines + publish date
+//   node era-node.mjs <pkg> <version> --engines '>=18' --published 2023-09-15   # no network
+//
+// Prints the full selection object as one line of JSON on stdout, so a shell caller can take the
+// whole thing (`jq -r .version`) rather than parsing prose. Exits non-zero ONLY on usage error: a
+// package whose metadata cannot be fetched still gets a pin (the harness-Node fallback), because
+// dropping it would remove it from the corpus over a registry hiccup.
+if (import.meta.filename === process.argv[1]) {
+  const [pkg, version, ...rest] = process.argv.slice(2);
+  if (!pkg || !version) {
+    process.stderr.write('usage: era-node.mjs <pkg> <version> [--engines <range>] [--published <date>]\n');
+    process.exit(2);
+  }
+  const flag = (name) => {
+    const i = rest.indexOf(`--${name}`);
+    return i === -1 ? undefined : rest[i + 1];
+  };
+  const { loadNodeMatrix } = await import('./node-matrix.mjs');
+  const { matrix } = loadNodeMatrix();
+  let engines = flag('engines');
+  let publishedAt = flag('published');
+  // Only reach the network when the caller did not already supply both — a batch runner that has the
+  // packument in hand should pass them and stay offline.
+  if (engines === undefined || publishedAt === undefined) {
+    const { spawnSync } = await import('node:child_process');
+    const looked = enginesAndDate(pkg, version, { spawnSync });
+    if (engines === undefined) engines = looked.engines;
+    if (publishedAt === undefined) publishedAt = looked.published;
+  }
+  const pick = chooseEraNode({ engines: engines ?? null, publishedAt: publishedAt ?? null, matrix });
+  // ⛔ `packageVersion`, NOT `version`. `pick.version` is the NODE version, so spreading it over a
+  // key called `version` silently rewrote the PACKAGE's version to the Node's — the first run of
+  // this CLI printed `{"pkg":"demo","version":"18.20.8"}` for `demo@1.0.0`. A record carrying that
+  // would name a package-version that does not exist, and nothing downstream would flag it.
+  process.stdout.write(`${JSON.stringify({ pkg, packageVersion: version, ...pick })}\n`);
+}

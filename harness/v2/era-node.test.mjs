@@ -5,6 +5,8 @@
 // V8 that removed the API its C++ calls. Anything that only tests the happy path would have passed
 // while both were broken.
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { chooseEraNode, eraMajorAt, enginesAndDate } from './era-node.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
@@ -112,4 +114,29 @@ test('npm view is read in BOTH of its output shapes', () => {
 
   const fail = enginesAndDate('demo', '1.2.3', { spawnSync: () => ({ status: 1, stdout: '' }) });
   assert.deepEqual(fail, { engines: null, published: null }, 'a failed view is not an exception');
+});
+
+test('the CLI prints a full selection and does NOT let the Node version clobber the package version', () => {
+  // THE BUG THIS CAUGHT ON ITS FIRST RUN. `{ pkg, version, ...pick }` spread `pick.version` (a NODE
+  // version) over a key called `version`, so `demo@1.0.0` printed as `{"version":"18.20.8"}` — a
+  // package-version that does not exist, which nothing downstream would flag.
+  const cli = path.join(import.meta.dirname, 'era-node.mjs');
+  const r = spawnSync(process.execPath, [cli, 'demo', '1.0.0', '--engines', '>=18', '--published', '2023-09-15'],
+    { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.packageVersion, '1.0.0', 'the PACKAGE version must survive the spread');
+  assert.equal(out.version, '18.20.8', 'and `version` is the chosen NODE version');
+  assert.equal(out.major, 18);
+  assert.equal(out.eraMajor, 18);
+
+  // `engines` must still be able to raise, through the CLI as well as the function.
+  const raised = JSON.parse(spawnSync(process.execPath,
+    [cli, 'demo', '1.0.0', '--engines', '>=24', '--published', '2022-11-01'], { encoding: 'utf8' }).stdout);
+  assert.equal(raised.major, 24);
+  assert.equal(raised.raisedByEngines, true);
+
+  // Usage error is the ONLY non-zero exit: a package whose metadata cannot be fetched still gets a
+  // pin, because dropping it would remove it from the corpus over a registry hiccup.
+  assert.equal(spawnSync(process.execPath, [cli], { encoding: 'utf8' }).status, 2);
 });
