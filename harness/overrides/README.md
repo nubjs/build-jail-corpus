@@ -27,9 +27,10 @@ fix wearing a disguise.
 ```json
 {
   "package": "sharp",
-  "grants": [
-    { "write": "disk", "network": true, "notes": "…why this specific grant…" }
-  ],
+  "default": { "write": "disk", "network": true, "notes": "…why this specific grant…" },
+  "versions": {
+    "<1.2.3": { "network": true, "win": { "write": { "userHome": true } }, "notes": "…why…" }
+  },
   "rationale": {
     "investigator": "who or what established this",
     "evidence": "what was actually read or run — a source path + line, a command, an issue link",
@@ -38,9 +39,23 @@ fix wearing a disguise.
 }
 ```
 
-`grants` is a list of ordinary v2 grants, first-match-wins, so version and platform matchers
-work exactly as they do in a measured entry. The parser validates them identically — an override
-cannot express something the schema forbids.
+An override is an **ENTRY** — `{ default, versions? }`, exactly the shape the generator emits — so a
+human writing one never has to learn a second grammar. `default` is required; `versions` keys are `<`
+bands, and per-OS overlays (`macos` / `linux` / `win`) work as they do in a measured entry. The parser
+validates them identically, so an override cannot express something the schema forbids.
+
+⛔ **A legacy `"grants": [ … ]` ARRAY IS REJECTED, NOT COERCED — and this section documented that form
+until 2026-08-16.** Anyone following the old text got `legacy 'grants' array — rewrite as
+{ default, versions? }` from the loader and, worse, a bake that silently kept the measured grant
+instead. The array is refused deliberately: its first-match-wins semantics do not survive the move to
+`<` bands, so a quietly converted override would resolve differently than its author read. The loader
+in `collate.mjs` is the authority; this file was wrong, which is the failure mode a doc has that code
+does not.
+
+⛔ **Two loader behaviours to expect.** Every applied override is printed on every run — check that
+yours appears. And an override whose capabilities already match the measured result is reported as
+**dead weight**; that comparison is on capabilities, not serialised entries, so differing `notes`
+cannot mask agreement.
 
 ## Investigated and deliberately NOT overridden
 
