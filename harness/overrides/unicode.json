@@ -1,0 +1,19 @@
+{
+  "package": "unicode",
+  "default": {
+    "network": true,
+    "notes": "measured on darwin+linux across all three record trees; latest (>=14) runs no lifecycle script at all"
+  },
+  "versions": {
+    "<14.0.0": {
+      "network": true,
+      "win": { "write": { "userHome": true }, "writePaths": ["AppData/Local/Microsoft"] },
+      "notes": "win32 ONLY: the pre-14 installer writes under AppData/Local/Microsoft. darwin and linux measure {network:true} in BOTH trees; only win32 ever observed the userHome write, and its v2 arm cannot be measured (VOID twice)."
+    }
+  },
+  "rationale": {
+    "investigator": "frizz worker, effort read-the-file-read-up",
+    "evidence": "records/runs/win32-x64/unicode/0.6.1/results.json = MINIMUM {network,write:{userHome}}; records-v2 has NO win32 record for it; darwin+linux agree {network:true} across records/runs, records-v2/runs and run25-runs. Two v2 attempts on nub-win3 returned VOID (grant=null, synthesized={write:{deps},network}) - the arm's catalog override does not engage for this package, so the sweep cannot answer. A retirement-risk sweep over ~2,200 v1 specs x 3 platforms found this as the ONLY narrowing lacking platform-local evidence.",
+    "date": "2026-08-16"
+  }
+}
