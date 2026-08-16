@@ -17,8 +17,15 @@ test('the retention predicate covers every verdict whose reason lives only in th
   const m = /KEEP_LOG_VERDICTS = new Set\(\[([^\]]*)\]\)/.exec(SRC);
   assert.ok(m, 'KEEP_LOG_VERDICTS is gone — the retention rule has been rewritten');
   const set = m[1].split(',').map((s) => s.trim().replace(/^'|'$/g, '')).filter(Boolean);
-  // VOID and NO-STATE-PASSED are the two non-HARNESS verdicts that state no reason in the record.
-  for (const v of ['VOID', 'NO-STATE-PASSED']) {
+  // The non-HARNESS verdicts that state no reason in the record.
+  //
+  // ⛔ BROKEN-WITHOUT-JAIL-TOO WAS MISSING HERE AND THIS TEST ASSERTED THE OPPOSITE. The first
+  // version of this file listed it as must-NOT-retain "because the record already explains it".
+  // Checked 2026-08-16 against a real record: `notes: []`, `eventLog: null`, `grantSourceReason:
+  // null`, `driverRc: 0` — nothing explains anything. It is also the LARGEST failure bucket (17.8%
+  // of linux records, 30.8% of win32) and the one that decides whether nub can install a package at
+  // all, so it was the worst possible verdict to be discarding evidence for.
+  for (const v of ['VOID', 'NO-STATE-PASSED', 'BROKEN-WITHOUT-JAIL-TOO']) {
     assert.ok(set.includes(v), `${v} must retain its driver log — its record carries no reason`);
   }
   // Every HARNESS-* verdict is covered by prefix, not enumeration, so a new one is covered on arrival.
@@ -28,11 +35,14 @@ test('the retention predicate covers every verdict whose reason lives only in th
 
 test('a MINIMUM does NOT retain its log', () => {
   // ⛔ THE DIRECTION THAT MATTERS FOR COST. A MINIMUM's grant, minimality and provenance are all in
-  // the record, so its log adds nothing — and there are ~6,100 of them against ~250 non-measurement
-  // verdicts. Retaining all of them would dwarf the records this corpus exists to produce.
+  // the record, so its log adds nothing — and there are ~6,100 of them against ~850 verdicts that do
+  // retain. Retaining all of them would dwarf the records this corpus exists to produce.
+  //
+  // BROKEN-WITHOUT-JAIL-TOO is deliberately NOT in this list any more — see the test above. ~600 of
+  // those is an order of magnitude under the MINIMUM figure that motivates this exclusion.
   const m = /KEEP_LOG_VERDICTS = new Set\(\[([^\]]*)\]\)/.exec(SRC);
   const set = m[1].split(',').map((s) => s.trim().replace(/^'|'$/g, '')).filter(Boolean);
-  for (const v of ['MINIMUM', 'BROKEN-WITHOUT-JAIL-TOO', 'REFUSED-MALICIOUS']) {
+  for (const v of ['MINIMUM', 'REFUSED-MALICIOUS']) {
     assert.ok(!set.includes(v), `${v} must NOT retain its log — the record already explains it`);
   }
   assert.match(SRC, /fs\.rmSync\(tmpLog, \{ force: true \}\)/,

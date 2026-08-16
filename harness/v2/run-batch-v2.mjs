@@ -321,7 +321,23 @@ for (const spec of specs) {
   // Kept for the verdicts whose reason is NOT recoverable from the record, and for a `record.mjs`
   // failure — where the log is all that survives. A MINIMUM keeps nothing: its grant, minimality and
   // provenance are all in the record, and retaining ~7k logs would dwarf the records themselves.
-  const KEEP_LOG_VERDICTS = new Set(['VOID', 'NO-STATE-PASSED']);
+  //
+  // ⛔ `BROKEN-WITHOUT-JAIL-TOO` ADDED 2026-08-16 AFTER CHECKING WHAT ITS RECORD ACTUALLY HOLDS. It
+  // was excluded here on the grounds that "the record already explains it" — asserted, not checked,
+  // and false. A BWJT record carries `notes: []`, `eventLog: null`, `grantSourceReason: null`,
+  // `driverRc: 0`: every field that could name a cause is empty, because the verdict is decided
+  // before any grant descent runs and so nothing populates them.
+  //
+  // WHY IT MATTERS MOST OF THE SET: BWJT is the LARGEST failure bucket in the corpus — 457 of 2,569
+  // linux records (17.8%) and 138 of 448 win32 (30.8%) — and it means nub cannot install the package
+  // with the jail OFF, i.e. a nub PM/linker bug rather than a jail finding. It is therefore the
+  // bucket that decides the "virtually all packages still install" claim. `purge-stale-verdicts.mjs`
+  // deliberately purges BWJT so that a nub fix triggers a re-measure, but with no recorded cause
+  // nobody can tell WHICH nub bug to fix; the evidence was deleted one line after being produced.
+  //
+  // COST IS AN ORDER OF MAGNITUDE BELOW THE FIGURE THAT JUSTIFIED EXCLUDING MINIMUM: ~600 BWJT logs
+  // against ~6,100 MINIMUM. MINIMUM stays out for exactly that reason.
+  const KEEP_LOG_VERDICTS = new Set(['VOID', 'NO-STATE-PASSED', 'BROKEN-WITHOUT-JAIL-TOO']);
   const keepLog = (verdict) => !verdict
     || String(verdict).startsWith('HARNESS-') || KEEP_LOG_VERDICTS.has(String(verdict));
 
