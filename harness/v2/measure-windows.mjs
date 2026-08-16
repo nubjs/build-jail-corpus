@@ -185,7 +185,25 @@ const BASE = flag('--root', 'C:\\jail');
 // deadline, so one such arm blocks the whole driver forever and the lane produces nothing at all.
 // TIMED-OUT is recorded as its own verdict -- it is NOT a failure, and must never be read as one:
 // a failure says the grant was insufficient, a timeout says nothing about the grant.
-const ARM_TIMEOUT_MS = Number(flag('--arm-timeout', '600000'));
+//
+// ⛔⛔ 600_000 WAS TOO LOW AND COST 8.9% OF WIN32 COVERAGE. Raised to 1_800_000 on 2026-08-16.
+//
+// The deadline's job is to cut a HUNG arm, but 600 s sat BELOW the 13-minute (780 s) hang that
+// motivated it, so it could not tell a hung arm from a merely slow one -- and on Windows a great
+// many arms are merely slow. MEASURED over the 25% win32 run: 40 of 448 records came back
+// HARNESS-TIMEOUT, against 1 of 2,569 on Linux. Their durations cluster in a 637-819 s band, which
+// is the tell -- unrelated packages do not fail inside a 180 s window by chance, they fail because
+// ONE arm hit a fixed 600 s ceiling and the driver gave up. A per-package cause would spread out.
+//
+// PROVEN RECOVERABLE, not assumed: `redis-memory-server@0.17.1` times out at 600 s and returns
+// `rc=0 artifacts=42/42` at 1800 s. And a timeout yields NO measurement (see above), so every one
+// of the 40 is a package the catalog must fall back to a base profile for.
+//
+// SAFE because this is not the only bound: `run-batch-v2.mjs` caps the whole driver at a 2400 s
+// per-package budget (`BUDGET_MS`), so a genuinely infinite arm is still killed -- rc 124, the
+// convention `record.mjs` already reads. 1800 s < 2400 s, so ONE slow arm now fits inside the
+// package budget where it previously could not. The flag stays so a lane can lower it.
+const ARM_TIMEOUT_MS = Number(flag('--arm-timeout', '1800000'));
 const ROOT = path.join(BASE, `m-${PKG.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`);
 fs.mkdirSync(ROOT, { recursive: true });
 
