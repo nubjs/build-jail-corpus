@@ -306,11 +306,39 @@ for (const spec of specs) {
     '--standing-json', JSON.stringify(standing),
     '--driver', process.platform === 'win32' ? 'measure-windows.mjs'
       : process.platform === 'darwin' ? 'measure-macos.sh' : 'measure.sh'], 120_000);
-  fs.rmSync(tmpLog, { force: true });
-  if (w.status !== 0) { console.log(`FAIL  ${spec} — record.mjs rc=${w.status}\n${w.stderr}`); continue; }
+  // ⛔⛔ THE DRIVER LOG IS THE ONLY PLACE A NON-MEASUREMENT VERDICT'S *REASON* EXISTS, AND DELETING
+  // IT UNCONDITIONALLY THREW THAT AWAY. A record carries `verdict: "HARNESS-ERROR"` or `"VOID"` and
+  // nothing about WHY; the driver's stdout — which said `=> HARNESS-ERROR: Nub could not materialize
+  // the tree with --ignore-scripts` or `=> VOID -- the override did not engage` — was written here and
+  // `rmSync`'d two lines later.
+  //
+  // MEASURED COST: five `HARNESS-ERROR` records were investigated as a per-package budget problem and
+  // re-run at a 90-minute budget before anyone read a driver log. They were nub REFUSALS (exit 23
+  // trust-policy, exit 21 age-gate) that failed in 5-41 s, so the budget could not have mattered. One
+  // retained log would have answered it immediately. Separately `unicode@0.6.1` VOIDs on win32 and the
+  // reason is still unknown, because both attempts deleted their own evidence.
+  //
+  // Kept for the verdicts whose reason is NOT recoverable from the record, and for a `record.mjs`
+  // failure — where the log is all that survives. A MINIMUM keeps nothing: its grant, minimality and
+  // provenance are all in the record, and retaining ~7k logs would dwarf the records themselves.
+  const KEEP_LOG_VERDICTS = new Set(['VOID', 'NO-STATE-PASSED']);
+  const keepLog = (verdict) => !verdict
+    || String(verdict).startsWith('HARNESS-') || KEEP_LOG_VERDICTS.has(String(verdict));
+
+  if (w.status !== 0) {
+    // record.mjs itself failed, so there is no verdict to consult and no record to read: the log is
+    // the entire evidence. Reported by path so the next reader does not have to guess it exists.
+    console.log(`FAIL  ${spec} — record.mjs rc=${w.status} (driver log kept: ${tmpLog})\n${w.stderr}`);
+    continue;
+  }
 
   const rec = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8'));
   recorded++;
+  if (keepLog(rec.verdict)) {
+    console.log(`      driver log kept for ${rec.verdict}: ${tmpLog}`);
+  } else {
+    fs.rmSync(tmpLog, { force: true });
+  }
 
   // ⛔⛔ SWEEP THE DRIVER'S SCRATCH ROOT, OR A LONG SLICE FILLS THE DISK AND DIES MID-RUN.
   //
