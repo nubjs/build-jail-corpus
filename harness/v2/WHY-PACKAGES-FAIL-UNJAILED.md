@@ -32,6 +32,16 @@ Counted from `driver.out` across all 498 darwin `BROKEN-WITHOUT-JAIL-TOO` record
 
 Most of these records show NO npm-announced script name, which is itself the tell: the postinstall command *is* the missing binary (`husky install`), rather than a script that shells out to one. Where a name does appear it is `build` (20) or `clean` (7) — a postinstall delegating to `npm run build`.
 
+## The second large category: old native addons, built against a Node their author never saw
+
+61 of the 498 darwin records are native addons whose `make` failed. Digging past the wrappers matters here — `gyp ERR! not ok` is the outer shell and `` `make` failed with exit code `` is the next one; neither is a cause. The compiler's own first error is: `too many errors emitted, stopping now` (26), a header it cannot find (5), a call to a function ISO C99 removed (1), and 29 with no compiler line surfaced.
+
+⛔ **Every one of the 61 ran `node -v v22.23.1`, and not one mentions an era pin.** The harness pins an era Node precisely so this population builds against the Node it was published for — but the pin **fails open silently**: if no era version resolves, or if the requested version is not present on the box, `ERA_PATH` becomes the ambient `$PATH` and nothing is recorded. So these failures were filed against the package while the cause may be the toolchain.
+
+That is now fixed at the source rather than argued about: both POSIX drivers declare `ERA-NODE PINNED <v>` or `NOT-PINNED (<why>)` into `driver.out`, with the two negative branches distinguished — a lookup gap and an unprovisioned box are fixed in different places. **Until records carry that line, treat any native-addon failure in this corpus as unattributed between the package and the toolchain.**
+
+Other causes gyp itself names, from the same pass: 15 `Failed to execute <node> <runner>` (old node-gyp against a modern Node), 3 HTTP 403/404 fetching a prebuilt — and `@pdftron/pdfnet-node`'s 403 is a license-gated download, which no grant can fix.
+
 ## What this means for the corpus
 
 1. **These are genuine package defects, and no grant can fix them.** Widening the jail would not help; the binary does not exist in a consumer install. They belong in a bucket that says "broken for everyone" rather than one a reader might mistake for a capability gap.
