@@ -100,7 +100,42 @@ export function classify(ledger, armsExpected = 4) {
   //
   // ⭑ THIS is the ONLY clause that means "nothing installed anywhere". The other four refusals below
   // are all compatible with a successful install, which is precisely the conflation to fix.
-  if (arms.some((a) => a.rc !== '0')) return F('ARM_EXITED_NONZERO', 'an arm exited non-zero');
+  // ⛔⛔ ASSESSED OVER THE rc=0 SUFFIX, NOT OVER EVERY ARM — that distinction is this clause's point.
+  // A blanket `arms.some(rc !== '0')` discarded the invariance the SUCCESSFUL arms had established,
+  // because the NARROWEST arm legitimately failing is the ladder working as designed: the descent
+  // exists to find where a grant stops being sufficient.
+  //
+  // MEASURED on `node-pty@1.1.0`, re-run 2026-08-17 with the driver log kept:
+  //   rc=1 missing=7 shortfall=ea0776ba56ce  {"network":true}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {write:{deps,project,userHome},network}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {...,read:"disk",network}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {write:"disk",network}
+  // It INSTALLS at rc=0 on three grants with an identical residual, which is exactly
+  // grant-independence — yet the old clause answered NOT-GRANT-INDEPENDENT because the first rung
+  // failed, so a package taking 3.2M downloads a week and installing fine was filed
+  // `NO-STATE-PASSED`, which reads as "the jail blocks this". ~20 records share that shape.
+  //
+  // THE SUFFIX REQUIREMENT IS WHAT KEEPS THIS SAFE, and it is not decoration:
+  //   - NO arm exited 0 ⇒ nothing installed anywhere. Still refuses; that meaning is load-bearing.
+  //   - the rc=0 arms are NOT a suffix (a WIDER arm failed after a narrower one succeeded) ⇒ a ladder
+  //     no capability story explains. Still refuses — the measured `0,1,0,0` case its own test pins.
+  //   - fewer than TWO successful arms ⇒ a single point cannot show invariance under widening.
+  // The digest clause below still does the discriminating, exactly as `mozjpeg@6.0.1` demands: rc=0 on
+  // both its arms, held out ONLY because its shortfall MOVED.
+  const firstOk = arms.findIndex((a) => a.rc === '0');
+  const okArms = firstOk === -1 ? [] : arms.slice(firstOk);
+  if (!okArms.length) {
+    return F('ARM_EXITED_NONZERO', 'every arm exited non-zero — nothing installed at any grant');
+  }
+  if (okArms.some((a) => a.rc !== '0')) {
+    return F(
+      'ARM_EXITED_NONZERO',
+      'an arm exited non-zero AFTER a wider arm had succeeded — the ladder is incoherent',
+    );
+  }
+  if (okArms.length < 2) {
+    return F('SINGLE_OK_ARM', 'only one arm exited 0 — invariance needs at least two grants to compare');
+  }
 
   // ⛔⛔ `<package absent>` IS EXCLUDED AND THIS IS THE SAFETY CLAUSE OF THE WHOLE FILE.
   // MEASURED on `netlify-cli@26.2.0`: `artifacts=ABSENT/1110` on all four arms, 3 files in the entire
@@ -114,7 +149,11 @@ export function classify(ledger, armsExpected = 4) {
   // `?` is an arm whose gate line carried no digest (a gate that could not run, or an rc=3 arm with no
   // reference). It can never equal another arm's digest, so an unreadable arm can only ever REFUSE the
   // claim — never silently support it. That direction is chosen, not incidental.
-  const sigs = new Set(arms.map((a) => a.sig));
+  // ⛔ OVER `okArms`, FOR THE SAME REASON THE CLAUSE ABOVE IS. A failed narrow arm's shortfall is not
+  // comparable — it is short because the grant was insufficient, which is the thing being measured, not
+  // a residual. Including it would make every suffix-invariant package look like it "CHANGED across
+  // arms": node-pty's failed rung is short by 7 against the successful rungs' 4.
+  const sigs = new Set(okArms.map((a) => a.sig));
   if (sigs.size !== 1) return F('SHORTFALL_VARIED', `the shortfall CHANGED across arms (${[...sigs].join(', ')}) — it responded to the grant`);
   const [sig] = sigs;
   if (sig === '?') return F('NO_DIGEST', 'an arm produced no readable shortfall digest');
@@ -123,7 +162,11 @@ export function classify(ledger, armsExpected = 4) {
   // report a clean run as suspect.
   if (sig === 'none') return F('NO_SHORTFALL', 'no shortfall — the arms passed the gate');
 
-  return { ok: true, code: 'GRANT_INDEPENDENT', count: arms[0].count, sig, allArmsRc0, anyArmAbsent, installActuallyRan };
+  // `okArms[0]`, not `arms[0]`: the invariant count is the one the SUCCESSFUL rungs share. Reading it
+  // from a failed narrow arm would report a shortfall that widening already changed — node-pty would
+  // publish 7 where the grant-independent residual is 4, and the count is what makes the verdict
+  // triageable at all.
+  return { ok: true, code: 'GRANT_INDEPENDENT', count: okArms[0].count, sig, allArmsRc0, anyArmAbsent, installActuallyRan };
 }
 
 // ⛔ `pathToFileURL`, not the string form. On Windows `process.argv[1]` is a backslash path while

@@ -122,11 +122,50 @@ test('installActuallyRan is TRUE only when the arms exited 0 AND the package was
 test('every refusal carries a machine-readable code, so a driver need not parse prose', () => {
   const cases = [
     ['0:aa:ok:1\n0:aa:ok:1', 'LADDER_TRUNCATED'],
-    ['1:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'ARM_EXITED_NONZERO'],
+    // ⛔ THIS SLOT USED TO BE `1,0,0,0 -> ARM_EXITED_NONZERO`, which was the node-pty defect in
+    // miniature: a failed NARROWEST rung followed by matching successes IS grant-independence, and
+    // refusing it filed installable packages as `NO-STATE-PASSED`. That shape now fires, asserted in
+    // its own test below. What still refuses is a ladder where NOTHING installed, and one whose
+    // successes are not a suffix.
+    ['1:aa:ok:1\n1:aa:ok:1\n1:aa:ok:1\n1:aa:ok:1', 'ARM_EXITED_NONZERO'],
+    ['0:aa:ok:1\n1:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'ARM_EXITED_NONZERO'],
+    ['1:aa:ok:1\n1:aa:ok:1\n1:aa:ok:1\n0:aa:ok:1', 'SINGLE_OK_ARM'],
     ['0:aa:abs:1\n0:aa:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'PACKAGE_ABSENT'],
     ['0:aa:ok:1\n0:bb:ok:1\n0:aa:ok:1\n0:aa:ok:1', 'SHORTFALL_VARIED'],
     ['0:?:ok:1\n0:?:ok:1\n0:?:ok:1\n0:?:ok:1', 'NO_DIGEST'],
     ['0:none:ok:0\n0:none:ok:0\n0:none:ok:0\n0:none:ok:0', 'NO_SHORTFALL'],
   ];
   for (const [ledger, code] of cases) assert.equal(classify(ledger, 4).code, code, `ledger ${ledger}`);
+});
+
+test('the measured node-pty shape FIRES — a failed NARROWEST rung must not veto the successes', () => {
+  // ⛔ THE DEFECT THIS EXISTS TO PIN, measured on `node-pty@1.1.0` (3.2M downloads/wk) 2026-08-17:
+  //   rc=1 missing=7 shortfall=ea0776ba56ce  {"network":true}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {write:{deps,project,userHome},network}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {...,read:"disk",network}
+  //   rc=0 missing=4 shortfall=4c85700f01f2  {write:"disk",network}
+  // The package INSTALLS — rc=0 on three grants with an identical residual. The old blanket
+  // `arms.some(rc !== 0)` refusal answered NOT-GRANT-INDEPENDENT because the FIRST rung failed, and the
+  // driver then filed `NO-STATE-PASSED`, which reads as "the jail blocks this" about a package the jail
+  // installs fine. ~20 records share this shape.
+  const r = classify(ledger(
+    '1:ea0776ba56ce:ok:7', '0:4c85700f01f2:ok:4', '0:4c85700f01f2:ok:4', '0:4c85700f01f2:ok:4'));
+  assert.equal(r.ok, true, `a failed narrow rung must not veto an invariant suffix: ${r.why}`);
+  // ⭑ THE COUNT COMES FROM THE SUCCESSFUL RUNGS, not from the failed one. Reading `arms[0]` would
+  // publish 7 — a shortfall that widening demonstrably changed — where the grant-independent residual
+  // is 4, and the count is the whole triage value of the verdict.
+  assert.equal(r.count, '4', 'the invariant count is the successful rungs\' 4, never the failed rung\'s 7');
+  assert.equal(r.sig, '4c85700f01f2', 'and the digest is likewise the one the successes share');
+  // The flags still report the ladder honestly: not every arm exited 0, so a consumer that needs that
+  // stricter fact can still ask for it.
+  assert.equal(r.allArmsRc0, false, 'allArmsRc0 must stay FALSE — one rung really did fail');
+});
+
+test('a wider arm failing after a narrower one succeeded still refuses — that ladder is incoherent', () => {
+  // No capability story explains a grant that works and then stops working when WIDENED, so this must
+  // never be blessed however matched the digests are. It is the reason the rule is a SUFFIX rule rather
+  // than "ignore any failed arm".
+  const r = classify(ledger('0:aa11bb22cc33:ok:2', '1:aa11bb22cc33:ok:2', '0:aa11bb22cc33:ok:2', '0:aa11bb22cc33:ok:2'));
+  assert.equal(r.ok, false);
+  assert.match(r.why, /non-zero/);
 });
