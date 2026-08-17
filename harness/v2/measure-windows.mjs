@@ -1825,13 +1825,12 @@ if (!NUB_ARM.ok) {
   // FORWARD from the verdict line to the exit within a FIVE-LINE window, so the call must sit after
   // the `console.log` and nothing verbose may come between: a comment block parked here pushed both
   // the call and the `process.exit` out of the window and tripped a second guard.
-  if (npmOk()) {
-    console.log('  => BROKEN-UNJAILED-NUB -- npm installs this package but nub cannot, even with the jail');
-    console.log('     OFF. The ladder\'s failures say nothing about capabilities. NOT a jail finding and NOT');
-    console.log('     an under-grant: do not widen the catalog. This is a nub install defect to chase.');
-  } else {
-    console.log('  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)');
-  }
+  // The module owns both spellings, so three drivers cannot drift on the tokens `record.mjs` matches,
+  // and it puts the REASON on its own line — which also keeps the verdict tight against the provenance
+  // call the five-line window guard above requires.
+  const { verdict, why } = classify({ nub: { rc: 1, engaged: true }, npm: { rc: npmOk() ? 0 : 1 } });
+  console.log(`  jail-off control: ${why}`);
+  console.log(`  => ${verdict}`);
   emitBinaryProvenance();
   process.exit(0);
 }
