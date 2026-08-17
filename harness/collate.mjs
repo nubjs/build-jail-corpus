@@ -221,7 +221,22 @@ for (const r of records) {
     excluded.brokenInEnvironment.push(`${r.pkg}@${r.version}`);
     continue;
   }
-  if (r.verdict === 'NO-STATE-PASSED') { excluded.noStatePassed.push(`${r.pkg}@${r.version}`); continue; }
+  // ⛔ `UNDER-PREDICTED` IS macOS'S SPELLING OF THE SAME ANSWER, and both belong in this bucket. The
+  // drivers converged on the MEANING — "every rung up to `write:disk` failed, so no state this harness
+  // can express installed the package" — while the string stayed split, and `record.mjs` deliberately
+  // keeps them as distinct verdicts so existing records keep parsing as what they actually said.
+  //
+  // Left apart, the macOS half falls through to the catch-all `noVerdict` at the end of this chain,
+  // which is the bucket meaning "go investigate". That is precisely the failure this file gives
+  // BROKEN-IN-ENVIRONMENT and REFUSED-MALICIOUS their own buckets to avoid: reporting a deliberate,
+  // verified answer as an absence invites re-investigating packages that are already classified.
+  //
+  // MEASURED before changing it: 97 darwin records carry the macOS spelling, 112 the other, and ALL 97
+  // have `grant: null` — so this moves reporting granularity and cannot move a catalog entry.
+  if (r.verdict === 'NO-STATE-PASSED' || r.verdict === 'UNDER-PREDICTED') {
+    excluded.noStatePassed.push(`${r.pkg}@${r.version}`);
+    continue;
+  }
   // ⛔ EXCLUDED FROM THE CATALOG DESPITE CARRYING A GRANT, AND THAT ASYMMETRY IS DELIBERATE. Every
   // ladder arm exited 0 and fell short by the SAME artifacts at every grant up to `write:"disk"`, so
   // the shortfall is invariant under widening and says nothing about capabilities — but the grant was

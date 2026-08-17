@@ -68,6 +68,9 @@ function digestFor(dir) {
     'HARNESS-CRASH': 'the probe itself died — read harness-stderr.log; never a package fact',
     'HARNESS-TIMEOUT': 'the probe exceeded its cap; never a package fact',
     'NO-STATE-PASSED': 'no cell reproduced the control — SUSPECT THE ORACLE before the package',
+    // macOS's spelling of the line above. Both drivers mean "every rung up to `write:disk` failed";
+    // a reader who gets no gloss at all reads the verdict as a harness fault rather than a finding.
+    'UNDER-PREDICTED': 'no cell reproduced the control (macOS spelling) — SUSPECT THE ORACLE before the package',
   }[rec.verdict] ?? '';
   L.push(`**${rec.verdict}** — ${meaning}`);
   if (rec.state) L.push(`\n- grant: \`${rec.state}\` (cost ${rec.cost}), ${(rec.cells ?? []).length} cells`);
