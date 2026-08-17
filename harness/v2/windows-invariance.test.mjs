@@ -86,6 +86,12 @@ const runRegion = (oracle, {
   // which no unit test can afford.
   unjailedNubOk = true,
   npmOk = true,
+  // ⛔ WHETHER THE CONTROL WAS SOUND, WHICH OUTRANKS ITS rc. Default `true` — the off-switch worked —
+  // so every case written before the assertion existed still reaches the verdict it was written for.
+  // Set `false` to drive the broken-off-switch branch, whose whole point is that it must NOT let the
+  // rc become a verdict.
+  offSwitchEngaged = true,
+  controlTimedOut = false,
 } = {}) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'win-inv-'));
   const script = path.join(dir, 'region.mjs');
@@ -104,7 +110,21 @@ const runRegion = (oracle, {
     'const descend = (g, provenance) => console.log(`  DESCEND[${provenance}] ${JSON.stringify(g)}`);',
     // The jail-off control the terminal verdict now consults, and the npm question that decides whose
     // fault a nub failure is. Both are defined far above the extracted slice, like `run`.
-    `const unjailedNubOk = () => ${unjailedNubOk};`,
+    //
+    // ⛔ AN OBJECT, NOT A BOOLEAN, BECAUSE THE REAL ONE NOW REPORTS WHY. `false` cannot distinguish
+    // "nub cannot install it" from "the control never finished" from "the control ran with the jail
+    // still ON" — and that last one collapses into a confident exoneration of the jail rather than an
+    // error. `engaged: true` is what every case in this file assumes implicitly: the off-switch worked,
+    // so the rc means what it says. Left as a bare boolean, `true.ok` is `undefined`, every case takes
+    // the npm branch, and the file asserts the wrong verdict everywhere.
+    // ⛔ THE REAL MODULE, IMPORTED — not a stub of it. The driver imports `classify` at its top, far
+    // above this slice, and the extracted region has no imports of its own. Faking it would let the
+    // driver and the verdict vocabulary drift apart in exactly the place this suite is supposed to
+    // catch that; importing it means these assertions run against the same decision tree the three
+    // drivers share. Without this the region throws ReferenceError and every case reads as "no
+    // verdict printed", which is indistinguishable from a branch that simply did not fire.
+    `const { classify } = await import(${JSON.stringify(path.join(HERE, 'unjailed-nub.mjs'))});`,
+    `const unjailedNubOk = () => ({ ok: ${unjailedNubOk}, engaged: ${offSwitchEngaged}, timedOut: ${controlTimedOut} });`,
     `const npmOk = () => ${npmOk};`,
     // `emitBinaryProvenance` is also above the slice; the terminal branch calls it before exiting so
     // the published record names the binary. A no-op here keeps the stdout the assertions read clean.
@@ -182,6 +202,33 @@ test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it u
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
   assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
+});
+
+test('⭑⭑ a control whose OFF-SWITCH never engaged yields HARNESS-ERROR, and its rc is not a verdict', () => {
+  // ⛔ THE FAILURE THIS BRANCH EXISTS FOR, AND IT IS SILENT WITHOUT IT. A control whose off-switch
+  // stopped working ran JAILED, so its exit code describes the jail rather than its absence. rc=0 would
+  // then be read as "installs fine unjailed" — exonerating the jail using a jailed run as the evidence
+  // — and rc=1 would be filed as a nub install defect. v1 shipped exactly this for months, and the
+  // symptom was not an error but unanimous agreement, which reads as confidence.
+  //
+  // BOTH rc VALUES ARE DRIVEN, because soundness has to outrank the rc in both directions.
+  for (const ok of [true, false]) {
+    const out = runRegion(ALL_FAIL, { unjailedNubOk: ok, npmOk: true, offSwitchEngaged: false });
+    assert.match(out, /=> HARNESS-ERROR/, `rc=${ok ? 0 : 1} with a dead off-switch must be HARNESS-ERROR`);
+    assert.doesNotMatch(out, /=> (NO-STATE-PASSED|BROKEN-UNJAILED-NUB|BROKEN-WITHOUT-JAIL-TOO)/,
+      'an unsound control must produce NO package verdict at all');
+    assert.match(out, /without the build sandbox/,
+      'the message must name the missing claim, or the next reader cannot tell what broke');
+  }
+});
+
+test('⭑ a control that TIMED OUT is HARNESS-TIMEOUT, never a package fact', () => {
+  // A timeout says nothing about whether nub can install the package. Filing it as
+  // BROKEN-UNJAILED-NUB would assert a nub install defect for something that merely compiles slowly,
+  // and win32 is where that matters: a measured lane spent 53% of its time on timeouts.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true, controlTimedOut: true });
+  assert.match(out, /=> HARNESS-TIMEOUT/);
+  assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/, 'a slow build must not become a nub defect');
 });
 
 test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot install it either', () => {

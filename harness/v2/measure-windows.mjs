@@ -32,6 +32,9 @@ import { spawnSync } from 'node:child_process';
 // beside it. Quoting the call in prose puts a file with no CLI guard at all on that list, and the test
 // then fails naming a defect that does not exist. Measured twice while writing this comment.
 import { shortfallDigest } from './shortfall-invariance.mjs';
+// The off-switch assertion and the verdict vocabulary come from the module that owns them, shared with
+// both POSIX drivers, so three drivers cannot drift apart on what a jail-off control proved.
+import { classify, offSwitchEngaged } from './unjailed-nub.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
 import { neverSpawned } from './never-spawned.mjs';
@@ -326,10 +329,36 @@ const unjailedNubOk = () => {
   fs.writeFileSync(path.join(d, '.npmrc'), 'side-effects-cache=false\n');
   // Resolve WITHOUT running anything, screen the tree while it is still inert, and only then install:
   // a known-malicious dependency is refused before a single lifecycle script executes.
-  if (run(NUB, ['install', '--ignore-scripts'], { cwd: d }).status !== 0) return false;
+  //
+  // ⛔ THE OUTCOME IS AN OBJECT, NOT A BOOLEAN, BECAUSE `false` CANNOT CARRY WHY. Three things this arm
+  // can report are not the same, and a boolean collapses them all into the one that reads as a package
+  // fact: it failed, it never finished, and it RAN WITH THE JAIL STILL ON. The last is the dangerous
+  // one — a control whose off-switch silently stopped working produces unanimous agreement rather than
+  // an error, which reads as a confident exoneration of the jail, and v1 shipped exactly that for
+  // months. `engaged` is three-state on purpose: `null` means UNKNOWABLE, never disproven.
+  const out = { ok: false, engaged: null, timedOut: false };
+  const resolve = run(NUB, ['install', '--ignore-scripts'], { cwd: d, timeout: ARM_TIMEOUT_MS });
+  if (timedOut(resolve)) { out.timedOut = true; return out; }
+  // No lifecycle script has spawned yet, so nothing could have printed the claim — `engaged` stays
+  // `null` rather than `false`, or a fetch failure would be filed as a broken off-switch.
+  if (resolve.status !== 0) return out;
   securityScreen('nub-unjailed-resolved', ['--tree', d]);
-  if (run(NUB, ['install'], { cwd: d }).status !== 0) return false;
-  return run(NUB, ['approve-builds', '--all'], { cwd: d }).status === 0;
+
+  const logs = {};
+  for (const [key, args] of [['i', ['install']], ['a', ['approve-builds', '--all']]]) {
+    const r = run(NUB, args, { cwd: d, timeout: ARM_TIMEOUT_MS });
+    logs[key] = `${r.stdout ?? ''}${r.stderr ?? ''}`;
+    if (timedOut(r)) { out.timedOut = true; return out; }
+    if (r.status !== 0) {
+      // `approve-builds` is the step that actually RUNS the scripts under nub — a plain install ignores
+      // them pending approval — so it is the first step whose silence about the claim means anything.
+      if (key === 'a') out.engaged = offSwitchEngaged(logs);
+      return out;
+    }
+  }
+  out.engaged = offSwitchEngaged(logs);
+  out.ok = true;
+  return out;
 };
 
 // ⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT. On Linux
@@ -1766,7 +1795,24 @@ console.log(`  NOT-GRANT-INDEPENDENT ${invOut.replace(/^NOT-ESTABLISHED /, '')}`
 // ⛔ RUN IT HERE, LAZILY. This is the only path that would otherwise file the terminal verdict, so the
 // common case pays nothing; hoisting it would add two installs to every package in the corpus to
 // answer a question almost none of them ask.
-if (!unjailedNubOk()) {
+const NUB_ARM = unjailedNubOk();
+// ⛔ SOUNDNESS OUTRANKS THE rc, AND IT IS CHECKED FIRST. A control whose off-switch never engaged ran
+// JAILED, so its exit code describes the jail rather than its absence — and rc=0 would then be read as
+// "installs fine unjailed", exonerating the jail using a jailed run as the evidence. A timeout is
+// likewise not a package fact. Both are HARNESS-* verdicts, which `claim-slice.mjs` returns to
+// `pending` rather than closing, so a re-run off a fixed harness answers the question.
+//
+// This matters most on THIS platform: 45 of the 62 `write:"disk"` grants in the catalog rest on a win32
+// record alone, so the widest capability the jail hands out is the one whose control most needs to be
+// provably sound.
+if (NUB_ARM.timedOut || NUB_ARM.engaged === false) {
+  const { verdict, why } = classify({ nub: { rc: NUB_ARM.ok ? 0 : 1, ...NUB_ARM } });
+  console.log(`  jail-off control: ${why}`);
+  console.log(`  => ${verdict}`);
+  emitBinaryProvenance();
+  process.exit(0);
+}
+if (!NUB_ARM.ok) {
   // ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
   // second verdict after either branch would silently overwrite it and the stage would be inert.
   // ⛔ NAME THE BINARY BEFORE EXITING. Both of these publish a record, and a record that cannot say
