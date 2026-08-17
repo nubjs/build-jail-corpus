@@ -6,3 +6,8 @@ harness/v2/.measure-sabotaged.sh
 # Records the publish guard refused (publish-guard.mjs). Parked OUTSIDE records-v2 so no
 # bulk `git add records-v2` or whole-tree stash can sweep a withheld record into the corpus.
 withheld-records/
+
+# Written by the corpus-coverage workflow into the workspace (never /tmp — see
+# harness/v2/no-inline-tmp-path.test.mjs for why a node -e body cannot carry a POSIX temp path).
+coverage.json
+rows.txt

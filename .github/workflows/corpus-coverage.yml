@@ -65,6 +65,13 @@ jobs:
         # below: its failure mode is a DUPLICATE queue row, which is two runners measuring one package.
         run: node --test corpus/check-coverage.test.mjs corpus/gaps-to-queue.test.mjs
 
+      # ⛔ THE GAP SET GOES IN THE WORKSPACE, NEVER `/tmp`, AND THAT IS NOT TIDINESS. A POSIX temp path
+      # baked into a `node -e` program body reaches Node VERBATIM — msys2 rewrites arguments that look
+      # like paths, but not one buried inside a longer string — and Node resolves it DRIVE-RELATIVE on
+      # Windows (`D:\tmp\…`). That took the Windows lane down on the first run it was ever given, and
+      # the crash was the lucky outcome: had `D:\tmp` existed, a bash writer and a `node -e` reader of
+      # the identical spelling would have used two different files in silence.
+      # `harness/v2/no-inline-tmp-path.test.mjs` fails the suite if this regresses.
       - name: Report coverage
         id: coverage
         # ⛔ NEVER `| tee` HERE. The checker exits non-zero when incomplete, and a pipe makes the step
@@ -76,22 +83,22 @@ jobs:
         #   anything else = the checker itself broke, which must go red immediately.
         run: |
           set +e
-          node corpus/check-coverage.mjs --json > /tmp/coverage.json
+          node corpus/check-coverage.mjs --json > coverage.json
           rc=$?
           set -e
           if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
             echo "::error::check-coverage.mjs exited $rc — the checker itself is broken"
-            cat /tmp/coverage.json || true
+            cat coverage.json || true
             exit "$rc"
           fi
-          node -e 'const r=require("/tmp/coverage.json"); console.log(`gaps ${(r.gaps??[]).length}  unresolvable ${(r.unresolved??[]).length}`)'
+          node -e 'const r=JSON.parse(require("fs").readFileSync("coverage.json","utf8")); console.log(`gaps ${(r.gaps??[]).length}  unresolvable ${(r.unresolved??[]).length}`)'
 
       - name: Summarise
         if: always()
         run: |
           node -e '
             const fs = require("fs");
-            let r; try { r = JSON.parse(fs.readFileSync("/tmp/coverage.json", "utf8")); } catch { process.exit(0); }
+            let r; try { r = JSON.parse(fs.readFileSync("coverage.json", "utf8")); } catch { process.exit(0); }
             const lines = [];
             lines.push(`## corpus coverage`, "");
             lines.push(`- gaps: **${(r.gaps ?? []).length}**`);
@@ -114,7 +121,7 @@ jobs:
       - name: Fail on unresolvable names — a gap is work, a typo is a defect
         run: |
           node -e '
-            const r = require("/tmp/coverage.json");
+            const r = JSON.parse(require("fs").readFileSync("coverage.json","utf8"));
             const bad = r.unresolved ?? [];
             if (!bad.length) { console.log("every name in corpus/packages.txt resolves"); process.exit(0); }
             for (const u of bad) console.log(`::error::corpus/packages.txt: ${u.name} — ${u.why}`);
@@ -126,7 +133,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: /tmp/coverage.json
+          path: coverage.json
           if-no-files-found: warn
 
   # Gaps become QUEUE ROWS, and `corpus-queue-runner` claims them exactly as it already does.
@@ -164,12 +171,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: coverage
-          path: /tmp/cov
+          path: .
 
       - name: Append pending rows for gaps the queue does not already carry
         id: rows
         run: |
-          node corpus/gaps-to-queue.mjs --coverage /tmp/cov/coverage.json --apply | tee /tmp/rows.txt
+          node corpus/gaps-to-queue.mjs --coverage coverage.json --apply | tee rows.txt
           git diff --quiet queue-v2.ndjson && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       # ⛔ A BOT PR, NOT A PUSH TO MAIN. Records are evidence, so PR CI validates their shape before they
@@ -185,8 +192,8 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b "$BRANCH"
           git add queue-v2.ndjson
-          git commit -m "corpus: queue $(grep -c '^  + ' /tmp/rows.txt || echo 0) coverage gap(s) as pending rows"
+          git commit -m "corpus: queue $(grep -c '^  + ' rows.txt || echo 0) coverage gap(s) as pending rows"
           git push -u origin "$BRANCH"
           gh pr create --base main --head "$BRANCH" \
             --title "corpus: queue coverage gaps as pending rows" \
-            --body "$(printf 'Rows appended by `corpus-coverage` run %s.\n\n```\n%s\n```\n' "${{ github.run_id }}" "$(cat /tmp/rows.txt)")"
+            --body "$(printf 'Rows appended by `corpus-coverage` run %s.\n\n```\n%s\n```\n' "${{ github.run_id }}" "$(cat rows.txt)")"
