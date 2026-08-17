@@ -78,3 +78,76 @@ export async function gaps({ root, names, platforms, latestOf, exists = fs.exist
   }
   return { gaps: out, unresolved };
 }
+
+// ── CLI ───────────────────────────────────────────────────────────────────────────────────────────
+//
+// The only place that touches the network. Everything above takes `latestOf` as a parameter precisely
+// so the unit tests never reach the registry — a coverage checker whose own tests need npm cannot run
+// offline, and it would be tested against whatever the ecosystem published that morning.
+
+/** Today's `latest` for one package, straight from the registry. */
+async function latestFromRegistry(name) {
+  // The abbreviated document is a fraction of the full packument and carries `dist-tags`, which is all
+  // this needs. Asking for the full metadata of 784 packages would move hundreds of megabytes.
+  const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`, {
+    headers: { accept: 'application/vnd.npm.install-v1+json' },
+  });
+  if (!res.ok) throw new Error(`registry ${res.status}`);
+  const body = await res.json();
+  return body?.['dist-tags']?.latest ?? null;
+}
+
+if (import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1] ?? '').href) {
+  const argv = process.argv.slice(2);
+  const asJson = argv.includes('--json');
+  const only = argv.includes('--platform') ? [argv[argv.indexOf('--platform') + 1]] : PLATFORMS;
+  for (const p of only) {
+    if (!PLATFORMS.includes(p)) {
+      console.error(`unknown --platform ${p}; expected one of ${PLATFORMS.join(', ')}`);
+      process.exit(2);
+    }
+  }
+  const root = path.resolve(import.meta.dirname, '..');
+  const names = readList(fs.readFileSync(path.join(root, 'corpus', 'packages.txt'), 'utf8'));
+
+  // ⛔ BOUNDED CONCURRENCY, and a failure resolves to `unresolved` rather than killing the run. 784
+  // sequential round-trips would take minutes; 784 parallel ones get rate-limited, and a rate-limit
+  // read as "no latest version" would report real packages as unresolvable — a false gap, which sends
+  // the dispatcher after work that does not exist.
+  const cache = new Map();
+  let cursor = 0;
+  const latestOf = async (name) => {
+    if (cache.has(name)) {
+      const hit = cache.get(name);
+      if (hit instanceof Error) throw hit;
+      return hit;
+    }
+    try {
+      const v = await latestFromRegistry(name);
+      cache.set(name, v);
+      return v;
+    } catch (error) {
+      cache.set(name, error);
+      throw error;
+    }
+  };
+  const workers = Array.from({ length: 8 }, async () => {
+    while (cursor < names.length) {
+      const name = names[cursor++];
+      try { await latestOf(name); } catch { /* recorded in the cache; `gaps` reports it */ }
+    }
+  });
+  await Promise.all(workers);
+
+  const { gaps: found, unresolved } = await gaps({ root, names, platforms: only, latestOf });
+  if (asJson) {
+    console.log(JSON.stringify({ platforms: only, packages: names.length, gaps: found, unresolved }, null, 2));
+  } else {
+    console.log(`packages ${names.length}   platforms ${only.join(',')}`);
+    console.log(`gaps ${found.length}   unresolvable ${unresolved.length}`);
+    for (const u of unresolved.slice(0, 20)) console.log(`  UNRESOLVED ${u.name} — ${u.why}`);
+    for (const g of found.slice(0, 40)) console.log(`  GAP ${g.name}@${g.version} ${g.platform}`);
+  }
+  // Non-zero when incomplete, so the job fails loudly rather than reporting a gap set nobody reads.
+  process.exit(found.length || unresolved.length ? 1 : 0);
+}

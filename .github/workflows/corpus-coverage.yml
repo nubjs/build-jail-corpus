@@ -1,0 +1,110 @@
+# Is the corpus complete against `corpus/packages.txt`, and dispatch what is missing.
+#
+# THE WORKFLOW: read the list, resolve each package's CURRENT latest, look for a committed record per
+# platform, report the gaps. Adding a package to the corpus is one line in that file; this job is what
+# makes the line mean something.
+#
+# ⛔⛔ THE PATH FILTER IS THE LOAD-BEARING SAFETY PROPERTY, NOT AN OPTIMISATION. Measurement runs COMMIT
+# records, and this job READS records — so a naive trigger would have results committing, waking the
+# checker, dispatching more measurement, forever. `paths` deliberately excludes `records-v2/**`: a
+# results commit cannot trigger a dispatch. That alone breaks the cycle. Three further guards back it:
+# the queue's `claimed` rows carry their run id and cannot be double-claimed; the gap set is a pure
+# function of (list, records, today's latest) and every measurement strictly shrinks it, so the loop is
+# monotone and converges even if re-run on every commit; and results land as a bot PR rather than a push
+# to main, so PR CI validates record shape before anything becomes evidence.
+#
+# ⛔ DO NOT ADD `records-v2/**` TO `paths`. It reads like an obvious completeness improvement — "re-check
+# whenever records change" — and it is precisely the edge that makes this self-triggering.
+name: corpus-coverage
+
+on:
+  pull_request:
+    paths:
+      - 'corpus/packages.txt'
+      - 'harness/**'
+      - '.github/workflows/corpus-coverage.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'corpus/packages.txt'
+      - 'harness/**'
+  # A newly PUBLISHED version opens a gap without anything in this repo changing, which no
+  # content-triggered run can notice. The schedule is the only thing that catches it.
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dispatch:
+        description: >-
+          Also DISPATCH measurement runs for the gaps found. Off by default: a
+          dispatcher that fires on its first contact with a 784-package list can
+          spend a great many runner hours before anyone reads the log.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: coverage against corpus/packages.txt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Unit-test the checker before trusting its answer
+        # ⛔ THE CHECKER'S OWN TESTS RUN FIRST, and this ordering is deliberate. Its false NEGATIVES are
+        # the dangerous direction — a package wrongly reported covered is one that silently never gets
+        # measured — so a broken checker reporting "complete" is the worst output this job can produce.
+        # Nine tests pin exactly that polarity, and they need no network.
+        run: node --test corpus/check-coverage.test.mjs
+
+      - name: Report coverage
+        id: coverage
+        run: node corpus/check-coverage.mjs --json | tee /tmp/coverage.json
+
+      - name: Summarise
+        if: always()
+        run: |
+          node -e '
+            const fs = require("fs");
+            let r; try { r = JSON.parse(fs.readFileSync("/tmp/coverage.json", "utf8")); } catch { process.exit(0); }
+            const lines = [];
+            lines.push(`## corpus coverage`, "");
+            lines.push(`- gaps: **${(r.gaps ?? []).length}**`);
+            lines.push(`- unresolvable names: **${(r.unresolved ?? []).length}**`);
+            if ((r.unresolved ?? []).length) {
+              lines.push("", "### unresolvable — these are typos or unpublished packages, not coverage");
+              for (const u of r.unresolved.slice(0, 20)) lines.push(`- \`${u.name}\` — ${u.why}`);
+            }
+            if ((r.gaps ?? []).length) {
+              lines.push("", "### gaps (first 40)");
+              for (const g of r.gaps.slice(0, 40)) lines.push(`- \`${g.name}@${g.version}\` on ${g.platform}`);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          '
+
+      # ⛔ GATED, AND OFF BY DEFAULT ON PURPOSE. The list carries 784 packages across three platforms, so
+      # a dispatcher that fires unprompted on its first run can consume a great many runner hours before
+      # anyone reads the summary above. Turn it on deliberately via workflow_dispatch once the gap count
+      # looks like what you expect. The precedent this guards against is real: a single win32 measurement
+      # lane ran 10h51m and spent 53% of its time on timeouts that produced no measurement at all.
+      - name: Dispatch measurement for the gaps
+        if: github.event_name == 'workflow_dispatch' && inputs.dispatch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Gaps to dispatch:"
+          node -e '
+            const r = JSON.parse(require("fs").readFileSync("/tmp/coverage.json", "utf8"));
+            const byOs = {};
+            for (const g of r.gaps ?? []) (byOs[g.platform] ??= []).push(`${g.name}@${g.version}`);
+            for (const [os, specs] of Object.entries(byOs)) console.log(`${os}\t${specs.length}`);
+          '
+          echo "NOTE: wiring this to corpus-queue-runner is the remaining step; it must claim queue rows"
+          echo "      (pending -> claimed with a run id) rather than dispatching specs directly, so two"
+          echo "      runners can never take the same row."
+          exit 1
