@@ -160,6 +160,33 @@ test('⛔⛔ but approve-builds failing WITHOUT the claim IS a broken off-switch
   assert.equal(classify({ nub: r, npm: { rc: 0 } }).verdict, VERDICT.harnessError);
 });
 
+test('the security screen runs on the RESOLVED tree, before anything executes', async () => {
+  // ⛔ THE WINDOW IS THE POINT. After `--ignore-scripts` the tree is materialised and no script has
+  // touched it; screening any later is screening the aftermath. It is injected because each driver
+  // already has its own screen and they are not interchangeable — and a rewire that quietly dropped
+  // it would remove a safety property while every verdict stayed identical.
+  const order = [];
+  const run = async ({ args }) => { order.push(`run:${args.join(' ')}`); return { rc: 0, out: engagedLog }; };
+  const screen = async ({ label }) => { order.push(`screen:${label}`); };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ujn-'));
+  await unjailedNubOk({ nub: 'nub', pkg: 'p', version: '1.0.0', dir, run, screen });
+  assert.deepEqual(order, [
+    'run:install --ignore-scripts',
+    'screen:nub-unjailed-resolved',
+    'run:install',
+    'run:approve-builds --all',
+  ]);
+});
+
+test('a resolve failure does not screen a tree that was never materialised', async () => {
+  const order = [];
+  const run = async () => { order.push('run'); return { rc: 1, out: 'E404' }; };
+  const screen = async () => { order.push('screen'); };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ujn-'));
+  await unjailedNubOk({ nub: 'nub', pkg: 'p', version: '1.0.0', dir, run, screen });
+  assert.deepEqual(order, ['run'], 'screening a failed resolve would scan nothing and claim it clean');
+});
+
 test('the npm arm installs BEFORE rebuilding, so rebuild cannot no-op to success', async () => {
   // ⛔ `npm rebuild <pkg>` ON A TREE WHERE THE PACKAGE IS NOT INSTALLED EXITS 0. That false success
   // is what made the harness's older control unsound, and it is why this arm owns a fresh directory

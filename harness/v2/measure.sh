@@ -767,22 +767,39 @@ fi
 # same reason `verify` is one: `linux-ladder.test.mjs` stubs it to drive BOTH branches of the
 # decision it feeds. Inline, that branch would be unreachable from the test and would ship
 # unexercised — which is how the jail-off control it replaces stayed wrong for so long.
+#
+# The control's BODY now lives in `unjailed-nub.mjs`, shared with the macOS and Windows drivers, so the
+# verdict vocabulary and the off-switch assertion exist once rather than in three copies. This function
+# keeps only what is genuinely per-platform: where the fixture lives, and the security screen.
+#
+# ⛔ TWO PHASES BECAUSE THE SCREEN MUST STAY IN SHELL. `security_screen_tree`'s contract includes
+# exiting THIS driver — rc 42 means "malicious, the verdict line is already printed, stop now", and it
+# does that at exit 0, which is indistinguishable from success to any child process. Reimplementing it
+# in JS would put a malicious-package refusal behind a code path where a wrong guess silently turns a
+# refusal into an ordinary measurement. So `resolve` materialises the tree, this function screens it
+# with the same function every other arm uses, and `run` continues in the same directory.
+#
+# ⛔ THE FIXTURE MOVES UNDER $ROOT, per this driver's own rule at the top of the file: `/tmp` is inside
+# the jail's private-temp redirect, so a fixture placed there cannot test a filesystem-denial claim at
+# all. The old `$TMPDIR` location was defensible for an UNJAILED arm on Linux and is a real fault on
+# macOS — precisely the divergence that made a per-driver copy the wrong shape.
+#
+# The module also adds the replay guards this function never had — a unique root package name and
+# `side-effects-cache=false`. The direction of that omission was the dangerous one: this control runs
+# AFTER every verify arm has materialised the closure into the machine-global store, so a relink
+# returns rc=0 without running the lifecycle script, and that false PASS files a jail finding against a
+# package the jail never touched.
 unjailed_nub_ok () {
   local p="$1" v="$2"
-  local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nsp-XXXXXX") || return 1
-  printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > "$d/package.json"
-  printf '{"install":{"buildJail":false}}\n' > "$d/nub.jsonc"
-  ( cd "$d" && "$NUB" install --ignore-scripts > security-resolve.log 2>&1 ) || {
-    rm -rf "$d"; return 1; }
+  local d="$ROOT/jail-off-control"
+  rm -rf "$d"; mkdir -p "$d" || return 1
+  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
-  (
-    cd "$d" || exit 1
-    "$NUB" install > i.log 2>&1 || exit 1
-    "$NUB" approve-builds --all > a.log 2>&1 || exit 1
-  )
-  local rc=$?
-  rm -rf "$d"
-  return $rc
+  # `--context` keeps the detail THIS ladder earned on the shared verdict token: "even at write:disk"
+  # states that every rung was climbed, which is a Linux-ladder fact the other two drivers have no
+  # business asserting. `record.mjs` matches the token, so the suffix is free.
+  node "$HERE/unjailed-nub.mjs" --phase run --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+    --context 'even at write:disk — investigate; do not widen the catalog blindly'
 }
 
 verify () {
@@ -1680,7 +1697,12 @@ echo "  NOT-GRANT-INDEPENDENT ${INV#NOT-ESTABLISHED }"
 # would add an install to every package in the corpus to answer a question almost none of them ask.
 unjailed_nub_ok "$PKG" "$VER"
 NSP_RC=$?
-if [ "$NSP_RC" -ne 0 ]; then
+# ⛔ EXIT 3 IS "ASK npm", NOT A FAILURE, AND CONFLATING IT WITH 1 LOSES THE DISTINCTION THIS STAGE
+# EXISTS FOR. The module settles every case it can alone and prints its own single `=>` line for each
+# — a timeout, a broken off-switch, and nub succeeding. It hands back only the case whose verdict
+# depends on npm, because npm's arm screens its own fetched tree and that screen's refusal path exits
+# this driver. Any other non-zero code means the module already printed the verdict.
+if [ "$NSP_RC" -eq 3 ]; then
   # ⛔⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT.
   # Caught on this stage's FIRST live record: `@aws-amplify/cli@2.0.0` came back
   # `BROKEN-UNJAILED-NUB`, but a hand triage of that family had already shown plain `npm install`
@@ -1703,15 +1725,16 @@ if [ "$NSP_RC" -ne 0 ]; then
     local rc=$?; rm -rf "$d"; return $rc
   }
   # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
-  # second verdict after either branch would silently overwrite it and the stage would be inert.
+  # second verdict after either branch would silently overwrite it and the stage would be inert. The
+  # module owns both spellings so three drivers cannot drift apart on them.
   if npm_ok "$PKG" "$VER"; then
-    echo "  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail"
-    echo "     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT"
-    echo "     an under-grant: do not widen the catalog. This is a nub install defect to chase."
+    node "$HERE/unjailed-nub.mjs" --phase verdict --npm ok
   else
-    echo "  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)"
+    node "$HERE/unjailed-nub.mjs" --phase verdict --npm fail
   fi
   exit 0
 fi
-echo "  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference"
-echo "  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly"
+# Every other outcome — including rc=0, a timeout, and a broken off-switch — was printed by the module,
+# which is the only place that knows whether its own off-switch engaged. Printing anything here would
+# overwrite it.
+exit 0

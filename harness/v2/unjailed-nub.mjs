@@ -162,7 +162,11 @@ export function writeFixture({ dir, pkg, version, seed, write = fs.writeFileSync
 ///
 /// `run({ cmd, args, cwd })` must resolve `{ rc, out, timedOut }`. It is injected so the caller owns
 /// the platform's spawn strategy and its timeout, and so the tests need no nub binary.
-export async function unjailedNubOk({ nub, pkg, version, dir, seed, run, evictStore }) {
+/// `screen` is the caller's security screen over the RESOLVED tree, injected for the same reason the
+/// spawn strategy is: each driver already has one and they are not interchangeable. It runs after the
+/// `--ignore-scripts` step and before anything executes, which is the only window where the tree is
+/// materialised but no script has touched it — screening later would be screening the aftermath.
+export async function unjailedNubOk({ nub, pkg, version, dir, seed, run, evictStore, screen }) {
   const { name } = writeFixture({ dir, pkg, version, seed });
   if (evictStore) await evictStore({ pkg, version, dir });
 
@@ -187,6 +191,10 @@ export async function unjailedNubOk({ nub, pkg, version, dir, seed, run, evictSt
     const judged = step.key === 'a.log' ? offSwitchEngaged({ i: logs['i.log'], a: logs['a.log'] }) : null;
     if (r.timedOut) return { rc: null, timedOut: true, engaged: judged, logs, name, step: step.key };
     if (r.rc !== 0) return { rc: r.rc, timedOut: false, engaged: judged, logs, name, step: step.key };
+    // Screen the resolved tree in the one window where it is materialised and nothing has run yet.
+    if (step.key === 'security-resolve.log' && screen) {
+      await screen({ dir, label: 'nub-unjailed-resolved' });
+    }
   }
   // ⛔ THE ASSERTION IS OVER THE STEPS THAT CAN RUN SCRIPTS, WHICH EXCLUDES THE RESOLVE STEP. nub
   // announces the decision not to confine ONCE PER PACKAGE, at spawn time. For an unapproved package
@@ -253,10 +261,35 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   const argv = process.argv.slice(2);
   const arg = (k) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : undefined);
   const [pkg, version, nub, dir] = [arg('--pkg'), arg('--version'), arg('--nub'), arg('--dir')];
-  if (!pkg || !version || !nub || !dir) {
-    console.error('usage: unjailed-nub.mjs --pkg <name> --version <v> --nub <path> --dir <dir>');
+  // ⛔⛔ WHY A SHELL DRIVER GETS TWO PHASES INSTEAD OF THE `screen` HOOK. A JS caller injects `screen`
+  // directly. A shell driver cannot: its screen is a sourced FUNCTION whose contract includes exiting
+  // the whole driver — rc 42 means "malicious, the verdict line is already printed, stop now" and it
+  // does that at exit 0, which is indistinguishable from success to any wrapper spawned as a child.
+  // Reimplementing that in JS would put a malicious-package refusal behind a code path where a wrong
+  // guess silently converts a refusal into an ordinary measurement, so the semantics stay in the
+  // shell where they already work. `resolve` stops after the tree is materialised, the driver screens
+  // it with its own function, then `run` continues in the same directory — state passes through the
+  // directory and its logs, so there is nothing to serialise between the two.
+  const phase = arg('--phase') ?? 'all';
+  if (!['resolve', 'run', 'verdict', 'all'].includes(phase)) {
+    console.error(`unknown --phase ${phase}; expected resolve, run, verdict or all`);
     process.exit(2);
   }
+  // ⛔ REQUIRED ARGUMENTS ARE PER-PHASE, AND VALIDATING THEM UP FRONT BROKE THE `verdict` PHASE
+  // SILENTLY. That phase is pure classification — it takes only npm's answer and needs no package,
+  // binary or directory — so a blanket check rejected it with the usage line on STDERR and exit 2. The
+  // driver captures stdout, so the cell simply carried NO verdict at all: green tests, empty log, and
+  // nothing to indicate the stage had gone inert.
+  if (phase !== 'verdict' && (!pkg || !version || !nub || !dir)) {
+    console.error('usage: unjailed-nub.mjs [--phase resolve|run|all] --pkg <name> --version <v> --nub <path> --dir <dir>');
+    console.error('       unjailed-nub.mjs --phase verdict --npm ok|fail');
+    process.exit(2);
+  }
+  // Appended to the `=>` line after the shared verdict TOKEN. The token is what `record.mjs` matches,
+  // so each driver can keep the context its own ladder earned — "even at write:disk" states that the
+  // ladder climbed every rung, which is a Linux-ladder fact the other drivers have no business
+  // asserting — without three copies of the vocabulary.
+  const context = arg('--context') ?? '';
   const timeoutMs = Number(arg('--timeout-ms') ?? 900000);
   const { spawn } = await import('node:child_process');
   const run = ({ cmd, args, cwd }) =>
@@ -271,13 +304,77 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
       child.on('error', (e) => { clearTimeout(timer); resolve({ rc: 127, out: `${out}${e.message}`, timedOut }); });
     });
 
-  const result = await control({ nub, pkg, version, dir, run });
-  // Write each log where the driver expects to find it, then print the verdict line the drivers'
-  // `=>` grammar already parses. ONE `=>` line: `record.mjs` walks the log and the LAST match wins.
-  for (const [file, body] of Object.entries(result.nub.logs ?? {})) {
-    try { fs.writeFileSync(path.join(dir, file), body); } catch { /* the verdict still stands */ }
+  const writeLogs = (logs) => {
+    for (const [file, body] of Object.entries(logs ?? {})) {
+      try { fs.writeFileSync(path.join(dir, file), body); } catch { /* the verdict still stands */ }
+    }
+  };
+
+  /// Exit code meaning "the nub arm failed soundly; the CALLER must consult npm and come back".
+  ///
+  /// ⛔ THE npm ARM CANNOT LIVE IN HERE FOR A SHELL DRIVER, for the same reason the screen cannot: it
+  /// screens its own fetched tree, and that screen's refusal path exits the driver. So this phase
+  /// settles every case it can alone — timeout, broken off-switch, and nub succeeding — and hands back
+  /// the one case that needs a second opinion. No verdict is printed on this path, because the verdict
+  /// depends on an answer this process does not have.
+  const CONSULT_NPM = 3;
+
+  if (phase === 'verdict') {
+    // The caller ran its own npm arm and is reporting the result. The nub arm's state is known from
+    // having reached CONSULT_NPM at all: it failed, it did not time out, and its off-switch engaged.
+    const npmVerdict = arg('--npm');
+    if (!['ok', 'fail'].includes(npmVerdict)) {
+      console.error('--phase verdict requires --npm ok|fail');
+      process.exit(2);
+    }
+    const r = classify({ nub: { rc: 1, engaged: true }, npm: { rc: npmVerdict === 'ok' ? 0 : 1 } });
+    console.log(`  jail-off control: ${r.why}`);
+    console.log(`  => ${r.verdict}${context ? ` ${context}` : ""}`);
+    process.exit(1);
   }
+
+  if (phase === 'resolve') {
+    // Materialise the tree and stop. NO verdict is printed here: the driver has not screened yet, and
+    // a `=>` line emitted before the screen could be overwritten by the screen's own — `record.mjs`
+    // takes the LAST match, so two verdicts from one cell means the earlier one silently vanishes.
+    const { name } = writeFixture({ dir, pkg, version });
+    const r = await run({ cmd: nub, args: ['install', '--ignore-scripts'], cwd: dir });
+    writeLogs({ 'security-resolve.log': r.out ?? '' });
+    console.log(`  jail-off control: resolved as ${name} (rc=${r.rc}${r.timedOut ? ', timed out' : ''})`);
+    process.exit(r.timedOut || r.rc !== 0 ? 1 : 0);
+  }
+
+  const result = phase === 'run'
+    // The fixture and the resolved tree are already on disk from the `resolve` phase, so this reuses
+    // them rather than rewriting the manifest — rewriting it would reset the guards mid-cell.
+    ? await (async () => {
+      const logs = {};
+      for (const step of [{ key: 'i.log', args: ['install'] }, { key: 'a.log', args: ['approve-builds', '--all'] }]) {
+        const r = await run({ cmd: nub, args: step.args, cwd: dir });
+        logs[step.key] = r.out ?? '';
+        if (r.timedOut || r.rc !== 0) {
+          const engaged = step.key === 'a.log' ? offSwitchEngaged({ i: logs['i.log'], a: logs['a.log'] }) : null;
+          const nub_ = { rc: r.timedOut ? null : r.rc, timedOut: !!r.timedOut, engaged, logs };
+          // A timeout or a broken off-switch is settled here; anything else needs npm's answer, which
+          // only the caller can get with its own screen in place.
+          if (!nub_.timedOut && engaged !== false) return { consultNpm: true, nub: nub_ };
+          return { ...classify({ nub: nub_ }), nub: nub_ };
+        }
+      }
+      const nub_ = { rc: 0, timedOut: false, engaged: offSwitchEngaged({ i: logs['i.log'], a: logs['a.log'] }), logs };
+      return { ...classify({ nub: nub_ }), nub: nub_ };
+    })()
+    : await control({ nub, pkg, version, dir, run });
+
+  writeLogs(result.nub.logs);
+  if (result.consultNpm) {
+    // NO verdict line here — it depends on npm's answer, which this process cannot get soundly.
+    console.log('  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit');
+    process.exit(CONSULT_NPM);
+  }
+  // ONE `=>` line: `record.mjs` walks the log and the LAST match wins, so a second verdict from this
+  // cell would silently overwrite this one and the stage would be inert.
   console.log(`  jail-off control: ${result.why}`);
-  console.log(`  => ${result.verdict}`);
+  console.log(`  => ${result.verdict}${context ? ` ${context}` : ""}`);
   process.exit(result.verdict === VERDICT.noStatePassed ? 0 : 1);
 }

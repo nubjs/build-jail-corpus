@@ -33,6 +33,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parseDriverLog } from './record.mjs';
+// The verdict vocabulary comes from the module that owns it, so a rename cannot leave this suite
+// asserting a spelling no driver produces.
+import { VERDICT } from './unjailed-nub.mjs';
 
 const HERE = import.meta.dirname;
 const DRIVER = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8');
@@ -123,7 +126,18 @@ const run = (oracle, {
     'echo \'  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}\'',
     // The jail-off control the terminal verdict now consults. Stubbed here for the same reason
     // `verify` is: the real one runs two `nub` installs, which no unit test can afford.
-    `unjailed_nub_ok () { return ${unjailedNubRc}; }`,
+    //
+    // ⛔ THE STUB EMULATES THE MODULE'S CONTRACT, WHICH IS NOT ITS OLD rc. The control moved into
+    // `unjailed-nub.mjs`, which PRINTS its own verdict for every case it can settle alone and exits 3
+    // for the single case needing npm. So `unjailedNubRc: 0` means "the module already printed
+    // NO-STATE-PASSED", not "the driver will print it" — and getting that backwards is a silently
+    // green test, because the driver would print nothing and the log would carry no verdict at all.
+    //
+    // The token is taken from the module rather than written as a literal, so renaming a verdict
+    // cannot leave this stub asserting a spelling nothing produces.
+    `unjailed_nub_ok () { ${unjailedNubRc === 0
+      ? `echo '  => ${VERDICT.noStatePassed} even at write:disk — investigate; do not widen the catalog blindly'; `
+      : ''}return ${unjailedNubRc === 0 ? 0 : 3}; }`,
     // Shadows the real `npm_ok` defined inside the branch; a function defined later wins in bash,
     // so this is set via an env the branch's definition cannot see. Stub `npm` itself instead.
     `npm () { return ${npmRc}; }`,
@@ -357,7 +371,12 @@ test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot instal
   // because plain `npm install` fails too (gyp rejects Python 3.12). Naming nub as the culprit for
   // a package NOTHING installs sends the next reader chasing a bug that is not there.
   const out = run('  return 1', { unjailedNubRc: 1, npmRc: 1 });
-  assert.match(out, /=> BROKEN-WITHOUT-JAIL-TOO \(neither nub nor npm/);
+  // The `=>` line now carries the shared verdict TOKEN and the reason sits on the line above it, so
+  // three drivers cannot drift on the spelling `record.mjs` matches while each keeps its own context.
+  // Both halves are asserted: the token because the parser needs it, the reason because a verdict
+  // naming no culprit is what sent readers chasing a nub bug that was not there.
+  assert.match(out, new RegExp(`=> ${VERDICT.brokenWithoutJailToo}`));
+  assert.match(out, /jail-off control: neither nub nor npm installs this unjailed/);
   assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/,
     'a package npm cannot install either must not be filed as a nub defect');
 });
