@@ -728,6 +728,20 @@ const catalog = {
   env: baseline.env ?? [],
   provenance: {
     schemaVersion: 1,
+    // ⛔ THE ONLY FIELD THAT LETS TWO CATALOGS BE ORDERED, and nub now depends on it. A catalog can
+    // reach a shipped nub from its data directory as well as compiled in, and without a comparable
+    // stamp there is no way to tell an UPDATE from a STALE COPY. The failure is silent and in the wrong
+    // direction: a file left by an older nub replaces a newer compiled catalog, every package measured
+    // since loses its entry, and each drops to the baseline — no error, installs mostly still working,
+    // and the catalog quietly no longer current. nub refuses a candidate that is not STRICTLY newer.
+    //
+    // ⛔ SECOND-PRECISION UTC WITH A LITERAL `Z`, WHICH IS NOT COSMETIC. nub compares these
+    // LEXICOGRAPHICALLY, and that is only sound for a fixed-width, zero-padded, single-timezone
+    // spelling — a local-offset or variable-width stamp compares in an order that looks right in a test
+    // and is wrong across a DST boundary or a year end. nub's parser REJECTS any other shape, so a
+    // change here that drops the `Z` or adds milliseconds makes every catalog fail validation and fall
+    // back to the compiled floor.
+    generatedAt: `${new Date().toISOString().slice(0, 19)}Z`,
     harnessEpoch: currentInstrument.harnessEpoch,
     harnessSha256: currentInstrument.harnessSha256,
     invalidationPolicySha256: currentInstrument.invalidationPolicySha256,
