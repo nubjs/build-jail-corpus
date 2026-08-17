@@ -1,0 +1,20 @@
+{
+  "package": "electron",
+  "default": {
+    "notes": "latest measured 43.4.0; unchanged from the generated entry"
+  },
+  "versions": {
+    "<43.4.0": {
+      "write": { "userHome": true, "deps": true, "project": true },
+      "network": true,
+      "notes": "measured 23.3.13, 31.7.7, 33.4.11, 39.8.9, 40.10.2, 41.1.0, 43.2.0; covers everything below 43.4.0. The ONLY change from the generated entry is that the macOS overlay no longer removes `network` — see rationale.",
+      "macos": { "write": null },
+      "linux": { "write": { "userHome": true } }
+    }
+  },
+  "rationale": {
+    "investigator": "frizz worker, effort read-the-file-read-up",
+    "evidence": "The generated entry's macOS overlay was `{\"write\": null, \"network\": null}`, and in an overlay `null` REMOVES — so on macOS electron got no egress at all. Its postinstall downloads its binary from github.com, so on a machine with a COLD cache the install fails. Measured both directions with a fresh HOME and NUB_CACHE_DIR so no cached artefact could satisfy the fetch: with the shipped catalog `nub install electron@33.4.11` exits 1 with `RequestError: getaddrinfo ENOTFOUND github.com`; with network granted it exits 0, reproduced twice. This override drops ONLY the `network: null` and keeps `write: null`, because the write removal is plausible on its own — macOS measured no home write and per policy a catalogued package SHOULD be confined more tightly than the baseline where its measurement allows, since a widely-depended-on package is a high-value supply-chain target. The likely cause of the bad measurement is that the arm ran with electron's binary already cached, so it recorded 'needs nothing' while a real new machine needs egress; 41 catalog entries share that overlay shape and want the same cold-cache re-measurement. This override is the stopgap for the one case proven to break a real install, NOT a substitute for that re-measure.",
+    "date": "2026-08-17"
+  }
+}
