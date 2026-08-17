@@ -136,3 +136,82 @@ test('the naive guard cannot match on a native Windows argv, whatever host runs 
   assert.ok(`file://${winArgv}`.includes('\\'),
     'the naive form is expected to carry backslashes, which a file URL never does');
 });
+
+// ── The same confusion, one call away: a dynamic import SPECIFIER ────────────────────────────────
+//
+// ⛔ THE GUARD ABOVE IS ABOUT COMPARING A PATH TO `import.meta.url`; THIS IS ABOUT FEEDING ONE TO
+// `import()`, AND IT IS THE SAME MISTAKE WITH A LOUDER FAILURE. A POSIX absolute path is a legal
+// specifier, so `await import(path.join(DIR, 'x.mjs'))` works everywhere the author tested. On
+// Windows the same expression yields `D:\a\...\x.mjs` and the ESM loader reads the drive letter as a
+// URL SCHEME — `ERR_UNSUPPORTED_ESM_URL_SCHEME`, thrown at module load.
+//
+// ⛔ AND THE LOUD THROW STILL ARRIVES AS SILENCE WHERE IT MATTERS. `windows-invariance.test.mjs`
+// generates a script and reads its STDOUT; the throw killed that script before its first line, so all
+// 13 of its `runRegion` cases reported `actual: ''` — indistinguishable from "the branch did not
+// fire". Measured on run 32017576577, which is a Windows corpus slice that never reached a package.
+// Test files are scanned too: that is where this one lived.
+const IMPORTABLE = (() => {
+  const out = [];
+  for (const dir of ['', 'adapters', 'probes']) {
+    const abs = path.join(HERE, dir);
+    let entries; try { entries = fs.readdirSync(abs); } catch { continue; }
+    for (const f of entries) {
+      if (!f.endsWith('.mjs')) continue;
+      out.push({ rel: dir ? `${dir}/${f}` : f, abs: path.join(abs, f) });
+    }
+  }
+  return out;
+})();
+
+// ⛔ A REGEX OVER THE ARGUMENT IS THE WRONG INSTRUMENT AND WAS TRIED FIRST. The corrected spelling
+// nests — `import(pathToFileURL(path.join(...)).href)` — so a `[^)]*` argument class cannot separate
+// it from the bare one, and the first attempt flagged BOTH, i.e. it could not be satisfied. Extract
+// the balanced argument instead, then ask whether it converts.
+const bareImportSpecifiers = (src) => {
+  const found = [];
+  for (const m of src.matchAll(/\bimport\(/g)) {
+    let depth = 1;
+    let i = m.index + m[0].length;
+    for (; i < src.length && depth > 0; i += 1) {
+      if (src[i] === '(') depth += 1;
+      else if (src[i] === ')') depth -= 1;
+    }
+    const arg = src.slice(m.index + m[0].length, i - 1);
+    if (/\bpath\.(?:join|resolve)\(/.test(arg) && !arg.includes('pathToFileURL')) found.push(arg.trim());
+  }
+  return found;
+};
+
+// ⛔ THE SCANNER READS ITS OWN SOURCE TOO, AND THE CONTROL BELOW HOLDS THE PRE-FIX SPELLING BY
+// NECESSITY — a control that cannot name the defect cannot prove the scan sees it. Exempting this one
+// file is what lets the guard state the defect and enforce it at the same time.
+const SELF = 'cli-guard.test.mjs';
+
+test('CONTROL: the bare-specifier scan fires on the exact pre-fix spelling', () => {
+  // Without this the scanner could be wrong in any way at all and every file would read as clean.
+  for (const pre of [
+    "const { classify } = await import(path.join(HERE, 'unjailed-nub.mjs'));",
+    'await import(`${path.resolve(dir, "x.mjs")}`);',
+  ]) {
+    assert.equal(bareImportSpecifiers(pre).length, 1, `the scan does not recognise: ${pre}`);
+  }
+  // And it must NOT fire on the corrected form, or the guard is unsatisfiable and gets relaxed.
+  assert.deepEqual(
+    bareImportSpecifiers("await import(pathToFileURL(path.join(HERE, 'x.mjs')).href);"), [],
+    'the corrected spelling is flagged too, so this guard cannot be satisfied',
+  );
+  // A bare call must not be masked by a correct one later in the same file.
+  assert.equal(bareImportSpecifiers(
+    "await import(path.join(a, 'x.mjs'));\nawait import(pathToFileURL(path.join(b, 'y.mjs')).href);",
+  ).length, 1, 'a later correct call hid an earlier bare one');
+});
+
+test('⭑ no harness file imports a joined path directly — that throws on Windows', () => {
+  const offenders = IMPORTABLE
+    .filter((s) => s.rel !== SELF)
+    .flatMap((s) => bareImportSpecifiers(fs.readFileSync(s.abs, 'utf8')).map((a) => `${s.rel}: import(${a})`));
+  assert.deepEqual(offenders, [],
+    'these hand a native path to import(), which on Windows throws'
+    + ` ERR_UNSUPPORTED_ESM_URL_SCHEME before anything runs:\n  ${offenders.join('\n  ')}\n`
+    + 'Wrap the specifier: `import(pathToFileURL(path.join(...)).href)`.');
+});

@@ -27,6 +27,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { parseDriverLog } from './record.mjs';
 
 const HERE = import.meta.dirname;
@@ -123,7 +124,14 @@ const runRegion = (oracle, {
     // catch that; importing it means these assertions run against the same decision tree the three
     // drivers share. Without this the region throws ReferenceError and every case reads as "no
     // verdict printed", which is indistinguishable from a branch that simply did not fire.
-    `const { classify } = await import(${JSON.stringify(path.join(HERE, 'unjailed-nub.mjs'))});`,
+    //
+    // ⛔ A `file://` URL, NEVER THE JOINED PATH — AND ON THE ONE PLATFORM THIS FILE IS NAMED AFTER.
+    // `path.join` yields `D:\a\...\unjailed-nub.mjs` on a Windows runner, and the ESM loader reads
+    // the drive letter as a URL SCHEME: `ERR_UNSUPPORTED_ESM_URL_SCHEME`, thrown before the region
+    // prints a single line. That is the failure mode the paragraph above describes, so every case
+    // reported `actual: ''` — 13 of 13 `runRegion` cases red on Windows and green everywhere else,
+    // while the three cases that never generate a script stayed green. Measured, run 32017576577.
+    `const { classify } = await import(${JSON.stringify(pathToFileURL(path.join(HERE, 'unjailed-nub.mjs')).href)});`,
     `const unjailedNubOk = () => ({ ok: ${unjailedNubOk}, engaged: ${offSwitchEngaged}, timedOut: ${controlTimedOut} });`,
     `const npmOk = () => ${npmOk};`,
     // `emitBinaryProvenance` is also above the slice; the terminal branch calls it before exiting so
