@@ -42,6 +42,21 @@ That is now fixed at the source rather than argued about: both POSIX drivers dec
 
 Other causes gyp itself names, from the same pass: 15 `Failed to execute <node> <runner>` (old node-gyp against a modern Node), 3 HTTP 403/404 fetching a prebuilt — and `@pdftron/pdfnet-node`'s 403 is a license-gated download, which no grant can fix.
 
+## The third category, and it undercuts the confinement claims: a deterministic exit-1 that no grant can touch
+
+138 records across all three platforms have every arm exit **rc=1**, with **`missing=0 shortfall=none`** at every grant up to `write:"disk"` + `network:true`. The exit code is identical on every arm — 138 of 138, never varying — so the script did all of its file work, produced every artefact the npm reference produced, and exited 1 anyway.
+
+**A capability grant cannot change that.** Widening the jail to the whole disk did not change the exit, which is the definition of a failure that is not about file access.
+
+⛔ **118 of these landed on a verdict that BLAMES CONFINEMENT** — `NO-STATE-PASSED` 71 and `UNDER-PREDICTED` 47, plus `BROKEN-WITHOUT-JAIL-TOO` 14, `BROKEN-UNJAILED-NUB` 3 and `HARNESS-TIMEOUT` 3. Those two verdicts total 209 corpus-wide, so **more than half of every record claiming the jail is the difference is this shape.** Combined with the separate finding that 183 of those 209 were judged with no jail-off control at all (`CONTROL-SOUNDNESS.md`), the confinement-claiming population should be treated as unsound until re-measured, not as a list of jail defects.
+
+**Two hypotheses I tested and REFUTED, so nobody repeats them:**
+
+- *"The artifact gate is vacuous — the reference produced nothing either."* No. OBSERVE produced a full manifest in every case: `artifacts=113/113`, `428/428`, `9/9`. The gate is comparing real work.
+- *"The postinstall never ran."* No. The artefacts are all present, so it ran and completed its writes.
+
+**What they die of is UNKNOWN, and the reason is the evidence gap this file's method depends on:** 136 of the 138 carry no installer error anywhere in `driver.out`. Only 2 are explicable today (`cldr-data@0.0.1` and `@pulumi/gcp@0.14.3`, both a license/auth refusal). This is the single strongest argument for the arm-level log capture now landed on all three drivers: the most puzzling bucket in the corpus is exactly the one with no retained evidence. **Re-measure these 138 first** — they are cheap to re-run, they need no new mechanism, and they carry the verdicts the whole default-on argument rests on.
+
 ## What this means for the corpus
 
 1. **These are genuine package defects, and no grant can fix them.** Widening the jail would not help; the binary does not exist in a consumer install. They belong in a bucket that says "broken for everyone" rather than one a reader might mistake for a capability gap.
