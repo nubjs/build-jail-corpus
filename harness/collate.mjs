@@ -43,6 +43,24 @@ const OUT = opt('--out', path.join(here, 'catalog-v2.json'));
 const PLATFORM = opt('--platform', null);
 const OVERRIDES = opt('--overrides', path.join(here, 'overrides'));
 const STRICT = argv.includes('--strict');
+// Omit the two provenance sections that are DERIVABLE FROM THE RECORDS, for the copy that ships.
+//
+// MEASURED 2026-08-16 on the 294-package catalog: `packages` — the entire policy nub reads — is 62 KB,
+// while `provenance` is 4,405 KB of which `runtimeCells` is 4,055 KB and `resolvedTreeDigests` 349 KB.
+// So 98.6% of the shipped file is provenance, it DOUBLED as the corpus grew (2.0 MB -> 4.0 MB) while
+// the grants SHRANK, and it grows with every future re-bake.
+//
+// ⛔ AND NO RUST CODE READS ANY OF IT. `catalog_v2::parse` consumes only `packages`, `env` and
+// `baseline` from the root; `runtimeCells` and `resolvedTreeDigests` appear nowhere in `crates/**`.
+// `catalog_override.rs` embeds the file with `include_str!`, so every byte is compiled into every nub
+// binary regardless.
+//
+// WHAT THIS KEEPS IS THE AUDIT ANCHOR, NOT A SUMMARY OF IT: `recordsSha256` hashes every record's
+// path and bytes, so with the records in hand you can still prove which measurements produced this
+// catalog — and `runtimeCells`/`resolvedTreeDigests` are themselves computed from those same records,
+// so they add no verifiability the anchor does not already carry. Dropping a derivable projection is
+// not dropping evidence. The corpus's own catalog keeps the full block; only the shipped copy is slim.
+const SLIM_PROVENANCE = argv.includes('--slim-provenance');
 
 // ⛔ REFUSE AN UNRECOGNISED FLAG — THIS SCRIPT BUILDS THE SHIPPED CATALOG. Every option above falls
 // back to a default, so a typo'd or wrong-script flag is silently ignored and the default is used
@@ -56,7 +74,8 @@ const STRICT = argv.includes('--strict');
 // larger blast radius, so it gets the same treatment rather than a comment warning readers to be
 // careful.
 {
-  const KNOWN = new Set(['--runs', '--only-platform', '--baseline', '--out', '--platform', '--overrides', '--strict']);
+  const KNOWN = new Set(['--runs', '--only-platform', '--baseline', '--out', '--platform', '--overrides', '--strict',
+    '--slim-provenance']);
   const unknown = argv.filter(
     (a, i) => a.startsWith('--') && !KNOWN.has(a) && !(i > 0 && KNOWN.has(argv[i - 1])),
   );
@@ -700,10 +719,15 @@ const catalog = {
     recordsSha256: recordsHash.digest('hex'),
     recordCount: records.length,
     sourceHarnesses: Object.fromEntries(Object.entries(harnessHashes).sort()),
-    runtimeCells: Object.entries(runtimeCells).sort(([a], [b]) => a.localeCompare(b))
-      .map(([identity, count]) => ({ ...JSON.parse(identity), count })),
-    resolvedTreeDigests: [...new Set(records.flatMap((record) =>
-      (record.resolvedTrees ?? []).map((tree) => tree.digest)))].sort(),
+    // `provenanceSlim` is stated rather than implied: a reader who finds no `runtimeCells` must be
+    // able to tell "omitted deliberately" from "this collator predates them" or "the file was
+    // truncated". An absence that carries no explanation is the thing that gets misdiagnosed later.
+    ...(SLIM_PROVENANCE ? { provenanceSlim: true } : {
+      runtimeCells: Object.entries(runtimeCells).sort(([a], [b]) => a.localeCompare(b))
+        .map(([identity, count]) => ({ ...JSON.parse(identity), count })),
+      resolvedTreeDigests: [...new Set(records.flatMap((record) =>
+        (record.resolvedTrees ?? []).map((tree) => tree.digest)))].sort(),
+    }),
   },
 };
 
