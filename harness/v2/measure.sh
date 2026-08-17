@@ -130,10 +130,29 @@ ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.st
 # package under test gets the Node its author targeted.
 ERA_NODE_BIN=""
 ERA_PATH="$PATH"
-if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
+ERA_STATUS=""
+if [ -z "$ERA_NODE_VERSION" ]; then
+  ERA_STATUS="NOT-PINNED (no era version resolved for this package)"
+elif [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"
   ERA_PATH="$ERA_NODE_BIN:$PATH"
+  ERA_STATUS="PINNED $ERA_NODE_VERSION"
+else
+  ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION requested but NOT PRESENT at $ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node)"
 fi
+# ⛔⛔ THE ERA DECISION IS DECLARED, BECAUSE ITS ABSENCE FAILS OPEN AND SILENTLY. Both negative branches
+# above leave `ERA_PATH` as the ambient `$PATH`, so the arms measure the package against whatever Node
+# the harness happens to be running — and nothing about that appeared in the record. MEASURED on the
+# existing corpus: 61 darwin `BROKEN-WITHOUT-JAIL-TOO` records are old native addons whose `make` failed,
+# EVERY ONE of them ran `node -v v22.23.1`, and NOT ONE mentions an era pin. Their failures were filed
+# against the package when the cause may be that it was compiled against a Node its author never saw.
+#
+# This is the harness's own R6 rule applied to itself: normalisation that is RECORDED is a covered axis,
+# normalisation that is INVISIBLE is a silent bet it did not matter. The line lands in `driver.out`, which
+# is written beside every record, so a reader can tell a package defect from a missing toolchain — and the
+# two negative branches are distinguished, because "no version resolved" is a lookup gap while "requested
+# but not present" is an unprovisioned box, and they are fixed in different places.
+echo "  ERA-NODE $ERA_STATUS (arms will run: $("${ERA_NODE_BIN:+$ERA_NODE_BIN/}node" -v 2>/dev/null || echo unknown))"
 # The marker's payload is built ONCE, here, and echoed verbatim much later.
 #
 # ⛔ BUILT HERE RATHER THAN AT THE EMISSION SITE, FOR A REASON A GUARD FOUND. `measure-provenance.mjs`

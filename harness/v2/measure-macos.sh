@@ -182,10 +182,25 @@ ERA_NODE_VERSION="$(printf '%s' "$NODE_SELECTION" | node -e 'let s="";process.st
 # `ERA_PATH` is threaded into the arm invocations ONLY.
 ERA_NODE_BIN=""
 ERA_PATH="$PATH"
-if [ -n "$ERA_NODE_VERSION" ] && [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
+ERA_STATUS=""
+if [ -z "$ERA_NODE_VERSION" ]; then
+  ERA_STATUS="NOT-PINNED (no era version resolved for this package)"
+elif [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_NODE_BIN="$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin"
   ERA_PATH="$ERA_NODE_BIN:$PATH"
+  ERA_STATUS="PINNED $ERA_NODE_VERSION"
+else
+  ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION requested but NOT PRESENT at $ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node)"
 fi
+# ⛔⛔ DECLARED, BECAUSE THE ABSENCE FAILS OPEN SILENTLY. Both negative branches leave `ERA_PATH` as the
+# ambient `$PATH`, so the arms measure the package against whatever Node the harness happens to run, and
+# nothing about that reached the record. MEASURED: 61 darwin BROKEN-WITHOUT-JAIL-TOO records are old
+# native addons whose `make` failed, all 61 ran `node -v v22.23.1`, and none mentions an era pin — their
+# failures were filed against the package when the cause may be a Node its author never saw. This is the
+# driver's own R6 rule turned on itself: recorded normalisation is a covered axis, invisible normalisation
+# is a silent bet it did not matter. The two negative branches are distinguished because a lookup gap and
+# an unprovisioned box are fixed in different places.
+echo "  ERA-NODE $ERA_STATUS (arms will run: $("${ERA_NODE_BIN:+$ERA_NODE_BIN/}node" -v 2>/dev/null || echo unknown))"
 # ⛔ BUILT HERE, ECHOED LATER — same reason as `measure.sh`. `measure-provenance.mjs` slices the
 # retention region up to the first line CLOSING a `node -e`, so an augmenting `node -e` beside the
 # marker truncated that slice and dropped `VENUE-OVERRIDES` from it. A plain `echo` at the emission
