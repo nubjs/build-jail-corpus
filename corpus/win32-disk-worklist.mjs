@@ -20,6 +20,16 @@
 // once a win32 record measures it. Hand-editing a grant from this output would be the exact mistake the
 // catalog's provenance rules exist to prevent.
 //
+// ⛔⛔ AND WHEN THE RE-MEASURE RUNS, AN EXIT CODE IS NOT ENOUGH TO NARROW ON. Measured directly: with
+// `network` stripped from `gifsicle@4.0.1`'s grant — a fresh HOME and cache, so no promoted cache could
+// satisfy it — the install still returned rc=0. The log says why: `⚠ gifsicle pre-build test failed`
+// then `✔ gifsicle built successfully`. The download WAS denied and the package fell back to compiling
+// from source, which needs no network. So "it succeeded at the narrower grant" can mean a fallback
+// absorbed the denial and silently traded a binary download for a source build — slower, and dependent
+// on a C toolchain that is not always present. A grant narrowed on exit code alone can break on a
+// machine without a compiler while every measurement said it was fine. Judge a narrowing by the ARTIFACT
+// GATE, which is exactly what that gate exists for.
+//
 //   usage: node corpus/win32-disk-worklist.mjs --catalog <path> [--json] [--queue]
 import fs from 'node:fs';
 import path from 'node:path';
