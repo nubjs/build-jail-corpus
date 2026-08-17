@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   OFF_SWITCH_CLAIM, VERDICT, classify, offSwitchEngaged, uniqueRootName, writeFixture,
-  unjailedNubOk, npmOk,
+  unjailedNubOk, npmOk, asIdentity,
 } from './unjailed-nub.mjs';
 
 const engagedLog = `warning: pkg ${OFF_SWITCH_CLAIM} (install.buildJail is false in nub.jsonc)`;
@@ -158,6 +158,29 @@ test('⛔⛔ but approve-builds failing WITHOUT the claim IS a broken off-switch
   assert.equal(r.step, 'a.log');
   assert.equal(r.engaged, false, 'scripts ran and the claim is absent — the switch did not engage');
   assert.equal(classify({ nub: r, npm: { rc: 0 } }).verdict, VERDICT.harnessError);
+});
+
+test('running as another user is built as ARGV, so a path with a space survives', () => {
+  // ⛔ macOS MEASURES UNDER sudo AND RE-DROPS EVERY ARM TO THE INVOKING USER. If the control ran as
+  // root while the verify arms ran as the user, a permission difference between the two would read as
+  // a jail finding. `-H` is what makes HOME the user's REAL home from the directory service, which is
+  // what the traced installer must see.
+  const [cmd, args] = asIdentity({
+    cmd: '/opt/nub', args: ['install'], user: 'runner', path: '/Applications/My Tools/bin:/usr/bin',
+  });
+  assert.equal(cmd, 'sudo');
+  assert.deepEqual(args, [
+    '-u', 'runner', '-H', 'env', 'PATH=/Applications/My Tools/bin:/usr/bin', '/opt/nub', 'install',
+  ]);
+  // A prefix STRING would have to be re-split by somebody, and that space would silently become an
+  // argument boundary. The vector leaves nothing to re-parse.
+  assert.ok(args.includes('PATH=/Applications/My Tools/bin:/usr/bin'), 'the PATH must stay one argument');
+});
+
+test('with no user, the command is untouched — Linux and Windows spawn plainly', () => {
+  const [cmd, args] = asIdentity({ cmd: 'nub', args: ['install', '--ignore-scripts'] });
+  assert.equal(cmd, 'nub');
+  assert.deepEqual(args, ['install', '--ignore-scripts'], 'no sudo wrapper where none was asked for');
 });
 
 test('the security screen runs on the RESOLVED tree, before anything executes', async () => {

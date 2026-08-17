@@ -211,6 +211,22 @@ export async function unjailedNubOk({ nub, pkg, version, dir, seed, run, evictSt
   };
 }
 
+/// Rewrite a command to run as another user, as EXPLICIT ARGV.
+///
+/// macOS measurement runs under `sudo`, and every arm it measures is re-dropped to the invoking user
+/// with `sudo -u <user> -H env PATH=<path>` — `-H` sets HOME to that user's REAL home from the
+/// directory service, which is what the traced installer must see. Without this the control would run
+/// as root while every verify arm ran as the user, and a permission difference between the two would
+/// read as a jail finding.
+///
+/// ⛔ ARGV, NOT A SHELL PREFIX STRING. A free-form prefix has to be re-split by somebody, and a path
+/// with a space in it then becomes two arguments silently. Returning the vector leaves nothing to
+/// re-parse. Pure, so the shape is testable without sudo or a second user account.
+export function asIdentity({ cmd, args, user, path: pathValue }) {
+  if (!user) return [cmd, args];
+  return ['sudo', ['-u', user, '-H', 'env', `PATH=${pathValue ?? process.env.PATH ?? ''}`, cmd, ...args]];
+}
+
 /// The npm reference arm, consulted only when nub failed. Identical on all three platforms.
 ///
 /// `npm install --ignore-scripts` then `npm rebuild` over the WHOLE tree: an ordinary `npm install`
@@ -294,7 +310,8 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   const { spawn } = await import('node:child_process');
   const run = ({ cmd, args, cwd }) =>
     new Promise((resolve) => {
-      const child = spawn(cmd, args, { cwd, env: process.env });
+      const [c, a] = asIdentity({ cmd, args, user: arg('--spawn-as'), path: arg('--spawn-path') });
+      const child = spawn(c, a, { cwd, env: process.env });
       let out = '';
       let timedOut = false;
       const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); }, timeoutMs);
