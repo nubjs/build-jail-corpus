@@ -36,6 +36,10 @@ const NUB = opt('--nub');
 const LIST = opt('--list');
 const OUT = opt('--out', '/tmp/widest-grant-probe.tsv');
 const LIMIT = Number(opt('--limit', '0'));
+// ⛔ KEEP THE LOG OF EVERY FAILING ROW. The first pass discarded them, so re-classifying 30 unexplained
+// failures meant re-installing all 30 — the same evidence gap this probe exists to close, reproduced in the
+// probe itself. `records-v2` had the same defect for the same reason.
+const KEEP = opt('--keep-logs');
 const CATALOG = opt(
   '--catalog',
   path.join(os.homedir(), '.cache/nub/worktrees/integ/crates/nub-sandbox/data/build-jail-catalog-v2.json'),
@@ -81,10 +85,39 @@ const ERROR_PATTERNS = [
   /^.*\bnode-pre-gyp\b.*\b(?:404|403|failed)\b.*$/im,
   /^.*`make`\s+failed with exit code.*$/im,
   /^.*\bnpm error\b(?!\s*$).*$/im,
+  // ⛔ NODE'S OWN EXCEPTIONS, ADDED AFTER 30 OF 62 FAILURES REPORTED "(no installer error found)". The
+  // first of them turned out to be `Error: ENOENT: no such file or directory, unlink '…/.bin/monorepo'`
+  // thrown by the package's OWN install.js, which assumes a bin link that is not there — a package defect
+  // no grant can fix. A postinstall is a Node program, so a Node-level throw is one of the commonest ways
+  // it dies, and having no pattern for it filed those rows as unexplained rather than as what they are.
+  /^\s*(?:Uncaught\s+)?(?:Error|TypeError|ReferenceError|SyntaxError|RangeError|AssertionError):\s*\S.*$/m,
+  /^.*\b(?:ENOENT|EEXIST|EISDIR|ENOTDIR|EMFILE|ENOSPC)\b.*$/m,
+  // The LAST RESORT: aube's own line naming which script failed. It is not a cause, but "postinstall
+  // exited 1" beats "(no installer error found)", which reads as though nothing went wrong.
+  // Read off the RETAINED LOGS of rows that reported nothing, which is what log retention bought.
+  /^.*\bERR_NUB_MALICIOUS_PACKAGE\b.*$/im,
+  /^.*\bERR_NUB_REGISTRY_ERROR\b.*$/im,
+  /^.*\bfailed to resolve dependencies\b.*$/im,
+  /^.*\bsupply-chain trust failure\b.*$/im,
+  /^.*\bCannot find module\b.*$/im,
+  /^.*\bFileNotFoundError\b.*$/im,
+  /^gyp ERR! configure error\s*$/im,
+  /^.*\bCommand failed:\s+\S.*$/im,
+  /^.*lifecycle script \S+ failed for .*$/im,
 ];
+// ⛔ A WARNING IS NOT AN ERROR, AND MATCHING ONE MISREPORTS THE CAUSE. All five Linux failures came back
+// as `W:Unable to read … opendir (13: Permission denied)` — an apt warning printed while a build script
+// refreshed package lists, which the EACCES pattern happily matched. The real cause was a sharp@0.32.6
+// node-gyp rebuild several dozen lines further down. Warning lines are dropped BEFORE matching, so the
+// patterns only ever see lines that could be a cause.
+const WARNING_LINE = /^\s*(?:W:|WARN\b|warning:|Warning:|npm warn\b|gyp WARN\b)/i;
 const firstError = (log) => {
+  const body = log
+    .split('\n')
+    .filter((l) => !WARNING_LINE.test(l))
+    .join('\n');
   for (const re of ERROR_PATTERNS) {
-    const m = log.match(re);
+    const m = body.match(re);
     if (m) return m[0].trim().slice(0, 240);
   }
   return '';
@@ -93,9 +126,21 @@ const firstError = (log) => {
 const mktemp = (tag) => fs.mkdtempSync(path.join(os.homedir(), `wgp-${tag}-`));
 
 function probe(pkg, ver) {
-  const xdg = mktemp('x');
+  // ⛔⛔ THE PROJECT MUST LIVE INSIDE THE HOME WHOSE CACHE HOLDS THE STORE, and three sibling temp dirs
+  // manufactured a failure that does not exist for users. node-gyp writes a RELATIVE path from the
+  // package's build dir to its dependency in nub's store; with HOME and the project as siblings that
+  // traversal resolved nowhere and sharp died `FileNotFoundError: … './build/../../../../../../<home>/
+  // .cache/nub/pm/store/node-addon-api@6.1.0-…/nothing.target.mk'`. It looked exactly like a real
+  // nub-store-vs-node-gyp defect, on a very popular package, across two platforms — 8 darwin rows and all
+  // 5 linux failures.
+  //
+  // The control that killed it: the same sharp@0.32.6 with the project INSIDE the home installs rc=0. So
+  // the layout is the arrangement a real user has, and the probe now reproduces it instead of inventing
+  // one. A harness whose own directory layout changes the answer is measuring itself.
   const home = mktemp('h');
-  const fx = mktemp('f');
+  const xdg = path.join(home, 'xdg');
+  const fx = path.join(home, 'project');
+  fs.mkdirSync(fx, { recursive: true });
   try {
     // The widest grant the vocabulary can express, for THIS package only. Everything else keeps whatever
     // the shipped catalog says, so a row cannot pass because some dependency was widened too.
@@ -125,7 +170,14 @@ function probe(pkg, ver) {
       cwd: fx,
       encoding: 'utf8',
       timeout: 300_000,
-      env: { ...process.env, XDG_DATA_HOME: xdg, HOME: home, NUB_CACHE_DIR: path.join(home, 'nc') },
+      env: {
+        ...process.env,
+        XDG_DATA_HOME: xdg,
+        HOME: home,
+        USERPROFILE: home,
+        // Under the home, as a user's cache is — not a sibling of it.
+        NUB_CACHE_DIR: path.join(home, '.cache', 'nub'),
+      },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const rc = run.status ?? -1;
@@ -133,9 +185,20 @@ function probe(pkg, ver) {
     // ⛔ THE PER-ROW INSTRUMENT CONTROL. No banner means the override was not in force and this row
     // measured the COMPILED grant, so it says nothing about the widest one.
     const loaded = /build-jail catalog updated from/.test(log);
-    return { rc, loaded, error: firstError(log), bytes: log.length };
+    if (KEEP && rc !== 0) {
+      fs.mkdirSync(KEEP, { recursive: true });
+      fs.writeFileSync(path.join(KEEP, `${pkg.replace(/[^\w.@-]/g, '_')}@${ver}.log`), log);
+    }
+    const refusedByNub = /ERR_NUB_MALICIOUS_PACKAGE|refusing to install malicious package/.test(log);
+    // ⛔ A FAILURE BEFORE ANY LIFECYCLE SCRIPT RAN SAYS NOTHING ABOUT THE JAIL, and calling it
+    // FAILS-AT-WIDEST implies a script failed under the widest grant. These die in RESOLUTION: a
+    // provenance-attestation regression nub declines as a supply-chain trust failure (netlify-cli), or an
+    // exotic specifier it does not resolve (`web3` wanting `github:web3-…`). Read off the retained logs.
+    const preScript =
+      /ERR_NUB_REGISTRY_ERROR|failed to resolve dependencies|supply-chain trust failure/.test(log);
+    return { rc, loaded, refusedByNub, preScript, error: firstError(log), bytes: log.length };
   } finally {
-    for (const d of [xdg, home, fx]) fs.rmSync(d, { recursive: true, force: true });
+    fs.rmSync(home, { recursive: true, force: true });
   }
 }
 
@@ -143,10 +206,23 @@ const out = [];
 let installs = 0;
 let stillFails = 0;
 let void_ = 0;
+let refused = 0;
+let preScriptN = 0;
 for (const [i, r] of rows.entries()) {
   const res = probe(r.pkg, r.ver);
   let verdict;
-  if (!res.loaded) {
+  if (res.refusedByNub) {
+    // ⛔ NUB REFUSING IS NOT THE JAIL FAILING, and conflating them overstates the jail's breakage. Some of
+    // these packages pull a transitive dependency flagged in OSV — `@google/clasp@1.0.7` reaches
+    // `fs@0.0.1-security` (MAL-2025-21003) — and nub declines the whole install with
+    // ERR_NUB_MALICIOUS_PACKAGE before any lifecycle script runs. That is the supply-chain guard working,
+    // it happens identically with the jail off, and no grant changes it.
+    verdict = 'REFUSED-BY-NUB-ADVISORY';
+    refused += 1;
+  } else if (res.preScript) {
+    verdict = 'FAILED-BEFORE-SCRIPTS';
+    preScriptN += 1;
+  } else if (!res.loaded) {
     verdict = 'VOID-override-not-loaded';
     void_ += 1;
   } else if (res.rc === 0) {
@@ -166,5 +242,8 @@ for (const [i, r] of rows.entries()) {
   fs.writeFileSync(OUT, `${out.join('\n')}\n`);
   if ((i + 1) % 10 === 0) console.log(`  ${i + 1}/${rows.length} …`);
 }
-console.log(`installs-at-widest=${installs}  fails-at-widest=${stillFails}  void=${void_}`);
+console.log(
+  `installs-at-widest=${installs}  fails-at-widest=${stillFails}  refused-by-nub=${refused}  ` +
+    `failed-before-scripts=${preScriptN}  void=${void_}`,
+);
 console.log(`rows -> ${OUT}`);
