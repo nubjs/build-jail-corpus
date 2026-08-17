@@ -30,6 +30,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parseDriverLog } from './record.mjs';
+// The verdict vocabulary comes from the module that owns it, so a rename cannot leave this suite
+// asserting a spelling no driver produces.
+import { VERDICT, classify } from './unjailed-nub.mjs';
 
 const HERE = import.meta.dirname;
 const DRIVER = fs.readFileSync(path.join(HERE, 'measure-macos.sh'), 'utf8');
@@ -112,7 +115,23 @@ const run = (oracle, {
     'echo \'  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}\'',
     // The jail-off control the terminal verdict now consults. Stubbed for the same reason `verify` is:
     // the real one runs two `nub` installs, which no unit test can afford.
-    `unjailed_nub_ok () { return ${unjailedNubRc}; }`,
+    //
+    // ⛔ THE STUB EMULATES THE MODULE'S CONTRACT, WHICH IS NOT ITS OLD rc. The control moved into
+    // `unjailed-nub.mjs`, which PRINTS its own verdict for every case it can settle alone and exits 3
+    // for the single case needing npm. So `unjailedNubRc: 0` means "the module already printed the
+    // terminal verdict", not "the driver will print it" — and getting that backwards is a silently
+    // green test, because the driver would print nothing and the log would carry no verdict at all.
+    //
+    // The token comes from the module rather than a literal, so renaming a verdict cannot leave this
+    // suite asserting a spelling nothing produces.
+    // ⛔ THE STUB'S OUTPUT IS BUILT FROM THE MODULE'S OWN `classify`, NOT WRITTEN OUT BY HAND, so it
+    // reproduces the real wording by construction. Both lines matter: the `=>` line is what
+    // `record.mjs` parses, and the `jail-off control:` line is the evidence the control actually RAN —
+    // a case below asserts on it precisely so the terminal verdict cannot be reached without it.
+    `unjailed_nub_ok () { ${unjailedNubRc === 0
+      ? `echo '  jail-off control: ${classify({ nub: { rc: 0, engaged: true } }).why}'; `
+        + `echo '  => ${VERDICT.noStatePassed} — no state passed, up to and including write:\\"disk\\"'; `
+      : ''}return ${unjailedNubRc === 0 ? 0 : 3}; }`,
     // Shadows the real `npm_ok`, which is defined INSIDE the branch — and a later definition wins in
     // bash, so the branch's own would clobber a stub of that name. Stub `npm` itself instead.
     `npm () { return ${npmRc}; }`,
@@ -272,7 +291,7 @@ test('⭑ every rung failing is still the terminal UNDER-PREDICTED, with no gran
   assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/,
     'a shortfall that responded to the grant was classified as grant-independent');
   const r = parseDriverLog(out);
-  assert.equal(r.verdict, 'UNDER-PREDICTED');
+  assert.equal(r.verdict, VERDICT.noStatePassed);
   assert.equal(r.grant, null, 'a verdict with no state that passed must not publish a grant');
   // The jail-off control DID run and cleared: without this line the verdict above would be the old
   // unconditional one, which named the jail without ever asking whether nub installs the package.
@@ -287,7 +306,7 @@ test('⭑ every rung failing is BROKEN-UNJAILED-NUB when nub cannot install it u
   // npm CAN install it (`npmRc: 0`), which is what makes it a nub defect rather than a dead package.
   const out = run('  return 1', { unjailedNubRc: 1, npmRc: 0 });
   assert.match(out, /=> BROKEN-UNJAILED-NUB/);
-  assert.doesNotMatch(out, /=> UNDER-PREDICTED/,
+  assert.doesNotMatch(out, /=> (UNDER-PREDICTED|NO-STATE-PASSED)/,
     'both verdicts were printed — record.mjs takes the LAST `=>`, so the stage would be inert');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'BROKEN-UNJAILED-NUB');
@@ -360,7 +379,7 @@ test('⭑ a shortfall invariant to the top rung is ARTIFACT-GATE-SUSPECT, not a 
   // ⛔ ASSERTED ON THE RECORD, NOT ONLY ON THE TEXT. `record.mjs` walks the log line by line and the
   // LAST matching `=>` wins, so a driver that printed BOTH verdicts would satisfy the match above
   // while filing every one of these packages as `UNDER-PREDICTED` exactly as before the port.
-  assert.doesNotMatch(out, /=> UNDER-PREDICTED/,
+  assert.doesNotMatch(out, /=> (UNDER-PREDICTED|NO-STATE-PASSED)/,
     'the terminal verdict was printed alongside the SUSPECT one, which overwrites it in the record');
   const r = parseDriverLog(out);
   assert.equal(r.verdict, 'ARTIFACT-GATE-SUSPECT');
@@ -381,7 +400,7 @@ test('⭑ an ABSENT package is refused even though its shortfall never moves', (
   const out = run('  return 1', { ledger: absent });
   assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/, 'a package that never installed was blessed');
   assert.match(out, /NOT-GRANT-INDEPENDENT the package was ABSENT/);
-  assert.equal(parseDriverLog(out).verdict, 'UNDER-PREDICTED');
+  assert.equal(parseDriverLog(out).verdict, VERDICT.noStatePassed);
 });
 
 // ⛔ THE STUB IS THE PREDICATE, NOT THE ORACLE, WHICH IS WHY BOTH CASES BELOW EXIST. Only the silent
@@ -511,7 +530,7 @@ test('⭑ END TO END: gate lines -> the real append block -> the real predicate 
     ? { ...a, gate: 'artifacts=816/1117 missing=301 shortfall=deadbeefcafe' } : a));
   const out2 = run('  return 1', { ledger: buildLedger(moved).join('\n') + '\n' });
   assert.doesNotMatch(out2, /ARTIFACT-GATE-SUSPECT/);
-  assert.equal(parseDriverLog(out2).verdict, 'UNDER-PREDICTED');
+  assert.equal(parseDriverLog(out2).verdict, VERDICT.noStatePassed);
 });
 
 // ── THE FALSIFICATION CONTROL ─────────────────────────────────────────────────────────────────────
@@ -531,7 +550,7 @@ test('⭑ FALSIFICATION: with the ladder removed, every finding above disappears
   const out = run(RUNG0_PASSES_NETWORK_DROPS, { source: LADDERLESS });
   assert.doesNotMatch(out, /ladder fallback/, 'the ladderless driver still published a ladder minimum');
   const r = parseDriverLog(out);
-  assert.equal(r.verdict, 'UNDER-PREDICTED', 'this is the dead-end verdict the port exists to eliminate');
+  assert.equal(r.verdict, VERDICT.noStatePassed, 'this is the dead-end verdict the port exists to eliminate');
   assert.equal(r.grant, null);
   assert.notEqual(r.verifiedBy, 'ladder');
 });

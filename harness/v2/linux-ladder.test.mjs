@@ -35,7 +35,7 @@ import { execFileSync } from 'node:child_process';
 import { parseDriverLog } from './record.mjs';
 // The verdict vocabulary comes from the module that owns it, so a rename cannot leave this suite
 // asserting a spelling no driver produces.
-import { VERDICT } from './unjailed-nub.mjs';
+import { VERDICT, classify } from './unjailed-nub.mjs';
 
 const HERE = import.meta.dirname;
 const DRIVER = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8');
@@ -135,8 +135,12 @@ const run = (oracle, {
     //
     // The token is taken from the module rather than written as a literal, so renaming a verdict
     // cannot leave this stub asserting a spelling nothing produces.
+    // The stub's output is built from the module's own `classify`, so it reproduces the real
+    // wording by construction rather than by hand. The `jail-off control:` line is the evidence the
+    // control actually RAN, which is asserted separately from the verdict it produced.
     `unjailed_nub_ok () { ${unjailedNubRc === 0
-      ? `echo '  => ${VERDICT.noStatePassed} even at write:disk — investigate; do not widen the catalog blindly'; `
+      ? `echo '  jail-off control: ${classify({ nub: { rc: 0, engaged: true } }).why}'; `
+        + `echo '  => ${VERDICT.noStatePassed} even at write:disk — investigate; do not widen the catalog blindly'; `
       : ''}return ${unjailedNubRc === 0 ? 0 : 3}; }`,
     // Shadows the real `npm_ok` defined inside the branch; a function defined later wins in bash,
     // so this is set via an env the branch's definition cannot see. Stub `npm` itself instead.

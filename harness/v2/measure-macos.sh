@@ -768,22 +768,38 @@ fi
 # The `--ignore-scripts` resolve comes FIRST and is screened before anything executes: the tree is
 # materialized without running a single lifecycle script, so a known-malicious dependency is refused
 # while it is still inert. Only then does the real install run.
+#
+# ⛔⛔ THIS CONTROL RAN AS root WHILE EVERY ARM IT IS COMPARED AGAINST RUNS AS $RUNUSER, and that alone
+# could manufacture the finding. This driver measures under `sudo` and deliberately re-drops every
+# VERIFY arm to the invoking user: `verify()` chowns its fixture and spawns through
+# `sudo -u "$RUNUSER" -H env PATH=…`. The control was a byte-for-byte copy of the Linux one, which has
+# no such need, so it inherited a plain spawn — and root succeeds at things the user cannot, which
+# biases the control toward rc=0, the branch concluding "the jail IS the difference". A permission gap
+# between root and the user was therefore filable as a jail finding.
+#
+# ⛔ THE FIXTURE ALSO MOVES OFF $TMPDIR, per this driver's own rule at the top of the file: `/tmp` is
+# inside the jail's private-temp redirect, so a fixture placed there cannot test a filesystem-denial
+# claim at all. The copy carried the Linux location, where it is merely defensible.
+#
+# The shared module supplies what all three copies lacked: the off-switch assertion (this driver wrote
+# `nub.jsonc` and trusted it), a unique root package name instead of a fixed `nsp` — nub memoises a
+# lifecycle outcome keyed on package identity, and this control runs AFTER every arm has materialised
+# the closure into the global store, so a relink returns rc=0 without running the script — plus
+# `side-effects-cache=false`.
+#
+# Two phases because `security_screen_tree` exits THIS driver on a malicious package (rc 42, at exit 0,
+# indistinguishable from success to any child), so its semantics stay in shell. See `unjailed-nub.mjs`.
 unjailed_nub_ok () {
   local p="$1" v="$2"
-  local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nsp-XXXXXX") || return 1
-  printf '{"name":"nsp","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$p" "$v" > "$d/package.json"
-  printf '{"install":{"buildJail":false}}\n' > "$d/nub.jsonc"
-  ( cd "$d" && "$NUB" install --ignore-scripts > security-resolve.log 2>&1 ) || {
-    rm -rf "$d"; return 1; }
+  local d="$ROOT/jail-off-control"
+  rm -rf "$d"; mkdir -p "$d" || return 1
+  chown -R "$RUNUSER" "$d" 2>/dev/null
+  local as=(--spawn-as "$RUNUSER" --spawn-path "${ERA_PATH:-$PATH}")
+  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+    "${as[@]}" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
-  (
-    cd "$d" || exit 1
-    "$NUB" install > i.log 2>&1 || exit 1
-    "$NUB" approve-builds --all > a.log 2>&1 || exit 1
-  )
-  local rc=$?
-  rm -rf "$d"
-  return $rc
+  node "$HERE/unjailed-nub.mjs" --phase run --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+    "${as[@]}" --context '— no state passed, up to and including write:"disk"'
 }
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. Runs as the invoking user, never root. ────────────
@@ -1348,7 +1364,11 @@ if [ "$VERIFIED" -eq 0 ]; then
     # add two installs to every package in the corpus to answer a question almost none of them ask.
     unjailed_nub_ok "$PKG" "$VER"
     NSP_RC=$?
-    if [ "$NSP_RC" -ne 0 ]; then
+    # ⛔ EXIT 3 IS "ASK npm", NOT A FAILURE. The module settles every case it can alone and prints its
+    # own single `=>` line for each — a timeout, a broken off-switch, and nub succeeding — handing back
+    # only the case whose verdict depends on npm, because npm's arm screens its own fetched tree and
+    # that screen's refusal path exits this driver. Any other non-zero means the verdict is already out.
+    if [ "$NSP_RC" -eq 3 ]; then
       # ⛔⛔ "NUB CANNOT INSTALL IT" IS NOT YET "NUB IS AT FAULT" — ASK npm BEFORE NAMING A CULPRIT.
       # On Linux this caught `@aws-amplify/cli@2.0.0`: the arm came back nub-broken, but plain `npm
       # install` fails too (gyp rejects Python 3.12). A verdict naming nub would be true and still
@@ -1370,27 +1390,25 @@ if [ "$VERIFIED" -eq 0 ]; then
       }
       # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
       # second verdict after either branch would silently overwrite it and the stage would be inert.
+      # The module owns both spellings so three drivers cannot drift apart on them.
       if npm_ok "$PKG" "$VER"; then
-        echo "  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail"
-        echo "     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT"
-        echo "     an under-grant: do not widen the catalog. This is a nub install defect to chase."
+        node "$HERE/unjailed-nub.mjs" --phase verdict --npm ok
       else
-        echo "  => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)"
+        node "$HERE/unjailed-nub.mjs" --phase verdict --npm fail
       fi
       exit 0
     fi
-    echo "  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference"
-    # ⛔ NOW the terminal verdict, and only now: every rung up to `write:"disk"` failed, the shortfall
-    # responded to the grant, AND nub installs the package unjailed — so no state this harness can
-    # express installs it, and the jail really is the difference. `record.mjs` maps this `=>` line to
-    # the `UNDER-PREDICTED` verdict, which `collate.mjs` keeps out of the catalog — correct here,
-    # because there is genuinely no measured minimum to publish.
+    # ⛔ THE TERMINAL VERDICT IS NOW THE MODULE'S, AND THIS PATH MUST PRINT NOTHING. Only the module
+    # knows whether its own off-switch engaged, so only it can tell "every rung up to write:disk failed
+    # AND nub installs this unjailed" (a real finding) from "the control ran jailed and its rc means
+    # nothing" (a harness fault). It emits NO-STATE-PASSED, which is the same answer this driver used to
+    # spell UNDER-PREDICTED — `collate.mjs` now buckets both identically, so existing macOS records keep
+    # their meaning while new ones use the shared spelling.
     #
-    # ⛔ IT IS IN THE `else`, AND THAT PLACEMENT IS THE CONTRACT. `record.mjs` walks the log line by
-    # line and the LAST matching `=>` wins, so printing both verdicts would silently overwrite
-    # `ARTIFACT-GATE-SUSPECT` with `UNDER-PREDICTED` and the stage would have no effect on any record.
-    echo "  => UNDER-PREDICTED — no state passed, up to and including write:\"disk\". OBSERVE saw a run"
-    echo "     the jail then refused on some axis it did not cover, and widening did not repair it."
+    # ⛔ EXACTLY ONE `=>` LINE PER CELL REMAINS THE CONTRACT. `record.mjs` walks the log and the LAST
+    # match wins, so an echo here would silently overwrite the module's verdict — or, on the sibling
+    # branch, overwrite `ARTIFACT-GATE-SUSPECT` — and the stage would have no effect on any record.
+    exit 0
   fi
 fi
 
