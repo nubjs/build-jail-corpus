@@ -1475,6 +1475,25 @@ const verify = (grant, label) => {
   // the ledger, and in the position `falsify.mjs`'s `VERIFY[at-grant]` regex already allows for it.
   const shortfall = shortfallDigest(missing);
   console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} shortfall=${shortfall} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
+
+  // A failing arm prints its INSTALLER errors, because `v` is swept and the driver's stdout is what
+  // survives as `driver.out` beside the record. An audit of 1963 failing records found only 448 that
+  // could say WHY they failed, and all 448 were darwin — because that driver alone happened to tail an
+  // observe log. This makes the same evidence deliberate and identical on all three drivers.
+  //
+  // ⛔ FILTERED, NOT TAILED: these arms run under `RUST_LOG=debug`, so a blind tail returns engine trace
+  // and buries the installer's own message. Verified against a debug-heavy log — a tail gave 12 lines of
+  // linker noise where the filter gave the `command not found` and `gyp ERR!` lines that explain it.
+  // Bounded on purpose: a record is evidence, not an archive, and this runs for every failing arm.
+  if (rc !== 0) {
+    for (const f of ['i.log', 'a.log']) {
+      let text;
+      try { text = fs.readFileSync(path.join(v, f), 'utf8'); } catch { continue; }
+      const hits = text.split(/\r?\n/).filter((l) =>
+        /npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT/.test(l));
+      for (const l of hits.slice(0, 12)) console.log(`     [${label}/${f}] ${l}`);
+    }
+  }
   if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
   // ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
   // block there for what it decides. Only the arms that actually WIDEN the grant are recorded, and

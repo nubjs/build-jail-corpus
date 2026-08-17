@@ -1289,6 +1289,27 @@ verify () {
   gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
   echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
   printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
+
+  # ⛔⛔ WHY A FAILING ARM PRINTS ITS INSTALLER ERRORS HERE. `$v` is swept when the run ends, so
+  # `i.log`/`a.log` do not survive — and an audit of 1963 failing records found only 448 that could say
+  # WHY they failed. All 448 were darwin, and they exist for exactly one reason: `measure-macos.sh` has a
+  # `tail` of the observe log that the other drivers lack. The driver's own stdout IS persisted, verbatim,
+  # as `driver.out` beside every record — so echoing the lines here is all it takes to make a record
+  # self-explanatory, with no new file and no plumbing.
+  #
+  # ⛔ FILTERED, NOT `tail`, BECAUSE THESE ARMS RUN UNDER `RUST_LOG=debug`. A blind tail returns engine
+  # trace and buries the installer's own message, which is the one line a reader needs. The greps name
+  # the four shapes an audit found across the whole corpus: a missing build tool (`command not found`,
+  # 27% of the classifiable failures), a native toolchain mismatch (`gyp ERR!`, 23%), a denied fetch, and
+  # npm's own error channel. The cap is deliberate: a record is evidence, not an archive, and an
+  # unbounded dump would bloat 6,880 of them.
+  if [ "$rc" -ne 0 ]; then
+    for _al in i a; do
+      [ -f "$v/$_al.log" ] || continue
+      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT' \
+        "$v/$_al.log" 2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
+    done
+  fi
   # ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
   # block there for what it decides. Only the arms that actually WIDEN the grant are recorded: the
   # `diag` arm is the SAME grant re-run under strace, so counting it would let a repeated point pose as

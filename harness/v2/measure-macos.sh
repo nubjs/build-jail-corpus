@@ -983,6 +983,24 @@ JW
   gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
   echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"
   printf '%s\n' "$gate" | tail -n +2 | sed 's/^/     /'
+
+  # A failing arm prints its INSTALLER errors, because `$v` is swept and the driver's stdout is what
+  # survives as `driver.out` beside the record. An audit of 1963 failing records found only 448 that
+  # could say why they failed, and every one of those was darwin — because THIS driver already tails an
+  # observe log while the others do not. That accident is the whole reason the evidence exists at all, so
+  # it is made deliberate and identical across the three drivers here.
+  #
+  # ⛔ FILTERED, NOT TAILED: these arms run under `RUST_LOG=debug`, so a blind tail returns engine trace
+  # and buries the installer's own message. Verified against a debug-heavy log — a tail returned 12 lines
+  # of linker noise while the filter returned the `command not found` and `gyp ERR!` lines that explain
+  # the failure. Bounded on purpose: a record is evidence, not an archive.
+  if [ "$rc" -ne 0 ]; then
+    for _al in i a; do
+      [ -f "$v/$_al.log" ] || continue
+      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT' \
+        "$v/$_al.log" 2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
+    done
+  fi
   # ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
   # block there for what it decides. Only the arms that actually WIDEN the grant are recorded: the
   # `diag` arm is the SAME grant re-run under dtrace, so counting it would let a repeated point pose as
