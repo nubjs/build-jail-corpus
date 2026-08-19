@@ -9,8 +9,14 @@ test('the full CI plan crosses all supported Node versions with every corpus OS'
   const plan = planReferenceCells(matrix, { os: 'all', node: 'all' });
   assert.equal(plan.include.length, 27);
   assert.deepEqual(new Set(plan.include.map((cell) => cell.os)), new Set(['linux', 'macos', 'windows']));
+  // ⛔ NUB-SUPPORTED MAJORS, NOT EVERY MAJOR THE MATRIX CARRIES. The matrix floors at 4 so the corpus
+  // can measure an old package on the runtime its author targeted; this plan measures REFERENCE
+  // behaviour across the Nodes Nub augments, and the two ranges are deliberately different. Asserting
+  // against the whole matrix silently coupled this plan to the era range — crossing all 23 majors is
+  // 552 jobs at 8 shards, past GitHub's limit of 256.
+  const nubFloor = Number(String(matrix.nubMinimum).split('.')[0]);
   assert.deepEqual(new Set(plan.include.map((cell) => cell.node)),
-    new Set(matrix.versions.map((entry) => entry.version)));
+    new Set(matrix.versions.filter((entry) => entry.major >= nubFloor).map((entry) => entry.version)));
   assert.ok(plan.include.every((cell) => !cell.runner.endsWith('-latest') && cell.shard === 0 && cell.shards === 1));
 });
 

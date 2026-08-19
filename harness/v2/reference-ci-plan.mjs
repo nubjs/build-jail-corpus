@@ -22,7 +22,19 @@ export function planReferenceCells(matrix, {
       throw new Error(`reference profile ${profile.id} does not support ${unsupported.join(', ')}`);
     }
   }
-  const selected = node === 'all' ? matrix.versions
+  // ⛔ `all` MEANS EVERY NUB-SUPPORTED MAJOR, NOT EVERY MAJOR THE MATRIX CARRIES, and the two stopped
+  // being the same thing when the matrix dropped its floor to 4. The matrix now serves two different
+  // consumers: ERA SELECTION for the corpus, which needs 4 upward so an old package can be measured
+  // on the runtime its author targeted, and THIS plan, which measures REFERENCE behaviour across the
+  // Nodes Nub supports. Crossing all 23 majors with 3 operating systems and 8 shards is 552 jobs
+  // against GitHub's limit of 256 — the suite caught it, and the honest fix is to say which range
+  // this consumer wants rather than to raise the cap.
+  //
+  // This is exactly what `nubMinimum` is retained in the matrix FOR: a recorded fact about which
+  // Nodes Nub augments, no longer the matrix's floor.
+  const nubFloor = Number(String(matrix.nubMinimum).split('.')[0]);
+  const supported = matrix.versions.filter((entry) => entry.major >= nubFloor);
+  const selected = node === 'all' ? supported
     : matrix.versions.filter((entry) => entry.version === node);
   if (!selected.length) throw new Error(`unknown reference Node version ${node}`);
   shards = Number(shards);
