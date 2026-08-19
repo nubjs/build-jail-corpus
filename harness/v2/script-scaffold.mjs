@@ -26,6 +26,14 @@
 // fix it. That is a far better record than the one it replaces: an UNATTRIBUTED environment gap
 // becomes a quotable package defect. Both outcomes are wins; only the first is a recovery.
 
+// ⛔ THE CEILING, MEASURED RATHER THAN GUESSED. Validated end to end against all 105 ground-truth
+// records with their real published manifests: 76 get an installable provider, 26 are named
+// unprovidable with a reason, and exactly 3 are missed. All 3 are RUNTIME-DISCOVERED and no static
+// script parser can reach them — `libpq@0.2.5` and `libpq@1.9.0` need `pg_config`, which the gyp
+// binding file invokes, and `wrtc@0.4.7` declares `install: "node scripts/download-prebuilt.js"` and
+// calls node-pre-gyp from inside that file. Do not "fix" these by pattern-matching package names;
+// the honest disposition is a system-dependency class, which is a different mechanism from this one.
+
 /** Lifecycle scripts an INSTALL of a dependency can run, in npm's own order. */
 export const LIFECYCLE = ['preinstall', 'install', 'postinstall', 'prepare'];
 
@@ -63,6 +71,7 @@ export const UNPROVIDABLE = {
   pg_config: 'PostgreSQL system tool, not an npm package',
   pulumi: 'external CLI distributed outside npm',
   pnpm: 'a different package manager; a corpus policy call, not a package defect',
+  yarn: 'a different package manager; a corpus policy call, not a package defect',
   bun: 'a different package manager; a corpus policy call, not a package defect',
 };
 
@@ -87,23 +96,37 @@ export function commandsIn(script) {
   return out;
 }
 
-/** Follow `npm run <x>` / `yarn <x>` chains so a `postinstall: "npm run build"` reaches `build`'s
- *  own commands. Cycles terminate on the `seen` set rather than recursion depth. */
+/** Follow the script graph the way npm actually executes it.
+ *
+ *  ⛔ TWO RULES, AND BOTH WERE MISSED BY THE FIRST VERSION — each cost real records in the
+ *  end-to-end validation over the 105 ground-truth cases.
+ *
+ *  1. npm runs `pre<x>` and `post<x>` AROUND every `<x>`. `postcss-cssnext@3.0.1` declares
+ *     `postinstall: "npm run babelify"` and `prebabelify: "rimraf lib"` — so `rimraf` is invoked by
+ *     an install, and a resolver that follows only `babelify` never sees it. That package's record
+ *     says `sh: rimraf: command not found`, so the miss was not theoretical.
+ *  2. A package manager name at the head of a script is BOTH a chain to follow AND a binary the arm
+ *     must supply. `@rspack/core@0.0.26` declares `postinstall: "pnpm precompile-schema"`: the chain
+ *     leads to plain `node`, so the ONLY thing the script actually needs is `pnpm` itself. Dropping
+ *     the PM name as noise loses the entire requirement — 6 of the 14 validation misses were this. */
 export function resolveScriptCommands(scripts, entry, seen = new Set()) {
   if (!scripts || seen.has(entry) || !(entry in scripts)) return [];
   seen.add(entry);
   const found = [];
+  // npm's own pre/post wrapping, before and after the script body.
+  for (const sibling of [`pre${entry}`, `post${entry}`])
+    if (sibling in scripts) found.push(...resolveScriptCommands(scripts, sibling, seen));
+
   const words = String(scripts[entry]).split(/\s+/);
   for (let i = 0; i < words.length - 1; i++) {
-    if ((words[i] === 'run' && (words[i - 1] === 'npm' || words[i - 1] === 'yarn' || words[i - 1] === 'pnpm'))
-        || (words[i] === 'yarn' && !words[i + 1].startsWith('-'))) {
-      found.push(...resolveScriptCommands(scripts, words[i + 1], seen));
-    }
+    const w = words[i], next = words[i + 1];
+    if (next.startsWith('-')) continue;
+    // `npm run x` / `yarn run x` / `pnpm run x`, and the bare `yarn x` / `pnpm x` forms.
+    const isRunWord = w === 'run' && /^(npm|yarn|pnpm)$/.test(words[i - 1] ?? '');
+    const isBareForm = /^(yarn|pnpm)$/.test(w) && next in scripts;
+    if (isRunWord || isBareForm) found.push(...resolveScriptCommands(scripts, next, seen));
   }
-  for (const c of commandsIn(scripts[entry])) {
-    if (c === 'npm' || c === 'yarn' || c === 'pnpm') continue;
-    found.push(c);
-  }
+  found.push(...commandsIn(scripts[entry]));
   return found;
 }
 
@@ -113,6 +136,9 @@ const AMBIENT = new Set([
   'bash', 'node', 'env', 'sed', 'awk', 'grep', 'find', 'chmod', 'ln', 'touch', 'tar', 'curl',
   'wget', 'git', 'make', 'python', 'python3', 'cmake', 'pwd', 'ls', 'if', 'then', 'else', 'fi',
   'for', 'do', 'done', 'while', 'case', 'esac', 'exec', 'printf', 'which', 'command',
+  // Both ship with every arm: npm IS the installer running the script, and it bundles node-gyp.
+  // The OTHER package managers are deliberately NOT here — see UNPROVIDABLE.
+  'npm', 'node-gyp',
 ]);
 
 /** What the observe arm should install alongside `manifest`'s package so its lifecycle scripts can run.
