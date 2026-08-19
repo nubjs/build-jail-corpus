@@ -24,24 +24,43 @@ const inOrder = (source, needles, label) => {
 };
 
 test('every driver screens direct before fetch and the fetched tree before npm rebuild', () => {
+  // ⛔ THE INVARIANT IS THE ORDER, NOT THE ARGUMENT LIST. Dated resolution inserted `--before` into
+  // every fetch, so the old single needle `--ignore-scripts "$PKG@$VER"` stopped matching and this
+  // test went red on a change that did not touch screening at all. The fetch is therefore pinned as
+  // TWO ordered needles — the flags, then the target spec — which keeps "the target is fetched
+  // between the two screens" while tolerating arguments added in between.
   inOrder(drivers.linux, [
     'security_screen_direct "$PKG@$VER"',
-    'npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER"',
+    'npm install --no-audit --no-fund --ignore-scripts',
+    '"$PKG@$VER"',
     'security_screen_tree "$OBS" npm-observe-resolved',
     'npm rebuild --no-audit --no-fund "$PKG"',
   ], 'linux');
   inOrder(drivers.macos, [
     'security_screen_direct "$PKG@$VER"',
-    'npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER"',
+    'npm install --no-audit --no-fund --ignore-scripts',
+    '"$PKG@$VER"',
     'security_screen_tree "$OBS" npm-observe-resolved',
     '"$NPM_BIN" rebuild --no-audit --no-fund "$PKG"',
   ], 'macos');
   inOrder(drivers.windows, [
     "securityScreen('direct', ['--spec', `${PKG}@${VER}`])",
-    "'--ignore-scripts', `${PKG}@${VER}`",
+    // The arg list moved into `era-resolution.mjs`; what must still sit HERE, between the screens,
+    // is the fetch that consumes it.
+    'run(NODE, [NPM, ...eraResolution.args]',
     "securityScreen('npm-observe-resolved', ['--tree', OBS])",
     'rebuild --no-audit --no-fund ${PKG}',
   ], 'windows');
+});
+
+test('the fetch every driver runs is still --ignore-scripts, dated or not', () => {
+  // ⛔ THE GUARANTEE THE LOOSENED NEEDLE ABOVE COULD OTHERWISE DROP. Screening happens between the
+  // fetch and the scripts precisely BECAUSE the fetch does not execute them; a fetch that lost
+  // `--ignore-scripts` would run unscreened code and the ordering test would still pass.
+  assert.match(drivers.linux, /npm install --no-audit --no-fund --ignore-scripts \$\{ERA_BEFORE[^\n]*"\$PKG@\$VER"/);
+  assert.match(drivers.macos, /npm install --no-audit --no-fund --ignore-scripts \$\{ERA_BEFORE[^\n]*"\$PKG@\$VER"/);
+  const eraRes = fs.readFileSync(path.join(here, 'era-resolution.mjs'), 'utf8');
+  assert.match(eraRes, /'--ignore-scripts'/, 'the shared fetch arg builder must keep --ignore-scripts');
 });
 
 test('every verify arm resolves without scripts, screens that Nub tree, then runs lifecycle commands', () => {
