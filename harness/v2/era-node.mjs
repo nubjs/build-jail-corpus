@@ -36,8 +36,19 @@ import { satisfiesNodeRange } from './node-range.mjs';
  *  matrix's `released` is the date of the specific PATCH it pins (18.20.8 → 2025-03-27), not when
  *  Node 18 became current (2022-10-25). Mapping an era off `released` would put a 2023 package on
  *  Node 18 only if the pinned patch predated it, which is nearly the opposite of the intent. */
+// ⛔ THE FIRST ENTRY USED TO BE `['2011-01-01', 10]`, WHICH WAS ITS OWN SILENT FLOOR. It mapped every
+// package published before late 2018 — SEVEN YEARS of npm — onto Node 10, so a 2013 package and a
+// 2017 package got the same runtime and neither got its own. That was harmless only while the matrix
+// floored at 18 and clamped them all anyway; now that the matrix carries 4 upward, this table is what
+// decides whether an old package is measured on its era or on a convenient guess.
+//
+// Major `0` is deliberate for the 0.x era. The matrix carries no 0.x line, so the pick is CLAMPED to
+// the floor and MARKED — which is the honest record ("its era was 0.x, the matrix has none, it ran on
+// 4") rather than a quiet retarget that reads as a real pin.
 export const LTS_AT = [
-  ['2011-01-01', 10], ['2018-10-30', 10], ['2019-10-22', 12], ['2020-10-27', 14],
+  ['2011-01-01', 0], ['2013-03-11', 0], ['2015-02-06', 0],
+  ['2015-09-08', 4], ['2016-10-18', 6], ['2017-10-31', 8],
+  ['2018-10-30', 10], ['2019-10-22', 12], ['2020-10-27', 14],
   ['2021-10-26', 16], ['2022-10-25', 18], ['2023-10-24', 20], ['2024-10-29', 22],
   ['2025-10-28', 24],
 ];

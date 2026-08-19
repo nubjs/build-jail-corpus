@@ -53,19 +53,25 @@ test('engines RAISES the pick when it genuinely requires newer than the era', ()
 });
 
 test('a disjunctive range is evaluated, not floored at its smallest major', () => {
-  // THE v1 HEURISTIC BUG. `14 || 16 || 18` mentions 14, so a smallest-major read picks 14 — but the
-  // range EXCLUDES 15, 17 and everything above 18, so 14 is only right if 14 is reachable at all.
-  // With a matrix flooring at 18, the only satisfying candidate is 18.
-  const pick = chooseEraNode({ engines: '14 || 16 || 18', publishedAt: '2021-06-01', matrix });
-  assert.equal(pick.major, 18, `expected the only satisfying candidate (18), got ${pick.major}`);
-  assert.equal(pick.clampedToFloor, true, 'a 2021 package wants Node 16, which the matrix lacks');
+  // THE v1 HEURISTIC BUG: take the minimum major any comparator mentions and pick it.
+  //
+  // ⛔ THIS CASE HAD TO BE RE-CHOSEN WHEN THE MATRIX FLOOR DROPPED TO 4, and the reason is worth
+  // keeping. It used to be `14 || 16 || 18` at a 2021 date, discriminating only because 14 and 16
+  // were BELOW the old floor of 18. With 14 now carried, 14 both is the smallest major AND is the
+  // right answer — so the test would have passed while testing nothing. The range below keeps the
+  // property: the smallest major is 10, the era is 14, 14 satisfies NOTHING in the range, so a
+  // correct evaluator must raise to 16.
+  const pick = chooseEraNode({ engines: '10 || 12 || 16', publishedAt: '2021-06-01', matrix });
+  assert.equal(pick.eraMajor, 14, 'a June 2021 package is Node 14 era');
+  assert.equal(pick.major, 16, `smallest-major would say 10; the range excludes 14, so 16 is correct, got ${pick.major}`);
 });
 
-test('a pre-floor package is clamped to 18 and MARKED, never silently retargeted', () => {
-  // uuid@0.0.2 is from 2011. v1 could measure Node 10; v2's matrix starts at 18, so the pin is
-  // bounded by what the matrix carries rather than by evidence — and the record must say so.
+test('a pre-floor package is clamped to the matrix floor and MARKED, never silently retargeted', () => {
+  // uuid@0.0.2 is from 2011, so its era is the 0.x line and the matrix carries none. The pin is
+  // bounded by what the matrix HAS rather than by evidence, and the record must say so.
   const pick = chooseEraNode({ engines: null, publishedAt: '2011-05-01', matrix });
-  assert.equal(pick.major, 18);
+  assert.equal(pick.eraMajor, 0, 'a 2011 package really is 0.x era');
+  assert.equal(pick.major, matrix.floor, 'clamped to whatever the matrix floors at, not a hardcoded 18');
   assert.equal(pick.clampedToFloor, true,
     'clamping to the matrix floor must be visible in the record, or the corpus silently claims a '
     + '2011 package was measured on the Node it targeted');
@@ -147,14 +153,21 @@ test('the CLI prints a full selection and does NOT let the Node version clobber 
 
 test('a package whose engines exclude every available Node is NOT pinnable', () => {
   // ⛔ THE CASE THAT COST A FALSIFICATION-CONTROL FAILURE TO FIND. @apollo/rover@0.4.8 declares
-  // `engines: ">=14 <=17"` and the matrix floors at 18, so nothing it accepts exists. Pinning it to 18
-  // anyway runs it on a Node its own metadata forbids: both falsify arms went UNPARSED in 6s, and the
-  // identical case PASSES with the pin disabled. Forcing a rejected runtime is strictly worse than the
-  // ambient default, so the selector withholds the PIN while still reporting what it wanted.
-  const pick = chooseEraNode({ engines: '>=14 <=17', publishedAt: '2022-03-15', matrix });
-  assert.equal(pick.enginesUnsatisfiable, true, 'nothing in the matrix satisfies >=14 <=17');
+  // `engines: ">=14 <=17"`, and against a matrix flooring at 18 nothing it accepts existed. Pinning it
+  // to 18 anyway ran it on a Node its own metadata forbids: both falsify arms went UNPARSED in 6s, and
+  // the identical case PASSES with the pin disabled. Forcing a rejected runtime is strictly worse than
+  // the ambient default, so the selector withholds the PIN while still reporting what it wanted.
+  //
+  // ⛔ THAT ORIGINAL CASE IS NOW SATISFIABLE, AND THAT IS THE POINT OF THE FLOOR DROP — the matrix
+  // carries 14 through 17, so @apollo/rover@0.4.8 can finally be measured on a runtime it accepts.
+  // The BEHAVIOUR still needs a guard, so this uses a range no matrix will ever carry.
+  const pick = chooseEraNode({ engines: '>=0.10 <=0.12', publishedAt: '2022-03-15', matrix });
+  assert.equal(pick.enginesUnsatisfiable, true, 'nothing in the matrix satisfies >=0.10 <=0.12');
   assert.equal(pick.pinnable, false, 'an unsatisfiable range must not be pinned');
-  assert.equal(pick.version, '18.20.8',
+  // Assert against the ERA rather than a literal: a hardcoded version silently re-encodes the floor,
+  // which is exactly what made four tests in this file need rewriting when the floor moved.
+  const era = matrix.versions.find((v) => v.major === pick.eraMajor);
+  assert.equal(pick.version, era.version,
     'the pick is still REPORTED — the record must say what it wanted and why it was not honoured');
 });
 
