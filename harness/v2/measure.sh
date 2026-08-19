@@ -423,7 +423,15 @@ printf '{"name":"o","version":"1.0.0"}\n' > package.json
 # per-path question (can `writePaths` replace `write:"disk"`?) unanswerable. So: fetch and unpack
 # with `--ignore-scripts` OUTSIDE the trace, then trace `npm rebuild`, which runs the lifecycle
 # scripts and nothing else.
-npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log" 2>&1
+# ⛔ RESOLVE THE TREE AS OF THE PACKAGE'S OWN PUBLISH DATE. The era Node pin is only half an era:
+# without this the dependency TREE is still resolved fresh from today's registry, so the arm runs a
+# runtime nobody ever had. MEASURED on Node 4.9.1 — `electron-chromedriver@0.33.4` is rc=1 with a
+# modern tree (`psl@1.15.0` spread syntax the old Node cannot parse) and rc=0 with `--before`.
+# `NODE_SELECTION` already carries `publishedAt`, so this re-uses it rather than asking the registry
+# a second time; a second lookup is a second answer. See `era-resolution.mjs`.
+ERA_BEFORE="$(printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n 1p)"
+printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n '2s/^/  /p'
+npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$PKG@$VER" > "$OBS/fetch.log" 2>&1
 FETCH_RC=$?
 if [ "$FETCH_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0

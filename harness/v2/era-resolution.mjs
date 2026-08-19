@@ -59,3 +59,21 @@ export function fetchArgs({ spec, publishedAt, dated = true }) {
       : `ERA-RESOLUTION UNDATED (${publishedAt ? 'disabled' : 'no usable publish date'}) — the tree is TODAY's`,
   };
 }
+
+// CLI, for the two shell drivers. They already hold `NODE_SELECTION` from `era-node.mjs`, which
+// carries `publishedAt` — so this takes that JSON on stdin rather than re-querying the registry.
+// A second lookup would be a second answer, which is how the era pin and the record came to
+// disagree once already.
+//
+//   usage: printf '%s' "$NODE_SELECTION" | node era-resolution.mjs --spec <pkg@ver> [--undated]
+//   stdout: line 1 = the `--before=…` argument (EMPTY when undated), line 2 = the marker
+if (import.meta.filename === process.argv[1]) {
+  const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i === -1 ? undefined : process.argv[i + 1]; };
+  const spec = arg('spec');
+  if (!spec) { process.stderr.write('usage: era-resolution.mjs --spec <pkg@version> [--undated] < NODE_SELECTION\n'); process.exit(2); }
+  let raw = ''; for await (const chunk of process.stdin) raw += chunk;
+  let publishedAt = null;
+  try { publishedAt = JSON.parse(raw).publishedAt ?? null; } catch { /* stays null; the marker says so */ }
+  const r = fetchArgs({ spec, publishedAt, dated: !process.argv.includes('--undated') });
+  process.stdout.write(`${r.before ? `--before=${r.before}` : ''}\n${r.marker}\n`);
+}

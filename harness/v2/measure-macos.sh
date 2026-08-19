@@ -375,7 +375,10 @@ printf '{"name":"o","version":"1.0.0","private":true}\n' > package.json
 # script's. MEASURED on Linux: that made EVERY package synthesize `network:true` + `write:userHome`
 # regardless of behaviour. Fetch with `--ignore-scripts` outside the trace; trace `npm rebuild`,
 # which runs the lifecycle scripts and nothing else.
-npm install --no-audit --no-fund --ignore-scripts "$PKG@$VER" > "$OBS/fetch.log" 2>&1
+# ⛔ Dated resolution — see the long note in `measure.sh`. Same CLI, so the drivers cannot drift.
+ERA_BEFORE="$(printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n 1p)"
+printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n '2s/^/  /p'
+npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$PKG@$VER" > "$OBS/fetch.log" 2>&1
 if [ $? -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
 fi

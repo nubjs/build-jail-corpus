@@ -10,6 +10,7 @@
 //   usage: node measure-windows.mjs <pkg> <version> [--nub C:\nub.exe] [--root C:\jail]
 //          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}'
 import fs from 'node:fs';
+import { fetchArgs } from './era-resolution.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -676,7 +677,12 @@ const obsEnv = {
   npm_config_cache: NPM_CACHE,
   TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
 };
-const fetch = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: OBS, env: obsEnv });
+// ⛔ Dated resolution — see the long note in `measure.sh`. This driver imports the module directly
+// because it is already JS; the shell drivers shell out to the same file's CLI, so there is one
+// implementation and one marker vocabulary.
+const eraResolution = fetchArgs({ spec: `${PKG}@${VER}`, publishedAt: ERA_NODE.selection?.publishedAt ?? null });
+console.log(`  ${eraResolution.marker}`);
+const fetch = run(NODE, [NPM, ...eraResolution.args], { cwd: OBS, env: obsEnv });
 fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stderr ?? ''));
 if (fetch.status !== 0) {
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=${fetch.status}; nothing to measure)`);

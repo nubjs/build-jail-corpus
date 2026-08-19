@@ -4,6 +4,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { beforeFor, fetchArgs, PUBLISH_MARGIN_MS } from './era-resolution.mjs';
 
 test('the margin puts --before AFTER the publish instant, not on it', () => {
@@ -41,4 +43,16 @@ test('dated:false is expressible and SAYS so — the two measurements mean diffe
 
 test('the margin is a whole day, because npm floors in the RUNNER timezone', () => {
   assert.equal(PUBLISH_MARGIN_MS, 86400000);
+});
+
+test('⛔ ALL THREE DRIVERS RESOLVE DATED — the guard that makes landed mean landed', () => {
+  // `dep-scaffold.mjs` records TWO v2 fixes that landed in `measure.sh` alone and were mistaken for
+  // done. A driver still fetching undated would silently measure a modern tree while the other two
+  // measured an era one, and the records would be incomparable with nothing saying so.
+  for (const d of ['measure.sh', 'measure-macos.sh', 'measure-windows.mjs']) {
+    const src = fs.readFileSync(path.join(import.meta.dirname, d), 'utf8');
+    assert.ok(/era-resolution/.test(src), `${d} does not use era-resolution — the fix is not landed there`);
+    assert.ok(!/install'?,? '?--no-audit'?,? '?--no-fund'?,? '?--ignore-scripts'?,? [`"']\$\{?PKG/.test(src)
+      || /eraResolution\.args|ERA_BEFORE/.test(src), `${d} still has an undated fetch of the target`);
+  }
 });
