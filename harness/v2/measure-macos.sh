@@ -157,7 +157,7 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Identical to `measure.sh`'s block, deliberately: one selector, one pin mechanism, so a record cannot
 # mean different things on two platforms. Computed BEFORE anything runs, because the pin has to be on
-# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=${ERA_PATH:-$PATH}"` chain
+# PATH for the measurement — the child inherits it through the `sudo -u … env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}"` chain
 # further down.
 #
 # ⛔ READS the provisioned tree, never writes it. `NUB_CACHE_DIR` above is PER-RUN by design, so a
@@ -387,6 +387,33 @@ security_screen_tree "$OBS" npm-observe-resolved
 # @nuxt/components and codeceptjs reported once the dtrace -c defect stopped masking it.
 chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 
+# ── ARM PREPARATION — see the long note in `measure.sh`; the mechanism is identical and the CLI is
+# ── shared so this driver cannot drift from it. `arm-prepare.test.mjs` asserts all three call it.
+#
+# ⛔ ANCHORED ON THE POST-FETCH CHOWN, NOT THE ONE AT $ROOT CREATION. There are two, and the first
+# patch of this file hit the earlier one — which would have scaffolded before the package existed,
+# read no manifest, and silently produced an empty scaffold on every record.
+#
+# ⛔ THE SCAFFOLD INSTALL RUNS AS $RUNUSER. This driver measures under sudo for dtrace, so anything
+# written as root leaves the dropped-privilege arm dying on `EACCES: permission denied, mkdir
+# .../node_modules` — the exact defect the chown above exists to fix. Chowned again after.
+ARM_PREP="$(node "$HERE/arm-prepare.mjs" --observe "$OBS" --pkg "$PKG" ${ERA_NODE_BIN:+--era-bin "$ERA_NODE_BIN"} 2>/dev/null)"
+if [ -z "$ARM_PREP" ]; then
+  echo "  ARM-PREPARE FAILED (falling back to the era path; this record's PATH axis is UNCOVERED)"
+  ARM_PATH="${ERA_PATH:-$PATH}"
+else
+  ARM_PATH="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).armPath||"")}catch{}})')"
+  [ -n "$ARM_PATH" ] || ARM_PATH="${ERA_PATH:-$PATH}"
+  printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const m of JSON.parse(s).markers||[])process.stdout.write("  "+m+"\n")}catch{}})'
+  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
+  if [ -n "$ARM_SCAFFOLD" ]; then
+    sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
+      npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+    echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+    chown -R "$RUNUSER" "$ROOT" 2>/dev/null
+  fi
+fi
+
 # dtrace's `-c` word-splits its argument and execs it directly — there is no shell, so the command
 # cannot carry a redirect and cannot report its own exit status. A wrapper file supplies both.
 # ⛔ THE WRAPPER MUST NOT BE `sh -c`. The decoder identifies the lifecycle script as the only
@@ -407,7 +434,7 @@ chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 # distinguishes them. Runs before the traced command, outside the trace, so it costs the measurement
 # nothing.
 cat > "$OBS/childenv.sh" <<WRAP
-sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" \
+sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "HOME=$JAIL_HOME" "TMPDIR=$JAIL_TMP" "NODE_COMPAT=1" \
   "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
@@ -441,7 +468,7 @@ fi
 
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
-sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" \
+sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "HOME=$JAIL_HOME" \
   "TMPDIR=$JAIL_TMP" \
   "NODE_COMPAT=1" \
@@ -809,7 +836,7 @@ unjailed_nub_ok () {
   local d="$ROOT/jail-off-control"
   rm -rf "$d"; mkdir -p "$d" || return 1
   chown -R "$RUNUSER" "$d" 2>/dev/null
-  local as=(--spawn-as "$RUNUSER" --spawn-path "${ERA_PATH:-$PATH}")
+  local as=(--spawn-as "$RUNUSER" --spawn-path "${ARM_PATH:-${ERA_PATH:-$PATH}}")
   node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
     "${as[@]}" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
@@ -929,7 +956,7 @@ verify () {
   # user, cache and catalog, then clear that exact tree before either execution path. A clearance
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
   chown -R "$RUNUSER" "$v" 2>/dev/null
-  sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" \
+  sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
@@ -940,7 +967,7 @@ verify () {
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
-sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
   "$NUB" install > "$v/i.log" 2>&1
 echo \$? > "$v/rc"
 JW
@@ -953,7 +980,7 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    sudo -u "$RUNUSER" -H env "PATH=${ERA_PATH:-$PATH}" NUB_CACHE_DIR="$cache" \
+    sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?

@@ -431,6 +431,48 @@ fi
 # The fetch materialized the exact npm tree without executing scripts. Clear that tree before the
 # traced rebuild; this is the boundary a direct name@version query cannot cover.
 security_screen_tree "$OBS" npm-observe-resolved
+
+# ── ARM PREPARATION: the PATH the arms run under, what leaked onto it, and the binaries this
+# ── package's lifecycle scripts need in order to run at all. ───────────────────────────────────
+#
+# ⛔ THE DEFECT THIS CLOSES. The arms inherited the runner's ambient `$PATH` (the era pin only
+# PREPENDED to it), so `sh: <bin>: command not found` — the largest failure class in this corpus,
+# 105 of the 1,529 `BROKEN-*` records — depended on what the runner IMAGE happened to ship, and
+# those images drift. Measured on a dev box: `tsc` resolved from `~/Library/pnpm` and `rimraf` from
+# `~/.config/yarn/global/node_modules/.bin`, so a control there PASSED the exact step the corpus
+# records as failing.
+#
+# ⛔ AND THE SECOND DEFECT. The observe arm is a CONSUMER install, which never installs the
+# dependency's devDependencies — so a package whose `postinstall` invokes its own devDep binary died
+# before running a line of its real work, and the corpus filed that as the PACKAGE being broken.
+# Measured: `@paypal/paypal-js@2.1.8` goes rc=127 -> rc=0 when `husky@^5.0.9` alone is added.
+#
+# One CLI for all three drivers, deliberately: `dep-scaffold.mjs` records the TWO times a v2 fix
+# landed in this file alone and was mistaken for done. `arm-prepare.test.mjs` asserts all three
+# drivers call it.
+ARM_PREP="$(node "$HERE/arm-prepare.mjs" --observe "$OBS" --pkg "$PKG" ${ERA_NODE_BIN:+--era-bin "$ERA_NODE_BIN"} 2>/dev/null)"
+if [ -z "$ARM_PREP" ]; then
+  # Fail LOUD, never open. A silently-absent preparation is how the era pin went unnoticed for a
+  # whole corpus, and this axis must not repeat it.
+  echo "  ARM-PREPARE FAILED (falling back to the era path; this record's PATH axis is UNCOVERED)"
+  ARM_PATH="${ERA_PATH:-$PATH}"
+else
+  ARM_PATH="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).armPath||"")}catch{}})')"
+  [ -n "$ARM_PATH" ] || ARM_PATH="${ERA_PATH:-$PATH}"
+  # Every marker on its own line — `driver.out` is read line-wise.
+  printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const m of JSON.parse(s).markers||[])process.stdout.write("  "+m+"\n")}catch{}})'
+  # Install ONLY the binaries the lifecycle scripts name. Never the whole devDependency closure:
+  # measured, installing all 29 of paypal-js's returned rc=1 and left `.bin` EMPTY, because npm's
+  # install is atomic and one bad resolution loses the entire scaffold.
+  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
+  if [ -n "$ARM_SCAFFOLD" ]; then
+    # ⛔ NON-FATAL BY DESIGN. A scaffold that cannot resolve leaves the arm exactly as badly off as it
+    # is today, so it must not convert a measurable package into a harness error. The rc is RECORDED
+    # so a reader can tell "the scaffold was not applied" from "it was applied and did not help".
+    PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+    echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+  fi
+fi
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 # ⛔ TAKEN BEFORE THE TRACE, WHICH IS THE ONLY MOMENT IT EXISTS. The fetch above ran with
 # `--ignore-scripts`, so the package dir right now is exactly what the tarball shipped. After the
@@ -529,7 +571,7 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
-PATH="${ERA_PATH:-$PATH}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
+PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
@@ -1189,7 +1231,7 @@ verify () {
   security_screen_tree "$v" "nub-$label-resolved"
   ( cd "$v"
     # The era pin applies to the MEASURED install only — see the ERA-NODE PIN block above.
-    PATH="${ERA_PATH:-$PATH}"
+    PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
     if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then

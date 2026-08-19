@@ -667,6 +667,11 @@ fs.mkdirSync(OBS_TMP, { recursive: true });
 const obsEnv = {
   ...process.env,
   // The era pin applies to the measured install, never to the harness — see ERA_NODE above.
+  //
+  // ⛔ THE FETCH USES THE ERA PATH, NOT THE PREPARED ARM PATH, AND IT MUST. Arm preparation reads the
+  // package's INSTALLED manifest to learn which binaries its lifecycle scripts invoke, so it cannot
+  // run until this fetch has landed the tree. Referencing ARM_PATH here is not merely early, it is a
+  // temporal dead zone on its `let` below — a ReferenceError that would fail every win32 record.
   PATH: ERA_NODE.armPath,
   npm_config_cache: NPM_CACHE,
   TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
@@ -679,6 +684,36 @@ if (fetch.status !== 0) {
   process.exit(0);
 }
 securityScreen('npm-observe-resolved', ['--tree', OBS]);
+
+// ── ARM PREPARATION — see the long note in `measure.sh`; the mechanism is identical and the CLI is
+// ── shared so this driver cannot drift from it. `arm-prepare.test.mjs` asserts all three call it.
+//
+// ⛔ THIS DRIVER IS THE ONE THAT COULD SHARE THE MODULE DIRECTLY, AND DELIBERATELY DOES NOT. Importing
+// `prepareArm()` here while the two shell drivers shell out to the CLI is exactly how the harness
+// grew three spellings of the same rule before — `dep-scaffold.mjs` records the two v2 fixes that
+// landed in one driver and were mistaken for done. One process, one output shape, one guard test.
+const armPrep = (() => {
+  const r = run(NODE, [path.join(HERE, 'arm-prepare.mjs'), '--observe', OBS, '--pkg', PKG,
+    ...(ERA_NODE.bin ? ['--era-bin', ERA_NODE.bin] : [])]);
+  if (r.status !== 0) return null;
+  try { return JSON.parse(r.stdout ?? ''); } catch { return null; }
+})();
+let ARM_PATH = ERA_NODE.armPath;
+if (!armPrep) {
+  // Fail LOUD, never open — the era pin's silent fail-open is the precedent this must not repeat.
+  console.log('  ARM-PREPARE FAILED (falling back to the era path; this record\'s PATH axis is UNCOVERED)');
+} else {
+  ARM_PATH = armPrep.armPath || ERA_NODE.armPath;
+  for (const m of armPrep.markers ?? []) console.log(`  ${m}`);
+  const scaffold = armPrep.scaffold?.install ?? [];
+  if (scaffold.length) {
+    // Non-fatal by design: a scaffold that will not resolve leaves the arm exactly as badly off as
+    // it is today, so it must never turn a measurable package into a harness error.
+    const si = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold],
+      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
+    console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
+  }
+}
 
 // ⛔ TAKEN NOW, BECAUSE NOW IS THE ONLY MOMENT IT EXISTS. The fetch above ran `--ignore-scripts`, so
 // the package directory at this instant is exactly what the tarball shipped. Once the lifecycle
@@ -1371,7 +1406,7 @@ const verify = (grant, label) => {
   // the ONLY line that distinguishes a built arm from a replayed one. Without it the replay
   // assertion below cannot observe what it asserts on, which is why this lane was still running the
   // predicate `measure.sh` had already measured to be wrong.
-  const env = { ...process.env, PATH: ERA_NODE.armPath, NUB_BUILD_JAIL_CATALOG: cat,
+  const env = { ...process.env, PATH: ARM_PATH, NUB_BUILD_JAIL_CATALOG: cat,
     XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
   // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
   // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.
