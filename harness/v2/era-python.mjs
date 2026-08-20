@@ -69,3 +69,50 @@ export function pythonForEra(major, candidates = []) {
     marker: `ERA-PYTHON ${hit.path} (${hit.version}) for era Node ${major}, whose node-gyp requires ${family}`,
   };
 }
+
+/** Interpreter names worth probing, most specific first.
+ *
+ *  ⛔ `python` IS PROBED LAST AND ON PURPOSE. It is the name node-gyp 3.x asks for, but on a modern
+ *  box it is either absent (macOS removed it) or a PYTHON 3 wearing the old name — and a python3
+ *  under that name is exactly what produces gyp's "is v3.9.6, which is not supported" rejection. The
+ *  VERSION decides, never the name, so the probe reports what each candidate actually says. */
+export const PROBE_NAMES = ['python2.7', 'python2', 'python3', 'python'];
+
+/** Discover interpreters on this box. `run` is injected so the decision stays testable offline. */
+export function discoverPythons(run, names = PROBE_NAMES) {
+  const out = [];
+  const seen = new Set();
+  for (const name of names) {
+    const found = run(name);
+    if (!found?.path || seen.has(found.path)) continue;
+    seen.add(found.path);
+    out.push(found);
+  }
+  return out;
+}
+
+if (import.meta.filename === process.argv[1]) {
+  const { execFileSync } = await import('node:child_process');
+  const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i === -1 ? undefined : process.argv[i + 1]; };
+  const era = Number(arg('era'));
+  // ⛔ NEVER `shell: true` WITH AN ARGS ARRAY. It emits a DeprecationWarning on stderr, which the
+  // shell drivers capture into `driver.out` alongside the marker — noise in the one file a reader
+  // uses to tell a package defect from a toolchain gap. `/bin/sh -c` invoked directly is the same
+  // capability with none of that.
+  const sh = (script) => {
+    try { return execFileSync('/bin/sh', ['-c', script], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); }
+    catch { return ''; }
+  };
+  const probe = (name) => {
+    const path = sh(`command -v ${name}`);
+    if (!path) return null;
+    // ⛔ REDIRECT STDERR INTO STDOUT. Python 2 prints `--version` to STDERR and Python 3 to stdout.
+    // Reading only stdout reports every python2 as version-less, so the version match fails and the
+    // box looks like it has no python2 — dropping the exact candidate this exists to find.
+    const version = sh(`"${path}" --version 2>&1`);
+    return version ? { path, version } : null;
+  };
+  const candidates = discoverPythons(probe);
+  const chosen = pythonForEra(Number.isInteger(era) ? era : null, candidates);
+  process.stdout.write(`${chosen.path ?? ''}\n${chosen.marker}\n`);
+}

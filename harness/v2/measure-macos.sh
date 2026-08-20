@@ -154,6 +154,10 @@ chown -R "$RUNUSER" "$JAIL_HOME" "$JAIL_TMP" 2>/dev/null
 chown -R "$RUNUSER" "$ROOT" 2>/dev/null
 export NUB_CACHE_DIR="$ROOT/nubcache"
 
+# ⛔⛔ See the long note in `measure.sh`: the arm PATH applies to every word of the command, so a bare
+# `node` under an era pin of 4.9.1 IS Node 4 and cannot parse a modern `.mjs`. The harness uses this.
+HARNESS_NODE="$(command -v node)"
+
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Identical to `measure.sh`'s block, deliberately: one selector, one pin mechanism, so a record cannot
 # mean different things on two platforms. Computed BEFORE anything runs, because the pin has to be on
@@ -511,7 +515,7 @@ node "$HERE/arm-falsifiability.mjs" --snapshot "$OBS" --pkg "$PKG" --ver "$VER" 
 # interposing anything BETWEEN dtrace and the wrapper risks the same teardown. Wrapping dtrace itself
 # leaves the `-c` relationship untouched, and killing dtrace's process group still reaches the whole
 # subtree — which is the point: `optipng-bin@2.0.0` reached 211 live children on the Linux side.
-node "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
+"$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
        dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
        -c "/bin/bash -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
 DT_RC=$?

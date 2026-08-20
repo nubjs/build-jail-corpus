@@ -97,6 +97,17 @@ ROOT="$(mktemp -d "$HOME/v2-XXXXXX")" || exit 1
 # having, but the thing that makes two arms independent is the per-arm STORE EVICTION below.
 export NUB_CACHE_DIR="$ROOT/nubcache"
 
+# ⛔⛔ THE HARNESS'S OWN NODE, RESOLVED ABSOLUTELY, BEFORE ANY PATH IS REWRITTEN. Every arm below
+# runs with `PATH="$ARM_PATH"`, and that prefix applies to EVERY word of the command — including any
+# `node` the harness itself needs to run. With an era pin of 4.9.1 first on that PATH, a bare `node`
+# is Node 4, which cannot parse a modern `.mjs` at all: MEASURED, `arm-cap.mjs` came back
+# `SyntaxError: Unexpected reserved word` and the arm reported a failure that was entirely the
+# harness's own. This is the same class the ERA-NODE block below warns about at length ("7 of 8
+# records came back HARNESS-ERROR, all 7 pinned"), reintroduced by a later change and caught by a
+# probe rather than by review. Anything the HARNESS runs uses "$HARNESS_NODE"; only the package
+# under test gets the era Node.
+HARNESS_NODE="$(command -v node)"
+
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Measure this version on the Node its author targeted. Computed HERE, before anything runs, because
 # the pin has to be on PATH for the measurement; the `VENUE-NODE-SELECTION` marker further down just
@@ -584,7 +595,7 @@ PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
   npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
-  node "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
+  "$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?

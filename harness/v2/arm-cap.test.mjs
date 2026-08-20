@@ -119,3 +119,20 @@ test('a capped arm is NOT reported as a package verdict, on BOTH POSIX drivers',
     assert.ok(capAt < genericAt, `${driver}: the 124 branch must precede the generic failure branch`);
   }
 });
+
+test('⛔ the drivers run arm-cap with the HARNESS node, never a bare `node`', () => {
+  // MEASURED: with an era pin of 4.9.1 first on the arm PATH, a bare `node` IS Node 4 and cannot
+  // parse a modern .mjs — `SyntaxError: Unexpected reserved word`, reported as an arm failure that
+  // was entirely the harness's own. This is the class the ERA-NODE block already warns about ("7 of
+  // 8 records came back HARNESS-ERROR, all 7 pinned"), reintroduced by the cap and caught by a probe.
+  for (const d of ['measure.sh', 'measure-macos.sh']) {
+    const src = fs.readFileSync(path.join(import.meta.dirname, d), 'utf8');
+    assert.match(src, /HARNESS_NODE="\$\(command -v node\)"/, `${d} does not resolve its own node`);
+    assert.match(src, /"\$HARNESS_NODE" "\$HERE\/arm-cap.mjs"/, `${d} invokes arm-cap with a bare node`);
+    // and it must be captured BEFORE anything can rewrite PATH
+    const capturedAt = src.indexOf('HARNESS_NODE="$(command -v node)"');
+    const firstArmPath = src.indexOf('ARM_PATH=');
+    assert.ok(capturedAt !== -1 && firstArmPath !== -1 && capturedAt < firstArmPath,
+      `${d}: HARNESS_NODE must be resolved before the arm PATH exists`);
+  }
+});
