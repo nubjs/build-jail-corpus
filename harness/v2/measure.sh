@@ -619,12 +619,23 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
+#
+# THE `env` ON THE ERA_PYTHON LINE IS LOAD-BEARING AND MUST NOT BE "TIDIED" AWAY. A variable
+# assignment prefix has to be a LITERAL word at PARSE time; one produced by parameter expansion is
+# treated as a COMMAND NAME instead. So `${ERA_PYTHON:+PYTHON="$ERA_PYTHON"}` does not set PYTHON --
+# it tries to EXECUTE `PYTHON=/usr/bin/python3`, and the arm dies instantly with
+#   measure.sh: line 622: PYTHON=/usr/bin/python3: No such file or directory
+# MEASURED: that is exactly what happened on three platforms. Every observe arm returned in 2-5s with
+# installRc=null, falsify reported INCONCLUSIVE, and the batch refused to start -- a failure that
+# looked like the packages and was entirely this line. `env` takes VAR=VALUE as ARGUMENTS, so an
+# expansion is fine there. The macOS driver was never affected: its assignment already sits in a
+# `sudo -u ... env ...` chain, where it is an argument rather than a prefix.
 PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
   npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
-  ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
+  env ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
   "$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1

@@ -3,6 +3,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { pythonForEra, pythonFamilyForEra, LAST_PYTHON2_ERA } from './era-python.mjs';
 
 const CANDIDATES = [
@@ -62,4 +64,17 @@ test('⛔ ALL THREE DRIVERS choose an era Python — the guard that makes landed
     const src = fs.readFileSync(path.join(import.meta.dirname, d), 'utf8');
     assert.ok(/era-python|ERA_PYTHON/.test(src), `${d} does not choose an era Python`);
   }
+});
+
+test('⛔ the POSIX drivers pass PYTHON through `env`, never as an expanded assignment prefix', () => {
+  // A variable assignment prefix must be a LITERAL word at parse time; one produced by parameter
+  // expansion is treated as a COMMAND NAME. `${ERA_PYTHON:+PYTHON="$ERA_PYTHON"}` therefore tries to
+  // EXECUTE `PYTHON=/usr/bin/python3`. MEASURED on three platforms: every observe arm returned in
+  // 2-5s with installRc=null and the batch refused to start.
+  const linux = fs.readFileSync(path.join(import.meta.dirname, 'measure.sh'), 'utf8');
+  assert.match(linux, /env \$\{ERA_PYTHON:\+PYTHON="\$ERA_PYTHON"\}/,
+    'measure.sh must hand PYTHON to `env`, not use it as an assignment prefix');
+  // macOS is correct by construction: its assignment is already an ARGUMENT to `sudo ... env ...`.
+  const mac = fs.readFileSync(path.join(import.meta.dirname, 'measure-macos.sh'), 'utf8');
+  assert.match(mac, /env "PATH=/, 'the macOS arm must keep its sudo/env chain');
 });
