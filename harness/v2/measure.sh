@@ -584,11 +584,38 @@ PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
   npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
+  node "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
+# ⛔ THE OBSERVE ARM RUNS A STRANGER'S INSTALL SCRIPT AND HAD NO BOUND AT ALL. Neither POSIX driver
+# enforced one — no `--arm-timeout`, no `timeout`, no `ulimit`; only `measure-windows.mjs` capped its
+# arms. MEASURED: `optipng-bin@2.0.0`'s postinstall re-spawns `optipng --version` without bound and
+# reached 211 live children with PIDs still climbing. `run-batch-v2.mjs`'s per-package budget does
+# NOT catch that — it is a `spawnSync` timeout, which signals the direct child only, so the orphans
+# survive it and accumulate across a shard until the runner dies and every record behind them is lost.
+# `arm-cap.mjs` kills the whole PROCESS GROUP and exits 124, the convention `record.mjs:429` already
+# reads as HARNESS-TIMEOUT.
+if [ "$OBS_RC" -eq 124 ]; then
+  echo "  OBSERVE   ARM-CAP KILLED the process group after ${ARM_CAP_SECS:-900}s"
+fi
 OBS_FILES=$(find "$OBS" -type f ! -name 'trace.txt' ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')
 echo "  OBSERVE   rc=$OBS_RC files=$OBS_FILES trace=$(wc -l < "$OBS/trace.txt" | tr -d ' ') lines"
+# ⛔⛔ THE CAP MUST NOT BE READ AS A PACKAGE VERDICT, AND THIS BRANCH ORDER IS WHAT STOPS IT.
+# `BROKEN-WITHOUT-JAIL-TOO` is a claim ABOUT THE PACKAGE — that nothing installs it unjailed. A
+# capped arm establishes no such thing: it says the measurement ran out of time, which is the exact
+# misdiagnosis `driver-timeout.mjs` was written about ("a failure says the grant was insufficient, a
+# timeout says nothing about the grant"). Without this branch the cap added above would have
+# converted every runaway package into a false package verdict — a worse outcome than the runaway,
+# because it is silent and it looks like data.
+if [ "$OBS_RC" -eq 124 ]; then
+  # ⛔ THE SPELLING IS `=> TIMED-OUT`, NOT `=> HARNESS-TIMEOUT`. `record.mjs:125` maps the verdict
+  # from `/=>\s*TIMED-OUT/`; a line saying HARNESS-TIMEOUT in words matches NOTHING there, falls
+  # through unparsed, and lands on HARNESS-ERROR at record.mjs:779 — a different verdict, in a
+  # different bucket, for a reason no reader could recover. Checked against the pattern, not recalled.
+  echo "  => TIMED-OUT (observe arm capped at ${ARM_CAP_SECS:-900}s; no verdict about the package)"
+  exit 0
+fi
 if [ "$OBS_RC" -ne 0 ]; then
   # An unjailed failure means the package is broken HERE — a jailed result would be meaningless.
   # v1 calls this BROKEN-WITHOUT-JAIL-TOO and it is a real verdict, not an error.
