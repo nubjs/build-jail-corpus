@@ -107,6 +107,12 @@ export NUB_CACHE_DIR="$ROOT/nubcache"
 # probe rather than by review. Anything the HARNESS runs uses "$HARNESS_NODE"; only the package
 # under test gets the era Node.
 HARNESS_NODE="$(command -v node)"
+# Fail LOUD if the harness cannot find its own node: an empty value turns every arm command into
+# `"" <script> ...` -> 127 in milliseconds, which reads as a package failure and is not one.
+if [ -z "$HARNESS_NODE" ] || [ ! -x "$HARNESS_NODE" ]; then
+  echo "  ⛔ HARNESS-NODE MISSING (command -v node = '$HARNESS_NODE') — arms cannot be capped"
+fi
+echo "  HARNESS-NODE $HARNESS_NODE ($("$HARNESS_NODE" -v 2>/dev/null || echo unknown)); arm-cap $([ -f "$HERE/arm-cap.mjs" ] && echo present || echo MISSING)"
 
 # ── ERA-NODE PIN ──────────────────────────────────────────────────────────────
 # Measure this version on the Node its author targeted. Computed HERE, before anything runs, because
