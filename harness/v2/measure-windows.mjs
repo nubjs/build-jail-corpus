@@ -11,6 +11,7 @@
 //          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}'
 import fs from 'node:fs';
 import { fetchArgs } from './era-resolution.mjs';
+import { pythonForEra, discoverPythons } from './era-python.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -665,8 +666,32 @@ fs.mkdirSync(OBS_TMP, { recursive: true });
 // Both native builds FAILED here (capture `exit=1`) despite the full toolchain running, which is a
 // second finding worth knowing before planning a win32 sweep: the successfully-compiling native
 // population on `windows-latest` is thin.
+// -- ERA PYTHON. node-gyp's Python requirement INVERTS across the matrix range: 3.4.0 (Node 4/6)
+// rejects Python 3 outright, 9+ requires it. So this is era-conditional, never a constant -- an
+// unconditional python2 would fix the old native records and break every modern arm. The marker is
+// emitted whether or not a candidate was found, because a silently-unset PYTHON is how these
+// failures came to be filed against the package rather than the toolchain.
+const ERA_PYTHON = (() => {
+  const probe = (name) => {
+    const where = run('where', [name]);
+    const p = (where.stdout ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0];
+    if (!p) return null;
+    // Python 2 prints --version to STDERR, Python 3 to stdout: read BOTH or every python2 looks
+    // version-less and the box appears to have none.
+    const v = run(p, ['--version']);
+    const version = ((v.stdout ?? '') + (v.stderr ?? '')).trim();
+    return version ? { path: p, version } : null;
+  };
+  const chosen = pythonForEra(ERA_NODE.selection?.eraMajor ?? null, discoverPythons(probe));
+  console.log(`  ${chosen.marker}`);
+  return chosen.path;
+})();
+
 const obsEnv = {
   ...process.env,
+  // Only when a candidate was found: an EMPTY PYTHON is worse than none, because node-gyp reads it
+  // as an explicit empty path rather than falling back to its own search.
+  ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}),
   // The era pin applies to the measured install, never to the harness — see ERA_NODE above.
   //
   // ⛔ THE FETCH USES THE ERA PATH, NOT THE PREPARED ARM PATH, AND IT MUST. Arm preparation reads the

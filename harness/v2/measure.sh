@@ -164,6 +164,21 @@ fi
 # two negative branches are distinguished, because "no version resolved" is a lookup gap while "requested
 # but not present" is an unprovisioned box, and they are fixed in different places.
 echo "  ERA-NODE $ERA_STATUS (arms will run: $("${ERA_NODE_BIN:+$ERA_NODE_BIN/}node" -v 2>/dev/null || echo unknown))"
+
+# -- ERA PYTHON ----------------------------------------------------------------
+# node-gyp's Python requirement INVERTS across the range the matrix carries, so this cannot be a
+# constant. MEASURED: node-gyp 3.4.0 (Node 4/6) rejects Python 3 outright -- "is v3.9.6, which is not
+# supported by gyp ... point to Python >= v2.5.0 & < 3.0.0" -- while node-gyp 9+ requires Python 3.
+# An unconditional PYTHON=python2 would fix the 39 old native records and break every modern arm.
+#
+# AND THE FAILURE IT REPLACES LOOKED LIKE A PACKAGE DEFECT. With PYTHON unset, heapdump@0.3.9 on
+# Node 4 dies at `Can't find Python executable "python"` -- macOS deleted /usr/bin/python, so the
+# name is simply absent -- and the corpus filed that against the package. With the era Python chosen
+# it is rc=0. hiredis@0.5.0 still fails, but now at `make` exit 2 with the compiler's own error,
+# which is an attributable package result rather than a toolchain gap wearing one.
+ERA_MAJOR="$(printf '%s' "$NODE_SELECTION" | "$HARNESS_NODE" -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(String(o.eraMajor ?? ""))}catch{}})')"
+ERA_PYTHON="$("$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n 1p)"
+"$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n '2p' | sed 's/^/  /' 
 # The marker's payload is built ONCE, here, and echoed verbatim much later.
 #
 # ⛔ BUILT HERE RATHER THAN AT THE EMISSION SITE, FOR A REASON A GUARD FOUND. `measure-provenance.mjs`
@@ -595,6 +610,7 @@ PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
   npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
+  ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
   "$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1

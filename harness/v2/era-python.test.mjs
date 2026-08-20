@@ -55,3 +55,11 @@ test('the marker states the era and the family, so a record explains itself', ()
   assert.match(pythonForEra(4, CANDIDATES).marker,
     /ERA-PYTHON \/usr\/local\/bin\/python2 \(2\.7\.9\) for era Node 4, whose node-gyp requires python2/);
 });
+
+test('⛔ ALL THREE DRIVERS choose an era Python — the guard that makes landed mean landed', async () => {
+  const fs = await import('node:fs'); const path = await import('node:path');
+  for (const d of ['measure.sh', 'measure-macos.sh', 'measure-windows.mjs']) {
+    const src = fs.readFileSync(path.join(import.meta.dirname, d), 'utf8');
+    assert.ok(/era-python|ERA_PYTHON/.test(src), `${d} does not choose an era Python`);
+  }
+});

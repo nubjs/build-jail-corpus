@@ -205,6 +205,21 @@ fi
 # is a silent bet it did not matter. The two negative branches are distinguished because a lookup gap and
 # an unprovisioned box are fixed in different places.
 echo "  ERA-NODE $ERA_STATUS (arms will run: $("${ERA_NODE_BIN:+$ERA_NODE_BIN/}node" -v 2>/dev/null || echo unknown))"
+
+# -- ERA PYTHON ----------------------------------------------------------------
+# node-gyp's Python requirement INVERTS across the range the matrix carries, so this cannot be a
+# constant. MEASURED: node-gyp 3.4.0 (Node 4/6) rejects Python 3 outright -- "is v3.9.6, which is not
+# supported by gyp ... point to Python >= v2.5.0 & < 3.0.0" -- while node-gyp 9+ requires Python 3.
+# An unconditional PYTHON=python2 would fix the 39 old native records and break every modern arm.
+#
+# AND THE FAILURE IT REPLACES LOOKED LIKE A PACKAGE DEFECT. With PYTHON unset, heapdump@0.3.9 on
+# Node 4 dies at `Can't find Python executable "python"` -- macOS deleted /usr/bin/python, so the
+# name is simply absent -- and the corpus filed that against the package. With the era Python chosen
+# it is rc=0. hiredis@0.5.0 still fails, but now at `make` exit 2 with the compiler's own error,
+# which is an attributable package result rather than a toolchain gap wearing one.
+ERA_MAJOR="$(printf '%s' "$NODE_SELECTION" | "$HARNESS_NODE" -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(String(o.eraMajor ?? ""))}catch{}})')"
+ERA_PYTHON="$("$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n 1p)"
+"$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n '2p' | sed 's/^/  /' 
 # ⛔ BUILT HERE, ECHOED LATER — same reason as `measure.sh`. `measure-provenance.mjs` slices the
 # retention region up to the first line CLOSING a `node -e`, so an augmenting `node -e` beside the
 # marker truncated that slice and dropped `VENUE-OVERRIDES` from it. A plain `echo` at the emission
@@ -484,6 +499,7 @@ sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
   "electron_config_cache=$TOOLS/electron-cache" \
   "npm_config_prefix=$TOOLS/npm-prefix" \
+  ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} \
   "$NPM_BIN" rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 echo \$? > "$OBS/rc"
 WRAP
