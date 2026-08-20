@@ -424,32 +424,6 @@ jobs:
           done < /tmp/slice.txt
           cat /tmp/slice.txt
 
-      # Dump the DRIVER's own output when the falsification control refuses.
-      #
-      # The refusal reports a verdict per arm and nothing else, so a batch that dies before measuring
-      # leaves no way to tell WHY from the CI log: `installRc=null` says the arm reached no verdict,
-      # and the reason lives only in the arm root falsify keeps on disk. Adding echo lines to the
-      # driver does not help, because falsify captures the driver's stdout into that root rather than
-      # letting it reach the job log -- measured, a HARNESS-NODE marker added for exactly this
-      # purpose never appeared.
-      - name: Dump the kept arm roots when the control refused
-        if: failure()
-        shell: bash
-        run: |
-          shopt -s nullglob
-          found=0
-          for root in "$HOME"/v2-* "$HOME"/v2m-*; do
-            [ -d "$root" ] || continue
-            found=1
-            echo "=============== $root ==============="
-            for f in "$root/driver.out" "$root"/*/driver.out "$root/observe/npm.log" "$root/observe/fetch.log"; do
-              [ -f "$f" ] || continue
-              echo "--- $f (last 60) ---"
-              tail -60 "$f"
-            done
-          done
-          [ "$found" = 1 ] || echo "no kept arm roots under $HOME -- falsify may have cleaned up, or died before creating one"
-
       - name: Measure the slice
         if: env.DRAINED != '1'
         shell: bash
@@ -540,6 +514,37 @@ jobs:
       # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
       # would otherwise take every measurement down with the ephemeral runner. Uploading BEFORE the
       # gate is deliberate too — records that fail verification are the ones worth diagnosing.
+      # Dump the DRIVER's own output when the falsification control refuses.
+      #
+      # POSITION IS LOAD-BEARING: this step must come AFTER the measure step. Placed before it,
+      # `if: failure()` can never fire -- nothing has failed yet -- so the step silently does not
+      # run and the log shows no dump at all. Measured: the first version of this step was above
+      # the measure step and never appeared in the job's step list.
+      #
+      # The refusal reports a verdict per arm and nothing else, so a batch that dies before measuring
+      # leaves no way to tell WHY from the CI log: `installRc=null` says the arm reached no verdict,
+      # and the reason lives only in the arm root falsify keeps on disk. Adding echo lines to the
+      # driver does not help, because falsify captures the driver's stdout into that root rather than
+      # letting it reach the job log -- measured, a HARNESS-NODE marker added for exactly this
+      # purpose never appeared.
+      - name: Dump the kept arm roots when the control refused
+        if: failure()
+        shell: bash
+        run: |
+          shopt -s nullglob
+          found=0
+          for root in "$HOME"/v2-* "$HOME"/v2m-*; do
+            [ -d "$root" ] || continue
+            found=1
+            echo "=============== $root ==============="
+            for f in "$root/driver.out" "$root"/*/driver.out "$root/observe/npm.log" "$root/observe/fetch.log"; do
+              [ -f "$f" ] || continue
+              echo "--- $f (last 60) ---"
+              tail -60 "$f"
+            done
+          done
+          [ "$found" = 1 ] || echo "no kept arm roots under $HOME -- falsify may have cleaned up, or died before creating one"
+
       - name: Preserve this slice's records as an artifact
         if: always() && env.DRAINED != '1'
         uses: actions/upload-artifact@v7
