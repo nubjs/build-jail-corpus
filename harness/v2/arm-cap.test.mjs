@@ -93,14 +93,29 @@ test('⛔ the driver emits a line record.mjs actually parses as HARNESS-TIMEOUT'
     'the control: the plausible-looking spelling is the one that does NOT parse');
 });
 
-test('a capped arm is NOT reported as a package verdict', () => {
+test('⛔ BOTH POSIX drivers cap the observe arm — the guard that makes landed mean landed', () => {
+  // dep-scaffold.mjs records TWO v2 fixes that landed in measure.sh alone and were mistaken for done.
+  // measure-windows.mjs has its own --arm-timeout and is exempt.
+  for (const d of ['measure.sh', 'measure-macos.sh']) {
+    const src = fs.readFileSync(path.join(import.meta.dirname, d), 'utf8');
+    assert.ok(src.includes('arm-cap.mjs'), `${d} does not cap its observe arm`);
+    assert.match(src, /=> TIMED-OUT \(observe arm capped/, `${d} does not emit a parseable capped verdict`);
+  }
+});
+
+test('a capped arm is NOT reported as a package verdict, on BOTH POSIX drivers', () => {
   // ⛔ `BROKEN-WITHOUT-JAIL-TOO` is a claim ABOUT THE PACKAGE. A capped arm establishes no such thing.
   // The 124 branch must therefore come BEFORE the generic non-zero branch, or every runaway package
   // silently becomes a false package verdict — which looks like data and is worse than the runaway.
-  const fsMod = fs;
-  const src = fsMod.readFileSync(path.join(import.meta.dirname, 'measure.sh'), 'utf8');
-  const capAt = src.indexOf('OBS_RC" -eq 124');
-  const genericAt = src.indexOf('OBS_RC" -ne 0');
-  assert.ok(capAt !== -1 && genericAt !== -1);
-  assert.ok(capAt < genericAt, 'the 124 branch must precede the generic failure branch');
+  // measure.sh keys the cap off OBS_RC; measure-macos.sh keys it off DT_RC, because there the
+  // wrapper never writes $OBS/rc on a cap and OBS_RC falls back to 99 — which the generic branch
+  // would file as BROKEN-WITHOUT-JAIL-TOO, a claim about the PACKAGE that a timeout cannot support.
+  for (const [driver, capMarker] of [['measure.sh', 'OBS_RC" -eq 124'], ['measure-macos.sh', 'DT_RC" -eq 124']]) {
+    const src = fs.readFileSync(path.join(import.meta.dirname, driver), 'utf8');
+    const capAt = src.indexOf(capMarker);
+    const genericAt = src.indexOf('OBS_RC" -ne 0');
+    assert.ok(capAt !== -1, `${driver} has no cap branch (${capMarker})`);
+    assert.ok(genericAt !== -1, `${driver} has no generic failure branch`);
+    assert.ok(capAt < genericAt, `${driver}: the 124 branch must precede the generic failure branch`);
+  }
 });

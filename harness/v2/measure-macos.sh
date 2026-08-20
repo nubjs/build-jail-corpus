@@ -506,9 +506,25 @@ node "$HERE/arm-falsifiability.mjs" --snapshot "$OBS" --pkg "$PKG" --ver "$VER" 
 # code-signature or SIP restriction; `-x` and the inner `sudo` were each independently exonerated.
 # Not `sh -c`/`bash -c` either — the decoder identifies the lifecycle script as the only `-c` shell
 # in the subtree, so the wrapper stays a FILE argument.
-dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
+# ⛔ THE CAP WRAPS `dtrace`, NOT ITS `-c` TARGET, AND THAT ORDER IS DELIBERATE. dtrace's grip on the
+# process it spawns does not survive that process being re-exec'd (see the /bin/sh note above), so
+# interposing anything BETWEEN dtrace and the wrapper risks the same teardown. Wrapping dtrace itself
+# leaves the `-c` relationship untouched, and killing dtrace's process group still reaches the whole
+# subtree — which is the point: `optipng-bin@2.0.0` reached 211 live children on the Linux side.
+node "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
+       dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$OBS/trace.txt" \
        -c "/bin/bash -x $OBS/run.sh" > "$OBS/dtrace.log" 2>&1
 DT_RC=$?
+# ⛔ CHECKED BEFORE THE DTRACE-LIVE GATE AND BEFORE `OBS_RC`, BECAUSE BOTH WOULD MISREAD A CAP. On a
+# capped run the wrapper never writes `$OBS/rc`, so `OBS_RC` falls back to 99 and the branch below
+# would file `BROKEN-WITHOUT-JAIL-TOO` — a claim ABOUT THE PACKAGE that a timeout does not support.
+# The spelling is `=> TIMED-OUT` because `record.mjs:125` keys the verdict off /=>\s*TIMED-OUT/; a
+# line saying HARNESS-TIMEOUT in words parses to null and lands on HARNESS-ERROR instead.
+if [ "$DT_RC" -eq 124 ]; then
+  echo "  => TIMED-OUT (observe arm capped at ${ARM_CAP_SECS:-900}s; no verdict about the package)"
+  tail -20 "$OBS/npm.log" 2>/dev/null | sed 's/^/     /'
+  exit 0
+fi
 echo "  --- wrapper (run.sh) ---"; sed 's/^/     /' "$OBS/run.sh"
 echo "  --- dtrace stderr + wrapper trace ---"; sed 's/^/     /' "$OBS/dtrace.log" | head -30
 OBS_RC=$(cat "$OBS/rc" 2>/dev/null || echo 99)
