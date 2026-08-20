@@ -179,6 +179,14 @@ echo "  ERA-NODE $ERA_STATUS (arms will run: $("${ERA_NODE_BIN:+$ERA_NODE_BIN/}n
 ERA_MAJOR="$(printf '%s' "$NODE_SELECTION" | "$HARNESS_NODE" -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const o=JSON.parse(s);process.stdout.write(String(o.eraMajor ?? ""))}catch{}})')"
 ERA_PYTHON="$("$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n 1p)"
 "$HARNESS_NODE" "$HERE/era-python.mjs" --era "${ERA_MAJOR:-0}" 2>/dev/null | sed -n '2p' | sed 's/^/  /' 
+# -- ARM MAKE. Recorded, and upgraded when the box offers a newer GNU make.
+# macOS ships GNU Make 3.81 (2006) and will not ship newer -- Apple froze it at the last GPLv2
+# release -- so any build system requiring Make 4 fails identically for every user on the platform.
+# All 13 `GNU Make version is too old` records are redis-memory-server on darwin-arm64. Whether that
+# is a package defect or a provisioning gap is exactly what the corpus exists to answer, and it
+# cannot be answered by a record that never says which make ran.
+ARM_MAKE="$("$HARNESS_NODE" "$HERE/arm-make.mjs" 2>/dev/null | sed -n 1p)"
+"$HARNESS_NODE" "$HERE/arm-make.mjs" 2>/dev/null | sed -n '2p' | sed 's/^/  /' 
 # The marker's payload is built ONCE, here, and echoed verbatim much later.
 #
 # ⛔ BUILT HERE RATHER THAN AT THE EMISSION SITE, FOR A REASON A GUARD FOUND. `measure-provenance.mjs`

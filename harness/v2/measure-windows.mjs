@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import { fetchArgs } from './era-resolution.mjs';
 import { pythonForEra, discoverPythons } from './era-python.mjs';
+import { chooseMake, MAKE_CANDIDATES } from './arm-make.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -683,6 +684,22 @@ const ERA_PYTHON = (() => {
     return version ? { path: p, version } : null;
   };
   const chosen = pythonForEra(ERA_NODE.selection?.eraMajor ?? null, discoverPythons(probe));
+  console.log(`  ${chosen.marker}`);
+  return chosen.path;
+})();
+
+// -- ARM MAKE. Recorded for the same reason as on POSIX: a record that cannot name its make cannot
+// tell a package defect from a provisioning gap. Windows rarely has GNU make at all, and saying so
+// is itself the useful outcome.
+const ARM_MAKE = (() => {
+  const cands = MAKE_CANDIDATES.map((n) => {
+    const w = run('where', [n]);
+    const p = (w.stdout ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0];
+    if (!p) return null;
+    const v = run(p, ['--version']);
+    return { path: p, version: ((v.stdout ?? '') + (v.stderr ?? '')).split(/\r?\n/)[0].trim() };
+  }).filter(Boolean);
+  const chosen = chooseMake(cands);
   console.log(`  ${chosen.marker}`);
   return chosen.path;
 })();
