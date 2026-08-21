@@ -37,9 +37,18 @@ on:
         description: per-arm wall-clock cap, seconds (a capped row is HARNESS-TIMEOUT, never a package verdict)
         type: string
         default: "900"
+  push:
+    # BRANCH-SCOPED PUSH TRIGGER, AND IT IS NOT OPTIONAL. `workflow_dispatch` is INERT until the
+    # workflow file exists on the DEFAULT branch -- dispatching a file that lives only on a feature
+    # branch returns `HTTP 404: workflow not found on the default branch`. `corpus-v2-runner.yml`
+    # documents exactly this and uses the same escape hatch; measured here by trying to dispatch
+    # first and getting the 404 on all three platforms.
+    #
+    # On a push the `inputs.*` are empty, so every use of them below carries a `||` fallback.
+    branches: [probe/observe-only]
 
 concurrency:
-  group: observe-only-${{ github.ref }}-${{ inputs.os }}
+  group: observe-only-${{ github.ref }}-${{ inputs.os || 'all' }}
   cancel-in-progress: false
 
 jobs:
@@ -53,7 +62,7 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          OS='${{ inputs.os }}'; SHARDS='${{ inputs.shards }}'
+          OS='${{ inputs.os || 'all' }}'; SHARDS='${{ inputs.shards || '4' }}'
           node -e '
             const os = process.argv[1] === "all" ? ["linux","macos","windows"] : [process.argv[1]];
             const n = Number(process.argv[2]);
@@ -105,7 +114,7 @@ jobs:
         run: |
           node harness/v2/observe-only.mjs --file worklist.tsv \
             --out "ledger-${{ matrix.os }}-${{ matrix.shard }}.ndjson" \
-            --cap-secs '${{ inputs.cap_secs }}'
+            --cap-secs '${{ inputs.cap_secs || '900' }}'
 
       - name: Summarise this shard
         if: always()
