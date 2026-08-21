@@ -145,7 +145,7 @@ if (import.meta.filename === process.argv[1]) {
       // `npm install --before=…` bounded nothing and one row could stall an entire sweep.
       const fetchLog = path.join(root, 'fetch.log');
       const ffd = fs.openSync(fetchLog, 'w');
-      const f = await runCapped('npm', [...fa.args, '--no-audit', '--no-fund'].filter((a, i, all) => all.indexOf(a) === i),
+      const f = await runCapped(NPM, [...fa.args, '--no-audit', '--no-fund'].filter((a, i, all) => all.indexOf(a) === i),
                                 { ms: capSecs * 1000, cwd: obs, env: env0, stdio: ['ignore', ffd, ffd] });
       fs.closeSync(ffd);
       rec.fetchRc = f.code;
@@ -192,7 +192,7 @@ if (import.meta.filename === process.argv[1]) {
         try { scaffold = scriptScaffold(JSON.parse(fs.readFileSync(manifestPath, 'utf8'))); } catch { /* none */ }
         rec.scaffold = scaffold.install;
         if (scaffold.install.length) {
-          const si = sh('npm', ['install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold.install],
+          const si = sh(NPM, ['install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold.install],
                         { cwd: obs, env });
           rec.scaffoldRc = si.status ?? 1;
         }
@@ -209,7 +209,7 @@ if (import.meta.filename === process.argv[1]) {
         const npmBin = eraBin ? path.join(eraBin, '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js') : null;
         const useEra = npmBin && fs.existsSync(npmBin);
         const r = await runCapped(
-          useEra ? path.join(eraBin, 'node') : 'npm',
+          useEra ? path.join(eraBin, 'node') : NPM,
           useEra ? [npmBin, 'rebuild', '--no-audit', '--no-fund', pkg]
                  : ['rebuild', '--no-audit', '--no-fund', pkg],
           { ms: capSecs * 1000, cwd: obs, env, stdio: ['ignore', fd, fd] });
