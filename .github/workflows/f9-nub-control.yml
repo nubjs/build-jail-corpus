@@ -1,0 +1,125 @@
+# Does nub still fail to install the 22 records filed as BROKEN-UNJAILED-NUB?
+#
+# ⛔ WHY THIS EXISTS SEPARATELY FROM `observe-only.yml`. That sweep drives npm ONLY, so for a
+# BROKEN-UNJAILED-NUB record ("npm installs it, nub does not") a succeeding arm re-confirms the half
+# that was never in doubt. It measured all 31 and could say nothing about the nub half — which is
+# the half that makes them defects. Only an arm that RUNS NUB can close them.
+#
+# ⛔ AND IT DELIBERATELY DOES NOT USE `corpus-v2-runner.yml`. That lane gates on `falsify.mjs`, which
+# has refused to start the batch on every run since 2026-08-17 over a P0 unrelated to these records
+# (a known-insufficient grant accepted as sufficient for hugo-extended@0.141.0). This control does
+# not touch the jail at all — it runs nub with the jail OFF — so that gate does not apply to it.
+#
+# `unjailed-nub.mjs` is the harness's own jail-off control, reused rather than reimplemented: it
+# owns the off-switch assertion, which exists because a silently-broken off switch produces
+# unanimous agreement rather than an error.
+name: f9-nub-control
+
+on:
+  workflow_dispatch:
+    inputs:
+      nub_sha:
+        description: nubjs/nub commit to build (blank = sandbox/integration head)
+        type: string
+        default: ""
+  push:
+    # workflow_dispatch is inert until the file is on the default branch — see corpus-v2-runner.yml.
+    branches: [probe/f9-nub-control]
+
+concurrency:
+  group: f9-nub-control-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  control:
+    # linux-x64 only, and that is not a shortcut: all 31 BROKEN-UNJAILED-NUB records are linux-x64.
+    # Whether that is a genuine platform property or a driver asymmetry is a separate question this
+    # run does not try to answer.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with: { node-version: '22.23.2' }
+
+      - name: Resolve the nub commit under test
+        shell: bash
+        run: |
+          set -eu
+          SHA='${{ inputs.nub_sha }}'
+          if [ -z "$SHA" ]; then
+            SHA=$(git ls-remote https://github.com/nubjs/nub.git refs/heads/sandbox/integration | cut -f1)
+          fi
+          [ -n "$SHA" ] || { echo "could not resolve a nub commit"; exit 1; }
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "resolved nub $SHA"
+
+      - name: Build nub
+        shell: bash
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/nubjs/nub.git /tmp/nubsrc
+          cd /tmp/nubsrc
+          # `--detach <branch-name>` is REJECTED by git; resolve to a SHA first. See corpus-v2-runner.
+          git checkout --detach "$NUB_GIT_SHA"
+          # `fast` inherits dev and skips LTO — same semantics here, and it fits the job.
+          cargo build -p nub-cli --profile fast
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub" >> "$GITHUB_ENV"
+
+      - name: Build the F9 worklist from the records themselves
+        shell: bash
+        run: |
+          set -eu
+          node -e '
+            const fs=require("fs"), path=require("path");
+            const out=[];
+            const walk=(d)=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);
+              if(e.isDirectory())walk(p);
+              else if(e.name==="results.json"){const j=JSON.parse(fs.readFileSync(p,"utf8"));
+                if(j.verdict==="BROKEN-UNJAILED-NUB")out.push(j.pkg+"@"+j.version);}}};
+            walk("records-v2/runs/linux-x64");
+            // ⛔ A worklist that silently comes back empty would produce a clean green run proving
+            // nothing — the failure mode this whole epic keeps paying for.
+            if(!out.length){ console.error("no BROKEN-UNJAILED-NUB records found"); process.exit(1); }
+            fs.writeFileSync("f9.txt", out.join("\n")+"\n");
+            console.error("F9 worklist: "+out.length+" specs");
+          '
+
+      - name: Run the jail-off control over each spec
+        shell: bash
+        run: |
+          set -u
+          : > f9-ledger.ndjson
+          while read -r SPEC; do
+            [ -z "$SPEC" ] && continue
+            NAME="${SPEC%@*}"; VER="${SPEC##*@}"
+            case "$SPEC" in @*) NAME="@${SPEC#@}"; NAME="${NAME%@*}";; esac
+            DIR=$(mktemp -d)
+            # `--phase all` resolves AND runs, and asserts the off switch engaged. Exit 0 = nub
+            # installs it unjailed; 1 = it does not; 2 = the control itself is unsound.
+            node harness/v2/unjailed-nub.mjs --phase all --pkg "$NAME" --version "$VER" \
+              --nub "$NUB_BIN" --dir "$DIR" > "$DIR/out.log" 2>&1
+            RC=$?
+            ERR=$(grep -m1 -E 'error|ERR!|refus' "$DIR/out.log" | tr -d '"' | cut -c1-160 || true)
+            printf '{"spec":"%s","unjailedNubRc":%s,"stillNubDefect":%s,"firstError":"%s"}\n' \
+              "$SPEC" "$RC" "$([ "$RC" = 1 ] && echo true || echo false)" "$ERR" >> f9-ledger.ndjson
+            echo "  $SPEC -> rc=$RC"
+            rm -rf "$DIR"
+          done < f9.txt
+          echo "--- summary ---"
+          node -e '
+            const fs=require("fs");
+            const rows=fs.readFileSync("f9-ledger.ndjson","utf8").trim().split("\n").filter(Boolean).map(JSON.parse);
+            const still=rows.filter(r=>r.stillNubDefect).length;
+            const ok=rows.filter(r=>r.unjailedNubRc===0).length;
+            const unsound=rows.filter(r=>r.unjailedNubRc===2).length;
+            console.log(`F9: ${rows.length} measured — ${still} STILL a nub defect, ${ok} nub installs it now, ${unsound} control unsound`);
+          '
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f9-ledger
+          path: f9-ledger.ndjson
+          if-no-files-found: error
