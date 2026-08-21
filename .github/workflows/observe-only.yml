@@ -1,0 +1,128 @@
+# Re-decide the UNJAILED verdicts on real runners, without the jail and without falsify.
+#
+# WHY THIS LANE EXISTS SEPARATELY FROM corpus-v2-runner.yml
+#
+# BROKEN-WITHOUT-JAIL-TOO is emitted at measure.sh:477 (the fetch gate) and :673 (the observe
+# control), both in the observe phase and both BEFORE any jailed verify arm runs. So the verdict on
+# 1,481 of the 1,529 BROKEN-* records is decided entirely by npm, and nub is never invoked for them.
+#
+# falsify proves the harness can detect an UNDER-GRANTED jail arm. That is a property of the verify
+# ladder, and a record whose verdict is decided before the ladder starts never exercises it. The
+# corpus runner has refused to start since 2026-08-17 over a hugo-extended@0.141.0 case about the
+# jail; this lane lets the npm-decided population be measured meanwhile.
+#
+# WHAT THIS LANE MUST NEVER DO, and does not: write records-v2/, produce a grant or a minimality, or
+# emit MINIMUM / NO-STATE-PASSED / UNDER-PREDICTED. A clean observe reports INSTALLS-UNJAILED, pinned
+# by a test in observe-only.test.mjs. The output is a DISPOSITION LEDGER uploaded as an artifact.
+#
+# WHY CI RATHER THAN A DEV BOX: the same sweep on the maintainer's Mac drove load from 49 to 103 at
+# only three workers, and a 150s cap still timed out large packages such as @atlaskit/editor-common.
+# A runner gives each row the job budget it needs and costs the dev box nothing.
+
+name: observe-only
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: which operating system to measure
+        type: choice
+        options: [linux, macos, windows, all]
+        default: all
+      shards:
+        description: how many parallel shards per OS
+        type: string
+        default: "4"
+      cap_secs:
+        description: per-arm wall-clock cap, seconds (a capped row is HARNESS-TIMEOUT, never a package verdict)
+        type: string
+        default: "900"
+
+concurrency:
+  group: observe-only-${{ github.ref }}-${{ inputs.os }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: plan
+        shell: bash
+        run: |
+          set -uo pipefail
+          OS='${{ inputs.os }}'; SHARDS='${{ inputs.shards }}'
+          node -e '
+            const os = process.argv[1] === "all" ? ["linux","macos","windows"] : [process.argv[1]];
+            const n = Number(process.argv[2]);
+            const runner = { linux: "ubuntu-24.04", macos: "macos-15", windows: "windows-2025" };
+            const include = os.flatMap((o) => Array.from({length:n}, (_, s) => ({ os:o, runner:runner[o], shard:s, shards:n })));
+            console.log(`matrix=${JSON.stringify({ include })}`);
+          ' "$OS" "$SHARDS" >> "$GITHUB_OUTPUT"
+
+  sweep:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: '22.x' }
+
+      - name: Build this shard's worklist from the BROKEN records
+        shell: bash
+        run: |
+          set -uo pipefail
+          # The platform directory name, not the runner's: records are keyed by the corpus's own
+          # platform spelling and a mismatch would silently produce an EMPTY worklist.
+          case '${{ matrix.os }}' in
+            linux)   PLAT=linux-x64 ;;
+            macos)   PLAT=darwin-arm64 ;;
+            windows) PLAT=win32-x64 ;;
+          esac
+          node -e '
+            const fs=require("fs"), path=require("path");
+            const [plat, shard, shards] = process.argv.slice(1);
+            const root = path.join("records-v2","runs",plat); const rows=[];
+            const walk=(d)=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);
+              if(e.isDirectory())walk(p); else if(e.name==="results.json"){const j=JSON.parse(fs.readFileSync(p,"utf8"));
+              if(j.verdict==="BROKEN-WITHOUT-JAIL-TOO"||j.verdict==="BROKEN-UNJAILED-NUB")rows.push(`${j.pkg}@${j.version}\t${j.verdict}`);}}};
+            walk(root);
+            const mine = rows.filter((_,k)=>k%Number(shards)===Number(shard));
+            // A shard that would measure NOTHING is a plan error, not an empty result: fail loudly.
+            if(!mine.length){ console.error(`no rows for ${plat} shard ${shard}/${shards}`); process.exit(1); }
+            fs.writeFileSync("worklist.tsv", mine.join("\n")+"\n");
+            console.log(`${plat} shard ${shard}/${shards}: ${mine.length} of ${rows.length} rows`);
+          ' "$PLAT" '${{ matrix.shard }}' '${{ matrix.shards }}'
+
+      - name: Sweep
+        shell: bash
+        run: |
+          node harness/v2/observe-only.mjs --file worklist.tsv \
+            --out "ledger-${{ matrix.os }}-${{ matrix.shard }}.ndjson" \
+            --cap-secs '${{ inputs.cap_secs }}'
+
+      - name: Summarise this shard
+        if: always()
+        shell: bash
+        run: |
+          L="ledger-${{ matrix.os }}-${{ matrix.shard }}.ndjson"
+          [ -s "$L" ] || { echo "no ledger rows"; exit 0; }
+          node -e '
+            const fs=require("fs"); const c={};
+            for(const l of fs.readFileSync(process.argv[1],"utf8").trim().split("\n")){if(!l)continue;
+              const j=JSON.parse(l); c[j.disposition]=(c[j.disposition]||0)+1;}
+            console.log(JSON.stringify(c,null,1));
+          ' "$L"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ledger-${{ matrix.os }}-${{ matrix.shard }}
+          path: ledger-${{ matrix.os }}-${{ matrix.shard }}.ndjson
+          if-no-files-found: warn
