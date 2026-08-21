@@ -89,6 +89,13 @@ jobs:
       - name: Run the jail-off control over each spec
         shell: bash
         run: |
+          # ⛔ `set +e` IS THE POINT OF THIS LOOP, NOT AN OVERSIGHT. GitHub runs a `run:` block with
+          # `bash --noprofile --norc -e -o pipefail`, so the FIRST non-zero exit aborts the step —
+          # and a non-zero exit from `unjailed-nub.mjs` is exactly the datum being collected here
+          # (1 = nub cannot install it, which IS the finding). MEASURED: the first attempt recorded
+          # `@azure/mcp@3.0.0-beta.33 -> rc=0` and then died on the next spec, having measured one
+          # row out of 22 and reported failure.
+          set +e
           set -u
           : > f9-ledger.ndjson
           while read -r SPEC; do
@@ -108,6 +115,10 @@ jobs:
             rm -rf "$DIR"
           done < f9.txt
           echo "--- summary ---"
+          # Re-arm -e for the summary: a ledger that came back empty must fail the step rather than
+          # print a confident zero.
+          set -e
+          test -s f9-ledger.ndjson || { echo "the ledger is EMPTY — nothing was measured"; exit 1; }
           node -e '
             const fs=require("fs");
             const rows=fs.readFileSync("f9-ledger.ndjson","utf8").trim().split("\n").filter(Boolean).map(JSON.parse);
