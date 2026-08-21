@@ -112,19 +112,40 @@ if (import.meta.filename === process.argv[1]) {
   // fetchRc=127, every one dispositioned CONFIRMED with no era pin and no error text. A 100% verdict
   // with zero evidence is a broken instrument, not a finding, and it would have reported the entire
   // win32 population as confirmed-broken on the strength of npm never having run.
-  const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  // ⛔ RUN npm's JS ENTRY WITH THIS NODE — never the `npm` / `npm.cmd` shim.
+  //
+  // Two measured failures got us here. A bare `npm` on Windows returns 127 (npm is a `.cmd` shim and
+  // spawnSync without a shell cannot execute one): all 570 win32 rows came back fetchRc=127 and were
+  // dispositioned CONFIRMED with no era pin and no error text. Switching to `npm.cmd` then failed
+  // EARLIER, with `status=null` — Node refuses to spawn a `.cmd` at all without `shell: true`, which
+  // is the CVE-2024-27980 fix. `shell: true` would work and would also re-introduce quoting hazards
+  // on every spec containing a scope or a caret.
+  //
+  // npm's own entry point is plain JS and is laid out predictably next to the interpreter: POSIX puts
+  // it under `lib/node_modules`, Windows directly under the install root. Running it with
+  // `process.execPath` sidesteps the shim, the shell and the quoting.
+  const npmCli = (() => {
+    const dir = path.dirname(process.execPath);
+    for (const c of [path.join(dir, '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+                     path.join(dir, 'node_modules', 'npm', 'bin', 'npm-cli.js')]) {
+      if (fs.existsSync(c)) return c;
+    }
+    return null;
+  })();
+  const NPM = npmCli ? process.execPath : (process.platform === 'win32' ? 'npm.cmd' : 'npm');
+  const npmArgs = (args) => (npmCli ? [npmCli, ...args] : args);
   const sh = (cmd, args, opts = {}) => spawnSync(cmd, args, { encoding: 'utf8', maxBuffer: 1 << 28, ...opts });
 
   // ⛔ PREFLIGHT, SO A MISSING TOOL FAILS LOUD INSTEAD OF BECOMING 570 PACKAGE VERDICTS. The whole
   // sweep is worthless if npm cannot be invoked, and the failure mode is silent: every row simply
   // "confirms" the record it was meant to re-test.
   {
-    const probe = sh(NPM, ['--version']);
+    const probe = sh(NPM, npmArgs(['--version']));
     if (probe.status !== 0) {
       process.stderr.write(`FATAL: cannot invoke ${NPM} (status=${probe.status}) — refusing to measure.\n`);
       process.exit(2);
     }
-    process.stderr.write(`npm ${String(probe.stdout).trim()} via ${NPM}\n`);
+    process.stderr.write(`npm ${String(probe.stdout).trim()} via ${npmCli ?? NPM}\n`);
   }
   const eraRoot = path.join(process.env.HOME ?? '/tmp', '.cache', 'nub', 'era-node');
   fs.mkdirSync(eraRoot, { recursive: true });
@@ -162,7 +183,7 @@ if (import.meta.filename === process.argv[1]) {
       // `npm install --before=…` bounded nothing and one row could stall an entire sweep.
       const fetchLog = path.join(root, 'fetch.log');
       const ffd = fs.openSync(fetchLog, 'w');
-      const f = await runCapped(NPM, [...fa.args, '--no-audit', '--no-fund'].filter((a, i, all) => all.indexOf(a) === i),
+      const f = await runCapped(NPM, npmArgs([...fa.args, '--no-audit', '--no-fund'].filter((a, i, all) => all.indexOf(a) === i)),
                                 { ms: capSecs * 1000, cwd: obs, env: env0, stdio: ['ignore', ffd, ffd] });
       fs.closeSync(ffd);
       rec.fetchRc = f.code;
@@ -209,7 +230,7 @@ if (import.meta.filename === process.argv[1]) {
         try { scaffold = scriptScaffold(JSON.parse(fs.readFileSync(manifestPath, 'utf8'))); } catch { /* none */ }
         rec.scaffold = scaffold.install;
         if (scaffold.install.length) {
-          const si = sh(NPM, ['install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold.install],
+          const si = sh(NPM, npmArgs(['install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold.install]),
                         { cwd: obs, env });
           rec.scaffoldRc = si.status ?? 1;
         }
@@ -227,8 +248,10 @@ if (import.meta.filename === process.argv[1]) {
         const useEra = npmBin && fs.existsSync(npmBin);
         const r = await runCapped(
           useEra ? path.join(eraBin, 'node') : NPM,
+          // The era path already runs a JS entry with the era node; the fallback needs npmArgs so it
+          // does not reach for the shim on Windows.
           useEra ? [npmBin, 'rebuild', '--no-audit', '--no-fund', pkg]
-                 : ['rebuild', '--no-audit', '--no-fund', pkg],
+                 : npmArgs(['rebuild', '--no-audit', '--no-fund', pkg]),
           { ms: capSecs * 1000, cwd: obs, env, stdio: ['ignore', fd, fd] });
         fs.closeSync(fd);
         rec.rebuildRc = r.code;
