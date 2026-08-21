@@ -46,9 +46,25 @@ export function observeVerdict({ fetchRc, rebuildRc, capped, fetchCapped }) {
 
 /** Disposition for a row whose recorded verdict is being revisited. */
 export function disposition(previous, now) {
+  if (now === 'HARNESS-TIMEOUT') return 'UNMEASURED-TIMEOUT';
+
+  // ⛔⛔ `BROKEN-UNJAILED-NUB` MEANS "npm INSTALLS IT, nub DOES NOT". This runner drives npm ONLY —
+  // it never invokes nub — so an observe arm that SUCCEEDS re-confirms the half of that verdict
+  // which was never in doubt, and says NOTHING about the half that made it a nub defect.
+  //
+  // Calling that STALE-RECORD is a false exoneration, and it is not hypothetical: the first CI sweep
+  // dispositioned 22 of the 31 BROKEN-UNJAILED-NUB records as "stale — installs today", which would
+  // have reported 22 open nub defects as fixed. They are the class the maintainer singled out as
+  // severe. The npm half succeeding is the ORIGINAL FINDING, not a contradiction of it.
+  //
+  // A FAILING arm is different and IS informative: it removes the "npm installs it" premise the
+  // verdict rests on, so the record no longer describes a nub defect and genuinely CHANGED.
+  if (previous === 'BROKEN-UNJAILED-NUB') {
+    return now === 'INSTALLS-UNJAILED' ? 'NUB-UNMEASURED' : 'CHANGED';
+  }
+
   if (previous === now) return 'CONFIRMED';
   if (now === 'INSTALLS-UNJAILED') return 'STALE-RECORD';
-  if (now === 'HARNESS-TIMEOUT') return 'UNMEASURED-TIMEOUT';
   return 'CHANGED';
 }
 

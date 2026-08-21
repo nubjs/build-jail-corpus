@@ -33,3 +33,16 @@ test('a capped FETCH is a timeout, never a package verdict', () => {
   assert.equal(observeVerdict({ fetchRc: 0, rebuildRc: 0, fetchCapped: true }), 'HARNESS-TIMEOUT');
   assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'HARNESS-TIMEOUT'), 'UNMEASURED-TIMEOUT');
 });
+
+test('⛔ an npm-only arm can never call a BROKEN-UNJAILED-NUB record stale', () => {
+  // That verdict means "npm installs it, nub does not". This runner drives npm ONLY, so a
+  // succeeding arm re-confirms the half that was never in doubt and leaves the nub half unmeasured.
+  // The first CI sweep dispositioned 22 of 31 such records as STALE-RECORD — 22 open nub defects
+  // reported as fixed, in the class the maintainer singled out as severe.
+  assert.equal(disposition('BROKEN-UNJAILED-NUB', 'INSTALLS-UNJAILED'), 'NUB-UNMEASURED');
+  // A FAILING arm removes the "npm installs it" premise, so the record genuinely changed.
+  assert.equal(disposition('BROKEN-UNJAILED-NUB', 'BROKEN-WITHOUT-JAIL-TOO'), 'CHANGED');
+  // The ordinary bucket is unaffected: there, npm failing IS the verdict.
+  assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'INSTALLS-UNJAILED'), 'STALE-RECORD');
+  assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'BROKEN-WITHOUT-JAIL-TOO'), 'CONFIRMED');
+});
