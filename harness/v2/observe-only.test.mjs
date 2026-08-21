@@ -22,3 +22,14 @@ test('a package that now installs marks the record STALE, not merely CHANGED', (
   assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'BROKEN-WITHOUT-JAIL-TOO'), 'CONFIRMED');
   assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'HARNESS-TIMEOUT'), 'UNMEASURED-TIMEOUT');
 });
+
+test('a capped FETCH is a timeout, never a package verdict', () => {
+  // ⛔ FOUND BY READING A PASSING CONTROL. `ibm_db@0.0.9` returned fetch=124 and was dispositioned
+  // CONFIRMED — which happened to be the expected answer for that row, so the 5/5 tally looked clean
+  // while the row was right by accident. Every slow-fetching package would otherwise become a false
+  // CONFIRMED in the sweep.
+  assert.equal(observeVerdict({ fetchRc: 124, rebuildRc: null }), 'HARNESS-TIMEOUT');
+  assert.equal(observeVerdict({ fetchRc: 0, rebuildRc: 124 }), 'HARNESS-TIMEOUT');
+  assert.equal(observeVerdict({ fetchRc: 0, rebuildRc: 0, fetchCapped: true }), 'HARNESS-TIMEOUT');
+  assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'HARNESS-TIMEOUT'), 'UNMEASURED-TIMEOUT');
+});
