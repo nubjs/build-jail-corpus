@@ -20,6 +20,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fetchArgs } from './era-resolution.mjs';
 import { armPath, ambientTools } from './arm-path.mjs';
@@ -89,7 +90,12 @@ if (import.meta.filename === process.argv[1]) {
     const [spec, prevVerdict = ''] = line.split('\t');
     const at = spec.lastIndexOf('@');
     const pkg = spec.slice(0, at); const version = spec.slice(at + 1);
-    const root = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'obs-'));
+    // ⛔ `os.tmpdir()`, NEVER `process.env.TMPDIR || '/tmp'`. Windows sets TEMP/TMP, not TMPDIR, so the
+    // fallback fired and `path.join` produced the Windows-nonsense path `\tmp\obs-XXXXXX`:
+    //   Error: ENOENT: no such file or directory, mkdtemp '\tmp\obs-XXXXXX'
+    // All four win32 shards died on their first row while linux and macOS ran fine, because those
+    // platforms do set TMPDIR. os.tmpdir() reads the right variable per platform.
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'obs-'));
     const home = path.join(root, 'home'); fs.mkdirSync(home);
     const obs = path.join(root, 'observe'); fs.mkdirSync(obs);
     fs.writeFileSync(path.join(obs, 'package.json'), '{"name":"o","version":"1.0.0"}\n');
