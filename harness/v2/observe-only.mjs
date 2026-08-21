@@ -90,7 +90,25 @@ if (import.meta.filename === process.argv[1]) {
   let specs = fs.readFileSync(file, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
   if (limit > 0) specs = specs.slice(0, limit);
 
+  // ⛔ `npm.cmd` ON WINDOWS. npm ships as a `.cmd` shim there, and `spawnSync` without a shell
+  // CANNOT execute one — it returns 127, "command not found". MEASURED: all 570 win32 rows came back
+  // fetchRc=127, every one dispositioned CONFIRMED with no era pin and no error text. A 100% verdict
+  // with zero evidence is a broken instrument, not a finding, and it would have reported the entire
+  // win32 population as confirmed-broken on the strength of npm never having run.
+  const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm';
   const sh = (cmd, args, opts = {}) => spawnSync(cmd, args, { encoding: 'utf8', maxBuffer: 1 << 28, ...opts });
+
+  // ⛔ PREFLIGHT, SO A MISSING TOOL FAILS LOUD INSTEAD OF BECOMING 570 PACKAGE VERDICTS. The whole
+  // sweep is worthless if npm cannot be invoked, and the failure mode is silent: every row simply
+  // "confirms" the record it was meant to re-test.
+  {
+    const probe = sh(NPM, ['--version']);
+    if (probe.status !== 0) {
+      process.stderr.write(`FATAL: cannot invoke ${NPM} (status=${probe.status}) — refusing to measure.\n`);
+      process.exit(2);
+    }
+    process.stderr.write(`npm ${String(probe.stdout).trim()} via ${NPM}\n`);
+  }
   const eraRoot = path.join(process.env.HOME ?? '/tmp', '.cache', 'nub', 'era-node');
   fs.mkdirSync(eraRoot, { recursive: true });
   // Discovered ONCE: probing per row would run `command -v` thousands of times for one answer.
