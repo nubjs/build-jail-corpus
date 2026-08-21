@@ -113,8 +113,12 @@ jobs:
             # own vocabulary does not use those words, so the ledger said WHICH packages fail and
             # never WHY — which is the only part a fix needs. jq -Rs makes the multi-line tail a
             # valid JSON string; hand-rolled quoting broke on the first log containing a quote.
-            TAIL=$(tail -25 "$DIR/out.log" | jq -Rs . 2>/dev/null || echo '""')
-            ERR=$(grep -m1 -E 'error|ERR!|refus|cannot|failed|Error' "$DIR/out.log" | tr -d '"' | cut -c1-200 || true)
+            # SKIP THE CONTROL OWN VERDICT BANNER. unjailed-nub.mjs ends with its conclusion
+            # ("npm installs this package but nub cannot ..."), which restates the rc rather than
+            # naming a cause. Capturing the raw tail therefore recorded that verdict on all 11
+            # defects and nub actual error on none of them.
+            TAIL=$(grep -vE 'jail-off control:|^ *=> ' "$DIR/out.log" | tail -30 | jq -Rs . 2>/dev/null || echo '""')
+            ERR=$(grep -vE 'jail-off control:|^ *=> ' "$DIR/out.log" | grep -m1 -E 'error|ERR!|Error|failed|not found' | tr -d '"' | cut -c1-200 || true)
             printf '{"spec":"%s","unjailedNubRc":%s,"stillNubDefect":%s,"firstError":"%s","tail":%s}\n' \
               "$SPEC" "$RC" "$([ "$RC" = 1 ] && echo true || echo false)" "$ERR" "$TAIL" >> f9-ledger.ndjson
             echo "  $SPEC -> rc=$RC"
@@ -132,7 +136,7 @@ jobs:
             const ok=rows.filter(r=>r.unjailedNubRc===0).length;
             const unsound=rows.filter(r=>r.unjailedNubRc===2).length;
             console.log(`F9: ${rows.length} measured — ${still} STILL a nub defect, ${ok} nub installs it now, ${unsound} control unsound`);
-            // Print each defect's reason INLINE. A ledger nobody downloads is a ledger nobody reads,
+            // Print each reason INLINE. A ledger nobody downloads is a ledger nobody reads,
             // and the previous run left every reason blank.
             for (const r of rows.filter(x => x.stillNubDefect)) {
               console.log(`\n--- ${r.spec} (rc=${r.unjailedNubRc}) ---`);
