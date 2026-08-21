@@ -45,6 +45,23 @@ export function observeVerdict({ fetchRc, rebuildRc, capped, fetchCapped }) {
 }
 
 /** Disposition for a row whose recorded verdict is being revisited. */
+/** npm lines that name no cause: a bare exit code, or the OS/argv banner npm prints before the
+ *  real error.
+ *
+ *  ⛔ MEASURED ON MY OWN LEDGER, WHICH IS WHY THIS EXISTS. Taking the FIRST line matching
+ *  /npm error|ERR!/ captured a useless line on 240 of 625 rows — `npm error code 1`, or
+ *  `npm ERR! Linux 6.11.0-azure`. The ledger looked attributed and was not: the honest count was
+ *  385 of 959, not 625. The informative line is usually two or three lines further down. */
+const UNINFORMATIVE = /^npm (error|ERR!) code \d+$|^npm ERR! (Linux|Darwin|Windows)\b|^npm (error|ERR!) (argv|node|npm|cwd|System|command|gyp|file|A complete log) /;
+
+/** The first line that actually names a cause, falling back to the first error line so a row is
+ *  never LESS informative than before. */
+export function firstCause(log) {
+  const lines = String(log ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
+  const errish = lines.filter((l) => /npm error|npm ERR!|ERR!|SyntaxError|Error:|command not found|is not recognized/.test(l));
+  return errish.find((l) => !UNINFORMATIVE.test(l)) ?? errish[0] ?? null;
+}
+
 export function disposition(previous, now) {
   if (now === 'HARNESS-TIMEOUT') return 'UNMEASURED-TIMEOUT';
 
@@ -217,11 +234,10 @@ if (import.meta.filename === process.argv[1]) {
         rec.rebuildRc = r.code;
         rec.capped = r.timedOut;
         const log = fs.readFileSync(logPath, 'utf8');
-        rec.firstError = log.split('\n').find((l) => /npm error|ERR!|SyntaxError|command not found/.test(l))?.trim().slice(0, 160) ?? null;
+        rec.firstError = firstCause(log)?.slice(0, 200) ?? null;
       } else {
         rec.rebuildRc = null; rec.capped = false;
-        rec.firstError = fs.readFileSync(fetchLog, 'utf8').split('\n')
-          .find((l) => /npm error|ERR!/.test(l))?.trim().slice(0, 160) ?? null;
+        rec.firstError = firstCause((f.stdout ?? '') + (f.stderr ?? ''))?.slice(0, 200) ?? null;
       }
       rec.verdict = observeVerdict(rec);
       rec.disposition = prevVerdict ? disposition(prevVerdict, rec.verdict) : null;

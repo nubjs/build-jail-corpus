@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { observeVerdict, disposition } from './observe-only.mjs';
+import { firstCause, observeVerdict, disposition } from './observe-only.mjs';
 
 test('a failing fetch or rebuild is the unjailed verdict, exactly as the driver decides it', () => {
   assert.equal(observeVerdict({ fetchRc: 1, rebuildRc: 0 }), 'BROKEN-WITHOUT-JAIL-TOO');
@@ -45,4 +45,24 @@ test('⛔ an npm-only arm can never call a BROKEN-UNJAILED-NUB record stale', ()
   // The ordinary bucket is unaffected: there, npm failing IS the verdict.
   assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'INSTALLS-UNJAILED'), 'STALE-RECORD');
   assert.equal(disposition('BROKEN-WITHOUT-JAIL-TOO', 'BROKEN-WITHOUT-JAIL-TOO'), 'CONFIRMED');
+});
+
+test('firstCause skips the bare exit code and the OS banner npm prints first', async () => {
+  // ⛔ MEASURED ON A REAL LEDGER: taking the first /npm error|ERR!/ line captured a useless one on
+  // 240 of 625 rows, so the ledger looked attributed and was not — 385 of 959 was the honest count.
+  const { firstCause } = await import('./observe-only.mjs');
+  const log = [
+    'npm error code 1',
+    'npm ERR! Linux 6.11.0-1018-azure',
+    'npm error command failed',
+    'gyp ERR! configure error',
+    'gyp ERR! stack Error: Could not find any Python installation to use',
+  ].join('\n');
+  assert.equal(firstCause(log), 'gyp ERR! configure error');
+});
+
+test('firstCause never returns LESS than the old behaviour', () => {
+  // If every line is uninformative it still reports one, rather than null.
+  assert.equal(firstCause('npm error code 1'), 'npm error code 1');
+  assert.equal(firstCause('nothing interesting here'), null);
 });
