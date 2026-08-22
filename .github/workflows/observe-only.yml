@@ -108,6 +108,35 @@ jobs:
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
 
+      # ⛔ A PYTHON-2 ERA NEEDS A REAL PYTHON 2, AND setup-python CANNOT SUPPLY ONE. Its manifest now
+      # publishes ZERO 2.x releases, so `actions/setup-python@v5` with '2.7' fails on every runner.
+      # 75 CONFIRMED rows of the 2026-08-22 sweep — eras 0, 4 and 6, all with `python: null` — died
+      # on `gyp ERR! stack Error: Python executable "/usr/bin/python" is v3.12.3, which is not
+      # supported by gyp`, because node-gyp 3.x accepts nothing but 2.7 and the box had none.
+      # Ubuntu still ships python2 in noble's archive; macOS needs python.org's own installer, which
+      # is x86_64 and runs under Rosetta (the same arrangement the era Nodes below 16 already use).
+      # Either way this is BEST EFFORT: a runner that cannot get one still measures, and the record
+      # says ERA-PYTHON NOT-SATISFIED rather than blaming the package.
+      - name: Provision the era Python 2
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          case '${{ matrix.os }}' in
+            linux)
+              sudo apt-get update -qq && sudo apt-get install -y python2 || true ;;
+            macos)
+              curl -fsSL -o /tmp/py27.pkg https://www.python.org/ftp/python/2.7.18/python-2.7.18-macosx10.9.pkg \
+                && sudo installer -pkg /tmp/py27.pkg -target / || true ;;
+            windows)
+              echo "skipped: node-gyp on Windows resolves its own toolchain" ;;
+          esac
+          for n in python2 python2.7; do
+            p="$(command -v "$n" || true)"
+            [ -n "$p" ] && echo "  $n -> $p ($("$p" --version 2>&1))"
+          done
+          true
+
       - id: py39
         uses: actions/setup-python@v5
         with:
