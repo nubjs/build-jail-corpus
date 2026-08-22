@@ -66,7 +66,18 @@ jobs:
           node -e '
             const os = process.argv[1] === "all" ? ["linux","macos","windows"] : [process.argv[1]];
             const n = Number(process.argv[2]);
-            const runner = { linux: "ubuntu-24.04", macos: "macos-15", windows: "windows-2025" };
+            // ⛔ windows-2022, NOT windows-2025. The `windows-2025` LABEL now routes to the
+            // VS2026 image (runner-images README maps it to the win25-vs2026 endpoint), which
+            // ships Visual Studio 18 at "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise".
+            // NO released node-gyp can identify that version. Even with MSVC activated so the
+            // detection finds the install, it gives up:
+            //   gyp ERR! find VS running in VS Command Prompt, installation path is: ...\\18\\Enterprise
+            //   gyp ERR! find VS unknown version "undefined" found at ...
+            //   gyp ERR! find VS could not find a version of Visual Studio 2017 or newer to use
+            // so windows-2025 cannot measure a native Windows build AT ALL. windows-2022 ships
+            // Visual Studio Enterprise 2022 17.14, read from its own image manifest. The corpus
+            // platform key stays win32-x64 either way.
+            const runner = { linux: "ubuntu-24.04", macos: "macos-15", windows: "windows-2022" };
             const include = os.flatMap((o) => Array.from({length:n}, (_, s) => ({ os:o, runner:runner[o], shard:s, shards:n })));
             console.log(`matrix=${JSON.stringify({ include })}`);
           ' "$OS" "$SHARDS" >> "$GITHUB_OUTPUT"
