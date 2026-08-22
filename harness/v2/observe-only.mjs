@@ -221,19 +221,24 @@ if (import.meta.filename === process.argv[1]) {
       let selection = {}; try { selection = JSON.parse(sel.stdout || '{}'); } catch { /* stays {} */ }
       const fa = fetchArgs({ spec, publishedAt: selection.publishedAt ?? null });
       rec.eraMajor = selection.eraMajor ?? null; rec.before = fa.before;
-      // ⛔ SHARE THE NODE-GYP HEADER CACHE ACROSS RECORDS. HOME is deliberately fresh per record so
-      // a home write is visible, but node-gyp's devdir defaults to $HOME/.node-gyp — so every native
-      // build re-downloaded the Node headers, over TLS, from an era Node. That download FLAKES:
-      // heapdump@0.3.9 measured 1 failure in 3 identical runs on era 6.17.1, failing with
-      //   gyp ERR! stack Error: ... is related to network connectivity
-      //   gyp ERR! stack     at Request.onRequestError (.../request/request.js:813:8)
-      // A flaky network fetch inside the arm is indistinguishable in the ledger from a package that
-      // genuinely does not build, so it manufactures false CONFIRMED rows on exactly the native
-      // builds this corpus is about. A shared devdir fetches each version's headers once.
-      const devdir = path.join(eraRoot, '..', 'gyp-headers');
-      fs.mkdirSync(devdir, { recursive: true });
-      const env0 = { ...process.env, HOME: home, npm_config_cache: path.join(root, 'npmcache'),
-                     npm_config_devdir: devdir };
+      // ⛔ SHARE THE NODE-GYP HEADER CACHE, AND DO IT BY LINKING $HOME/.node-gyp — NOT with
+      // `npm_config_devdir`, WHICH THE ERA NODES DO NOT READ. HOME is deliberately fresh per record,
+      // and node-gyp 3.x resolves its devDir from HOME with no override at all:
+      //   lib/node-gyp.js:59   this.devDir = path.resolve(homeDir, '.node-gyp')
+      //   lib/node-gyp.js:50   // TODO: make this *more* configurable?
+      // (`--devdir` arrived in node-gyp 4.) So every native build re-downloaded the Node headers
+      // over TLS from a 2016 Node, and that download FLAKES: heapdump@0.3.9 measured rc=0,0,124,0,1
+      // across five identical runs on era 6.17.1, failing inside request.js with
+      // "is related to network connectivity" and once blowing the 300s cap outright. A flaky fetch
+      // inside the arm is indistinguishable in the ledger from a package that genuinely does not
+      // build, so it manufactures false CONFIRMED and false HARNESS-TIMEOUT rows on exactly the
+      // native builds this corpus is about. A junction is used rather than a symlink so this works
+      // unprivileged on Windows too.
+      const gypCache = path.join(eraRoot, '..', 'gyp-headers');
+      fs.mkdirSync(gypCache, { recursive: true });
+      try { fs.symlinkSync(gypCache, path.join(home, '.node-gyp'), 'junction'); }
+      catch { /* a link we cannot make costs a re-download, never a wrong verdict */ }
+      const env0 = { ...process.env, HOME: home, npm_config_cache: path.join(root, 'npmcache') };
       // ⛔ THE FETCH IS CAPPED TOO. Only the rebuild was wrapped before, so a hanging
       // `npm install --before=…` bounded nothing and one row could stall an entire sweep.
       const fetchLog = path.join(root, 'fetch.log');
@@ -327,7 +332,13 @@ if (import.meta.filename === process.argv[1]) {
       rec.verdict = observeVerdict(rec);
       rec.disposition = prevVerdict ? disposition(prevVerdict, rec.verdict) : null;
     } catch (e) { rec.verdict = 'HARNESS-ERROR'; rec.firstError = String(e?.message ?? e).slice(0, 160); }
-    fs.rmSync(root, { recursive: true, force: true });
+    // ⛔ CLEANUP CANNOT BE FATAL. On Windows a native build leaves a DLL mapped, so rmSync throws
+    //   Error: EBUSY: resource busy or locked, rmdir '...\\node_modules\\lzma-native'
+    // and the throw escaped the loop: three of four win32 shards died mid-sweep, each losing every
+    // row behind the one that happened to build a native module. A leaked temp directory on an
+    // ephemeral runner costs nothing; a truncated shard costs the whole tail of the worklist.
+    try { fs.rmSync(root, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 }); }
+    catch (e) { process.stderr.write(`  cleanup skipped for ${spec}: ${e?.code ?? e}\n`); }
     ledger.write(`${JSON.stringify(rec)}\n`);
     n++;
     if (n % 10 === 0) process.stderr.write(`  ${n}/${specs.length}\n`);
