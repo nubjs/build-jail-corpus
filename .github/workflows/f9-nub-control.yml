@@ -114,9 +114,12 @@ jobs:
             # a printf-built object died with "SyntaxError: Expected ',' or '}' after property value
             # in JSON at position 101" on text carrying backslashes; and a hand-rolled grep captured
             # `npm ERR! Linux 6.1` — the OS banner — on the very control meant to prove the capture
-            # worked. f9-ledger-line.mjs reuses firstCause() from observe-only.mjs, so this ledger
-            # and the sweep ledger agree on what a cause IS instead of drifting apart.
-            node harness/v2/f9-ledger-line.mjs "$SPEC" "$RC" "$DIR/out.log" >> f9-ledger.ndjson
+            # worked. The fourth attempt read out.log and came back with a null cause AND an empty
+            # tail on all 31 rows — which is what exposed the real problem: out.log is the
+            # CONTROL'S stdout, and nub's own output is written by writeLogs() into $DIR as
+            # i.log / a.log / n.log / fetch.log / security-resolve.log. $DIR is passed for that,
+            # and every log's tail is stored on the row so it is auditable without a re-run.
+            node harness/v2/f9-ledger-line.mjs "$SPEC" "$RC" "$DIR/out.log" "$DIR" >> f9-ledger.ndjson
             echo "  $SPEC -> rc=$RC"
             rm -rf "$DIR"
           done < f9.txt

@@ -39,6 +39,7 @@ export function eraLayout(version, { platform = process.platform, arch = process
   return {
     url: `https://nodejs.org/dist/v${version}/${stem}.${ext}`,
     archive: `${stem}.${ext}`,
+    stem,
     // The win zip puts node.exe at the archive root; the POSIX tarballs put node under bin/.
     binSubdir: plat === 'win' ? '.' : 'bin',
     exe: plat === 'win' ? 'node.exe' : 'node',
@@ -57,14 +58,19 @@ export function eraRootDir() {
  */
 export function provisionEraNode(version, { root = eraRootDir(), platform = process.platform,
                                             arch = process.arch, exec = run } = {}) {
-  const { url, archive, binSubdir, exe } = eraLayout(version, { platform, arch });
+  const { url, archive, stem, binSubdir, exe } = eraLayout(version, { platform, arch });
   const dir = path.join(root, version);
-  const binDir = path.resolve(dir, binSubdir);
-  const binary = path.join(binDir, exe);
+  // Nothing is stripped during extraction, so the payload sits under the archive's own stem —
+  // except on a re-run of a cache written before that change, so both layouts are accepted.
+  const candidates = [path.resolve(dir, stem, binSubdir), path.resolve(dir, binSubdir)];
+  let binDir = candidates[0];
+  const binaryAt = (d) => path.join(d, exe);
 
   const verify = () => {
-    if (!fs.existsSync(binary)) return null;
-    const v = exec(binary, ['--version']);
+    const found = candidates.find((d) => fs.existsSync(binaryAt(d)));
+    if (!found) return null;
+    binDir = found;
+    const v = exec(binaryAt(found), ['--version']);
     if (v.status !== 0) return `binary present but will not run (status=${v.status})`;
     const got = String(v.stdout ?? '').trim();
     if (got !== `v${version}`) return `binary reports ${got}, wanted v${version}`;
@@ -81,10 +87,20 @@ export function provisionEraNode(version, { root = eraRootDir(), platform = proc
     if (dl.status !== 0) {
       return { binDir: null, status: `NOT-PINNED (download failed rc=${dl.status} ${url})` };
     }
-    // bsdtar ships with Windows 10+ and reads zip, so one extractor covers every host.
-    const ex = exec('tar', ['-xf', dest, '-C', dir, '--strip-components=1']);
+    // ⛔ WINDOWS DOES NOT GO THROUGH `tar`. A sweep of all 570 win32 records came back
+    // `extract failed rc=128` on every single zip, while the identical bsdtar command extracts the
+    // same archive on macOS with rc=0 — the runner's PATH resolves `tar` to something that cannot
+    // read a zip. Expand-Archive is built into Windows PowerShell and needs no PATH lookup.
+    // Neither extractor strips a leading directory portably, so nothing is stripped and the nested
+    // directory is resolved afterwards instead.
+    const ex = platform === 'win32'
+      ? exec('powershell', ['-NoProfile', '-NonInteractive', '-Command',
+             `Expand-Archive -LiteralPath '${dest}' -DestinationPath '${dir}' -Force`])
+      : exec('tar', ['-xf', dest, '-C', dir]);
     if (ex.status !== 0) {
-      return { binDir: null, status: `NOT-PINNED (extract failed rc=${ex.status} ${archive})` };
+      // Carry the extractor's own words: a bare rc sent one whole sweep back for another round.
+      const why = String(ex.stderr ?? '').split('\n').map((l) => l.trim()).filter(Boolean)[0] ?? '';
+      return { binDir: null, status: `NOT-PINNED (extract failed rc=${ex.status} ${archive}${why ? `: ${why}` : ''})` };
     }
     state = verify();
   }

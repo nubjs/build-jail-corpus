@@ -57,3 +57,26 @@ test('a download that yields the WRONG version is a loud mismatch, not a pin', (
   assert.ok(stubbed, 'the control must actually reach the download stage');
   assert.match(r.status, /no node under bin\/|reports v18\.20\.4/);
 });
+
+test('Windows unzips with PowerShell, never with tar', () => {
+  // ⛔ MEASURED ON ALL 570 WIN32 RECORDS: `tar -xf <zip>` returned rc=128 on every one, while the
+  // identical bsdtar command extracts the same archive on macOS with rc=0. The runner's PATH
+  // resolves `tar` to something that cannot read a zip. Expand-Archive is built in and needs no
+  // PATH lookup.
+  const seen = [];
+  const exec = (cmd, args) => { seen.push(cmd); return { status: 0, stdout: '', stderr: '' }; };
+  provisionEraNode('22.23.2', { root: '/tmp/era-provision-test-win', exec, platform: 'win32', arch: 'x64' });
+  assert.ok(seen.includes('powershell'), `expected powershell, got ${seen.join(', ')}`);
+  assert.ok(!seen.includes('tar'), 'tar must not be used on win32');
+});
+
+test('a failed extract carries the extractor own words, not just an exit code', () => {
+  // `NOT-PINNED (extract failed rc=128 node-v22.23.2-win-x64.zip)` cost a whole CI round to
+  // diagnose, because the message that would have named the cause was discarded.
+  const exec = (cmd) => (cmd === 'curl'
+    ? { status: 0, stdout: '', stderr: '' }
+    : { status: 128, stdout: '', stderr: '\ntar: Error opening archive: Unrecognized archive format\n' });
+  const r = provisionEraNode('22.23.2', { root: '/tmp/era-provision-test-why', exec, platform: 'linux', arch: 'x64' });
+  assert.equal(r.binDir, null);
+  assert.match(r.status, /Unrecognized archive format/);
+});

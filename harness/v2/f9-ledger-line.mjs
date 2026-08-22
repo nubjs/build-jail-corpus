@@ -1,34 +1,70 @@
 #!/usr/bin/env node
 // Emits ONE NDJSON ledger row for the F9 nub-unjailed control, on stdout.
 //
-// This exists because the workflow built the row with printf and it died on real data:
-// "SyntaxError: Expected ',' or '}' after property value in JSON at position 101" — nub's error
-// text carries backslashes and quotes that printf cannot escape. Building the row in node also
-// lets the cause come from firstCause(), the SAME extractor observe-only.mjs uses, instead of a
-// second grep that drifts from it. A hand-rolled grep here captured "npm ERR! Linux 6.1" — the OS
-// banner — on the very control that was meant to prove the capture worked.
+// ⛔ FOUR ATTEMPTS AT THIS FAILED BECAUSE THEY ALL READ THE WRONG FILE. The workflow captures the
+// control's own stdout as out.log, and unjailed-nub.mjs writes nub's ACTUAL output somewhere else:
+// writeLogs() puts it in the run directory as i.log / a.log / n.log / fetch.log /
+// security-resolve.log. So out.log holds nothing but the control's verdict banner and its `=> ` lines
+// — and every attempt to grep a cause out of it produced, in order: an empty capture, a printf JSON
+// SyntaxError, `npm ERR! Linux 6.1` (the OS banner), and finally a null firstError on all 31 rows
+// with an EMPTY tail, which is what finally made the missing file obvious. Read the run directory.
 //
-// Usage: node f9-ledger-line.mjs <spec> <rc> <logfile>
+// The second reason it failed: firstCause() in observe-only.mjs filters for NPM's vocabulary
+// (`npm error`, `npm ERR!`), and nub is not npm. Its PM output is rebranded aube — ERR_NUB_* /
+// WARN_NUB_* — so an npm-shaped filter matches none of it.
+//
+// Usage: node f9-ledger-line.mjs <spec> <rc> <controlStdout> <runDir>
 import fs from 'node:fs';
-import { firstCause } from './observe-only.mjs';
+import path from 'node:path';
+import { errorTail } from './observe-only.mjs';
 
-// The control prints its own verdict banner ("npm installs this package but nub cannot ...") and
-// indented "=> " detail lines. Both restate the exit code rather than naming a cause, so they are
-// dropped before anything reads the log.
+// The control's own narration. It restates the exit code rather than naming a cause, and capturing
+// it recorded the verdict on all 11 defects and nub's error on none.
 const CONTROL_NOISE = /^\s*(jail-off control:|=> )/;
 
-const [spec, rcRaw, logPath] = process.argv.slice(2);
-if (!spec || rcRaw === undefined || !logPath) {
-  console.error('usage: f9-ledger-line.mjs <spec> <rc> <logfile>');
+/** nub's failure vocabulary, which is aube's rebranded — plus npm's, because the control's npm arm
+ *  writes into the same directory and its output is a legitimate cause for a fetch-side failure. */
+const ERRISH = /ERR_NUB_|ERR_AUBE_|WARN_NUB_|npm error|npm ERR!|ERR!|error:|Error:|failed|refus|not found|is not recognized|panicked|No such file|Permission denied/i;
+
+// Progress chatter and framing that names no cause. Same principle as the sweep's extractor: a line
+// that carries no package-specific content is not an attribution.
+const UNINFORMATIVE = /^\s*(npm (error|ERR!) (code \S+$|path |Linux|Darwin|Windows|argv|node |npm |cwd |A complete log)|Progress|Resolving|Downloading|Linking|\d+ packages? )/;
+
+const [spec, rcRaw, controlStdout, runDir] = process.argv.slice(2);
+if (!spec || rcRaw === undefined) {
+  console.error('usage: f9-ledger-line.mjs <spec> <rc> <controlStdout> [runDir]');
   process.exit(2);
 }
 const rc = Number(rcRaw);
-const clean = fs.readFileSync(logPath, 'utf8').split('\n').filter((l) => !CONTROL_NOISE.test(l));
+
+const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return ''; } };
+const control = read(controlStdout).split('\n').filter((l) => !CONTROL_NOISE.test(l)).join('\n');
+
+// Every log the control may have written, in the order a reader would consult them: the install that
+// failed first, then the approve step, then the fetch.
+const NUB_LOGS = ['i.log', 'a.log', 'n.log', 'security-resolve.log', 'fetch.log'];
+const logs = {};
+for (const name of NUB_LOGS) {
+  const body = runDir ? read(path.join(runDir, name)) : '';
+  if (body.trim()) logs[name] = errorTail(body, { lines: 40, chars: 6000 });
+}
+
+const causeFrom = (text) => {
+  const lines = String(text ?? '').split('\n').map((l) => l.trimEnd()).filter((l) => l.trim());
+  const errish = lines.filter((l) => ERRISH.test(l));
+  return errish.find((l) => !UNINFORMATIVE.test(l)) ?? errish[0] ?? null;
+};
+
+// Prefer a cause from nub's own logs; fall back to the control's stdout so a row is never blank when
+// SOMETHING was said.
+const firstError = NUB_LOGS.map((n) => logs[n]).filter(Boolean).map(causeFrom).find(Boolean)
+                ?? causeFrom(control);
 
 process.stdout.write(JSON.stringify({
   spec,
   unjailedNubRc: rc,
   stillNubDefect: rc !== 0,
-  firstError: firstCause(clean.join('\n')),
-  tail: clean.filter((l) => l.trim()).slice(-30).join('\n'),
+  firstError: firstError ? firstError.slice(0, 300) : null,
+  logs,                                   // per-file tails: the row is re-auditable without a re-run
+  controlTail: errorTail(control, { lines: 15, chars: 2000 }),
 }) + '\n');
