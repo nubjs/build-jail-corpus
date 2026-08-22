@@ -446,6 +446,14 @@ const runArm = (kase, grant, label, cacheHome) => {
     driverTimedOut: driverReportedTimeout(out),
     durationMs: Date.now() - t0,
     root,
+    // ⛔ KEEP THE DRIVER'S STDOUT WHEN NOTHING PARSED, OR THE NEXT PERSON PAYS A CI ROUND TO SEE IT.
+    // An UNPARSED arm means this file could not find a verdict line in `out` — and `out` lived only
+    // in memory, so the one artefact that says WHY was discarded at the moment it became the only
+    // thing worth reading. Measured cost: a darwin run reported both arms UNPARSED with
+    // `installRc=null`, the kept root held an `observe/` directory and no driver output, and the
+    // failure could not be diagnosed from the run at all. The arm root is already kept for
+    // inspection on failure; this puts the stdout beside it.
+    driverOut: out,
     // The driver's own terminal word. Read from its vocabulary rather than re-derived, so this file
     // cannot disagree with the thing it is auditing.
     verdict: /^\s*=> SUFFICIENT /m.test(out) ? 'SUFFICIENT'
@@ -822,7 +830,16 @@ for (const kase of selected) {
   if (verdict === 'PASS' && !KEEP_ROOTS) {
     for (const a of arms) if (a.root) fs.rmSync(a.root, { recursive: true, force: true });
   } else {
-    for (const a of arms) if (a.root) console.log(`   ·  kept for inspection: ${a.root}`);
+    for (const a of arms) {
+      if (!a.root) continue;
+      // ⛔ WRITE THE DRIVER'S STDOUT BESIDE THE ROOT. On a FAILED case the roots are the only
+      // evidence, and until now they did not include the one thing that explains an UNPARSED arm:
+      // what the driver actually printed. A darwin failure reported both arms UNPARSED with
+      // `installRc=null`, and the kept root held an `observe/` directory and nothing else — the
+      // run could not be diagnosed from its own artefacts, which is what a kept root is FOR.
+      try { fs.writeFileSync(path.join(a.root, 'driver.out'), a.driverOut ?? ''); } catch { /* the verdict still stands */ }
+      console.log(`   ·  kept for inspection: ${a.root}${a.verdict === 'UNPARSED' ? ' (driver.out written — nothing parsed from it)' : ''}`);
+    }
   }
 
   results.push({
