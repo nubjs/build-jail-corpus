@@ -5,6 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { npmInvocation, npmArgv } from './npm-cli.mjs';
 import { enginesAndDate } from './era-node.mjs';
@@ -38,4 +39,32 @@ test('a successful lookup carries no failure reason', () => {
   const r = enginesAndDate('x', '1.0.0', { spawnSync, npmArgv: ['npm'] });
   assert.equal(r.published, '2020-01-01T00:00:00.000Z');
   assert.equal(r.why, undefined);
+});
+
+test('⭑ EVERY caller of enginesAndDate passes npmArgv — the default is a Windows trap', () => {
+  // ⛔ THE GUARD THAT MAKES THE FIX STICK. This bug has appeared THREE times: observe-only.mjs (fixed
+  // first), era-node.mjs's own CLI, and measure-windows.mjs — the jail driver, found only because I
+  // went looking after the second. Each copy defaults to a bare `npm`, which on Windows is an
+  // unspawnable `.cmd` shim, and each maps that to {engines: null, published: null} — silence
+  // indistinguishable from a package that declares neither. In the observe lane it cost every win32
+  // record its era across two COMPLETE sweeps.
+  const here = import.meta.dirname;
+  const offenders = [];
+  for (const name of fs.readdirSync(here)) {
+    if (!name.endsWith('.mjs') || name.endsWith('.test.mjs')) continue;
+    const src = fs.readFileSync(path.join(here, name), 'utf8');
+    for (const call of src.match(/enginesAndDate\([^;]*?\)/gs) ?? []) {
+      // The definition itself and the doc'd default are not call sites.
+      if (call.includes('npmArgv')) continue;
+      offenders.push(`${name}: ${call.replace(/\s+/g, ' ').slice(0, 90)}`);
+    }
+  }
+  assert.deepEqual(offenders, [], `these call sites would use a bare \`npm\`:\n  ${offenders.join('\n  ')}`);
+});
+
+test('CONTROL: the guard can actually fail', () => {
+  // Without this, the sweep above could be matching nothing and reporting a clean bill.
+  const bare = 'const r = enginesAndDate(pkg, version, { spawnSync });';
+  assert.ok((bare.match(/enginesAndDate\([^;]*?\)/gs) ?? []).length === 1,
+            'the pattern must match the exact shape the three offenders had');
 });

@@ -49,6 +49,7 @@ import { overrideProbeSaysHonoured } from './override-probe.mjs';
 // two shell drivers reach through `era-node.mjs`'s CLI. A second implementation would be invisible in
 // the data: records would simply disagree about which Node an era means, with nothing to flag it.
 import { chooseEraNode, enginesAndDate } from './era-node.mjs';
+import { npmArgv } from './npm-cli.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
 import { isProvisioned, nodeBinDir } from './provision-node-matrix.mjs';
 
@@ -76,8 +77,17 @@ const ERA_NODE = (() => {
   let selection;
   try {
     const { matrix } = loadNodeMatrix();
-    const { engines, published } = enginesAndDate(PKG, VER, { spawnSync });
-    selection = { pkg: PKG, packageVersion: VER, ...chooseEraNode({ engines, publishedAt: published, matrix }) };
+    // ⛔ `npmArgv`, NOT THE DEFAULT. This is the THIRD copy of the same mistake. `enginesAndDate`
+    // defaults to a bare `npm`, which on Windows is an unspawnable `.cmd` shim — and its failure path
+    // returns {engines: null, published: null}, indistinguishable from a package that declares
+    // neither. In the observe lane that silence cost every win32 record its era across two complete
+    // sweeps: all 570 carried eraMajor null and before null while the ledger read a confident pin
+    // that was really the harness default. This driver is the JAIL lane and had exactly the same
+    // call. npm-cli.mjs is the one implementation; `why` is why it failed.
+    const { engines, published, why } = enginesAndDate(PKG, VER, { spawnSync, npmArgv: npmArgv() });
+    if (why) process.stderr.write(`  ERA-NODE LOOKUP FAILED: ${why}\n`);
+    selection = { pkg: PKG, packageVersion: VER, lookupFailure: why ?? null,
+                  ...chooseEraNode({ engines, publishedAt: published, matrix }) };
   } catch (e) {
     return { root, selection: { error: `era-node selection failed: ${e?.message ?? e}` }, bin: null };
   }
