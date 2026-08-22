@@ -5,7 +5,9 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { eraLayout, provisionEraNode } from './era-provision.mjs';
+const require = createRequire(import.meta.url);
 
 test('the archive, the extraction root and the binary name are all per-platform', () => {
   // Every one of these URLs was HEAD-checked against nodejs.org and returns 200.
@@ -124,4 +126,32 @@ test('a version that could not be pinned reports no npm either', () => {
   const r = provisionEraNode('4.9.1', { root: '/tmp/era-provision-test-nonpm', exec, platform: 'linux', arch: 'x64' });
   assert.equal(r.binDir, null);
   assert.equal(r.npmCli, null, 'a caller must not be handed an npm path for a Node it does not have');
+});
+
+test('⭑⭑ ALL THREE DRIVERS provision an absent era Node — none of them just gives up', () => {
+  // ⛔ THE GUARD THIS FILE EXISTS FOR, AND IT IS THE SECOND TIME THIS SHAPE HAS BITTEN. Each driver
+  // checked whether an era Node was already present and, if not, ran the arms on the HARNESS's Node
+  // while the record went on naming an era. On the jail runner — which has never provisioned one —
+  // that fired for EVERY record: `zeromq@4.6.0` reported
+  //   ERA-NODE NOT-PINNED (era node 6.17.1 requested but NOT PRESENT …) (arms will run: v22.23.2)
+  // and disagreed with the observe lane about whether the package installs. Loud, to the driver's
+  // credit, and still unmeasured.
+  //
+  // The repo has already paid for a fix that reached one driver and stopped (see the sibling guard
+  // in dep-scaffold.test.mjs). A driver that grows its own give-up branch again fails here rather
+  // than in the corpus six hours later.
+  const here = import.meta.dirname;
+  const fs = require('node:fs');
+  const path = require('node:path');
+  for (const driver of ['measure.sh', 'measure-macos.sh', 'measure-windows.mjs']) {
+    const src = fs.readFileSync(path.join(here, driver), 'utf8');
+    assert.match(src, /era-provision(\.mjs)?|provisionEraNode/,
+      `${driver}: must reach for the provisioner when the era Node is absent`);
+  }
+});
+
+test('CONTROL: the guard would catch a driver that lost the call', () => {
+  // Without this, the sweep above could be matching a comment and reporting a clean bill.
+  assert.doesNotMatch('ERA_STATUS="NOT-PINNED (era node $V requested but NOT PRESENT)"',
+    /era-provision(\.mjs)?|provisionEraNode/);
 });

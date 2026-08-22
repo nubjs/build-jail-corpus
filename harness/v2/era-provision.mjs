@@ -123,3 +123,26 @@ export function provisionEraNode(version, { root = eraRootDir(), platform = proc
   if (state === 'ok') return { binDir, npmCli: npmCliFor(versionRoot()), status: `PINNED ${version}` };
   return { binDir: null, npmCli: null, status: `NOT-PINNED (${state ?? `no ${exe} under ${binSubdir}/`})` };
 }
+
+// CLI: print the bin directory for an era Node, provisioning it if absent.
+//
+//   node era-provision.mjs <version>   -> "<binDir>" on stdout, status on stderr; exit 0
+//                                      -> nothing on stdout, status on stderr;   exit 1
+//
+// ⛔ THE CALLER MUST NOT REBUILD THIS PATH. measure.sh constructed
+// `$HOME/.cache/nub/node/<version>/bin` itself and reported `NOT-PINNED … NOT PRESENT` for every
+// record, because the jail runner has never provisioned an era Node and that layout is nub's, not
+// this module's. `zeromq@4.6.0` therefore ran on the harness's v22.23.2 while the record said era 6
+// — loudly, to the driver's credit, but still unmeasured. Asking the provisioner is the same lesson
+// the npm-entry-point and the era-npm bugs both taught: one owner for a path, or it drifts.
+if (import.meta.filename === process.argv[1]) {
+  const version = process.argv[2];
+  if (!version) {
+    process.stderr.write('usage: era-provision.mjs <version>\n');
+    process.exit(2);
+  }
+  const r = provisionEraNode(version);
+  process.stderr.write(`${r.status}\n`);
+  if (!r.binDir) process.exit(1);
+  process.stdout.write(`${r.binDir}\n`);
+}

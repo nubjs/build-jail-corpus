@@ -50,6 +50,7 @@ import { overrideProbeSaysHonoured } from './override-probe.mjs';
 // the data: records would simply disagree about which Node an era means, with nothing to flag it.
 import { chooseEraNode, enginesAndDate } from './era-node.mjs';
 import { npmArgv } from './npm-cli.mjs';
+import { provisionEraNode } from './era-provision.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
 import { isProvisioned, nodeBinDir } from './provision-node-matrix.mjs';
 
@@ -97,9 +98,20 @@ const ERA_NODE = (() => {
   // That is not hypothetical: the provisioner reported `0/9 provisioned` while nub printed
   // "Installed in 6.6s" nine times. One helper means the provisioner and the driver cannot disagree
   // about where a provisioned Node lives.
-  const bin = nodeBinDir(root, selection.version);
   // Only pin when the selector says so — see `pinnable` in era-node.mjs for the measured reason.
-  const present = selection.pinnable !== false && isProvisioned(root, selection.version);
+  const wanted = selection.pinnable !== false;
+  let bin = nodeBinDir(root, selection.version);
+  let present = wanted && isProvisioned(root, selection.version);
+  // ⛔ PROVISION IT RATHER THAN GIVING UP, exactly as both POSIX drivers now do. Checking
+  // `isProvisioned` and stopping there means a lane that has never provisioned an era Node silently
+  // runs every arm on the HARNESS's Node while the record names an era — which is what the jail
+  // runner did for every record it has ever measured. era-provision.mjs downloads it, unpacks it
+  // with the per-platform extractor, and RUNS it to confirm the version, so a pin here is a pin.
+  if (wanted && !present && selection.version) {
+    const p = provisionEraNode(selection.version);
+    if (p.binDir) { bin = p.binDir; present = true; }
+    else selection.eraProvisionFailure = p.status;
+  }
   // ⛔ NOT `process.env.PATH`. Mutating this process's PATH moves the HARNESS onto the era Node too —
   // record.mjs, the capture post-processing, every helper — and the harness is modern JS by assumption.
   // Measured on a 25-package Linux pilot: 7 of 8 records HARNESS-ERROR, all 7 pinned, all on 18.20.8.

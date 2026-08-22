@@ -155,7 +155,22 @@ elif [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_PATH="$ERA_NODE_BIN:$PATH"
   ERA_STATUS="PINNED $ERA_NODE_VERSION"
 else
-  ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION requested but NOT PRESENT at $ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node)"
+  # ⛔ ASK THE PROVISIONER BEFORE GIVING UP. This branch used to be terminal, and on the jail runner
+  # it fired for EVERY record: that lane has never provisioned an era Node, so the path above never
+  # existed and every arm silently ran on the harness's own Node while the record named an era.
+  # `zeromq@4.6.0` is the case that exposed it — era 6 requested, v22.23.2 actually used, and the
+  # observe lane (which provisions) disagreed with this one about whether the package installs.
+  # era-provision.mjs owns the download, the per-platform layout and the version check; it prints the
+  # bin directory it ended up with, which is why this reads the path back rather than rebuilding it.
+  ERA_PROVISIONED="$("$HARNESS_NODE" "$HERE/era-provision.mjs" "$ERA_NODE_VERSION" 2>/tmp/era-prov.$$)"
+  ERA_PROV_WHY="$(cat /tmp/era-prov.$$ 2>/dev/null; rm -f /tmp/era-prov.$$)"
+  if [ -n "$ERA_PROVISIONED" ] && [ -x "$ERA_PROVISIONED/node" ]; then
+    ERA_NODE_BIN="$ERA_PROVISIONED"
+    ERA_PATH="$ERA_NODE_BIN:$PATH"
+    ERA_STATUS="PINNED $ERA_NODE_VERSION (provisioned)"
+  else
+    ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION could not be provisioned: ${ERA_PROV_WHY:-no reason given})"
+  fi
 fi
 # ⛔⛔ THE ERA DECISION IS DECLARED, BECAUSE ITS ABSENCE FAILS OPEN AND SILENTLY. Both negative branches
 # above leave `ERA_PATH` as the ambient `$PATH`, so the arms measure the package against whatever Node

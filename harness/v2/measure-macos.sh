@@ -194,7 +194,18 @@ elif [ -x "$ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node" ]; then
   ERA_PATH="$ERA_NODE_BIN:$PATH"
   ERA_STATUS="PINNED $ERA_NODE_VERSION"
 else
-  ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION requested but NOT PRESENT at $ERA_NODE_ROOT/node/$ERA_NODE_VERSION/bin/node)"
+  # ⛔ ASK THE PROVISIONER BEFORE GIVING UP — see the identical block in measure.sh. This branch was
+  # terminal in BOTH drivers, and on a lane that has never provisioned an era Node it fired for every
+  # record: the arm silently ran on the harness's own Node while the record named an era.
+  ERA_PROVISIONED="$("$HARNESS_NODE" "$HERE/era-provision.mjs" "$ERA_NODE_VERSION" 2>/tmp/era-prov.$$)"
+  ERA_PROV_WHY="$(cat /tmp/era-prov.$$ 2>/dev/null; rm -f /tmp/era-prov.$$)"
+  if [ -n "$ERA_PROVISIONED" ] && [ -x "$ERA_PROVISIONED/node" ]; then
+    ERA_NODE_BIN="$ERA_PROVISIONED"
+    ERA_PATH="$ERA_NODE_BIN:$PATH"
+    ERA_STATUS="PINNED $ERA_NODE_VERSION (provisioned)"
+  else
+    ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION could not be provisioned: ${ERA_PROV_WHY:-no reason given})"
+  fi
 fi
 # ⛔⛔ DECLARED, BECAUSE THE ABSENCE FAILS OPEN SILENTLY. Both negative branches leave `ERA_PATH` as the
 # ambient `$PATH`, so the arms measure the package against whatever Node the harness happens to run, and
