@@ -25,7 +25,7 @@ import { spawnSync } from 'node:child_process';
 import { fetchArgs } from './era-resolution.mjs';
 import { armPath, ambientTools } from './arm-path.mjs';
 import { scriptScaffold } from './script-scaffold.mjs';
-import { pythonForEra } from './era-python.mjs';
+import { pythonForEra, PROBE_NAMES } from './era-python.mjs';
 import { runCapped } from './arm-cap.mjs';
 import { provisionEraNode, eraRootDir } from './era-provision.mjs';
 
@@ -193,12 +193,42 @@ if (import.meta.filename === process.argv[1]) {
   const eraRoot = eraRootDir();
   fs.mkdirSync(eraRoot, { recursive: true });
   // Discovered ONCE: probing per row would run `command -v` thousands of times for one answer.
-  const pythonCandidates = ['python2.7', 'python2', 'python3', 'python'].map((n) => {
-    const w = spawnSync('/bin/sh', ['-c', `command -v ${n}`], { encoding: 'utf8' });
-    const pth = (w.stdout ?? '').trim(); if (!pth) return null;
-    const v = spawnSync('/bin/sh', ['-c', `"${pth}" --version 2>&1`], { encoding: 'utf8' });
-    return { path: pth, version: (v.stdout ?? '').trim() };
-  }).filter(Boolean);
+  //
+  // ⛔ NOT VIA `/bin/sh`, WHICH WINDOWS DOES NOT HAVE. Every probe returned nothing there, so
+  // `pythonCandidates` was EMPTY on win32 and 53 rows carry `python: null` — the era Python never
+  // had a chance to apply. Resolving each name against PATH in-process works on all three.
+  //
+  // ⛔ AND AN INJECTED PATH WINS. A legacy era needs a Python no newer than 3.9 (see
+  // era-python.mjs), and a runner's default is 3.12+. The workflow provisions one and passes it in
+  // ERA_PYTHON_LEGACY, because setup-python exposes its interpreter as `python3`, not `python3.9` —
+  // probing by versioned name alone would never find it.
+  const resolveOnPath = (name) => {
+    const exts = process.platform === 'win32' ? ['.exe', '.cmd', '.bat', ''] : [''];
+    for (const dir of (process.env.PATH ?? '').split(path.delimiter).filter(Boolean)) {
+      for (const ext of exts) {
+        const cand = path.join(dir, name + ext);
+        try { fs.accessSync(cand, fs.constants.X_OK); return cand; } catch { /* keep looking */ }
+      }
+    }
+    return null;
+  };
+  const describePython = (pth) => {
+    if (!pth) return null;
+    // Python 2 writes --version to stderr, Python 3 to stdout. Read both or every 2.x reads blank.
+    const v = spawnSync(pth, ['--version'], { encoding: 'utf8' });
+    const text = `${v.stdout ?? ''}${v.stderr ?? ''}`.trim();
+    return text ? { path: pth, version: text } : null;
+  };
+  const pythonCandidates = [];
+  const seenPython = new Set();
+  for (const cand of [process.env.ERA_PYTHON_LEGACY ?? null,
+                      ...PROBE_NAMES.map(resolveOnPath)]) {
+    const found = describePython(cand);
+    if (!found || seenPython.has(found.path)) continue;
+    seenPython.add(found.path);
+    pythonCandidates.push(found);
+  }
+  process.stderr.write(`python candidates: ${pythonCandidates.map((c) => `${c.path} (${c.version})`).join(', ') || 'NONE'}\n`);
   const ledger = fs.createWriteStream(out, { flags: 'a' });
   let n = 0;
   for (const line of specs) {

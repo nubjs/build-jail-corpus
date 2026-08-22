@@ -37,10 +37,22 @@ export const LAST_PYTHON2_ERA = 7;
 /** What `pythonForEra` reports when it cannot satisfy the requirement. */
 export const UNSATISFIED = null;
 
-/** Which Python family an era major's node-gyp accepts. */
+/** The last era whose bundled node-gyp cannot run on a MODERN Python 3.
+ *
+ *  ⛔ MEASURED, NOT RECALLED. In the 2026-08-22 sweep, 55 CONFIRMED rows died inside gyp itself on a
+ *  perfectly healthy python3 — 24 at era 8, 15 at 10, 10 at 12, 6 at 14, and NONE at 16 or above:
+ *    AttributeError: module 'collections' has no attribute 'MutableMapping'   (removed in Python 3.10)
+ *    ValueError: invalid mode: 'rU' while trying to load binding.gyp          (removed in Python 3.11)
+ *  Treating "python3" as one family is what produced them: the selector saw a 3.x, called the
+ *  requirement satisfied, and handed old gyp an interpreter it cannot parse its own source with. */
+export const LAST_PYTHON39_ERA = 14;
+
+/** Which Python family an era major's node-gyp accepts. `python3-legacy` means a 3.x no NEWER than
+ *  3.9 — a distinct requirement from python2, and one a bare "is it 3.x?" test cannot express. */
 export function pythonFamilyForEra(major) {
   if (!Number.isInteger(major)) return 'python3';
-  return major <= LAST_PYTHON2_ERA ? 'python2' : 'python3';
+  if (major <= LAST_PYTHON2_ERA) return 'python2';
+  return major <= LAST_PYTHON39_ERA ? 'python3-legacy' : 'python3';
 }
 
 /** Pick the interpreter for an era arm.
@@ -52,9 +64,11 @@ export function pythonFamilyForEra(major) {
 export function pythonForEra(major, candidates = []) {
   const family = pythonFamilyForEra(major);
   const wantMajor = family === 'python2' ? 2 : 3;
+  // A legacy era needs 3.x AND <= 3.9; anything newer removed the stdlib names old gyp reads.
+  const ceiling = family === 'python3-legacy' ? 9 : Infinity;
   const hit = candidates.find((c) => {
     const m = /(\d+)\.(\d+)/.exec(String(c.version ?? ''));
-    return m && Number(m[1]) === wantMajor;
+    return m && Number(m[1]) === wantMajor && Number(m[2]) <= ceiling;
   });
   if (!hit) {
     return {
@@ -76,7 +90,10 @@ export function pythonForEra(major, candidates = []) {
  *  box it is either absent (macOS removed it) or a PYTHON 3 wearing the old name — and a python3
  *  under that name is exactly what produces gyp's "is v3.9.6, which is not supported" rejection. The
  *  VERSION decides, never the name, so the probe reports what each candidate actually says. */
-export const PROBE_NAMES = ['python2.7', 'python2', 'python3', 'python'];
+// Ordered oldest-first so a legacy era finds its ceiling-satisfying interpreter before the
+// newest python3 on the box. `python3.9`/`python3.8` are named explicitly because a runner that
+// has them installed alongside a modern default exposes them ONLY under the versioned name.
+export const PROBE_NAMES = ['python2.7', 'python2', 'python3.8', 'python3.9', 'python3', 'python'];
 
 /** Discover interpreters on this box. `run` is injected so the decision stays testable offline. */
 export function discoverPythons(run, names = PROBE_NAMES) {
@@ -112,7 +129,13 @@ if (import.meta.filename === process.argv[1]) {
     const version = sh(`"${path}" --version 2>&1`);
     return version ? { path, version } : null;
   };
-  const candidates = discoverPythons(probe);
+  // An interpreter the CALLER provisioned wins the search. A legacy era needs a Python no newer than
+  // 3.9 and no runner ships one by default, so CI installs it off-PATH and passes the path in —
+  // setup-python exposes it as `python3`, never as `python3.9`, so name-probing alone misses it.
+  const injected = process.env.ERA_PYTHON_LEGACY
+    ? [probe(process.env.ERA_PYTHON_LEGACY)].filter(Boolean) : [];
+  const candidates = [...injected, ...discoverPythons(probe)]
+    .filter((c, i, all) => all.findIndex((o) => o.path === c.path) === i);
   const chosen = pythonForEra(Number.isInteger(era) ? era : null, candidates);
   process.stdout.write(`${chosen.path ?? ''}\n${chosen.marker}\n`);
 }

@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pythonForEra, pythonFamilyForEra, LAST_PYTHON2_ERA } from './era-python.mjs';
+import { pythonForEra, pythonFamilyForEra, LAST_PYTHON2_ERA, LAST_PYTHON39_ERA } from './era-python.mjs';
 
 const CANDIDATES = [
   { path: '/usr/local/bin/python2', version: '2.7.9' },
@@ -30,8 +30,30 @@ test('a modern era gets python3 — the OTHER direction, which a blanket export 
 
 test('the boundary sits where the measurements put it', () => {
   assert.equal(pythonFamilyForEra(LAST_PYTHON2_ERA), 'python2');
-  assert.equal(pythonFamilyForEra(LAST_PYTHON2_ERA + 1), 'python3');
   assert.equal(LAST_PYTHON2_ERA, 7, 'measured at 4, 6 and 8; 5 and 7 interpolate the node-gyp 3 family');
+  // ⛔ THERE ARE THREE FAMILIES, NOT TWO. The era above the python2 boundary is not "modern python3":
+  // 55 CONFIRMED rows in the 2026-08-22 sweep died inside gyp on a healthy python3 — 24 at era 8, 15
+  // at 10, 10 at 12, 6 at 14, NONE at 16+ — because Python 3.10 removed collections.MutableMapping
+  // and 3.11 removed the 'rU' open mode, both of which old gyp reads its own source with.
+  assert.equal(pythonFamilyForEra(LAST_PYTHON2_ERA + 1), 'python3-legacy');
+  assert.equal(pythonFamilyForEra(LAST_PYTHON39_ERA), 'python3-legacy');
+  assert.equal(pythonFamilyForEra(LAST_PYTHON39_ERA + 1), 'python3');
+  assert.equal(LAST_PYTHON39_ERA, 14, 'the highest era observed failing on a modern python3');
+});
+
+test('a legacy era refuses a python3 NEWER than its gyp can parse', () => {
+  // The exact shape that produced those 55 rows: the box has a healthy 3.12, the selector saw "a 3.x"
+  // and called the requirement satisfied.
+  const only312 = [{ path: '/usr/bin/python3', version: '3.12.3' }];
+  const r = pythonForEra(12, only312);
+  assert.equal(r.path, null, 'a 3.12 does not satisfy an era-12 gyp');
+  assert.match(r.marker, /NOT-SATISFIED.*python3-legacy/);
+
+  // ...and takes the 3.9 when the box has one, in preference to the newer default.
+  const both = [{ path: '/opt/py39/bin/python3.9', version: '3.9.18' }, ...only312];
+  assert.equal(pythonForEra(12, both).path, '/opt/py39/bin/python3.9');
+  // A modern era still gets the modern interpreter.
+  assert.equal(pythonForEra(20, both).path, '/opt/py39/bin/python3.9');
 });
 
 test('an unsatisfiable requirement is NAMED, never silently unset', () => {

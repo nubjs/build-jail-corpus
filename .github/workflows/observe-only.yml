@@ -83,6 +83,19 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: '22.x' }
 
+      # ⛔ A LEGACY ERA NEEDS A PYTHON NO NEWER THAN 3.9, and no runner ships one by default.
+      # 55 CONFIRMED rows of the 2026-08-22 sweep died inside gyp on a perfectly healthy python3 —
+      # 24 at era 8, 15 at 10, 10 at 12, 6 at 14, none at 16+ — with
+      #   AttributeError: module 'collections' has no attribute 'MutableMapping'  (gone in 3.10)
+      #   ValueError: invalid mode: 'rU' while trying to load binding.gyp         (gone in 3.11)
+      # `update-environment: false` keeps it OFF the PATH: a modern era must keep getting the modern
+      # interpreter, so the path is injected as a candidate rather than made the default.
+      - id: py39
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          update-environment: false
+
       - name: Build this shard's worklist from the BROKEN records
         shell: bash
         run: |
@@ -111,6 +124,8 @@ jobs:
 
       - name: Sweep
         shell: bash
+        env:
+          ERA_PYTHON_LEGACY: ${{ steps.py39.outputs.python-path }}
         run: |
           node harness/v2/observe-only.mjs --file worklist.tsv \
             --out "ledger-${{ matrix.os }}-${{ matrix.shard }}.ndjson" \
