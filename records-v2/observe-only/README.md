@@ -1,50 +1,70 @@
-# Observe-only ledger — what the `BROKEN-*` bucket actually is
+# observe-only ledger — every `BROKEN-*` record, re-measured
 
-`ledger-2026-08-21.ndjson` re-measures the 1,529 records the corpus files as
-`BROKEN-WITHOUT-JAIL-TOO` or `BROKEN-UNJAILED-NUB`, through a repaired observe arm.
+`BROKEN-WITHOUT-JAIL-TOO` and `BROKEN-UNJAILED-NUB` cover 1,529 of the corpus's 6,880 records, and
+every jail number ever quoted silently excludes them. This lane re-measures **all 1,529** through an
+arm that gives each package what it was published against, and records why each one that still fails,
+fails.
 
-## Why these records needed re-measuring
+## The run (2026-08-22, run 32557901254)
 
-The original verdicts were reached in an environment that withheld things the packages need. The
-observe arm is a CONSUMER install, so it never installed a dependency's devDependencies; it ran
-every package on whatever Node the harness happened to carry; and it resolved every dependency
-tree against today's registry regardless of when the package was published. A package that fails
-for any of those reasons is an OBSERVATION failure, not a dead package — and the corpus recorded
-it as the latter.
-
-The repaired arm gives each package: the Node current when it was published, a dependency tree
-resolved as of its own publish date, the binaries its lifecycle scripts invoke, the Python its
-node-gyp era accepts, a PATH built rather than inherited, and a process-group cap.
-
-## The result, over 959 measured records
+| platform | records | era chosen | era Node pinned |
+| --- | ---: | ---: | ---: |
+| linux-x64 | 461 | 461 | 405 |
+| darwin-arm64 | 498 | 498 | 443 |
+| win32-x64 | 570 | 570 | 519 |
+| **total** | **1529** | **1529** | **1367** |
 
 | disposition | n | meaning |
 | --- | ---: | --- |
-| `CONFIRMED` | 615 | still fails, and now carries the installer's own first error |
-| `STALE-RECORD` | 311 | installs today; the record is wrong |
-| `NUB-UNMEASURED` | 22 | npm installs it; the nub half needs an arm that runs nub |
-| `CHANGED` | 9 | npm now fails, so the record's premise is gone |
-| `UNMEASURED-TIMEOUT` | 2 | capped; deliberately NOT a package verdict |
+| `CONFIRMED` | 990 | still fails, and the row says why |
+| `STALE-RECORD` | 506 | **installs today.** The exclusion was wrong for a third of the bucket. |
+| `NUB-UNMEASURED` | 30 | npm succeeds; the nub half is [its own lane](../nub-unjailed/README.md) |
+| `CHANGED` | 1 | npm now fails where it used to succeed |
+| `UNMEASURED-TIMEOUT` | 2 | hit the wall-clock cap; **not** a package verdict |
 
-**About a third of the bucket installs today.** 848 of these rows carry a real era-Node pin,
-where previously no record in the corpus carried one at all.
+**All 990 CONFIRMED rows carry a cause.** Every measured row also carries a 40-line `tail`, so a
+later change to how causes are extracted can be re-evaluated against what the run saw instead of
+re-running against a registry that has moved on.
 
-## What is NOT in this file, and why
+## What "gives each package what it was published against" means
 
-⛔ **The 570 win32 rows are excluded.** All of them returned `fetchRc=127`: npm ships as a `.cmd`
-shim on Windows and `spawnSync` without a shell cannot execute one, so npm never ran. Every row
-"confirmed" the record it was meant to re-test, with no era pin and no error text — a 100% verdict
-with zero evidence. Committing them would put 570 false `CONFIRMED`s into the corpus as evidence.
-win32 must be re-measured with `npm.cmd`; the runner now refuses to start at all if `npm --version`
-fails, so this cannot recur silently.
+Each of these was added because its absence was silently producing package verdicts:
 
-⛔ **`NUB-UNMEASURED` is not an exoneration.** `BROKEN-UNJAILED-NUB` means "npm installs it, nub
-does not". This runner drives npm only, so a succeeding arm re-confirms the half that was never in
-doubt. An earlier pass called those rows `STALE-RECORD`, which would have reported 22 open nub
-defects as fixed. They are closed separately by a jail-off nub arm.
+- **An era Node**, chosen from the package's publish date and raised by its `engines`.
+- **A dependency tree resolved as of that date** (`npm install --before=…`), because an era Node
+  alone still pulls today's transitive deps and chokes on their syntax.
+- **The era's own npm**, resolved per platform — a modern npm running its node-gyp under an era Node
+  fails with `TypeError: name.replaceAll is not a function`.
+- **The binaries the lifecycle scripts actually invoke**, installed at the same date. Not the whole
+  devDependency closure: `@paypal/paypal-js@2.1.8` declares 29 devDeps and fails with all of them,
+  and succeeds with the one it uses.
+- **A Python its node-gyp era accepts** — 2.7 below Node 8, and no newer than 3.9 through Node 14,
+  because Python 3.10 removed `collections.MutableMapping` and 3.11 removed the `'rU'` open mode,
+  both of which old gyp reads its own source with.
+- **An activated MSVC environment on Windows**, because node-gyp's own Visual Studio detection
+  overruns its stdout buffer on the runner image.
+- **A sanitised PATH**, so a tool that happens to sit on the runner is not mistaken for one the
+  package provides.
 
-## Reading a row
+## Two exclusions this file does not hide
 
-`previous` is the corpus verdict; `verdict` is what the repaired arm found; `disposition` compares
-them. `eraPinned`, `before`, `scaffold` and `python` record what the arm supplied, so a row can be
-judged on what it actually ran rather than on what was intended.
+`win32` records are measured on `windows-2022`. The `windows-2025` label now routes to an image
+carrying Visual Studio 18, which no released node-gyp can identify — on that image every native
+Windows build fails identically, which tells you nothing about the package.
+
+`NUB-UNMEASURED` is **not** an exoneration of nub. Those 30 records are ones npm installs; whether
+nub does is decided in the [nub-unjailed lane](../nub-unjailed/README.md), not here.
+
+## Reading it
+
+```sh
+# the split
+jq -r .disposition records-v2/observe-only/ledger-2026-08-22.ndjson | sort | uniq -c
+
+# what still fails, and why
+jq -r 'select(.disposition=="CONFIRMED") | "\(.platform)\t\(.spec)\t\(.firstError)"' \
+  records-v2/observe-only/ledger-2026-08-22.ndjson
+
+# everything the run saw for one record
+jq -r 'select(.spec=="heapdump@0.3.9") | .tail' records-v2/observe-only/ledger-2026-08-22.ndjson
+```
