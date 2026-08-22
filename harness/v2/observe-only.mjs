@@ -294,9 +294,11 @@ if (import.meta.filename === process.argv[1]) {
         // confirming failures an era Node might well have fixed. era-provision.mjs owns the layout,
         // runs the binary to prove it is the version asked for, and names the stage that failed.
         let eraBin = null;
+        let eraNpmCli = null;
         if (selection.version && selection.pinnable !== false) {
           const p = provisionEraNode(selection.version, { root: eraRoot, exec: sh });
           eraBin = p.binDir;
+          eraNpmCli = p.npmCli;
           rec.eraStatus = p.status;
         } else {
           rec.eraStatus = `NOT-PINNED (${selection.version ? 'engines unsatisfiable' : 'no era selected'})`;
@@ -320,7 +322,13 @@ if (import.meta.filename === process.argv[1]) {
         try { scaffold = scriptScaffold(JSON.parse(fs.readFileSync(manifestPath, 'utf8'))); } catch { /* none */ }
         rec.scaffold = scaffold.install;
         if (scaffold.install.length) {
-          const si = sh(NPM, npmArgs(['install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold.install]),
+          // ⛔ THE SCAFFOLD IS DATED TOO. Without `--before` this pulled TODAY's `typings`,
+          // `flow-typed` and `webdriver-manager` into a tree pinned to 2016, and the era Node then
+          // could not parse them. The fetch had carried the date since F2; this second install
+          // never did.
+          const si = sh(NPM, npmArgs(['install', '--no-audit', '--no-fund', '--ignore-scripts',
+                                      ...(fa.before ? [`--before=${fa.before}`] : []),
+                                      ...scaffold.install]),
                         { cwd: obs, env });
           rec.scaffoldRc = si.status ?? 1;
         }
@@ -334,8 +342,13 @@ if (import.meta.filename === process.argv[1]) {
         // removes the pipe entirely, and calling runCapped in-process keeps the group kill.
         const logPath = path.join(root, 'rebuild.log');
         const fd = fs.openSync(logPath, 'w');
-        const npmBin = eraBin ? path.join(eraBin, '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js') : null;
-        const useEra = npmBin && fs.existsSync(npmBin);
+        // ⛔ ASK THE PROVISIONER, DO NOT REBUILD THE PATH HERE. This was
+        // `<eraBin>/../lib/node_modules/npm/bin/npm-cli.js` — the POSIX layout — so on Windows it
+        // never existed, `useEra` was always false, and the HARNESS npm ran its node-gyp under the
+        // era Node reached through the arm PATH: `TypeError: name.replaceAll is not a function`
+        // out of node 22's bundled node-gyp. 78 of the 96 rows in that family were win32.
+        const npmBin = eraNpmCli;
+        const useEra = Boolean(npmBin);
         const r = await runCapped(
           useEra ? path.join(eraBin, 'node') : NPM,
           // The era path already runs a JS entry with the era node; the fallback needs npmArgs so it

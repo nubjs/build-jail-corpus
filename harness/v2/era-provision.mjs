@@ -77,15 +77,31 @@ export function provisionEraNode(version, { root = eraRootDir(), platform = proc
     return 'ok';
   };
 
+  // ⛔ THE ERA npm's OWN ENTRY POINT, RESOLVED PER PLATFORM. The runner computed this itself as
+  // `<binDir>/../lib/node_modules/npm/bin/npm-cli.js` — the POSIX layout. Windows has no `lib/`
+  // level, so the path never existed there, the era-npm branch silently fell back to the HARNESS
+  // npm, and a MODERN npm ended up running its node-gyp under an ERA Node that reached it through
+  // the arm PATH:
+  //   C:\hostedtoolcache\windows\node\22.23.2\x64\node_modules\npm\node_modules\node-gyp\lib\node-gyp.js:154
+  //   this.opts[name.replaceAll('_', '-').toLowerCase()] = process.env[key]
+  //   TypeError: name.replaceAll is not a function
+  // (String.replaceAll is Node 15+.) 78 of the 96 rows in that family were win32. Both layouts are
+  // tried and the one that EXISTS wins, so this cannot silently pick a path that is not there.
+  const npmCliFor = (dir) => [
+    path.join(dir, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+    path.join(dir, 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+  ].find((p) => fs.existsSync(p)) ?? null;
+  const versionRoot = () => (binSubdir === '.' ? binDir : path.dirname(binDir));
+
   let state = verify();
-  if (state === 'ok') return { binDir, status: `PINNED ${version}` };
+  if (state === 'ok') return { binDir, npmCli: npmCliFor(versionRoot()), status: `PINNED ${version}` };
 
   if (!state) {
     fs.mkdirSync(dir, { recursive: true });
     const dest = path.join(root, archive);
     const dl = exec('curl', ['-fsSL', url, '-o', dest]);
     if (dl.status !== 0) {
-      return { binDir: null, status: `NOT-PINNED (download failed rc=${dl.status} ${url})` };
+      return { binDir: null, npmCli: null, status: `NOT-PINNED (download failed rc=${dl.status} ${url})` };
     }
     // ⛔ WINDOWS DOES NOT GO THROUGH `tar`. A sweep of all 570 win32 records came back
     // `extract failed rc=128` on every single zip, while the identical bsdtar command extracts the
@@ -100,10 +116,10 @@ export function provisionEraNode(version, { root = eraRootDir(), platform = proc
     if (ex.status !== 0) {
       // Carry the extractor's own words: a bare rc sent one whole sweep back for another round.
       const why = String(ex.stderr ?? '').split('\n').map((l) => l.trim()).filter(Boolean)[0] ?? '';
-      return { binDir: null, status: `NOT-PINNED (extract failed rc=${ex.status} ${archive}${why ? `: ${why}` : ''})` };
+      return { binDir: null, npmCli: null, status: `NOT-PINNED (extract failed rc=${ex.status} ${archive}${why ? `: ${why}` : ''})` };
     }
     state = verify();
   }
-  if (state === 'ok') return { binDir, status: `PINNED ${version}` };
-  return { binDir: null, status: `NOT-PINNED (${state ?? `no ${exe} under ${binSubdir}/`})` };
+  if (state === 'ok') return { binDir, npmCli: npmCliFor(versionRoot()), status: `PINNED ${version}` };
+  return { binDir: null, npmCli: null, status: `NOT-PINNED (${state ?? `no ${exe} under ${binSubdir}/`})` };
 }

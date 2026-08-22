@@ -80,3 +80,48 @@ test('a failed extract carries the extractor own words, not just an exit code', 
   assert.equal(r.binDir, null);
   assert.match(r.status, /Unrecognized archive format/);
 });
+
+test('the era npm entry point is found under BOTH layouts, and only where it exists', async () => {
+  // ⛔ THE POSIX LAYOUT WAS HARDCODED IN THE CALLER AND COST 78 win32 ROWS. It built
+  // `<binDir>/../lib/node_modules/npm/bin/npm-cli.js`; Windows has no `lib/` level, so the path
+  // never existed, the era-npm branch fell back to the HARNESS npm, and a modern npm ran its
+  // node-gyp under an era Node reached through the arm PATH:
+  //   TypeError: name.replaceAll is not a function   (String.replaceAll is Node 15+)
+  const os = await import('node:os');
+  const fsp = await import('node:fs');
+  const p = await import('node:path');
+
+  const root = fsp.mkdtempSync(p.join(os.tmpdir(), 'eranpm-'));
+  const posix = p.join(root, '9.9.9', 'node-v9.9.9-linux-x64');
+  const win = p.join(root, '8.8.8', 'node-v8.8.8-win-x64');
+  fsp.mkdirSync(p.join(posix, 'bin'), { recursive: true });
+  fsp.mkdirSync(p.join(posix, 'lib', 'node_modules', 'npm', 'bin'), { recursive: true });
+  fsp.writeFileSync(p.join(posix, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'), '');
+  fsp.mkdirSync(p.join(win, 'node_modules', 'npm', 'bin'), { recursive: true });
+  fsp.writeFileSync(p.join(win, 'node_modules', 'npm', 'bin', 'npm-cli.js'), '');
+
+  // The binary must appear to exist and report the right version, so verify() passes.
+  fsp.writeFileSync(p.join(posix, 'bin', 'node'), '');
+  fsp.writeFileSync(p.join(win, 'node.exe'), '');
+  const exec = (_cmd, args) => (args?.[0] === '--version'
+    ? { status: 0, stdout: _cmd.includes('9.9.9') ? 'v9.9.9\n' : 'v8.8.8\n' }
+    : { status: 0, stdout: '' });
+
+  const a = provisionEraNode('9.9.9', { root, exec, platform: 'linux', arch: 'x64' });
+  assert.match(a.status, /^PINNED/);
+  assert.match(a.npmCli, /lib[/\\]node_modules[/\\]npm[/\\]bin[/\\]npm-cli\.js$/);
+
+  const b = provisionEraNode('8.8.8', { root, exec, platform: 'win32', arch: 'x64' });
+  assert.match(b.status, /^PINNED/);
+  assert.match(b.npmCli, /node_modules[/\\]npm[/\\]bin[/\\]npm-cli\.js$/);
+  assert.ok(!b.npmCli.includes(`lib${p.sep}node_modules`), 'the win layout has no lib/ level');
+
+  fsp.rmSync(root, { recursive: true, force: true });
+});
+
+test('a version that could not be pinned reports no npm either', () => {
+  const exec = (cmd) => (cmd === 'curl' ? { status: 22, stdout: '', stderr: '' } : { status: 0, stdout: '' });
+  const r = provisionEraNode('4.9.1', { root: '/tmp/era-provision-test-nonpm', exec, platform: 'linux', arch: 'x64' });
+  assert.equal(r.binDir, null);
+  assert.equal(r.npmCli, null, 'a caller must not be handed an npm path for a Node it does not have');
+});
