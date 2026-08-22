@@ -460,7 +460,16 @@ const runArm = (kase, grant, label, cacheHome) => {
       : /^\s*=> INSUFFICIENT /m.test(out) ? 'INSUFFICIENT'
         : /VOID/.test(out) ? 'VOID'
           : /BROKEN-WITHOUT-JAIL-TOO/.test(out) ? 'BROKEN-WITHOUT-JAIL-TOO'
-            : 'UNPARSED',
+            // ⛔ `HARNESS-ERROR` IS A DRIVER WORD AND IT WAS MISSING FROM THIS VOCABULARY, which is
+            // the same misdiagnosis the timeout note above describes, with a different word. The
+            // driver says plainly what went wrong:
+            //   => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+            // and falsify read that as UNPARSED, so `judgeRight` announced "CONTROL FAILED: the
+            // known-sufficient grant {"network":true} did NOT install". The grant was never the
+            // problem. That reading cost a darwin blocker several rounds of being called
+            // undiagnosable, and it would mislabel a harness error on ANY platform the same way.
+            : /^\s*=> HARNESS-ERROR/m.test(out) ? 'HARNESS-ERROR'
+              : 'UNPARSED',
     // ⛔ THE SINGLE MOST LIKELY CAUSE OF AN ALL-VOID RUN. nub refuses `NUB_BUILD_JAIL_CATALOG`
     // outright when the binary was built without `nub-cli/build-jail-catalog-override`. MEASURED:
     // the shared corpus-VM binary was rebuilt mid-session without the flag and turned four passing
@@ -681,11 +690,22 @@ const judgeRight = (kase, arm) => {
   // INCONCLUSIVE, the process exits 2, and `run-batch-v2.mjs` refuses the batch on any non-zero. So
   // this fix buys an accurate diagnosis and changes the gate not at all — a case whose control never
   // completed has not proven its detector, and under CANON refusing to sweep is the safe answer.
-  if (arm.verdict === 'BROKEN-WITHOUT-JAIL-TOO' || arm.timedOut || arm.driverTimedOut) {
+  //
+  // ⛔ `HARNESS-ERROR` BELONGS HERE FOR THE SAME REASON, and it was reaching the FAIL branch below.
+  // The driver emits it when the VENUE broke, not the grant — e.g.
+  //   => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  // which is a statement about the tree never being built, and says exactly nothing about whether
+  // {"network":true} is sufficient. Reported as a failed control it read "the known-sufficient grant
+  // did NOT install", which sent a darwin blocker round after round of being called undiagnosable.
+  if (arm.verdict === 'BROKEN-WITHOUT-JAIL-TOO' || arm.verdict === 'HARNESS-ERROR'
+      || arm.timedOut || arm.driverTimedOut) {
     const why = arm.timedOut ? `exceeded falsify's own --budget after ${Math.round(arm.durationMs / 1000)}s`
       : arm.driverTimedOut ? `the DRIVER hit its --arm-timeout and printed TIMED-OUT with no verdict, `
         + `after ${Math.round(arm.durationMs / 1000)}s — raise --arm-timeout if this venue is simply slow`
-        : String(arm.verdict);
+        : arm.verdict === 'HARNESS-ERROR'
+          ? `the driver reported HARNESS-ERROR — the venue could not build the tree, which says `
+            + `nothing about the grant. Read driver.out in the kept arm root for its own words`
+          : String(arm.verdict);
     inconclusive.push(`control could not run: ${why}. This says nothing about whether the grant is `
       + `sufficient, so the case is unproven rather than refuted.`);
     return { fail, inconclusive };

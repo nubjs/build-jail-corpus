@@ -96,3 +96,20 @@ test('a missing pre-manifest reports rather than inventing a verdict', () => {
   assert.match(out, /"filesTheScriptProduced":null/, 'unknown is reported as null, not as 0');
   assert.doesNotMatch(out, /gate-vacuous/, 'and never flags the gate on an absent baseline');
 });
+
+test('⭑ a driver HARNESS-ERROR is a broken venue, never a failed control', async () => {
+  // ⛔ THIS MISDIAGNOSIS COST A PLATFORM SEVERAL ROUNDS. `HARNESS-ERROR` was missing from falsify's
+  // verdict vocabulary, so the driver's own plain statement —
+  //   => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  // — parsed as UNPARSED, and the control judgement announced "CONTROL FAILED: the known-sufficient
+  // grant {"network":true} did NOT install". The grant was never in question: the tree was never
+  // built. It is the same shape as the timeout note in falsify.mjs, with a different driver word.
+  const src = await import('node:fs').then((fs) =>
+    fs.readFileSync(new URL('./falsify.mjs', import.meta.url), 'utf8'));
+
+  assert.match(src, /=> HARNESS-ERROR/, 'the verdict parser must recognise the driver word');
+  // It must be routed to the INCONCLUSIVE branch beside the timeouts, not to the FAIL branch.
+  const gate = src.match(/if \(arm\.verdict === 'BROKEN-WITHOUT-JAIL-TOO'[^)]*\)/s)?.[0] ?? '';
+  assert.match(gate, /HARNESS-ERROR/,
+    'a harness error must join the timeouts as inconclusive — it says nothing about the grant');
+});
