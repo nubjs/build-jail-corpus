@@ -204,7 +204,7 @@ else
     ERA_PATH="$ERA_NODE_BIN:$PATH"
     ERA_STATUS="PINNED $ERA_NODE_VERSION (provisioned)"
   else
-    ERA_STATUS="NOT-PINNED (era node $ERA_NODE_VERSION could not be provisioned: ${ERA_PROV_WHY:-no reason given})"
+    ERA_STATUS="${ERA_PROV_WHY:-NOT-PINNED (era node $ERA_NODE_VERSION could not be provisioned, no reason given)}"
   fi
 fi
 # ⛔⛔ DECLARED, BECAUSE THE ABSENCE FAILS OPEN SILENTLY. Both negative branches leave `ERA_PATH` as the
