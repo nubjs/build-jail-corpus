@@ -142,14 +142,22 @@ export function enginesAndDate(pkg, version, { spawnSync, npmArgv = ['npm'], tim
     const [cmd, ...pre] = npmArgv;
     const r = spawnSync(cmd, [...pre, 'view', `${pkg}@${version}`, 'engines.node', 'time', '--json'],
       { encoding: 'utf8', timeout });
-    if (r.status !== 0) return { engines: null, published: null };
+    // ⛔ SAY WHY, DO NOT JUST RETURN NULLS. A silent empty here is indistinguishable from a package
+    // with no engines and no publish date, and the caller then pins the harness default and reports
+    // it as a confident era. That is exactly how ALL 570 win32 rows of two sweeps came to be
+    // measured on a modern Node with undated resolution while the ledger read `PINNED 22.23.2`.
+    if (r.status !== 0) {
+      const why = String(r.stderr ?? '').split('\n').map((l) => l.trim()).filter(Boolean)[0]
+                ?? `${cmd} exited ${r.status}`;
+      return { engines: null, published: null, why: `npm view failed: ${why}` };
+    }
     const j = JSON.parse(r.stdout || '{}');
     const engines = typeof j['engines.node'] === 'string' ? j['engines.node'] : null;
     const time = j.time && typeof j.time === 'object' ? j.time
       : (typeof j[version] === 'string' ? j : null);
     return { engines, published: time?.[version] ?? null };
-  } catch {
-    return { engines: null, published: null };
+  } catch (e) {
+    return { engines: null, published: null, why: `npm view threw: ${e?.message ?? e}` };
   }
 }
 
@@ -182,18 +190,23 @@ if (import.meta.filename === process.argv[1]) {
   const { matrix } = loadNodeMatrix();
   let engines = flag('engines');
   let publishedAt = flag('published');
+  let lookupFailure = null;
   // Only reach the network when the caller did not already supply both — a batch runner that has the
   // packument in hand should pass them and stay offline.
   if (engines === undefined || publishedAt === undefined) {
     const { spawnSync } = await import('node:child_process');
-    const looked = enginesAndDate(pkg, version, { spawnSync });
+    const { npmArgv } = await import('./npm-cli.mjs');
+    // ⛔ NOT A BARE `npm`. See npm-cli.mjs: the shim is unspawnable on Windows, and the default here
+    // was silently returning nulls for every win32 record ever measured.
+    const looked = enginesAndDate(pkg, version, { spawnSync, npmArgv: npmArgv() });
     if (engines === undefined) engines = looked.engines;
     if (publishedAt === undefined) publishedAt = looked.published;
+    if (looked.why) lookupFailure = looked.why;
   }
   const pick = chooseEraNode({ engines: engines ?? null, publishedAt: publishedAt ?? null, matrix });
   // ⛔ `packageVersion`, NOT `version`. `pick.version` is the NODE version, so spreading it over a
   // key called `version` silently rewrote the PACKAGE's version to the Node's — the first run of
   // this CLI printed `{"pkg":"demo","version":"18.20.8"}` for `demo@1.0.0`. A record carrying that
   // would name a package-version that does not exist, and nothing downstream would flag it.
-  process.stdout.write(`${JSON.stringify({ pkg, packageVersion: version, ...pick })}\n`);
+  process.stdout.write(`${JSON.stringify({ pkg, packageVersion: version, ...pick, lookupFailure })}\n`);
 }

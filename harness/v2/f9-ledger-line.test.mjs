@@ -55,3 +55,40 @@ test('a package nub installs fine is not a defect and needs no cause', () => {
   assert.equal(r.stillNubDefect, false);
   assert.equal(r.firstError, null);
 });
+
+test('nub refusing a package is an OUTCOME, not a defect to go and fix', () => {
+  // ⛔ 5 OF THE 11 "NUB DEFECTS" WERE THIS. Until nub's own logs were readable every non-zero exit
+  // looked identical, so the control reported eleven bugs where six existed. It also explains the
+  // netlify-cli version boundary that read like a bisect target: 22.4.0 and 23.9.5 trip a trust
+  // downgrade, 26.2.0 and 27.0.1 do not.
+  const refused = emit('netlify-cli@22.4.0', 1, {
+    'out.log': BANNER, 'security-resolve.log': 'ERR_NUB_TRUST_DOWNGRADE netlify-cli@22.4.0\n',
+  });
+  assert.equal(refused.outcome, 'NUB-REFUSED');
+  assert.equal(refused.stillNubDefect, false, 'a deliberate refusal must never be filed as a bug');
+
+  const malicious = emit('apollo-server@0.1.5', 1, {
+    'out.log': BANNER, 'security-resolve.log': 'ERR_NUB_MALICIOUS_PACKAGE apollo-server@0.1.5\n',
+  });
+  assert.equal(malicious.outcome, 'NUB-REFUSED');
+});
+
+test('a failure that is NOT a refusal stays a defect', () => {
+  // The other direction, which matters just as much: ERR_NUB_REGISTRY_ERROR is nub failing to fetch
+  // something npm fetches fine, and a permission error on a bin script is a real mechanism bug.
+  const registry = emit('web3@2.0.0-alpha.1', 1, {
+    'out.log': BANNER, 'security-resolve.log': 'ERR_NUB_REGISTRY_ERROR while fetching web3\n',
+  });
+  assert.equal(registry.outcome, 'NUB-DEFECT');
+
+  const perms = emit('@progress/kendo-licensing@0.1.2', 1, {
+    'out.log': BANNER, 'i.log': 'sh: 1: ./bin/update-kendo-license.js: Permission denied\n',
+  });
+  assert.equal(perms.outcome, 'NUB-DEFECT');
+  assert.equal(perms.stillNubDefect, true);
+});
+
+test('a package nub installs is NUB-INSTALLS whatever its logs say', () => {
+  const r = emit('ok@1.0.0', 0, { 'out.log': BANNER, 'i.log': 'added 4 packages\n' });
+  assert.equal(r.outcome, 'NUB-INSTALLS');
+});

@@ -116,14 +116,22 @@ test('npm view is read in BOTH of its output shapes', () => {
   const fake = (payload) => () => ({ status: 0, stdout: JSON.stringify(payload) });
 
   const a = enginesAndDate('demo', '1.2.3', { spawnSync: fake(wrapped) });
-  assert.deepEqual(a, { engines: '>=18', published: '2023-04-05T00:00:00.000Z' });
+  assert.equal(a.engines, '>=18');
+  assert.equal(a.published, '2023-04-05T00:00:00.000Z');
+  assert.equal(a.why, undefined, 'a successful view carries no failure reason');
 
   const b = enginesAndDate('demo', '1.2.3', { spawnSync: fake(bare) });
   assert.equal(b.engines, null, 'the bare shape carries no engines');
   assert.equal(b.published, '2023-04-05T00:00:00.000Z', 'the date must still be recovered');
 
+  // ⛔ A FAILED VIEW MUST SAY SO. Nulls alone are indistinguishable from a package that genuinely
+  // declares neither engines nor a date, and the caller then pins the harness default and reports it
+  // as the era. That silence cost every win32 record its era across two complete sweeps: all 570
+  // carried eraMajor null and before null while the ledger read `PINNED 22.23.2`.
   const fail = enginesAndDate('demo', '1.2.3', { spawnSync: () => ({ status: 1, stdout: '' }) });
-  assert.deepEqual(fail, { engines: null, published: null }, 'a failed view is not an exception');
+  assert.equal(fail.engines, null, 'a failed view is not an exception');
+  assert.equal(fail.published, null);
+  assert.match(fail.why, /npm view failed/);
 });
 
 test('the CLI prints a full selection and does NOT let the Node version clobber the package version', () => {

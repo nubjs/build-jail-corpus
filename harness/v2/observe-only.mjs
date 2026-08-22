@@ -27,6 +27,7 @@ import { armPath, ambientTools } from './arm-path.mjs';
 import { scriptScaffold } from './script-scaffold.mjs';
 import { pythonForEra, PROBE_NAMES } from './era-python.mjs';
 import { runCapped } from './arm-cap.mjs';
+import { npmInvocation } from './npm-cli.mjs';
 import { provisionEraNode, eraRootDir } from './era-provision.mjs';
 
 /** The verdict the observe phase would reach, from the two gates' own outcomes. */
@@ -167,16 +168,11 @@ if (import.meta.filename === process.argv[1]) {
   // npm's own entry point is plain JS and is laid out predictably next to the interpreter: POSIX puts
   // it under `lib/node_modules`, Windows directly under the install root. Running it with
   // `process.execPath` sidesteps the shim, the shell and the quoting.
-  const npmCli = (() => {
-    const dir = path.dirname(process.execPath);
-    for (const c of [path.join(dir, '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
-                     path.join(dir, 'node_modules', 'npm', 'bin', 'npm-cli.js')]) {
-      if (fs.existsSync(c)) return c;
-    }
-    return null;
-  })();
-  const NPM = npmCli ? process.execPath : (process.platform === 'win32' ? 'npm.cmd' : 'npm');
-  const npmArgs = (args) => (npmCli ? [npmCli, ...args] : args);
+  // One implementation, shared with era-node.mjs — see npm-cli.mjs for why the shim is unusable and
+  // for what leaving a second copy unconverted cost.
+  const { cmd: NPM, prefix: npmPrefix } = npmInvocation();
+  const npmCli = npmPrefix[0] ?? null;
+  const npmArgs = (args) => [...npmPrefix, ...args];
   const sh = (cmd, args, opts = {}) => spawnSync(cmd, args, { encoding: 'utf8', maxBuffer: 1 << 28, ...opts });
 
   // ⛔ PREFLIGHT, SO A MISSING TOOL FAILS LOUD INSTEAD OF BECOMING 570 PACKAGE VERDICTS. The whole
@@ -251,6 +247,13 @@ if (import.meta.filename === process.argv[1]) {
       let selection = {}; try { selection = JSON.parse(sel.stdout || '{}'); } catch { /* stays {} */ }
       const fa = fetchArgs({ spec, publishedAt: selection.publishedAt ?? null });
       rec.eraMajor = selection.eraMajor ?? null; rec.before = fa.before;
+      // ⛔ AN ERA THAT COULD NOT BE CHOSEN IS NOT AN ERA. When the packument lookup fails, the
+      // selector falls back to the harness's own Node and the row would otherwise read a confident
+      // `PINNED 22.23.2` — which is the DEFAULT, not the package's era. All 570 win32 rows of two
+      // sweeps carried eraMajor null and before null while reporting exactly that pin. The reason
+      // now rides on the record.
+      rec.eraLookupFailure = selection.lookupFailure ?? (sel.status !== 0
+        ? `era-node.mjs exited ${sel.status}` : null);
       // ⛔ SHARE THE NODE-GYP HEADER CACHE, AND DO IT BY LINKING $HOME/.node-gyp — NOT with
       // `npm_config_devdir`, WHICH THE ERA NODES DO NOT READ. HOME is deliberately fresh per record,
       // and node-gyp 3.x resolves its devDir from HOME with no override at all:
@@ -299,6 +302,9 @@ if (import.meta.filename === process.argv[1]) {
           rec.eraStatus = `NOT-PINNED (${selection.version ? 'engines unsatisfiable' : 'no era selected'})`;
         }
         rec.eraPinned = eraBin ? selection.version : null;
+        if (rec.eraLookupFailure) {
+          rec.eraStatus = `NOT-AN-ERA (${rec.eraLookupFailure}); ran on ${selection.version ?? 'the harness Node'}`;
+        }
 
         const { armPath: ap } = armPath({ ambient: process.env.PATH ?? '', eraBin,
                                           fixtureBin: path.join(obs, 'node_modules', '.bin') });

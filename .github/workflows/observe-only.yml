@@ -90,6 +90,24 @@ jobs:
       #   ValueError: invalid mode: 'rU' while trying to load binding.gyp         (gone in 3.11)
       # `update-environment: false` keeps it OFF the PATH: a modern era must keep getting the modern
       # interpreter, so the path is injected as a candidate rather than made the default.
+      # ⛔ WITHOUT THIS, EVERY NATIVE BUILD ON WINDOWS FAILS BEFORE IT STARTS. 166 CONFIRMED rows of
+      # the 2026-08-22 sweep — 29% of the whole win32 population and the single largest failure
+      # family in the corpus — died on `gyp ERR! find VS`, and the detail lines say plainly that the
+      # runner is not missing a compiler:
+      #   gyp ERR! find VS could not use PowerShell to find Visual Studio 2017 or newer
+      #   gyp ERR! find VS Failure details: RangeError [ERR_CHILD_PROCESS_STDIO_MAXBUFFER]
+      #   gyp ERR! find VS unknown version "undefined" found at "C:\Program Files\Microsoft Visual Studio\18\Enterprise"
+      # Visual Studio 18 IS installed; node-gyp cannot recognise a version that new, and its
+      # PowerShell probe blows its own stdout buffer trying. The same error names the escape hatch
+      # twice — `VCINSTALLDIR not set` and `msvs_version not set` — and activate-msvc.ps1 exports
+      # VCINSTALLDIR from vswhere, which makes node-gyp skip the detection entirely. corpus-v2-runner
+      # has always done this; this lane never did, so it was filing a runner-image artefact as a
+      # package defect on 166 records.
+      - name: Activate the MSVC build environment
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: ./harness/v2/activate-msvc.ps1
+
       - id: py39
         uses: actions/setup-python@v5
         with:

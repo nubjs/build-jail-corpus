@@ -60,10 +60,23 @@ const causeFrom = (text) => {
 const firstError = NUB_LOGS.map((n) => logs[n]).filter(Boolean).map(causeFrom).find(Boolean)
                 ?? causeFrom(control);
 
+// ⛔ A REFUSAL IS A DECISION, NOT A DEFECT — and until the cause was captured, all eleven looked
+// identical. With nub's own logs finally readable, 5 of the 11 "nub defects" turned out to be nub's
+// security screen working exactly as designed: three ERR_NUB_MALICIOUS_PACKAGE and two
+// ERR_NUB_TRUST_DOWNGRADE. That also explains the netlify-cli version boundary that read like a
+// bisect target — 22.4.0 and 23.9.5 trip a trust downgrade, 26.2.0 and 27.0.1 do not. Filing a
+// deliberate refusal as a bug to fix would be the worst possible outcome of this control.
+const REFUSAL = /ERR_NUB_(MALICIOUS_PACKAGE|TRUST_DOWNGRADE|BLOCKED|POLICY)/;
+const outcome = rc === 0 ? 'NUB-INSTALLS'
+  : (firstError && REFUSAL.test(firstError) ? 'NUB-REFUSED' : 'NUB-DEFECT');
+
 process.stdout.write(JSON.stringify({
   spec,
   unjailedNubRc: rc,
-  stillNubDefect: rc !== 0,
+  outcome,
+  // Kept for the earlier ledgers' shape, but it now means "nub failed for a reason that is not a
+  // deliberate refusal" rather than the bare "rc !== 0" it used to.
+  stillNubDefect: outcome === 'NUB-DEFECT',
   firstError: firstError ? firstError.slice(0, 300) : null,
   logs,                                   // per-file tails: the row is re-auditable without a re-run
   controlTail: errorTail(control, { lines: 15, chars: 2000 }),

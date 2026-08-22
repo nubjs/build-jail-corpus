@@ -7,6 +7,7 @@ const here = import.meta.dirname;
 const source = fs.readFileSync(path.join(here, 'activate-msvc.ps1'), 'utf8');
 const referenceWorkflow = fs.readFileSync(path.join(here, '../../.github/workflows/reference-accounting.yml'), 'utf8');
 const corpusWorkflow = fs.readFileSync(path.join(here, '../../.github/workflows/corpus-v2-runner.yml'), 'utf8');
+const observeWorkflow = fs.readFileSync(path.join(here, '../../.github/workflows/observe-only.yml'), 'utf8');
 const referenceProfiles = fs.readdirSync(here)
   .filter((name) => /^reference-profile(?:-[^.]+)*\.json$/.test(name))
   .map((name) => [name, fs.readFileSync(path.join(here, name), 'utf8')]);
@@ -42,9 +43,19 @@ test('Windows CI activates MSVC before the one-time harness suite and both measu
   assert.ok(testActivation < referenceTests);
   assert.ok(referenceActivation > measureStart);
 
-  for (const [label, workflow] of [['corpus runner', corpusWorkflow]]) {
+  // ⛔ THE OBSERVE LANE IS IN THIS LIST BECAUSE IT WAS MISSING FOR A WHOLE SWEEP. 166 CONFIRMED rows
+  // — 29% of the win32 population and the largest single failure family in the corpus — died on
+  // `gyp ERR! find VS` while Visual Studio 18 sat installed on the runner, because node-gyp cannot
+  // recognise a version that new and its PowerShell probe overruns its own stdout buffer. Exporting
+  // VCINSTALLDIR makes node-gyp skip the detection. A lane that measures native builds on Windows
+  // without activating MSVC files a runner-image artefact as a package defect.
+  for (const [label, workflow] of [['corpus runner', corpusWorkflow], ['observe-only', observeWorkflow]]) {
     const activation = workflow.indexOf('harness/v2/activate-msvc.ps1');
-    const tests = workflow.indexOf('harness/run-tests.mjs');
+    // The corpus runner activates before its own test suite; the observe lane has no suite, so the
+    // thing activation must precede there is the sweep that runs third-party lifecycle scripts.
+    const tests = label === 'observe-only'
+      ? workflow.indexOf('observe-only.mjs --file')
+      : workflow.indexOf('harness/run-tests.mjs');
     assert.ok(activation >= 0, `${label}: activation step is absent`);
     assert.ok(activation < tests, `${label}: activation must precede the harness and package measurement`);
   }
