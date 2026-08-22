@@ -124,7 +124,23 @@ jobs:
           set -uo pipefail
           case '${{ matrix.os }}' in
             linux)
-              sudo apt-get update -qq && sudo apt-get install -y python2 || true ;;
+              # ⛔ apt CANNOT SUPPLY THIS ON NOBLE. `apt-get install python2` there returns
+              # "Package 'python2' has no installation candidate" — Python 2 was dropped from
+              # 24.04 entirely. (packages.ubuntu.com is NOT a way to check: it answers HTTP 200
+              # with an HTML error BODY for a package it does not have, which is exactly how this
+              # step came to be written against apt in the first place.) The jammy debs are
+              # self-contained and depend only on libc, which noble satisfies — a binary built
+              # against the older glibc runs on the newer one, never the reverse.
+              B=http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7
+              V=2.7.18-13ubuntu1.5
+              D=$(mktemp -d)
+              for pkg in libpython2.7-minimal libpython2.7-stdlib python2.7-minimal python2.7; do
+                curl -fsSL -o "$D/$pkg.deb" "$B/${pkg}_${V}_amd64.deb" || true
+              done
+              sudo dpkg -i "$D"/*.deb || sudo apt-get -f install -y || true
+              # node-gyp 3.x probes the bare name `python`, so give it one when nothing else claims it.
+              command -v python >/dev/null 2>&1 || \
+                { [ -x /usr/bin/python2.7 ] && sudo ln -sf /usr/bin/python2.7 /usr/local/bin/python2; } || true ;;
             macos)
               curl -fsSL -o /tmp/py27.pkg https://www.python.org/ftp/python/2.7.18/python-2.7.18-macosx10.9.pkg \
                 && sudo installer -pkg /tmp/py27.pkg -target / || true ;;
