@@ -27,8 +27,14 @@ test('reads the installed manifest, including a scoped name', () => {
 
 test('sanitises the PATH, probes it, and scaffolds from what is left', () => {
   const d = tree('p', { scripts: { postinstall: 'husky install' }, devDependencies: { husky: '^5.0.9' } });
+  // ⛔ `path.delimiter`, NOT A LITERAL COLON. Windows separates PATH entries with `;`, so a
+  // hardcoded `/usr/bin:/home/u/.bun/bin` arrives there as ONE entry and nothing is dropped. This
+  // test failed on windows-latest for exactly that reason and, because the corpus runner gates on
+  // the whole suite, it blocked every Windows measurement — a POSIX-shaped fixture holding up the
+  // one platform it says nothing about.
+  const ambient = ['/usr/bin', '/home/u/.bun/bin'].join(path.delimiter);
   const r = prepareArm({ observeDir: d, pkg: 'p', eraBin: '/era/bin',
-                         ambient: '/usr/bin:/home/u/.bun/bin', resolve: () => null });
+                         ambient, resolve: () => null });
   assert.deepEqual(r.dropped, ['/home/u/.bun/bin']);
   assert.ok(r.armPath.startsWith(path.join(d, 'node_modules', '.bin')), 'the fixture bin leads');
   assert.deepEqual(r.scaffold.install, ['husky@^5.0.9']);
