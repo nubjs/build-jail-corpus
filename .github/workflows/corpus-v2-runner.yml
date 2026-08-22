@@ -147,6 +147,62 @@ jobs:
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
 
+      # ⛔ THE ERA PYTHONS BELONG HERE TOO, AND THEIR ABSENCE WOULD HAVE UNDONE A CORRECTION. The
+      # observe-only lane re-measured all 1,529 excluded records and proved 595 of them install, then
+      # re-queued them for THIS runner. But this venue had none of the provisioning that produced
+      # that result: no python2 for the eras whose node-gyp accepts nothing else, and no <=3.9 for
+      # the eras that Python 3.10 and 3.11 broke by removing collections.MutableMapping and the 'rU'
+      # open mode. `zeromq@4.6.0` is the case that exposed it — observe-only says it installs, this
+      # runner's first slice recorded BROKEN-WITHOUT-JAIL-TOO, and the difference is the venue, not
+      # the package. Draining the re-queued records through an under-provisioned runner would have
+      # re-confirmed as broken exactly the records the re-measurement rescued.
+      #
+      # Best effort throughout, as in observe-only.yml: a runner that cannot get an interpreter still
+      # measures its slice, and the record says ERA-PYTHON NOT-SATISFIED rather than blaming the
+      # package. `update-environment: false` keeps 3.9 OFF the PATH so a modern era still gets the
+      # modern interpreter; both paths reach measure.sh through era-python.mjs's injected channel.
+      - name: Provision the era Python 2
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          case "$OS_NAME" in
+            linux)
+              B=http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7
+              V=2.7.18-13ubuntu1.5
+              D=$(mktemp -d)
+              for pkg in libpython2.7-minimal libpython2.7-stdlib python2.7-minimal python2.7; do
+                curl -fsSL -o "$D/$pkg.deb" "$B/${pkg}_${V}_amd64.deb" || true
+              done
+              sudo dpkg -i "$D"/*.deb || sudo apt-get -f install -y || true ;;
+            macos)
+              curl -fsSL -o /tmp/py27.pkg https://www.python.org/ftp/python/2.7.18/python-2.7.18-macosx10.9.pkg \
+                && sudo installer -pkg /tmp/py27.pkg -target / || true ;;
+            windows)
+              curl -fsSL -o "$RUNNER_TEMP/py27.msi" https://www.python.org/ftp/python/2.7.18/python-2.7.18.amd64.msi || true
+              MSIEXEC=$(cygpath -w "$RUNNER_TEMP/py27.msi" 2>/dev/null || echo "$RUNNER_TEMP/py27.msi")
+              powershell -NoProfile -NonInteractive -Command \
+                "Start-Process msiexec.exe -Wait -ArgumentList '/i','$MSIEXEC','/qn','TARGETDIR=C:\\Python27'" || true
+              [ -x /c/Python27/python.exe ] && echo "ERA_PYTHON2=C:\\Python27\\python.exe" >> "$GITHUB_ENV" ;;
+          esac
+          for n in python2 python2.7; do
+            p="$(command -v "$n" || true)"
+            [ -n "$p" ] && echo "  $n -> $p ($("$p" --version 2>&1))"
+          done
+          true
+
+      - id: py39
+        continue-on-error: true
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          update-environment: false
+
+      - name: Hand the legacy interpreter to the driver
+        continue-on-error: true
+        shell: bash
+        run: echo "ERA_PYTHON_LEGACY=${{ steps.py39.outputs.python-path }}" >> "$GITHUB_ENV"
+
       # Run the complete portable suite before paying for a probe build or executing third-party
       # lifecycle scripts. A focused parser check is not an instrument gate: the driver, recorder,
       # security boundary, publish path and queue validity all contribute to the answer.

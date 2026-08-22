@@ -132,8 +132,12 @@ if (import.meta.filename === process.argv[1]) {
   // An interpreter the CALLER provisioned wins the search. A legacy era needs a Python no newer than
   // 3.9 and no runner ships one by default, so CI installs it off-PATH and passes the path in —
   // setup-python exposes it as `python3`, never as `python3.9`, so name-probing alone misses it.
-  const injected = process.env.ERA_PYTHON_LEGACY
-    ? [probe(process.env.ERA_PYTHON_LEGACY)].filter(Boolean) : [];
+  // BOTH injected paths, not just one. `ERA_PYTHON2` is the Windows MSI's interpreter — a TARGETDIR
+  // install is not on PATH, so name-probing never finds it — and `ERA_PYTHON_LEGACY` is
+  // setup-python's <=3.9, deliberately kept off PATH so a modern era still gets a modern one.
+  // `pythonForEra` still selects by FAMILY, so offering both here cannot mis-assign either.
+  const injected = [process.env.ERA_PYTHON2, process.env.ERA_PYTHON_LEGACY]
+    .filter(Boolean).map(probe).filter(Boolean);
   const candidates = [...injected, ...discoverPythons(probe)]
     .filter((c, i, all) => all.findIndex((o) => o.path === c.path) === i);
   const chosen = pythonForEra(Number.isInteger(era) ? era : null, candidates);
