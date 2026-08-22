@@ -27,6 +27,7 @@ import { armPath, ambientTools } from './arm-path.mjs';
 import { scriptScaffold } from './script-scaffold.mjs';
 import { pythonForEra } from './era-python.mjs';
 import { runCapped } from './arm-cap.mjs';
+import { provisionEraNode, eraRootDir } from './era-provision.mjs';
 
 /** The verdict the observe phase would reach, from the two gates' own outcomes. */
 export function observeVerdict({ fetchRc, rebuildRc, capped, fetchCapped }) {
@@ -52,14 +53,56 @@ export function observeVerdict({ fetchRc, rebuildRc, capped, fetchCapped }) {
  *  /npm error|ERR!/ captured a useless line on 240 of 625 rows — `npm error code 1`, or
  *  `npm ERR! Linux 6.11.0-azure`. The ledger looked attributed and was not: the honest count was
  *  385 of 959, not 625. The informative line is usually two or three lines further down. */
-const UNINFORMATIVE = /^npm (error|ERR!) code \d+$|^npm ERR! (Linux|Darwin|Windows)\b|^npm (error|ERR!) (argv|node|npm|cwd|System|command|gyp|file|A complete log) /;
+const UNINFORMATIVE = new RegExp([
+  // Any error CODE is a category, never a cause, and npm always prints a more specific sibling:
+  // EBADPLATFORM is followed by `notsup Unsupported platform for x@y: wanted {...}`, ERESOLVE by
+  // `While resolving: ...`, ELIFECYCLE by the line naming the script that exited. The first cut of
+  // this pattern only skipped NUMERIC codes, which left 98 rows on `code ELIFECYCLE` and 64 on
+  // `code EBADPLATFORM` — attributed-looking rows carrying nothing package-specific.
+  String.raw`^npm (error|ERR!) code \S+$`,
+  // The environment preamble. `path` is the one that mattered: it was absent from the first cut and
+  // it is the SECOND line of every npm 10 error block, so it won 284 of 284 win32 rows outright.
+  String.raw`^npm (error|ERR!) (Linux|Darwin|Windows|path|argv|node|npm|cwd|System|errno|syscall|file|A complete log)\b`,
+  // npm's own boilerplate tail.
+  String.raw`^npm (error|ERR!) (Exit status \d+|not ok\b|This is probably not a problem with npm|Failed at the\b)`,
+  // ⛔ `gyp` AND `command` ARE NOT BLANKET-NOISE, and treating them as such is how a node-gyp row
+  // ends up attributed to `code 1`. Under npm 10 the whole gyp transcript is re-prefixed with
+  // `npm error`, so the ONLY line naming the cause is `npm error gyp ERR! stack Error: ...`.
+  // Skip gyp's progress chatter and npm's bare `command failed`; keep everything else.
+  String.raw`^(npm (error|ERR!) )?gyp (info|http|verb|WARN)\b`,
+  // gyp's own stage markers and preamble. `gyp ERR! configure error` says only WHICH PHASE
+  // died; the line under it (`gyp ERR! stack Error: Can't find Python executable "python"`)
+  // is the reason, and heapdump@0.3.9 was attributed to the marker until this was added.
+  String.raw`^(npm (error|ERR!) )?gyp ERR! (configure|build|install) error$`,
+  String.raw`^(npm (error|ERR!) )?gyp ERR! (System|command|cwd|node -v|node-gyp -v|not ok)\b`,
+  String.raw`^npm (error|ERR!) command failed$`,
+].join('|'));
 
-/** The first line that actually names a cause, falling back to the first error line so a row is
- *  never LESS informative than before. */
+/** Lines that name WHY, as opposed to what npm was doing when it happened. `npm error command sh -c
+ *  node-gyp rebuild` is a true statement about the failure and still not the cause; two lines below
+ *  it sits `gyp ERR! find Python Python is not set from command line or npm configuration`, which
+ *  is. Ranking beats first-match here because npm prints the block outside-in: category, then
+ *  context, then cause. */
+const NAMES_A_CAUSE = /gyp ERR! (stack|find)|ERR! stack |SyntaxError|Error:|command not found|is not recognized|\bnotsup |No such file|Permission denied|cannot find|not supported|Unsupported/;
+
+/** Three tiers, and the last one is what keeps this from ever being a regression: a row is never
+ *  made LESS informative than the naive "first line matching /npm error/" it replaced. */
 export function firstCause(log) {
   const lines = String(log ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
   const errish = lines.filter((l) => /npm error|npm ERR!|ERR!|SyntaxError|Error:|command not found|is not recognized/.test(l));
-  return errish.find((l) => !UNINFORMATIVE.test(l)) ?? errish[0] ?? null;
+  return errish.find((l) => NAMES_A_CAUSE.test(l))
+      ?? errish.find((l) => !UNINFORMATIVE.test(l))
+      ?? errish[0]
+      ?? null;
+}
+
+/** The last lines of a failing log, capped so a ledger of thousands of rows stays a text file.
+ *  Stored on every measured row so any later change to the cause extractor can be evaluated against
+ *  what the run actually saw, rather than re-run against a registry that has moved on. */
+export function errorTail(log, { lines = 40, chars = 8000 } = {}) {
+  const kept = String(log ?? '').split('\n').map((l) => l.trimEnd()).filter((l) => l.trim());
+  if (!kept.length) return null;
+  return kept.slice(-lines).join('\n').slice(-chars);
 }
 
 export function disposition(previous, now) {
@@ -147,7 +190,7 @@ if (import.meta.filename === process.argv[1]) {
     }
     process.stderr.write(`npm ${String(probe.stdout).trim()} via ${npmCli ?? NPM}\n`);
   }
-  const eraRoot = path.join(process.env.HOME ?? '/tmp', '.cache', 'nub', 'era-node');
+  const eraRoot = eraRootDir();
   fs.mkdirSync(eraRoot, { recursive: true });
   // Discovered ONCE: probing per row would run `command -v` thousands of times for one answer.
   const pythonCandidates = ['python2.7', 'python2', 'python3', 'python'].map((n) => {
@@ -178,7 +221,19 @@ if (import.meta.filename === process.argv[1]) {
       let selection = {}; try { selection = JSON.parse(sel.stdout || '{}'); } catch { /* stays {} */ }
       const fa = fetchArgs({ spec, publishedAt: selection.publishedAt ?? null });
       rec.eraMajor = selection.eraMajor ?? null; rec.before = fa.before;
-      const env0 = { ...process.env, HOME: home, npm_config_cache: path.join(root, 'npmcache') };
+      // ⛔ SHARE THE NODE-GYP HEADER CACHE ACROSS RECORDS. HOME is deliberately fresh per record so
+      // a home write is visible, but node-gyp's devdir defaults to $HOME/.node-gyp — so every native
+      // build re-downloaded the Node headers, over TLS, from an era Node. That download FLAKES:
+      // heapdump@0.3.9 measured 1 failure in 3 identical runs on era 6.17.1, failing with
+      //   gyp ERR! stack Error: ... is related to network connectivity
+      //   gyp ERR! stack     at Request.onRequestError (.../request/request.js:813:8)
+      // A flaky network fetch inside the arm is indistinguishable in the ledger from a package that
+      // genuinely does not build, so it manufactures false CONFIRMED rows on exactly the native
+      // builds this corpus is about. A shared devdir fetches each version's headers once.
+      const devdir = path.join(eraRoot, '..', 'gyp-headers');
+      fs.mkdirSync(devdir, { recursive: true });
+      const env0 = { ...process.env, HOME: home, npm_config_cache: path.join(root, 'npmcache'),
+                     npm_config_devdir: devdir };
       // ⛔ THE FETCH IS CAPPED TOO. Only the rebuild was wrapped before, so a hanging
       // `npm install --before=…` bounded nothing and one row could stall an entire sweep.
       const fetchLog = path.join(root, 'fetch.log');
@@ -194,27 +249,21 @@ if (import.meta.filename === process.argv[1]) {
         // the same modern Node that broke it originally. The five-package control caught it: three
         // rows I had already proved install came back CONFIRMED-broken. Importing the pieces is not
         // wiring them.
+        // ⛔ THE PROVISIONER IS PER-PLATFORM AND IT VERIFIES. The inline version here hardcoded
+        // `darwin ? 'darwin' : 'linux'`, so a win32 runner fetched a LINUX tarball and then tested
+        // for `bin/node` — a path the Windows layout never has. All 333 win32 rows of the
+        // 2026-08-21 sweep came back `NOT-PINNED (not provisionable)` with era pins 0, silently
+        // confirming failures an era Node might well have fixed. era-provision.mjs owns the layout,
+        // runs the binary to prove it is the version asked for, and names the stage that failed.
         let eraBin = null;
         if (selection.version && selection.pinnable !== false) {
-          const dir = path.join(eraRoot, selection.version);
-          const bin = path.join(dir, 'bin');
-          if (!fs.existsSync(path.join(bin, 'node'))) {
-            fs.mkdirSync(dir, { recursive: true });
-            const plat = process.platform === 'darwin' ? 'darwin' : 'linux';
-            // nodejs.org ships NO darwin-arm64 build below 16; the x64 build runs under Rosetta,
-            // which was measured working for 4.9.1 and 10.24.1 on this platform.
-            const arch = plat === 'darwin' && selection.major < 16 ? 'x64'
-              : (process.arch === 'arm64' ? 'arm64' : 'x64');
-            const url = `https://nodejs.org/dist/v${selection.version}/node-v${selection.version}-${plat}-${arch}.tar.gz`;
-            const tgz = path.join(eraRoot, `${selection.version}.tgz`);
-            const dl = sh('curl', ['-fsSL', url, '-o', tgz]);
-            if (dl.status === 0) sh('tar', ['-xzf', tgz, '-C', dir, '--strip-components=1']);
-          }
-          if (fs.existsSync(path.join(bin, 'node'))) eraBin = bin;
+          const p = provisionEraNode(selection.version, { root: eraRoot, exec: sh });
+          eraBin = p.binDir;
+          rec.eraStatus = p.status;
+        } else {
+          rec.eraStatus = `NOT-PINNED (${selection.version ? 'engines unsatisfiable' : 'no era selected'})`;
         }
         rec.eraPinned = eraBin ? selection.version : null;
-        rec.eraStatus = eraBin ? `PINNED ${selection.version}`
-          : `NOT-PINNED (${selection.pinnable === false ? 'engines unsatisfiable' : 'not provisionable'})`;
 
         const { armPath: ap } = armPath({ ambient: process.env.PATH ?? '', eraBin,
                                           fixtureBin: path.join(obs, 'node_modules', '.bin') });
@@ -258,9 +307,22 @@ if (import.meta.filename === process.argv[1]) {
         rec.capped = r.timedOut;
         const log = fs.readFileSync(logPath, 'utf8');
         rec.firstError = firstCause(log)?.slice(0, 200) ?? null;
+        // ⛔ KEEP THE TAIL. Auditing the extractor against the 2026-08-21 ledger was impossible
+        // because only `firstError` was stored: when 284 of 284 win32 rows came back on the same
+        // useless line, nothing on disk could say whether a better line had existed. A ~20-line
+        // tail makes every attribution re-checkable without re-running the sweep.
+        rec.tail = errorTail(log);
       } else {
         rec.rebuildRc = null; rec.capped = false;
-        rec.firstError = firstCause((f.stdout ?? '') + (f.stderr ?? ''))?.slice(0, 200) ?? null;
+        // ⛔ READ THE FETCH LOG, NOT `f.stdout`. `runCapped` returns only {code, timedOut} — it never
+        // captures output, and the fetch's stdio is a FILE descriptor. So this branch was reading a
+        // property that is always undefined, and EVERY row npm could not even install recorded no
+        // reason at all: `@ffmpeg-installer/darwin-x64@4.1.0` came back fetchRc=1 with firstError
+        // null. A row that cannot say why the install failed cannot be told from one that was never
+        // measured.
+        const ftext = fs.existsSync(fetchLog) ? fs.readFileSync(fetchLog, 'utf8') : '';
+        rec.firstError = firstCause(ftext)?.slice(0, 200) ?? null;
+        rec.tail = errorTail(ftext);
       }
       rec.verdict = observeVerdict(rec);
       rec.disposition = prevVerdict ? disposition(prevVerdict, rec.verdict) : null;

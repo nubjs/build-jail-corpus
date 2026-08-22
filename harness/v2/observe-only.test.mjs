@@ -58,7 +58,9 @@ test('firstCause skips the bare exit code and the OS banner npm prints first', a
     'gyp ERR! configure error',
     'gyp ERR! stack Error: Could not find any Python installation to use',
   ].join('\n');
-  assert.equal(firstCause(log), 'gyp ERR! configure error');
+  // `gyp ERR! configure error` names the PHASE, not the reason — it was the answer here until the
+  // phase markers were demoted below the lines that carry text.
+  assert.equal(firstCause(log), 'gyp ERR! stack Error: Could not find any Python installation to use');
 });
 
 test('firstCause never returns LESS than the old behaviour', () => {

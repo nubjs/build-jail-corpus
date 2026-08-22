@@ -108,19 +108,15 @@ jobs:
             node harness/v2/unjailed-nub.mjs --phase all --pkg "$NAME" --version "$VER" \
               --nub "$NUB_BIN" --dir "$DIR" > "$DIR/out.log" 2>&1
             RC=$?
-            # ⛔ CAPTURE THE WHOLE TAIL, NOT A GREP MATCH. The first version grepped for
-            # 'error|ERR!|refus' and recorded an EMPTY firstError on all 11 defects: the control's
-            # own vocabulary does not use those words, so the ledger said WHICH packages fail and
-            # never WHY — which is the only part a fix needs. jq -Rs makes the multi-line tail a
-            # valid JSON string; hand-rolled quoting broke on the first log containing a quote.
-            # SKIP THE CONTROL OWN VERDICT BANNER. unjailed-nub.mjs ends with its conclusion
-            # ("npm installs this package but nub cannot ..."), which restates the rc rather than
-            # naming a cause. Capturing the raw tail therefore recorded that verdict on all 11
-            # defects and nub actual error on none of them.
-            TAIL=$(grep -vE 'jail-off control:|^ *=> ' "$DIR/out.log" | tail -30 | jq -Rs . 2>/dev/null || echo '""')
-            ERR=$(grep -vE 'jail-off control:|^ *=> ' "$DIR/out.log" | grep -m1 -E 'error|ERR!|Error|failed|not found' | tr -d '"' | cut -c1-200 || true)
-            printf '{"spec":"%s","unjailedNubRc":%s,"stillNubDefect":%s,"firstError":"%s","tail":%s}\n' \
-              "$SPEC" "$RC" "$([ "$RC" = 1 ] && echo true || echo false)" "$ERR" "$TAIL" >> f9-ledger.ndjson
+            # ⛔ THE LEDGER LINE IS BUILT IN NODE, NOT IN THE SHELL. Three shell attempts each
+            # failed differently on real data: a grep for 'error|ERR!|refus' recorded an EMPTY
+            # firstError on all 11 defects (the control's own vocabulary uses none of those words);
+            # a printf-built object died with "SyntaxError: Expected ',' or '}' after property value
+            # in JSON at position 101" on text carrying backslashes; and a hand-rolled grep captured
+            # `npm ERR! Linux 6.1` — the OS banner — on the very control meant to prove the capture
+            # worked. f9-ledger-line.mjs reuses firstCause() from observe-only.mjs, so this ledger
+            # and the sweep ledger agree on what a cause IS instead of drifting apart.
+            node harness/v2/f9-ledger-line.mjs "$SPEC" "$RC" "$DIR/out.log" >> f9-ledger.ndjson
             echo "  $SPEC -> rc=$RC"
             rm -rf "$DIR"
           done < f9.txt
