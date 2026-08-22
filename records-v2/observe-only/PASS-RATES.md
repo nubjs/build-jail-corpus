@@ -56,3 +56,25 @@ records in the denominator with no measurement behind them. The honest statement
 
 The floor that IS safe to state: even if all 595 turned out to need a grant, the jail's
 needed-nothing-extra count does not fall — it can only rise.
+
+## ⛔ A `{}` RUNG NO LONGER MEANS WHAT IT MEANT WHEN 4,917 WAS MEASURED
+
+The 595 records above are re-queued for a jail verdict, and that verdict will not be directly
+comparable to the historical ones. On **2026-08-16** two deliberate nub changes gave an UNCATALOGUED
+package a baseline grant — `4001cec5c5` for the filesystem axis and `ff16f6888d` for egress — and
+`catalog_v2::baseline_caps()` returns `network: true`. The corpus harness encodes "grant nothing" by
+OMITTING the package from the override catalog, so what used to express *nothing* now expresses
+*the baseline*.
+
+Two consequences, and the second is why this file says so rather than a harness comment:
+
+- The corpus runner has been red since **2026-08-17**, the day after, because its falsification
+  control asserts that `hugo-extended@0.141.0` cannot reach github.com under an empty grant. It now
+  can. **That is a stale control premise, not a jail defect** — the jail still refuses the fetch when
+  the package is catalogued with a grant that omits network, which was verified directly.
+- The **4,917** `MINIMUM` records in the numerator above were all measured BEFORE that date, so they
+  do mean "needed nothing". Any `MINIMUM` recorded after it means "needed no more than the baseline".
+  Mixing the two in one rate would be comparing two different questions.
+
+So the 4,917 figure is sound, and the way to keep it sound is to decide what the `{}` rung should
+mean before the re-queued records are measured — not after.
