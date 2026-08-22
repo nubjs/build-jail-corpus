@@ -60,15 +60,32 @@ const causeFrom = (text) => {
 const firstError = NUB_LOGS.map((n) => logs[n]).filter(Boolean).map(causeFrom).find(Boolean)
                 ?? causeFrom(control);
 
-// ⛔ A REFUSAL IS A DECISION, NOT A DEFECT — and until the cause was captured, all eleven looked
-// identical. With nub's own logs finally readable, 5 of the 11 "nub defects" turned out to be nub's
-// security screen working exactly as designed: three ERR_NUB_MALICIOUS_PACKAGE and two
-// ERR_NUB_TRUST_DOWNGRADE. That also explains the netlify-cli version boundary that read like a
-// bisect target — 22.4.0 and 23.9.5 trip a trust downgrade, 26.2.0 and 27.0.1 do not. Filing a
-// deliberate refusal as a bug to fix would be the worst possible outcome of this control.
-const REFUSAL = /ERR_NUB_(MALICIOUS_PACKAGE|TRUST_DOWNGRADE|BLOCKED|POLICY)/;
-const outcome = rc === 0 ? 'NUB-INSTALLS'
-  : (firstError && REFUSAL.test(firstError) ? 'NUB-REFUSED' : 'NUB-DEFECT');
+// ⛔ A REFUSAL IS A DECISION, NOT A DEFECT — and the ERROR CODE ALONE CANNOT TELL THEM APART.
+// With nub's own logs finally readable, 9 of the 11 "nub defects" turned out to be nub's security
+// and policy screens working exactly as designed. Five say so in the code — three
+// ERR_NUB_MALICIOUS_PACKAGE, two ERR_NUB_TRUST_DOWNGRADE. The other four are the trap: they surface
+// as ERR_NUB_REGISTRY_ERROR, which reads like a fetch failure, and only the body says otherwise —
+//
+//   ERR_NUB_REGISTRY_ERROR
+//     × failed to resolve dependencies
+//     ╰─▶ registry error for nan: uses exotic specifier "github:JCMais/nan#fix/electron-failures"
+//         which is blocked by blockExoticSubdeps (declared by node-libcurl)
+//
+// so classifying on the first line, or on the code, files four deliberate policy blocks as bugs.
+// The discriminator is the phrase nub uses when IT chose the outcome: "blocked by <policy>".
+// This also explains the netlify-cli version boundary that read like a bisect target: 22.4.0 and
+// 23.9.5 trip a trust downgrade, 26.2.0 and 27.0.1 do not.
+//
+// ⛔ AND THE TEXT MUST BE UNWRAPPED FIRST. nub renders that diagnostic as a hanging-indent block, so
+// "blocked by" and the policy name land on DIFFERENT LINES for some packages and the same line for
+// others — purely a function of how the specifier's length pushed the wrap. Matching the raw text
+// found 6 refusals where 9 exist: node-libcurl happened to wrap late, the two baileys and web3
+// wrapped early, and the pattern silently missed all three.
+const REFUSAL = /ERR_NUB_(MALICIOUS_PACKAGE|TRUST_DOWNGRADE|BLOCKED|POLICY)|blocked by \w+/;
+const unwrap = (text) => String(text ?? '').replace(/\s+/g, ' ');
+const refused = Object.values(logs).some((body) => REFUSAL.test(unwrap(body)))
+             || (firstError ? REFUSAL.test(unwrap(firstError)) : false);
+const outcome = rc === 0 ? 'NUB-INSTALLS' : (refused ? 'NUB-REFUSED' : 'NUB-DEFECT');
 
 process.stdout.write(JSON.stringify({
   spec,

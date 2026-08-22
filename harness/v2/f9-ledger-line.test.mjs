@@ -73,11 +73,33 @@ test('nub refusing a package is an OUTCOME, not a defect to go and fix', () => {
   assert.equal(malicious.outcome, 'NUB-REFUSED');
 });
 
+test('a policy block wrapped across lines is still a refusal', () => {
+  // ⛔ TWO TRAPS IN ONE FIXTURE, AND BOTH COST A WRONG ANSWER. First, the CODE says
+  // ERR_NUB_REGISTRY_ERROR, which reads like a fetch failure — only the body says nub chose this.
+  // Second, nub renders the body as a hanging-indent block, so "blocked by" and the policy name
+  // land on different lines when the specifier is long. Matching raw text found 6 refusals where 9
+  // exist: node-libcurl happened to wrap late and matched, the two baileys and web3 wrapped early
+  // and were silently filed as nub bugs.
+  const r = emit('baileys@6.7.24', 1, {
+    'out.log': BANNER,
+    'security-resolve.log': [
+      'ERR_NUB_REGISTRY_ERROR',
+      '  × failed to resolve dependencies',
+      '  ╰─▶ registry error for libsignal: uses exotic specifier "git+https://',
+      '      github.com/whiskeysockets/libsignal-node.git" which is blocked by',
+      '      blockExoticSubdeps (declared by baileys)',
+    ].join('\n'),
+  });
+  assert.equal(r.outcome, 'NUB-REFUSED');
+  assert.equal(r.stillNubDefect, false);
+});
+
 test('a failure that is NOT a refusal stays a defect', () => {
-  // The other direction, which matters just as much: ERR_NUB_REGISTRY_ERROR is nub failing to fetch
-  // something npm fetches fine, and a permission error on a bin script is a real mechanism bug.
-  const registry = emit('web3@2.0.0-alpha.1', 1, {
-    'out.log': BANNER, 'security-resolve.log': 'ERR_NUB_REGISTRY_ERROR while fetching web3\n',
+  // The other direction, which matters just as much: a registry error with no policy block in it is
+  // nub failing to fetch what npm fetches fine, and a permission error on a bin script is a real
+  // mechanism bug.
+  const registry = emit('some-pkg@1.0.0', 1, {
+    'out.log': BANNER, 'security-resolve.log': 'ERR_NUB_REGISTRY_ERROR\n  × 503 from the registry\n',
   });
   assert.equal(registry.outcome, 'NUB-DEFECT');
 
