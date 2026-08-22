@@ -156,12 +156,27 @@ jobs:
               curl -fsSL -o /tmp/py27.pkg https://www.python.org/ftp/python/2.7.18/python-2.7.18-macosx10.9.pkg \
                 && sudo installer -pkg /tmp/py27.pkg -target / || true ;;
             windows)
-              echo "skipped: node-gyp on Windows resolves its own toolchain" ;;
+              # ⛔ WINDOWS NEEDS THIS TOO — the first cut skipped it on the theory that node-gyp
+              # resolves its own toolchain there, and 38 win32 rows at eras 0, 4 and 6 came back
+              # with `Python executable ... is v3.x, which is not supported by gyp`. node-gyp 3.x
+              # accepts 2.7 and nothing else on every platform. python.org still publishes the
+              # Windows MSI; a silent install puts it at C:\Python27.
+              curl -fsSL -o "$RUNNER_TEMP/py27.msi" https://www.python.org/ftp/python/2.7.18/python-2.7.18.amd64.msi || true
+              MSIEXEC=$(cygpath -w "$RUNNER_TEMP/py27.msi" 2>/dev/null || echo "$RUNNER_TEMP/py27.msi")
+              powershell -NoProfile -NonInteractive -Command \
+                "Start-Process msiexec.exe -Wait -ArgumentList '/i','$MSIEXEC','/qn','TARGETDIR=C:\\Python27'" || true
+              [ -x /c/Python27/python.exe ] && echo "/c/Python27/python.exe -> $(/c/Python27/python.exe --version 2>&1)"
+              true ;;
           esac
           for n in python2 python2.7; do
             p="$(command -v "$n" || true)"
             [ -n "$p" ] && echo "  $n -> $p ($("$p" --version 2>&1))"
           done
+          # A TARGETDIR install is not on PATH, so hand the path to the runner directly — the same
+          # ERA_PYTHON_LEGACY channel setup-python's off-PATH interpreter already uses.
+          if [ -x /c/Python27/python.exe ]; then
+            echo "ERA_PYTHON2=C:\\Python27\\python.exe" >> "$GITHUB_ENV"
+          fi
           true
 
       - id: py39

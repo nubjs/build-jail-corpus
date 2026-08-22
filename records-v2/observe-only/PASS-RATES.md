@@ -25,34 +25,34 @@ scripts invoke, the Python its node-gyp era accepts, and an activated MSVC on Wi
 | | n |
 | --- | ---: |
 | re-measured | 1,529 |
-| **install today** — the exclusion was wrong | **506** |
-| genuinely still broken, every one with a cause attached | 990 |
+| **install today** — the exclusion was wrong | **595** |
+| genuinely still broken, every one with a cause attached | 900 |
 | npm installs it; the nub half is its own lane | 30 |
+| hit the wall-clock cap, no verdict | 3 |
 | npm now fails where it used to succeed | 1 |
-| hit the wall-clock cap, no verdict | 2 |
 
-**A third of the bucket installs.** The exclusion was not describing dead packages; it was largely
+**Two in five of the bucket install.** The exclusion was not describing dead packages; it was largely
 describing an observation environment that gave old packages a modern toolchain.
 
 ## What that does to the denominator
 
 | | before | after |
 | --- | ---: | ---: |
-| excluded from every jail claim | 1,529 | 1,023 |
-| excluded share of the corpus | 22.2% | **14.9%** |
-| measurable population | 5,351 | 5,857 |
+| excluded from every jail claim | 1,529 | 934 |
+| excluded share of the corpus | 22.2% | **13.6%** |
+| measurable population | 5,351 | 5,946 |
 
 ## ⛔ This file does NOT restate the pass rate, and neither should you
 
-The 506 records were shown to **install**. They were not measured **with the jail on**. A pass rate
-needs a jail verdict for every record in its denominator, and these 506 have none yet — they are
+The 595 records were shown to **install**. They were not measured **with the jail on**. A pass rate
+needs a jail verdict for every record in its denominator, and these 595 have none yet — they are
 re-queued for the corpus runner, and the number moves when that runs, not before.
 
-Quoting `4,917 / 5,857 = 83.9%` would be worse than quoting the old figure, because it would put 506
+Quoting `4,917 / 5,946 = 82.7%` would be worse than quoting the old figure, because it would put 595
 records in the denominator with no measurement behind them. The honest statement today is:
 
-> The jail needed nothing extra for 4,917 records. 1,023 records could not be measured at all. 506
+> The jail needed nothing extra for 4,917 records. 934 records could not be measured at all. 595
 > records previously counted as unmeasurable do install, and are awaiting a jail verdict.
 
-The floor that IS safe to state: even if all 506 turned out to need a grant, the jail's
+The floor that IS safe to state: even if all 595 turned out to need a grant, the jail's
 needed-nothing-extra count does not fall — it can only rise.

@@ -217,7 +217,11 @@ if (import.meta.filename === process.argv[1]) {
   };
   const pythonCandidates = [];
   const seenPython = new Set();
-  for (const cand of [process.env.ERA_PYTHON_LEGACY ?? null,
+  // ERA_PYTHON2 is the Windows MSI's interpreter: a TARGETDIR install is not on PATH, so the only
+  // way the probe finds it is to be handed the path. Both injected paths are tried before the
+  // name probe, and `pythonForEra` still picks by FAMILY, so a modern era is unaffected.
+  for (const cand of [process.env.ERA_PYTHON2 ?? null,
+                      process.env.ERA_PYTHON_LEGACY ?? null,
                       ...PROBE_NAMES.map(resolveOnPath)]) {
     const found = describePython(cand);
     if (!found || seenPython.has(found.path)) continue;

@@ -5,7 +5,7 @@ every jail number ever quoted silently excludes them. This lane re-measures **al
 arm that gives each package what it was published against, and records why each one that still fails,
 fails.
 
-## The run (2026-08-22, run 32557901254)
+## The run (2026-08-22, run 32561984058)
 
 | platform | records | era chosen | era Node pinned |
 | --- | ---: | ---: | ---: |
@@ -16,13 +16,13 @@ fails.
 
 | disposition | n | meaning |
 | --- | ---: | --- |
-| `CONFIRMED` | 990 | still fails, and the row says why |
-| `STALE-RECORD` | 506 | **installs today.** The exclusion was wrong for a third of the bucket. |
+| `CONFIRMED` | 900 | still fails, and the row says why |
+| `STALE-RECORD` | 595 | **installs today.** The exclusion was wrong for 39% of the bucket. |
 | `NUB-UNMEASURED` | 30 | npm succeeds; the nub half is [its own lane](../nub-unjailed/README.md) |
+| `UNMEASURED-TIMEOUT` | 3 | hit the wall-clock cap; **not** a package verdict |
 | `CHANGED` | 1 | npm now fails where it used to succeed |
-| `UNMEASURED-TIMEOUT` | 2 | hit the wall-clock cap; **not** a package verdict |
 
-**All 990 CONFIRMED rows carry a cause.** Every measured row also carries a 40-line `tail`, so a
+**All 900 CONFIRMED rows carry a cause.** Every measured row also carries a 40-line `tail`, so a
 later change to how causes are extracted can be re-evaluated against what the run saw instead of
 re-running against a registry that has moved on.
 
@@ -45,6 +45,17 @@ Each of these was added because its absence was silently producing package verdi
   overruns its stdout buffer on the runner image.
 - **A sanitised PATH**, so a tool that happens to sit on the runner is not mistaken for one the
   package provides.
+
+## What is left, named
+
+Two populations still fail for a reason no harness change can reach, and the ledger records both with
+the era attached rather than filing them against the package:
+
+| n | where | why |
+| ---: | --- | --- |
+| 61 | win32, eras 8-14 | node-gyp 3.x-5.x cannot detect a modern Visual Studio, and no hosted image ships VS 2015 or 2017 |
+| 103 | all | `@sitespeed.io/edgedriver` hardcodes `msedgedriver.azureedge.net`, which is **NXDOMAIN**; the successor host 404s that version |
+| 34 | all | `redis-memory-server` compiles Redis from source and fails on a modern C compiler |
 
 ## Two exclusions this file does not hide
 
