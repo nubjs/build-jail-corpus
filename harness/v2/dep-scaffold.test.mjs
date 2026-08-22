@@ -65,19 +65,33 @@ test('a dependency with NO lifecycle script is not scaffolded', () => {
   assert.deepEqual(scriptBearingDeps(obs, 'a'), [], 'only lifecycle scripts count');
 });
 
-test('the empty grant still OMITS the target, and still scaffolds its dependencies', () => {
-  // The needs-nothing case is the modal one; expressing it by omission is what makes it measurable.
+test('⭑ the empty grant is CATALOGUED, because omission stopped meaning "nothing"', () => {
+  // ⛔ THIS TEST USED TO ASSERT THE OPPOSITE, AND THAT COST THE CORPUS FIVE DAYS. Expressing "grant
+  // nothing" by omitting the target was correct until 2026-08-16, when `4001cec5c5` gave an
+  // UNCATALOGUED package a baseline grant on the filesystem axis and `ff16f6888d` did the same for
+  // egress — and `catalog_v2::baseline_caps()` returns `network: true`. From that day an omitted
+  // target was granted the network, so falsify's `hugo-extended@0.141.0` arm downloaded happily and
+  // reported `refusal=—`. The runner went red on 2026-08-17 and gated every batch since.
+  //
+  // nub already supports the right spelling — catalog_v2.rs:807 says an empty grant "is a positive
+  // statement under this shape", and the grant parser says of the network key "omit it to grant no
+  // egress". So `{ default: {} }` denies everything, which is what the zero rung has always meant.
   const obs = tree({ a: { postinstall: 'x' }, dep: { install: 'node-gyp rebuild' } });
   const { catalog: { packages } } = buildCatalog('a', {}, obs);
-  assert.equal(packages.a, undefined, 'an empty grant must be expressed by omitting the target');
+  assert.deepEqual(packages.a, { default: {} },
+    'an empty grant must be CATALOGUED as an explicitly empty one, never omitted');
   assert.ok(packages.dep, 'dependencies still need scaffolding when the target needs nothing');
 });
 
-test('with no dependencies at all, the sentinel still makes the override engage', () => {
+test('with no dependencies at all, the target alone makes the override engage', () => {
+  // The `__v2_empty_grant_sentinel__` existed only because an empty grant left the catalog with
+  // nothing in it, so the override would not engage and the arm was VOID. Cataloguing the target
+  // removes that hole at its source.
   const obs = tree({ a: { postinstall: 'x' } });
   const { catalog: { packages } } = buildCatalog('a', {}, obs);
-  assert.ok(packages.__v2_empty_grant_sentinel__,
-    'without the sentinel the override would not engage and the arm would be VOID');
+  assert.deepEqual(Object.keys(packages), ['a'], 'the target alone is enough for the override to engage');
+  assert.equal(packages.__v2_empty_grant_sentinel__, undefined,
+    'the sentinel is unreachable now that the target is always present');
 });
 
 test('⭑⭑ ALL THREE DRIVERS use the shared builder — none constructs a catalog inline', () => {

@@ -60,15 +60,33 @@ export function scriptBearingDeps(observeDir, target) {
 /**
  * The catalog object for one arm.
  *
- * ⛔ An EMPTY grant is expressed by OMITTING the target — the base profile already IS nothing, and
- * "needs nothing" is the modal answer, so it has to be measurable. The sentinel exists only when
- * nothing else would make the override engage, keeping the downstream assertion meaningful.
+ * ⛔ AN EMPTY GRANT IS CATALOGUED, NOT OMITTED, AND THE DIFFERENCE IS THE WHOLE LADDER'S ZERO POINT.
+ * This used to omit the target on the premise that "the base profile already IS nothing". That
+ * premise died on 2026-08-16: `4001cec5c5` gave an UNCATALOGUED package a baseline grant on the
+ * filesystem axis and `ff16f6888d` did the same for egress, and `catalog_v2::baseline_caps()`
+ * returns `network: true`. So omitting the target stopped meaning "grant nothing" and started
+ * meaning "grant the baseline".
+ *
+ * The corpus runner went red the next day, 2026-08-17, and stayed red: falsify asserts that
+ * `hugo-extended@0.141.0` cannot reach github.com under an empty grant, and under the baseline it
+ * can. That was never a jail defect — denial still works — it is this line having stopped saying
+ * what it meant.
+ *
+ * An explicitly empty grant IS the right spelling, and nub already supports it. catalog_v2.rs:807:
+ *   NO "grants nothing" CHECK HERE. An empty grant is a positive statement under this shape —
+ *   an empty `default` says "latest passes ungranted" …
+ * and the grant parser says of the network key: "omit it to grant no egress". So `{ default: {} }`
+ * denies everything, which is what the zero rung has always meant and what keeps a `MINIMUM`
+ * measured today comparable with the 4,917 measured before the baseline landed.
+ *
+ * The sentinel below still exists for the case where nothing at all would be catalogued, keeping
+ * the downstream override assertion meaningful.
  */
 export function buildCatalog(target, grant, observeDir) {
   const packages = {};
   for (const dep of scriptBearingDeps(observeDir, target)) packages[dep] = { default: SCAFFOLD };
   const scaffolded = Object.keys(packages).length;
-  if (Object.keys(grant).length) packages[target] = { default: grant };
+  packages[target] = { default: grant };
   if (!Object.keys(packages).length) packages.__v2_empty_grant_sentinel__ = { default: { network: true } };
   return { catalog: { packages }, scaffolded };
 }
