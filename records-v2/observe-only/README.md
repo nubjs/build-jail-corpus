@@ -5,7 +5,7 @@ every jail number ever quoted silently excludes them. This lane re-measures **al
 arm that gives each package what it was published against, and records why each one that still fails,
 fails.
 
-## The run (2026-08-22, run 32561984058)
+## The run (2026-08-22, run 32566183450)
 
 | platform | records | era chosen | era Node pinned |
 | --- | ---: | ---: | ---: |
@@ -53,7 +53,7 @@ the era attached rather than filing them against the package:
 
 | n | where | why |
 | ---: | --- | --- |
-| 61 | win32, eras 8-14 | node-gyp 3.x-5.x cannot detect a modern Visual Studio, and no hosted image ships VS 2015 or 2017 |
+| 99 | win32, eras 0-14 | old native addons do not build against a modern MSVC. 61 never reach the compiler — node-gyp 3.x-5.x cannot detect a Visual Studio newer than it, and no hosted image ships VS 2015 or 2017; the other 38 now get all the way to `msbuild` and fail there |
 | 103 | all | `@sitespeed.io/edgedriver` hardcodes `msedgedriver.azureedge.net`, which is **NXDOMAIN**; the successor host 404s that version |
 | 34 | all | `redis-memory-server` compiles Redis from source and fails on a modern C compiler |
 
