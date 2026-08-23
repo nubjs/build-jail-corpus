@@ -615,8 +615,21 @@ jobs:
         shell: bash
         run: |
           set -eu
+          # ⛔ `--published` SCOPES THE EPOCH CHECK TO WHAT THIS RUN ACTUALLY PUBLISHED. Without it
+          # this step judged every record on disk, including the ORIGIN COPY that
+          # `publish-record-v2.sh` restores when the guard withholds a record — and that copy may
+          # predate the current epoch. Run 32660365047 lost nine good darwin measurements to exactly
+          # that: `unicode@0.2.1` was withheld, origin's pre-epoch record was restored in its place,
+          # and this gate reported it as the slice's own failure. This step runs BEFORE the commit
+          # step under `set -eu`, so a false red here does not merely mislead — it bins the slice.
+          # `publish-record-v2.sh` CREATES the manifest on its first publish, so a slice that
+          # published nothing leaves no file at all. That is a legitimate outcome (every record
+          # withheld), not a broken invocation — but the gate REFUSES an unreadable manifest by
+          # design, so make the empty case explicit here rather than teaching it to shrug.
+          [ -f "$NUB_CORPUS_MANIFEST" ] || : > "$NUB_CORPUS_MANIFEST"
           node harness/verify-corpus.mjs --records records-v2/runs \
-            --queue queue-v2.ndjson --current-instrument
+            --queue queue-v2.ndjson --current-instrument \
+            --published "$NUB_CORPUS_MANIFEST"
 
       # ⛔ ASK THE REAL PARSER WHETHER THE V2 CATALOG LOADS. Everything upstream is JavaScript
       # checking JavaScript. A rejected catalog does NOT fail — nub keeps running on the compiled-in

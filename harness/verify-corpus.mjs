@@ -37,7 +37,7 @@ const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
 // (`dependenciesMeta.sandbox`), a grant that stopped being serialised, a canary whose refusal was
 // swallowed. A gate that tolerates unrecognised input cannot be trusted to report on anything.
 const KNOWN = new Set(['--records', '--expect', '--expect-specs', '--expect-platform', '--since',
-  '--queue', '--current-instrument', '--strict', '--complete']);
+  '--queue', '--current-instrument', '--strict', '--complete', '--published']);
 const unknown = argv.filter((a, i) => a.startsWith('--') && !KNOWN.has(a)
   // a VALUE that merely looks like a flag belongs to the preceding known flag, not to this check
   && !(i > 0 && KNOWN.has(argv[i - 1])));
@@ -54,6 +54,37 @@ const QUEUE = opt('--queue', path.join(here, '..', 'queue.ndjson'));
 const CURRENT_INSTRUMENT = argv.includes('--current-instrument') || argv.includes('--strict');
 const STRICT = argv.includes('--strict');
 const COMPLETE = argv.includes('--complete');
+
+// ⛔ THE EPOCH CHECK MUST JUDGE WHAT THIS RUN PUBLISHED, NOT EVERY FILE ON DISK. This threw away a
+// whole darwin slice: `publish-record-v2.sh` withholds a record the guard rejects and then RESTORES
+// ORIGIN'S PRIOR COPY in its place (deliberately — "the corpus keeps its prior grant"). When that
+// prior copy predates the current epoch, the slice gate failed on a record the run had just
+// declined to replace, and since this step runs BEFORE the commit step under `set -eu`, nine good
+// measurements went in the bin with it. Observed on run 32660365047: `unicode@0.2.1` was WITHHELD,
+// origin's pre-epoch record was restored, and the gate reported it as this slice's failure.
+//
+// `publish-record-v2.sh` already appends every PUBLISHED record dir to this manifest — the file
+// existed and nothing read it.
+//
+// ⛔ SCOPED TO THE EPOCH CHECK ALONE. Queue consistency and the catalog still see the whole tree,
+// because those questions really are about the corpus rather than about this slice.
+const PUBLISHED = (() => {
+  const file = opt('--published', null);
+  if (file == null) return null;               // absent: unchanged whole-tree behaviour
+  let raw;
+  try { raw = fs.readFileSync(file, 'utf8'); }
+  catch (error) {
+    // FAIL LOUD, NEVER OPEN. Falling back to the whole tree would silently restore the bug this
+    // flag exists to fix; falling back to an empty set would make the gate vacuously green, which
+    // is worse. Neither is a defensible default, so refuse.
+    console.error(`CORPUS VERIFY REFUSED: --published ${file} is unreadable (${error.message}).`);
+    console.error('  Refusing rather than guessing: checking every record would re-introduce the');
+    console.error('  withheld-record failure, and checking none would make this gate vacuous.');
+    process.exit(2);
+  }
+  return new Set(raw.split('\n').map((l) => l.trim()).filter(Boolean)
+    .map((rel) => path.resolve(rel)));
+})();
 
 const failures = [];
 const notes = [];
@@ -73,8 +104,11 @@ if (CURRENT_INSTRUMENT) {
   const instrument = computeHarnessIdentity();
   const invalidation = loadInvalidationPolicy();
   let stale = 0;
+  let skippedUnpublished = 0;
   const examples = [];
   for (const file of files) {
+    // A record this run did not publish is not this run's to answer for — see PUBLISHED above.
+    if (PUBLISHED && !PUBLISHED.has(path.resolve(path.dirname(file)))) { skippedUnpublished++; continue; }
     let record;
     try { record = JSON.parse(fs.readFileSync(file, 'utf8')); }
     catch (error) {
@@ -93,6 +127,17 @@ if (CURRENT_INSTRUMENT) {
     + `${examples.slice(0, 5).join('; ')}${examples.length > 5 ? ' …' : ''}`);
   else if (files.length) notes.push(`all records match current harness epoch ${instrument.harnessEpoch} `
     + instrument.harnessSha256.slice(0, 16));
+  // ⛔ SAY WHAT WAS NOT CHECKED. A gate that narrows its own scope silently reads as "everything
+  // passed" when it means "the subset I looked at passed" — which is how a green tick starts
+  // meaning less than the reader thinks.
+  // ⛔ AN EMPTY MANIFEST MAKES THE EPOCH CHECK VACUOUS, SO IT IS SAID OUT LOUD. It is a legitimate
+  // outcome — a slice whose every record was withheld publishes nothing — but "0 records checked"
+  // and "0 records stale" render as the same green tick, and only one of them means anything.
+  if (PUBLISHED && PUBLISHED.size === 0) notes.push('⚠ epoch check judged NOTHING: this run '
+    + 'published no records, so a green result here says only that there was nothing to check');
+  if (skippedUnpublished) notes.push(`epoch check scoped to the ${files.length - skippedUnpublished} `
+    + `record(s) this run published; ${skippedUnpublished} pre-existing record(s) on disk were not `
+    + `judged (a withheld record leaves origin's prior copy in place, which may predate the epoch)`);
 }
 
 // ⛔ "NO RECORDS" IS ONLY OK IF NOTHING WAS CLAIMED. This exited 0 unconditionally, which is right
