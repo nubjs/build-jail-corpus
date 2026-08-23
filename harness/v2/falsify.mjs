@@ -92,6 +92,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { driverInvocation } from './driver-invocation.mjs';
 import { driverReportedTimeout } from './driver-timeout.mjs';
+import { eraNodeFromDriverOut, refusalTextWaived } from './stamp-waiver.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -301,6 +302,12 @@ const CASES = [
     // through `pm_engine::present.rs`, so a log grepped for either spelling alone silently finds
     // nothing on the other side of that rename.
     refusal: [/WARN_(AUBE|NUB)_JAIL_NET_DENIED|blocked network access/, /github\.com|raw\.githubusercontent\.com/],
+    // ⛔ AND THAT DENIAL LINE IS NOT EMITTABLE ON EVERY ARM — see the waiver in `judgeWrong`. It
+    // comes from nub's net-gate shim, stamped into `NODE_OPTIONS` only when the interpreter supports
+    // `--import` (20.6+). This package pins to era Node 10.24.1, so the shim is absent by design and
+    // the jail denies silently. Without this flag the case fails on evidence it cannot obtain, which
+    // is what blocked win32 measurement entirely.
+    refusalNeedsImportStamp: true,
     ranEvidence: /mozjpeg|cjpeg/i,
     // ⛔ `gate` ALONE, DELIBERATELY. Naming `rc` here too would let the case pass on the detector the
     // rover case already covers, and the point of adding it is the one neither case covered.
@@ -514,6 +521,12 @@ const runArm = (kase, grant, label, cacheHome) => {
     // unrelated failed instead.
     refusalTerms: kase.refusal.map((re) => ({ re: String(re), hit: re.test(armLogs) })),
     refusalSeen: kase.refusal.every((re) => re.test(armLogs)),
+    // ⛔ WHAT NODE THE ARM ACTUALLY RAN ON, TAKEN FROM THE DRIVER'S OWN MARKER rather than
+    // recomputed from the package's publish date. The recomputation would answer a question next to
+    // this one — what era we WOULD pin — and the two come apart exactly when the pin fails to
+    // engage, which is the case worth catching. `null` when the marker is absent, and every consumer
+    // below treats `null` as STRICT: an unreadable era must never relax an assertion.
+    eraNode: eraNodeFromDriverOut(out),
     // ⛔ THE POSITIVE CONTROL ON "THE LIFECYCLE SCRIPT ACTUALLY RAN", asked of the PACKAGE'S OWN
     // OUTPUT rather than of nub's install summary. A replayed arm materialises from the store and
     // never spawns the script, so none of this can appear.
@@ -582,11 +595,40 @@ const judgeWrong = (kase, arm) => {
     return { fail, inconclusive };
   }
   // INSUFFICIENT reached. Now: for the right reason?
-  if (!arm.refusalSeen) {
+  // ⛔ THE REFUSAL TEXT THIS CASE WANTS IS NOT ALWAYS EMITTABLE, AND DEMANDING IT ANYWAY COST A
+  // PLATFORM. On win32 the `WARN_NUB_JAIL_NET_DENIED` / `blocked network access` line comes from
+  // nub's net-gate shim (`crates/nub-sandbox/src/backend/net_gate_shim.js`), which is delivered as a
+  // `NODE_OPTIONS --import` term. `build_jail.rs` stamps that term ONLY when the interpreter
+  // supports `--import` — `supports_import()` is `major > 20 || (major == 20 && minor >= 6)` — and
+  // REMOVES `NODE_OPTIONS` entirely otherwise, deliberately: an unrecognised option there aborts
+  // Node at startup, which would turn a missing repair into a broken install.
+  //
+  // So on an arm pinned to an older era Node there is no shim, hence no denial line, and the OS
+  // layer blocks the download silently. MEASURED: `mozjpeg@6.0.1` pins to era Node **10.24.1**, and
+  // this case went red on `refusal=—` the same day era-Node provisioning landed in this lane —
+  // against a jail that was enforcing correctly, which the artifact gate said all along
+  // (`installRc=0 artifacts=7/8 missing=1`). The case's own comments record the denial line being
+  // observed when it was written, because arms then still ran on the runner's modern default Node.
+  //
+  // This is NOT a licence to skip the check: it is scoped to cases that opt in, it requires a
+  // KNOWN era below the stamp threshold, and it still records what it gave up. `mustDetect` is
+  // untouched, so the artifact gate remains a hard assertion — the case keeps asserting that the
+  // jail was enforced, and stops asserting it in a vocabulary the arm cannot speak.
+  const stampAbsent = refusalTextWaived(kase, arm.eraNode);
+  if (!arm.refusalSeen && stampAbsent) {
+    console.log(`   ⚠ refusal text WAIVED: the arm ran on era Node `
+      + `${arm.eraNode.major}.${arm.eraNode.minor}, below the 20.6 that nub requires to stamp its `
+      + `net-gate shim, so no denial line can exist. Enforcement is asserted by the artifact gate `
+      + `alone here (${arm.refusalTerms.map((t) => `${t.re}:${t.hit ? 'hit' : 'MISS'}`).join(' AND ')}).`);
+  } else if (!arm.refusalSeen) {
     fail.push(`arm failed but its logs do not carry the full refusal — `
       + `${arm.refusalTerms.map((t) => `${t.re}:${t.hit ? 'hit' : 'MISS'}`).join(' AND ')} `
       + `(${arm.armLogBytes}B of arm logs read). The fatal operation may never have been attempted, `
-      + `so this is not evidence the grant was enforced.`);
+      + `so this is not evidence the grant was enforced.`
+      + (kase.refusalNeedsImportStamp && !arm.eraNode
+        ? ` The case allows this to be waived on an arm below era Node 20.6, but the driver printed `
+          + `no ERA-NODE marker, so the era is UNKNOWN and the waiver is deliberately not applied.`
+        : ''));
   }
   const fired = detectorsThatFired(arm);
   for (const d of kase.mustDetect) {
