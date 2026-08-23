@@ -55,6 +55,35 @@ git config user.email "corpus-runner@users.noreply.github.com" 2>/dev/null || tr
 # The first test of this guard used a SEPARATE manifest per record and therefore could not have
 # caught it, which is the "control that cannot fail" failure one level up from the thing it guards.
 
+# ⛔ PARK A RECORD OUTSIDE `records-v2/` AND PUT ORIGIN'S BACK. Shared by the two things that
+# withhold — the publish guard, and the instrument-failure check below — because they must leave the
+# tree in exactly the same state, and a second copy of this would eventually drift from the first.
+withhold_record () {
+  local why="$1"
+  echo "  ⛔ WITHHELD ($why): $REL" >&2
+  local dir="${NUB_CORPUS_WITHHELD:-withheld-records}/$(basename "$(dirname "$REL")")-$(basename "$REL")"
+  mkdir -p "$dir" 2>/dev/null
+  cp -R "$STASH/rec/." "$dir/" 2>/dev/null
+  if git cat-file -e "origin/$BRANCH:$REL/results.json" 2>/dev/null; then
+    git checkout -q "origin/$BRANCH" -- "$REL" 2>/dev/null
+  else
+    rm -rf "$REL" 2>/dev/null
+  fi
+  echo "     Parked at $dir (outside records-v2, so no bulk commit can sweep it in)." >&2
+}
+
+# ⛔ AN INSTRUMENT FAILURE IS NOT A MEASUREMENT AND MUST NOT REACH THE MANIFEST. `record-validity.mjs`
+# rejects a `HARNESS-*` verdict outright, and `claim-slice.mjs` returns such a row to `pending` for
+# retry — but this script published it regardless, so the slice gate then failed on a record the
+# harness already knew was not a result, and took the WHOLE SLICE with it: that gate runs before the
+# commit step under `set -eu`. MEASURED on run 32665285301 — `netlify-cli@23.9.5` came back
+# `HARNESS-*`, the gate said "instrument failure is not a measurement", and 49 good records were
+# binned alongside it.
+#
+# Withheld rather than merely skipped, so the row stays open: `claim-slice --complete` already
+# returns an instrument failure to pending, and that retry is the behaviour this preserves.
+RECORD_VERDICT="$(node -e 'try{const r=require(process.argv[1]+"/results.json");process.stdout.write(String(r.verdict??""))}catch{}' "$STASH/rec" 2>/dev/null)"
+
 for attempt in 1 2 3; do
   # MIXED reset, not --hard and not --soft. --hard would delete a record committed here but not yet
   # pushed, from the working tree the end-of-slice commit and the artifact both read. --soft leaves
@@ -67,6 +96,14 @@ for attempt in 1 2 3; do
   # is already there, and carrying a stale local copy across would silently release rows another
   # runner claimed while this package was measuring.
   git checkout -q "origin/$BRANCH" -- "$QUEUE" 2>/dev/null || true
+
+  # An instrument failure never becomes a record. See the block above the loop for what it cost.
+  case "$RECORD_VERDICT" in
+    HARNESS-*)
+      withhold_record "instrument failure, not a measurement: $RECORD_VERDICT"
+      echo "     The row stays open; claim-slice --complete returns it to pending for retry." >&2
+      exit 0 ;;
+  esac
 
   # ⛔ THE ONE THING THAT MAY NOT BE OVERWRITTEN: a measured grant, replaced by a NARROWER one that
   # no arm could have falsified. `arm-falsifiability.mjs` is "flag, never fail" — correct for a
@@ -95,7 +132,7 @@ for attempt in 1 2 3; do
            "UNGUARDED: $(head -c 300 "$STASH/guard.err" 2>/dev/null)" >&2
     fi
     if [ "$GUARD_RC" = "10" ]; then
-      echo "  ⛔ WITHHELD (not published): $REL" >&2
+      withhold_record "not published"
       sed 's/^/     /' "$STASH/guard.out" >&2
       # ⛔ THE RECORD MUST LEAVE THE WORKING TREE, NOT MERELY GO UNSTAGED. `record.mjs --out` writes
       # straight into `records-v2/runs/...`, i.e. the record is ALREADY at $REL before this script
@@ -104,15 +141,6 @@ for attempt in 1 2 3; do
       # directory — so a withheld record left in place is published by the next thing that commits,
       # with no guard anywhere in that path. Restore origin's copy, and park the withheld one
       # OUTSIDE records-v2 so it stays inspectable without being sweepable.
-      WITHHELD_DIR="${NUB_CORPUS_WITHHELD:-withheld-records}/$(basename "$(dirname "$REL")")-$(basename "$REL")"
-      mkdir -p "$WITHHELD_DIR" 2>/dev/null
-      cp -R "$STASH/rec/." "$WITHHELD_DIR/" 2>/dev/null
-      if git cat-file -e "origin/$BRANCH:$REL/results.json" 2>/dev/null; then
-        git checkout -q "origin/$BRANCH" -- "$REL" 2>/dev/null
-      else
-        rm -rf "$REL" 2>/dev/null
-      fi
-      echo "     Parked at $WITHHELD_DIR (outside records-v2, so no bulk commit can sweep it in)." >&2
       echo "     The corpus keeps its prior grant." >&2
       exit 0
     fi
