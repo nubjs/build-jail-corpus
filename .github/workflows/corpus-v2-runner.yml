@@ -7,6 +7,29 @@
 # killed batch costs only what it had not yet measured. Those properties were each paid for by a lost
 # slice; re-deriving them for a second lane would be re-paying.
 #
+# ⛔⛔ RUN ONE RUNNER AT A TIME. THE CLAIM PROTOCOL PREVENTS DOUBLE-CLAIMING, NOT CLAIM ERASURE, AND
+# THE LINE ABOVE READS AS THOUGH IT PREVENTS BOTH. It does not, and that sentence cost hours.
+#
+# Every runner rewrites the WHOLE queue file: it takes origin's copy, stamps its own claims, pushes.
+# Two runners overlapping means the second one's write is built on a snapshot taken before the
+# first's claims landed, so those claims are silently ERASED. The rows stay `pending` while the work
+# happens anyway — the records ARE measured and published — and then `--complete` finds nothing it
+# claimed and closes nothing.
+#
+# MEASURED 2026-08-23, one variable, back to back:
+#
+#   two runners concurrently    linux: 50 measured, 50 published, `completed 0 row(s)`
+#                               macos: 50 measured, 43 published, `completed 7 row(s)`
+#   ONE runner alone            linux: 50 measured,               `completed 48 row(s)`
+#
+# The tell is `completed 0 row(s)` alongside `0 claimed-but-unreported left for reclaim`: not
+# unfinished work, but claims that no longer exist. Earlier waves of four runners looked like a
+# yield problem and were this.
+#
+# Serial drain is therefore the ONLY correct way to run this lane today. Making it safe to
+# parallelise means giving the queue a real read-modify-write — a compare-and-swap push loop that
+# re-reads origin and re-applies the claim on rejection — which is a separate piece of work.
+#
 # ⛔ WHAT IS DIFFERENT, AND IT IS THE ONLY THING THAT MATTERS FOR SAFETY: THIS LANE TOUCHES NO V1
 # FILE. Records land under `records-v2/`, the index is `queue-v2.ndjson`, and the publisher is
 # `harness/v2/publish-record-v2.sh`, which REFUSES any path that is not `records-v2/*`. The v1 corpus
