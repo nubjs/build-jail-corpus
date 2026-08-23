@@ -16,6 +16,24 @@ test('the era comes from the driver marker, in the shape the drivers print it', 
   );
 });
 
+test('every driver\'s marker is parseable — the coupling that cost a CI round', () => {
+  // ⛔ THE WAIVER READS A STRING THREE SEPARATE DRIVERS PRINT, so the format is a contract between
+  // files that never import each other. `measure-windows.mjs` printed only its FAILURE path, so a
+  // successful Windows pin was invisible; falsify then read the era as UNKNOWN, correctly refused
+  // the waiver, and the case failed on evidence it could never obtain (run 32659741248). These are
+  // the exact strings the three drivers emit.
+  const emitted = [
+    '  ERA-NODE PINNED 22.23.2 (arms will run: v22.23.2)',              // measure.sh
+    '  ERA-NODE PINNED 6.17.1 (provisioned) (arms will run: v6.17.1)',  // measure-macos.sh
+    '  ERA-NODE PINNED 10.24.1 (arms will run: v10.24.1)',              // measure-windows.mjs
+  ];
+  for (const line of emitted) {
+    assert.notEqual(eraNodeFromDriverOut(line), null, `unparseable marker: ${line}`);
+  }
+  // And a NOT PINNED line must NOT parse as an era — it means the arm ran on the harness Node.
+  assert.equal(eraNodeFromDriverOut('  ERA-NODE NOT PINNED (no era resolved) (arms will run: the harness Node)'), null);
+});
+
 test('an absent or unparseable marker reads as UNKNOWN, never as a low era', () => {
   assert.equal(eraNodeFromDriverOut(''), null);
   assert.equal(eraNodeFromDriverOut(undefined), null);

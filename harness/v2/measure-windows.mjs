@@ -117,6 +117,19 @@ const ERA_NODE = (() => {
   // Measured on a 25-package Linux pilot: 7 of 8 records HARNESS-ERROR, all 7 pinned, all on 18.20.8.
   // `armPath` is threaded into the ARM child envs only, so the harness keeps the Node it started with.
   const armPath = present ? `${bin}${path.delimiter}${process.env.PATH ?? ''}` : (process.env.PATH ?? '');
+  // ⛔ ANNOUNCE THE PIN, IN THE SAME SHAPE THE TWO SHELL DRIVERS DO. They both print
+  // `ERA-NODE <status> (arms will run: …)`; this one printed only its FAILURE path, so a successful
+  // Windows pin was invisible to anything reading the driver's output. That silence is not cosmetic:
+  // falsify's win32 network case may waive a refusal line the arm's Node cannot emit, and it decides
+  // that from this marker — with no marker the era reads UNKNOWN, the waiver is (correctly) refused,
+  // and the case fails on evidence it could never have obtained. Observed on run 32659741248.
+  //
+  // stderr because falsify concatenates BOTH streams of the driver, and this file already reports
+  // the lookup failure there — one stream for one concern.
+  const status = present && selection.version ? `PINNED ${selection.version}`
+    : selection.pinnable === false ? `NOT PINNED (selector declined: ${selection.pkg}@${selection.packageVersion})`
+    : `NOT PINNED (${selection.eraProvisionFailure ?? selection.error ?? selection.lookupFailure ?? 'no era resolved'})`;
+  process.stderr.write(`  ERA-NODE ${status} (arms will run: ${present ? `v${selection.version}` : 'the harness Node'})\n`);
   return { root, selection, bin: present ? bin : null, armPath };
 })();
 
