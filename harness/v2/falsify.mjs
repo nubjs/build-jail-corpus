@@ -139,19 +139,26 @@ const KEEP_ROOTS = argv.includes('--keep-roots');
 // from a batch run — which is what left win32 unable to measure at all once `mozjpeg@6.0.1`'s control
 // arm needed more than 600 s. `spawnSync` inherits the environment, so an env var reaches this file
 // through the batch runner with no change to it.
-// ⛔ AND THE DEFAULT IS PLATFORM-AWARE, BECAUSE AN OVERRIDE NOBODY SETS IS NOT A FIX. The env var
-// above was added for exactly this case and then never set by any caller, so win32 kept failing on
-// the 600 s default. MEASURED on run 32661132323, with the era pin finally engaging: `mozjpeg@6.0.1`
-// on era Node 10.24 took 263 s for `wrong-cold` and hit the deadline on the CONTROL arm at 632 s —
-// so 600 s cannot pass on this venue no matter how often it is retried, while the arm itself was
-// healthy and simply unfinished. 900 s leaves ~40% headroom over the observed figure.
+// ⛔⛔ DO NOT RAISE THIS TO FIX win32 `mozjpeg`. IT WAS TRIED, WITH THE MEASUREMENT, AND THE SHAPE
+// SAYS IT IS THE WRONG TOOL:
 //
-// win32 ONLY: the POSIX drivers impose no per-phase deadline, so raising this there would widen the
-// outer budget for no reason. Judge a change here by the SHAPE, per the repo's own rule — if some
-// value works the venue is slow, and if none does it is a livelock and a bigger number is the wrong
-// tool.
-const ARM_TIMEOUT_MS = Number(opt('--arm-timeout', process.env.NUB_V2_ARM_TIMEOUT_MS
-  || (process.platform === 'win32' ? '900000' : '600000')));
+//     deadline 600 s -> control arm reported 632 s   (run 32661132323)
+//     deadline 900 s -> control arm reported 938 s   (run 32662366881)
+//
+// The arm reports `deadline + ~35 s` whatever the deadline is, because it is being KILLED at the
+// deadline every time and the extra is teardown. It is not a slow arm, it is a HUNG one, and nub's
+// own source says why (`crates/nub-cli/src/pm_engine/build_jail.rs`): the Windows jail delivers a
+// `child_process` stdio shim because "a piped spawn under the AppContainer does not fail, it SPINS —
+// libuv retries the refused named pipe forever inside `uv_spawn`, before any timeout can arm — and
+// every `node-gyp` configure pipes". That shim rides `NODE_OPTIONS --import`, which is stamped only
+// at Node 20.6+; below it nub REMOVES `NODE_OPTIONS` deliberately, leaving — its words — "the same
+// piped-spawn hang as before". `mozjpeg@6.0.1` pins to era Node 10.24 and its install runs node-gyp.
+//
+// So no value of this knob can pass that case, and a larger one only burns more wall-clock before
+// saying so. Left at 600 s for every platform. The repo's rule is the one to apply here: sweep the
+// parameter and read the SHAPE — some value working means a slow venue, none working means a
+// livelock, and this is the second.
+const ARM_TIMEOUT_MS = Number(opt('--arm-timeout', process.env.NUB_V2_ARM_TIMEOUT_MS || '600000'));
 // Three phases plus slack for the driver's own observe/synthesize work, so the inner deadline is
 // always the one that fires first and the arm's own report survives.
 const BUDGET_MS = Number(opt('--budget', '0')) * 1000

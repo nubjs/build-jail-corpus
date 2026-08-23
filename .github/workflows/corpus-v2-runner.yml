@@ -589,7 +589,14 @@ jobs:
         run: |
           shopt -s nullglob
           found=0
-          for root in "$HOME"/v2-* "$HOME"/v2m-*; do
+          # ⛔ `/c/jail` IS NOT OPTIONAL — IT IS WHERE EVERY win32 ARM LIVES. falsify's `--root`
+          # defaults to `C:\jail` on Windows, deliberately NOT under the user profile, so a glob of
+          # `$HOME` alone finds NOTHING there and this step prints its "no kept arm roots" line on a
+          # platform whose roots are sitting on disk a few directories away. Every win32 failure so
+          # far was therefore undiagnosable from its own artefacts: falsify DOES write `driver.out`
+          # for an INCONCLUSIVE case as well as a FAILED one, and the runner was torn down with it
+          # unread. Cost a full extra CI round on run 32662366881.
+          for root in "$HOME"/v2-* "$HOME"/v2m-* /c/jail /c/jail/*; do
             [ -d "$root" ] || continue
             found=1
             echo "=============== $root ==============="
@@ -599,7 +606,7 @@ jobs:
               tail -60 "$f"
             done
           done
-          [ "$found" = 1 ] || echo "no kept arm roots under $HOME -- falsify may have cleaned up, or died before creating one"
+          [ "$found" = 1 ] || echo "no kept arm roots under $HOME or /c/jail -- falsify may have cleaned up, or died before creating one"
 
       - name: Preserve this slice's records as an artifact
         if: always() && env.DRAINED != '1'
