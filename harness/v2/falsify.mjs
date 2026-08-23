@@ -139,7 +139,19 @@ const KEEP_ROOTS = argv.includes('--keep-roots');
 // from a batch run — which is what left win32 unable to measure at all once `mozjpeg@6.0.1`'s control
 // arm needed more than 600 s. `spawnSync` inherits the environment, so an env var reaches this file
 // through the batch runner with no change to it.
-const ARM_TIMEOUT_MS = Number(opt('--arm-timeout', process.env.NUB_V2_ARM_TIMEOUT_MS || '600000'));
+// ⛔ AND THE DEFAULT IS PLATFORM-AWARE, BECAUSE AN OVERRIDE NOBODY SETS IS NOT A FIX. The env var
+// above was added for exactly this case and then never set by any caller, so win32 kept failing on
+// the 600 s default. MEASURED on run 32661132323, with the era pin finally engaging: `mozjpeg@6.0.1`
+// on era Node 10.24 took 263 s for `wrong-cold` and hit the deadline on the CONTROL arm at 632 s —
+// so 600 s cannot pass on this venue no matter how often it is retried, while the arm itself was
+// healthy and simply unfinished. 900 s leaves ~40% headroom over the observed figure.
+//
+// win32 ONLY: the POSIX drivers impose no per-phase deadline, so raising this there would widen the
+// outer budget for no reason. Judge a change here by the SHAPE, per the repo's own rule — if some
+// value works the venue is slow, and if none does it is a livelock and a bigger number is the wrong
+// tool.
+const ARM_TIMEOUT_MS = Number(opt('--arm-timeout', process.env.NUB_V2_ARM_TIMEOUT_MS
+  || (process.platform === 'win32' ? '900000' : '600000')));
 // Three phases plus slack for the driver's own observe/synthesize work, so the inner deadline is
 // always the one that fires first and the arm's own report survives.
 const BUDGET_MS = Number(opt('--budget', '0')) * 1000
