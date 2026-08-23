@@ -5,7 +5,7 @@ every jail number ever quoted silently excludes them. This lane re-measures **al
 arm that gives each package what it was published against, and records why each one that still fails,
 fails.
 
-## The run (2026-08-22, run 32566183450)
+## The run (2026-08-23, run 32653857124)
 
 | platform | records | era chosen | era Node pinned |
 | --- | ---: | ---: | ---: |
@@ -16,13 +16,13 @@ fails.
 
 | disposition | n | meaning |
 | --- | ---: | --- |
-| `CONFIRMED` | 900 | still fails, and the row says why |
-| `STALE-RECORD` | 595 | **installs today.** The exclusion was wrong for 39% of the bucket. |
+| `CONFIRMED` | 883 | still fails, and the row says why |
+| `STALE-RECORD` | 612 | **installs today.** The exclusion was wrong for 40% of the bucket. |
 | `NUB-UNMEASURED` | 30 | npm succeeds; the nub half is [its own lane](../nub-unjailed/README.md) |
 | `UNMEASURED-TIMEOUT` | 3 | hit the wall-clock cap; **not** a package verdict |
 | `CHANGED` | 1 | npm now fails where it used to succeed |
 
-**All 900 CONFIRMED rows carry a cause.** Every measured row also carries a 40-line `tail`, so a
+**All 883 CONFIRMED rows carry a cause.** Every measured row also carries a 40-line `tail`, so a
 later change to how causes are extracted can be re-evaluated against what the run saw instead of
 re-running against a registry that has moved on.
 
@@ -45,6 +45,14 @@ Each of these was added because its absence was silently producing package verdi
   overruns its stdout buffer on the runner image.
 - **A sanitised PATH**, so a tool that happens to sit on the runner is not mistaken for one the
   package provides.
+- **Whatever the FAILURE names, on a retry.** The scaffold reads the manifest's script string, so it
+  cannot see a module a script requires at runtime or a binary it shells out to from inside a JS
+  file. When a build fails naming one, the arm installs it — dated like every other install — and
+  re-runs, up to three times. 42 rows took a retry and 15 of them now install; every such row carries
+  `retryInstalled` naming exactly what was added, so a record can never claim an environment it did
+  not have. It deliberately declines an absolute path (the package's own missing file), a POSIX
+  `./script` under cmd.exe, and other ecosystems' tools — npm has packages called `bundle` and `gem`
+  that are not what the script wanted.
 
 ## What is left, named
 
