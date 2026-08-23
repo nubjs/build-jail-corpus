@@ -28,6 +28,7 @@ import { scriptScaffold } from './script-scaffold.mjs';
 import { pythonForEra, PROBE_NAMES } from './era-python.mjs';
 import { runCapped } from './arm-cap.mjs';
 import { npmInvocation } from './npm-cli.mjs';
+import { namesMissingDependency } from './missing-dep.mjs';
 import { provisionEraNode, eraRootDir } from './era-provision.mjs';
 
 /** The verdict the observe phase would reach, from the two gates' own outcomes. */
@@ -353,17 +354,52 @@ if (import.meta.filename === process.argv[1]) {
         // out of node 22's bundled node-gyp. 78 of the 96 rows in that family were win32.
         const npmBin = eraNpmCli;
         const useEra = Boolean(npmBin);
-        const r = await runCapped(
+        const rebuildOnce = async (outFd) => runCapped(
           useEra ? path.join(eraBin, 'node') : NPM,
           // The era path already runs a JS entry with the era node; the fallback needs npmArgs so it
           // does not reach for the shim on Windows.
           useEra ? [npmBin, 'rebuild', '--no-audit', '--no-fund', pkg]
                  : npmArgs(['rebuild', '--no-audit', '--no-fund', pkg]),
-          { ms: capSecs * 1000, cwd: obs, env, stdio: ['ignore', fd, fd] });
+          { ms: capSecs * 1000, cwd: obs, env, stdio: ['ignore', outFd, outFd] });
+
+        let r = await rebuildOnce(fd);
         fs.closeSync(fd);
+        let log = fs.readFileSync(logPath, 'utf8');
+
+        // ⛔ ASK THE FAILURE WHAT IT NEEDS, THEN RETRY. The scaffold reads the manifest's script
+        // STRING, so it provides what `postinstall: "tsc -p ."` names and nothing a script reaches
+        // for at RUNTIME — `node build.js` whose build.js requires `rollup`, or shells out to
+        // `bower`. Measured on the 2026-08-22 ledger: of the 130 rows that died naming a missing
+        // module or binary, the scaffold had produced anything at all for only 20, and 60 of them
+        // name a package that npm can simply install.
+        //
+        // Bounded at MAX_RETRIES because each pass must name something NEW to continue, and the
+        // same install is never attempted twice — a script that keeps naming the same absent thing
+        // stops rather than looping. Everything added is recorded on the row, so a record can never
+        // claim an environment it did not have.
+        const MAX_RETRIES = 3;
+        const added = [];
+        for (let attempt = 0; attempt < MAX_RETRIES && r.code !== 0 && !r.timedOut; attempt++) {
+          const need = namesMissingDependency(log);
+          if (!need || added.includes(need.install)) break;
+          // Dated like every other install in this arm: an undated retry pulls TODAY's package into
+          // a tree pinned to the target's publish date, which is the leak that cost 96 rows before.
+          const add = sh(NPM, npmArgs(['install', '--no-audit', '--no-fund', '--ignore-scripts',
+                                       ...(fa.before ? [`--before=${fa.before}`] : []),
+                                       need.install]), { cwd: obs, env });
+          added.push(need.install);
+          if ((add.status ?? 1) !== 0) break;      // could not supply it — keep the failure we have
+          const rfd = fs.openSync(logPath, 'w');
+          r = await rebuildOnce(rfd);
+          fs.closeSync(rfd);
+          log = fs.readFileSync(logPath, 'utf8');
+        }
+        if (added.length) rec.retryInstalled = added;
+        // ⛔ SET FROM THE FINAL ATTEMPT, and these were briefly LOST when the retry loop replaced the
+        // single call: the row came back `rebuildRc: undefined`, which `observeVerdict` read as a
+        // failure, so a package the retry had just FIXED still recorded BROKEN-WITHOUT-JAIL-TOO.
         rec.rebuildRc = r.code;
         rec.capped = r.timedOut;
-        const log = fs.readFileSync(logPath, 'utf8');
         rec.firstError = firstCause(log)?.slice(0, 200) ?? null;
         // ⛔ KEEP THE TAIL. Auditing the extractor against the 2026-08-21 ledger was impossible
         // because only `firstError` was stored: when 284 of 284 win32 rows came back on the same

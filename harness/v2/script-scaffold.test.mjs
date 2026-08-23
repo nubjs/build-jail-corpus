@@ -100,14 +100,19 @@ test('follows npm\'s pre<x> wrapper, which an install really does run', () => {
   assert.deepEqual(r.install.sort(), ['babel-cli@^6.6.5', 'rimraf@^2.6.1']);
 });
 
-test('a package manager at the head of a script is a chain AND a requirement', () => {
+test('a package manager at the head of a script is a chain AND a requirement — and is INSTALLED', () => {
   // @rspack/core@0.0.26: the chain leads to plain `node`, so `pnpm` itself is the only real need.
   // Dropping the PM name as noise loses the whole requirement.
+  //
+  // ⛔ THIS TEST USED TO ASSERT `pnpm` WAS UNPROVIDABLE, and that policy cost 18 rows of the
+  // 2026-08-22 ledger their capability profile. pnpm, yarn and bun are npm packages; a package
+  // whose postinstall shells out to one genuinely needs it on any machine that installs it, so
+  // withholding it measures our refusal rather than the package.
   const r = scriptScaffold({
     scripts: { postinstall: 'pnpm precompile-schema', 'precompile-schema': 'node ./scripts/precompile-schema.js' },
   });
-  assert.deepEqual(r.install, []);
-  assert.equal(r.unprovidable[0].bin, 'pnpm');
+  assert.deepEqual(r.install, ['pnpm'], 'the package manager is the requirement, and npm can supply it');
+  assert.deepEqual(r.unprovidable, [], 'nothing here is unprovidable any more');
 });
 
 test('npm itself is ambient — it is the installer running the script', () => {

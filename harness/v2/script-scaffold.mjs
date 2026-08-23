@@ -70,10 +70,16 @@ export const UNPROVIDABLE = {
   'node-waf': 'removed from Node in 0.8 (2012); no provisionable era supplies it',
   pg_config: 'PostgreSQL system tool, not an npm package',
   pulumi: 'external CLI distributed outside npm',
-  pnpm: 'a different package manager; a corpus policy call, not a package defect',
-  yarn: 'a different package manager; a corpus policy call, not a package defect',
-  bun: 'a different package manager; a corpus policy call, not a package defect',
 };
+
+// ⛔ THE PACKAGE MANAGERS CAME OFF THIS LIST (2026-08-23). They sat here as "a different package
+// manager; a corpus policy call, not a package defect" — but pnpm, yarn and bun ARE npm packages,
+// and a package whose postinstall shells out to `pnpm` genuinely needs pnpm on any machine that
+// installs it. Withholding it does not measure the package, it measures our refusal: 18 rows of the
+// 2026-08-22 ledger die on exactly this, and their capability profile is unknown as a result.
+// The corpus records what a package NEEDS; supplying a tool it invokes is the same act as supplying
+// its era Node or its era Python.
+export const PACKAGE_MANAGERS = { pnpm: 'pnpm', yarn: 'yarn', bun: 'bun' };
 
 /** Command names a shell script invokes, best-effort.
  *
