@@ -72,3 +72,15 @@ test('a modern arm is still held to the refusal text', () => {
   assert.equal(refusalTextWaived(kase, { major: 20, minor: 6 }), false);
   assert.equal(refusalTextWaived(kase, { major: 20, minor: 5 }), true);
 });
+
+test('the win32 driver and the waiver share ONE threshold, so they cannot disagree', async () => {
+  // ⛔ THE SAME CONSTANT IN TWO FILES IS HOW THE npm-SHIM BUG APPEARED THREE TIMES. The driver warns
+  // that an era predates the jail's shims; the waiver excuses a refusal line that same absence makes
+  // impossible. If those thresholds ever diverge, one of them is silently wrong — so the driver
+  // imports this predicate rather than recomputing it, and this test pins that it still does.
+  const src = await import('node:fs').then((fs) =>
+    fs.readFileSync(new URL('./measure-windows.mjs', import.meta.url), 'utf8'));
+  assert.match(src, /import \{ supportsImport \} from '\.\/stamp-waiver\.mjs'/);
+  assert.doesNotMatch(src, /major === 20 && \w*[Mm]inor < 6/,
+    'measure-windows.mjs is recomputing the 20.6 threshold instead of importing it');
+});

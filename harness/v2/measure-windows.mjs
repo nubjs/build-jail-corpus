@@ -40,6 +40,9 @@ import { shortfallDigest } from './shortfall-invariance.mjs';
 import { classify, offSwitchEngaged } from './unjailed-nub.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
+// ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
+// here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
+import { supportsImport } from './stamp-waiver.mjs';
 import { neverSpawned } from './never-spawned.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
@@ -130,6 +133,31 @@ const ERA_NODE = (() => {
     : selection.pinnable === false ? `NOT PINNED (selector declined: ${selection.pkg}@${selection.packageVersion})`
     : `NOT PINNED (${selection.eraProvisionFailure ?? selection.error ?? selection.lookupFailure ?? 'no era resolved'})`;
   process.stderr.write(`  ERA-NODE ${status} (arms will run: ${present ? `v${selection.version}` : 'the harness Node'})\n`);
+  // ⛔⛔ SAY UP FRONT WHEN THIS ERA CANNOT CARRY THE JAIL'S SHIMS, BECAUSE THE FAILURE IT CAUSES IS A
+  // HANG AND A HANG EXPLAINS NOTHING ABOUT ITSELF. nub stamps both Windows build-jail preloads into
+  // `NODE_OPTIONS` as `--import` terms, and `build_jail.rs` gates that on the interpreter supporting
+  // `--import` (20.6+), REMOVING `NODE_OPTIONS` below it — deliberately, since an unrecognised option
+  // there aborts Node at startup. One of those preloads is the `child_process` stdio shim, and nub's
+  // own comment says what its absence costs: "a piped spawn under the AppContainer does not fail, it
+  // SPINS — libuv retries the refused named pipe forever inside `uv_spawn`, before any timeout can
+  // arm — and every `node-gyp` configure pipes", leaving "the same piped-spawn hang as before".
+  //
+  // MEASURED: `mozjpeg@6.0.1` (era Node 10.24, node-gyp install) reported `deadline + ~35 s` at BOTH
+  // a 600 s and a 900 s deadline — killed at the deadline, not slow. No deadline can pass it.
+  //
+  // A WARNING, NOT A SKIP, AND THAT IS THE POINT. The hang needs a piped spawn, so a package on the
+  // same old era whose install does not pipe measures perfectly well. Refusing the whole era up front
+  // would discard those, and pinning a NEWER Node to dodge the hang would measure a grant that is not
+  // this package's — the silent-wrong-answer class this corpus exists to avoid. So: run it, and if it
+  // times out, this line is the explanation sitting a few lines above in the same log.
+  const [eraMajor, eraMinor] = String(selection.version ?? '').split('.').map(Number);
+  if (present && Number.isFinite(eraMajor) && !supportsImport({ major: eraMajor, minor: eraMinor })) {
+    process.stderr.write(`  ⛔ ERA-NODE ${selection.version} PREDATES THE JAIL'S SHIMS (needs 20.6+ for `
+      + `\`--import\`). nub delivers NEITHER the child_process stdio shim NOR the net gate to this `
+      + `interpreter. A lifecycle script that PIPES a spawn (node-gyp configure does) will HANG `
+      + `forever under the jail, and no --arm-timeout value can rescue it — a TIMED-OUT arm below `
+      + `this line is structural, not a slow venue. A script that does not pipe is unaffected.\n`);
+  }
   return { root, selection, bin: present ? bin : null, armPath };
 })();
 
