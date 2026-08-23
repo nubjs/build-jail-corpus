@@ -41,6 +41,35 @@ access was denied, so the harness cannot distinguish enforcement from an operati
 attempted — which is the one thing falsify exists to establish. Case 1 passes, so the lane is not
 wholly broken.
 
+## RESOLVED 2026-08-23 — darwin, and the gate that was throwing slices away
+
+The darwin entry above is fixed. `ensure_arm_cache_owned` in `measure-macos.sh` reclaims the arm's
+cache root from root before every arm; `falsify: PASS — 1/1` on run 32660077481, against a diff of
+one file and 26 lines, so nothing else varied.
+
+The win32 entry above is also explained, and it was never a nub defect. The refusal line falsify
+demanded comes from nub's net-gate shim, delivered only as a `NODE_OPTIONS --import` term, which
+`build_jail.rs` stamps only at Node >= 20.6 — removing `NODE_OPTIONS` below that deliberately,
+because an unrecognised option there aborts Node at startup. `mozjpeg@6.0.1` pins to era Node
+10.24.1, so no shim, no denial line, and the OS layer denies silently while the artifact gate
+reports the withholding correctly.
+
+## Corpus hygiene — the pre-epoch records, and what they actually cost
+
+⛔ **CORRECTION.** An earlier version of this section said these records "redden every drain run
+while letting every measured record commit". THEY DO NOT COMMIT. The slice gate runs BEFORE the
+commit step under `set -eu`, so one stale record took the whole slice down with it — which is why
+darwin coverage sat at 0 even after the lane itself worked. Measured on run 32660365047: ten records
+measured, `falsify` green, nothing committed.
+
+The mechanism is not that the corpus rots. `publish-record-v2.sh` withholds a record the publish
+guard rejects and then RESTORES ORIGIN'S PRIOR COPY in its place, on purpose — "the corpus keeps its
+prior grant". When that restored copy predates the current epoch, the gate reported it as the
+slice's own failure.
+
+Fixed by scoping the epoch check to what the run published (`verify-corpus.mjs --published`), which
+reads the `NUB_CORPUS_MANIFEST` the publisher was already writing and nothing was reading.
+
 ## Corpus hygiene — three records predate the current provenance
 
 `@sitespeed.io/chromedriver@90.0.4430-24`, `electron-prebuilt@0.24.0`, `electron-prebuilt@0.28.3`.
