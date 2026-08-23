@@ -1,0 +1,103 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 22.23.2 (provisioned) (arms will run: v22.23.2)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 22, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### netlify-cli@23.9.5   (/home/runner/v2-zBF7HN)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"415b9db100b53070a6af93c30284c0af4e26ad04ec3f3303a347c3092f3733d1","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-23T22:13:09.594Z","cacheHit":false,"clearancePath":"/home/runner/v2-zBF7HN/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 415b9db100b5
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2025-10-25T08:45:49.531Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ad2250b6c6e0112a9fdf24f77c0fcae8225258afedcb891a0b381c7941b72976","specCount":871,"lockfiles":{"digest":"243642cb9775ddf581f4768dd9f5c5d6f9fa1338e1166c288dfc7d92edf310e4","files":[{"path":"package-lock.json","sha256":"571ba9005495103702a26f943cd5a6b1aea18eda5778f61cd6d702778fce3cf2","bytes":513159}]},"maliciousAdvisories":[],"screenedAt":"2026-08-23T22:13:22.277Z","cacheHit":false,"clearancePath":"/home/runner/v2-zBF7HN/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 871 exact package-version(s), tree ad2250b6c6e0
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=25479 trace=32992 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":962,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (962) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-zBF7HN/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-zBF7HN/observe/capture.json
+  RAWLOG-BYTES raw=7452900 gz=184768
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"netlify-cli","packageVersion":"23.9.5","major":22,"version":"22.23.2","npm":"10.9.8","pinnable":true,"engines":">=20.12.2","publishedAt":"2025-10-24T08:45:49.531Z","eraMajor":22,"startMajor":22,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/22.23.2/node-v22.23.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-zBF7HN/jailhome","TMPDIR":"/tmp/nub-tmp-obscGX7Jr","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-zBF7HN/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-zBF7HN/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-zBF7HN/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-zBF7HN/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obscGX7Jr
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-zBF7HN/observe/node_modules/netlify-cli
+  == WRITES the script actually performed ==
+    userHome      2
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.8.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    2 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2
+        .config/netlify
+        .config/netlify/autocompletion.json
+    EVENTS    12349 distinct from 31664 calls (32993 lines, 1301 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×63 getsockname×46 getsockopt×33 setsockopt×23 exit×20 recvmsg×7 socketpair×3 shutdown×3
+    wrote /home/runner/v2-zBF7HN/observe/events.ndjson.gz (79696 bytes)
+  EVENTLOG-FILE /home/runner/v2-zBF7HN/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":32993,"parsed":31664,"unparsed":0,"unfinished":1301,"rejoined":1301,"unresolvedDirfd":1,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":12349,"unknownSyscall":{"getsockname":46,"getsockopt":33,"getcwd":63,"recvmsg":7,"exit":20,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-zBF7HN/observe/events.ndjson.gz","gzipBytes":79696}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  ── nub's own words (tail of security-resolve.log) ──
+       ╰─▶ trust downgrade for @netlify/serverless-functions-api@2.19.1
+           (trustPolicy=no-downgrade): earlier published version 1.3.0 had
+           provenance attestation but this version has no trust evidence
+       help: this is a supply-chain trust failure, not an ordinary version-
+             resolution error. An earlier release carried provenance attestation,
+             but @netlify/serverless-functions-api@2.19.1 carries no trust
+             evidence.
+             
+             This can signal a compromised publisher or tampered release. It can
+             also be benign release-process drift: a maintainer manually published,
+             backported outside the trusted workflow, skipped provenance for
+             convenience, or used a registry that stripped metadata.
+             
+             Before bypassing:
+             1. Inspect the package's npm release, source tag/commit, publisher
+             identity, and tarball; compare the metadata with npmjs.org, and
+             confirm the change is expected and nothing appears tampered with.
+             2. Report inconsistent evidence to the relevant upstream owner.
+             Package-release drift belongs with the maintainer; metadata present
+             on npmjs.org but missing from a proxy or mirror belongs with that
+             registry operator.
+             3. Only after review, pin a version that retains evidence or add
+             the narrow `@netlify/serverless-functions-api@2.19.1` exception to
+             `trustPolicyExclude`. A bare `@netlify/serverless-functions-api`
+             exempts every version; `trustPolicy = off` disables this protection
+             for the entire install.
+             
+             Details and known built-in 
+             policy-exceptions
+     
