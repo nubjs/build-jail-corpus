@@ -78,6 +78,31 @@ USER_HOME="$(dscl . -read "/Users/$RUNUSER" NFSHomeDirectory 2>/dev/null | awk '
 USER_HOME="${USER_HOME:-/Users/$RUNUSER}"
 STORE="$USER_HOME/.cache/nub/pm/store"
 TOOLS="$USER_HOME/.cache/nub/pm/tools"
+# ⛔ THIS DRIVER RUNS AS ROOT AND EVERY ARM RUNS AS $RUNUSER, SO THE ARM'S CACHE ROOT MUST BE
+# RECLAIMED BEFORE EACH ARM. This blocked darwin measurement entirely — 225 rows — and presented as
+# the least informative failure the harness has: `HARNESS-ERROR ... installRc=null detectors=none`.
+# The cause, once the drivers were made to print nub's own words:
+#
+#   drwxr-xr-x  3 root  staff  96 /Users/runner/.cache/nub
+#   × prewarm GVS for hugo-extended@0.141.0: I/O error at /Users/runner/.cache/nub/pm/... :
+#     Permission denied (os error 13)
+#
+# A root-side step creates `~/.cache/nub` before the first arm; `runner` then cannot create `pm/`
+# inside a root-owned 0755 directory, so the tree is never built and the arm reaches no verdict.
+#
+# CALLED PER ARM, NOT ONCE AT STARTUP, and that is the load-bearing part: any root-side step between
+# two arms can recreate the directory, and a startup-only fix would work on arm 1 and silently stop
+# working later. Cheap by construction — it chowns only when the owner is already wrong.
+ensure_arm_cache_owned () {
+  [ "$(id -u)" -eq 0 ] || return 0          # not root: nothing to reclaim, and chown would fail
+  local root="$USER_HOME/.cache/nub" owner
+  mkdir -p "$root" 2>/dev/null || true
+  owner="$(stat -f '%Su' "$root" 2>/dev/null || echo '?')"
+  [ "$owner" = "$RUNUSER" ] && return 0
+  echo "  ARM-CACHE reclaiming $root from '$owner' for '$RUNUSER'"
+  chown -R "$RUNUSER" "$root" 2>/dev/null \
+    || echo "  ⛔ ARM-CACHE chown FAILED — arms cannot materialize a tree and will report HARNESS-ERROR"
+}
 # ⛔ DERIVED ONCE, HERE, AND PASSED DOWN — never re-derived inside the classifier (PORTABILITY R2).
 # The shell driver is apparatus and may read the environment; the classifier may not, because it is
 # the thing that would silently produce a venue-specific answer.
@@ -1014,6 +1039,7 @@ verify () {
   # user, cache and catalog, then clear that exact tree before either execution path. A clearance
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
   chown -R "$RUNUSER" "$v" 2>/dev/null
+  ensure_arm_cache_owned
   sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
