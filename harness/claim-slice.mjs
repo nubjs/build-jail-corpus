@@ -68,6 +68,11 @@ const returnForRetry = (r, v) => {
   return true;
 };
 
+// The queue speaks in OS names; `process.platform` does not. Derived once so the invalidation pass
+// below can tell a row THIS runner could have measured from one it could not.
+const THIS_OS = process.platform === 'darwin' ? 'macos'
+  : process.platform === 'win32' ? 'windows' : 'linux';
+
 const stampIdentity = (row, record) => {
   row.harnessVersion = record.harnessVersion ?? null;
   row.harnessEpoch = record.harnessEpoch ?? record.provenance?.harnessEpoch ?? null;
@@ -257,9 +262,31 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
         nubBinary: { sha256: row.nubSha256 },
       },
     };
+    // ⛔⛔ THE RUNTIME IDENTITY IS THIS RUNNER'S, SO ONLY THIS RUNNER'S OWN PLATFORM MAY BE JUDGED BY
+    // IT. Applying `process.version` and this box's binary hashes to a row measured on ANOTHER
+    // platform asks whether a macOS row was produced by the Linux runner currently holding the
+    // queue. It never was — so the row failed, was returned to pending, and got re-measured.
+    //
+    // That is a mutual-destruction loop and it is why the corpus could not converge. MEASURED
+    // 2026-08-23: `setup-node` pins `node-version: '22'`, a FLOATING major, and the hosted images had
+    // drifted apart — every darwin epoch-3 record carried `v22.23.1`, every linux one `v22.23.2`. So
+    // each linux claim invalidated all 89 darwin rows as "Node runtime changed", each darwin claim
+    // invalidated all 141 linux rows, and `done` oscillated around one platform's worth (200 -> 100)
+    // while 230 valid records sat on disk. One macOS slice re-measured 43 of its 50 rows, and one
+    // record had been written three times by three separate runs.
+    //
+    // The instrument and epoch checks still apply to EVERY row: those are properties of the record
+    // and travel between machines. Only the runtime comparison is scoped, because only it asks a
+    // question about the machine doing the asking.
+    // ⛔ THE NUB SUBJECT IS GLOBAL; THE RUNNER'S NODE IS NOT. A new nub binary or commit is the same
+    // change for every platform — it is the thing under measurement — so those two still reopen
+    // every row. `nodeVersion`/`nodeSha256` describe the MACHINE ASKING, and are passed only for
+    // rows this runner could actually have produced. `queue-epoch.test.mjs` pins the first half:
+    // scoping the nub identity too made a new-subject claim stop reopening a linux row when the
+    // suite ran on a Mac, which would have let a changed subject hide behind a foreign platform.
+    const ownPlatform = row.os === THIS_OS;
     const validity = recordValidity(pseudoRecord, instrument, invalidation, subjectNub ? {
-      nodeVersion: process.version,
-      nodeSha256: nodeIdentity?.sha256,
+      ...(ownPlatform ? { nodeVersion: process.version, nodeSha256: nodeIdentity?.sha256 } : {}),
       nubSha256: nubIdentity?.sha256,
       nubGitSha: subjectNubGitSha || null,
     } : {});

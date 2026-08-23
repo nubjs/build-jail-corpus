@@ -139,8 +139,17 @@ jobs:
             harness
             inputs
             .github
+      # ⛔ AN EXACT VERSION, NOT A FLOATING MAJOR. `record-validity.mjs` treats a change in the
+      # harness Node as invalidating — correctly, it is part of the measurement environment — and it
+      # compares the EXACT version. With `'22'` here, `setup-node` resolved to whatever the image
+      # happened to carry, so the hosted images drifted apart: on 2026-08-23 every darwin epoch-3
+      # record read v22.23.1 and every linux one v22.23.2. Combined with an invalidation pass that
+      # judged every platform by the claiming runner's Node, the two lanes reopened each other's
+      # completed rows forever (see claim-slice.mjs). The scoping fix stops the cross-platform half;
+      # this stops the drift itself, so a re-measure happens when WE change this line and not when a
+      # runner image updates underneath us.
       - uses: actions/setup-node@v7
-        with: { node-version: '22' }
+        with: { node-version: '22.23.2' }
 
       - name: Activate the MSVC build environment
         if: env.OS_NAME == 'windows'
