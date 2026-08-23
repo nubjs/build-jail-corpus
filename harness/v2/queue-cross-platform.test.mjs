@@ -63,7 +63,22 @@ test('a foreign-platform row survives a claim, however different this runner\'s 
     `invalidated with: ${row.invalidated?.reason} — this runner judged a platform it cannot measure`);
 });
 
-test('a CHANGED NUB SUBJECT still reopens a foreign row — the subject is global', () => {
+test('a foreign row survives a DIFFERENT NUB BINARY at the same commit', () => {
+  // ⛔ THE SECOND HALF OF THE LOOP. A darwin nub and a linux nub are different FILES built from one
+  // commit, so `nubBinary.sha256` differs by construction. Judging a foreign row against this
+  // runner's binary reports "Nub binary changed" forever. Measured: nubGitSha was 1 distinct value
+  // across all 230 epoch-3 records while nubSha256 split exactly 89 darwin / 141 linux.
+  const { q, nub } = queueWith(() => doneRow('a-DIFFERENT-BINARY-hash'));
+  const r = spawnSync(process.execPath, [claim, '--queue', q, '--claim', '1', '--os', FOREIGN,
+    '--run', 'test-run', '--subject-nub', nub, '--subject-nub-git-sha', 'subject-commit'],
+  { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const row = read(q)[0];
+  assert.equal(row.status, 'done',
+    `reopened as ${row.status} for ${row.invalidated?.reason} — a foreign build is not a changed subject`);
+});
+
+test('a CHANGED NUB COMMIT still reopens a foreign row — the subject is global', () => {
   const { q, nub } = queueWith((h) => doneRow(h));
   const r = spawnSync(process.execPath, [claim, '--queue', q, '--claim', '1', '--os', FOREIGN,
     '--run', 'test-run', '--subject-nub', nub, '--subject-nub-git-sha', 'a-DIFFERENT-commit'],

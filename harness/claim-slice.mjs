@@ -284,10 +284,29 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
     // rows this runner could actually have produced. `queue-epoch.test.mjs` pins the first half:
     // scoping the nub identity too made a new-subject claim stop reopening a linux row when the
     // suite ran on a Mac, which would have let a changed subject hide behind a foreign platform.
+    // ⛔⛔ ONLY `nubGitSha` IDENTIFIES THE SUBJECT ACROSS PLATFORMS. Every other identity here is a
+    // property of ONE machine, and comparing it to a row from another platform can never match:
+    //
+    //   nubGitSha  1 distinct across all 230 epoch-3 records   <- the subject, and it travels
+    //   nubSha256  2 distinct, splitting EXACTLY 89 darwin / 141 linux
+    //   node       2 distinct, the same 89 / 141 split
+    //
+    // A darwin nub binary and a linux nub binary are different FILES built from the same commit, so
+    // `nubBinary.sha256` differs by construction. Judging a darwin row against this Linux runner's
+    // binary reports "Nub binary changed" forever — the subject did not change, the platform did.
+    //
+    // That was the second half of the convergence loop and it survived the first fix: scoping only
+    // the Node identity left `nubSha256` reopening every foreign row, so a linux slice still logged
+    // `completed 0 row(s)` and re-measured 50 rows that already had valid records.
+    //
+    // `nubGitSha` stays GLOBAL, which is what keeps the guarantee that matters: a genuinely new
+    // subject reopens every platform's rows. `queue-epoch.test.mjs` pins that, and it is the test
+    // that caught an earlier patch of mine which scoped the whole nub identity.
     const ownPlatform = row.os === THIS_OS;
     const validity = recordValidity(pseudoRecord, instrument, invalidation, subjectNub ? {
-      ...(ownPlatform ? { nodeVersion: process.version, nodeSha256: nodeIdentity?.sha256 } : {}),
-      nubSha256: nubIdentity?.sha256,
+      ...(ownPlatform
+        ? { nodeVersion: process.version, nodeSha256: nodeIdentity?.sha256, nubSha256: nubIdentity?.sha256 }
+        : {}),
       nubGitSha: subjectNubGitSha || null,
     } : {});
     if (validity.reusable) continue;
