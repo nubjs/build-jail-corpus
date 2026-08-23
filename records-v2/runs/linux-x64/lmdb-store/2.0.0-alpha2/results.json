@@ -2,102 +2,389 @@
   "pkg": "lmdb-store",
   "version": "2.0.0-alpha2",
   "harnessVersion": 2,
+  "harnessEpoch": 3,
   "verdict": "MINIMUM",
   "grant": {},
-  "synthesized": {
-    "network": true
-  },
+  "synthesized": {},
   "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-network"
-  ],
-  "grantSource": "descended",
-  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
-  "descendedGrant": {},
-  "notes": [],
-  "eventLog": {
-    "lines": 158171,
-    "parsed": 155558,
-    "unparsed": 0,
-    "unfinished": 2134,
-    "rejoined": 2134,
-    "unresolvedDirfd": 3,
-    "truncatedArg": 0,
-    "procs": 362,
-    "lifecyclePids": 351,
-    "distinctEvents": 63934,
-    "unknownSyscall": {
-      "getsockname": 50,
-      "getsockopt": 34,
-      "getcwd": 296,
-      "recvmsg": 8,
-      "setsockopt": 70,
-      "sendmmsg": 2,
-      "socketpair": 12,
-      "shutdown": 11,
-      "exit": 33,
-      "exit_group": 324,
-      "wait4": 373
+  "minimality": "MINIMAL",
+  "overPredictedBy": [],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "5e322f2786d0ccf540747b126977ba284cf5f64635c6dfbf16491f8eea22ff12",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-23T21:22:15.207Z",
+      "cacheHit": false
     },
-    "out": "/home/nub/v2-aGHzC1/observe/events.ndjson.gz",
-    "gzipBytes": 305378
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "9674809265d17c3cc855e5d0b5a1180612031010d5ff5495ec6f9ee887ee6bcc",
+      "specCount": 7,
+      "lockfiles": {
+        "digest": "78992baebef2ed1c6948eaa79b702c092be22b6e01cc5e329243e74535df7fe0",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "975a0704c6ba6324acaa406c63fbd027c77c91e4af9ce619931147e023ccbf64",
+            "bytes": 2982
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-23T21:22:16.589Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "f8ac9d5c774eacb5971abbf43361bb7291cd1facaf4470e37101e675e154c510",
+      "specCount": 10,
+      "lockfiles": {
+        "digest": "20d1ea382cabcfd025414dfd2e33c1933ab8746eb26ba6429c6c0cc618a3e887",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "41857dbce3ecca76c1d34cfc34cf3c560262f465c9fb4ac20b704645e2f6c6dd",
+            "bytes": 4459
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-23T21:22:20.078Z",
+      "cacheHit": false
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "5e322f2786d0ccf540747b126977ba284cf5f64635c6dfbf16491f8eea22ff12",
+      "specCount": 1,
+      "specs": [
+        "lmdb-store@2.0.0-alpha2"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-23T21:22:15.207Z"
+    },
+    {
+      "digest": "9674809265d17c3cc855e5d0b5a1180612031010d5ff5495ec6f9ee887ee6bcc",
+      "specCount": 7,
+      "specs": [
+        "lmdb-store@2.0.0-alpha2",
+        "msgpackr-extract@1.0.15",
+        "msgpackr@1.4.7",
+        "nan@2.15.0",
+        "node-gyp-build@4.3.0",
+        "ordered-binary@1.1.3",
+        "weak-lru-cache@1.1.3"
+      ],
+      "lockfiles": {
+        "digest": "78992baebef2ed1c6948eaa79b702c092be22b6e01cc5e329243e74535df7fe0",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "975a0704c6ba6324acaa406c63fbd027c77c91e4af9ce619931147e023ccbf64",
+            "bytes": 2982
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-23T21:22:16.589Z"
+    },
+    {
+      "digest": "f8ac9d5c774eacb5971abbf43361bb7291cd1facaf4470e37101e675e154c510",
+      "specCount": 10,
+      "specs": [
+        "@msgpackr-extract/msgpackr-extract-linux-x64@3.0.4",
+        "detect-libc@2.1.2",
+        "lmdb-store@2.0.0-alpha2",
+        "msgpackr-extract@3.0.4",
+        "msgpackr@1.12.1",
+        "nan@2.28.0",
+        "node-gyp-build-optional-packages@5.2.2",
+        "node-gyp-build@4.8.4",
+        "ordered-binary@1.6.1",
+        "weak-lru-cache@1.2.2"
+      ],
+      "lockfiles": {
+        "digest": "20d1ea382cabcfd025414dfd2e33c1933ab8746eb26ba6429c6c0cc618a3e887",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "41857dbce3ecca76c1d34cfc34cf3c560262f465c9fb4ac20b704645e2f6c6dd",
+            "bytes": 4459
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-23T21:22:20.078Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-23T21:22:13.062Z",
+    "latestVersion": "1.6.14",
+    "weeklyDownloads": 5482,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/lmdb-store/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/lmdb-store"
+    }
+  },
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable"
+  ],
+  "eventLog": {
+    "lines": 2700,
+    "parsed": 2676,
+    "unparsed": 0,
+    "unfinished": 12,
+    "rejoined": 12,
+    "unresolvedDirfd": 19,
+    "truncatedArg": 0,
+    "procs": 11,
+    "lifecyclePids": 0,
+    "distinctEvents": 1722,
+    "unknownSyscall": {
+      "getsockopt": 1,
+      "getsockname": 2,
+      "getcwd": 1,
+      "recvmsg": 5,
+      "exit": 9,
+      "exit_group": 1
+    },
+    "out": "/home/runner/v2-zp1YRS/observe/events.ndjson.gz",
+    "gzipBytes": 11075
   },
   "driverRc": 0,
-  "durationMs": 107653,
+  "durationMs": 7331,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": null,
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "f4fc2925a2b1d2651c7209fab5b284140f84a500",
-    "node": "v22.20.0",
-    "at": "2026-08-07T00:08:43.000Z",
-    "venue": "vm",
-    "ciEnvSet": false,
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "a8ed64f90c19cba8aeea7991690a6f17654184b952cfcd04ea4199dd7a07c6bb",
+    "harnessInputCount": 272,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260816.277.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260816.277.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-23T21:22:20.825Z",
+    "venue": "ci",
+    "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/home/nub/node",
-    "interpreterInsideHome": true,
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
+    "interpreterInsideHome": false,
     "jailRoot": null,
-    "observeUser": "{\"uid\":1001,\"user\":\"nub\",\"umask\":\"0002\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
+    "cwdResolved": null,
+    "cwdUnplaceableWrites": null,
     "nubBinary": {
-      "path": "/home/nub/nub-catalog-override.bin",
-      "sha256": "0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd",
-      "bytes": 49587440,
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "lmdb-store",
+      "packageVersion": "2.0.0-alpha2",
+      "major": 14,
+      "version": "14.21.3",
+      "npm": "6.14.18",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2021-10-25T23:04:56.435Z",
+      "eraMajor": 14,
+      "startMajor": 14,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/nub/v2-aGHzC1/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsR0OGZG",
+        "HOME": "/home/runner/v2-zp1YRS/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsEuDAYp",
         "NODE_COMPAT": "1",
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
-        "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/nub/v2-aGHzC1/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-zp1YRS/nubcache"
       },
-      "unset": [],
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
       "passedThrough": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
         "NODE_ENV": null
       }
     }
-  },
-  "venueContingent": {
-    "axis": "host toolchain",
-    "descendedFrom": {
-      "network": true
-    },
-    "measured": "OBSERVE (npm) reached the network and the synthesized grant carried it; both jailed arms then installed with network denied, so the descent removed it. The drop arm really was denied the network — the falsification control proves that detection works on this axis (hugo-extended at {} fails with EAI_AGAIN/ENETUNREACH in the same run).",
-    "whyItMayNotGeneralise": "Every record in this class is a node-gyp native build, and the measuring host supplies a full C/C++ toolchain plus a Node installation that ships headers. On a host lacking either, node-gyp would have to DOWNLOAD headers and this {} would under-grant. The measured difference: OBSERVE's generated *.target.mk names .cache/node-gyp/<ver>/…, while both jailed arms name the local Node install's include dir.",
-    "unresolved": "WHY the two differ is NOT established. Nothing in nub or aube sets nodedir/devdir, and the local include path does not appear in the retained OBSERVE trace. The .mk reading was taken from VM state the record does not retain. Decisive cheap check for whoever is next on the VM: run drop-no-network with ~/.cache/node-gyp AND the private home provably empty — measure.sh evicts jail-home/<pkg>-* but not a node-gyp dev dir outside it.",
-    "precedent": "Treat as a per-toolchain split like kerberos@7.0.0 (needs network on Linux, not on macOS, because one venue has a working compiler for the fallback), not as a universal minimum."
   }
 }
