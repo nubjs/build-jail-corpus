@@ -52,3 +52,23 @@ What is established: the discriminator is two provenance fields, `cwdResolved` a
 the queue rows `pending` does NOT help, because the gate reads the record FILES, not the queue. A
 targeted `packages=` run does not rewrite them either, with or without `force=true`, and why that is
 so is NOT established.
+
+## Checked and NOT a harness gap — ERESOLVE
+
+30 CONFIRMED rows fail with `ERESOLVE`, all of them at FETCH. It looks like a candidate for
+`--legacy-peer-deps`, and it is not: **27 of the 30 are at era >= 16**, where npm 8+ enforces peer
+ranges by design, so the era-appropriate installer would refuse them too. Those are genuine
+dependency conflicts and the records are right.
+
+Only 3 rows (era 4, whose npm 2/3 enforced nothing) are a venue artifact — the fetch always runs on
+the harness's modern npm, because the era npm is chosen from metadata the fetch has not produced
+yet. Three rows does not justify restructuring the arm, and loosening peer resolution for everything
+would turn 27 correct refusals into fabricated passes.
+
+## What would move the remaining 883
+
+| rows | needs |
+| ---: | --- |
+| ~150 | a runner image with **Visual Studio 2015/2017** — old node-gyp cannot detect a modern VS, and no hosted image ships one. Self-hosted, or nothing. |
+| ~260 | nothing — platform mismatches, a CDN host that is NXDOMAIN, redis built from source, `node-waf`, POSIX `./script` under cmd.exe. These records are correct. |
+| 431 | the darwin and win32 defects above, which gate their platforms entirely |
