@@ -1489,6 +1489,14 @@ const verify = (grant, label) => {
   }
   if (safeResolve.status !== 0) {
     console.log(`  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts (rc=${safeResolve.status}); no lifecycle script ran`);
+    // ⛔ PRINT NUB'S OWN WORDS. This branch used to exit having said only the line above, which
+    // names a symptom and no cause — the darwin blocker sat unexplained for a day on exactly that,
+    // with the answer in a file on a runner that was torn down before anyone read it. Nub is
+    // specific when it fails here, so the tail is the difference between a diagnosis and another
+    // CI round. Kept identical in all three drivers on purpose.
+    console.log("  ── nub's own words (tail of security-resolve.log) ──");
+    console.log(((safeResolve.stdout ?? '') + (safeResolve.stderr ?? ''))
+      .split(/\r?\n/).slice(-30).map((l) => '     ' + l).join('\n'));
     process.exit(1);
   }
   // Record the SUBJECT arm's materialized layout, never OBSERVE's npm layout and never a value

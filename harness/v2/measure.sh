@@ -1328,6 +1328,13 @@ verify () {
       "$NUB" install --ignore-scripts > "$v/security-resolve.log" 2>&1
   ) || {
     echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
+    # ⛔ PRINT NUB'S OWN WORDS. This branch used to exit having said only the line above, which names
+    # a symptom and no cause — and the darwin blocker sat unexplained for a day because of it, with
+    # the answer sitting in this file on a runner that was torn down before anyone read it. Nub is
+    # specific when it fails here (`prewarm GVS ...: Permission denied (os error 13)` names an
+    # unwritable store); the tail is the difference between a diagnosis and another CI round.
+    echo "  ── nub's own words (tail of security-resolve.log) ──"
+    tail -30 "$v/security-resolve.log" 2>/dev/null | sed -e 's/^/     /'
     exit 1
   }
   security_screen_tree "$v" "nub-$label-resolved"

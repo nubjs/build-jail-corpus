@@ -1018,6 +1018,17 @@ verify () {
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
+      # ⛔ PRINT NUB'S OWN WORDS, AND WHO OWNS THE STORE. This branch used to exit having said only
+      # the line above, which names a symptom and no cause — the darwin blocker sat unexplained for
+      # a day on exactly that, while the answer sat in this file on a runner that was then torn
+      # down. Reproduced locally: an arm user who cannot write the store fails here with `prewarm
+      # GVS ...: Permission denied (os error 13)`. This driver drops from root to $RUNUSER, so a
+      # store left root-owned by an earlier step is the mechanism worth ruling in or out FIRST —
+      # hence the ownership line beside the tail.
+      echo "  ── nub's own words (tail of security-resolve.log) ──"
+      tail -30 "$v/security-resolve.log" 2>/dev/null | sed -e 's/^/     /'
+      echo "  ── who owns the store (arm ran as $RUNUSER) ──"
+      ls -ld "$USER_HOME/.cache/nub" "$USER_HOME/.cache/nub/pm" "$STORE" 2>&1 | sed -e 's/^/     /'
       exit 1
     }
   security_screen_tree "$v" "nub-$label-resolved"
