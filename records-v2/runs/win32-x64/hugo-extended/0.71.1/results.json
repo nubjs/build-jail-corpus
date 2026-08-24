@@ -2,65 +2,647 @@
   "pkg": "hugo-extended",
   "version": "0.71.1",
   "harnessVersion": 2,
-  "verdict": "MINIMUM",
-  "grant": {
-    "network": true
-  },
+  "harnessEpoch": 3,
+  "verdict": "HARNESS-TIMEOUT",
+  "grant": null,
   "synthesized": {
     "write": {
       "deps": true
     },
     "network": true
   },
-  "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-write-deps"
-  ],
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": "descended",
-  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
-  "descendedGrant": {
-    "network": true
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "21d2d0320479a139190f35fd5c3729c6e6b1ea7f57bab3f80caef20f78110dbb",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T05:04:27.898Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "7460483b4752294ccf82510cd7a202718eaffacb084ba77a3275d483640ce112",
+      "specCount": 140,
+      "lockfiles": {
+        "digest": "1c95d02db0579e1887916c084004f0abc2befb52c147eddb8003994f82f74ed5",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "9339dec71124593c3bb0429753c8bc7772da2a5e814306946bc761043aa711e5",
+            "bytes": 57019
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T05:04:33.494Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "98db4deae34f69bf51f3007210424b83c53da3e873b9fdec2221677945e427f3",
+      "specCount": 170,
+      "lockfiles": {
+        "digest": "45bd6a81f1d1f719085b46bcf872f6fadce540cf5cac92fe8643e7e69d2d8bad",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f3fb30a3abe43e51e5a9564447974ebcb42341a582b16158dcd6d9638501c201",
+            "bytes": 40193
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T05:04:48.041Z",
+      "cacheHit": false
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "21d2d0320479a139190f35fd5c3729c6e6b1ea7f57bab3f80caef20f78110dbb",
+      "specCount": 1,
+      "specs": [
+        "hugo-extended@0.71.1"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T05:04:27.898Z"
+    },
+    {
+      "digest": "7460483b4752294ccf82510cd7a202718eaffacb084ba77a3275d483640ce112",
+      "specCount": 140,
+      "specs": [
+        "@sindresorhus/is@0.7.0",
+        "arch@2.1.2",
+        "archive-type@4.0.0",
+        "base64-js@1.3.1",
+        "bin-check@4.1.0",
+        "bin-version-check@4.0.0",
+        "bin-version@3.1.0",
+        "bin-wrapper@4.1.0",
+        "bl@1.2.2",
+        "buffer-alloc-unsafe@1.1.0",
+        "buffer-alloc@1.2.0",
+        "buffer-crc32@0.2.13",
+        "buffer-fill@1.0.0",
+        "buffer@5.6.0",
+        "cacheable-request@2.1.4",
+        "caw@2.0.1",
+        "clone-response@1.0.2",
+        "commander@2.8.1",
+        "config-chain@1.1.12",
+        "content-disposition@0.5.3",
+        "core-util-is@1.0.2",
+        "cross-spawn@5.1.0",
+        "cross-spawn@6.0.5",
+        "decode-uri-component@0.2.0",
+        "decompress-response@3.3.0",
+        "decompress-tar@4.1.1",
+        "decompress-tarbz2@4.1.1",
+        "decompress-targz@4.1.1",
+        "decompress-unzip@4.0.1",
+        "decompress@4.2.1",
+        "download@7.1.0",
+        "duplexer3@0.1.4",
+        "end-of-stream@1.4.4",
+        "escape-string-regexp@1.0.5",
+        "execa@0.7.0",
+        "execa@1.0.0",
+        "executable@4.1.1",
+        "ext-list@2.2.2",
+        "ext-name@5.0.0",
+        "fd-slicer@1.1.0",
+        "file-type@3.9.0",
+        "file-type@4.4.0",
+        "file-type@5.2.0",
+        "file-type@6.2.0",
+        "file-type@8.1.0",
+        "filename-reserved-regex@2.0.0",
+        "filenamify@2.1.0",
+        "find-versions@3.2.0",
+        "from2@2.3.0",
+        "fs-constants@1.0.0",
+        "get-proxy@2.1.0",
+        "get-stream@2.3.1",
+        "get-stream@3.0.0",
+        "get-stream@4.1.0",
+        "got@8.3.2",
+        "graceful-fs@4.2.4",
+        "graceful-readlink@1.0.1",
+        "has-symbol-support-x@1.4.2",
+        "has-to-string-tag-x@1.4.1",
+        "http-cache-semantics@3.8.1",
+        "hugo-extended@0.71.1",
+        "ieee754@1.1.13",
+        "import-lazy@3.1.0",
+        "inherits@2.0.4",
+        "ini@1.3.5",
+        "into-stream@3.1.0",
+        "is-natural-number@4.0.1",
+        "is-object@1.0.1",
+        "is-plain-obj@1.1.0",
+        "is-retry-allowed@1.2.0",
+        "is-stream@1.1.0",
+        "isarray@1.0.0",
+        "isexe@2.0.0",
+        "isurl@1.0.0",
+        "json-buffer@3.0.0",
+        "keyv@3.0.0",
+        "lowercase-keys@1.0.0",
+        "lowercase-keys@1.0.1",
+        "lru-cache@4.1.5",
+        "make-dir@1.3.0",
+        "mime-db@1.44.0",
+        "mimic-response@1.0.1",
+        "nice-try@1.0.5",
+        "normalize-url@2.0.1",
+        "npm-conf@1.1.3",
+        "npm-run-path@2.0.2",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-filter-obj@2.0.0",
+        "p-cancelable@0.4.1",
+        "p-event@2.3.1",
+        "p-finally@1.0.0",
+        "p-is-promise@1.1.0",
+        "p-timeout@2.0.1",
+        "path-key@2.0.1",
+        "pend@1.2.0",
+        "pify@2.3.0",
+        "pify@3.0.0",
+        "pify@4.0.1",
+        "pinkie-promise@2.0.1",
+        "pinkie@2.0.4",
+        "prepend-http@2.0.0",
+        "process-nextick-args@2.0.1",
+        "proto-list@1.2.4",
+        "pseudomap@1.0.2",
+        "pump@3.0.0",
+        "query-string@5.1.1",
+        "readable-stream@2.3.7",
+        "responselike@1.0.2",
+        "safe-buffer@5.1.2",
+        "seek-bzip@1.0.5",
+        "semver-regex@2.0.0",
+        "semver-truncate@1.1.2",
+        "semver@5.7.1",
+        "shebang-command@1.2.0",
+        "shebang-regex@1.0.0",
+        "signal-exit@3.0.3",
+        "sort-keys-length@1.0.1",
+        "sort-keys@1.1.2",
+        "sort-keys@2.0.0",
+        "strict-uri-encode@1.1.0",
+        "string_decoder@1.1.1",
+        "strip-dirs@2.1.0",
+        "strip-eof@1.0.0",
+        "strip-outer@1.0.1",
+        "tar-stream@1.6.2",
+        "through@2.3.8",
+        "timed-out@4.0.1",
+        "to-buffer@1.1.1",
+        "trim-repeated@1.0.0",
+        "tunnel-agent@0.6.0",
+        "unbzip2-stream@1.4.2",
+        "url-parse-lax@3.0.0",
+        "url-to-options@1.0.1",
+        "util-deprecate@1.0.2",
+        "which@1.3.1",
+        "wrappy@1.0.2",
+        "xtend@4.0.2",
+        "yallist@2.1.2",
+        "yauzl@2.10.0"
+      ],
+      "lockfiles": {
+        "digest": "1c95d02db0579e1887916c084004f0abc2befb52c147eddb8003994f82f74ed5",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "9339dec71124593c3bb0429753c8bc7772da2a5e814306946bc761043aa711e5",
+            "bytes": 57019
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T05:04:33.494Z"
+    },
+    {
+      "digest": "98db4deae34f69bf51f3007210424b83c53da3e873b9fdec2221677945e427f3",
+      "specCount": 170,
+      "specs": [
+        "@sindresorhus/is@0.7.0",
+        "@types/keyv@3.1.4",
+        "@types/node@26.2.0",
+        "@types/responselike@1.0.3",
+        "arch@2.2.0",
+        "archive-type@4.0.0",
+        "available-typed-arrays@1.0.7",
+        "base64-js@1.5.1",
+        "bin-check@4.1.0",
+        "bin-version-check@4.0.0",
+        "bin-version@3.1.0",
+        "bin-wrapper@4.1.0",
+        "bl@1.2.3",
+        "buffer-alloc-unsafe@1.1.0",
+        "buffer-alloc@1.2.0",
+        "buffer-crc32@0.2.13",
+        "buffer-fill@1.0.0",
+        "buffer@5.7.1",
+        "cacheable-request@2.1.4",
+        "call-bind-apply-helpers@1.0.2",
+        "call-bind@1.0.9",
+        "call-bound@1.0.4",
+        "caw@2.0.1",
+        "clone-response@1.0.2",
+        "commander@2.20.3",
+        "config-chain@1.1.13",
+        "content-disposition@0.5.4",
+        "core-util-is@1.0.3",
+        "cross-spawn@5.1.0",
+        "cross-spawn@6.0.6",
+        "decode-uri-component@0.2.2",
+        "decompress-response@3.3.0",
+        "decompress-tar@4.1.1",
+        "decompress-tarbz2@4.1.1",
+        "decompress-targz@4.1.1",
+        "decompress-unzip@4.0.1",
+        "decompress@4.2.1",
+        "define-data-property@1.1.4",
+        "download@7.1.0",
+        "dunder-proto@1.0.1",
+        "duplexer3@0.1.5",
+        "end-of-stream@1.4.5",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "escape-string-regexp@1.0.5",
+        "execa@0.7.0",
+        "execa@1.0.0",
+        "executable@4.1.1",
+        "ext-list@2.2.2",
+        "ext-name@5.0.0",
+        "fd-slicer@1.1.0",
+        "file-type@3.9.0",
+        "file-type@4.4.0",
+        "file-type@5.2.0",
+        "file-type@6.2.0",
+        "file-type@8.1.0",
+        "filename-reserved-regex@2.0.0",
+        "filenamify@2.1.0",
+        "find-versions@3.2.0",
+        "for-each@0.3.5",
+        "from2@2.3.0",
+        "fs-constants@1.0.0",
+        "function-bind@1.1.2",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "get-proxy@2.1.0",
+        "get-stream@2.3.1",
+        "get-stream@3.0.0",
+        "get-stream@4.1.0",
+        "gopd@1.2.0",
+        "got@8.3.2",
+        "graceful-fs@4.2.11",
+        "has-property-descriptors@1.0.2",
+        "has-symbol-support-x@1.4.2",
+        "has-symbols@1.1.0",
+        "has-to-string-tag-x@1.4.1",
+        "has-tostringtag@1.0.2",
+        "hasown@2.0.4",
+        "http-cache-semantics@3.8.1",
+        "hugo-extended@0.71.1",
+        "ieee754@1.2.1",
+        "import-lazy@3.1.0",
+        "inherits@2.0.4",
+        "ini@1.3.8",
+        "into-stream@3.1.0",
+        "is-callable@1.2.7",
+        "is-natural-number@4.0.1",
+        "is-object@1.0.2",
+        "is-plain-obj@1.1.0",
+        "is-retry-allowed@1.2.0",
+        "is-stream@1.1.0",
+        "is-typed-array@1.1.15",
+        "isarray@1.0.0",
+        "isarray@2.0.5",
+        "isexe@2.0.0",
+        "isurl@1.0.0",
+        "json-buffer@3.0.0",
+        "keyv@3.0.0",
+        "lowercase-keys@1.0.0",
+        "lowercase-keys@1.0.1",
+        "lru-cache@4.1.5",
+        "make-dir@1.3.0",
+        "math-intrinsics@1.1.0",
+        "mime-db@1.54.0",
+        "mimic-response@1.0.1",
+        "nice-try@1.0.5",
+        "normalize-url@2.0.1",
+        "npm-conf@1.1.3",
+        "npm-run-path@2.0.2",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-filter-obj@2.0.0",
+        "p-cancelable@0.4.1",
+        "p-event@2.3.1",
+        "p-finally@1.0.0",
+        "p-is-promise@1.1.0",
+        "p-timeout@2.0.1",
+        "path-key@2.0.1",
+        "pend@1.2.0",
+        "pify@2.3.0",
+        "pify@3.0.0",
+        "pify@4.0.1",
+        "pinkie-promise@2.0.1",
+        "pinkie@2.0.4",
+        "possible-typed-array-names@1.1.0",
+        "prepend-http@2.0.0",
+        "process-nextick-args@2.0.1",
+        "proto-list@1.2.4",
+        "pseudomap@1.0.2",
+        "pump@3.0.4",
+        "query-string@5.1.1",
+        "readable-stream@2.3.8",
+        "responselike@1.0.2",
+        "safe-buffer@5.1.2",
+        "safe-buffer@5.2.1",
+        "seek-bzip@1.0.6",
+        "semver-regex@2.0.0",
+        "semver-truncate@1.1.2",
+        "semver@5.7.2",
+        "set-function-length@1.2.2",
+        "shebang-command@1.2.0",
+        "shebang-regex@1.0.0",
+        "signal-exit@3.0.7",
+        "sort-keys-length@1.0.1",
+        "sort-keys@1.1.2",
+        "sort-keys@2.0.0",
+        "strict-uri-encode@1.1.0",
+        "string_decoder@1.1.1",
+        "strip-dirs@2.1.0",
+        "strip-eof@1.0.0",
+        "strip-outer@1.0.1",
+        "tar-stream@1.6.2",
+        "through@2.3.8",
+        "timed-out@4.0.1",
+        "to-buffer@1.2.2",
+        "trim-repeated@1.0.0",
+        "tunnel-agent@0.6.0",
+        "typed-array-buffer@1.0.3",
+        "unbzip2-stream@1.4.3",
+        "undici-types@8.3.0",
+        "url-parse-lax@3.0.0",
+        "url-to-options@1.0.1",
+        "util-deprecate@1.0.2",
+        "which-typed-array@1.1.22",
+        "which@1.3.1",
+        "wrappy@1.0.2",
+        "xtend@4.0.2",
+        "yallist@2.1.2",
+        "yauzl@2.10.0"
+      ],
+      "lockfiles": {
+        "digest": "45bd6a81f1d1f719085b46bcf872f6fadce540cf5cac92fe8643e7e69d2d8bad",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f3fb30a3abe43e51e5a9564447974ebcb42341a582b16158dcd6d9638501c201",
+            "bytes": 40193
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T05:04:48.041Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T04:32:00.647Z",
+    "latestVersion": "0.164.0",
+    "weeklyDownloads": 243221,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/hugo-extended/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/hugo-extended"
+    }
   },
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
   "notes": [],
   "eventLog": null,
-  "driverRc": 0,
-  "durationMs": 100015,
+  "driverRc": 3,
+  "durationMs": 1904654,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "685b8f682b5ff3c3dd7147cea3a262d8df08b404",
+    "corpusGitSha": "242fa7369c32d537cfea11b580d8cf7f1f400c9a",
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
     "node": "v22.23.2",
-    "at": "2026-08-07T23:41:43.014Z",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+        "sha256": "0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4",
+        "bytes": 86997320
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+        "executable": {
+          "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+          "sha256": "21b46c69ad6e2f231f02a9e120f4ba6c8e75fef5a45637103002eab99f888ab8",
+          "bytes": 538
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "py",
+            "-3",
+            "--version"
+          ],
+          "path": "C:\\Windows\\py.exe",
+          "executable": {
+            "path": "C:\\Windows\\py.exe",
+            "sha256": "a6b32b0ddcc53fa2e1a92905321ecfae80c2fb77abf2e313efc6238daad0f1ca",
+            "bytes": 783072
+          },
+          "version": "Python 3.14.7"
+        }
+      ],
+      "buildTools": {
+        "cl": {
+          "command": [
+            "cl",
+            "/?"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "e6d57100c82ae0310c18b16abfe52bc0df8fbb272ca6c5fb287d485807cfce91",
+            "bytes": 893328
+          },
+          "version": "C/C++ COMPILER OPTIONS"
+        },
+        "msbuild": {
+          "command": [
+            "msbuild",
+            "-version"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+            "sha256": "70838f9b80e04f79f2699e34f1ca8966e42c9a39a0383678c75bef459ec5a098",
+            "bytes": 378152
+          },
+          "version": "MSBuild version 18.9.1+a81b43525 for .NET Framework"
+        }
+      },
+      "os": {
+        "platform": "win32",
+        "arch": "x64",
+        "libc": null,
+        "type": "Windows_NT",
+        "release": "10.0.26100",
+        "version": "Windows Server 2025 Datacenter",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Windows",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "win25-vs2026",
+        "imageVersion": "20260818.207.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Windows",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "win25-vs2026",
+          "ImageVersion": "20260818.207.1",
+          "LANG": null,
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "4a50c59db13929ff99f8375bdbcb7eed33b1bdac3fcf845f503c37efc753416d",
+        "shell": "C:\\Windows\\system32\\cmd.exe"
+      }
+    },
+    "at": "2026-08-24T05:34:49.403Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": "hoisted",
+    "storeLayout": "isolated",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-hugoextended-msjl7oe0",
-    "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "jailRoot": "D:\\jail\\m-hugoextended-mt6rui1y",
+    "observeUser": "runnervm6iq3x\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe",
-      "sha256": "7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6",
-      "bytes": 68896768,
+      "sha256": "1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09",
+      "bytes": 69241856,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "hugo-extended",
+      "packageVersion": "0.71.1",
+      "lookupFailure": null,
+      "major": 12,
+      "version": "12.22.12",
+      "npm": "6.14.16",
+      "pinnable": true,
+      "engines": ">=8",
+      "publishedAt": "2020-05-25T18:31:36.164Z",
+      "eraMajor": 12,
+      "startMajor": 12,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "pinned": true,
+      "pinnedBin": "C:\\Users\\runneradmin\\.cache\\nub\\era-node\\12.22.12\\node-v12.22.12-win-x64",
+      "eraNodeRoot": "C:\\Users\\runneradmin\\.cache\\nub"
+    },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-hugoextended-msjl7oe0\\npm-cache",
-        "TMP": "C:\\jail\\m-hugoextended-msjl7oe0\\tmp",
-        "TEMP": "C:\\jail\\m-hugoextended-msjl7oe0\\tmp",
-        "TMPDIR": "C:\\jail\\m-hugoextended-msjl7oe0\\tmp"
+        "npm_config_cache": "D:\\jail\\m-hugoextended-mt6rui1y\\npm-cache",
+        "TMP": "D:\\jail\\m-hugoextended-mt6rui1y\\tmp",
+        "TEMP": "D:\\jail\\m-hugoextended-mt6rui1y\\tmp",
+        "TMPDIR": "D:\\jail\\m-hugoextended-mt6rui1y\\tmp"
       },
       "unset": [
         "CI",
