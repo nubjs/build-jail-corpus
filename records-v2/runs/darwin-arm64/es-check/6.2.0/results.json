@@ -2,70 +2,717 @@
   "pkg": "es-check",
   "version": "6.2.0",
   "harnessVersion": 2,
+  "harnessEpoch": 3,
   "verdict": "MINIMUM",
   "grant": {
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    },
     "network": true
   },
-  "synthesized": {
-    "network": true
-  },
-  "verifiedBy": "synth",
-  "minimality": "MINIMAL",
-  "overPredictedBy": [],
+  "synthesized": {},
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-project",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "3fc4cd9eb4d55b30338e2f34795cbd345e1ceb9ff1fb337332fa3109dc04ab9e",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:41.427Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "02aa4baffb892fe5dcf07245f78e360e736f07f2f86fbf357b8635fb74d49ec0",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "888555f61a7cce4c79f8933a4cc153a6728023af8cc3191e94925ae30acab1eb",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "1853e057c7184a7a00e7246c32653bc46468df14432c9193c31c2e2038d65778",
+            "bytes": 52395
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:49.956Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb903772438-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-network-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-project-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-userHome-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T23:13:56.672Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "3fc4cd9eb4d55b30338e2f34795cbd345e1ceb9ff1fb337332fa3109dc04ab9e",
+      "specCount": 1,
+      "specs": [
+        "es-check@6.2.0"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T23:13:41.427Z"
+    },
+    {
+      "digest": "02aa4baffb892fe5dcf07245f78e360e736f07f2f86fbf357b8635fb74d49ec0",
+      "specCount": 129,
+      "specs": [
+        "@caporal/core@2.0.2",
+        "@nodelib/fs.scandir@2.1.5",
+        "@nodelib/fs.stat@2.0.5",
+        "@nodelib/fs.walk@1.2.8",
+        "@types/glob@7.2.0",
+        "@types/lodash@4.14.149",
+        "@types/minimatch@3.0.5",
+        "@types/node@13.9.3",
+        "@types/table@5.0.0",
+        "@types/tabtab@3.0.2",
+        "@types/wrap-ansi@3.0.0",
+        "acorn@8.7.0",
+        "ajv@6.12.6",
+        "ansi-escapes@3.2.0",
+        "ansi-regex@3.0.0",
+        "ansi-regex@4.1.0",
+        "ansi-regex@5.0.1",
+        "ansi-styles@3.2.1",
+        "ansi-styles@4.3.0",
+        "astral-regex@1.0.0",
+        "async@2.6.3",
+        "balanced-match@1.0.2",
+        "brace-expansion@1.1.11",
+        "braces@3.0.2",
+        "chalk@2.4.2",
+        "chalk@3.0.0",
+        "chardet@0.7.0",
+        "cli-cursor@2.1.0",
+        "cli-width@2.2.1",
+        "color-convert@1.9.3",
+        "color-convert@2.0.1",
+        "color-name@1.1.3",
+        "color-name@1.1.4",
+        "color-string@1.9.0",
+        "color@3.2.1",
+        "colornames@1.1.1",
+        "colors@1.4.0",
+        "colorspace@1.1.4",
+        "concat-map@0.0.1",
+        "debug@4.3.3",
+        "diagnostics@1.1.1",
+        "emoji-regex@7.0.3",
+        "emoji-regex@8.0.0",
+        "enabled@1.0.2",
+        "env-variable@0.0.6",
+        "es-check@6.2.0",
+        "es6-promisify@6.1.1",
+        "escape-string-regexp@1.0.5",
+        "external-editor@3.1.0",
+        "fast-deep-equal@3.1.3",
+        "fast-glob@3.2.11",
+        "fast-json-stable-stringify@2.1.0",
+        "fastq@1.13.0",
+        "fecha@4.2.1",
+        "figures@2.0.0",
+        "fill-range@7.0.1",
+        "fs.realpath@1.0.0",
+        "glob-parent@5.1.2",
+        "glob@7.2.0",
+        "has-flag@3.0.0",
+        "has-flag@4.0.0",
+        "iconv-lite@0.4.24",
+        "inflight@1.0.6",
+        "inherits@2.0.4",
+        "inquirer@6.5.2",
+        "is-arrayish@0.3.2",
+        "is-extglob@2.1.1",
+        "is-fullwidth-code-point@2.0.0",
+        "is-fullwidth-code-point@3.0.0",
+        "is-glob@4.0.3",
+        "is-number@7.0.0",
+        "is-stream@1.1.0",
+        "json-schema-traverse@0.4.1",
+        "kuler@1.0.1",
+        "lodash@4.17.15",
+        "logform@2.3.2",
+        "merge2@1.4.1",
+        "micromatch@4.0.4",
+        "mimic-fn@1.2.0",
+        "minimatch@3.0.4",
+        "minimist@1.2.5",
+        "mkdirp@0.5.5",
+        "ms@2.1.2",
+        "mute-stream@0.0.7",
+        "once@1.4.0",
+        "one-time@0.0.4",
+        "onetime@2.0.1",
+        "os-tmpdir@1.0.2",
+        "path-is-absolute@1.0.1",
+        "picomatch@2.3.1",
+        "punycode@2.1.1",
+        "queue-microtask@1.2.3",
+        "readable-stream@3.6.0",
+        "restore-cursor@2.0.0",
+        "reusify@1.0.4",
+        "run-async@2.4.1",
+        "run-parallel@1.2.0",
+        "rxjs@6.6.7",
+        "safe-buffer@5.2.1",
+        "safe-stable-stringify@1.1.1",
+        "safer-buffer@2.1.2",
+        "signal-exit@3.0.6",
+        "simple-swizzle@0.2.2",
+        "slice-ansi@2.1.0",
+        "stack-trace@0.0.10",
+        "string-width@2.1.1",
+        "string-width@3.1.0",
+        "string-width@4.2.3",
+        "string_decoder@1.3.0",
+        "strip-ansi@4.0.0",
+        "strip-ansi@5.2.0",
+        "strip-ansi@6.0.1",
+        "supports-color@5.5.0",
+        "supports-color@7.2.0",
+        "table@5.4.6",
+        "tabtab@3.0.2",
+        "text-hex@1.0.0",
+        "through@2.3.8",
+        "tmp@0.0.33",
+        "to-regex-range@5.0.1",
+        "triple-beam@1.3.0",
+        "tslib@1.14.1",
+        "untildify@3.0.3",
+        "uri-js@4.4.1",
+        "util-deprecate@1.0.2",
+        "winston-transport@4.4.2",
+        "winston@3.2.1",
+        "wrap-ansi@6.2.0",
+        "wrappy@1.0.2"
+      ],
+      "lockfiles": {
+        "digest": "888555f61a7cce4c79f8933a4cc153a6728023af8cc3191e94925ae30acab1eb",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "1853e057c7184a7a00e7246c32653bc46468df14432c9193c31c2e2038d65778",
+            "bytes": 52395
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T23:13:49.956Z"
+    },
+    {
+      "digest": "b650e6099eeb7033d518c74d684efa7cd336430fda0260cff5e77974d13aaac6",
+      "specCount": 129,
+      "specs": [
+        "@caporal/core@2.0.7",
+        "@colors/colors@1.6.0",
+        "@dabh/diagnostics@2.0.8",
+        "@nodelib/fs.scandir@2.1.5",
+        "@nodelib/fs.stat@2.0.5",
+        "@nodelib/fs.walk@1.2.8",
+        "@so-ric/colorspace@1.1.6",
+        "@types/glob@7.2.0",
+        "@types/lodash@4.17.25",
+        "@types/minimatch@6.0.0",
+        "@types/node@13.9.3",
+        "@types/table@5.0.0",
+        "@types/tabtab@3.0.4",
+        "@types/triple-beam@1.3.5",
+        "@types/wrap-ansi@3.0.0",
+        "acorn@8.18.0",
+        "ajv@6.15.0",
+        "ansi-escapes@3.2.0",
+        "ansi-regex@3.0.1",
+        "ansi-regex@4.1.1",
+        "ansi-regex@5.0.1",
+        "ansi-styles@3.2.1",
+        "ansi-styles@4.3.0",
+        "astral-regex@1.0.0",
+        "async@3.2.6",
+        "balanced-match@1.0.2",
+        "brace-expansion@1.1.18",
+        "braces@3.0.3",
+        "chalk@2.4.2",
+        "chalk@3.0.0",
+        "chardet@0.7.0",
+        "cli-cursor@2.1.0",
+        "cli-width@2.2.1",
+        "color-convert@1.9.3",
+        "color-convert@2.0.1",
+        "color-convert@3.1.3",
+        "color-name@1.1.3",
+        "color-name@1.1.4",
+        "color-name@2.1.1",
+        "color-string@2.1.4",
+        "color@5.0.3",
+        "concat-map@0.0.1",
+        "debug@4.4.3",
+        "emoji-regex@7.0.3",
+        "emoji-regex@8.0.0",
+        "enabled@2.0.0",
+        "es-check@6.2.0",
+        "es6-promisify@6.1.1",
+        "escape-string-regexp@1.0.5",
+        "external-editor@3.1.0",
+        "fast-deep-equal@3.1.3",
+        "fast-glob@3.3.3",
+        "fast-json-stable-stringify@2.1.0",
+        "fastq@1.20.1",
+        "fecha@4.2.3",
+        "figures@2.0.0",
+        "fill-range@7.1.1",
+        "fn.name@1.1.0",
+        "fs.realpath@1.0.0",
+        "glob-parent@5.1.2",
+        "glob@7.2.3",
+        "has-flag@3.0.0",
+        "has-flag@4.0.0",
+        "iconv-lite@0.4.24",
+        "inflight@1.0.6",
+        "inherits@2.0.4",
+        "inquirer@6.5.2",
+        "is-extglob@2.1.1",
+        "is-fullwidth-code-point@2.0.0",
+        "is-fullwidth-code-point@3.0.0",
+        "is-glob@4.0.3",
+        "is-number@7.0.0",
+        "is-stream@2.0.1",
+        "json-schema-traverse@0.4.1",
+        "kuler@2.0.0",
+        "lodash@4.18.1",
+        "logform@2.7.0",
+        "merge2@1.4.1",
+        "micromatch@4.0.8",
+        "mimic-fn@1.2.0",
+        "minimatch@3.1.5",
+        "minimist@1.2.8",
+        "mkdirp@0.5.6",
+        "ms@2.1.3",
+        "mute-stream@0.0.7",
+        "once@1.4.0",
+        "one-time@1.0.0",
+        "onetime@2.0.1",
+        "os-tmpdir@1.0.2",
+        "path-is-absolute@1.0.1",
+        "picomatch@2.3.2",
+        "punycode@2.3.1",
+        "queue-microtask@1.2.3",
+        "readable-stream@3.6.2",
+        "restore-cursor@2.0.0",
+        "reusify@1.1.0",
+        "run-async@2.4.1",
+        "run-parallel@1.2.0",
+        "rxjs@6.6.7",
+        "safe-buffer@5.2.1",
+        "safe-stable-stringify@2.5.0",
+        "safer-buffer@2.1.2",
+        "signal-exit@3.0.7",
+        "slice-ansi@2.1.0",
+        "stack-trace@0.0.10",
+        "string-width@2.1.1",
+        "string-width@3.1.0",
+        "string-width@4.2.3",
+        "string_decoder@1.3.0",
+        "strip-ansi@4.0.0",
+        "strip-ansi@5.2.0",
+        "strip-ansi@6.0.1",
+        "supports-color@5.5.0",
+        "supports-color@7.2.0",
+        "table@5.4.6",
+        "tabtab@3.0.2",
+        "text-hex@1.0.0",
+        "through@2.3.8",
+        "tmp@0.0.33",
+        "to-regex-range@5.0.1",
+        "triple-beam@1.4.1",
+        "tslib@1.14.1",
+        "untildify@3.0.3",
+        "uri-js@4.4.1",
+        "util-deprecate@1.0.2",
+        "winston-transport@4.9.0",
+        "winston@3.19.0",
+        "wrap-ansi@6.2.0",
+        "wrappy@1.0.2"
+      ],
+      "lockfiles": {
+        "digest": "655712fa0281446944d7b3f1bcbb9fa2ea7aa31dd84e423e1435c2ac4ffa07e8",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "723134840c0ebc9b29af6eb1d8809f122f2a9338d5df1990bee48fe3eaf0fa65",
+            "bytes": 30173
+          }
+        ]
+      },
+      "kinds": [
+        "nub-fb903772438-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-nar-no-network-resolved",
+        "nub-nar-no-write-deps-resolved",
+        "nub-nar-no-write-project-resolved",
+        "nub-nar-no-write-userHome-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T23:13:56.672Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T23:13:40.829Z",
+    "latestVersion": "9.6.4",
+    "weeklyDownloads": 211312,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/es-check/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/es-check"
+    }
+  },
   "grantSource": "synthesized",
-  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
   "descendedGrant": {
     "network": true
   },
   "notes": [
     "arms-unfalsifiable",
     "cwd-unobserved",
-    "events-lost"
+    "events-lost",
+    "under-predicted"
   ],
   "eventLog": {
-    "lines": 24259,
-    "parsed": 24240,
+    "lines": 11653,
+    "parsed": 11635,
     "unparsed": 0,
     "live": true,
-    "tracerErrors": 2,
-    "tracerErrorTotal": 2,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
     "unresolvedDirfd": 36,
     "unresolvedFd": 0,
-    "pairedTwoPath": 1095,
+    "pairedTwoPath": 0,
     "danglingPair": 0,
-    "failed": 9335,
-    "enoent": 9311,
+    "failed": 4776,
+    "enoent": 4768,
     "refusals": 0,
     "byErrno": {
       "ENXIO": 4,
-      "ENOENT": 9311,
-      "EEXIST": 20
+      "ENOENT": 4768,
+      "EEXIST": 4
     },
     "procs": 6,
     "lifecyclePids": 2,
-    "distinctEvents": 10900,
-    "emitted": 10900,
-    "calls": 23099,
-    "bytes": 2233601,
-    "gzipBytes": 67716,
-    "out": "/Users/runner/v2m-F47lUf/Observe/events.ndjson"
+    "distinctEvents": 7383,
+    "emitted": 7383,
+    "calls": 11523,
+    "bytes": 1370734,
+    "gzipBytes": 40867,
+    "out": "/Users/runner/v2m-PCLJZm/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 97242,
+  "durationMs": 175672,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "6c658355ecf68ace79501e8a1bab3b33d4a97c9f",
-    "node": "v22.23.1",
-    "at": "2026-08-07T19:07:37.943Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/node",
+        "sha256": "18e387c90ab8a8400183e8bdd396376e1e875b91b4c874b894dcade7b35bf572",
+        "bytes": 112937728
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+        "executable": {
+          "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/opt/homebrew/bin/python3",
+          "executable": {
+            "path": "/opt/homebrew/bin/python3",
+            "sha256": "4d4c42c0ebf9bf42e9aa2c0e56843632347a1f1c22d4a9f680b4f87fb241d0e6",
+            "bytes": 34640
+          },
+          "version": "Python 3.14.6"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/local/bin/python",
+          "executable": {
+            "path": "/usr/local/bin/python",
+            "sha256": "b72b3d917750b98178ce547d1d1f8a1ccd5e078fc551c4b3c77d2769e70fd229",
+            "bytes": 28640
+          },
+          "version": "Python 2.7.18"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "GNU Make 3.81"
+        }
+      },
+      "os": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "libc": null,
+        "type": "Darwin",
+        "release": "24.6.0",
+        "version": "Darwin Kernel Version 24.6.0: Tue Apr 21 20:18:00 PDT 2026; root:xnu-11417.140.69.710.16~1/RELEASE_ARM64_VMAPPLE",
+        "machine": "arm64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "macOS",
+        "arch": "ARM64",
+        "environment": "github-hosted",
+        "imageOS": "macos15",
+        "imageVersion": "20260727.0256.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "macOS",
+          "RUNNER_ARCH": "ARM64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "macos15",
+          "ImageVersion": "20260727.0256.1",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "en_US.UTF-8"
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "d6ad537dd9060beee0cfde6a94c67d6077fc276ad9565ab4b941087047aceb5d",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-24T23:16:36.923Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
     "interpreterInsideHome": true,
     "jailRoot": null,
     "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
@@ -74,18 +721,40 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4",
-      "bytes": 94103896,
+      "sha256": "69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30",
+      "bytes": 94535576,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "es-check",
+      "packageVersion": "6.2.0",
+      "major": 16,
+      "version": "16.20.2",
+      "npm": "8.19.4",
+      "pinnable": true,
+      "engines": ">= 4",
+      "publishedAt": "2022-01-28T03:36:17.943Z",
+      "eraMajor": 16,
+      "startMajor": 16,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/16.20.2/node-v16.20.2-darwin-arm64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-F47lUf/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsjKVKuz",
+        "HOME": "/Users/runner/v2m-PCLJZm/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsUdVtCf",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
