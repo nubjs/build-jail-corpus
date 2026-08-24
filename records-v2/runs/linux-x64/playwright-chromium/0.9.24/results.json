@@ -2,6 +2,7 @@
   "pkg": "playwright-chromium",
   "version": "0.9.24",
   "harnessVersion": 2,
+  "harnessEpoch": 3,
   "verdict": "MINIMUM",
   "grant": {
     "write": {
@@ -16,62 +17,474 @@
     "network": true
   },
   "verifiedBy": "synth",
-  "minimality": "MINIMAL",
-  "overPredictedBy": [],
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network",
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": "synthesized",
-  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
-  "descendedGrant": {
-    "write": {
-      "deps": true
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "bf3a6f4fb65b1132aaed25f07d950d0a72af546ee3333f15bfdecc7c4303e0f9",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:40:55.373Z",
+      "cacheHit": false
     },
-    "network": true
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "8ff39b04b641e465079d246b4d89278c1b24a5a22de059d23da2173a1c404482",
+      "specCount": 47,
+      "lockfiles": {
+        "digest": "928607154ce3334ceb029e77ccb5b55257b9c025e410ba309c1ab42e7752cf31",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "d050528b8f6528632a0f8f7f8a1a2f92c89b9cbd7ee4304b217c7e289fbe3152",
+            "bytes": 18530
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:40:58.087Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "185295a2b572e60e7059edf0a546cf952408265456becc80e29d0c2e39d0ec9a",
+      "specCount": 48,
+      "lockfiles": {
+        "digest": "c2b351caa2e848f45e014219cf977677d92e2fe02664126c005e4cec658c8195",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8a30146844e9333bbc7bd580a0be23019c947572f911a172f3dcdeda5ca54286",
+            "bytes": 11834
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:41:32.594Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-network-resolved",
+      "status": "clean",
+      "digest": "185295a2b572e60e7059edf0a546cf952408265456becc80e29d0c2e39d0ec9a",
+      "specCount": 48,
+      "lockfiles": {
+        "digest": "c2b351caa2e848f45e014219cf977677d92e2fe02664126c005e4cec658c8195",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8a30146844e9333bbc7bd580a0be23019c947572f911a172f3dcdeda5ca54286",
+            "bytes": 11834
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:41:32.594Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "185295a2b572e60e7059edf0a546cf952408265456becc80e29d0c2e39d0ec9a",
+      "specCount": 48,
+      "lockfiles": {
+        "digest": "c2b351caa2e848f45e014219cf977677d92e2fe02664126c005e4cec658c8195",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8a30146844e9333bbc7bd580a0be23019c947572f911a172f3dcdeda5ca54286",
+            "bytes": 11834
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:41:32.594Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "185295a2b572e60e7059edf0a546cf952408265456becc80e29d0c2e39d0ec9a",
+      "specCount": 48,
+      "lockfiles": {
+        "digest": "c2b351caa2e848f45e014219cf977677d92e2fe02664126c005e4cec658c8195",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8a30146844e9333bbc7bd580a0be23019c947572f911a172f3dcdeda5ca54286",
+            "bytes": 11834
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T20:41:32.594Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "bf3a6f4fb65b1132aaed25f07d950d0a72af546ee3333f15bfdecc7c4303e0f9",
+      "specCount": 1,
+      "specs": [
+        "playwright-chromium@0.9.24"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T20:40:55.373Z"
+    },
+    {
+      "digest": "8ff39b04b641e465079d246b4d89278c1b24a5a22de059d23da2173a1c404482",
+      "specCount": 47,
+      "specs": [
+        "agent-base@4.3.0",
+        "async-limiter@1.0.1",
+        "balanced-match@1.0.0",
+        "brace-expansion@1.1.11",
+        "buffer-from@1.1.1",
+        "concat-map@0.0.1",
+        "concat-stream@1.6.2",
+        "core-util-is@1.0.2",
+        "debug@2.6.9",
+        "debug@3.1.0",
+        "debug@4.1.1",
+        "es6-promise@4.2.8",
+        "es6-promisify@5.0.0",
+        "extract-zip@1.6.7",
+        "fd-slicer@1.0.1",
+        "fs.realpath@1.0.0",
+        "glob@7.1.6",
+        "https-proxy-agent@3.0.1",
+        "inflight@1.0.6",
+        "inherits@2.0.4",
+        "isarray@1.0.0",
+        "jpeg-js@0.3.6",
+        "mime@2.4.4",
+        "minimatch@3.0.4",
+        "minimist@0.0.8",
+        "mkdirp@0.5.1",
+        "ms@2.0.0",
+        "ms@2.1.2",
+        "once@1.4.0",
+        "path-is-absolute@1.0.1",
+        "pend@1.2.0",
+        "playwright-chromium@0.9.24",
+        "playwright-core@0.9.24",
+        "pngjs@3.4.0",
+        "process-nextick-args@2.0.1",
+        "progress@2.0.3",
+        "proxy-from-env@1.0.0",
+        "readable-stream@2.3.7",
+        "rimraf@2.7.1",
+        "safe-buffer@5.1.2",
+        "string_decoder@1.1.1",
+        "typedarray@0.0.6",
+        "util-deprecate@1.0.2",
+        "uuid@3.4.0",
+        "wrappy@1.0.2",
+        "ws@6.2.1",
+        "yauzl@2.4.1"
+      ],
+      "lockfiles": {
+        "digest": "928607154ce3334ceb029e77ccb5b55257b9c025e410ba309c1ab42e7752cf31",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "d050528b8f6528632a0f8f7f8a1a2f92c89b9cbd7ee4304b217c7e289fbe3152",
+            "bytes": 18530
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T20:40:58.087Z"
+    },
+    {
+      "digest": "185295a2b572e60e7059edf0a546cf952408265456becc80e29d0c2e39d0ec9a",
+      "specCount": 48,
+      "specs": [
+        "agent-base@4.3.0",
+        "async-limiter@1.0.1",
+        "balanced-match@1.0.2",
+        "brace-expansion@1.1.18",
+        "buffer-crc32@0.2.13",
+        "buffer-from@1.1.2",
+        "concat-map@0.0.1",
+        "concat-stream@1.6.2",
+        "core-util-is@1.0.3",
+        "debug@2.6.9",
+        "debug@3.2.7",
+        "debug@4.4.3",
+        "es6-promise@4.2.8",
+        "es6-promisify@5.0.0",
+        "extract-zip@1.7.0",
+        "fd-slicer@1.1.0",
+        "fs.realpath@1.0.0",
+        "glob@7.2.3",
+        "https-proxy-agent@3.0.1",
+        "inflight@1.0.6",
+        "inherits@2.0.4",
+        "isarray@1.0.0",
+        "jpeg-js@0.3.7",
+        "mime@2.6.0",
+        "minimatch@3.1.5",
+        "minimist@1.2.8",
+        "mkdirp@0.5.6",
+        "ms@2.0.0",
+        "ms@2.1.3",
+        "once@1.4.0",
+        "path-is-absolute@1.0.1",
+        "pend@1.2.0",
+        "playwright-chromium@0.9.24",
+        "playwright-core@0.9.24",
+        "pngjs@3.4.0",
+        "process-nextick-args@2.0.1",
+        "progress@2.0.3",
+        "proxy-from-env@1.1.0",
+        "readable-stream@2.3.8",
+        "rimraf@2.7.1",
+        "safe-buffer@5.1.2",
+        "string_decoder@1.1.1",
+        "typedarray@0.0.6",
+        "util-deprecate@1.0.2",
+        "uuid@3.4.0",
+        "wrappy@1.0.2",
+        "ws@6.2.6",
+        "yauzl@2.10.0"
+      ],
+      "lockfiles": {
+        "digest": "c2b351caa2e848f45e014219cf977677d92e2fe02664126c005e4cec658c8195",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8a30146844e9333bbc7bd580a0be23019c947572f911a172f3dcdeda5ca54286",
+            "bytes": 11834
+          }
+        ]
+      },
+      "kinds": [
+        "nub-drop-no-network-resolved",
+        "nub-drop-no-write-deps-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T20:41:32.594Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T20:40:53.719Z",
+    "latestVersion": "1.62.1",
+    "weeklyDownloads": 277003,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/playwright-chromium/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/playwright-chromium"
+    }
   },
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {},
   "notes": [
     "arms-unfalsifiable"
   ],
   "eventLog": {
-    "lines": 33130,
-    "parsed": 33007,
+    "lines": 25238,
+    "parsed": 24893,
     "unparsed": 0,
-    "unfinished": 95,
-    "rejoined": 95,
-    "unresolvedDirfd": 3,
+    "unfinished": 319,
+    "rejoined": 319,
+    "unresolvedDirfd": 67,
     "truncatedArg": 0,
-    "procs": 25,
-    "lifecyclePids": 13,
-    "distinctEvents": 7354,
+    "procs": 23,
+    "lifecyclePids": 12,
+    "distinctEvents": 5129,
     "unknownSyscall": {
-      "getsockname": 69,
-      "getsockopt": 40,
-      "getcwd": 4,
-      "recvmsg": 9,
-      "exit": 20,
-      "setsockopt": 28,
-      "sendmmsg": 2,
-      "socketpair": 3,
-      "shutdown": 3,
+      "getsockopt": 3,
+      "getsockname": 8,
+      "getcwd": 3,
+      "recvmsg": 7,
+      "setsockopt": 1,
+      "sendmmsg": 1,
+      "shutdown": 1,
+      "exit": 18,
       "exit_group": 3,
       "wait4": 3
     },
-    "out": "/home/runner/v2-1xkCxP/observe/events.ndjson.gz",
-    "gzipBytes": 52007
+    "out": "/home/runner/v2-SPbzXb/observe/events.ndjson.gz",
+    "gzipBytes": 34781
   },
   "driverRc": 0,
-  "durationMs": 38290,
+  "durationMs": 50540,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "8b65891c5de5a52eada2b522e18c12455aa7f723",
-    "node": "v22.23.1",
-    "at": "2026-08-07T18:28:43.765Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260816.277.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260816.277.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-24T20:41:44.690Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/opt/hostedtoolcache/node/22.23.1/x64",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
     "interpreterInsideHome": false,
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
@@ -80,24 +493,46 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8",
-      "bytes": 207810856,
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "playwright-chromium",
+      "packageVersion": "0.9.24",
+      "major": 12,
+      "version": "12.22.12",
+      "npm": "6.14.16",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2020-01-28T01:26:02.953Z",
+      "eraMajor": 12,
+      "startMajor": 12,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/runner/v2-1xkCxP/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsFSdf7Q",
+        "HOME": "/home/runner/v2-SPbzXb/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsCvjw1C",
         "NODE_COMPAT": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
         "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/runner/v2-1xkCxP/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-SPbzXb/nubcache"
       },
       "unset": [
         "CI",
