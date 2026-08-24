@@ -1,6 +1,121 @@
-### chaingate@0.7.1   (/home/runner/v2-mpFhsi)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 22.23.2 (provisioned) (arms will run: v22.23.2)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 22, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### chaingate@0.7.1   (/home/runner/v2-JM3t69)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e372aa47408b7db61f6aaf87e95fd609218d371e447e321b4e0cee3ebf3e8e4f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:29:26.815Z","cacheHit":false,"clearancePath":"/home/runner/v2-JM3t69/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e372aa47408b
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"4cfba947102465c2f495fe10496b2d6c05488de0dfc559f34e31d4d322d54c5b","bytes":207810904,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=127 files=18996 trace=13594 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2025-10-22T12:30:12.558Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6c38eaa57573693c3f26f5661939e2f2a1d6f166e1fee3c6628039d9f3413e04","specCount":741,"lockfiles":{"digest":"484ae81ea041b4468db447443f55cd635d13436b797a458dd5003d4751b9862d","files":[{"path":"package-lock.json","sha256":"3a3dc7e09ad771063c01aae3c96c12a7778d326f2670675062c4c120653465d4","bytes":425323}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:29:55.493Z","cacheHit":false,"clearancePath":"/home/runner/v2-JM3t69/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 741 exact package-version(s), tree 6c38eaa57573
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/home/runner/v2-JM3t69/observe/node_modules/.bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/home/runner/v2-JM3t69/observe/node_modules/.bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD 1 added: patch-package@^8.0.1
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
+  OBSERVE   rc=0 files=19168 trace=17262 lines
+  CLOSURE   687 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":603,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (603) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-JM3t69/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-JM3t69/observe/capture.json
+  RAWLOG-BYTES raw=3775866 gz=106436
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"chaingate","packageVersion":"0.7.1","major":22,"version":"22.23.2","npm":"10.9.8","pinnable":true,"engines":">=18","publishedAt":"2025-10-21T12:30:12.558Z","eraMajor":22,"startMajor":22,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/22.23.2/node-v22.23.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-JM3t69/jailhome","TMPDIR":"/tmp/nub-tmp-obsjwN5jN","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-JM3t69/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-JM3t69/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-JM3t69/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-JM3t69/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsjwN5jN
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-JM3t69/observe/node_modules/chaingate
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.1.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7417 distinct from 16130 calls (17263 lines, 1110 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×26 setsockopt×23 exit×15 getsockopt×13 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-JM3t69/observe/events.ndjson.gz (50575 bytes)
+  EVENTLOG-FILE /home/runner/v2-JM3t69/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":17263,"parsed":16130,"unparsed":0,"unfinished":1110,"rejoined":1110,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":7417,"unknownSyscall":{"getsockname":26,"getsockopt":13,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-JM3t69/observe/events.ndjson.gz","gzipBytes":50575}
+  EVICT     71 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":false,"clearancePath":"/home/runner/v2-JM3t69/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 747 exact package-version(s), tree 11ee554e97c9
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"deps":true,"project":true,"userHome":true}} is sufficient
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"write":{"project":true,"userHome":true},"network":true} is sufficient
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-project-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-drop-no-write-project-resolved.json"}
+  SECURITY nub-drop-no-write-project-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[drop-no-write-project] rc=0 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-project' STILL VERIFIES — {"write":{"deps":true,"userHome":true},"network":true} is sufficient
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => OVER-PREDICTED by: no-network no-write-deps no-write-project  (ladder-rung {"write":{"deps":true,"project":true,"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     653 store entries removed, 117 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chaingate
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"11ee554e97c9b28cd7abc516b3c0b54d25714808c32f41748e53e02850a8be41","specCount":747,"lockfiles":{"digest":"bb29a45e8c8f2b9335ca982b52a28be5e6c429e2a3fae7d46453652ea74cccbf","files":[{"path":"nub.lock","sha256":"134cc2b0ee2e38f77a68d6e77834bac69b90896018aaea6969f035abfd82daa2","bytes":221813}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T07:30:06.855Z","cacheHit":true,"clearancePath":"/home/runner/v2-JM3t69/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 747 exact package-version(s), tree 11ee554e97c9 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=603/603 missing=0 shortfall=none (tree 76578/19168) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true}} — all 3 capabilities drop TOGETHER, measured

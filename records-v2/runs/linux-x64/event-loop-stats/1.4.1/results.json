@@ -2,63 +2,390 @@
   "pkg": "event-loop-stats",
   "version": "1.4.1",
   "harnessVersion": 2,
-  "verdict": "MINIMUM",
-  "grant": {},
+  "harnessEpoch": 3,
+  "verdict": "ARTIFACT-GATE-SUSPECT",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "network": true
   },
-  "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-network"
-  ],
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": "descended",
-  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
-  "descendedGrant": {},
-  "notes": [],
-  "eventLog": {
-    "lines": 103322,
-    "parsed": 96064,
-    "unparsed": 0,
-    "unfinished": 7163,
-    "rejoined": 7163,
-    "unresolvedDirfd": 3,
-    "truncatedArg": 0,
-    "procs": 73,
-    "lifecyclePids": 61,
-    "distinctEvents": 34938,
-    "unknownSyscall": {
-      "getsockname": 37,
-      "getsockopt": 22,
-      "getcwd": 74,
-      "recvmsg": 9,
-      "exit": 25,
-      "setsockopt": 58,
-      "sendmmsg": 2,
-      "socketpair": 9,
-      "shutdown": 9,
-      "exit_group": 45,
-      "wait4": 53
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "7aee5e0520b8fbf78d295ab623c9acd8bb7592d093aa1d8974e068c5b58473c6",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:34.650Z",
+      "cacheHit": false
     },
-    "out": "/home/runner/v2-UkSR50/observe/events.ndjson.gz",
-    "gzipBytes": 205721
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "68f739ef6dc1b5d17c82e8a69cbeea031e5c6c1da034af1f3a92be80547664ce",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "c22eff691bcac21b96ebf71ac5da99f9823df67455a6267d9d9f05c2469b8bb6",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "91969755ab393e4f318793cd24bab1fd2063ad95155526602b5970950e6711ff",
+            "bytes": 956
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:35.753Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "37100a0b529d941b4cc973e054c70a3df5e7dfcfb6c8321c10b3bda5f657530b",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "5ba36b653084ba226f9a181778b1ae304bcb8b93d5a56bdde47e664049562f71",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "dde231451e0e836a54e404a8948b6ce4d85df0440206398058b64948884984a9",
+            "bytes": 628
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:43.016Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2126003217-resolved",
+      "status": "clean",
+      "digest": "37100a0b529d941b4cc973e054c70a3df5e7dfcfb6c8321c10b3bda5f657530b",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "5ba36b653084ba226f9a181778b1ae304bcb8b93d5a56bdde47e664049562f71",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "dde231451e0e836a54e404a8948b6ce4d85df0440206398058b64948884984a9",
+            "bytes": 628
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:43.016Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb3938809772-resolved",
+      "status": "clean",
+      "digest": "37100a0b529d941b4cc973e054c70a3df5e7dfcfb6c8321c10b3bda5f657530b",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "5ba36b653084ba226f9a181778b1ae304bcb8b93d5a56bdde47e664049562f71",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "dde231451e0e836a54e404a8948b6ce4d85df0440206398058b64948884984a9",
+            "bytes": 628
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:43.016Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2742342390-resolved",
+      "status": "clean",
+      "digest": "37100a0b529d941b4cc973e054c70a3df5e7dfcfb6c8321c10b3bda5f657530b",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "5ba36b653084ba226f9a181778b1ae304bcb8b93d5a56bdde47e664049562f71",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "dde231451e0e836a54e404a8948b6ce4d85df0440206398058b64948884984a9",
+            "bytes": 628
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T07:39:43.016Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "7aee5e0520b8fbf78d295ab623c9acd8bb7592d093aa1d8974e068c5b58473c6",
+      "specCount": 1,
+      "specs": [
+        "event-loop-stats@1.4.1"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T07:39:34.650Z"
+    },
+    {
+      "digest": "68f739ef6dc1b5d17c82e8a69cbeea031e5c6c1da034af1f3a92be80547664ce",
+      "specCount": 2,
+      "specs": [
+        "event-loop-stats@1.4.1",
+        "nan@2.15.0"
+      ],
+      "lockfiles": {
+        "digest": "c22eff691bcac21b96ebf71ac5da99f9823df67455a6267d9d9f05c2469b8bb6",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "91969755ab393e4f318793cd24bab1fd2063ad95155526602b5970950e6711ff",
+            "bytes": 956
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T07:39:35.753Z"
+    },
+    {
+      "digest": "37100a0b529d941b4cc973e054c70a3df5e7dfcfb6c8321c10b3bda5f657530b",
+      "specCount": 2,
+      "specs": [
+        "event-loop-stats@1.4.1",
+        "nan@2.28.0"
+      ],
+      "lockfiles": {
+        "digest": "5ba36b653084ba226f9a181778b1ae304bcb8b93d5a56bdde47e664049562f71",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "dde231451e0e836a54e404a8948b6ce4d85df0440206398058b64948884984a9",
+            "bytes": 628
+          }
+        ]
+      },
+      "kinds": [
+        "nub-fb2126003217-resolved",
+        "nub-fb2742342390-resolved",
+        "nub-fb3938809772-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T07:39:43.016Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T07:39:33.537Z",
+    "latestVersion": "1.4.1",
+    "weeklyDownloads": 63011,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/event-loop-stats/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/event-loop-stats"
+    }
+  },
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
+  "notes": [
+    "artifact-shortfall-grant-independent"
+  ],
+  "eventLog": {
+    "lines": 28757,
+    "parsed": 28456,
+    "unparsed": 0,
+    "unfinished": 207,
+    "rejoined": 207,
+    "unresolvedDirfd": 2,
+    "truncatedArg": 0,
+    "procs": 71,
+    "lifecyclePids": 60,
+    "distinctEvents": 12676,
+    "unknownSyscall": {
+      "getsockopt": 17,
+      "getsockname": 20,
+      "getcwd": 71,
+      "recvmsg": 7,
+      "socketpair": 9,
+      "shutdown": 1,
+      "exit_group": 45,
+      "wait4": 53,
+      "setsockopt": 7,
+      "sendmmsg": 1,
+      "exit": 23
+    },
+    "out": "/home/runner/v2-lUgvtd/observe/events.ndjson.gz",
+    "gzipBytes": 72481
   },
   "driverRc": 0,
-  "durationMs": 39657,
+  "durationMs": 18742,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "eab7db2ec1fa2595288f9c7f05c4020594cab64d",
-    "node": "v22.23.1",
-    "at": "2026-08-07T18:45:02.010Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260816.277.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260816.277.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-24T07:39:52.687Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/opt/hostedtoolcache/node/22.23.1/x64",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
     "interpreterInsideHome": false,
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
@@ -66,25 +393,47 @@
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
-      "path": "/tmp/nubsrc/target/fast/nub",
-      "sha256": "4cfba947102465c2f495fe10496b2d6c05488de0dfc559f34e31d4d322d54c5b",
-      "bytes": 207810904,
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "event-loop-stats",
+      "packageVersion": "1.4.1",
+      "major": 16,
+      "version": "16.20.2",
+      "npm": "8.19.4",
+      "pinnable": true,
+      "engines": ">=4.0.0",
+      "publishedAt": "2022-01-21T07:45:56.818Z",
+      "eraMajor": 16,
+      "startMajor": 16,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/16.20.2/node-v16.20.2-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/runner/v2-UkSR50/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obs6VRN9a",
+        "HOME": "/home/runner/v2-lUgvtd/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsUooaet",
         "NODE_COMPAT": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
         "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/runner/v2-UkSR50/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-lUgvtd/nubcache"
       },
       "unset": [
         "CI",
