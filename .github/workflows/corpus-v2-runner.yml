@@ -77,6 +77,21 @@ on:
         description: "debug only: measure these specs instead of claiming from the queue"
         type: string
         default: ""
+      no_falsify:
+        # ⛔ THE ESCAPE HATCH, AND IT IS FOR ONE JOB ONLY: CHARACTERISING A CANDIDATE IN ORDER TO
+        # BUILD A FALSIFICATION CASE. That is a real need — win32's `network-gate` case is
+        # `mozjpeg@6.0.1`, whose control arm HANGS because its era Node predates the jail's shims, so
+        # the win32 lane measures nothing at all and a replacement case cannot be measured either
+        # while the broken one gates every run. This input breaks that deadlock and nothing else.
+        #
+        # ⛔⛔ A RECORD MEASURED WITH THIS SET IS NOT CORPUS EVIDENCE. The whole point of the
+        # pre-flight is that a slice measured without a working detector is worth nothing, so use
+        # this ONLY with `packages:` (never on a queue drain) and treat what comes back as a probe.
+        # `run-batch-v2.mjs`'s own comment calls `--no-falsify` "the escape hatch for someone who
+        # already knows why"; this is the why.
+        description: "debug only: skip the falsification pre-flight (ONLY with packages:, never a drain)"
+        type: boolean
+        default: false
       ci_env:
         # ⛔ AN EXPERIMENTAL CELL, NOT NORMALISATION. The venue-portability acceptance test is a 2x2
         # over {venue} x {CI-ness}, and this input is what isolates the second axis from the first —
@@ -569,6 +584,7 @@ jobs:
           node harness/v2/run-batch-v2.mjs --file /tmp/slice.txt --nub "$NUB_BIN" \
             --runs "$GITHUB_WORKSPACE/records-v2/runs" \
             ${{ (inputs.packages != '' || inputs.force) && '--force' || '' }} \
+            ${{ (inputs.no_falsify && inputs.packages != '') && '--no-falsify' || '' }} \
             2>&1 | tee /tmp/measure.log
           BATCH_RC=${PIPESTATUS[0]}
           set -e
