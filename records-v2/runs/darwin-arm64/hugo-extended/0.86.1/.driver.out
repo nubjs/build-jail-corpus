@@ -1,0 +1,53 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8346a03d95357f6f73aa08554a1f00a9a2ee3c0908ab9ff32d0f1ae62ed373c3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T15:29:20.984Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-PjIicw/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8346a03d9535
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### hugo-extended@0.86.1   (/Users/runner/v2m-PjIicw)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2021-07-31T12:36:39.779Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7023dfefafc35763ee9633a42c062ece83a525122ac00cf695eebd1bbea27147","specCount":103,"lockfiles":{"digest":"7c4e989a99fb6600d097a0e374e771b8b59da1c138bb13551737912b1dd95084","files":[{"path":"package-lock.json","sha256":"935b9ad4b41794aeb55503c3d13f762c739b5c5963fe523b083d63c7343b837a","bytes":41957}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T15:29:30.247Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-PjIicw/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 103 exact package-version(s), tree 7023dfefafc3
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-PjIicw/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-PjIicw/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-PjIicw/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsKLyqhw"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "hugo-extended" > "/Users/runner/v2m-PjIicw/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-PjIicw/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-PjIicw/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-PjIicw/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-PjIicw/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsKLyqhw NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund hugo-extended
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000638000) in action #1 at DIF offset 20
+     + echo 1
+  OBSERVE   rc=1 dtrace_rc=0 files=686 (pre=684) trace=2146 lines
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
+     ERROR: npm v10.9.8 is known not to run on Node.js v14.21.3.  This version of npm supports the following node versions: `^18.17.0 || >=20.5.0`. You can find the latest version at https://nodejs.org/.
+     
+     ERROR:
+     /Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/utils/error-message.js:11
+       er.message &&= replaceInfo(er.message)
+                  ^^^
+     
+     SyntaxError: Unexpected token '&&='
+         at wrapSafe (internal/modules/cjs/loader.js:1029:16)
+         at Module._compile (internal/modules/cjs/loader.js:1078:27)
+         at Object.Module._extensions..js (internal/modules/cjs/loader.js:1143:10)
+         at Module.load (internal/modules/cjs/loader.js:979:32)
+         at Function.Module._load (internal/modules/cjs/loader.js:819:12)
+         at Module.require (internal/modules/cjs/loader.js:1003:19)
+         at require (internal/modules/cjs/helpers.js:107:18)
+         at Object.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli/exit-handler.js:2:48)
+         at Module._compile (internal/modules/cjs/loader.js:1114:14)
+         at Object.Module._extensions..js (internal/modules/cjs/loader.js:1143:10)

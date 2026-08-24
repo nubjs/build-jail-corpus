@@ -1,0 +1,50 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2e48194ea9d0daeba5fe04cbf6e6409d06b4435a18583d2b44182b59852e1575","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T15:23:08.204Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-ZGPtDT/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 2e48194ea9d0
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### optipng-bin@5.1.0   (/Users/runner/v2m-ZGPtDT)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2018-12-10T16:18:11.892Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1fa6a0d2ea190d10c91c0f77bded1db3f16e1ecbbea041c8cf251e1432d531f8","specCount":203,"lockfiles":{"digest":"06ee5407d2d96e229cf45743411ffa9224b3deb682132d787da4bd229fd401df","files":[{"path":"package-lock.json","sha256":"ed7637f8c12c53ff669518268cb31dc79b8002142cdcdd4b9c151dc05a251382","bytes":85751}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T15:23:17.972Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-ZGPtDT/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 203 exact package-version(s), tree 1fa6a0d2ea19
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-ZGPtDT/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-ZGPtDT/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-ZGPtDT/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsJEDSPT"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "optipng-bin" > "/Users/runner/v2m-ZGPtDT/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-ZGPtDT/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-ZGPtDT/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-ZGPtDT/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-ZGPtDT/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsJEDSPT NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund optipng-bin
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000022c4000) in action #1 at DIF offset 20
+     + echo 1
+  OBSERVE   rc=1 dtrace_rc=0 files=1142 (pre=1140) trace=2000 lines
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
+     internal/modules/cjs/loader.js:638
+         throw err;
+         ^
+     
+     Error: Cannot find module 'node:path'
+         at Function.Module._resolveFilename (internal/modules/cjs/loader.js:636:15)
+         at Function.Module._load (internal/modules/cjs/loader.js:562:25)
+         at Module.require (internal/modules/cjs/loader.js:692:17)
+         at require (internal/modules/cjs/helpers.js:25:18)
+         at Object.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli.js:10:18)
+         at Module._compile (internal/modules/cjs/loader.js:778:30)
+         at Object.Module._extensions..js (internal/modules/cjs/loader.js:789:10)
+         at Module.load (internal/modules/cjs/loader.js:653:32)
+         at tryModuleLoad (internal/modules/cjs/loader.js:593:12)
+         at Function.Module._load (internal/modules/cjs/loader.js:585:3)
