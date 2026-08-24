@@ -43,16 +43,24 @@ function scratchRepo(record) {
   return { root, work, dir, rel };
 }
 
+// ⛔ POSIX PATHS, BECAUSE THAT IS WHAT PRODUCTION HANDS IT. `publish-record-v2.sh` guards with
+// `case "$REL" in records-v2/*)`, and $REL is derived by stripping $NUB_CORPUS_REPO off the record
+// dir. Give it Node's `path.join` output on Windows and REL is `records-v2\runs\...` with
+// BACKSLASHES, which never matches that glob — so the script exits 0 having done nothing and every
+// assertion here saw an empty stderr. On a real runner every path reaches it through Git-bash in
+// POSIX form. Driving it any other way tests a calling convention that does not exist.
+const posix = (p) => p.replace(/\\/g, '/');
+
 function publish({ work, dir }, manifest) {
-  return spawnSync('bash', [PUBLISH, dir], {
+  return spawnSync('bash', [posix(PUBLISH), posix(dir)], {
     cwd: work,
     encoding: 'utf8',
     env: {
       ...process.env,
-      NUB_CORPUS_REPO: work,
+      NUB_CORPUS_REPO: posix(work),
       NUB_CORPUS_BRANCH: 'main',
-      NUB_CORPUS_MANIFEST: manifest,
-      NUB_CORPUS_WITHHELD: path.join(work, 'withheld-records'),
+      NUB_CORPUS_MANIFEST: posix(manifest),
+      NUB_CORPUS_WITHHELD: posix(path.join(work, 'withheld-records')),
     },
   });
 }
