@@ -1,6 +1,100 @@
-### nodegit@0.27.0   (/home/runner/v2-5P5lup)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 12.22.12 (provisioned) (arms will run: v12.22.12)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 12, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### nodegit@0.27.0   (/home/runner/v2-MieiEF)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"07eb24b0450ee3a67c1ad1fb3e2450bb14b4c7b233909ac6a41ddf12dde532d2","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:40:43.543Z","cacheHit":false,"clearancePath":"/home/runner/v2-MieiEF/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 07eb24b0450e
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=14881 trace=95364 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2020-07-29T19:27:28.363Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a0051942aaf31373097ac433873fc8e2e508a19dca6b07fe82e6d66a18a87146","specCount":164,"lockfiles":{"digest":"7493f3eaf152e5887e5d803eeb0a2678c2848198d68dd3302fb73d3003b5f26b","files":[{"path":"package-lock.json","sha256":"c84ad317f1501afcd3fb0f190907049550805f05c5f8f84d7d5e455b434f013d","bytes":64539}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:40:52.697Z","cacheHit":false,"clearancePath":"/home/runner/v2-MieiEF/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 164 exact package-version(s), tree a0051942aaf3
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-MieiEF/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-MieiEF/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=14823 trace=13703 lines
+  CLOSURE   161 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":11485,"filesTheScriptProduced":375,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-MieiEF/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-MieiEF/observe/capture.json
+  RAWLOG-BYTES raw=2631653 gz=100027
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"nodegit","packageVersion":"0.27.0","major":12,"version":"12.22.12","npm":"6.14.16","pinnable":true,"engines":">= 6","publishedAt":"2020-07-28T19:27:28.363Z","eraMajor":12,"startMajor":12,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-MieiEF/jailhome","TMPDIR":"/tmp/nub-tmp-obsm3cXaS","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-MieiEF/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 66
+    writes  script 423  /  whole traced tree 425
+    sockets script 3  /  whole traced tree 3
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-MieiEF/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-MieiEF/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-MieiEF/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsm3cXaS
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-MieiEF/observe/node_modules/nodegit
+  == WRITES the script actually performed ==
+    ownPkg      423  (base profile already grants this — NOT billed)
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/..d
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release/acquireOpenSSL.node.d
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release/obj.target
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release/obj.target/acquireOpenSSL.node.d
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release/obj.target/zlib
+        /home/runner/v2-MieiEF/observe/node_modules/nodegit/build/Release/.deps/Release/obj.target/zlib/vendor
+        … and 413 more
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 2
+        127.0.0.53:53
+        52.217.71.36:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    8022 distinct from 12470 calls (13704 lines, 1150 rejoined, 0 unparsed)
+    PROCS     72   lifecycle shells 61
+    ⛔ 203 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: exit×43 getsockname×31 getsockopt×22 wait4×16 recvmsg×12 socketpair×12 exit_group×12 getcwd×11
+    wrote /home/runner/v2-MieiEF/observe/events.ndjson.gz (44781 bytes)
+  EVENTLOG-FILE /home/runner/v2-MieiEF/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13704,"parsed":12470,"unparsed":0,"unfinished":1150,"rejoined":1150,"unresolvedDirfd":203,"truncatedArg":0,"procs":72,"lifecyclePids":61,"distinctEvents":8022,"unknownSyscall":{"getsockopt":22,"getsockname":31,"getcwd":11,"recvmsg":12,"socketpair":12,"exit":43,"exit_group":12,"wait4":16,"shutdown":2,"setsockopt":1,"sendmmsg":1},"out":"/home/runner/v2-MieiEF/observe/events.ndjson.gz","gzipBytes":44781}
+  EVICT     79 store entries removed, 160 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for nodegit
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f0826da6e59ff5e7d28d42411354c446d5f91aab82be1e0f14c067e53579100f","specCount":193,"lockfiles":{"digest":"619a602a24f0db88d62dd852be7b3c657c98bca4919698170b53b7696d447cda","files":[{"path":"nub.lock","sha256":"79452c0a0abe8bf25411d742e9fb366b5bfcfa8aace7653ce59a5b03ff2d16a2","bytes":46359}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:41:00.113Z","cacheHit":false,"clearancePath":"/home/runner/v2-MieiEF/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 193 exact package-version(s), tree f0826da6e59f
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=11478/11478 missing=0 shortfall=none (tree 46724/14823) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     65 store entries removed, 160 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for nodegit
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"f0826da6e59ff5e7d28d42411354c446d5f91aab82be1e0f14c067e53579100f","specCount":193,"lockfiles":{"digest":"619a602a24f0db88d62dd852be7b3c657c98bca4919698170b53b7696d447cda","files":[{"path":"nub.lock","sha256":"79452c0a0abe8bf25411d742e9fb366b5bfcfa8aace7653ce59a5b03ff2d16a2","bytes":46359}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:41:00.113Z","cacheHit":true,"clearancePath":"/home/runner/v2-MieiEF/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 193 exact package-version(s), tree f0826da6e59f (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=11105/11478 missing=375 shortfall=1e34d61954c3 (tree 45606/14823) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Release/.deps/..d, build/Release/.deps/Release/acquireOpenSSL.node.d, build/Release/.deps/Release/configureLibssh2.node.d, build/Release/.deps/Release/git2.a.d, build/Release/.deps/Release/http_parser.a.d, build/Release/.deps/Release/nodegit.node.d (+369)
+     [drop-no-network/i] DEBUG final message final_message=; header 30982:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 30177:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 14175:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 59294:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30177:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30177:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30982:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30982:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 14175:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 14175:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 59294:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 59294:RESPONSE:RD,RA:NoError:QUERY
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary

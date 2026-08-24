@@ -1,99 +1,128 @@
-### eccrypto@0.9.9   (/home/nub/v2-32nLe2)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=302 trace=36747 lines
-  CLOSURE   12 packages evicted per arm
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
+  ERA-PYTHON /usr/bin/python2.7 (Python 2.7.18) for era Node 0, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### eccrypto@0.9.9   (/home/runner/v2-ESRh9T)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e13047a54546dbc2bae8d082af049d7b3df5a444bd554d058e41ccb2f06bfcf7","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:32.530Z","cacheHit":false,"clearancePath":"/home/runner/v2-ESRh9T/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e13047a54546
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2015-05-29T15:28:00.715Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5c4a265fbac9d68efec087cb335fa6afc2ffe473aadb3b1f29dd4d2496c44434","specCount":10,"lockfiles":{"digest":"33c5934ad5817497b1558a1a2d75520458e27497eebbf27514734355e6d59c76","files":[{"path":"package-lock.json","sha256":"5a86c3353463257f1bce822f83e11a86e4d1cb3ca214e432e891d324f1f6ba9f","bytes":3641}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:33.788Z","cacheHit":false,"clearancePath":"/home/runner/v2-ESRh9T/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 10 exact package-version(s), tree 5c4a265fbac9
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=191 trace=18848 lines
+  CLOSURE   10 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":14,"filesTheScriptProduced":5,"reasons":["rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        rc-vacuous: `install` ends in a status-swallowing construct (`node-gyp rebuild || exit 0`), so its exit code is 0 whether the work succeeded or failed
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-32nLe2/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-32nLe2/observe/capture.json
-  RAWLOG-BYTES raw=6057303 gz=202464
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-32nLe2/jailhome","TMPDIR":"/tmp/nub-tmp-obs3gojgU","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-32nLe2/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 36
-    writes  script 3344  /  whole traced tree 4522
-    sockets script 4  /  whole traced tree 8
+  RAWLOG-FILE /home/runner/v2-ESRh9T/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ESRh9T/observe/capture.json
+  RAWLOG-BYTES raw=2599211 gz=80420
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"eccrypto","packageVersion":"0.9.9","major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":null,"publishedAt":"2015-05-28T15:28:00.715Z","eraMajor":0,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":true,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ESRh9T/jailhome","TMPDIR":"/tmp/nub-tmp-obsUIaAph","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ESRh9T/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 33
+    writes  script 171  /  whole traced tree 172
+    sockets script 8  /  whole traced tree 8
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-32nLe2/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-32nLe2/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-32nLe2/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs3gojgU
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-32nLe2/observe/node_modules/eccrypto
+    project       /home/runner/v2-ESRh9T/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ESRh9T/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ESRh9T/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsUIaAph
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto
   == WRITES the script actually performed ==
-    jailHome   3328  (base profile already grants this — NOT billed)
-        /home/nub/v2-32nLe2/jailhome/.cache
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
-        /home/nub/v2-32nLe2/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
-        … and 3318 more
-    ownPkg       15  (base profile already grants this — NOT billed)
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/config.gypi
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/Makefile
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/ecdh.target.mk
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/binding.Makefile
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/node_gyp_bins
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/node_gyp_bins/python3
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/Release
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/obj.target
-        /home/nub/v2-32nLe2/observe/node_modules/eccrypto/build/ecdh
-        … and 5 more
+    jailHome    157  (base profile already grants this — NOT billed)
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/android-ifaddrs.h
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/ares.h
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/ares_version.h
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/common.gypi
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/config.gypi
+        /home/runner/v2-ESRh9T/jailhome/.node-gyp/4.9.1/include/node/nameser.h
+        … and 147 more
+    ownPkg       13  (base profile already grants this — NOT billed)
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/config.gypi
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/Makefile
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/ecdh.target.mk
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/binding.Makefile
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/Release
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/obj.target
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/ecdh
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/Release/.deps
+        /home/runner/v2-ESRh9T/observe/node_modules/eccrypto/build/Release/Release
+        … and 3 more
     jailTmp       1  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obs3gojgU/ccBQkbZc.s
+        /tmp/nub-tmp-obsUIaAph/ccRD9d37.s
   == NETWORK ==
-    AF_INET sockets: 4   distinct peers: 3
+    AF_INET sockets: 8   distinct peers: 2
         127.0.0.53:53
-        104.16.11.34:443
         104.16.212.131:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
-    distinct: 0
+    distinct: 1
+        execve /
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"network":true}
+    {"network":true,"writePaths":[".node-gyp"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 157
+        .node-gyp
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    17270 distinct from 36092 calls (36748 lines, 601 rejoined, 0 unparsed)
-    PROCS     42   lifecycle shells 31
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×58 getcwd×50 getsockname×39 getsockopt×24 exit×23 wait4×19 exit_group×16 socketpair×9
-    wrote /home/nub/v2-32nLe2/observe/events.ndjson.gz (102279 bytes)
-  EVENTLOG-FILE /home/nub/v2-32nLe2/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":36748,"parsed":36092,"unparsed":0,"unfinished":601,"rejoined":601,"unresolvedDirfd":3,"truncatedArg":0,"procs":42,"lifecyclePids":31,"distinctEvents":17270,"unknownSyscall":{"getsockname":39,"getsockopt":24,"getcwd":50,"recvmsg":8,"setsockopt":58,"sendmmsg":2,"socketpair":9,"shutdown":9,"exit_group":16,"wait4":19,"exit":23},"out":"/home/nub/v2-32nLe2/observe/events.ndjson.gz","gzipBytes":102279}
-  EVICT     12 store entries removed, 0 spared as nub tooling
+    EVENTS    9582 distinct from 18688 calls (18849 lines, 107 rejoined, 0 unparsed)
+    PROCS     40   lifecycle shells 28
+    unsubscribed/unmapped syscalls: getcwd×50 wait4×23 exit_group×17 exit×16 recvmsg×9 getsockname×7 socketpair×3 setsockopt×2
+    wrote /home/runner/v2-ESRh9T/observe/events.ndjson.gz (53091 bytes)
+  EVENTLOG-FILE /home/runner/v2-ESRh9T/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":18849,"parsed":18688,"unparsed":0,"unfinished":107,"rejoined":107,"unresolvedDirfd":0,"truncatedArg":0,"procs":40,"lifecyclePids":28,"distinctEvents":9582,"unknownSyscall":{"exit_group":17,"wait4":23,"getcwd":50,"getsockname":7,"recvmsg":9,"socketpair":3,"setsockopt":2,"sendmmsg":2,"getsockopt":2,"exit":16},"out":"/home/runner/v2-ESRh9T/observe/events.ndjson.gz","gzipBytes":53091}
+  EVICT     10 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for eccrypto
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"feecb638439d7fec27dda3cdb4404e2b8ec91692268bff09c7d215a68dc538b2","specCount":12,"lockfiles":{"digest":"51a079bcfb48844c72c1e2bfb7cd8b830b7fe4d68ddbabce56107ff7df6f927f","files":[{"path":"nub.lock","sha256":"b5544acec15925aa07514cb593abd1a3121e5fc6934d853f341f02efb3f35140","bytes":2686}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:38.482Z","cacheHit":false,"clearancePath":"/home/runner/v2-ESRh9T/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 12 exact package-version(s), tree feecb638439d
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=13/13 missing=1 shortfall=f8037247db14 (tree 1020/302) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-       missing: build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw (5712B < 9585B)
+  VERIFY[synth] rc=0 artifacts=8/13 missing=5 shortfall=de71f02fe565 (tree 990/191) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".node-gyp"]}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw, build/binding.Makefile, build/config.gypi, build/ecdh.target.mk
   DIAGNOSE  ZERO filesystem refusals under the failing grant.
      ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
        or a resource class strace's file+network filter does not carry.
   synthesized grant did not verify — falling back to a bounded ladder
-  EVICT     12 store entries removed, 0 spared as nub tooling
+  EVICT     11 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for eccrypto
-  VERIFY[fb2126003217] rc=0 artifacts=13/13 missing=1 shortfall=f8037247db14 (tree 1020/302) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-       missing: build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw (5712B < 9585B)
-  EVICT     12 store entries removed, 0 spared as nub tooling
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"feecb638439d7fec27dda3cdb4404e2b8ec91692268bff09c7d215a68dc538b2","specCount":12,"lockfiles":{"digest":"51a079bcfb48844c72c1e2bfb7cd8b830b7fe4d68ddbabce56107ff7df6f927f","files":[{"path":"nub.lock","sha256":"b5544acec15925aa07514cb593abd1a3121e5fc6934d853f341f02efb3f35140","bytes":2686}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:38.482Z","cacheHit":true,"clearancePath":"/home/runner/v2-ESRh9T/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 12 exact package-version(s), tree feecb638439d (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=8/13 missing=5 shortfall=de71f02fe565 (tree 990/191) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw, build/binding.Makefile, build/config.gypi, build/ecdh.target.mk
+  EVICT     11 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for eccrypto
-  VERIFY[fb3938809772] rc=0 artifacts=13/13 missing=1 shortfall=f8037247db14 (tree 1020/302) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-       missing: build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw (5712B < 9585B)
-  EVICT     12 store entries removed, 0 spared as nub tooling
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"feecb638439d7fec27dda3cdb4404e2b8ec91692268bff09c7d215a68dc538b2","specCount":12,"lockfiles":{"digest":"51a079bcfb48844c72c1e2bfb7cd8b830b7fe4d68ddbabce56107ff7df6f927f","files":[{"path":"nub.lock","sha256":"b5544acec15925aa07514cb593abd1a3121e5fc6934d853f341f02efb3f35140","bytes":2686}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:38.482Z","cacheHit":true,"clearancePath":"/home/runner/v2-ESRh9T/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 12 exact package-version(s), tree feecb638439d (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=0 artifacts=8/13 missing=5 shortfall=de71f02fe565 (tree 990/191) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw, build/binding.Makefile, build/config.gypi, build/ecdh.target.mk
+  EVICT     11 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for eccrypto
-  VERIFY[fb2742342390] rc=0 artifacts=13/13 missing=1 shortfall=f8037247db14 (tree 1020/302) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-       missing: build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw (5712B < 9585B)
-  => ARTIFACT-GATE-SUSPECT {"network":true}   (every arm rc=0 and the SAME 1-artifact shortfall at every
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"feecb638439d7fec27dda3cdb4404e2b8ec91692268bff09c7d215a68dc538b2","specCount":12,"lockfiles":{"digest":"51a079bcfb48844c72c1e2bfb7cd8b830b7fe4d68ddbabce56107ff7df6f927f","files":[{"path":"nub.lock","sha256":"b5544acec15925aa07514cb593abd1a3121e5fc6934d853f341f02efb3f35140","bytes":2686}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T09:42:38.482Z","cacheHit":true,"clearancePath":"/home/runner/v2-ESRh9T/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 12 exact package-version(s), tree feecb638439d (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=8/13 missing=5 shortfall=de71f02fe565 (tree 990/191) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/ecdh/ecdh.o.d.raw, build/binding.Makefile, build/config.gypi, build/ecdh.target.mk
+  => ARTIFACT-GATE-SUSPECT {"network":true,"writePaths":[".node-gyp"]}   (every arm rc=0 and the SAME 5-artifact shortfall at every
      grant up to write:"disk" — invariant under widening, so it is not a capability gap)
      ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
         Triage the shortfall against the arm's toolchain, not against the jail.
