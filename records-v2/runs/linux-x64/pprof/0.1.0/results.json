@@ -2,34 +2,532 @@
   "pkg": "pprof",
   "version": "0.1.0",
   "harnessVersion": 2,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "harnessEpoch": 3,
+  "verdict": "MINIMUM",
+  "grant": {},
+  "synthesized": {
+    "network": true
+  },
+  "verifiedBy": "synth",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "8f57b990576d60cef039695b43cb1b3c548ef58212b299c8ad2668016ea8e60c",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T19:00:54.764Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "3ac1dc02d78ad4db6fa949127a4def93f23483667de64f7303c747de4a8ba69e",
+      "specCount": 94,
+      "lockfiles": {
+        "digest": "1d13dff8b9d61dcfed3ebaeae3f5a982eb67283b585a7be09a4f0a025c417510",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4fc56a4866f2bd12df13218560277f2641652e91e963e0e253596c79382eeeba",
+            "bytes": 35767
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T19:00:57.137Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "4d4595024f12e29be0e377b1e5da12cfc74c5c8a81a0a2f453ca2583e9e241dc",
+      "specCount": 95,
+      "lockfiles": {
+        "digest": "1a9c708dd65c9aba62755d987a8f4e973af456047f43a1ed3d88788e3a45a156",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "95cb8ed6d69fbda06917a1f57df3c9d154123ca0263e899ce41a40ddae23f3c6",
+            "bytes": 22225
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T19:01:07.275Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-network-resolved",
+      "status": "clean",
+      "digest": "4d4595024f12e29be0e377b1e5da12cfc74c5c8a81a0a2f453ca2583e9e241dc",
+      "specCount": 95,
+      "lockfiles": {
+        "digest": "1a9c708dd65c9aba62755d987a8f4e973af456047f43a1ed3d88788e3a45a156",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "95cb8ed6d69fbda06917a1f57df3c9d154123ca0263e899ce41a40ddae23f3c6",
+            "bytes": 22225
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T19:01:07.275Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "8f57b990576d60cef039695b43cb1b3c548ef58212b299c8ad2668016ea8e60c",
+      "specCount": 1,
+      "specs": [
+        "pprof@0.1.0"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T19:00:54.764Z"
+    },
+    {
+      "digest": "3ac1dc02d78ad4db6fa949127a4def93f23483667de64f7303c747de4a8ba69e",
+      "specCount": 94,
+      "specs": [
+        "@protobufjs/aspromise@1.1.2",
+        "@protobufjs/base64@1.1.2",
+        "@protobufjs/codegen@2.0.4",
+        "@protobufjs/eventemitter@1.1.0",
+        "@protobufjs/fetch@1.1.0",
+        "@protobufjs/float@1.0.2",
+        "@protobufjs/inquire@1.1.0",
+        "@protobufjs/path@1.1.2",
+        "@protobufjs/pool@1.1.0",
+        "@protobufjs/utf8@1.1.0",
+        "@types/long@4.0.0",
+        "@types/node@10.12.27",
+        "abbrev@1.1.1",
+        "ansi-regex@2.1.1",
+        "aproba@1.2.0",
+        "are-we-there-yet@1.1.5",
+        "balanced-match@1.0.0",
+        "bindings@1.4.0",
+        "brace-expansion@1.1.11",
+        "chownr@1.1.1",
+        "code-point-at@1.1.0",
+        "concat-map@0.0.1",
+        "console-control-strings@1.1.0",
+        "core-util-is@1.0.2",
+        "debug@2.6.9",
+        "deep-extend@0.6.0",
+        "delay@4.1.0",
+        "delegates@1.0.0",
+        "detect-libc@1.0.3",
+        "file-uri-to-path@1.0.0",
+        "findit2@2.2.3",
+        "fs-minipass@1.2.5",
+        "fs.realpath@1.0.0",
+        "gauge@2.7.4",
+        "glob@7.1.3",
+        "has-unicode@2.0.1",
+        "iconv-lite@0.4.24",
+        "ignore-walk@3.0.1",
+        "inflight@1.0.6",
+        "inherits@2.0.3",
+        "ini@1.3.5",
+        "is-fullwidth-code-point@1.0.0",
+        "isarray@1.0.0",
+        "lodash.pickby@4.6.0",
+        "long@4.0.0",
+        "minimatch@3.0.4",
+        "minimist@0.0.8",
+        "minimist@1.2.0",
+        "minipass@2.3.5",
+        "minizlib@1.2.1",
+        "mkdirp@0.5.1",
+        "ms@2.0.0",
+        "nan@2.12.1",
+        "needle@2.2.4",
+        "node-pre-gyp@0.12.0",
+        "nopt@4.0.1",
+        "npm-bundled@1.0.6",
+        "npm-packlist@1.4.1",
+        "npmlog@4.1.2",
+        "number-is-nan@1.0.1",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-homedir@1.0.2",
+        "os-tmpdir@1.0.2",
+        "osenv@0.1.5",
+        "p-limit@2.1.0",
+        "p-try@2.0.0",
+        "parse-duration@0.1.1",
+        "path-is-absolute@1.0.1",
+        "pify@4.0.1",
+        "pprof@0.1.0",
+        "process-nextick-args@2.0.0",
+        "protobufjs@6.8.8",
+        "rc@1.2.8",
+        "readable-stream@2.3.6",
+        "rimraf@2.6.3",
+        "safe-buffer@5.1.2",
+        "safer-buffer@2.1.2",
+        "sax@1.2.4",
+        "semver@5.6.0",
+        "set-blocking@2.0.0",
+        "signal-exit@3.0.2",
+        "source-map@0.6.1",
+        "split@1.0.1",
+        "string-width@1.0.2",
+        "string_decoder@1.1.1",
+        "strip-ansi@3.0.1",
+        "strip-json-comments@2.0.1",
+        "tar@4.4.8",
+        "through@2.3.8",
+        "util-deprecate@1.0.2",
+        "wide-align@1.1.3",
+        "wrappy@1.0.2",
+        "yallist@3.0.3"
+      ],
+      "lockfiles": {
+        "digest": "1d13dff8b9d61dcfed3ebaeae3f5a982eb67283b585a7be09a4f0a025c417510",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4fc56a4866f2bd12df13218560277f2641652e91e963e0e253596c79382eeeba",
+            "bytes": 35767
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T19:00:57.137Z"
+    },
+    {
+      "digest": "4d4595024f12e29be0e377b1e5da12cfc74c5c8a81a0a2f453ca2583e9e241dc",
+      "specCount": 95,
+      "specs": [
+        "@protobufjs/aspromise@1.1.2",
+        "@protobufjs/base64@1.1.2",
+        "@protobufjs/codegen@2.0.5",
+        "@protobufjs/eventemitter@1.1.1",
+        "@protobufjs/fetch@1.1.1",
+        "@protobufjs/float@1.0.2",
+        "@protobufjs/inquire@1.1.2",
+        "@protobufjs/path@1.1.2",
+        "@protobufjs/pool@1.1.0",
+        "@protobufjs/utf8@1.1.2",
+        "@types/long@4.0.2",
+        "@types/node@10.17.60",
+        "abbrev@1.1.1",
+        "ansi-regex@2.1.1",
+        "aproba@1.2.0",
+        "are-we-there-yet@1.1.7",
+        "balanced-match@1.0.2",
+        "bindings@1.5.0",
+        "brace-expansion@1.1.18",
+        "chownr@1.1.4",
+        "code-point-at@1.1.0",
+        "concat-map@0.0.1",
+        "console-control-strings@1.1.0",
+        "core-util-is@1.0.3",
+        "debug@3.2.7",
+        "deep-extend@0.6.0",
+        "delay@4.4.1",
+        "delegates@1.0.0",
+        "detect-libc@1.0.3",
+        "file-uri-to-path@1.0.0",
+        "findit2@2.2.3",
+        "fs-minipass@1.2.7",
+        "fs.realpath@1.0.0",
+        "gauge@2.7.4",
+        "glob@7.2.3",
+        "has-unicode@2.0.1",
+        "iconv-lite@0.4.24",
+        "ignore-walk@3.0.4",
+        "inflight@1.0.6",
+        "inherits@2.0.4",
+        "ini@1.3.8",
+        "is-fullwidth-code-point@1.0.0",
+        "isarray@1.0.0",
+        "lodash.pickby@4.6.0",
+        "long@4.0.0",
+        "minimatch@3.1.5",
+        "minimist@1.2.8",
+        "minipass@2.9.0",
+        "minizlib@1.3.3",
+        "mkdirp@0.5.6",
+        "ms@2.1.3",
+        "nan@2.28.0",
+        "needle@2.9.1",
+        "node-pre-gyp@0.12.0",
+        "nopt@4.0.3",
+        "npm-bundled@1.1.2",
+        "npm-normalize-package-bin@1.0.1",
+        "npm-packlist@1.4.8",
+        "npmlog@4.1.2",
+        "number-is-nan@1.0.1",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-homedir@1.0.2",
+        "os-tmpdir@1.0.2",
+        "osenv@0.1.5",
+        "p-limit@2.3.0",
+        "p-try@2.2.0",
+        "parse-duration@0.1.3",
+        "path-is-absolute@1.0.1",
+        "pify@4.0.1",
+        "pprof@0.1.0",
+        "process-nextick-args@2.0.1",
+        "protobufjs@6.8.9",
+        "rc@1.2.8",
+        "readable-stream@2.3.8",
+        "rimraf@2.7.1",
+        "safe-buffer@5.1.2",
+        "safe-buffer@5.2.1",
+        "safer-buffer@2.1.2",
+        "sax@1.6.1",
+        "semver@5.7.2",
+        "set-blocking@2.0.0",
+        "signal-exit@3.0.7",
+        "source-map@0.6.1",
+        "split@1.0.1",
+        "string-width@1.0.2",
+        "string_decoder@1.1.1",
+        "strip-ansi@3.0.1",
+        "strip-json-comments@2.0.1",
+        "tar@4.4.19",
+        "through@2.3.8",
+        "util-deprecate@1.0.2",
+        "wide-align@1.1.5",
+        "wrappy@1.0.2",
+        "yallist@3.1.1"
+      ],
+      "lockfiles": {
+        "digest": "1a9c708dd65c9aba62755d987a8f4e973af456047f43a1ed3d88788e3a45a156",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "95cb8ed6d69fbda06917a1f57df3c9d154123ca0263e899ce41a40ddae23f3c6",
+            "bytes": 22225
+          }
+        ]
+      },
+      "kinds": [
+        "nub-drop-no-network-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T19:01:07.275Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T19:00:53.689Z",
+    "latestVersion": "5.0.0",
+    "weeklyDownloads": 447399,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/pprof/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/pprof"
+    }
+  },
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "descendedGrant": {},
   "notes": [],
-  "eventLog": null,
+  "eventLog": {
+    "lines": 29765,
+    "parsed": 28547,
+    "unparsed": 0,
+    "unfinished": 1070,
+    "rejoined": 1070,
+    "unresolvedDirfd": 123,
+    "truncatedArg": 0,
+    "procs": 117,
+    "lifecyclePids": 106,
+    "distinctEvents": 12996,
+    "unknownSyscall": {
+      "getcwd": 102,
+      "getsockname": 16,
+      "recvmsg": 11,
+      "socketpair": 9,
+      "shutdown": 2,
+      "exit_group": 61,
+      "wait4": 73,
+      "setsockopt": 3,
+      "sendmmsg": 3,
+      "getsockopt": 3,
+      "exit": 50
+    },
+    "out": "/home/runner/v2-mXv8lJ/observe/events.ndjson.gz",
+    "gzipBytes": 75010
+  },
   "driverRc": 0,
-  "durationMs": 27577,
+  "durationMs": 18475,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "c58be349f74783c60385d00beab1e023d3a7c225",
-    "node": "v22.23.1",
-    "at": "2026-08-07T18:23:34.437Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260816.277.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260816.277.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-24T19:01:12.540Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "storeLayout": "isolated",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
+    "interpreterInsideHome": false,
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
@@ -37,13 +535,56 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8",
-      "bytes": 207810856,
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "pprof",
+      "packageVersion": "0.1.0",
+      "major": 10,
+      "version": "10.24.1",
+      "npm": "6.14.12",
+      "pinnable": true,
+      "engines": ">=6.12.3 <8.0.0 || >=8.9.4 <10.0.0 || >=10.4.1",
+      "publishedAt": "2019-02-26T19:26:22.548Z",
+      "eraMajor": 10,
+      "startMajor": 10,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "HOME": "/home/runner/v2-mXv8lJ/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsu1jLhI",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NUB_CACHE_DIR": "/home/runner/v2-mXv8lJ/nubcache"
+      },
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
