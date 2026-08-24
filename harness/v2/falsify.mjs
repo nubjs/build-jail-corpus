@@ -300,36 +300,29 @@ const CASES = [
   {
     name: 'network-gate',
     platform: 'win32',
-    pkg: 'mozjpeg',
-    version: '6.0.1',
-    sufficient: { write: { project: true, userHome: true }, network: true },
-    insufficient: { write: { project: true, userHome: true } },
+    pkg: '@cubejs-backend/cubestore',
+    version: '1.7.9',
+    // MEASURED on win32 (run 32678904503): synthesized {write:{deps},network}, DESCENDED to
+    // {network:true} and verified in the real jail by an arm — `grantSourceReason` says so in the
+    // record. So the package genuinely needs network and nothing else, which is what a network case
+    // requires.
+    sufficient: { network: true },
+    insufficient: {},
     removed: 'network',
-    // ⛔ THE JAIL'S OWN DENIAL MARKER, NOT A libuv ERRNO — and the first spelling of this case looked
-    // for an errno and MISSED. MEASURED: nub intercepts at the socket layer and emits its own line
-    // rather than letting `ECONNREFUSED` and friends surface, so the arm log carries
+    // ⛔ NO WAIVER NEEDED HERE, AND THAT IS WHY THIS PACKAGE REPLACED mozjpeg. The refusal line comes
+    // from nub's net-gate shim, which rides `NODE_OPTIONS --import` and is stamped only at Node
+    // 20.6+. `mozjpeg` pins to era Node 10.24 at 6.0.1 and 16.20 at 8.0.0 — its LATEST of 34
+    // versions — so it never gets the shim, and worse, without the sibling stdio shim its piped
+    // node-gyp spawn HANGS: measured `[1897s] HARNESS-TIMEOUT` at 8.0.0 and killed at the deadline
+    // at both 600 s and 900 s at 6.0.1. No version of it can ever serve as this case.
     //
-    //   WARN_NUB_JAIL_NET_DENIED mozjpeg raw.githubusercontent.com net.Socket.connect
-    //   × RequestError: nub build sandbox: blocked network access to github.com by mozjpeg
-    //
-    // and no errno at all. This is a TIGHTENING rather than a loosening: a bare errno is evidence
-    // that something failed, which the hugo case's own comment notes an unrelated transient can
-    // satisfy, whereas this names the jail, the mechanism and the host the script actually reached
-    // for. The conjunction still holds — kind AND subject.
-    //
-    // ⛔ `(AUBE|NUB)` BECAUSE THE ENGINE OUTPUT IS REBRANDED. `WARN_AUBE_*` becomes `WARN_NUB_*`
-    // through `pm_engine::present.rs`, so a log grepped for either spelling alone silently finds
-    // nothing on the other side of that rename.
-    refusal: [/WARN_(AUBE|NUB)_JAIL_NET_DENIED|blocked network access/, /github\.com|raw\.githubusercontent\.com/],
-    // ⛔ AND THAT DENIAL LINE IS NOT EMITTABLE ON EVERY ARM — see the waiver in `judgeWrong`. It
-    // comes from nub's net-gate shim, stamped into `NODE_OPTIONS` only when the interpreter supports
-    // `--import` (20.6+). This package pins to era Node 10.24.1, so the shim is absent by design and
-    // the jail denies silently. Without this flag the case fails on evidence it cannot obtain, which
-    // is what blocked win32 measurement entirely.
-    refusalNeedsImportStamp: true,
-    ranEvidence: /mozjpeg|cjpeg/i,
-    // ⛔ `gate` ALONE, DELIBERATELY. Naming `rc` here too would let the case pass on the detector the
-    // rover case already covers, and the point of adding it is the one neither case covered.
+    // This package pins to a modern era, so both shims are delivered, the denial is spoken aloud,
+    // and the case needs no `refusalNeedsImportStamp`.
+    refusal: [/WARN_(AUBE|NUB)_JAIL_NET_DENIED|blocked network access/, /cubestore|cube\.dev|github\.com/],
+    ranEvidence: /cubestore/i,
+    // ⛔ `gate` ALONE, DELIBERATELY — unchanged in intent from the mozjpeg case this replaces. Naming
+    // `rc` too would let the case pass on the detector `@apollo/rover` already covers, and the whole
+    // point is to attest the one neither other win32 case does.
     mustDetect: ['gate'],
   },
   // ⛔ THE ONLY CASE GROUNDED ON DARWIN, AND ITS SCOPE IS PRINTED WITH EVERY VERDICT. See the
