@@ -2,104 +2,596 @@
   "pkg": "farmhash",
   "version": "2.1.0",
   "harnessVersion": 2,
-  "verdict": "MINIMUM",
-  "grant": {},
+  "harnessEpoch": 3,
+  "verdict": "ARTIFACT-GATE-SUSPECT",
+  "grant": {
+    "network": true
+  },
   "synthesized": {
     "network": true
   },
-  "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-network"
-  ],
-  "grantSource": "descended",
-  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
-  "descendedGrant": {},
-  "notes": [],
-  "eventLog": {
-    "lines": 47653,
-    "parsed": 46718,
-    "unparsed": 0,
-    "unfinished": 787,
-    "rejoined": 787,
-    "unresolvedDirfd": 3,
-    "truncatedArg": 0,
-    "procs": 109,
-    "lifecyclePids": 98,
-    "distinctEvents": 22446,
-    "unknownSyscall": {
-      "getsockname": 46,
-      "getsockopt": 31,
-      "getcwd": 95,
-      "recvmsg": 8,
-      "setsockopt": 70,
-      "sendmmsg": 2,
-      "socketpair": 12,
-      "shutdown": 10,
-      "exit_group": 77,
-      "wait4": 89,
-      "exit": 28
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
+  "writePaths": [],
+  "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "f445b2c01cf5ab73dfdaf03c36d13e0eb418cdb02cc708f3effa2684afe9f0b5",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:09.054Z",
+      "cacheHit": false
     },
-    "out": "/home/nub/v2-qgqnc0/observe/events.ndjson.gz",
-    "gzipBytes": 129780
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "853a855eb53a03e947c91cf42a3c8d0d0bd1abd57643638c28afffc6ad3afbc4",
+      "specCount": 63,
+      "lockfiles": {
+        "digest": "b32bd4bba6401652a687458ebcfbe9bfc1e2301dfcd80d4ae2e3737c5db450b9",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "35a2a0b6acb141b7aa226c06a62526acdbc95f30af7be865305dbcfe0859bf38",
+            "bytes": 23842
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:10.796Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "151b9600a50e9a575adff906bef1da29f455913d8134157da788e96a49d3b055",
+      "specCount": 89,
+      "lockfiles": {
+        "digest": "b10d2d2ff0571b18255f8f129f2a0f931f6a4c57ca8d0b100285d61d9882de14",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "d705e83f40919f9b94de7aa25a22fcd94c1bef113706b1368df8d27507a93591",
+            "bytes": 21232
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:23.651Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2126003217-resolved",
+      "status": "clean",
+      "digest": "151b9600a50e9a575adff906bef1da29f455913d8134157da788e96a49d3b055",
+      "specCount": 89,
+      "lockfiles": {
+        "digest": "b10d2d2ff0571b18255f8f129f2a0f931f6a4c57ca8d0b100285d61d9882de14",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "d705e83f40919f9b94de7aa25a22fcd94c1bef113706b1368df8d27507a93591",
+            "bytes": 21232
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:23.651Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb3938809772-resolved",
+      "status": "clean",
+      "digest": "151b9600a50e9a575adff906bef1da29f455913d8134157da788e96a49d3b055",
+      "specCount": 89,
+      "lockfiles": {
+        "digest": "b10d2d2ff0571b18255f8f129f2a0f931f6a4c57ca8d0b100285d61d9882de14",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "d705e83f40919f9b94de7aa25a22fcd94c1bef113706b1368df8d27507a93591",
+            "bytes": 21232
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:23.651Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2742342390-resolved",
+      "status": "clean",
+      "digest": "151b9600a50e9a575adff906bef1da29f455913d8134157da788e96a49d3b055",
+      "specCount": 89,
+      "lockfiles": {
+        "digest": "b10d2d2ff0571b18255f8f129f2a0f931f6a4c57ca8d0b100285d61d9882de14",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "d705e83f40919f9b94de7aa25a22fcd94c1bef113706b1368df8d27507a93591",
+            "bytes": 21232
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-24T11:31:23.651Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "f445b2c01cf5ab73dfdaf03c36d13e0eb418cdb02cc708f3effa2684afe9f0b5",
+      "specCount": 1,
+      "specs": [
+        "farmhash@2.1.0"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-24T11:31:09.054Z"
+    },
+    {
+      "digest": "853a855eb53a03e947c91cf42a3c8d0d0bd1abd57643638c28afffc6ad3afbc4",
+      "specCount": 63,
+      "specs": [
+        "ansi-regex@2.1.1",
+        "aproba@1.2.0",
+        "are-we-there-yet@1.1.4",
+        "bl@1.2.2",
+        "buffer-alloc-unsafe@0.1.1",
+        "buffer-alloc@1.1.0",
+        "buffer-fill@0.1.1",
+        "chownr@1.0.1",
+        "code-point-at@1.1.0",
+        "console-control-strings@1.1.0",
+        "core-util-is@1.0.2",
+        "decompress-response@3.3.0",
+        "deep-extend@0.5.1",
+        "delegates@1.0.0",
+        "detect-libc@1.0.3",
+        "end-of-stream@1.4.1",
+        "expand-template@1.1.0",
+        "farmhash@2.1.0",
+        "fs-constants@1.0.0",
+        "gauge@2.7.4",
+        "github-from-package@0.0.0",
+        "has-unicode@2.0.1",
+        "inherits@2.0.3",
+        "ini@1.3.5",
+        "is-fullwidth-code-point@1.0.0",
+        "isarray@1.0.0",
+        "mimic-response@1.0.0",
+        "minimist@0.0.8",
+        "minimist@1.2.0",
+        "mkdirp@0.5.1",
+        "nan@2.10.0",
+        "node-abi@2.4.0",
+        "noop-logger@0.1.1",
+        "npmlog@4.1.2",
+        "number-is-nan@1.0.1",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-homedir@1.0.2",
+        "prebuild-install@2.5.3",
+        "process-nextick-args@2.0.0",
+        "pump@1.0.3",
+        "pump@2.0.1",
+        "rc@1.2.7",
+        "readable-stream@2.3.6",
+        "safe-buffer@5.1.2",
+        "semver@5.5.0",
+        "set-blocking@2.0.0",
+        "signal-exit@3.0.2",
+        "simple-concat@1.0.0",
+        "simple-get@2.8.1",
+        "string-width@1.0.2",
+        "string_decoder@1.1.1",
+        "strip-ansi@3.0.1",
+        "strip-json-comments@2.0.1",
+        "tar-fs@1.16.1",
+        "tar-stream@1.6.0",
+        "to-buffer@1.1.1",
+        "tunnel-agent@0.6.0",
+        "util-deprecate@1.0.2",
+        "which-pm-runs@1.0.0",
+        "wide-align@1.1.2",
+        "wrappy@1.0.2",
+        "xtend@4.0.1"
+      ],
+      "lockfiles": {
+        "digest": "b32bd4bba6401652a687458ebcfbe9bfc1e2301dfcd80d4ae2e3737c5db450b9",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "35a2a0b6acb141b7aa226c06a62526acdbc95f30af7be865305dbcfe0859bf38",
+            "bytes": 23842
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-24T11:31:10.796Z"
+    },
+    {
+      "digest": "151b9600a50e9a575adff906bef1da29f455913d8134157da788e96a49d3b055",
+      "specCount": 89,
+      "specs": [
+        "ansi-regex@2.1.1",
+        "aproba@1.2.0",
+        "are-we-there-yet@1.1.7",
+        "available-typed-arrays@1.0.7",
+        "bl@1.2.3",
+        "buffer-alloc-unsafe@1.1.0",
+        "buffer-alloc@1.2.0",
+        "buffer-fill@1.0.0",
+        "call-bind-apply-helpers@1.0.2",
+        "call-bind@1.0.9",
+        "call-bound@1.0.4",
+        "chownr@1.1.4",
+        "code-point-at@1.1.0",
+        "console-control-strings@1.1.0",
+        "core-util-is@1.0.3",
+        "decompress-response@3.3.0",
+        "deep-extend@0.6.0",
+        "define-data-property@1.1.4",
+        "delegates@1.0.0",
+        "detect-libc@1.0.3",
+        "dunder-proto@1.0.1",
+        "end-of-stream@1.4.5",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "expand-template@1.1.1",
+        "farmhash@2.1.0",
+        "for-each@0.3.5",
+        "fs-constants@1.0.0",
+        "function-bind@1.1.2",
+        "gauge@2.7.4",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "github-from-package@0.0.0",
+        "gopd@1.2.0",
+        "has-property-descriptors@1.0.2",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "has-unicode@2.0.1",
+        "hasown@2.0.4",
+        "inherits@2.0.4",
+        "ini@1.3.8",
+        "is-callable@1.2.7",
+        "is-fullwidth-code-point@1.0.0",
+        "is-typed-array@1.1.15",
+        "isarray@1.0.0",
+        "isarray@2.0.5",
+        "math-intrinsics@1.1.0",
+        "mimic-response@1.0.1",
+        "minimist@1.2.8",
+        "mkdirp@0.5.6",
+        "nan@2.28.0",
+        "node-abi@2.30.1",
+        "noop-logger@0.1.1",
+        "npmlog@4.1.2",
+        "number-is-nan@1.0.1",
+        "object-assign@4.1.1",
+        "once@1.4.0",
+        "os-homedir@1.0.2",
+        "possible-typed-array-names@1.1.0",
+        "prebuild-install@2.5.3",
+        "process-nextick-args@2.0.1",
+        "pump@1.0.3",
+        "pump@2.0.1",
+        "rc@1.2.8",
+        "readable-stream@2.3.8",
+        "safe-buffer@5.1.2",
+        "safe-buffer@5.2.1",
+        "semver@5.7.2",
+        "set-blocking@2.0.0",
+        "set-function-length@1.2.2",
+        "signal-exit@3.0.7",
+        "simple-concat@1.0.1",
+        "simple-get@2.8.2",
+        "string-width@1.0.2",
+        "string_decoder@1.1.1",
+        "strip-ansi@3.0.1",
+        "strip-json-comments@2.0.1",
+        "tar-fs@1.16.6",
+        "tar-stream@1.6.2",
+        "to-buffer@1.2.2",
+        "tunnel-agent@0.6.0",
+        "typed-array-buffer@1.0.3",
+        "util-deprecate@1.0.2",
+        "which-pm-runs@1.1.0",
+        "which-typed-array@1.1.22",
+        "wide-align@1.1.5",
+        "wrappy@1.0.2",
+        "xtend@4.0.2"
+      ],
+      "lockfiles": {
+        "digest": "b10d2d2ff0571b18255f8f129f2a0f931f6a4c57ca8d0b100285d61d9882de14",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "d705e83f40919f9b94de7aa25a22fcd94c1bef113706b1368df8d27507a93591",
+            "bytes": 21232
+          }
+        ]
+      },
+      "kinds": [
+        "nub-fb2126003217-resolved",
+        "nub-fb2742342390-resolved",
+        "nub-fb3938809772-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-24T11:31:23.651Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-24T11:31:08.057Z",
+    "latestVersion": "5.0.1",
+    "weeklyDownloads": 256195,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/farmhash/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/farmhash"
+    }
+  },
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
+  "notes": [
+    "artifact-shortfall-grant-independent"
+  ],
+  "eventLog": {
+    "lines": 28326,
+    "parsed": 27405,
+    "unparsed": 0,
+    "unfinished": 781,
+    "rejoined": 781,
+    "unresolvedDirfd": 0,
+    "truncatedArg": 0,
+    "procs": 103,
+    "lifecyclePids": 93,
+    "distinctEvents": 12980,
+    "unknownSyscall": {
+      "getcwd": 105,
+      "getsockname": 7,
+      "recvmsg": 9,
+      "socketpair": 9,
+      "shutdown": 1,
+      "exit_group": 75,
+      "wait4": 88,
+      "setsockopt": 2,
+      "sendmmsg": 2,
+      "getsockopt": 2,
+      "exit": 16
+    },
+    "out": "/home/runner/v2-ZM8eXj/observe/events.ndjson.gz",
+    "gzipBytes": 72541
   },
   "driverRc": 0,
-  "durationMs": 41961,
+  "durationMs": 22626,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": null,
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "70c59e3de5d30fd6049c08fff212d910567e6539",
-    "node": "v22.20.0",
-    "at": "2026-08-07T02:14:58.204Z",
-    "venue": "vm",
-    "ciEnvSet": false,
+    "corpusGitSha": null,
+    "harnessEpoch": 3,
+    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+    "harnessInputCount": 273,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260816.277.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260816.277.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-24T11:31:31.065Z",
+    "venue": "ci",
+    "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/home/nub/node",
-    "interpreterInsideHome": true,
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
+    "interpreterInsideHome": false,
     "jailRoot": null,
-    "observeUser": "{\"uid\":1001,\"user\":\"nub\",\"umask\":\"0002\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
-      "path": "/home/nub/nub-catalog-override.bin",
-      "sha256": "0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd",
-      "bytes": 49587440,
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "farmhash",
+      "packageVersion": "2.1.0",
+      "major": 8,
+      "version": "8.17.0",
+      "npm": "6.13.4",
+      "pinnable": true,
+      "engines": ">=4.5.0",
+      "publishedAt": "2018-04-28T18:57:06.431Z",
+      "eraMajor": 8,
+      "startMajor": 8,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/nub/v2-qgqnc0/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsF2BB6k",
+        "HOME": "/home/runner/v2-ZM8eXj/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obs07BcYo",
         "NODE_COMPAT": "1",
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
-        "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/nub/v2-qgqnc0/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-ZM8eXj/nubcache"
       },
-      "unset": [],
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
       "passedThrough": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
         "NODE_ENV": null
       }
     }
-  },
-  "venueContingent": {
-    "axis": "host toolchain",
-    "descendedFrom": {
-      "network": true
-    },
-    "measured": "OBSERVE (npm) reached the network and the synthesized grant carried it; both jailed arms then installed with network denied, so the descent removed it. The drop arm really was denied the network — the falsification control proves that detection works on this axis (hugo-extended at {} fails with EAI_AGAIN/ENETUNREACH in the same run).",
-    "whyItMayNotGeneralise": "Every record in this class is a node-gyp native build, and the measuring host supplies a full C/C++ toolchain plus a Node installation that ships headers. On a host lacking either, node-gyp would have to DOWNLOAD headers and this {} would under-grant. The measured difference: OBSERVE's generated *.target.mk names .cache/node-gyp/<ver>/…, while both jailed arms name the local Node install's include dir.",
-    "unresolved": "WHY the two differ is NOT established. Nothing in nub or aube sets nodedir/devdir, and the local include path does not appear in the retained OBSERVE trace. The .mk reading was taken from VM state the record does not retain. Decisive cheap check for whoever is next on the VM: run drop-no-network with ~/.cache/node-gyp AND the private home provably empty — measure.sh evicts jail-home/<pkg>-* but not a node-gyp dev dir outside it.",
-    "precedent": "Treat as a per-toolchain split like kerberos@7.0.0 (needs network on Linux, not on macOS, because one venue has a working compiler for the fallback), not as a universal minimum."
   }
 }
