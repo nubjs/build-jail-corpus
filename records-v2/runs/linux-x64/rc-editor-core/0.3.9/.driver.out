@@ -1,0 +1,152 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
+  ERA-PYTHON /usr/bin/python2.7 (Python 2.7.18) for era Node 4, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### rc-editor-core@0.3.9   (/home/runner/v2-2z6x6k)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3686e7f928c55fa0326a82484a0ac57bddd4f3cb0a4dfa0bb0740f9641849c16","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:28.908Z","cacheHit":false,"clearancePath":"/home/runner/v2-2z6x6k/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3686e7f928c5
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2016-06-30T03:06:50.107Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"e8c7b8c84ed7075fb28f84ba3b3d67666731147e4d6a2cc90e8618c6d9283c4a","specCount":187,"lockfiles":{"digest":"743addcdec4892ea2c792162932441d0ebdd64306559c6ac65574a7f702c9463","files":[{"path":"package-lock.json","sha256":"3ffb75ce01c41f9adec30e958a47f49a034b3ba507e75b8b42114efa3c550d45","bytes":75400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:33.494Z","cacheHit":false,"clearancePath":"/home/runner/v2-2z6x6k/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 187 exact package-version(s), tree e8c7b8c84ed7
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/home/runner/v2-2z6x6k/observe/node_modules/.bin/tsc rimraf=/home/runner/v2-2z6x6k/observe/node_modules/.bin/rimraf typings=/home/runner/v2-2z6x6k/observe/node_modules/.bin/typings grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=3209 trace=9173 lines
+  CLOSURE   179 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":17,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (17) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-2z6x6k/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-2z6x6k/observe/capture.json
+  RAWLOG-BYTES raw=1256028 gz=51813
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"rc-editor-core","packageVersion":"0.3.9","major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":null,"publishedAt":"2016-06-29T03:06:50.107Z","eraMajor":4,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-2z6x6k/jailhome","TMPDIR":"/tmp/nub-tmp-obs8pB716","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-2z6x6k/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 16
+    writes  script 4  /  whole traced tree 5
+    sockets script 0  /  whole traced tree 0
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-2z6x6k/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-2z6x6k/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-2z6x6k/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs8pB716
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-2z6x6k/observe/node_modules/rc-editor-core
+  == WRITES the script actually performed ==
+    userHome      4
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        execve /
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    4 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 4
+        .config/configstore/typings.json.3167330103
+        .config/configstore/typings.json
+        .config/configstore/update-notifier-typings.json.1737577848
+        .config/configstore/update-notifier-typings.json
+    EVENTS    5478 distinct from 7954 calls (9174 lines, 1192 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 11
+    unsubscribed/unmapped syscalls: exit×16 wait4×7 getcwd×6 exit_group×5 recvmsg×5 getsockname×1
+    wrote /home/runner/v2-2z6x6k/observe/events.ndjson.gz (30578 bytes)
+  EVENTLOG-FILE /home/runner/v2-2z6x6k/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9174,"parsed":7954,"unparsed":0,"unfinished":1192,"rejoined":1192,"unresolvedDirfd":0,"truncatedArg":0,"procs":23,"lifecyclePids":11,"distinctEvents":5478,"unknownSyscall":{"exit_group":5,"wait4":7,"getcwd":6,"getsockname":1,"recvmsg":5,"exit":16},"out":"/home/runner/v2-2z6x6k/observe/events.ndjson.gz","gzipBytes":30578}
+  EVICT     75 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for rc-editor-core
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"690b832d1c1cb48c92f352ccb4c82aedf7fac0b21a980d592555f95fb1d50b75","specCount":225,"lockfiles":{"digest":"726d392bbe7494e345d3520897b4ed5b4fbc52293732e73018171e635ffbfb19","files":[{"path":"nub.lock","sha256":"fa024579e133dd2c7ec64fd65116bc6a6f45418484c72d9dd5c3e7683ca4ab01","bytes":54658}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:38.264Z","cacheHit":false,"clearancePath":"/home/runner/v2-2z6x6k/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 225 exact package-version(s), tree 690b832d1c1c
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=17/17 missing=0 shortfall=none (tree 13368/3209) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+     [synth/i] DEBUG final message final_message=; header 32238:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 55637:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 9752:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 16110:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 55637:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 55637:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 32238:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 32238:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 16110:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 16110:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 9752:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 9752:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a] SyntaxError: Unexpected token ...
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     142 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for rc-editor-core
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"690b832d1c1cb48c92f352ccb4c82aedf7fac0b21a980d592555f95fb1d50b75","specCount":225,"lockfiles":{"digest":"726d392bbe7494e345d3520897b4ed5b4fbc52293732e73018171e635ffbfb19","files":[{"path":"nub.lock","sha256":"fa024579e133dd2c7ec64fd65116bc6a6f45418484c72d9dd5c3e7683ca4ab01","bytes":54658}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:38.264Z","cacheHit":true,"clearancePath":"/home/runner/v2-2z6x6k/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 225 exact package-version(s), tree 690b832d1c1c (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=17/17 missing=0 shortfall=none (tree 13368/3209) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     [fb2126003217/i] DEBUG final message final_message=; header 54552:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 35957:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 17442:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 20868:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 54552:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 54552:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 20868:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 20868:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 17442:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 17442:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 35957:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 35957:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/a] SyntaxError: Unexpected token ...
+  EVICT     142 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for rc-editor-core
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"690b832d1c1cb48c92f352ccb4c82aedf7fac0b21a980d592555f95fb1d50b75","specCount":225,"lockfiles":{"digest":"726d392bbe7494e345d3520897b4ed5b4fbc52293732e73018171e635ffbfb19","files":[{"path":"nub.lock","sha256":"fa024579e133dd2c7ec64fd65116bc6a6f45418484c72d9dd5c3e7683ca4ab01","bytes":54658}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:38.264Z","cacheHit":true,"clearancePath":"/home/runner/v2-2z6x6k/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 225 exact package-version(s), tree 690b832d1c1c (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=17/17 missing=0 shortfall=none (tree 13368/3209) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     [fb3938809772/i] DEBUG final message final_message=; header 29911:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 39004:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 36763:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 19220:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 29911:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 39004:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 39004:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 29911:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 36763:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 36763:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 19220:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 19220:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/a] SyntaxError: Unexpected token ...
+  EVICT     142 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for rc-editor-core
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"690b832d1c1cb48c92f352ccb4c82aedf7fac0b21a980d592555f95fb1d50b75","specCount":225,"lockfiles":{"digest":"726d392bbe7494e345d3520897b4ed5b4fbc52293732e73018171e635ffbfb19","files":[{"path":"nub.lock","sha256":"fa024579e133dd2c7ec64fd65116bc6a6f45418484c72d9dd5c3e7683ca4ab01","bytes":54658}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:38.264Z","cacheHit":true,"clearancePath":"/home/runner/v2-2z6x6k/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 225 exact package-version(s), tree 690b832d1c1c (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=1 artifacts=17/17 missing=0 shortfall=none (tree 13368/3209) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+     [fb2742342390/i] DEBUG final message final_message=; header 43156:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 44977:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 24482:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 44977:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 43156:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 44977:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 64112:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 43156:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 24482:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 24482:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 64112:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 64112:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/a] SyntaxError: Unexpected token ...
+  NOT-GRANT-INDEPENDENT every arm exited non-zero — nothing installed at any grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"690b832d1c1cb48c92f352ccb4c82aedf7fac0b21a980d592555f95fb1d50b75","specCount":225,"lockfiles":{"digest":"726d392bbe7494e345d3520897b4ed5b4fbc52293732e73018171e635ffbfb19","files":[{"path":"nub.lock","sha256":"fa024579e133dd2c7ec64fd65116bc6a6f45418484c72d9dd5c3e7683ca4ab01","bytes":54658}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T03:35:38.264Z","cacheHit":true,"clearancePath":"/home/runner/v2-2z6x6k/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 225 exact package-version(s), tree 690b832d1c1c (cached exact-tree clearance)
+  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
