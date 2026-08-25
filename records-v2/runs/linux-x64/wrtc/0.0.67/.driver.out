@@ -1,0 +1,120 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 8.17.0 (provisioned) (arms will run: v8.17.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 8, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### wrtc@0.0.67   (/home/runner/v2-YZ65rR)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a26a59e770879253cf8d2b459961a23db018bda7872543725eaad4965b260d7f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:16:54.447Z","cacheHit":false,"clearancePath":"/home/runner/v2-YZ65rR/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a26a59e77087
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2018-02-20T19:30:06.411Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5f13fbb2c9d15358466d7c8e88af6d274c219ee65e9d214a1fad3454e04aa48f","specCount":142,"lockfiles":{"digest":"3fda70af4f0fbc0b009ab4fc8b7ef2451c2735850a3a57049b21fa4a065b2a75","files":[{"path":"package-lock.json","sha256":"7fc7d57b48ec7721133776c82416cc2d3a8dc22dfa04c4347128d2be2acf6d8c","bytes":55348}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:16:57.372Z","cacheHit":false,"clearancePath":"/home/runner/v2-YZ65rR/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 142 exact package-version(s), tree 5f13fbb2c9d1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=2783 trace=650986 lines
+  CLOSURE   137 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1751,"filesTheScriptProduced":1681,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-YZ65rR/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-YZ65rR/observe/capture.json
+  RAWLOG-BYTES raw=56274739 gz=1732113
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"wrtc","packageVersion":"0.0.67","major":8,"version":"8.17.0","npm":"6.13.4","pinnable":true,"engines":">=4.0.0","publishedAt":"2018-02-19T19:30:06.411Z","eraMajor":8,"startMajor":8,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-YZ65rR/jailhome","TMPDIR":"/tmp/nub-tmp-obsYNeq0M","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-YZ65rR/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 160
+    writes  script 2192  /  whole traced tree 2194
+    sockets script 19  /  whole traced tree 19
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-YZ65rR/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-YZ65rR/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-YZ65rR/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsYNeq0M
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-YZ65rR/observe/node_modules/wrtc
+  == WRITES the script actually performed ==
+    ownPkg     2156  (base profile already grants this — NOT billed)
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/pkgRedirects
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/CMakeConfigureLog.yaml
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6/CMakeSystem.cmake.tmp
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6/CMakeSystem.cmake
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6/CompilerIdC
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6/CompilerIdC/tmp
+        /home/runner/v2-YZ65rR/observe/node_modules/wrtc/build/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+        … and 2146 more
+    jailTmp      36  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsYNeq0M/ccHk5BRY.s
+        /tmp/nub-tmp-obsYNeq0M/ccQJ6pCS.o
+        /tmp/nub-tmp-obsYNeq0M/ccAFtiZI.res
+        /tmp/nub-tmp-obsYNeq0M/ccNYkeQa.cdtor.c
+        /tmp/nub-tmp-obsYNeq0M/cceCIYWF.cdtor.o
+        /tmp/nub-tmp-obsYNeq0M/cc19k4vd.s
+        /tmp/nub-tmp-obsYNeq0M/cclsZLEz.o
+        /tmp/nub-tmp-obsYNeq0M/ccrjGqXt.res
+        /tmp/nub-tmp-obsYNeq0M/ccSh71TG.cdtor.c
+        /tmp/nub-tmp-obsYNeq0M/cc6jDeQ0.cdtor.o
+        … and 26 more
+  == NETWORK ==
+    AF_INET sockets: 19   distinct peers: 3
+        127.0.0.53:53
+        140.82.114.3:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    75186 distinct from 352381 calls (650987 lines, 298316 rejoined, 0 unparsed)
+    PROCS     166   lifecycle shells 156
+    unsubscribed/unmapped syscalls: getcwd×155 wait4×149 exit_group×129 getsockname×23 exit×20 recvmsg×13 setsockopt×10 sendmmsg×4
+    wrote /home/runner/v2-YZ65rR/observe/events.ndjson.gz (313934 bytes)
+  EVENTLOG-FILE /home/runner/v2-YZ65rR/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":650987,"parsed":352381,"unparsed":0,"unfinished":298316,"rejoined":298316,"unresolvedDirfd":0,"truncatedArg":0,"procs":166,"lifecyclePids":156,"distinctEvents":75186,"unknownSyscall":{"getcwd":155,"getsockname":23,"recvmsg":13,"exit_group":129,"wait4":149,"setsockopt":10,"sendmmsg":4,"getsockopt":4,"exit":20},"out":"/home/runner/v2-YZ65rR/observe/events.ndjson.gz","gzipBytes":313934}
+  EVICT     58 store entries removed, 48 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for wrtc
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a169e4de5fccf12c2b4732915624c9901e4523b474f1d5bb4d1691276a7f6442","specCount":184,"lockfiles":{"digest":"65edafc1290db9cbe1ca6431a0c9c9b07ef9b02740ae0196c61e9d6129a10aa2","files":[{"path":"nub.lock","sha256":"dadbfefd653f881efa1773bbf8c8c3bfc6a44dfcd81afb43c522c8bde5b5d90c","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:17:46.747Z","cacheHit":false,"clearancePath":"/home/runner/v2-YZ65rR/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 184 exact package-version(s), tree a169e4de5fcc
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1751/1751 missing=1 shortfall=0ee729d3e300 (tree 11167/2783) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: build/.ninja_log (1109B < 1121B)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     115 store entries removed, 48 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for wrtc
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"a169e4de5fccf12c2b4732915624c9901e4523b474f1d5bb4d1691276a7f6442","specCount":184,"lockfiles":{"digest":"65edafc1290db9cbe1ca6431a0c9c9b07ef9b02740ae0196c61e9d6129a10aa2","files":[{"path":"nub.lock","sha256":"dadbfefd653f881efa1773bbf8c8c3bfc6a44dfcd81afb43c522c8bde5b5d90c","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:17:46.747Z","cacheHit":true,"clearancePath":"/home/runner/v2-YZ65rR/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 184 exact package-version(s), tree a169e4de5fcc (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=1751/1751 missing=1 shortfall=852bf66cdfcc (tree 11167/2783) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/.ninja_log (1110B < 1121B)
+  EVICT     115 store entries removed, 48 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for wrtc
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"a169e4de5fccf12c2b4732915624c9901e4523b474f1d5bb4d1691276a7f6442","specCount":184,"lockfiles":{"digest":"65edafc1290db9cbe1ca6431a0c9c9b07ef9b02740ae0196c61e9d6129a10aa2","files":[{"path":"nub.lock","sha256":"dadbfefd653f881efa1773bbf8c8c3bfc6a44dfcd81afb43c522c8bde5b5d90c","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:17:46.747Z","cacheHit":true,"clearancePath":"/home/runner/v2-YZ65rR/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 184 exact package-version(s), tree a169e4de5fcc (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=0 artifacts=1751/1751 missing=1 shortfall=0ee729d3e300 (tree 11167/2783) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/.ninja_log (1109B < 1121B)
+  EVICT     115 store entries removed, 48 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for wrtc
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"a169e4de5fccf12c2b4732915624c9901e4523b474f1d5bb4d1691276a7f6442","specCount":184,"lockfiles":{"digest":"65edafc1290db9cbe1ca6431a0c9c9b07ef9b02740ae0196c61e9d6129a10aa2","files":[{"path":"nub.lock","sha256":"dadbfefd653f881efa1773bbf8c8c3bfc6a44dfcd81afb43c522c8bde5b5d90c","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:17:46.747Z","cacheHit":true,"clearancePath":"/home/runner/v2-YZ65rR/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 184 exact package-version(s), tree a169e4de5fcc (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=1751/1751 missing=1 shortfall=852bf66cdfcc (tree 11167/2783) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/.ninja_log (1110B < 1121B)
+  NOT-GRANT-INDEPENDENT the shortfall CHANGED across arms (0ee729d3e300, 852bf66cdfcc) — it responded to the grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"a169e4de5fccf12c2b4732915624c9901e4523b474f1d5bb4d1691276a7f6442","specCount":184,"lockfiles":{"digest":"65edafc1290db9cbe1ca6431a0c9c9b07ef9b02740ae0196c61e9d6129a10aa2","files":[{"path":"nub.lock","sha256":"dadbfefd653f881efa1773bbf8c8c3bfc6a44dfcd81afb43c522c8bde5b5d90c","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T22:17:46.747Z","cacheHit":true,"clearancePath":"/home/runner/v2-YZ65rR/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 184 exact package-version(s), tree a169e4de5fcc (cached exact-tree clearance)
+  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
