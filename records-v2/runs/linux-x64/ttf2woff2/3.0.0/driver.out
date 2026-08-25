@@ -1,56 +1,134 @@
-### ttf2woff2@3.0.0   (/home/nub/v2-B5oMik)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=1163 trace=9659 lines
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### ttf2woff2@3.0.0   (/home/runner/v2-Qt7orl)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"52290db0e73813649edcfc6ee20da844df68d4f04089e6e10c39ae3cb4b71476","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:10.492Z","cacheHit":false,"clearancePath":"/home/runner/v2-Qt7orl/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 52290db0e738
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2019-05-28T06:51:13.442Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8ee8144b54ff313964609430f8a2df2dd25b4a84dfeaa2f659f2204327505fcc","specCount":105,"lockfiles":{"digest":"e02c50425f985e9e9ec97abcf346595989c04bb4e22314f1ad81a4e55fba9c86","files":[{"path":"package-lock.json","sha256":"9a6dee2e33794adafdb80fc033e115c16bb570fe2a2f23fa826aea8471a5bfca","bytes":40560}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:12.351Z","cacheHit":false,"clearancePath":"/home/runner/v2-Qt7orl/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 105 exact package-version(s), tree 8ee8144b54ff
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-Qt7orl/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE ((node-gyp (no provider known and the name is not a valid package name); (exit (no provider known and the name is not a valid package name)
+  OBSERVE   rc=0 files=1234 trace=134913 lines
   CLOSURE   104 packages evicted per arm
-  ARM-FALSIFIABILITY {"manifestFiles":76,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ARM-FALSIFIABILITY {"manifestFiles":122,"filesTheScriptProduced":46,"reasons":["rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
-       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (76) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        rc-vacuous: `install` ends in a status-swallowing construct (`((node-gyp configure && node-gyp build) > builderror.log) || (exit 0)`), so its exit code is 0 whether the work succeeded or failed
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-B5oMik/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-B5oMik/observe/capture.json
-  RAWLOG-BYTES raw=1861567 gz=68416
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-B5oMik/jailhome","TMPDIR":"/tmp/nub-tmp-obs4p5TCZ","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-B5oMik/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 19
-    writes  script 1  /  whole traced tree 1179
-    sockets script 0  /  whole traced tree 6
+  RAWLOG-FILE /home/runner/v2-Qt7orl/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Qt7orl/observe/capture.json
+  RAWLOG-BYTES raw=15396104 gz=435534
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"ttf2woff2","packageVersion":"3.0.0","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">= 4.0.0","publishedAt":"2019-05-27T06:51:13.442Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Qt7orl/jailhome","TMPDIR":"/tmp/nub-tmp-obsW9fqry","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Qt7orl/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 456
+    writes  script 922  /  whole traced tree 925
+    sockets script 8  /  whole traced tree 8
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-B5oMik/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-B5oMik/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-B5oMik/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs4p5TCZ
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-B5oMik/observe/node_modules/ttf2woff2
+    project       /home/runner/v2-Qt7orl/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Qt7orl/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Qt7orl/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsW9fqry
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2
   == WRITES the script actually performed ==
-    ownPkg        1  (base profile already grants this — NOT billed)
-        /home/nub/v2-B5oMik/observe/node_modules/ttf2woff2/builderror.log
+    ownPkg       80  (base profile already grants this — NOT billed)
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/builderror.log
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/config.gypi
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/Makefile
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/addon.target.mk
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/binding.Makefile
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/Release
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/obj.target
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/addon
+        /home/runner/v2-Qt7orl/observe/node_modules/ttf2woff2/build/csrc
+        … and 70 more
+    jailHome    820  (base profile already grants this — NOT billed)
+        /home/runner/v2-Qt7orl/jailhome/.cache
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node/common.gypi
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node/config.gypi
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node/node.h
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node/node_api.h
+        /home/runner/v2-Qt7orl/jailhome/.cache/node-gyp/10.24.1/include/node/node_api_types.h
+        … and 810 more
+    jailTmp      22  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsW9fqry/ccXFoAtd.s
+        /tmp/nub-tmp-obsW9fqry/cccC67d0.s
+        /tmp/nub-tmp-obsW9fqry/ccDKPahz.s
+        /tmp/nub-tmp-obsW9fqry/cct99IAM.s
+        /tmp/nub-tmp-obsW9fqry/cczYGCpr.s
+        /tmp/nub-tmp-obsW9fqry/ccXqGmBy.s
+        /tmp/nub-tmp-obsW9fqry/ccCbASSR.s
+        /tmp/nub-tmp-obsW9fqry/cc9Gfvml.s
+        /tmp/nub-tmp-obsW9fqry/ccagw2NB.s
+        /tmp/nub-tmp-obsW9fqry/ccB21005.s
+        … and 12 more
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 2
+    AF_INET sockets: 8   distinct peers: 2
         127.0.0.53:53
-        104.16.5.34:443
+        104.16.213.131:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {}
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 820
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    5307 distinct from 9463 calls (9660 lines, 167 rejoined, 0 unparsed)
-    PROCS     25   lifecycle shells 14
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×18 getsockopt×8 wait4×7 recvmsg×6 exit_group×5 getcwd×4
-    wrote /home/nub/v2-B5oMik/observe/events.ndjson.gz (36860 bytes)
-  EVENTLOG-FILE /home/nub/v2-B5oMik/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9660,"parsed":9463,"unparsed":0,"unfinished":167,"rejoined":167,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":14,"distinctEvents":5307,"unknownSyscall":{"getsockname":22,"getsockopt":8,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":18,"exit_group":5,"wait4":7},"out":"/home/nub/v2-B5oMik/observe/events.ndjson.gz","gzipBytes":36860}
-  EVICT     104 store entries removed, 12 spared as nub tooling
+    EVENTS    49624 distinct from 131229 calls (134914 lines, 3078 rejoined, 0 unparsed)
+    PROCS     462   lifecycle shells 451
+    ⛔ 124 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×491 exit_group×426 getcwd×387 exit×32 recvmsg×9 getsockname×7 socketpair×6 setsockopt×2
+    wrote /home/runner/v2-Qt7orl/observe/events.ndjson.gz (233836 bytes)
+  EVENTLOG-FILE /home/runner/v2-Qt7orl/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":134914,"parsed":131229,"unparsed":0,"unfinished":3078,"rejoined":3078,"unresolvedDirfd":124,"truncatedArg":0,"procs":462,"lifecyclePids":451,"distinctEvents":49624,"unknownSyscall":{"getcwd":387,"getsockname":7,"recvmsg":9,"socketpair":6,"exit_group":426,"wait4":491,"setsockopt":2,"sendmmsg":2,"getsockopt":2,"exit":32},"out":"/home/runner/v2-Qt7orl/observe/events.ndjson.gz","gzipBytes":233836}
+  EVICT     17 store entries removed, 156 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for ttf2woff2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c47878fb39421788a02500ceb5f153fc21c4cfffa7f070fc9d57b87b58558f98","specCount":106,"lockfiles":{"digest":"266c0e1e5538c1b382a2017ef72c187dea05f2c3b2fb7066a35ec68829479f6d","files":[{"path":"nub.lock","sha256":"b92f7101c6b4914008ae80e76f81d246e513912cf4d67276f81e3cceeec846cd","bytes":24610}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:35.359Z","cacheHit":false,"clearancePath":"/home/runner/v2-Qt7orl/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 106 exact package-version(s), tree c47878fb3942
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=76/76 missing=0 shortfall=none (tree 3670/1163) OVERRIDDEN=2 REJECTED=0 grant={}
-  => VERIFIED {}   (observed, then verified)
-  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+  VERIFY[synth] rc=0 artifacts=76/122 missing=46 shortfall=0b16ff039b13 (tree 3681/1234) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/csrc/addon.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/backward_references.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/block_splitter.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/brotli_bit_stream.o.d (+40)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     13 store entries removed, 156 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ttf2woff2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"c47878fb39421788a02500ceb5f153fc21c4cfffa7f070fc9d57b87b58558f98","specCount":106,"lockfiles":{"digest":"266c0e1e5538c1b382a2017ef72c187dea05f2c3b2fb7066a35ec68829479f6d","files":[{"path":"nub.lock","sha256":"b92f7101c6b4914008ae80e76f81d246e513912cf4d67276f81e3cceeec846cd","bytes":24610}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:35.359Z","cacheHit":true,"clearancePath":"/home/runner/v2-Qt7orl/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 106 exact package-version(s), tree c47878fb3942 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=76/122 missing=46 shortfall=0b16ff039b13 (tree 3681/1234) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/csrc/addon.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/backward_references.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/block_splitter.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/brotli_bit_stream.o.d (+40)
+  EVICT     13 store entries removed, 156 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ttf2woff2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"c47878fb39421788a02500ceb5f153fc21c4cfffa7f070fc9d57b87b58558f98","specCount":106,"lockfiles":{"digest":"266c0e1e5538c1b382a2017ef72c187dea05f2c3b2fb7066a35ec68829479f6d","files":[{"path":"nub.lock","sha256":"b92f7101c6b4914008ae80e76f81d246e513912cf4d67276f81e3cceeec846cd","bytes":24610}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:35.359Z","cacheHit":true,"clearancePath":"/home/runner/v2-Qt7orl/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 106 exact package-version(s), tree c47878fb3942 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=0 artifacts=76/122 missing=46 shortfall=0b16ff039b13 (tree 3681/1234) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/csrc/addon.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/backward_references.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/block_splitter.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/brotli_bit_stream.o.d (+40)
+  EVICT     13 store entries removed, 156 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ttf2woff2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"c47878fb39421788a02500ceb5f153fc21c4cfffa7f070fc9d57b87b58558f98","specCount":106,"lockfiles":{"digest":"266c0e1e5538c1b382a2017ef72c187dea05f2c3b2fb7066a35ec68829479f6d","files":[{"path":"nub.lock","sha256":"b92f7101c6b4914008ae80e76f81d246e513912cf4d67276f81e3cceeec846cd","bytes":24610}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T11:22:35.359Z","cacheHit":true,"clearancePath":"/home/runner/v2-Qt7orl/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 106 exact package-version(s), tree c47878fb3942 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=76/122 missing=46 shortfall=0b16ff039b13 (tree 3681/1234) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/csrc/addon.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/backward_references.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/block_splitter.o.d, build/Release/.deps/Release/obj.target/addon/csrc/enc/brotli_bit_stream.o.d (+40)
+  => ARTIFACT-GATE-SUSPECT {"network":true}   (every arm rc=0 and the SAME 46-artifact shortfall at every
+     grant up to write:"disk" — invariant under widening, so it is not a capability gap)
+     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
