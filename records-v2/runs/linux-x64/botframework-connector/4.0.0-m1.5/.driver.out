@@ -1,0 +1,98 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 8.17.0 (provisioned) (arms will run: v8.17.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 8, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### botframework-connector@4.0.0-m1.5   (/home/runner/v2-Wo16XP)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b38102aeab57c683c4580fc1cb30d96ca64d8ff1d8a31181f7934a89afd63407","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T06:03:08.249Z","cacheHit":false,"clearancePath":"/home/runner/v2-Wo16XP/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b38102aeab57
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2018-02-22T10:28:39.711Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"090ac96492f26ed2a858f9cb7d9524e43dee510848d1d08ac1f80a897e22f4b7","specCount":92,"lockfiles":{"digest":"fca46545ce176582584c339498e813dc911a3a797ddf88f77f4c40f0c5659366","files":[{"path":"package-lock.json","sha256":"03c9f0e63abc387981c1b9db2323f3cc60e4c2a090ed1e6b29611ec431333935","bytes":36485}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T06:03:21.381Z","cacheHit":false,"clearancePath":"/home/runner/v2-Wo16XP/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 92 exact package-version(s), tree 090ac96492f2
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=1357 trace=3808 lines
+  CLOSURE   90 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":72,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (72) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-Wo16XP/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Wo16XP/observe/capture.json
+  RAWLOG-BYTES raw=532366 gz=23795
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"botframework-connector","packageVersion":"4.0.0-m1.5","major":8,"version":"8.17.0","npm":"6.13.4","pinnable":true,"engines":null,"publishedAt":"2018-02-21T10:28:39.711Z","eraMajor":8,"startMajor":8,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Wo16XP/jailhome","TMPDIR":"/tmp/nub-tmp-obsPHUoFA","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Wo16XP/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 2
+    sockets script 0  /  whole traced tree 0
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Wo16XP/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Wo16XP/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Wo16XP/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsPHUoFA
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Wo16XP/observe/node_modules/botframework-connector
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    2459 distinct from 3185 calls (3809 lines, 613 rejoined, 0 unparsed)
+    PROCS     10   lifecycle shells 0
+    unsubscribed/unmapped syscalls: recvmsg×5 getcwd×4 exit×4 getsockname×1 exit_group×1
+    wrote /home/runner/v2-Wo16XP/observe/events.ndjson.gz (14516 bytes)
+  EVENTLOG-FILE /home/runner/v2-Wo16XP/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":3809,"parsed":3185,"unparsed":0,"unfinished":613,"rejoined":613,"unresolvedDirfd":0,"truncatedArg":0,"procs":10,"lifecyclePids":0,"distinctEvents":2459,"unknownSyscall":{"getcwd":4,"getsockname":1,"recvmsg":5,"exit":4,"exit_group":1},"out":"/home/runner/v2-Wo16XP/observe/events.ndjson.gz","gzipBytes":14516}
+  EVICT     12 store entries removed, 49 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for botframework-connector
+  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  ── nub's own words (tail of security-resolve.log) ──
+     DEBUG received frame=Data { stream_id: StreamId(7) }
+     DEBUG received frame=Data { stream_id: StreamId(7) }
+     DEBUG received frame=Data { stream_id: StreamId(7) }
+     DEBUG received frame=Data { stream_id: StreamId(7) }
+     DEBUG received frame=Data { stream_id: StreamId(7), flags: (0x1: END_STREAM) }
+     DEBUG send frame=WindowUpdate { stream_id: StreamId(0), size_increment: 147454 }
+     DEBUG pooling idle connection for ("https", registry.npmjs.org)
+     DEBUG reuse idle connection for ("https", registry.npmjs.org)
+     DEBUG send frame=Headers { stream_id: StreamId(25), flags: (0x5: END_HEADERS | END_STREAM) }
+     DEBUG write: "/home/runner/.local/share/nub/store/v1/index/14627ab9d0cd5028/@types__request@2.48.13.json" log.target=xx::file log.module_path=xx::file log.file=/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xx-2.2.0/src/file.rs log.line=142
+     DEBUG mkdirp: "/home/runner/.local/share/nub/store/v1/index/14627ab9d0cd5028" log.target=xx::file log.module_path=xx::file log.file=/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xx-2.2.0/src/file.rs log.line=168
+     DEBUG reuse idle connection for ("https", registry.npmjs.org)
+     DEBUG reuse idle connection for ("https", registry.npmjs.org)
+     DEBUG send frame=Headers { stream_id: StreamId(27), flags: (0x5: END_HEADERS | END_STREAM) }
+     DEBUG reuse idle connection for ("https", registry.npmjs.org)
+     DEBUG send frame=Reset { stream_id: StreamId(27), error_code: CANCEL }
+     DEBUG send frame=Reset { stream_id: StreamId(25), error_code: CANCEL }
+     DEBUG reuse idle connection for ("https", registry.npmjs.org)
+     ERR_NUB_REGISTRY_ERROR
+     
+       × failed to resolve dependencies
+       ╰─▶ registry error for fetch-ponyfill: uses exotic specifier
+           "github:amarzavery/fetch-ponyfill#master" which is blocked by
+           blockExoticSubdeps (declared by ms-rest-js)
+       help: package: fetch-ponyfill
+             registry operation failed — see the message above for the underlying
+             cause
+     
+     DEBUG starting new connection 'Some("registry.npmjs.org")' log.target=reqwest::connect log.module_path=reqwest::connect log.file=/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/reqwest-0.13.4/src/connect.rs log.line=929
+     DEBUG connecting to 104.16.11.34:443

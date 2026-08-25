@@ -1,6 +1,75 @@
-### @pact-foundation/pact@10.0.0-beta.9   (/home/runner/v2-UwI6Ls)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 12.22.12 (provisioned) (arms will run: v12.22.12)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 12, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @pact-foundation/pact@10.0.0-beta.9   (/home/runner/v2-qLsQ6E)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"91c61454a5ea6e78a574b562332be0b7c8cb4c4bee424d77ea1fc37480ea539b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T05:25:15.165Z","cacheHit":false,"clearancePath":"/home/runner/v2-qLsQ6E/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 91c61454a5ea
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=127 files=8720 trace=14017 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2020-06-13T00:15:54.134Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3832a3b038e15e1aadcd5f44e4755f65023de4508f7bbb7b6e1302a571c6b596","specCount":380,"lockfiles":{"digest":"07baee79fc32b1cdcfc3a82c970381556f8e3a2b412db0fa5ec10d5626a2f09f","files":[{"path":"package-lock.json","sha256":"8980a486dea0c5868f703d8c8af6aa1e718b99661d684565f6d2d59bcf21b3a2","bytes":175957}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T05:25:23.220Z","cacheHit":false,"clearancePath":"/home/runner/v2-qLsQ6E/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 380 exact package-version(s), tree 3832a3b038e1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-qLsQ6E/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-qLsQ6E/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD 1 added: neon-cli@^0.3.3
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
+  OBSERVE   rc=0 files=8754 trace=14992 lines
+  CLOSURE   414 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":143,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (143) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-qLsQ6E/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-qLsQ6E/observe/capture.json
+  RAWLOG-BYTES raw=2360100 gz=80131
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@pact-foundation/pact","packageVersion":"10.0.0-beta.9","major":12,"version":"12.22.12","npm":"6.14.16","pinnable":true,"engines":">=6","publishedAt":"2020-06-12T00:15:54.134Z","eraMajor":12,"startMajor":12,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-qLsQ6E/jailhome","TMPDIR":"/tmp/nub-tmp-obsyWgWAF","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-qLsQ6E/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 2
+    sockets script 0  /  whole traced tree 0
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-qLsQ6E/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-qLsQ6E/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-qLsQ6E/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsyWgWAF
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-qLsQ6E/observe/node_modules/@pact-foundation/pact
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6651 distinct from 10809 calls (14993 lines, 4172 rejoined, 0 unparsed)
+    PROCS     11   lifecycle shells 0
+    ⛔ 567 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: exit×9 recvmsg×5 getsockname×2 getsockopt×1 getcwd×1 exit_group×1
+    wrote /home/runner/v2-qLsQ6E/observe/events.ndjson.gz (36693 bytes)
+  EVENTLOG-FILE /home/runner/v2-qLsQ6E/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14993,"parsed":10809,"unparsed":0,"unfinished":4172,"rejoined":4172,"unresolvedDirfd":567,"truncatedArg":0,"procs":11,"lifecyclePids":0,"distinctEvents":6651,"unknownSyscall":{"getsockopt":1,"getsockname":2,"getcwd":1,"recvmsg":5,"exit":9,"exit_group":1},"out":"/home/runner/v2-qLsQ6E/observe/events.ndjson.gz","gzipBytes":36693}
+  EVICT     116 store entries removed, 168 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pact-foundation/pact
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"6d46a26938ee2c452953da1ab9439635acbb04fb881494fcf6dd415cc8a892bc","specCount":401,"lockfiles":{"digest":"d1995eeddee924fc3f35e5d8f7d2ec1e5c8f4b77c672570e646dd1cce2ccff3c","files":[{"path":"nub.lock","sha256":"b183968f46e6f868293534f543d9e6d45cfee7cfbc1684ffb5ab8f112dddbccc","bytes":101552}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T05:25:40.646Z","cacheHit":false,"clearancePath":"/home/runner/v2-qLsQ6E/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 401 exact package-version(s), tree 6d46a26938ee
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=143/143 missing=0 shortfall=none (tree 43518/8754) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
