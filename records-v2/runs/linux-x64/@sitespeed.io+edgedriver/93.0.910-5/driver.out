@@ -1,6 +1,73 @@
-### @sitespeed.io/edgedriver@93.0.910-5   (/home/runner/v2-YL32Ub)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @sitespeed.io/edgedriver@93.0.910-5   (/home/runner/v2-7hs8SQ)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"620a6b67c78670f2f538d05c65ccf8e99a5c397f9e439c871b349102149e6d6b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T18:12:43.270Z","cacheHit":false,"clearancePath":"/home/runner/v2-7hs8SQ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 620a6b67c786
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=21 trace=10808 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2021-09-17T13:42:29.476Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9aa4dfcfbfc511f75110ede95d2f9ad61156d4422ee11c2c60f6198b295f5742","specCount":3,"lockfiles":{"digest":"1adbf1bc5de13ece4e652c05bd07b50563cd287a9681561fe0d81bca13611d22","files":[{"path":"package-lock.json","sha256":"7cc2404e6b7e934219331cc9626cfc2b8944c66fb3cf77d64f7fb69685335f4a","bytes":1564}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T18:12:44.460Z","cacheHit":false,"clearancePath":"/home/runner/v2-7hs8SQ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 9aa4dfcfbfc5
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=21 trace=2509 lines
+  CLOSURE   3 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-7hs8SQ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-7hs8SQ/observe/capture.json
+  RAWLOG-BYTES raw=601665 gz=20034
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@sitespeed.io/edgedriver","packageVersion":"93.0.910-5","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":null,"publishedAt":"2021-09-16T13:42:29.476Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-7hs8SQ/jailhome","TMPDIR":"/tmp/nub-tmp-obsdDwILL","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-7hs8SQ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 2
+    sockets script 0  /  whole traced tree 0
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-7hs8SQ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-7hs8SQ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-7hs8SQ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsdDwILL
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-7hs8SQ/observe/node_modules/@sitespeed.io/edgedriver
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    1597 distinct from 2485 calls (2510 lines, 13 rejoined, 0 unparsed)
+    PROCS     11   lifecycle shells 0
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: exit×9 recvmsg×5 getsockname×2 getsockopt×1 getcwd×1 exit_group×1
+    wrote /home/runner/v2-7hs8SQ/observe/events.ndjson.gz (10353 bytes)
+  EVENTLOG-FILE /home/runner/v2-7hs8SQ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":2510,"parsed":2485,"unparsed":0,"unfinished":13,"rejoined":13,"unresolvedDirfd":3,"truncatedArg":0,"procs":11,"lifecyclePids":0,"distinctEvents":1597,"unknownSyscall":{"getsockopt":1,"getsockname":2,"getcwd":1,"recvmsg":5,"exit":9,"exit_group":1},"out":"/home/runner/v2-7hs8SQ/observe/events.ndjson.gz","gzipBytes":10353}
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @sitespeed.io/edgedriver
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9aa4dfcfbfc511f75110ede95d2f9ad61156d4422ee11c2c60f6198b295f5742","specCount":3,"lockfiles":{"digest":"f81b402cc50fddae6aad063c88b6b49e50a69f59f14e955f891f254fd53b7406","files":[{"path":"nub.lock","sha256":"593f09f615c1ffded997ff96414c4f6ebfb28958b6342eff7f6c0af1e0d15ce4","bytes":965}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T18:12:44.460Z","cacheHit":true,"clearancePath":"/home/runner/v2-7hs8SQ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 9aa4dfcfbfc5 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 61/21) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
