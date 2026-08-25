@@ -1,42 +1,57 @@
-### serverless@4.40.0   (/home/nub/v2-4g2skP)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=779 trace=9814 lines
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### serverless@4.40.0   (/home/runner/v2-aXTzLD)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"551aa708285aabd9968db7746e2edec4ec7cb265f929056d4b7bc2539300857b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T08:57:50.685Z","cacheHit":false,"clearancePath":"/home/runner/v2-aXTzLD/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 551aa708285a
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2026-07-23T14:10:40.692Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"27adbfc8c5ac335d4e0cf2274ae1f74c134e0fd90d3abb657b29ea6a7c4af087","specCount":38,"lockfiles":{"digest":"a7be161c680120fd4a8c9ba27d61b9f2cf375054a46daa7b02c73187595a33a0","files":[{"path":"package-lock.json","sha256":"fc725b221bfb332ec457e0ba70de89939b32553ff597b701a823df6a2c514279","bytes":19329}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T08:57:52.517Z","cacheHit":false,"clearancePath":"/home/runner/v2-aXTzLD/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 38 exact package-version(s), tree 27adbfc8c5ac
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-aXTzLD/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=792 trace=7996 lines
   CLOSURE   35 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":5,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (5) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-4g2skP/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-4g2skP/observe/capture.json
-  RAWLOG-BYTES raw=1903145 gz=69948
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-4g2skP/jailhome","TMPDIR":"/tmp/nub-tmp-obs9YN96I","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-4g2skP/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 17
-    writes  script 3  /  whole traced tree 1181
-    sockets script 3  /  whole traced tree 9
+  RAWLOG-FILE /home/runner/v2-aXTzLD/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-aXTzLD/observe/capture.json
+  RAWLOG-BYTES raw=1799428 gz=65378
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"serverless","packageVersion":"4.40.0","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":">=18.17.0","publishedAt":"2026-07-22T14:10:40.692Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-aXTzLD/jailhome","TMPDIR":"/tmp/nub-tmp-obsiLIBX0","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-aXTzLD/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 3  /  whole traced tree 1067
+    sockets script 3  /  whole traced tree 7
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-4g2skP/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-4g2skP/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-4g2skP/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs9YN96I
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-4g2skP/observe/node_modules/serverless
+    project       /home/runner/v2-aXTzLD/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-aXTzLD/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-aXTzLD/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsiLIBX0
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-aXTzLD/observe/node_modules/serverless
   == WRITES the script actually performed ==
     ownPkg        3  (base profile already grants this — NOT billed)
-        /home/nub/v2-4g2skP/observe/node_modules/serverless/node_modules
-        /home/nub/v2-4g2skP/observe/node_modules/serverless/node_modules/.bin
-        /home/nub/v2-4g2skP/observe/node_modules/serverless/node_modules/.bin/serverless-linux-amd64-0.0.2
+        /home/runner/v2-aXTzLD/observe/node_modules/serverless/node_modules
+        /home/runner/v2-aXTzLD/observe/node_modules/serverless/node_modules/.bin
+        /home/runner/v2-aXTzLD/observe/node_modules/serverless/node_modules/.bin/serverless-linux-amd64-0.0.2
   == NETWORK ==
     AF_INET sockets: 3   distinct peers: 3
         127.0.0.53:53
-        104.16.1.34:443
-        143.204.204.120:443
+        104.16.2.34:443
+        13.35.78.26:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -46,20 +61,36 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    5229 distinct from 9698 calls (9815 lines, 91 rejoined, 0 unparsed)
-    PROCS     23   lifecycle shells 12
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×34 getsockname×28 exit×18 getsockopt×10 recvmsg×8 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/nub/v2-4g2skP/observe/events.ndjson.gz (36164 bytes)
-  EVENTLOG-FILE /home/nub/v2-4g2skP/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9815,"parsed":9698,"unparsed":0,"unfinished":91,"rejoined":91,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":5229,"unknownSyscall":{"getsockname":28,"getsockopt":10,"getcwd":4,"recvmsg":8,"setsockopt":34,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-4g2skP/observe/events.ndjson.gz","gzipBytes":36164}
-  EVICT     60 store entries removed, 4 spared as nub tooling
+    EVENTS    4629 distinct from 7903 calls (7997 lines, 66 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×33 getsockname×27 exit×20 getsockopt×10 recvmsg×9 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-aXTzLD/observe/events.ndjson.gz (32884 bytes)
+  EVENTLOG-FILE /home/runner/v2-aXTzLD/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":7997,"parsed":7903,"unparsed":0,"unfinished":66,"rejoined":66,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4629,"unknownSyscall":{"getsockname":27,"getsockopt":10,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":33,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-aXTzLD/observe/events.ndjson.gz","gzipBytes":32884}
+  EVICT     3 store entries removed, 60 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for serverless
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"6c9e880b2145abe6240cbe752541447e88cbf7475fc9c75954ff7b31f3ae9a7a","specCount":38,"lockfiles":{"digest":"84705732c04a2313046ac87e94299063c69b4355965cd75444de465c71fe6d1b","files":[{"path":"nub.lock","sha256":"a2a9b38110253574d3de2b5d2ee92efe1611bae52624c2e68d9910f481524d89","bytes":9986}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T08:57:56.475Z","cacheHit":false,"clearancePath":"/home/runner/v2-aXTzLD/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 38 exact package-version(s), tree 6c9e880b2145
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 2290/779) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 2295/792) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  EVICT     39 store entries removed, 4 spared as nub tooling
+  EVICT     3 store entries removed, 60 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for serverless
-  VERIFY[drop-no-network] rc=1 artifacts=5/5 missing=0 shortfall=none (tree 2287/779) OVERRIDDEN=2 REJECTED=0 grant={}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"6c9e880b2145abe6240cbe752541447e88cbf7475fc9c75954ff7b31f3ae9a7a","specCount":38,"lockfiles":{"digest":"84705732c04a2313046ac87e94299063c69b4355965cd75444de465c71fe6d1b","files":[{"path":"nub.lock","sha256":"a2a9b38110253574d3de2b5d2ee92efe1611bae52624c2e68d9910f481524d89","bytes":9986}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T08:57:56.475Z","cacheHit":true,"clearancePath":"/home/runner/v2-aXTzLD/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 38 exact package-version(s), tree 6c9e880b2145 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=5/5 missing=0 shortfall=none (tree 2292/792) OVERRIDDEN=3 REJECTED=0 grant={}
+     [drop-no-network/i] DEBUG final message final_message=; header 17766:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 28828:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 49092:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 58960:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 17766:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 17766:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 28828:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 28828:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 58960:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 58960:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 49092:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 49092:RESPONSE:RD,RA:NoError:QUERY
      'no-network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true} is independently necessary
