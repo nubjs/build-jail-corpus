@@ -1,71 +1,110 @@
-### @aws-amplify/cli@12.9.0   (/home/nub/v2-DUw5Ek)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=576 trace=11054 lines
-  CLOSURE   51 packages evicted per arm
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 20.20.2 (provisioned) (arms will run: v20.20.2)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 20, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @aws-amplify/cli@12.9.0   (/home/runner/v2-JKmE9Y)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"15b5e01b6ee6eb2a9e3a1d5df16b661583ec3bf9ce3190ccd56093dcab264d76","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:20:37.331Z","cacheHit":false,"clearancePath":"/home/runner/v2-JKmE9Y/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 15b5e01b6ee6
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2023-12-12T22:27:17.279Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3a78ac800ee0f3555f5471475e67be0bf9ca45fd06540a8b6bfd7a75efce59e6","specCount":33,"lockfiles":{"digest":"3abc225692a7ff85bd16dd82b2698a664210cc7cbbf304aa94ba72a09fde255b","files":[{"path":"package-lock.json","sha256":"4d80357ad69d7d14af6a934224cb4474b8378e1341c1360bbeed01dbcd224967","bytes":14622}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:20:39.333Z","cacheHit":false,"clearancePath":"/home/runner/v2-JKmE9Y/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 33 exact package-version(s), tree 3a78ac800ee0
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-JKmE9Y/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=317 trace=7663 lines
+  CLOSURE   33 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":26,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (26) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-DUw5Ek/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-DUw5Ek/observe/capture.json
-  RAWLOG-BYTES raw=2058436 gz=78064
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-DUw5Ek/jailhome","TMPDIR":"/tmp/nub-tmp-obsnNDxyZ","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-DUw5Ek/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  RAWLOG-FILE /home/runner/v2-JKmE9Y/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-JKmE9Y/observe/capture.json
+  RAWLOG-BYTES raw=1729852 gz=56914
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@aws-amplify/cli","packageVersion":"12.9.0","major":20,"version":"20.20.2","npm":"10.8.2","pinnable":true,"engines":">=12.0.0","publishedAt":"2023-12-11T22:27:17.279Z","eraMajor":20,"startMajor":20,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/20.20.2/node-v20.20.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-JKmE9Y/jailhome","TMPDIR":"/tmp/nub-tmp-obsKxjniP","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-JKmE9Y/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   == ATTRIBUTION == attributed pids: 27
-    writes  script 201  /  whole traced tree 1379
-    sockets script 6  /  whole traced tree 12
+    writes  script 199  /  whole traced tree 203
+    sockets script 6  /  whole traced tree 10
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-DUw5Ek/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-DUw5Ek/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-DUw5Ek/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsnNDxyZ
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-DUw5Ek/observe/node_modules/@aws-amplify/cli
+    project       /home/runner/v2-JKmE9Y/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-JKmE9Y/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-JKmE9Y/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsKxjniP
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-JKmE9Y/observe/node_modules/@aws-amplify/cli
   == WRITES the script actually performed ==
-    jailHome    201  (base profile already grants this — NOT billed)
-        /home/nub/v2-DUw5Ek/jailhome/.amplify
-        /home/nub/v2-DUw5Ek/jailhome/.amplify/bin
-        /home/nub/v2-DUw5Ek/jailhome/.amplify/bin/amplify
-        /home/nub/v2-DUw5Ek/jailhome/.config
-        /home/nub/v2-DUw5Ek/jailhome/.config/configstore
-        /home/nub/v2-DUw5Ek/jailhome/.config/configstore/update-notifier-@aws-amplify
-        /home/nub/v2-DUw5Ek/jailhome/.config/configstore/update-notifier-@aws-amplify/cli-internal.json.1085017058
-        /home/nub/v2-DUw5Ek/jailhome/.config/configstore/update-notifier-@aws-amplify/cli-internal.json
-        /home/nub/v2-DUw5Ek/jailhome/.amplify/lib
-        /home/nub/v2-DUw5Ek/jailhome/.amplify/lib/amplify-dynamodb-simulator
-        … and 191 more
+    jailHome    196  (base profile already grants this — NOT billed)
+        /home/runner/v2-JKmE9Y/jailhome/.amplify
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/bin
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/bin/amplify
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/amplify-dynamodb-simulator
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/aws-amplify-amplify-frontend-ios
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/amplify-java-function-runtime-provider
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/amplify-go-function-runtime-provider
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/aws-amplify-amplify-opensearch-simulator
+        /home/runner/v2-JKmE9Y/jailhome/.amplify/lib/amplify-python-function-runtime-provider
+        … and 186 more
+    userHome      3
   == NETWORK ==
     AF_INET sockets: 6   distinct peers: 4
         127.0.0.53:53
-        104.16.6.34:443
-        108.159.227.79:443
-        3.167.163.55:443
+        104.16.1.34:443
+        13.224.187.93:443
+        13.224.187.16:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"network":true}
+    {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 196
+        .amplify
+    3 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 0
-    EVENTS    5994 distinct from 10848 calls (11055 lines, 170 rejoined, 0 unparsed)
+    count: 3
+        .config/configstore/update-notifier-@aws-amplify
+        .config/configstore/update-notifier-@aws-amplify/cli-internal.json.2552653571
+        .config/configstore/update-notifier-@aws-amplify/cli-internal.json
+    EVENTS    3794 distinct from 7587 calls (7664 lines, 40 rejoined, 0 unparsed)
     PROCS     33   lifecycle shells 22
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×74 getsockopt×52 setsockopt×37 exit×27 recvmsg×10 getcwd×5 shutdown×4 exit_group×4
-    wrote /home/nub/v2-DUw5Ek/observe/events.ndjson.gz (41460 bytes)
-  EVENTLOG-FILE /home/nub/v2-DUw5Ek/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":11055,"parsed":10848,"unparsed":0,"unfinished":170,"rejoined":170,"unresolvedDirfd":3,"truncatedArg":0,"procs":33,"lifecyclePids":22,"distinctEvents":5994,"unknownSyscall":{"getsockname":74,"getsockopt":52,"getcwd":5,"recvmsg":10,"setsockopt":37,"sendmmsg":3,"socketpair":3,"shutdown":4,"exit":27,"exit_group":4,"wait4":4},"out":"/home/nub/v2-DUw5Ek/observe/events.ndjson.gz","gzipBytes":41460}
-  EVICT     60 store entries removed, 0 spared as nub tooling
+    ⛔ 2 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×69 getsockopt×48 exit×27 setsockopt×25 recvmsg×11 getcwd×4 shutdown×4 exit_group×4
+    wrote /home/runner/v2-JKmE9Y/observe/events.ndjson.gz (24796 bytes)
+  EVENTLOG-FILE /home/runner/v2-JKmE9Y/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":7664,"parsed":7587,"unparsed":0,"unfinished":40,"rejoined":40,"unresolvedDirfd":2,"truncatedArg":0,"procs":33,"lifecyclePids":22,"distinctEvents":3794,"unknownSyscall":{"getsockname":69,"getsockopt":48,"getcwd":4,"recvmsg":11,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":4,"exit":27,"exit_group":4,"wait4":4},"out":"/home/runner/v2-JKmE9Y/observe/events.ndjson.gz","gzipBytes":24796}
+  EVICT     22 store entries removed, 31 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"19cfe4e4756db38b01f1f8b8d40cf400aa82480bde914b2c301d841ce64e98f4","specCount":51,"lockfiles":{"digest":"1a63a8751e38c58dd423252c693084720bb3288ac76e599a8b48dd37ae36b3e3","files":[{"path":"nub.lock","sha256":"10b9d3d238974d8d48a50cfbf1fea434ff7e50c792d26b63a9f4af72616a4211","bytes":12984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:21:12.154Z","cacheHit":false,"clearancePath":"/home/runner/v2-JKmE9Y/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 51 exact package-version(s), tree 19cfe4e4756d
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1982/576) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-  => VERIFIED {"network":true}   (observed, then verified)
-  EVICT     51 store entries removed, 0 spared as nub tooling
+  VERIFY[synth] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1984/317) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}
+  => VERIFIED {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}   (observed, then verified)
+  EVICT     13 store entries removed, 31 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
-  VERIFY[drop-no-network] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1982/576) OVERRIDDEN=2 REJECTED=0 grant={}
-     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
-  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"19cfe4e4756db38b01f1f8b8d40cf400aa82480bde914b2c301d841ce64e98f4","specCount":51,"lockfiles":{"digest":"1a63a8751e38c58dd423252c693084720bb3288ac76e599a8b48dd37ae36b3e3","files":[{"path":"nub.lock","sha256":"10b9d3d238974d8d48a50cfbf1fea434ff7e50c792d26b63a9f4af72616a4211","bytes":12984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:21:12.154Z","cacheHit":true,"clearancePath":"/home/runner/v2-JKmE9Y/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 51 exact package-version(s), tree 19cfe4e4756d (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1984/317) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"writePaths":[".amplify"]}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true},"writePaths":[".amplify"]} is sufficient
+  EVICT     13 store entries removed, 31 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"19cfe4e4756db38b01f1f8b8d40cf400aa82480bde914b2c301d841ce64e98f4","specCount":51,"lockfiles":{"digest":"1a63a8751e38c58dd423252c693084720bb3288ac76e599a8b48dd37ae36b3e3","files":[{"path":"nub.lock","sha256":"10b9d3d238974d8d48a50cfbf1fea434ff7e50c792d26b63a9f4af72616a4211","bytes":12984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:21:12.154Z","cacheHit":true,"clearancePath":"/home/runner/v2-JKmE9Y/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 51 exact package-version(s), tree 19cfe4e4756d (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1984/317) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".amplify"]}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true,"writePaths":[".amplify"]} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true,"writePaths":[".amplify"]}; each named capability drops on its own)
+  EVICT     13 store entries removed, 31 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"19cfe4e4756db38b01f1f8b8d40cf400aa82480bde914b2c301d841ce64e98f4","specCount":51,"lockfiles":{"digest":"1a63a8751e38c58dd423252c693084720bb3288ac76e599a8b48dd37ae36b3e3","files":[{"path":"nub.lock","sha256":"10b9d3d238974d8d48a50cfbf1fea434ff7e50c792d26b63a9f4af72616a4211","bytes":12984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T13:21:12.154Z","cacheHit":true,"clearancePath":"/home/runner/v2-JKmE9Y/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 51 exact package-version(s), tree 19cfe4e4756d (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=26/26 missing=0 shortfall=none (tree 1984/317) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".amplify"]}
+  => JOINT-NARROW VERIFIED {"writePaths":[".amplify"]} — all 2 capabilities drop TOGETHER, measured
