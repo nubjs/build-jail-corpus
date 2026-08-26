@@ -1,6 +1,101 @@
-### canvas@2.11.2   (/home/runner/v2-PYTYcP)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 18.20.8 (provisioned) (arms will run: v18.20.8)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 18, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### canvas@2.11.2   (/home/runner/v2-Kv5Qvd)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b5bdd025b9dbe48b6aa4868e3d570e5e0fd0fdd733eefbe3c56756e3bc1c3fed","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T06:06:04.313Z","cacheHit":false,"clearancePath":"/home/runner/v2-Kv5Qvd/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b5bdd025b9db
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=584 trace=92095 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2023-04-03T21:33:55.740Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1a94aca4c695bb9b7a9f3788e8fc08c5ff60e6d3f5bf83707eaf201ba6dfae47","specCount":63,"lockfiles":{"digest":"3ad9eddbe6968f292ab7e0258df29080194b6c3a70fd41ef1def54509c23ec45","files":[{"path":"package-lock.json","sha256":"343602c12ecd6a70428966db5dc50c31bd9d9e63aba7608768c1f9f0ed40a017","bytes":26522}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T06:06:05.731Z","cacheHit":false,"clearancePath":"/home/runner/v2-Kv5Qvd/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 63 exact package-version(s), tree 1a94aca4c695
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-Kv5Qvd/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-Kv5Qvd/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=642 trace=7969 lines
+  CLOSURE   61 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":123,"filesTheScriptProduced":61,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-Kv5Qvd/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Kv5Qvd/observe/capture.json
+  RAWLOG-BYTES raw=1858517 gz=59648
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"canvas","packageVersion":"2.11.2","major":18,"version":"18.20.8","npm":"10.8.2","pinnable":true,"engines":">=6","publishedAt":"2023-04-02T21:33:55.740Z","eraMajor":18,"startMajor":18,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Kv5Qvd/jailhome","TMPDIR":"/tmp/nub-tmp-obskZVjln","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Kv5Qvd/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 17
+    writes  script 75  /  whole traced tree 79
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Kv5Qvd/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Kv5Qvd/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Kv5Qvd/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obskZVjln
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas
+  == WRITES the script actually performed ==
+    ownPkg       75  (base profile already grants this — NOT billed)
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libcairo.so.2
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libjpeg.so.62
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libxml2.so.2
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libgmodule-2.0.so.0
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libpcre.so.1
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libpixman-1.so.0
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/canvas.node
+        /home/runner/v2-Kv5Qvd/observe/node_modules/canvas/build/Release/libgdk_pixbuf-2.0.so.0
+        … and 65 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        172.182.252.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    3677 distinct from 7914 calls (7970 lines, 30 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 12
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×36 getsockopt×21 exit×18 recvmsg×16 setsockopt×13 getcwd×4 shutdown×4 sendmmsg×3
+    wrote /home/runner/v2-Kv5Qvd/observe/events.ndjson.gz (23231 bytes)
+  EVENTLOG-FILE /home/runner/v2-Kv5Qvd/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":7970,"parsed":7914,"unparsed":0,"unfinished":30,"rejoined":30,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":3677,"unknownSyscall":{"getsockname":36,"getsockopt":21,"getcwd":4,"recvmsg":16,"setsockopt":13,"sendmmsg":3,"socketpair":3,"shutdown":4,"getpeername":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/runner/v2-Kv5Qvd/observe/events.ndjson.gz","gzipBytes":23231}
+  EVICT     11 store entries removed, 99 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for canvas
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"8d4ef18744ce2f198133ef796c6059efd5aa61ae025d6f9e5aebe1d1fe2562a2","specCount":62,"lockfiles":{"digest":"1f3e142554d7f3b0248ba68a32fc449edb94460a1cc1421d6bc00f6c2bd92c9a","files":[{"path":"nub.lock","sha256":"8f430b39cf75cf408927c9fc34ea52c8d2ca0b909483d8502d7dcaca5550c5c8","bytes":15275}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T06:06:12.613Z","cacheHit":false,"clearancePath":"/home/runner/v2-Kv5Qvd/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 62 exact package-version(s), tree 8d4ef18744ce
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=123/123 missing=0 shortfall=none (tree 1922/642) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     18 store entries removed, 99 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for canvas
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"8d4ef18744ce2f198133ef796c6059efd5aa61ae025d6f9e5aebe1d1fe2562a2","specCount":62,"lockfiles":{"digest":"1f3e142554d7f3b0248ba68a32fc449edb94460a1cc1421d6bc00f6c2bd92c9a","files":[{"path":"nub.lock","sha256":"8f430b39cf75cf408927c9fc34ea52c8d2ca0b909483d8502d7dcaca5550c5c8","bytes":15275}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T06:06:12.613Z","cacheHit":true,"clearancePath":"/home/runner/v2-Kv5Qvd/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 62 exact package-version(s), tree 8d4ef18744ce (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=63/123 missing=61 shortfall=2d67c9b2ff3f (tree 1743/642) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: build/Release/.deps/Release/canvas.node.d, build/Release/.deps/Release/obj.target/canvas/src/Backends.o.d, build/Release/.deps/Release/obj.target/canvas/src/Canvas.o.d, build/Release/.deps/Release/obj.target/canvas/src/CanvasGradient.o.d, build/Release/.deps/Release/obj.target/canvas/src/CanvasPattern.o.d, build/Release/.deps/Release/obj.target/canvas/src/CanvasRenderingContext2d.o.d (+55)
+     [drop-no-network/i] DEBUG final message final_message=; header 23368:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 10413:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 9990:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG final message final_message=; header 30365:QUERY:RD:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 10413:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 23368:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 10413:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 23368:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 9990:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30365:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 30365:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-network/i] DEBUG response: ; header 9990:RESPONSE:RD,RA:NoError:QUERY
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
