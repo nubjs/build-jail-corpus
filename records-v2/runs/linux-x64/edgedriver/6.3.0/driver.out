@@ -1,38 +1,53 @@
-### edgedriver@6.3.0   (/home/runner/v2-YrgLKh)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### edgedriver@6.3.0   (/home/runner/v2-zuCDVI)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6c371ec24b7ead1b5f0a28436763065cb0e7bbc478118cf9192720e4af5917cc","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:34:22.715Z","cacheHit":false,"clearancePath":"/home/runner/v2-zuCDVI/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6c371ec24b7e
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=480 trace=12184 lines
-  CLOSURE   28 packages evicted per arm
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2026-01-05T19:56:03.828Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"360ce432235a7fccc857004bb4aa39e4e61513732b89df9796e1f4f53f0f3541","specCount":24,"lockfiles":{"digest":"aec75ef58727d5cf8000880a66a16cea392ffe847c56c0e144fe298d895cc253","files":[{"path":"package-lock.json","sha256":"3353bf6cf4555b4571176d0f8cb37bd1a942023f9f4b1468ca45ca0e76367054","bytes":10793}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:34:24.141Z","cacheHit":false,"clearancePath":"/home/runner/v2-zuCDVI/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 24 exact package-version(s), tree 360ce432235a
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD 1 added: husky@^9.1.7
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
+  OBSERVE   rc=0 files=422 trace=7846 lines
+  CLOSURE   23 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":38,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (38) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/runner/v2-YrgLKh/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/runner/v2-YrgLKh/observe/capture.json
-  RAWLOG-BYTES raw=2631582 gz=76985
-  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.1/x64
-  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-YrgLKh/jailhome","TMPDIR":"/tmp/nub-tmp-obswIQZPO","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-YrgLKh/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 14
-    writes  script 0  /  whole traced tree 1088
+  RAWLOG-FILE /home/runner/v2-zuCDVI/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-zuCDVI/observe/capture.json
+  RAWLOG-BYTES raw=1783314 gz=62400
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"edgedriver","packageVersion":"6.3.0","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":">=20.0.0","publishedAt":"2026-01-04T19:56:03.828Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-zuCDVI/jailhome","TMPDIR":"/tmp/nub-tmp-obsxxI17Z","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-zuCDVI/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1064
     sockets script 0  /  whole traced tree 4
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/runner/v2-YrgLKh/observe
+    project       /home/runner/v2-zuCDVI/observe
     home          /home/runner
-    jailHome      /home/runner/v2-YrgLKh/jailhome
+    jailHome      /home/runner/v2-zuCDVI/jailhome
     globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/runner/v2-YrgLKh/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /opt/hostedtoolcache/node/22.23.1/x64   [declared, not keyed on]
+    projectStore  /home/runner/v2-zuCDVI/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
     toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obswIQZPO
+    temp          /tmp/nub-tmp-obsxxI17Z
     npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/runner/v2-YrgLKh/observe/node_modules/edgedriver
+    ownPkg        /home/runner/v2-zuCDVI/observe/node_modules/edgedriver
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 2
         127.0.0.53:53
-        104.16.1.34:443
+        104.16.3.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -42,16 +57,18 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    4961 distinct from 12049 calls (12185 lines, 112 rejoined, 0 unparsed)
+    EVENTS    4495 distinct from 7787 calls (7847 lines, 36 rejoined, 0 unparsed)
     PROCS     21   lifecycle shells 9
-    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×23 getsockopt×18 getcwd×16 exit×16 recvmsg×7 socketpair×3 shutdown×3
-    wrote /home/runner/v2-YrgLKh/observe/events.ndjson.gz (34505 bytes)
-  EVENTLOG-FILE /home/runner/v2-YrgLKh/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":12185,"parsed":12049,"unparsed":0,"unfinished":112,"rejoined":112,"unresolvedDirfd":1,"truncatedArg":0,"procs":21,"lifecyclePids":9,"distinctEvents":4961,"unknownSyscall":{"getsockname":31,"getsockopt":18,"getcwd":16,"recvmsg":7,"exit":16,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-YrgLKh/observe/events.ndjson.gz","gzipBytes":34505}
-  EVICT     11 store entries removed, 2 spared as nub tooling
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×22 getsockopt×18 exit×16 getcwd×13 recvmsg×7 socketpair×3 shutdown×3
+    wrote /home/runner/v2-zuCDVI/observe/events.ndjson.gz (32096 bytes)
+  EVENTLOG-FILE /home/runner/v2-zuCDVI/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":7847,"parsed":7787,"unparsed":0,"unfinished":36,"rejoined":36,"unresolvedDirfd":4,"truncatedArg":0,"procs":21,"lifecyclePids":9,"distinctEvents":4495,"unknownSyscall":{"getsockname":31,"getsockopt":18,"getcwd":13,"recvmsg":7,"exit":16,"setsockopt":22,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-zuCDVI/observe/events.ndjson.gz","gzipBytes":32096}
+  EVICT     2 store entries removed, 22 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for edgedriver
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1d2c9ce848fc555c6fd48779b26097f83f3244eda3790e64828175b9bd48e16d","specCount":30,"lockfiles":{"digest":"2904866bcd4ef8c3ddbb34562772c936791907bf1f56e7dfb936282199b7b01f","files":[{"path":"nub.lock","sha256":"67825bb3cefd4516ca5fd2c606606132e7ef21d85204e1adf7078c2a3dcfd5a1","bytes":7404}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:34:27.255Z","cacheHit":false,"clearancePath":"/home/runner/v2-zuCDVI/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 30 exact package-version(s), tree 1d2c9ce848fc
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=38/38 missing=0 shortfall=none (tree 1430/480) OVERRIDDEN=2 REJECTED=0 grant={}
+  VERIFY[synth] rc=0 artifacts=38/38 missing=0 shortfall=none (tree 1489/422) OVERRIDDEN=3 REJECTED=0 grant={}
   => VERIFIED {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

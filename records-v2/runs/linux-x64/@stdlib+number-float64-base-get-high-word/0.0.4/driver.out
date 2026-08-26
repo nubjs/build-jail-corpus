@@ -1,106 +1,226 @@
-### @stdlib/number-float64-base-get-high-word@0.0.4   (/home/nub/v2-mS8VxE)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=999 trace=37893 lines
-  CLOSURE   78 packages evicted per arm
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @stdlib/number-float64-base-get-high-word@0.0.4   (/home/runner/v2-63OwZk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"99978ff86624b54e110f3cb2d979379db7b8aeb107f3fef33450c39f909b6381","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:34.912Z","cacheHit":false,"clearancePath":"/home/runner/v2-63OwZk/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 99978ff86624
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2021-07-08T00:43:15.090Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b3fc3393bf0df7c9aa358a71532d070ae409e239787af5e1e75947ad459955ea","specCount":73,"lockfiles":{"digest":"5ef00b2cecd36496384e058ae6946f7bb5d1fc37609dfc964144416c2e043c25","files":[{"path":"package-lock.json","sha256":"70140148cbded21aaf260ce8a088e1da113e85609e6be3437c37344ca8651516","bytes":59946}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:39.255Z","cacheHit":false,"clearancePath":"/home/runner/v2-63OwZk/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 73 exact package-version(s), tree b3fc3393bf0d
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=975 trace=26030 lines
+  CLOSURE   73 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":37,"filesTheScriptProduced":19,"reasons":[]}
-  RAWLOG-FILE /home/nub/v2-mS8VxE/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-mS8VxE/observe/capture.json
-  RAWLOG-BYTES raw=6894042 gz=247963
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-mS8VxE/jailhome","TMPDIR":"/tmp/nub-tmp-obsOqsliN","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-mS8VxE/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 143
-    writes  script 3374  /  whole traced tree 4552
-    sockets script 3  /  whole traced tree 9
+  RAWLOG-FILE /home/runner/v2-63OwZk/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-63OwZk/observe/capture.json
+  RAWLOG-BYTES raw=4719551 gz=159713
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@stdlib/number-float64-base-get-high-word","packageVersion":"0.0.4","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":">=0.10.0","publishedAt":"2021-07-07T00:43:15.090Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-63OwZk/jailhome","TMPDIR":"/tmp/nub-tmp-obsam5MyD","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-63OwZk/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 145
+    writes  script 994  /  whole traced tree 996
+    sockets script 8  /  whole traced tree 8
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-mS8VxE/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-mS8VxE/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-mS8VxE/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsOqsliN
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word
+    project       /home/runner/v2-63OwZk/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-63OwZk/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-63OwZk/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsam5MyD
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word
   == WRITES the script actually performed ==
-    jailHome   3328  (base profile already grants this — NOT billed)
-        /home/nub/v2-mS8VxE/jailhome/.cache
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
-        /home/nub/v2-mS8VxE/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
-        … and 3318 more
-    ownPkg       39  (base profile already grants this — NOT billed)
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/config.gypi
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/Makefile
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/addon.target.mk
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/copy_addon.target.mk
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/binding.Makefile
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/node_gyp_bins
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/node_gyp_bins/python3
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/Release
-        /home/nub/v2-mS8VxE/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/obj.target
-        … and 29 more
+    jailHome    951  (base profile already grants this — NOT billed)
+        /home/runner/v2-63OwZk/jailhome/.cache
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node/common.gypi
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node/config.gypi
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node/node.h
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node/node_api.h
+        /home/runner/v2-63OwZk/jailhome/.cache/node-gyp/14.21.3/include/node/js_native_api.h
+        … and 941 more
+    ownPkg       37  (base profile already grants this — NOT billed)
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/config.gypi
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/Makefile
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/addon.target.mk
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/copy_addon.target.mk
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/binding.Makefile
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/Release
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/obj.target
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/addon
+        /home/runner/v2-63OwZk/observe/node_modules/@stdlib/number-float64-base-get-high-word/build/src
+        … and 27 more
     jailTmp       6  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obsOqsliN/ccEt5Q8N.s
-        /tmp/nub-tmp-obsOqsliN/ccmAldmM.s
-        /tmp/nub-tmp-obsOqsliN/ccNdmicM.s
-        /tmp/nub-tmp-obsOqsliN/cc15pSdZ.res
-        /tmp/nub-tmp-obsOqsliN/cc8M0wdH.cdtor.c
-        /tmp/nub-tmp-obsOqsliN/ccrxThyd.cdtor.o
-    kernelfs      1
-        /dev/null
+        /tmp/nub-tmp-obsam5MyD/ccDrDA3r.s
+        /tmp/nub-tmp-obsam5MyD/ccDzHck9.s
+        /tmp/nub-tmp-obsam5MyD/ccPC4CJK.s
+        /tmp/nub-tmp-obsam5MyD/cc99FZ5W.res
+        /tmp/nub-tmp-obsam5MyD/ccY0YbXO.cdtor.c
+        /tmp/nub-tmp-obsam5MyD/cc47Ru9K.cdtor.o
   == NETWORK ==
-    AF_INET sockets: 3   distinct peers: 3
+    AF_INET sockets: 8   distinct peers: 2
         127.0.0.53:53
-        104.16.1.34:443
-        104.16.212.131:443
+        104.16.213.131:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
-    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
-    private-home writes observed: 3328
+    private-home writes observed: 951
     none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    20580 distinct from 36861 calls (37894 lines, 839 rejoined, 0 unparsed)
-    PROCS     149   lifecycle shells 138
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getcwd×130 wait4×126 exit_group×105 setsockopt×58 getsockname×53 exit×38 getsockopt×37 socketpair×9
-    wrote /home/nub/v2-mS8VxE/observe/events.ndjson.gz (115117 bytes)
-  EVENTLOG-FILE /home/nub/v2-mS8VxE/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":37894,"parsed":36861,"unparsed":0,"unfinished":839,"rejoined":839,"unresolvedDirfd":3,"truncatedArg":0,"procs":149,"lifecyclePids":138,"distinctEvents":20580,"unknownSyscall":{"getcwd":130,"getsockname":53,"recvmsg":8,"setsockopt":58,"sendmmsg":2,"getsockopt":37,"socketpair":9,"shutdown":9,"exit_group":105,"wait4":126,"exit":38},"out":"/home/nub/v2-mS8VxE/observe/events.ndjson.gz","gzipBytes":115117}
-  EVICT     79 store entries removed, 0 spared as nub tooling
+    EVENTS    13715 distinct from 24864 calls (26031 lines, 969 rejoined, 0 unparsed)
+    PROCS     150   lifecycle shells 139
+    ⛔ 95 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×128 getcwd×127 exit_group×106 exit×38 getsockname×9 recvmsg×9 socketpair×6 getsockopt×4
+    wrote /home/runner/v2-63OwZk/observe/events.ndjson.gz (73347 bytes)
+  EVENTLOG-FILE /home/runner/v2-63OwZk/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":26031,"parsed":24864,"unparsed":0,"unfinished":969,"rejoined":969,"unresolvedDirfd":95,"truncatedArg":0,"procs":150,"lifecyclePids":139,"distinctEvents":13715,"unknownSyscall":{"getsockopt":4,"getsockname":9,"getcwd":127,"recvmsg":9,"socketpair":6,"exit_group":106,"wait4":128,"setsockopt":2,"sendmmsg":2,"exit":38},"out":"/home/runner/v2-63OwZk/observe/events.ndjson.gz","gzipBytes":73347}
+  EVICT     4 store entries removed, 3 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @stdlib/number-float64-base-get-high-word
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"22d4084001ed1ef5915102b6a89f7757493d8a0d2ea3faa66fd167441f5330c0","files":[{"path":"nub.lock","sha256":"43f34f34d0b624946914644d5223d0d3b8930948a0901a083f568b357b3f7e21","bytes":34146}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":false,"clearancePath":"/home/runner/v2-63OwZk/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=1 artifacts=19/37 missing=18 shortfall=b93e991748ee (tree 3299/999) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=1 artifacts=20/37 missing=18 shortfall=3ef65186d773 (tree 3322/975) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
        missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/src/addon.o.d, build/Release/.deps/Release/obj.target/addon/src/get_high_word.o.d, build/Release/.deps/Release/obj.target/addon.node.d, build/Release/.deps/Release/obj.target/copy_addon.stamp.d (+12)
+     [synth/i] DEBUG final message final_message=; header 10327:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 36396:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 12076:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 14207:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 10327:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 10327:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 36396:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 36396:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 14207:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 14207:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 12076:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 12076:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a] Error: Cannot find module '@stdlib/os-byte-order' from '/home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-to-words'
+     [synth/a] gyp ERR! configure error 
+     [synth/a] gyp ERR! stack Error: `gyp` failed with exit code: 1
+     [synth/a] gyp ERR! stack     at ChildProcess.onCpExit (/home/runner/.cache/nub/pm/store/node-gyp@9.4.1-c393770bf72e2cb9/node_modules/node-gyp/lib/configure.js:325:16)
+     [synth/a] gyp ERR! stack     at ChildProcess.emit (events.js:400:28)
+     [synth/a] gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:285:12)
+     [synth/a] gyp ERR! System Linux 6.17.0-1022-azure
+     [synth/a] gyp ERR! command "/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin/node" "/home/runner/.cache/nub/pm/tools/node-gyp/v9/node_modules/.store/node-gyp@9.4.1/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+     [synth/a] gyp ERR! cwd /home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-get-high-word
+     [synth/a] gyp ERR! node -v v14.21.3
+     [synth/a] gyp ERR! node-gyp -v v9.4.1
+     [synth/a] gyp ERR! not ok 
   DIAGNOSE  ZERO filesystem refusals under the failing grant.
      ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
        or a resource class strace's file+network filter does not carry.
   synthesized grant did not verify — falling back to a bounded ladder
-  EVICT     78 store entries removed, 0 spared as nub tooling
+  EVICT     71 store entries removed, 3 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @stdlib/number-float64-base-get-high-word
-  VERIFY[fb2126003217] rc=1 artifacts=19/37 missing=18 shortfall=b93e991748ee (tree 3299/999) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"22d4084001ed1ef5915102b6a89f7757493d8a0d2ea3faa66fd167441f5330c0","files":[{"path":"nub.lock","sha256":"43f34f34d0b624946914644d5223d0d3b8930948a0901a083f568b357b3f7e21","bytes":34146}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":true,"clearancePath":"/home/runner/v2-63OwZk/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=20/37 missing=18 shortfall=3ef65186d773 (tree 3322/975) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
        missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/src/addon.o.d, build/Release/.deps/Release/obj.target/addon/src/get_high_word.o.d, build/Release/.deps/Release/obj.target/addon.node.d, build/Release/.deps/Release/obj.target/copy_addon.stamp.d (+12)
-  EVICT     78 store entries removed, 0 spared as nub tooling
+     [fb2126003217/i] DEBUG final message final_message=; header 5281:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 22460:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 42770:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 18971:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 5281:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 5281:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 22460:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 22460:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 42770:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 18971:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 18971:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 42770:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/a] Error: Cannot find module '@stdlib/os-byte-order' from '/home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-to-words'
+     [fb2126003217/a] gyp ERR! configure error 
+     [fb2126003217/a] gyp ERR! stack Error: `gyp` failed with exit code: 1
+     [fb2126003217/a] gyp ERR! stack     at ChildProcess.onCpExit (/home/runner/.cache/nub/pm/store/node-gyp@9.4.1-c393770bf72e2cb9/node_modules/node-gyp/lib/configure.js:325:16)
+     [fb2126003217/a] gyp ERR! stack     at ChildProcess.emit (events.js:400:28)
+     [fb2126003217/a] gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:285:12)
+     [fb2126003217/a] gyp ERR! System Linux 6.17.0-1022-azure
+     [fb2126003217/a] gyp ERR! command "/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin/node" "/home/runner/.cache/nub/pm/tools/node-gyp/v9/node_modules/.store/node-gyp@9.4.1/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+     [fb2126003217/a] gyp ERR! cwd /home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-get-high-word
+     [fb2126003217/a] gyp ERR! node -v v14.21.3
+     [fb2126003217/a] gyp ERR! node-gyp -v v9.4.1
+     [fb2126003217/a] gyp ERR! not ok 
+  EVICT     71 store entries removed, 3 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @stdlib/number-float64-base-get-high-word
-  VERIFY[fb3938809772] rc=1 artifacts=19/37 missing=18 shortfall=b93e991748ee (tree 3299/999) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"22d4084001ed1ef5915102b6a89f7757493d8a0d2ea3faa66fd167441f5330c0","files":[{"path":"nub.lock","sha256":"43f34f34d0b624946914644d5223d0d3b8930948a0901a083f568b357b3f7e21","bytes":34146}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":true,"clearancePath":"/home/runner/v2-63OwZk/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=20/37 missing=18 shortfall=3ef65186d773 (tree 3322/975) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
        missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/src/addon.o.d, build/Release/.deps/Release/obj.target/addon/src/get_high_word.o.d, build/Release/.deps/Release/obj.target/addon.node.d, build/Release/.deps/Release/obj.target/copy_addon.stamp.d (+12)
-  EVICT     78 store entries removed, 0 spared as nub tooling
+     [fb3938809772/i] DEBUG final message final_message=; header 34627:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 7799:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 29857:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 34627:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 34627:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 29857:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 29857:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 7799:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 7799:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 64367:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 64367:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 64367:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/a] Error: Cannot find module '@stdlib/os-byte-order' from '/home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-to-words'
+     [fb3938809772/a] gyp ERR! configure error 
+     [fb3938809772/a] gyp ERR! stack Error: `gyp` failed with exit code: 1
+     [fb3938809772/a] gyp ERR! stack     at ChildProcess.onCpExit (/home/runner/.cache/nub/pm/store/node-gyp@9.4.1-c393770bf72e2cb9/node_modules/node-gyp/lib/configure.js:325:16)
+     [fb3938809772/a] gyp ERR! stack     at ChildProcess.emit (events.js:400:28)
+     [fb3938809772/a] gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:285:12)
+     [fb3938809772/a] gyp ERR! System Linux 6.17.0-1022-azure
+     [fb3938809772/a] gyp ERR! command "/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin/node" "/home/runner/.cache/nub/pm/tools/node-gyp/v9/node_modules/.store/node-gyp@9.4.1/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+     [fb3938809772/a] gyp ERR! cwd /home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-get-high-word
+     [fb3938809772/a] gyp ERR! node -v v14.21.3
+     [fb3938809772/a] gyp ERR! node-gyp -v v9.4.1
+     [fb3938809772/a] gyp ERR! not ok 
+  EVICT     71 store entries removed, 3 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @stdlib/number-float64-base-get-high-word
-  VERIFY[fb2742342390] rc=1 artifacts=19/37 missing=18 shortfall=b93e991748ee (tree 3299/999) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"22d4084001ed1ef5915102b6a89f7757493d8a0d2ea3faa66fd167441f5330c0","files":[{"path":"nub.lock","sha256":"43f34f34d0b624946914644d5223d0d3b8930948a0901a083f568b357b3f7e21","bytes":34146}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":true,"clearancePath":"/home/runner/v2-63OwZk/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=1 artifacts=20/37 missing=18 shortfall=3ef65186d773 (tree 3322/975) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
        missing: build/Makefile, build/Release/.deps/Release/addon.node.d, build/Release/.deps/Release/obj.target/addon/src/addon.o.d, build/Release/.deps/Release/obj.target/addon/src/get_high_word.o.d, build/Release/.deps/Release/obj.target/addon.node.d, build/Release/.deps/Release/obj.target/copy_addon.stamp.d (+12)
-  NOT-GRANT-INDEPENDENT an arm exited non-zero
-  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
-     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
-     an under-grant: do not widen the catalog. This is a nub install defect to chase.
+     [fb2742342390/i] DEBUG final message final_message=; header 10459:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 11541:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 30281:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 10459:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 10459:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 56577:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 11541:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 11541:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 30281:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 30281:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 56577:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 56577:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/a] Error: Cannot find module '@stdlib/os-byte-order' from '/home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-to-words'
+     [fb2742342390/a] gyp ERR! configure error 
+     [fb2742342390/a] gyp ERR! stack Error: `gyp` failed with exit code: 1
+     [fb2742342390/a] gyp ERR! stack     at ChildProcess.onCpExit (/home/runner/.cache/nub/pm/store/node-gyp@9.4.1-c393770bf72e2cb9/node_modules/node-gyp/lib/configure.js:325:16)
+     [fb2742342390/a] gyp ERR! stack     at ChildProcess.emit (events.js:400:28)
+     [fb2742342390/a] gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:285:12)
+     [fb2742342390/a] gyp ERR! System Linux 6.17.0-1022-azure
+     [fb2742342390/a] gyp ERR! command "/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin/node" "/home/runner/.cache/nub/pm/tools/node-gyp/v9/node_modules/.store/node-gyp@9.4.1/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+     [fb2742342390/a] gyp ERR! cwd /home/runner/.cache/nub/pm/store/@stdlib+number-float64-base-get-high-word@0.0.4-794a694caf188392/node_modules/@stdlib/number-float64-base-get-high-word
+     [fb2742342390/a] gyp ERR! node -v v14.21.3
+     [fb2742342390/a] gyp ERR! node-gyp -v v9.4.1
+     [fb2742342390/a] gyp ERR! not ok 
+  NOT-GRANT-INDEPENDENT every arm exited non-zero — nothing installed at any grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"22d4084001ed1ef5915102b6a89f7757493d8a0d2ea3faa66fd167441f5330c0","files":[{"path":"nub.lock","sha256":"43f34f34d0b624946914644d5223d0d3b8930948a0901a083f568b357b3f7e21","bytes":34146}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":true,"clearancePath":"/home/runner/v2-63OwZk/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21 (cached exact-tree clearance)
+  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-fallback-resolved","status":"clean","digest":"e4b1c9c3ba213f5e785268b68d657eda9d37474819993874c0fbf6437add4a90","specCount":78,"lockfiles":{"digest":"00a781c8f3d5498d38d4fe3a3385f99723a81c67b522618872a40a219a226982","files":[{"path":"package-lock.json","sha256":"b082063db3e3239961527af660df9b0bda70a3ba3887bb6fa2903dc94d44bada","bytes":63755}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T22:35:46.045Z","cacheHit":true,"clearancePath":"/home/runner/v2-63OwZk/security/npm-fallback-resolved.json"}
+  SECURITY npm-fallback-resolved clean: 78 exact package-version(s), tree e4b1c9c3ba21 (cached exact-tree clearance)
+  jail-off control: npm installs this package but nub cannot, even with the jail OFF — a nub install defect, not an under-grant
+  => BROKEN-UNJAILED-NUB
