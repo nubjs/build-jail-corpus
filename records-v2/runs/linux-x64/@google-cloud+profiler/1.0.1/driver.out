@@ -1,5 +1,107 @@
-### @google-cloud/profiler@1.0.1   (/home/nub/v2-0qiAU8)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=1890 trace=38978 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @google-cloud/profiler@1.0.1   (/home/runner/v2-WbCkVr)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4b06a42ea1d4f1ec0a1200284865deee955878723688f9fe028482b893890ea4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T13:30:55.003Z","cacheHit":false,"clearancePath":"/home/runner/v2-WbCkVr/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4b06a42ea1d4
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2019-02-23T22:38:48.867Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"125ce2342b77a1e4db3a2496586c986cd42f4e4cff233c30c7e71d95c7265df3","specCount":144,"lockfiles":{"digest":"629d2c9365f11691aacb926a55e0ff575e7cbf832c1e4132301005257ea9e725","files":[{"path":"package-lock.json","sha256":"281a97513dc43a417e4c40fba8d4f1e0b28a14c4233480864ebe6d449ad24e60","bytes":55364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T13:30:59.696Z","cacheHit":false,"clearancePath":"/home/runner/v2-WbCkVr/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 144 exact package-version(s), tree 125ce2342b77
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-WbCkVr/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-WbCkVr/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=1536 trace=31087 lines
+  CLOSURE   140 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":60,"filesTheScriptProduced":14,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-WbCkVr/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-WbCkVr/observe/capture.json
+  RAWLOG-BYTES raw=4978060 gz=155233
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@google-cloud/profiler","packageVersion":"1.0.1","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">=6.12.3 <8.0.0 || >=8.9.4 <10.0.0 || >=10.4.1","publishedAt":"2019-02-22T22:38:48.867Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-WbCkVr/jailhome","TMPDIR":"/tmp/nub-tmp-obsxMw0oX","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-WbCkVr/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 111
+    writes  script 860  /  whole traced tree 862
+    sockets script 11  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-WbCkVr/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-WbCkVr/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-WbCkVr/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsxMw0oX
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler
+  == WRITES the script actually performed ==
+    ownPkg       36  (base profile already grants this — NOT billed)
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/node-v64-linux-x64-glibc
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/config.gypi
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/Makefile
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/google_cloud_profiler.target.mk
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/action_after_build.target.mk
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/binding.Makefile
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/Release
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/obj.target
+        /home/runner/v2-WbCkVr/observe/node_modules/@google-cloud/profiler/build/google_cloud_profiler
+        … and 26 more
+    jailHome    820  (base profile already grants this — NOT billed)
+        /home/runner/v2-WbCkVr/jailhome/.cache
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node/common.gypi
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node/config.gypi
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node/node.h
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node/node_api.h
+        /home/runner/v2-WbCkVr/jailhome/.cache/node-gyp/10.24.1/include/node/node_api_types.h
+        … and 810 more
+    jailTmp       4  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsxMw0oX/ccBBm7ms.s
+        /tmp/nub-tmp-obsxMw0oX/ccIwY2Ac.res
+        /tmp/nub-tmp-obsxMw0oX/cccp3dP9.cdtor.c
+        /tmp/nub-tmp-obsxMw0oX/ccprrrkR.cdtor.o
+  == NETWORK ==
+    AF_INET sockets: 11   distinct peers: 3
+        127.0.0.53:53
+        142.251.215.219:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 820
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    13549 distinct from 29467 calls (31088 lines, 1473 rejoined, 0 unparsed)
+    PROCS     117   lifecycle shells 106
+    ⛔ 180 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×102 wait4×73 exit_group×61 exit×50 getsockname×18 recvmsg×11 socketpair×9 setsockopt×3
+    wrote /home/runner/v2-WbCkVr/observe/events.ndjson.gz (77970 bytes)
+  EVENTLOG-FILE /home/runner/v2-WbCkVr/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":31088,"parsed":29467,"unparsed":0,"unfinished":1473,"rejoined":1473,"unresolvedDirfd":180,"truncatedArg":0,"procs":117,"lifecyclePids":106,"distinctEvents":13549,"unknownSyscall":{"getcwd":102,"getsockname":18,"recvmsg":11,"socketpair":9,"shutdown":2,"exit_group":61,"wait4":73,"setsockopt":3,"sendmmsg":3,"getsockopt":3,"exit":50},"out":"/home/runner/v2-WbCkVr/observe/events.ndjson.gz","gzipBytes":77970}
+  EVICT     45 store entries removed, 110 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @google-cloud/profiler
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"66123a7f40a31bd2c0ce4bc0cb61e501a32c50f6d49f84f4c560f6dcd6f05e58","specCount":167,"lockfiles":{"digest":"10bdeecd4114d229aab754839be6975eb690d5e48cbde55358fe1a1734415bd8","files":[{"path":"nub.lock","sha256":"ba7a5f7c5a8403ca6ba0bf790794d2a0cafe4a968db11e59a14c8879c3dddae1","bytes":40765}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T13:31:07.507Z","cacheHit":false,"clearancePath":"/home/runner/v2-WbCkVr/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 167 exact package-version(s), tree 66123a7f40a3
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=60/60 missing=0 shortfall=none (tree 6003/1536) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     83 store entries removed, 110 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @google-cloud/profiler
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"66123a7f40a31bd2c0ce4bc0cb61e501a32c50f6d49f84f4c560f6dcd6f05e58","specCount":167,"lockfiles":{"digest":"10bdeecd4114d229aab754839be6975eb690d5e48cbde55358fe1a1734415bd8","files":[{"path":"nub.lock","sha256":"ba7a5f7c5a8403ca6ba0bf790794d2a0cafe4a968db11e59a14c8879c3dddae1","bytes":40765}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T13:31:07.507Z","cacheHit":true,"clearancePath":"/home/runner/v2-WbCkVr/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 167 exact package-version(s), tree 66123a7f40a3 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=60/60 missing=0 shortfall=none (tree 6003/1536) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
