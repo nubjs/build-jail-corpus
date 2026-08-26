@@ -1,5 +1,122 @@
-### java@0.18.0   (/home/nub/v2-kwDqmV)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=1911 trace=87888 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 22.23.2 (provisioned) (arms will run: v22.23.2)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 22, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### java@0.18.0   (/home/runner/v2-PTooIM)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4596b738ad07ba06e4d9b3f7c981ae0da9c2fe8e3b7c0f81a552186a163b33c3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T02:18:56.577Z","cacheHit":false,"clearancePath":"/home/runner/v2-PTooIM/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4596b738ad07
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2025-10-19T18:23:59.010Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"888d23221be88c861e72416f885c6ec5a2930d55bd7a6a7c363afa62a45b7f8f","specCount":99,"lockfiles":{"digest":"961d9da23036706b1628ee87f86fc9fafa0a2f72667f57a96d93545fbd1b6441","files":[{"path":"package-lock.json","sha256":"39a8d1e8caa83ca51be54dcb0eca2b063f4501fbfc3aeabc93c37ce9e0b38a83","bytes":47303}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T02:18:59.487Z","cacheHit":false,"clearancePath":"/home/runner/v2-PTooIM/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 99 exact package-version(s), tree 888d23221be8
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=1783 trace=161903 lines
+  CLOSURE   86 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":97,"filesTheScriptProduced":21,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-PTooIM/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-PTooIM/observe/capture.json
+  RAWLOG-BYTES raw=24567871 gz=601702
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"java","packageVersion":"0.18.0","major":22,"version":"22.23.2","npm":"10.9.8","pinnable":true,"engines":">=8.0.0","publishedAt":"2025-10-18T18:23:59.010Z","eraMajor":22,"startMajor":22,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/22.23.2/node-v22.23.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-PTooIM/jailhome","TMPDIR":"/tmp/nub-tmp-obsGqqrFL","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-PTooIM/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 222
+    writes  script 6707  /  whole traced tree 7795
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-PTooIM/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-PTooIM/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-PTooIM/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsGqqrFL
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-PTooIM/observe/node_modules/java
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/runner/v2-PTooIM/jailhome/.cache
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node/common.gypi
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node/config.gypi
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/allocation.h
+        /home/runner/v2-PTooIM/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/common.h
+        … and 3318 more
+    jailTmp    3335  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/v8-locker.h
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/zconf.h
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/v8config.h
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/common.gypi
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/v8-object.h
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/v8-forward.h
+        /tmp/nub-tmp-obsGqqrFL/node-gyp-tmp-IluxNi/include/node/v8-profiler.h
+        … and 3325 more
+    ownPkg       40  (base profile already grants this — NOT billed)
+        /home/runner/v2-PTooIM/observe/node_modules/java/build
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/config.gypi
+        /home/runner/v2-PTooIM/observe/node_modules/java/196327
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/Makefile
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/nodejavabridge_bindings.target.mk
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/binding.Makefile
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/node_gyp_bins
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/node_gyp_bins/python3
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/Release
+        /home/runner/v2-PTooIM/observe/node_modules/java/build/obj.target
+        … and 30 more
+    kernelfs      2
+        /proc/self/coredump_filter
+        /dev/null
+    outside       2
+        /tmp/hsperfdata_runner
+        /tmp/hsperfdata_runner/196327
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    ⛔ 2 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    NOTE 2 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2
+        /tmp/hsperfdata_runner
+        /tmp/hsperfdata_runner/196327
+    EVENTS    57305 distinct from 153757 calls (161904 lines, 7848 rejoined, 0 unparsed)
+    PROCS     229   lifecycle shells 217
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×198 exit_group×166 getcwd×163 setsockopt×70 exit×47 getsockname×40 getsockopt×25 socketpair×12
+    wrote /home/runner/v2-PTooIM/observe/events.ndjson.gz (307154 bytes)
+  EVENTLOG-FILE /home/runner/v2-PTooIM/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":161904,"parsed":153757,"unparsed":0,"unfinished":7848,"rejoined":7848,"unresolvedDirfd":3,"truncatedArg":0,"procs":229,"lifecyclePids":217,"distinctEvents":57305,"unknownSyscall":{"getsockname":40,"getsockopt":25,"getcwd":163,"recvmsg":9,"exit":47,"setsockopt":70,"sendmmsg":2,"socketpair":12,"shutdown":12,"exit_group":166,"wait4":198},"out":"/home/runner/v2-PTooIM/observe/events.ndjson.gz","gzipBytes":307154}
+  EVICT     24 store entries removed, 152 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for java
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"161b817aa3192ea4f342ad96f115443818d37933b863b9eb877c455c835aca97","specCount":101,"lockfiles":{"digest":"83cd3c4f8026cb80e795dd1ce76098f9c5a2a10812af61ecd654668243df4320","files":[{"path":"nub.lock","sha256":"9b9b74813f7bf6661511a3961f7a8d0590bff27e94bb8e57a9d82968955cd093","bytes":26337}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T02:19:31.396Z","cacheHit":false,"clearancePath":"/home/runner/v2-PTooIM/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 101 exact package-version(s), tree 161b817aa319
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=96/96 missing=0 shortfall=none (tree 5935/1783) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     28 store entries removed, 152 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for java
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"161b817aa3192ea4f342ad96f115443818d37933b863b9eb877c455c835aca97","specCount":101,"lockfiles":{"digest":"83cd3c4f8026cb80e795dd1ce76098f9c5a2a10812af61ecd654668243df4320","files":[{"path":"nub.lock","sha256":"9b9b74813f7bf6661511a3961f7a8d0590bff27e94bb8e57a9d82968955cd093","bytes":26337}]},"maliciousAdvisories":[],"screenedAt":"2026-08-26T02:19:31.396Z","cacheHit":true,"clearancePath":"/home/runner/v2-PTooIM/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 101 exact package-version(s), tree 161b817aa319 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=96/96 missing=0 shortfall=none (tree 5935/1783) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
