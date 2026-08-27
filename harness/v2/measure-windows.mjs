@@ -432,17 +432,37 @@ const unjailedNubOk = () => {
 // too (gyp rejects Python 3.12), so a verdict naming nub would be true and still misleading. The
 // top-of-file control cannot answer it either — that one keys on OBSERVE, and OBSERVE runs `npm
 // rebuild` against an already-materialized tree, which succeeds where a fresh `npm install` fails.
+// ⛔⛔ THE REFERENCE ARM MUST MATCH THE ARM IT IS A REFERENCE FOR. It answers "does npm install this
+// where nub did not", so `ok` means the nub failure is a NUB DEFECT and a failure here means nothing
+// installs the package. The error is one-directional and invisible: a spurious npm failure
+// EXONERATES nub, filing a candidate nub defect as a dead package that nobody re-reads.
+//
+// It ran UNDATED and with the ambient environment while the observe arm above ran `eraResolution`
+// under `obsEnv`. Undated resolution pulls TODAY's dependency versions into a tree pinned to
+// nothing, which is exactly what dated resolution was added to stop. Reusing `eraResolution.args`
+// verbatim is the point — one resolution, so the two arms cannot drift.
 const npmOk = () => {
   const d = path.join(ROOT, `nsp-npm-${nspSeq++}`);
   fs.mkdirSync(d, { recursive: true });
   fs.writeFileSync(path.join(d, 'package.json'), `${JSON.stringify({ name: 'nspnpm', version: '1.0.0' })}\n`);
-  if (run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`], { cwd: d }).status !== 0) {
+  const fetched = run(NODE, [NPM, ...eraResolution.args], { cwd: d, env: obsEnv });
+  if (fetched.status !== 0) {
+    // The log survives: the arm that decides nub is innocent must leave evidence in the record.
+    console.log(`  NPM-REFERENCE fetch FAILED rc=${fetched.status} for ${PKG}@${VER}`);
+    console.log(String((fetched.stdout ?? '') + (fetched.stderr ?? '')).split('\n').slice(-20)
+      .map((l) => `    | ${l}`).join('\n'));
     return false;
   }
   securityScreen('npm-fallback-resolved', ['--tree', d]);
   // Rebuild the WHOLE cleared tree: an ordinary npm install runs dependency lifecycle scripts as
   // well as the target's, so targeting only PKG would change the reference arm.
-  return run(NODE, [NPM, 'rebuild', '--no-audit', '--no-fund'], { cwd: d }).status === 0;
+  const rebuilt = run(NODE, [NPM, 'rebuild', '--no-audit', '--no-fund'], { cwd: d, env: obsEnv });
+  if (rebuilt.status !== 0) {
+    console.log(`  NPM-REFERENCE rebuild rc=${rebuilt.status} for ${PKG}@${VER}`);
+    console.log(String((rebuilt.stdout ?? '') + (rebuilt.stderr ?? '')).split('\n').slice(-20)
+      .map((l) => `    | ${l}`).join('\n'));
+  }
+  return rebuilt.status === 0;
 };
 
 const countFiles = (dir, skip = () => false) => {

@@ -65,7 +65,6 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # field order and same reader as `measure.sh` — the ledger is a cross-driver format, not a local one.
 ARM_LEDGER=""
 RUNUSER="${SUDO_USER:-$(id -un)}"
-NPM_BIN="$(command -v npm)"
 # nub's global virtual store, resolved the way the ARM will resolve it rather than the way this
 # driver would. The driver runs as root (dtrace needs uid 0) while every arm is dropped back with
 # `sudo -u -H`, whose env_reset drops XDG_CACHE_HOME — so an arm always lands on the invoking user's
@@ -532,6 +531,20 @@ else
   echo "  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)"
 fi
 
+# ⛔⛔ A BARE `npm`, RESOLVED BY THE ARM'S OWN PATH — NEVER AN ABSOLUTE ONE. `env` sets the era-first
+# PATH just below and then execs through it, so a bare name gets the era npm; an absolute path does
+# not, and this driver used to hold one (`NPM_BIN="$(command -v npm)"`, captured at driver start,
+# BEFORE any era pin existed). The arm therefore ran the ERA NODE with the HARNESS npm's JavaScript
+# — npm 10.9.8 on Node 4/6/10, which dies at `const { enableCompileCache } = require("node:module")`
+# before it does anything. The arm exits non-zero and this driver records
+# `BROKEN-WITHOUT-JAIL-TOO`, a claim ABOUT THE PACKAGE, for a failure that is entirely ours.
+#
+# MEASURED against the observe lane on same-platform pairs: 45 of 98 paired darwin BROKEN records
+# (46%) are contradicted by a lane that installs the same package@version fine, against 26% on
+# linux — and `measure.sh:656` has always used the bare form, which is exactly the difference.
+#
+# No fallback is needed: when nothing is pinned, `ARM_PATH`/`ERA_PATH` is the ambient PATH and the
+# bare name finds the harness npm, which is the old behaviour.
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
 sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
@@ -544,7 +557,7 @@ sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "electron_config_cache=$TOOLS/electron-cache" \
   "npm_config_prefix=$TOOLS/npm-prefix" \
   ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} \
-  "$NPM_BIN" rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
+  npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
 echo \$? > "$OBS/rc"
 WRAP
 
@@ -1532,16 +1545,37 @@ if [ "$VERIFIED" -eq 0 ]; then
       # The top-of-file control cannot answer this: it keys on OBSERVE, and OBSERVE runs `npm rebuild`
       # against an already-materialized tree, which succeeds for amplify where a fresh `npm install`
       # fails. Different npm verb, different answer.
+      # ⛔⛔ SAME TOOLCHAIN AS THE ARM IT REFERENCES — see the long note on `npm_ok` in `measure.sh`.
+      # This arm decides whose fault a failure is, so a spurious npm failure here EXONERATES nub and
+      # files a candidate nub defect as a dead package. It ran undated on the harness toolchain while
+      # every other arm ran the era one.
       npm_ok () {
         local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
         printf '{"name":"nspnpm","version":"1.0.0"}\n' > "$d/package.json"
-        ( cd "$d" && npm install --no-audit --no-fund --ignore-scripts "$1@$2" > fetch.log 2>&1 ) || {
+        # ⛔ THE ERA CONTEXT IS EXPORTED INSIDE THE SUBSHELL, NOT PASSED THROUGH `env`. `env npm` EXECS
+        # the binary and so cannot see a shell FUNCTION -- and `linux-ladder.test.mjs:147` drives both
+        # branches of this control by defining `npm () { return $rc; }`, which is the only way to test
+        # fault attribution without a live registry. Routing through `env` silently took the REAL npm
+        # instead, and the suite went red against the network. Exporting keeps a bare `npm` resolvable
+        # as a function here and as the era binary in production, which is what each venue needs.
+        ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+            && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
+            && npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$1@$2" \
+            > fetch.log 2>&1 ) || {
+          echo "  NPM-REFERENCE fetch FAILED for $1@$2 (era ${ERA_NODE_VERSION:-none}${ERA_BEFORE:+, $ERA_BEFORE})"
+          sed 's/^/    | /' "$d/fetch.log" 2>/dev/null | tail -20
           rm -rf "$d"; return 1; }
         security_screen_tree "$d" npm-fallback-resolved
         # Rebuild the whole cleared tree: an ordinary npm install runs dependency lifecycle scripts as
         # well as the target's, so targeting only `$1` would change the reference arm.
-        ( cd "$d" && npm rebuild --no-audit --no-fund > n.log 2>&1 )
-        local rc=$?; rm -rf "$d"; return $rc
+        ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+            && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
+            && npm rebuild --no-audit --no-fund > n.log 2>&1 )
+        local rc=$?
+        # The log survives a failure: the arm that decides nub is innocent must leave evidence.
+        [ "$rc" -eq 0 ] || { echo "  NPM-REFERENCE rebuild rc=$rc for $1@$2 (era ${ERA_NODE_VERSION:-none})"
+          sed 's/^/    | /' "$d/n.log" 2>/dev/null | tail -20; }
+        rm -rf "$d"; return $rc
       }
       # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
       # second verdict after either branch would silently overwrite it and the stage would be inert.

@@ -14,11 +14,14 @@
       "fromEpoch": 3,
       "fromHarnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
       "toEpoch": 4,
-      "toHarnessSha256": "d5ae025b016ee94a3b4e543d0f7b358a4ac2c74be3ebad1da3dd8ced540128e7",
+      "toHarnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
       "invalidate": {
-        "platforms": []
+        "verdicts": [
+          "BROKEN-WITHOUT-JAIL-TOO",
+          "BROKEN-UNJAILED-NUB"
+        ]
       },
-      "reason": "Epoch 4 changes only queue bookkeeping: a row the publisher withheld, or one whose instrument failure has exhausted its retries, is now settled at the harness hash that refused it instead of being handed back to every later slice. No arm, grant, verdict or observation path is touched, so every epoch-3 measurement still answers the question it was asked. The empty platform scope invalidates nothing, deliberately."
+      "reason": "Epoch 4 carries two changes. The queue half is bookkeeping and cannot move a verdict: a row the publisher withheld, or one whose instrument failure has exhausted its retries, is now settled at the harness hash that refused it instead of being handed back to every later slice. The DRIVER half can and does. measure-macos.sh held an absolute npm path captured before any era pin existed, so its unjailed control ran the era Node with the harness npm's JavaScript and recorded a package verdict for a failure that was ours. And all three drivers' npm reference arm -- the arm that decides whether a nub failure is BROKEN-UNJAILED-NUB or BROKEN-WITHOUT-JAIL-TOO -- ran undated on the harness toolchain, so a spurious npm failure exonerated nub and filed a candidate nub defect as a dead package. Only those two verdicts are reachable by either bug: both act on the unjailed control, and a record that got past it ran npm correctly. Every MINIMUM measurement therefore stands."
     }
   ]
 }

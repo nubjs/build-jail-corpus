@@ -41,7 +41,10 @@ test('every driver screens direct before fetch and the fetched tree before npm r
     'npm install --no-audit --no-fund --ignore-scripts',
     '"$PKG@$VER"',
     'security_screen_tree "$OBS" npm-observe-resolved',
-    '"$NPM_BIN" rebuild --no-audit --no-fund "$PKG"',
+    // The bare name is load-bearing, not cosmetic: `env` sets the era-first PATH immediately before
+    // this and execs through it, so an absolute path (which this driver used to hold) runs the
+    // HARNESS npm on the ERA Node. See the note at the wrapper in `measure-macos.sh`.
+    'npm rebuild --no-audit --no-fund "$PKG"',
   ], 'macos');
   inOrder(drivers.windows, [
     "securityScreen('direct', ['--spec', `${PKG}@${VER}`])",

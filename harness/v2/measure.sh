@@ -1904,16 +1904,48 @@ if [ "$NSP_RC" -eq 3 ]; then
   # ⛔ AND THE TOP-OF-FILE CONTROL CANNOT COVER THIS, which is why the question belongs here. That
   # one keys on OBSERVE, and OBSERVE runs `npm rebuild` against an already-materialized tree — which
   # SUCCEEDS for amplify while a fresh `npm install` fails. Different npm verb, different answer.
+  # ⛔⛔ THIS ARM DECIDES WHOSE FAULT A FAILURE IS, SO IT MUST RUN THE SAME TOOLCHAIN AS THE ARM IT
+  # IS A REFERENCE FOR. It answers "does npm install this where nub did not" — `ok` means the nub
+  # failure is a NUB DEFECT (`BROKEN-UNJAILED-NUB`), and a failure here means nothing installs the
+  # package and there is nothing to measure. Get the toolchain wrong and the error is one-directional
+  # and invisible: a spurious npm failure EXONERATES nub, filing a candidate nub defect as a dead
+  # package. Nobody re-reads a package we have already declared broken.
+  #
+  # It used to run undated on the HARNESS Node and npm while every other arm ran the era ones —
+  # `ERA_BEFORE`, `ARM_PATH` and `ERA_PYTHON` are all in scope here and none was passed. Undated
+  # resolution alone pulls TODAY's dependency versions into a tree pinned to nothing, which is the
+  # exact failure `--before` was added at line 487 to stop.
   npm_ok () {
     local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
     printf '{"name":"nspnpm","version":"1.0.0"}\n' > "$d/package.json"
-    ( cd "$d" && npm install --no-audit --no-fund --ignore-scripts "$1@$2" > fetch.log 2>&1 ) || {
+    # ⛔ `${ERA_PYTHON:+PYTHON=...}` IS AN `env` ARGUMENT, NEVER A COMMAND PREFIX — see the long note
+    # on the observe arm above. As a prefix the shell tries to EXECUTE `PYTHON=/usr/bin/python3`.
+    # ⛔ THE ERA CONTEXT IS EXPORTED INSIDE THE SUBSHELL, NOT PASSED THROUGH `env`. `env npm` EXECS
+    # the binary and so cannot see a shell FUNCTION -- and `linux-ladder.test.mjs:147` drives both
+    # branches of this control by defining `npm () { return $rc; }`, which is the only way to test
+    # fault attribution without a live registry. Routing through `env` silently took the REAL npm
+    # instead, and the suite went red against the network. Exporting keeps a bare `npm` resolvable
+    # as a function here and as the era binary in production, which is what each venue needs.
+    ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+        && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
+        && npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$1@$2" \
+        > fetch.log 2>&1 ) || {
+      echo "  NPM-REFERENCE fetch FAILED for $1@$2 (era ${ERA_NODE_VERSION:-none}${ERA_BEFORE:+, $ERA_BEFORE})"
+      sed 's/^/    | /' "$d/fetch.log" 2>/dev/null | tail -20
       rm -rf "$d"; return 1; }
     security_screen_tree "$d" npm-fallback-resolved
     # Rebuild the whole cleared tree: an ordinary npm install runs dependency lifecycle scripts as
     # well as the target's, so targeting only `$1` would change the reference arm.
-    ( cd "$d" && npm rebuild --no-audit --no-fund > n.log 2>&1 )
-    local rc=$?; rm -rf "$d"; return $rc
+    ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+        && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
+        && npm rebuild --no-audit --no-fund > n.log 2>&1 )
+    local rc=$?
+    # ⛔ THE LOG SURVIVES A FAILURE. This function used to `rm -rf` unconditionally, so the arm that
+    # decides nub is innocent left NO evidence in any record — the misattribution was unreadable
+    # after the fact and could only be found by reproducing it on a fresh box.
+    [ "$rc" -eq 0 ] || { echo "  NPM-REFERENCE rebuild rc=$rc for $1@$2 (era ${ERA_NODE_VERSION:-none})"
+      sed 's/^/    | /' "$d/n.log" 2>/dev/null | tail -20; }
+    rm -rf "$d"; return $rc
   }
   # ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
   # second verdict after either branch would silently overwrite it and the stage would be inert. The
