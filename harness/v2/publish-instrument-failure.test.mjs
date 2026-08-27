@@ -21,7 +21,7 @@ const git = (cwd, ...args) => spawnSync('git', args, { cwd, encoding: 'utf8' });
 
 // A repo with an `origin` it can actually fetch: publish-record-v2.sh fetches and resets to
 // `origin/$BRANCH` before deciding anything, so a repo with no remote exercises none of the path.
-function scratchRepo(record) {
+function scratchRepo(record, prior = null) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pub-if-'));
   const origin = path.join(root, 'origin');
   const work = path.join(root, 'work');
@@ -32,12 +32,30 @@ function scratchRepo(record) {
   git(work, 'config', 'user.email', 't@t');
   git(work, 'config', 'user.name', 't');
   fs.writeFileSync(path.join(work, 'queue-v2.ndjson'), '');
+  const rel = 'records-v2/runs/linux-x64/somepkg/1.0.0';
+  const dir = path.join(work, rel);
+  // A PRIOR in origin is what makes the publish guard run at all — it reads the prior with
+  // `git show origin/$BRANCH:$REL/results.json` and publishes unguarded when there is none.
+  if (prior) {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify(prior));
+  }
   git(work, 'add', '-A');
   git(work, 'commit', '-qm', 'init');
   git(work, 'remote', 'add', 'origin', origin);
   git(work, 'push', '-q', 'origin', 'main');
-  const rel = 'records-v2/runs/linux-x64/somepkg/1.0.0';
-  const dir = path.join(work, rel);
+  // ⛔ THE GUARD IS INVOKED AS `node harness/v2/publish-guard.mjs`, RELATIVE TO THE REPO ROOT, so a
+  // scratch repo without it makes the publisher FAIL OPEN — correct behaviour, and it silently turns
+  // a withholding test into a publishing one.
+  //
+  // ⛔⛔ COPIED, NEVER SYMLINKED, AND THIS IS NOT A STYLE CHOICE. `publish-guard.mjs:157` guards its
+  // CLI with `import.meta.filename === process.argv[1]`. Through a symlink those two disagree —
+  // argv[1] is the link path, `import.meta.filename` the real one — so the CLI block never runs and
+  // the guard exits 0 having printed NOTHING. The publisher reads that as PUBLISH. Measured: this
+  // test passed its `publish` assertion for exactly that reason before the symlink was replaced.
+  // Excluded from git so the publisher's reset cannot sweep it away mid-run.
+  fs.appendFileSync(path.join(work, '.git', 'info', 'exclude'), '\n/harness\n');
+  fs.cpSync(path.join(HERE, '..'), path.join(work, 'harness'), { recursive: true });
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify(record));
   return { root, work, dir, rel };
@@ -51,7 +69,7 @@ function scratchRepo(record) {
 // POSIX form. Driving it any other way tests a calling convention that does not exist.
 const posix = (p) => p.replace(/\\/g, '/');
 
-function publish({ work, dir }, manifest) {
+function publish({ work, dir }, manifest, settled = null) {
   return spawnSync('bash', [posix(PUBLISH), posix(dir)], {
     cwd: work,
     encoding: 'utf8',
@@ -61,6 +79,7 @@ function publish({ work, dir }, manifest) {
       NUB_CORPUS_BRANCH: 'main',
       NUB_CORPUS_MANIFEST: posix(manifest),
       NUB_CORPUS_WITHHELD: posix(path.join(work, 'withheld-records')),
+      ...(settled ? { NUB_CORPUS_SETTLED: posix(settled) } : {}),
     },
   });
 }
@@ -95,4 +114,34 @@ test('an ordinary verdict still publishes — the guard is not a blanket refusal
   const listed = fs.existsSync(manifest) ? fs.readFileSync(manifest, 'utf8') : '';
   assert.match(listed, /records-v2\/runs\/linux-x64\/somepkg\/1\.0\.0/,
     'a real measurement stopped reaching the manifest — this check would hide the corpus filling up');
+});
+
+// ⛔ THE OTHER HALF OF THE RECLAIM LOOP, AND THE ONE THAT COSTS A SLICE 58% OF ITS SLOTS. Withholding
+// restores origin's PRIOR record, whose `harnessSha256` is OLD — so `--complete` stamps the row
+// stale and the next claim's invalidation pass hands it straight back. `queue-settled.test.mjs`
+// owns the queue half; this pins that the publisher NAMES the row so that half has an input at all.
+test('a guard-withheld record is named in the settled manifest', () => {
+  const t = scratchRepo(
+    { pkg: 'somepkg', version: '1.0.0', harnessVersion: 2, verdict: 'NO-STATE-PASSED' },
+    { pkg: 'somepkg', version: '1.0.0', harnessVersion: 2, verdict: 'MINIMUM', grant: { network: true } },
+  );
+  const settled = path.join(t.root, 'settled.ndjson');
+  const r = publish(t, path.join(t.root, 'published.txt'), settled);
+  assert.match(r.stderr, /WITHHELD \(not published/, `the guard did not fire: ${r.stderr}`);
+  const lines = fs.existsSync(settled) ? fs.readFileSync(settled, 'utf8').trim() : '';
+  assert.notEqual(lines, '', 'the withheld row reached no manifest, so the queue will reclaim it forever');
+  const row = JSON.parse(lines.split('\n')[0]);
+  assert.equal(row.pkg, 'somepkg');
+  assert.equal(row.version, '1.0.0');
+});
+
+test('a PUBLISHED record is never named as settled', () => {
+  const t = scratchRepo(
+    { pkg: 'somepkg', version: '1.0.0', harnessVersion: 2, verdict: 'MINIMUM', grant: { network: true } },
+    { pkg: 'somepkg', version: '1.0.0', harnessVersion: 2, verdict: 'MINIMUM', grant: { network: true } },
+  );
+  const settled = path.join(t.root, 'settled.ndjson');
+  publish(t, path.join(t.root, 'published.txt'), settled);
+  const lines = fs.existsSync(settled) ? fs.readFileSync(settled, 'utf8').trim() : '';
+  assert.equal(lines, '', `a published row was settled, which would strand it: ${lines}`);
 });

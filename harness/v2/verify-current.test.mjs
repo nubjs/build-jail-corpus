@@ -48,7 +48,8 @@ function run(options, args = ['--current-instrument']) {
 test('the slice gate accepts a current instrument record', () => {
   const result = run(fixture());
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /all records match current harness epoch 3/);
+  assert.match(result.stdout,
+    new RegExp(`all records match current harness epoch ${computeHarnessIdentity().harnessEpoch}`));
 });
 
 test('the slice gate rejects a stale instrument record', () => {

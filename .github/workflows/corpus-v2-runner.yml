@@ -133,6 +133,7 @@ jobs:
       # default resolves to `/var/folders/…/T/`, not `/tmp` — so writer and reader would silently
       # resolve DIFFERENT paths and the commit would fall back to stashing the whole tree.
       NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
+      NUB_CORPUS_SETTLED: /tmp/nub-corpus-v2-settled.ndjson
       # ⛔⛔ A `/tmp` PATH IS FINE AS AN ARGUMENT OR AN ENV VALUE, AND BROKEN INSIDE A `node -e` BODY.
       # THAT IS THE WHOLE RULE, AND IT IS WHY THIS FILE MUST NOT BE `/tmp`-SWEPT WHOLESALE.
       #
@@ -535,6 +536,7 @@ jobs:
           NUB_CORPUS_REPO: ${{ github.workspace }}
           NUB_CORPUS_BRANCH: ${{ github.ref_name }}
           NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
+          NUB_CORPUS_SETTLED: /tmp/nub-corpus-v2-settled.ndjson
         run: |
           set -uo pipefail
           chmod +x harness/v2/*.sh
@@ -612,7 +614,8 @@ jobs:
           # diagnostic ("completed N rows"). The former `--reconcile --records records-v2` line here
           # was removed: its whole-tree walk (~20s) is likewise discarded by that reset, so it was
           # pure per-run waste — the self-heal it provided is delegated to `--reclaim-stale`.
-          node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+          node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}" \
+            --settled "$NUB_CORPUS_SETTLED"
 
       # ⛔ `if: always()` IS THE WHOLE POINT: this must run precisely when a later step FAILS. A slice
       # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
@@ -753,7 +756,8 @@ jobs:
             # rows from the already-built verdict file (no tree walk, ~0.1s), collapsing the window to
             # ~1-2s so the push lands. Self-healing of other runs' stranded rows is delegated to
             # `--reclaim-stale` (it re-measures), which does not need to sit in this hot loop.
-            node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+            node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}" \
+            --settled "$NUB_CORPUS_SETTLED"
             # ⛔ --sparse IS MANDATORY under the sparse checkout: records-v2/runs/<plat>/... is
             # OUTSIDE the cone, and a plain `git add records-v2` stages NOTHING there (it warns and
             # skips), so the slice would be silently dropped. VERIFIED: with --sparse the new record

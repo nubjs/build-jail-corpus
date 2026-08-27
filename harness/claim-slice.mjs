@@ -65,6 +65,8 @@ const returnForRetry = (r, v) => {
   delete r.nubGitSha;
   delete r.node;
   delete r.nodeSha256;
+  delete r.settledAtHash;
+  delete r.settledReason;
   return true;
 };
 
@@ -203,23 +205,60 @@ if (argv.includes('--complete')) {
       } catch { /* a malformed line must not lose the whole slice */ }
     }
   }
+  // ⛔ ROWS THAT REACHED A TERMINAL NON-PUBLISHABLE OUTCOME AT THIS HASH. Without this the queue
+  // re-hands them out on every slice forever — see the SETTLED note on the invalidation pass below.
+  const settled = new Map();
+  const settledFile = opt('--settled', '');
+  if (settledFile && fs.existsSync(settledFile)) {
+    for (const line of fs.readFileSync(settledFile, 'utf8').split('\n').filter(Boolean)) {
+      try {
+        const v = JSON.parse(line);
+        if (v.pkg && v.version) settled.set(`${v.pkg}@${v.version}`, v.settled || 'withheld');
+      } catch { /* a malformed line must not lose the whole slice */ }
+    }
+  }
+  const currentSha = path.basename(QUEUE) === 'queue-v2.ndjson'
+    ? computeHarnessIdentity().harnessSha256 : null;
+
   const rows = read();
-  let done = 0; let stranded = 0; let retry = 0;
+  let done = 0; let stranded = 0; let retry = 0; let held = 0;
   for (const r of rows) {
     if (r.status !== 'claimed' || r.run !== runId) continue;
     const record = verdicts.get(`${r.pkg}@${r.version}`);
     if (record === undefined) { stranded++; continue; }
     const v = record.verdict;
-    if (returnForRetry(r, v)) { retry++; continue; }
+    const why = settled.get(`${r.pkg}@${r.version}`);
+    // ⛔ SETTLE BEFORE THE RETRY CHECK, NEVER AFTER. `returnForRetry` puts the row straight back to
+    // `pending` and `continue`s, so a settled row reached after it would never be stamped — the
+    // retry path would win and the loop this fixes would survive the fix.
+    if (why === undefined && !isInstrumentFailure(v)) {
+      r.status = 'done';
+      r.verdict = v;
+      stampIdentity(r, record);
+      delete r.run;
+      delete r.at;
+      done++;
+      continue;
+    }
+    if (why === undefined && returnForRetry(r, v)) { retry++; continue; }
+    // Either the publisher withheld this record, or an instrument failure has exhausted its
+    // retries. Both keep whatever the corpus already holds, so the row records the PRIOR verdict —
+    // and `settledAtHash` says the attempt happened at THIS instrument, which is what stops the
+    // reclaim without freezing the row against a future harness.
     r.status = 'done';
     r.verdict = v;
     stampIdentity(r, record);
+    if (currentSha) {
+      r.settledAtHash = currentSha;
+      r.settledReason = why ?? `instrument failure after ${r.attempts ?? RETRY_LIMIT} attempts: ${v}`;
+    }
     delete r.run;
     delete r.at;
-    done++;
+    held++;
   }
   write(rows);
-  console.error(`completed ${done} row(s); ${retry} instrument failure(s) returned to pending; `
+  console.error(`completed ${done} row(s); ${held} settled-at-this-hash (withheld or out of retries); `
+    + `${retry} instrument failure(s) returned to pending; `
     + `${stranded} claimed-but-unreported left for reclaim`);
   process.exit(0);
 }
@@ -249,6 +288,15 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
   }
   for (const row of rows) {
     if (row.status !== 'done') continue;
+    // ⛔⛔ A ROW SETTLED AT THIS EXACT INSTRUMENT IS NOT REOPENED, AND THIS IS THE WHOLE FIX. Its
+    // record is origin's PRIOR copy at an OLD hash, so `recordValidity` below correctly calls it
+    // stale and returns it to `pending` — which is right for a row that was never attempted here,
+    // and catastrophic for one that was attempted and REFUSED. Re-measuring cannot change the
+    // outcome: the same harness produces the same result and the guard withholds it again.
+    //
+    // Scoped to the exact hash rather than a boolean, so a genuine harness change still reopens it.
+    // That is the difference between "settled" and "abandoned", and only the hash expresses it.
+    if (row.settledAtHash && row.settledAtHash === instrument.harnessSha256) continue;
     const pseudoRecord = {
       ...row,
       provenance: {
@@ -328,6 +376,11 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
     delete row.node;
     delete row.nodeSha256;
     delete row.attempts;
+    // A row being reopened is no longer settled anywhere. A stale `settledAtHash` from an epoch that
+    // no longer exists cannot match the guard above, so it is inert — but it reads as though the row
+    // were still held, which is exactly the kind of thing a later reader trusts.
+    delete row.settledAtHash;
+    delete row.settledReason;
   }
 }
 const now = new Date().toISOString();

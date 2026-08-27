@@ -72,6 +72,29 @@ withhold_record () {
   echo "     Parked at $dir (outside records-v2, so no bulk commit can sweep it in)." >&2
 }
 
+# ⛔ A ROW THAT CANNOT PUBLISH AT THIS HASH MUST BE SETTLED, OR THE QUEUE HANDS IT BACK FOREVER.
+# Withholding leaves origin's PRIOR record in place, and that record carries an OLD `harnessSha256`.
+# `collect-verdicts.mjs` then reads the restored prior, `claim-slice.mjs --complete` stamps the row
+# from it, and the next claim's invalidation pass sees a stale hash and returns the row to `pending`.
+# The row can never converge: it is re-measured, re-withheld and re-opened by every slice.
+#
+# MEASURED on four consecutive linux slices (33011883250, 33016334427, 33020269262, 33024052763):
+# each claimed 60, each withheld the SAME 35 package@versions -- `comm -12` on the sorted name lists
+# gives 35 of 35 for every pair -- and each published 16. 58% of every slice was spent re-deriving
+# an outcome the corpus had already refused, and the stuck set GROWS with every slice that adds to
+# it. This manifest is what lets `--complete` close such a row AT THIS HASH, so it is retried when
+# the harness genuinely changes and not before.
+note_settled () {
+  [ -n "${NUB_CORPUS_SETTLED:-}" ] || return 0
+  node -e '
+    const fs = require("fs");
+    let r = {}; try { r = require(process.argv[1] + "/results.json"); } catch { }
+    if (!r.pkg || !r.version) process.exit(0);
+    fs.appendFileSync(process.argv[2],
+      JSON.stringify({ pkg: r.pkg, version: r.version, settled: process.argv[3] }) + "\n");
+  ' "$STASH/rec" "$NUB_CORPUS_SETTLED" "$1" 2>/dev/null || true
+}
+
 # ⛔ AN INSTRUMENT FAILURE IS NOT A MEASUREMENT AND MUST NOT REACH THE MANIFEST. `record-validity.mjs`
 # rejects a `HARNESS-*` verdict outright, and `claim-slice.mjs` returns such a row to `pending` for
 # retry — but this script published it regardless, so the slice gate then failed on a record the
@@ -133,6 +156,7 @@ for attempt in 1 2 3; do
     fi
     if [ "$GUARD_RC" = "10" ]; then
       withhold_record "not published"
+      note_settled "publish-guard withheld the re-measure"
       sed 's/^/     /' "$STASH/guard.out" >&2
       # ⛔ THE RECORD MUST LEAVE THE WORKING TREE, NOT MERELY GO UNSTAGED. `record.mjs --out` writes
       # straight into `records-v2/runs/...`, i.e. the record is ALREADY at $REL before this script

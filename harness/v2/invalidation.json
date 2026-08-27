@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 3,
+  "currentEpoch": 4,
   "transitions": [
     {
       "fromEpoch": null,
@@ -9,6 +9,16 @@
         "all": true
       },
       "reason": "Records from the unversioned v2 instrument predate fail-closed resolved-tree screening, canonical harness identity, and complete runtime provenance."
+    },
+    {
+      "fromEpoch": 3,
+      "fromHarnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
+      "toEpoch": 4,
+      "toHarnessSha256": "d5ae025b016ee94a3b4e543d0f7b358a4ac2c74be3ebad1da3dd8ced540128e7",
+      "invalidate": {
+        "platforms": []
+      },
+      "reason": "Epoch 4 changes only queue bookkeeping: a row the publisher withheld, or one whose instrument failure has exhausted its retries, is now settled at the harness hash that refused it instead of being handed back to every later slice. No arm, grant, verdict or observation path is touched, so every epoch-3 measurement still answers the question it was asked. The empty platform scope invalidates nothing, deliberately."
     }
   ]
 }

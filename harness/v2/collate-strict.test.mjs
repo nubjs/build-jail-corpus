@@ -44,7 +44,7 @@ test('strict collation writes a provenance-bound catalog from current complete r
   const { result, out } = runFixture();
   assert.equal(result.status, 0, result.stderr);
   const catalog = JSON.parse(fs.readFileSync(out, 'utf8'));
-  assert.equal(catalog.provenance.harnessEpoch, 3);
+  assert.equal(catalog.provenance.harnessEpoch, computeHarnessIdentity().harnessEpoch);
   assert.match(catalog.provenance.harnessSha256, /^[0-9a-f]{64}$/);
   assert.match(catalog.provenance.recordsSha256, /^[0-9a-f]{64}$/);
   assert.equal(catalog.provenance.recordCount, 1);
