@@ -1,9 +1,9 @@
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2657d9691f742a5f5cde0141d25eae134f9da5839a5f0e8800b6533713c1d936","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T14:00:20.629Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-VTvcfN/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2657d9691f742a5f5cde0141d25eae134f9da5839a5f0e8800b6533713c1d936","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:20.877Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-RaEx2e/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 2657d9691f74
   ERA-NODE PINNED 12.22.12 (provisioned) (arms will run: v12.22.12)
   ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 12, whose node-gyp requires python3-legacy
   ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
-### electron-chromedriver@8.0.0   (/Users/runner/v2m-VTvcfN)   nub=/tmp/nub/target/release/nub
+### electron-chromedriver@8.0.0   (/Users/runner/v2m-RaEx2e)   nub=/tmp/nub/target/release/nub
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
@@ -15,7 +15,7 @@ OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2657d96
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
   ERA-RESOLUTION DATED 2020-02-05T16:19:53.239Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"0e7597da284a3f4d1c516990db823a8cb9f3a5eac2d2c670695d3d89303111a5","specCount":139,"lockfiles":{"digest":"603345b937b731dbcb70444f98651b82d1b7f3e1ccd6c8d7460b0d0d5dda4364","files":[{"path":"package-lock.json","sha256":"7f5eb07ab3e7af8c844a01b9895877bf93476bce710bced5778668f3f7930061","bytes":54580}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T14:00:32.638Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-VTvcfN/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"0e7597da284a3f4d1c516990db823a8cb9f3a5eac2d2c670695d3d89303111a5","specCount":139,"lockfiles":{"digest":"603345b937b731dbcb70444f98651b82d1b7f3e1ccd6c8d7460b0d0d5dda4364","files":[{"path":"package-lock.json","sha256":"7f5eb07ab3e7af8c844a01b9895877bf93476bce710bced5778668f3f7930061","bytes":54580}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:31.585Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-RaEx2e/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 139 exact package-version(s), tree 0e7597da284a
   ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
   ARM-AMBIENT-TOOLS none
@@ -23,33 +23,116 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
   ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-VTvcfN/Observe"
-     sudo -u "runner" -H env "PATH=/Users/runner/v2m-VTvcfN/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-VTvcfN/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsqnBjz5"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "electron-chromedriver" > "/Users/runner/v2m-VTvcfN/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-VTvcfN/Observe/rc"
+     cd "/Users/runner/v2m-RaEx2e/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-RaEx2e/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-RaEx2e/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSCS9pu"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "electron-chromedriver" > "/Users/runner/v2m-RaEx2e/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-RaEx2e/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-VTvcfN/Observe
-     + sudo -u runner -H env PATH=/Users/runner/v2m-VTvcfN/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-VTvcfN/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsqnBjz5 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund electron-chromedriver
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000012e5050) in action #1 at DIF offset 20
-     + echo 1
-  OBSERVE   rc=1 dtrace_rc=0 files=1375 (pre=1373) trace=1991 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     Error: Cannot find module 'node:path'
-     Require stack:
-     - /Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli.js
-     - /Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/bin/npm-cli.js
-         at Function.Module._resolveFilename (internal/modules/cjs/loader.js:815:15)
-         at Function.Module._load (internal/modules/cjs/loader.js:667:27)
-         at Module.require (internal/modules/cjs/loader.js:887:19)
-         at require (internal/modules/cjs/helpers.js:74:18)
-         at Object.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli.js:10:18)
-         at Module._compile (internal/modules/cjs/loader.js:999:30)
-         at Object.Module._extensions..js (internal/modules/cjs/loader.js:1027:10)
-         at Module.load (internal/modules/cjs/loader.js:863:32)
-         at Function.Module._load (internal/modules/cjs/loader.js:708:14)
-         at Module.require (internal/modules/cjs/loader.js:887:19) {
-       code: 'MODULE_NOT_FOUND',
-       requireStack: [
-         '/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli.js',
-         '/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/bin/npm-cli.js'
-       ]
-     }
+     + cd /Users/runner/v2m-RaEx2e/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-RaEx2e/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-RaEx2e/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSCS9pu NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund electron-chromedriver
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000017c4000) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=1380 (pre=1373) trace=13682 lines
+  CLOSURE   132 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-RaEx2e/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-RaEx2e/Observe/capture.json
+  RAWLOG-BYTES raw=1912403 gz=88030
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"electron-chromedriver","packageVersion":"8.0.0","major":12,"version":"12.22.12","npm":"6.14.16","pinnable":true,"engines":null,"publishedAt":"2020-02-04T16:19:53.239Z","eraMajor":12,"startMajor":12,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-RaEx2e/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSCS9pu","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":5,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-RaEx2e/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13683,"parsed":13664,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":3,"danglingPair":0,"failed":8971,"enoent":8955,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":8955,"EEXIST":13},"procs":5,"lifecyclePids":1,"distinctEvents":7660,"emitted":7660,"calls":13625,"bytes":1240875,"gzipBytes":46593,"out":"/Users/runner/v2m-RaEx2e/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=1977 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 4 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=98041 read  unproven .
+         pid=98041 read  unproven .
+         pid=98041 read  unproven .
+         pid=98041 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x6000017c4000
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 10  /  whole traced subtree 18
+    sockets script 4  /  whole traced subtree 4
+  == ROOTS (from /Users/runner/v2m-RaEx2e/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-RaEx2e/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-RaEx2e/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-RaEx2e/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSCS9pu
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    userHome      4
+    ownPkg        6  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin/icudtl.dat
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin/libffmpeg.dylib
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin/LICENSES.chromium.html
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin/LICENSE
+        /Users/runner/v2m-RaEx2e/Observe/node_modules/electron-chromedriver/bin/chromedriver
+  == READS the script performed, by scope ==
+    systemfs     10
+    outside       7
+    userHome      4
+    ownPkg        2
+    deps        361
+        outside: /
+        outside: /bin/sh
+        outside: /bin
+        outside: /bin/bash
+        outside: /etc/resolv.conf
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+  == NETWORK ==
+    AF_INET connects: 4   distinct peers: 2
+        172.182.252.133:443
+        185.199.111.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    4 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 4
+        .cache/nub/pm/tools/electron-cache/tmp-98041-0-chromedriver-v8.0.0-darwin-x64.zip
+        .cache/nub/pm/tools/electron-cache/chromedriver-v8.0.0-darwin-x64.zip
+        .cache/nub/pm/tools/electron-cache/tmp-98041-1-SHASUMS256.txt-8.0.0
+        .cache/nub/pm/tools/electron-cache/SHASUMS256.txt-8.0.0
+  EVICT[synth] 79 store entries removed, 80 spared as nub tooling, 2096 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:39.938Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-RaEx2e/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 101 exact package-version(s), tree ba5d13b8becd
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 3186/1380) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}
+  EVICT[nar-no-network] 34 store entries removed, 80 spared as nub tooling, 2051 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:39.938Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-RaEx2e/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 3186/1380) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  EVICT[nar-no-write-userHome] 34 store entries removed, 80 spared as nub tooling, 2051 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:39.938Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-RaEx2e/security/nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 3186/1380) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  EVICT[joint-narrow] 34 store entries removed, 80 spared as nub tooling, 2051 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T07:31:39.938Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-RaEx2e/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 3186/1380) OVERRIDDEN=3 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
+### DONE electron-chromedriver@8.0.0  synthesized={"write":{"userHome":true},"network":true} verified=1
