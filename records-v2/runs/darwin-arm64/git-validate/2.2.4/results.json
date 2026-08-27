@@ -2,12 +2,12 @@
   "pkg": "git-validate",
   "version": "2.2.4",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "harnessEpoch": 4,
+  "verdict": "MINIMUM",
+  "grant": {},
+  "synthesized": {},
+  "verifiedBy": "synth",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -23,7 +23,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T03:47:42.298Z",
+      "screenedAt": "2026-08-27T02:57:17.818Z",
       "cacheHit": false
     },
     {
@@ -43,7 +43,27 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T03:47:42.298Z",
+      "screenedAt": "2026-08-27T02:57:17.818Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "662cfa32957610870713e4f8721785432f1583eaa45bb6312f665b6b8c1a2ebe",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": "bdccc6e5a1543e425b8b53c0eea1ceebfd6fc10fc52d53b1680c57df982e7a40",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "ba454e6879a3c06ca1a826ab727602fc2a57e19c20bdeafe0986c48d5ab96ba8",
+            "bytes": 394
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-27T02:57:17.818Z",
       "cacheHit": true
     }
   ],
@@ -61,7 +81,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-24T03:47:42.298Z"
+      "screenedAt": "2026-08-27T02:57:17.818Z"
     },
     {
       "digest": "662cfa32957610870713e4f8721785432f1583eaa45bb6312f665b6b8c1a2ebe",
@@ -82,36 +102,88 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-24T03:47:42.298Z"
+      "screenedAt": "2026-08-27T02:57:17.818Z"
+    },
+    {
+      "digest": "662cfa32957610870713e4f8721785432f1583eaa45bb6312f665b6b8c1a2ebe",
+      "specCount": 1,
+      "specs": [
+        "git-validate@2.2.4"
+      ],
+      "lockfiles": {
+        "digest": "bdccc6e5a1543e425b8b53c0eea1ceebfd6fc10fc52d53b1680c57df982e7a40",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "ba454e6879a3c06ca1a826ab727602fc2a57e19c20bdeafe0986c48d5ab96ba8",
+            "bytes": 394
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-27T02:57:17.818Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-24T03:47:41.648Z",
+    "observedAt": "2026-08-27T02:57:17.285Z",
     "latestVersion": "2.2.4",
-    "weeklyDownloads": 6531,
+    "weeklyDownloads": 6634,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/git-validate/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/git-validate"
     }
   },
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable",
+    "cwd-unobserved",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 9339,
+    "parsed": 9321,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 21,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 1,
+    "danglingPair": 0,
+    "failed": 7389,
+    "enoent": 7384,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 3,
+      "ENOENT": 7384,
+      "EEXIST": 2
+    },
+    "procs": 5,
+    "lifecyclePids": 1,
+    "distinctEvents": 4268,
+    "emitted": 4268,
+    "calls": 9284,
+    "bytes": 721011,
+    "gzipBytes": 30099,
+    "out": "/Users/runner/v2m-gBkvKx/Observe/events.ndjson"
+  },
   "driverRc": 0,
-  "durationMs": 11337,
+  "durationMs": 22135,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 4,
+    "harnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
+    "harnessInputCount": 274,
+    "invalidationPolicySha256": "11dcba52baae4050a0c7d17374f0a851b9d29d73251709439cf38af2e935f11a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -240,14 +312,14 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-24T03:47:53.490Z",
+    "at": "2026-08-27T02:57:39.832Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
+    "interpreterInsideHome": true,
     "jailRoot": null,
-    "observeUser": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
@@ -260,7 +332,50 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "nodeSelection": null,
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "git-validate",
+      "packageVersion": "2.2.4",
+      "major": 8,
+      "version": "8.17.0",
+      "npm": "6.13.4",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2018-07-19T20:12:14.780Z",
+      "eraMajor": 8,
+      "startMajor": 8,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-gBkvKx/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4Jfvzf",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
