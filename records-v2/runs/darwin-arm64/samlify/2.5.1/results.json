@@ -2,12 +2,12 @@
   "pkg": "samlify",
   "version": "2.5.1",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "harnessEpoch": 4,
+  "verdict": "MINIMUM",
+  "grant": {},
+  "synthesized": {},
+  "verifiedBy": "synth",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -23,7 +23,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T08:04:38.327Z",
+      "screenedAt": "2026-08-27T09:50:15.597Z",
       "cacheHit": false
     },
     {
@@ -43,7 +43,27 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T08:04:52.886Z",
+      "screenedAt": "2026-08-27T09:50:28.625Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "b039f49292c7be66c777eda92227372dc55224db2810d8ce810d837f4d2a67ef",
+      "specCount": 29,
+      "lockfiles": {
+        "digest": "bcbb8f447886a717654f0ae63a3d9bc4e4cd040c16571de85d5b9c817a7efc1e",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "ced4cdc23659ed626e0e56c4ad28397df5cab0420325e5c83423214ddd34aaba",
+            "bytes": 6976
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-27T09:50:41.504Z",
       "cacheHit": false
     }
   ],
@@ -61,7 +81,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-25T08:04:38.327Z"
+      "screenedAt": "2026-08-27T09:50:15.597Z"
     },
     {
       "digest": "ce71f81155d84056c7a9c1398c6e747b3a68dc9b9695fb1f93ec62946b786c8d",
@@ -108,36 +128,116 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-25T08:04:52.886Z"
+      "screenedAt": "2026-08-27T09:50:28.625Z"
+    },
+    {
+      "digest": "b039f49292c7be66c777eda92227372dc55224db2810d8ce810d837f4d2a67ef",
+      "specCount": 29,
+      "specs": [
+        "@authenio/xml-encryption@0.11.3",
+        "@authenio/xsd-schema-validator@0.7.3",
+        "@xmldom/xmldom@0.7.13",
+        "asn1@0.2.3",
+        "async@2.6.4",
+        "bindings@1.5.0",
+        "camelcase@5.3.1",
+        "deflate-js@0.2.3",
+        "dom-walk@0.1.2",
+        "ejs@2.7.4",
+        "file-uri-to-path@1.0.0",
+        "global@4.4.0",
+        "libxml-xsd@0.5.2",
+        "libxmljs-mt@0.16.1",
+        "lodash@4.18.1",
+        "min-document@2.19.2",
+        "nan@2.28.0",
+        "node-forge@0.7.6",
+        "node-rsa@0.4.2",
+        "node-xmllint@1.0.0",
+        "process@0.11.10",
+        "samlify@2.5.1",
+        "uuid@3.4.0",
+        "validate-with-xmllint@1.2.1",
+        "xml-crypto@1.5.6",
+        "xml@1.0.1",
+        "xmldom@0.1.31",
+        "xpath@0.0.27",
+        "xpath@0.0.32"
+      ],
+      "lockfiles": {
+        "digest": "bcbb8f447886a717654f0ae63a3d9bc4e4cd040c16571de85d5b9c817a7efc1e",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "ced4cdc23659ed626e0e56c4ad28397df5cab0420325e5c83423214ddd34aaba",
+            "bytes": 6976
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-27T09:50:41.504Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-25T08:04:37.564Z",
+    "observedAt": "2026-08-27T09:50:14.881Z",
     "latestVersion": "2.13.1",
-    "weeklyDownloads": 1206234,
+    "weeklyDownloads": 1204267,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/samlify/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/samlify"
     }
   },
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {},
+  "notes": [
+    "arms-unfalsifiable",
+    "cwd-unobserved",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 16638,
+    "parsed": 16616,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 27,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 2,
+    "danglingPair": 0,
+    "failed": 11940,
+    "enoent": 11935,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 3,
+      "ENOENT": 11935,
+      "EEXIST": 2
+    },
+    "procs": 6,
+    "lifecyclePids": 1,
+    "distinctEvents": 7968,
+    "emitted": 7968,
+    "calls": 16575,
+    "bytes": 1288091,
+    "gzipBytes": 49376,
+    "out": "/Users/runner/v2m-b1se26/Observe/events.ndjson"
+  },
   "driverRc": 0,
-  "durationMs": 19487,
+  "durationMs": 39250,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 4,
+    "harnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
+    "harnessInputCount": 274,
+    "invalidationPolicySha256": "11dcba52baae4050a0c7d17374f0a851b9d29d73251709439cf38af2e935f11a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -266,16 +366,16 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-25T08:04:57.592Z",
+    "at": "2026-08-27T09:50:54.667Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
+    "interpreterInsideHome": true,
     "jailRoot": null,
-    "observeUser": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
-    "cwdResolved": null,
+    "cwdResolved": 1,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
@@ -286,7 +386,50 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "nodeSelection": null,
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "samlify",
+      "packageVersion": "2.5.1",
+      "major": 10,
+      "version": "10.24.1",
+      "npm": "6.14.12",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2019-06-25T18:08:18.345Z",
+      "eraMajor": 10,
+      "startMajor": 10,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-b1se26/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4fn5BG",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }

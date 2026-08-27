@@ -2,12 +2,12 @@
   "pkg": "fmerge",
   "version": "1.2.0",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "harnessEpoch": 4,
+  "verdict": "MINIMUM",
+  "grant": {},
+  "synthesized": {},
+  "verifiedBy": "synth",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -23,7 +23,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T02:16:39.050Z",
+      "screenedAt": "2026-08-27T09:30:24.521Z",
       "cacheHit": false
     },
     {
@@ -43,7 +43,27 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T02:16:39.050Z",
+      "screenedAt": "2026-08-27T09:30:24.521Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "4066baa3efd236f920d70d5a01809690daa0b7b0fd99b9805137ffe302254fd4",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": "bc156b332491fc95b2b09c9988247702f70e1f81ec5e8de353bf13ee784339b5",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "a964f067cd228013726c53f0e0f259efd066583e1e001529dacf46fb1ee37e3c",
+            "bytes": 376
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-27T09:30:24.521Z",
       "cacheHit": true
     }
   ],
@@ -61,7 +81,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-25T02:16:39.050Z"
+      "screenedAt": "2026-08-27T09:30:24.521Z"
     },
     {
       "digest": "4066baa3efd236f920d70d5a01809690daa0b7b0fd99b9805137ffe302254fd4",
@@ -82,36 +102,87 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-25T02:16:39.050Z"
+      "screenedAt": "2026-08-27T09:30:24.521Z"
+    },
+    {
+      "digest": "4066baa3efd236f920d70d5a01809690daa0b7b0fd99b9805137ffe302254fd4",
+      "specCount": 1,
+      "specs": [
+        "fmerge@1.2.0"
+      ],
+      "lockfiles": {
+        "digest": "bc156b332491fc95b2b09c9988247702f70e1f81ec5e8de353bf13ee784339b5",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "a964f067cd228013726c53f0e0f259efd066583e1e001529dacf46fb1ee37e3c",
+            "bytes": 376
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-27T09:30:24.521Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-25T02:16:38.270Z",
+    "observedAt": "2026-08-27T09:30:23.922Z",
     "latestVersion": "1.2.0",
-    "weeklyDownloads": 15878,
+    "weeklyDownloads": 15539,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/fmerge/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/fmerge"
     }
   },
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {},
+  "notes": [
+    "cwd-unobserved",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 10294,
+    "parsed": 10274,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 27,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 0,
+    "danglingPair": 0,
+    "failed": 7791,
+    "enoent": 7785,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 4,
+      "ENOENT": 7785,
+      "EEXIST": 2
+    },
+    "procs": 7,
+    "lifecyclePids": 1,
+    "distinctEvents": 4727,
+    "emitted": 4727,
+    "calls": 10233,
+    "bytes": 846105,
+    "gzipBytes": 32695,
+    "out": "/Users/runner/v2m-JUubER/Observe/events.ndjson"
+  },
   "driverRc": 0,
-  "durationMs": 21686,
+  "durationMs": 46360,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 4,
+    "harnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
+    "harnessInputCount": 274,
+    "invalidationPolicySha256": "11dcba52baae4050a0c7d17374f0a851b9d29d73251709439cf38af2e935f11a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -240,16 +311,16 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-25T02:17:00.323Z",
+    "at": "2026-08-27T09:31:10.620Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "storeLayout": "isolated",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
+    "interpreterInsideHome": true,
     "jailRoot": null,
-    "observeUser": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
-    "cwdResolved": null,
+    "cwdResolved": 2,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
@@ -260,7 +331,50 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "nodeSelection": null,
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "fmerge",
+      "packageVersion": "1.2.0",
+      "major": 4,
+      "version": "4.9.1",
+      "npm": "2.15.11",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2014-08-07T13:20:34.420Z",
+      "eraMajor": 0,
+      "startMajor": 4,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": true,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-JUubER/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obst9G4ay",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
