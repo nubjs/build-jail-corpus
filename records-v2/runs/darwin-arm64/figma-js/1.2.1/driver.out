@@ -1,9 +1,9 @@
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"efd9925664fefaac6cdd27c286cb1a6944c2d9535699913917e465af915d7b09","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T10:05:38.407Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-84iaXU/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"efd9925664fefaac6cdd27c286cb1a6944c2d9535699913917e465af915d7b09","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T10:51:55.185Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-xMWspX/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree efd9925664fe
   ERA-NODE PINNED 8.17.0 (provisioned) (arms will run: v8.17.0)
   ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 8, whose node-gyp requires python3-legacy
   ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
-### figma-js@1.2.1   (/Users/runner/v2m-84iaXU)   nub=/tmp/nub/target/release/nub
+### figma-js@1.2.1   (/Users/runner/v2m-xMWspX)   nub=/tmp/nub/target/release/nub
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
@@ -15,7 +15,7 @@ OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"efd9925
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
   ERA-RESOLUTION DATED 2018-03-28T23:25:51.525Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8dd703e9c27a707ff9ed68381ab2138158c55339fe70c5488fed990f93add9f5","specCount":6,"lockfiles":{"digest":"2bdebdd27865fac16a553c115d9f7a536370e31a5fe45722560aa5187ee7f238","files":[{"path":"package-lock.json","sha256":"b120d09718afad66136b9f0a6f5f48305dd45501192c52a48d79a54fb2a6eca5","bytes":2469}]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T10:05:49.007Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-84iaXU/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8dd703e9c27a707ff9ed68381ab2138158c55339fe70c5488fed990f93add9f5","specCount":6,"lockfiles":{"digest":"2bdebdd27865fac16a553c115d9f7a536370e31a5fe45722560aa5187ee7f238","files":[{"path":"package-lock.json","sha256":"b120d09718afad66136b9f0a6f5f48305dd45501192c52a48d79a54fb2a6eca5","bytes":2469}]},"maliciousAdvisories":[],"screenedAt":"2026-08-27T10:52:01.171Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-xMWspX/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 6 exact package-version(s), tree 8dd703e9c27a
   ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
   ARM-AMBIENT-TOOLS none
@@ -23,28 +23,55 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
   ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-84iaXU/Observe"
-     sudo -u "runner" -H env "PATH=/Users/runner/v2m-84iaXU/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-84iaXU/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsHEesFm"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "figma-js" > "/Users/runner/v2m-84iaXU/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-84iaXU/Observe/rc"
+     cd "/Users/runner/v2m-xMWspX/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-xMWspX/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-xMWspX/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obseKUfCA"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "figma-js" > "/Users/runner/v2m-xMWspX/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-xMWspX/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-84iaXU/Observe
-     + sudo -u runner -H env PATH=/Users/runner/v2m-84iaXU/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-84iaXU/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsHEesFm NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund figma-js
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000fa0000) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-xMWspX/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-xMWspX/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-xMWspX/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obseKUfCA NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund figma-js
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001374000) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000052aea0) in action #1 at DIF offset 20
      + echo 1
-  OBSERVE   rc=1 dtrace_rc=0 files=93 (pre=91) trace=1988 lines
+  OBSERVE   rc=1 dtrace_rc=0 files=93 (pre=91) trace=9397 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     module.js:550
-         throw err;
-         ^
      
-     Error: Cannot find module 'node:path'
-         at Function.Module._resolveFilename (module.js:548:15)
-         at Function.Module._load (module.js:475:25)
-         at Module.require (module.js:597:17)
-         at require (internal/module.js:11:18)
-         at Object.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.2/arm64/lib/node_modules/npm/lib/cli.js:10:18)
+     Error: figma-js must be installed with Yarn: https://yarnpkg.com/
+         at [eval]:1:59
+         at ContextifyScript.Script.runInThisContext (vm.js:50:33)
+         at Object.runInThisContext (vm.js:139:38)
+         at Object.<anonymous> ([eval]-wrapper:6:22)
          at Module._compile (module.js:653:30)
-         at Object.Module._extensions..js (module.js:664:10)
-         at Module.load (module.js:566:32)
-         at tryModuleLoad (module.js:506:12)
-         at Function.Module._load (module.js:498:3)
+         at evalScript (bootstrap_node.js:479:27)
+         at startup (bootstrap_node.js:180:9)
+         at bootstrap_node.js:625:3
+     npm ERR! code ELIFECYCLE
+     npm ERR! errno 1
+     npm ERR! figma-js@1.2.1 preinstall: `node -e "if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('figma-js must be installed with Yarn: https://yarnpkg.com/')"`
+     npm ERR! Exit status 1
+     npm ERR! 
+     npm ERR! Failed at the figma-js@1.2.1 preinstall script.
+     npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+     
+     npm ERR! A complete log of this run can be found in:
+     npm ERR!     /Users/runner/v2m-xMWspX/jailhome/.npm/_logs/2026-08-27T10_52_04_424Z-debug.log

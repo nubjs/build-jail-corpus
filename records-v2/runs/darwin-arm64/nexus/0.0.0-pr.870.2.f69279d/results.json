@@ -2,8 +2,8 @@
   "pkg": "nexus",
   "version": "0.0.0-pr.870.2.f69279d",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "harnessEpoch": 4,
+  "verdict": "UNKNOWN",
   "grant": null,
   "synthesized": null,
   "verifiedBy": null,
@@ -23,7 +23,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T15:41:07.388Z",
+      "screenedAt": "2026-08-27T10:55:42.320Z",
       "cacheHit": false
     },
     {
@@ -43,7 +43,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-25T15:41:22.138Z",
+      "screenedAt": "2026-08-27T10:55:57.681Z",
       "cacheHit": false
     }
   ],
@@ -61,7 +61,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-25T15:41:07.388Z"
+      "screenedAt": "2026-08-27T10:55:42.320Z"
     },
     {
       "digest": "650027af264c90624165a8032e0d3d19c18fd8de92e8297f19c00fe31ca4d031",
@@ -244,14 +244,14 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-25T15:41:22.138Z"
+      "screenedAt": "2026-08-27T10:55:57.681Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-25T15:41:06.557Z",
+    "observedAt": "2026-08-27T10:55:41.914Z",
     "latestVersion": "1.3.0",
-    "weeklyDownloads": 226722,
+    "weeklyDownloads": 224130,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/nexus/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/nexus"
@@ -260,20 +260,50 @@
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "notes": [
+    "arms-unfalsifiable",
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 6435,
+    "parsed": 6420,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 12,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 1,
+    "danglingPair": 0,
+    "failed": 3136,
+    "enoent": 3132,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 2,
+      "ENOENT": 3132,
+      "EEXIST": 2
+    },
+    "procs": 4,
+    "lifecyclePids": 0,
+    "distinctEvents": 4523,
+    "emitted": 4523,
+    "calls": 6410,
+    "bytes": 772570,
+    "gzipBytes": 30460,
+    "out": "/Users/runner/v2m-pAcQf4/Observe/events.ndjson"
+  },
   "driverRc": 0,
-  "durationMs": 18535,
+  "durationMs": 20826,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 4,
+    "harnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
+    "harnessInputCount": 274,
+    "invalidationPolicySha256": "11dcba52baae4050a0c7d17374f0a851b9d29d73251709439cf38af2e935f11a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -402,14 +432,14 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-25T15:41:25.764Z",
+    "at": "2026-08-27T10:56:03.136Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
+    "interpreterInsideHome": true,
     "jailRoot": null,
-    "observeUser": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
@@ -422,7 +452,50 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "nodeSelection": null,
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "nexus",
+      "packageVersion": "0.0.0-pr.870.2.f69279d",
+      "major": 12,
+      "version": "12.22.12",
+      "npm": "6.14.16",
+      "pinnable": true,
+      "engines": ">=10.0.0",
+      "publishedAt": "2020-05-15T19:09:08.161Z",
+      "eraMajor": 12,
+      "startMajor": 12,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-pAcQf4/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsVzG4bG",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
