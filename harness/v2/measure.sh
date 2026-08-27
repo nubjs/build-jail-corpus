@@ -532,7 +532,16 @@ else
     # ⛔ NON-FATAL BY DESIGN. A scaffold that cannot resolve leaves the arm exactly as badly off as it
     # is today, so it must not convert a measurable package into a harness error. The rc is RECORDED
     # so a reader can tell "the scaffold was not applied" from "it was applied and did not help".
-    PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+    # ⛔⛔ THE SCAFFOLD IS DATED TOO, AND IT IS THE SAME BUG `observe-only.mjs:330` ALREADY NAMES:
+    # "without `--before` this pulled TODAY's `typings`, `flow-typed` and `webdriver-manager` into a
+    # tree pinned to 2016, and the era Node then could not parse them. The fetch had carried the date
+    # since F2; this second install never did." The observe lane was fixed. NEITHER DRIVER WAS.
+    #
+    # MEASURED on the retained darwin driver logs: of 282 `BROKEN-WITHOUT-JAIL-TOO` records, **178
+    # carry `Error: Unexpected token`** — an era Node refusing to parse modern JavaScript — against
+    # 102 `Cannot find module`. The tell that sent me here was the recovery rate collapsing: 22
+    # consecutive re-measured correction rows recovered ZERO, where the running rate was 45%.
+    PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
   fi
 fi

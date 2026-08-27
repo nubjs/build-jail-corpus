@@ -473,7 +473,8 @@ else
   ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
   if [ -n "$ARM_SCAFFOLD" ]; then
     sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
-      npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+    # Dated, for the reason spelled out at the same site in `measure.sh`.
+      npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
     chown -R "$RUNUSER" "$ROOT" 2>/dev/null
   fi

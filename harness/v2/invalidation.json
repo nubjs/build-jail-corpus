@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 4,
+  "currentEpoch": 5,
   "transitions": [
     {
       "fromEpoch": null,
@@ -22,6 +22,19 @@
         ]
       },
       "reason": "Epoch 4 carries two changes. The queue half is bookkeeping and cannot move a verdict: a row the publisher withheld, or one whose instrument failure has exhausted its retries, is now settled at the harness hash that refused it instead of being handed back to every later slice. The DRIVER half can and does. measure-macos.sh held an absolute npm path captured before any era pin existed, so its unjailed control ran the era Node with the harness npm's JavaScript and recorded a package verdict for a failure that was ours. And all three drivers' npm reference arm -- the arm that decides whether a nub failure is BROKEN-UNJAILED-NUB or BROKEN-WITHOUT-JAIL-TOO -- ran undated on the harness toolchain, so a spurious npm failure exonerated nub and filed a candidate nub defect as a dead package. Only those two verdicts are reachable by either bug: both act on the unjailed control, and a record that got past it ran npm correctly. Every MINIMUM measurement therefore stands."
+    },
+    {
+      "fromEpoch": 4,
+      "fromHarnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
+      "toEpoch": 5,
+      "toHarnessSha256": "baa5f46acae27a09277e5ade8199c24311df4c0d6ad6695af7ad5bf60d6b143f",
+      "invalidate": {
+        "verdicts": [
+          "BROKEN-WITHOUT-JAIL-TOO",
+          "BROKEN-UNJAILED-NUB"
+        ]
+      },
+      "reason": "Epoch 5 dates the SCAFFOLD install in all three drivers. The package fetch has carried --before since F2 and the npm reference arm got it in epoch 4, but the second install -- the one that supplies the binaries a lifecycle script names -- never did, so it pulled TODAY's build tools into a tree pinned to the package's own era and the era Node could not parse them. observe-only.mjs:330 already records this exact failure and its fix; neither driver received it. Measured on the retained darwin driver logs: 178 of 282 BROKEN-WITHOUT-JAIL-TOO records carry 'Error: Unexpected token', against 102 'Cannot find module'. Same scope as epoch 4 and for the same reason: the scaffold runs before the unjailed control, so only a record that failed that control can have been affected, and every MINIMUM measurement stands."
     }
   ]
 }

@@ -840,7 +840,13 @@ if (!armPrep) {
   if (scaffold.length) {
     // Non-fatal by design: a scaffold that will not resolve leaves the arm exactly as badly off as
     // it is today, so it must never turn a measurable package into a harness error.
-    const si = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', ...scaffold],
+    //
+    // ⛔ DATED, like the fetch above and for the reason `observe-only.mjs:330` already records:
+    // undated, this pulls TODAY's build tools into a tree pinned to the package's own era, and the
+    // era Node cannot parse them. `eraResolution.before` is the SAME value the fetch used, so the
+    // two installs cannot disagree about the date.
+    const si = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts',
+      ...(eraResolution.before ? [`--before=${eraResolution.before}`] : []), ...scaffold],
       { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
     console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
   }
