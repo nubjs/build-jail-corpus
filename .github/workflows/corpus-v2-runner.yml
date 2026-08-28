@@ -137,6 +137,20 @@ jobs:
     # which `--reclaim-stale 360` ages out. Had the push landed ten minutes earlier the erasure would
     # have been real, which is the whole reason this gate exists.
     #
+    # ⛔ THE CHECK READS THE WHOLE COMMIT MESSAGE, SO MENTIONING THE MARKER ANYWHERE OPTS THE PUSH
+    # IN -- INCLUDING WHILE EXPLAINING THIS GATE. There is no way to scope a GitHub expression to the
+    # subject line: `head_commit.message` is the entire message, and `contains()` is a plain substring
+    # test over all of it.
+    #
+    # MEASURED IMMEDIATELY, by the commit that added this gate. Its body carried the sentence "a push
+    # drains only when its head commit says <the marker>", written to document the feature, and that
+    # sentence dispatched run 33139919598 -- a real linux drain at epoch 6. The gate was not broken;
+    # it read the marker it was given. Nothing was harmed, because the preflight below found no older
+    # runner and let it through, which is the correct answer.
+    #
+    # So: when writing ABOUT this gate in a commit message, never spell the marker out. Say "the
+    # opt-in marker" and let this comment be the only place the literal token appears.
+    #
     # The trigger itself must STAY: `workflow_dispatch` is inert until this file reaches the default
     # branch, so a push is the only way to test an edit to this file. Gate it instead — a push
     # drains only when its head commit ASKS to, and every other push is inert.

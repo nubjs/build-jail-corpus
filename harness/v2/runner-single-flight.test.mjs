@@ -37,6 +37,19 @@ test('a push drains only when its head commit asks to', () => {
     'the slice job does not gate push-triggered drains behind a [drain] marker');
 });
 
+test('the whole-message trap is written down where the gate is', () => {
+  // MEASURED by the commit that added the gate: its body explained the feature in prose, spelled the
+  // opt-in token out while doing so, and thereby dispatched run 33139919598 — a real drain. The gate
+  // read the marker it was given; `head_commit.message` is the ENTIRE message and `contains()` is a
+  // plain substring test, and no GitHub expression can scope either to the subject line. Anyone who
+  // documents this gate in a commit message repeats it, so the warning is part of the mechanism.
+  const job = src.slice(src.indexOf('\n  slice:\n'), src.indexOf('\n      - name:'));
+  assert.match(job, /MENTIONING THE MARKER ANYWHERE OPTS THE PUSH/,
+    'the whole-message trap is undocumented — the next person to explain this gate will trip it');
+  assert.ok(job.includes('33139919598'),
+    'the warning cites no run — an unevidenced caution reads as speculation and gets deleted');
+});
+
 test('the gate sits on the JOB, so a gated push claims nothing at all', () => {
   // A step-level guard would still let checkout, provisioning and the binary restore burn a runner,
   // and — the part that matters — anything later that forgets the guard would claim.

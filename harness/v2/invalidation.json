@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 6,
+  "currentEpoch": 7,
   "transitions": [
     {
       "fromEpoch": null,
@@ -45,6 +45,16 @@
         "verdicts": []
       },
       "reason": "Epoch 6 closes the two doors through which a second runner could drain beside a live one. The workflow header has carried a RUN ONE RUNNER AT A TIME block, and the measurement behind it, since 2026-08-23 -- two overlapping runners give `completed 0 row(s)`, because every runner rewrites the WHOLE queue and the second write is built on a pre-claim snapshot -- but nothing enforced it. Door one: `push: branches: [probe/corpus-v2-lane]` carries no paths filter, so any human or agent commit to the drain branch dispatches a full drain; the runner's own record pushes are exempt only because GitHub raises no workflow event for a GITHUB_TOKEN push, which is an accident rather than a design. MEASURED 2026-08-28: a one-file commit to invalidation.json dispatched run 33139321538, whose \"Claim a slice\" step reached success and took 10 rows before it was cancelled by hand; the live darwin slice was unharmed only because it had already finished. Door two: two workflow_dispatch runs, which no trigger gate can catch. The fix gates a push drain behind a [drain] marker in the head commit message and adds a preflight that refuses to claim while an OLDER run of this workflow is alive. THIS INVALIDATES NOTHING, AND THE EMPTY SCOPE SAYS SO EXACTLY. Neither change touches a driver, an arm, a toolchain or a verdict; both act on whether a run claims at all. A record measured at epoch 5 is the same record it would be at epoch 6."
+    },
+    {
+      "fromEpoch": 6,
+      "fromHarnessSha256": "061474aa40b9927d5addbc60ab99edc4862240fa3d860aaba398c8777e4b349c",
+      "toEpoch": 7,
+      "toHarnessSha256": "52a326738c715ab0311830b660045362448f301e24c83a5ded4d1fb3ce3ec592",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 7 is comment and test only. The push gate added in epoch 6 tests the WHOLE commit message, because head_commit.message is the entire message and contains() is a plain substring test with no way to scope either to the subject line. So writing about the gate in a commit message opts that push in -- MEASURED by epoch 6's own commit, whose body explained the feature, spelled the token out while doing so, and dispatched run 33139919598. Nothing was harmed: the preflight found no older runner and let it through, which is the right answer. The trap is now written down at the gate and pinned by a test, because the next person to document this gate repeats it. THIS INVALIDATES NOTHING. No driver, arm, toolchain or verdict is touched; the diff is a comment block and a test file, and the empty scope says exactly that."
     }
   ]
 }
