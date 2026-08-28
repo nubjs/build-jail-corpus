@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 15,
+  "currentEpoch": 16,
   "transitions": [
     {
       "fromEpoch": null,
@@ -149,6 +149,16 @@
         ]
       },
       "reason": "Epoch 15 gives the LINUX jail-off control the era PATH, so the two arms that decide fault finally hold the same toolchain. measure.sh never modifies its own PATH -- ERA_PATH is a SEPARATE variable (ERA_PATH=\"$ERA_NODE_BIN:$PATH\") -- so every arm opts in locally: the scaffold, OBSERVE, each verify rung and npm_ok's two installs all set it, and unjailed_nub_ok set nothing. Its lifecycle scripts therefore ran node/node-gyp from the RUNNER's Node while npm_ok, the arm it is compared against, ran the package's era Node -- and when that difference makes nub fail where npm succeeds, the record is filed BROKEN-UNJAILED-NUB: a nub install defect manufactured by the harness. Same class as the epoch-4 npm-reference fix and the epoch-13 Python fix, and specifically the half of epoch 13 left undone -- that change set PYTHON on the child env and left PATH behind, giving this arm the era interpreter under the runner's Node, a combination no real install ever has. Passing --spawn-path from the driver is NOT sufficient on its own: asIdentity returns [cmd, args] unchanged when there is no sudo user, so on Linux the flag was accepted and ignored, and the child env is what carries it. DARWIN IS UNAFFECTED -- sudo resets the environment, which forced it to pass PATH explicitly from the start; its protection was a side effect of the spawn strategy rather than a decision, which is why Linux never received it. WIN32 IS NOT FIXED and is stated rather than hidden: measure-windows.mjs runs its control in-process from imported classify/offSwitchEngaged and never calls this module, so the change does not reach it; win32 holds 5 valid records and is outside the current drain. SCOPE: the control only runs after every verify rung has already failed, so it cannot reach MINIMUM -- a record that found a working grant never consulted it -- and the three verdicts named here are the ones classify() can return. Cost measured before landing: 0 of 1680 reusable records, because epoch 13 already invalidated those same verdicts and no slice has yet measured at epoch 13 or later. This epoch also makes the control PRINT what nub said before accusing it. The arm's output was captured into logs and written by writeLogs into a scratch dir that is discarded, so a real nub defect and a harness asymmetry left byte-identical records. MEASURED on linux-x64 @stdlib/math-base-special-signum@0.0.6: the record carries the full node-gyp failure for every verify rung and not one line about why the control failed -- and both arms resolved the IDENTICAL tree there (digest 8189fa7ae585, 74 specs each), which is what isolates the difference to execution rather than resolution. That is the epoch-14 blind spot one arm over, on the arm where attribution matters most."
+    },
+    {
+      "fromEpoch": 15,
+      "fromHarnessSha256": "a2a7f6e0081687b697d079909060e2768aa4a09d621bb69b216fff6532650360",
+      "toEpoch": 16,
+      "toHarnessSha256": "5dd98567cee1df4bd6e765f22facd2967e081fccfc14c9c39cc02d5b9257f4da",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 16 settles a withheld row at the hash the slice MEASURED under, not the hash on disk when --complete runs. settledAtHash carries one promise, stated in claim-slice.mjs itself -- the attempt happened at THIS instrument -- and the claim path reopens the row the moment the harness moves off that hash. That is the difference between settled and abandoned. The end-of-slice commit step broke the promise by construction: git reset --hard origin/$BRANCH pulls harness/ forward to whatever landed on the branch WHILE the slice was measuring, AND restores queue-v2.ndjson from origin, discarding the correct settle the Collect verdicts step already wrote so the rows are claimed again and --complete re-runs from the reset tree. MEASURED on run 33167330698: it measured at epoch 12, three harness epochs landed while it ran, and it settled 16 withheld rows at the EPOCH-15 digest -- frozen against an epoch-15 attempt that never happened, and specifically against the era-toolchain fixes in epochs 13/14/15 that are the likeliest thing to resolve why they regressed. Harness fixes landing mid-drain is DESIGNED here, so this is the normal case rather than a rare race. The runner now captures the identity before the reset loop and passes --measured-harness-sha. Landing this epoch also REMEDIATES the 16 rows for free: their settledAtHash no longer equals the current instrument, so the claim path reopens them, which is exactly the mechanism the hash scoping was designed for. Zero records invalidated -- no verdict can change."
     }
   ]
 }

@@ -217,8 +217,24 @@ if (argv.includes('--complete')) {
       } catch { /* a malformed line must not lose the whole slice */ }
     }
   }
+  // ⛔ THE HASH THE SLICE MEASURED UNDER — NOT THE ONE ON DISK RIGHT NOW.
+  //
+  // `settledAtHash` means "the attempt happened at THIS instrument", and the claim path reopens the
+  // row the moment the harness moves off that hash — that is what makes it "settled" rather than
+  // "abandoned". Recomputing it here breaks that promise whenever the tree has moved since the
+  // measurement, and the end-of-slice commit step guarantees it has: it runs
+  // `git reset --hard origin/$BRANCH`, which pulls `harness/` forward to whatever landed on the
+  // branch WHILE the slice was measuring, AND restores `queue-v2.ndjson` from origin — discarding
+  // the correct settle the "Collect verdicts" step already wrote and re-running this pass against
+  // rows that are `claimed` again.
+  //
+  // MEASURED 2026-08-28 on run 33167330698: it measured at epoch 12, three harness epochs landed on
+  // the branch while it ran, and it settled 16 withheld rows at the EPOCH-15 digest — freezing them
+  // against an epoch-15 attempt that never happened, and specifically against the era-toolchain
+  // fixes in epochs 13/14/15 that are the likeliest thing to resolve why they regressed.
+  const measuredSha = opt('--measured-harness-sha', '');
   const currentSha = path.basename(QUEUE) === 'queue-v2.ndjson'
-    ? computeHarnessIdentity().harnessSha256 : null;
+    ? (measuredSha || computeHarnessIdentity().harnessSha256) : null;
 
   const rows = read();
   let done = 0; let stranded = 0; let retry = 0; let held = 0;

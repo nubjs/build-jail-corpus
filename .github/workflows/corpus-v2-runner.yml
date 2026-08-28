@@ -821,6 +821,14 @@ jobs:
           git config user.name  "corpus-runner"
           git config user.email "corpus-runner@users.noreply.github.com"
           SLICE_N=$(wc -l < /tmp/slice.txt)
+          # ⛔ CAPTURE THE MEASURED HARNESS IDENTITY BEFORE THE RESET LOOP TOUCHES harness/.
+          # The loop below runs `git reset --hard origin/$GITHUB_REF_NAME`, so from that point on the
+          # working tree carries whatever landed on the branch WHILE this slice was measuring — a
+          # routine event, since harness fixes land mid-drain by design. `--complete` stamps
+          # settledAtHash from the tree it can see, so without this the row records an instrument the
+          # measurement never ran under and is frozen against an attempt that never happened.
+          MEASURED_SHA=$(node -e 'import("./harness/v2/instrument.mjs").then((m)=>process.stdout.write(m.computeHarnessIdentity().harnessSha256||""))' 2>/dev/null || true)
+          echo "measured harness identity: ${MEASURED_SHA:-<unavailable>}"
           # ⛔ DO NOT REBASE OR MERGE. This step's output is not a patch, it is a set of FILES whose
           # identity is (platform, package, version); two runs producing the same path is not a
           # conflict to resolve. Copy ours aside, hard-reset onto origin, put them back, RE-DERIVE the
@@ -863,6 +871,7 @@ jobs:
             # ~1-2s so the push lands. Self-healing of other runs' stranded rows is delegated to
             # `--reclaim-stale` (it re-measures), which does not need to sit in this hot loop.
             node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}" \
+            --measured-harness-sha "${MEASURED_SHA:-}" \
             --settled "$NUB_CORPUS_SETTLED"
             # ⛔ --sparse IS MANDATORY under the sparse checkout: records-v2/runs/<plat>/... is
             # OUTSIDE the cone, and a plain `git add records-v2` stages NOTHING there (it warns and
