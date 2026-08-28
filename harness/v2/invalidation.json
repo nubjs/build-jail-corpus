@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 5,
+  "currentEpoch": 6,
   "transitions": [
     {
       "fromEpoch": null,
@@ -35,6 +35,16 @@
         ]
       },
       "reason": "Epoch 5 dates the SCAFFOLD install in all three drivers. The package fetch has carried --before since F2 and the npm reference arm got it in epoch 4, but the second install -- the one that supplies the binaries a lifecycle script names -- never did, so it pulled TODAY's build tools into a tree pinned to the package's own era and the era Node could not parse them. observe-only.mjs:330 already records this exact failure and its fix; neither driver received it. THE FIX STANDS ON THAT MECHANISM ALONE. It was originally justified here by a ratio -- 178 of 282 BROKEN-WITHOUT-JAIL-TOO records carrying 'Error: Unexpected token' -- and that ratio is RETRACTED: 178 counted OCCURRENCES across every retained log while 282 counted verdict LINES, two different denominators reported as one fraction. Counted per RECORD over the 286 retained darwin logs, 'Unexpected token' appears in 16 of 128 BROKEN-WITHOUT-JAIL-TOO records (12.5%) and in 70 of 140 MINIMUM records (50%) -- four times more common where the measurement SUCCEEDED, so it is non-fatal noise and not this bug's signature. Only 6 of the first 53 epoch-5 darwin records ran a scaffold at all, so this scope is wider than the change warrants; it is left as issued rather than churned a third time on a corpus that has already absorbed two policy changes. Same scope as epoch 4 and for the same reason: the scaffold runs before the unjailed control, so only a record that failed that control can have been affected, and every MINIMUM measurement stands."
+    },
+    {
+      "fromEpoch": 5,
+      "fromHarnessSha256": "baa5f46acae27a09277e5ade8199c24311df4c0d6ad6695af7ad5bf60d6b143f",
+      "toEpoch": 6,
+      "toHarnessSha256": "061474aa40b9927d5addbc60ab99edc4862240fa3d860aaba398c8777e4b349c",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 6 closes the two doors through which a second runner could drain beside a live one. The workflow header has carried a RUN ONE RUNNER AT A TIME block, and the measurement behind it, since 2026-08-23 -- two overlapping runners give `completed 0 row(s)`, because every runner rewrites the WHOLE queue and the second write is built on a pre-claim snapshot -- but nothing enforced it. Door one: `push: branches: [probe/corpus-v2-lane]` carries no paths filter, so any human or agent commit to the drain branch dispatches a full drain; the runner's own record pushes are exempt only because GitHub raises no workflow event for a GITHUB_TOKEN push, which is an accident rather than a design. MEASURED 2026-08-28: a one-file commit to invalidation.json dispatched run 33139321538, whose \"Claim a slice\" step reached success and took 10 rows before it was cancelled by hand; the live darwin slice was unharmed only because it had already finished. Door two: two workflow_dispatch runs, which no trigger gate can catch. The fix gates a push drain behind a [drain] marker in the head commit message and adds a preflight that refuses to claim while an OLDER run of this workflow is alive. THIS INVALIDATES NOTHING, AND THE EMPTY SCOPE SAYS SO EXACTLY. Neither change touches a driver, an arm, a toolchain or a verdict; both act on whether a run claims at all. A record measured at epoch 5 is the same record it would be at epoch 6."
     }
   ]
 }
