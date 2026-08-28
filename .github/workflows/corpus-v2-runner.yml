@@ -126,16 +126,27 @@ jobs:
     # incident and the trap only springs on a HUMAN push, which is exactly when a harness fix lands.
     #
     # MEASURED 2026-08-28: a one-file commit to `harness/v2/invalidation.json`, pushed while darwin
-    # slice 33127753449 was still measuring, dispatched run 33139321538 within seconds. Its "Claim a
-    # slice" step reached `success` and took 10 rows before the run was cancelled by hand.
+    # slice 33127753449 was still measuring, dispatched run 33139321538. On a warm ubuntu runner with
+    # a cached binary it reached "Claim a slice" in FIFTY-NINE SECONDS, took 10 rows and pushed the
+    # queue, and was cancelled by hand a moment later. The exposure window is a minute, not the ten
+    # the provisioning sequence suggests.
     #
-    # ⛔ NOTHING WAS ERASED THAT TIME, AND THAT WAS TIMING, NOT SAFETY. The darwin slice completed at
-    # 03:37:17Z while the accidental run was still checking out, provisioning Python and running the
-    # test suite — it does not reach the claim step for ten-odd minutes — so the two never overlapped
-    # at the queue. Reconciled afterwards: 99 darwin rows `done` at epoch 5 against 99 darwin records
-    # at epoch 5 on disk, and the only `claimed` rows in the queue were the accidental run's 10,
-    # which `--reclaim-stale 360` ages out. Had the push landed ten minutes earlier the erasure would
-    # have been real, which is the whole reason this gate exists.
+    #   03:35:08  accidental run created by the push
+    #   03:36:07  its claim step starts -- 03:36:10 it has pushed 10 claims
+    #   03:36:57  the darwin slice's measure step FINISHES
+    #   03:37:05  darwin's commit step runs `--complete` against the queue
+    #
+    # ⛔ THE TWO GENUINELY OVERLAPPED — BY 57 SECONDS — AND NOTHING WAS ERASED ONLY BECAUSE THEIR
+    # READ-MODIFY-WRITE WINDOWS DID NOT INTERLEAVE. The accidental claim had already been pushed and
+    # settled by 03:36:10, so darwin's commit step at 03:37:05 fetched a queue holding BOTH sets of
+    # claims and closed its own rows normally: reconciled afterwards, 99 darwin rows `done` at epoch
+    # 5 against 99 darwin epoch-5 records on disk. Had the accidental fetch landed before darwin's
+    # push and its own push after, darwin's completions would have been erased and `--complete` would
+    # have closed nothing -- which is exactly the `completed 0 row(s)` signature in the header above.
+    #
+    # THE HAZARD IS THE INTERLEAVE, NOT THE OVERLAP, so a near-miss is not evidence of safety. The
+    # only claimed rows left afterwards were the accidental run's 10, carrying `at=03:36:08.633Z`;
+    # `--reclaim-stale 360` returns them at the first claim after 09:36Z.
     #
     # ⛔ THE CHECK READS THE WHOLE COMMIT MESSAGE, SO MENTIONING THE MARKER ANYWHERE OPTS THE PUSH
     # IN -- INCLUDING WHILE EXPLAINING THIS GATE. There is no way to scope a GitHub expression to the

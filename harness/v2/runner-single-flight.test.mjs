@@ -50,6 +50,24 @@ test('the whole-message trap is written down where the gate is', () => {
     'the warning cites no run — an unevidenced caution reads as speculation and gets deleted');
 });
 
+test('the near-miss is recorded as an interleave question, not an overlap one', () => {
+  // ⛔ THIS ACCOUNT WAS WRITTEN WRONG TWICE, WHICH IS WHY IT IS PINNED. First it claimed the two runs
+  // "never overlapped at the queue" and that a push needs ten-odd minutes to reach the claim step.
+  // The step timings say otherwise: run 33139321538 was created 03:35:08Z and its claim step ran
+  // 03:36:07-10Z — FIFTY-NINE SECONDS on a warm ubuntu runner with a cached binary — while the darwin
+  // slice's measure step did not finish until 03:36:57Z and its `--complete` ran at 03:37:05Z. They
+  // overlapped by 57 seconds. Nothing was erased because the two read-modify-write windows ran in
+  // sequence, not because they never met. A near-miss is not evidence of safety, and a comment that
+  // says it is invites someone to reopen the gate.
+  const job = src.slice(src.indexOf('\n  slice:\n'), src.indexOf('\n      - name:'));
+  assert.match(job, /READ-MODIFY-WRITE WINDOWS DID NOT INTERLEAVE/,
+    'the near-miss is explained by overlap rather than interleave — the wrong lesson');
+  assert.ok(!/never overlapped/i.test(job),
+    'the retracted "never overlapped" account is back; the step timings refute it');
+  assert.ok(job.includes('03:36:07') && job.includes('03:37:05'),
+    'the timeline lost its timestamps — an account with no times cannot be checked');
+});
+
 test('the gate sits on the JOB, so a gated push claims nothing at all', () => {
   // A step-level guard would still let checkout, provisioning and the binary restore burn a runner,
   // and — the part that matters — anything later that forgets the guard would claim.

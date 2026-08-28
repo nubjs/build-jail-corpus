@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 8,
+  "currentEpoch": 9,
   "transitions": [
     {
       "fromEpoch": null,
@@ -65,6 +65,16 @@
         "verdicts": []
       },
       "reason": "Epoch 8 is one comment in measure.sh. The scaffold-dating change of epoch 5 justified itself in that comment with \"of 282 BROKEN-WITHOUT-JAIL-TOO records, 178 carry Error: Unexpected token\", a ratio assembled from two commands: 178 counted OCCURRENCES across every retained log, 282 counted verdict LINES. Per RECORD over the 286 retained darwin logs the string appears in 16 of 128 BROKEN records (12.5%) and 70 of 140 MINIMUM records (50%) -- four times more common where the measurement SUCCEEDED, so it is non-fatal noise rather than that bug's signature. The same retraction was applied to this policy's own epoch-5 reason earlier; this closes the last tracked copy. The scaffold dating itself is unchanged and stands on its mechanism. THIS INVALIDATES NOTHING: the diff is a shell COMMENT. No command, arm, toolchain or verdict is touched, and the empty scope says exactly that."
+    },
+    {
+      "fromEpoch": 8,
+      "fromHarnessSha256": "f90fe6191b3cad5d699b00894c8c7eb3367955d23160a811b6f96146d3e4d008",
+      "toEpoch": 9,
+      "toHarnessSha256": "186991e98b802ea4025fbcd9de01d0e2cdba26acfa9aca65608e789ff9c110fc",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 9 corrects the near-miss account in the runner comment and pins it with a test. The epoch-6 version said the accidental run and the live darwin slice \"never overlapped at the queue\", and that a push needs ten-odd minutes to reach the claim step. The step timings refute both: run 33139321538 was created 03:35:08Z and claimed 03:36:07-10Z -- 59 seconds on a warm ubuntu runner with a cached binary -- while darwin's measure step ran to 03:36:57Z and its --complete to 03:37:05Z. They overlapped by 57 seconds. Nothing was erased because the two read-modify-write windows ran in SEQUENCE, not because they never met, so the near-miss is not evidence of safety and the exposure window is a minute rather than ten. THIS INVALIDATES NOTHING: a comment block and a test file, same as epochs 7 and 8."
     }
   ]
 }
