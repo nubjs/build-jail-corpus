@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 12,
+  "currentEpoch": 13,
   "transitions": [
     {
       "fromEpoch": null,
@@ -105,6 +105,23 @@
         "verdicts": []
       },
       "reason": "Epoch 12 fixes the end-of-slice commit guard, which failed a slice that had fully SUCCEEDED. The publisher pushes each record as it is measured and its --reconcile closes the row as it lands, so a slice can reach the commit step with every record already on the branch and every row already done -- nothing left to stage. The old guard read \"manifest non-empty AND nothing staged\" as a failed sparse add and exited 1, which failed the job, skipped the queue-status and chaining steps, and discarded the --complete bookkeeping so settled rows were never recorded and the re-measure loop returned. The line written for this case, \"already up to date -- records already landed\", was UNREACHABLE: the guard fires first whenever the manifest is non-empty, i.e. whenever anything published. The discriminator is now whether the manifest's records are ON the branch, not whether anything was staged; a record absent from HEAD still FATALs, and names itself. THIS INVALIDATES NOTHING. The branch is only reachable when nothing was staged, so no record and no queue content changes -- only the job's exit status. No arm, driver or verdict is touched."
+    },
+    {
+      "fromEpoch": 12,
+      "fromHarnessSha256": "cc31288d29fe1251a2485bd8568974d035e0ef79d3e8f82f8c25e52228e1f6ad",
+      "toEpoch": 13,
+      "toHarnessSha256": "87861e8503292dce301a23e07b2864930a9f90f65e145289c0308f0563b2eed4",
+      "invalidate": {
+        "verdicts": [
+          "BROKEN-WITHOUT-JAIL-TOO",
+          "BROKEN-UNJAILED-NUB",
+          "NO-STATE-PASSED",
+          "UNDER-PREDICTED",
+          "ARTIFACT-GATE-SUSPECT",
+          "UNKNOWN"
+        ]
+      },
+      "reason": "Epoch 13 gives the era Python to the nub arms. Until now only the OBSERVE arm and the npm reference arm held it: the VERIFY ladder and the jail-off control fell back to the runner's ambient Python, so node-gyp inside them ran a different interpreter from the arm they are compared against. MEASURED on node-sass@9.0.0 (darwin, era Node 18.20.8, epoch 5, driver.out retained beside the record): every nub arm died on ModuleNotFoundError: No module named 'distutils' -- Python 3.12 removed it and node-gyp 8.4.1 needs it -- while era-python.mjs --era 18 returns Python 3.9, which has it. npm, holding that 3.9, installed the package cleanly, so the control reported \"npm installs this package but nub cannot\" and the record was filed BROKEN-UNJAILED-NUB: a claimed NUB INSTALL DEFECT manufactured entirely by the harness. This is the epoch-4 npm-reference bug on the Python axis and it points the other way -- there a spurious failure exonerated nub, here it convicts it. On macOS sudo resets the environment, so PYTHON now rides the same env vector as PATH in asIdentity rather than relying on an exported value. SCOPE: every verdict a wrong interpreter can reach. A Python failure is GRANT-INDEPENDENT -- it fails identically at every rung -- so it cannot produce a spuriously WIDE minimum; it produces total failure, which lands in one of the six verdicts named here. A record that found a working grant had a working Python, so every MINIMUM stands. RESIDUAL RISK, stated rather than hidden: a package whose ambient Python worked may resolve node-gyp paths differently under the era Python, which could in principle shift a minimum grant. PYTHONDONTWRITEBYTECODE is already set on every arm, which removes the obvious such path. Cost measured before landing: 226 of 1906 reusable records (11.9%), leaving 1680."
     }
   ]
 }

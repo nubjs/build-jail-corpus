@@ -847,7 +847,10 @@ if (!armPrep) {
     // two installs cannot disagree about the date.
     const si = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts',
       ...(eraResolution.before ? [`--before=${eraResolution.before}`] : []), ...scaffold],
-      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
+      // ⛔ THE ERA PYTHON, like `obsEnv` above. Every arm that can run node-gyp must hold the
+      // SAME interpreter or a Python failure in one is read as a defect in what the other blames.
+      // See `unjailed-nub.mjs`'s `asIdentity` for the node-sass@9.0.0 measurement behind this.
+      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
     console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
   }
 }
@@ -1543,7 +1546,8 @@ const verify = (grant, label) => {
   // the ONLY line that distinguishes a built arm from a replayed one. Without it the replay
   // assertion below cannot observe what it asserts on, which is why this lane was still running the
   // predicate `measure.sh` had already measured to be wrong.
-  const env = { ...process.env, PATH: ARM_PATH, NUB_BUILD_JAIL_CATALOG: cat,
+  // ⛔ THE ERA PYTHON REACHES THE VERIFY ARMS TOO — see `unjailed-nub.mjs`'s `asIdentity`.
+  const env = { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), NUB_BUILD_JAIL_CATALOG: cat,
     XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
   // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
   // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.

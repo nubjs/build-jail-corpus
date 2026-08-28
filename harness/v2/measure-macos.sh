@@ -933,7 +933,13 @@ unjailed_nub_ok () {
   local d="$ROOT/jail-off-control"
   rm -rf "$d"; mkdir -p "$d" || return 1
   chown -R "$RUNUSER" "$d" 2>/dev/null
+  # ⛔ THE ERA PYTHON REACHES THIS ARM TOO. Every arm that can run node-gyp must hold the SAME
+  # interpreter, or a Python failure in one arm is read as a defect in whatever the other arm blames.
+  # MEASURED on node-sass@9.0.0: the nub arms fell back to the runner's ambient Python 3.12, which has
+  # no `distutils`, while the npm reference arm held the era Python 3.9, which does — and the record
+  # was filed BROKEN-UNJAILED-NUB, a claimed nub install defect that was entirely ours.
   local as=(--spawn-as "$RUNUSER" --spawn-path "${ARM_PATH:-${ERA_PATH:-$PATH}}")
+  [ -z "${ERA_PYTHON:-}" ] || as+=(--spawn-python "$ERA_PYTHON")
   node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
     "${as[@]}" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
@@ -1054,7 +1060,7 @@ verify () {
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
   chown -R "$RUNUSER" "$v" 2>/dev/null
   ensure_arm_cache_owned
-  sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" \
+  sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
@@ -1076,7 +1082,7 @@ verify () {
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
-sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
   "$NUB" install > "$v/i.log" 2>&1
 echo \$? > "$v/rc"
 JW
@@ -1089,7 +1095,7 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" NUB_CACHE_DIR="$cache" \
+    sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?

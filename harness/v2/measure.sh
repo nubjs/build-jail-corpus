@@ -976,12 +976,21 @@ unjailed_nub_ok () {
   local p="$1" v="$2"
   local d="$ROOT/jail-off-control"
   rm -rf "$d"; mkdir -p "$d" || return 1
-  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" || return 1
+  # ⛔ THE ERA PYTHON REACHES THIS ARM TOO. Every arm that can run node-gyp must hold the SAME
+  # interpreter, or a Python failure in one arm is read as a defect in whatever the other arm blames.
+  # MEASURED on node-sass@9.0.0: the nub arms fell back to the runner's ambient Python 3.12, which has
+  # no `distutils`, while the npm reference arm held the era Python 3.9, which does — and the record
+  # was filed BROKEN-UNJAILED-NUB, a claimed nub install defect that was entirely ours.
+  local pyarg=()
+  [ -z "${ERA_PYTHON:-}" ] || pyarg=(--spawn-python "$ERA_PYTHON")
+  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+    "${pyarg[@]+"${pyarg[@]}"}" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
   # `--context` keeps the detail THIS ladder earned on the shared verdict token: "even at write:disk"
   # states that every rung was climbed, which is a Linux-ladder fact the other two drivers have no
   # business asserting. `record.mjs` matches the token, so the suffix is free.
   node "$HERE/unjailed-nub.mjs" --phase run --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+    "${pyarg[@]+"${pyarg[@]}"}" \
     --context 'even at write:disk — investigate; do not widen the catalog blindly'
 }
 
@@ -1361,6 +1370,13 @@ verify () {
   ( cd "$v"
     # The era pin applies to the MEASURED install only — see the ERA-NODE PIN block above.
     PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+    # ⛔ AND THE ERA PYTHON WITH IT. This arm builds native addons through node-gyp, and until epoch 13
+    # it was the only family of arms that did NOT hold the era interpreter: OBSERVE gets it at line 673
+    # and the npm reference arm got it in epoch 4. node-gyp therefore fell back to the runner's ambient
+    # Python. MEASURED on node-sass@9.0.0 — ambient 3.12 has no `distutils`, era 3.9 does, so every nub
+    # arm failed where npm succeeded and the record was filed BROKEN-UNJAILED-NUB: a claimed nub
+    # install defect manufactured by handing two arms different interpreters.
+    [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
     if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then

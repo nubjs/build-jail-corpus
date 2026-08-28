@@ -222,9 +222,25 @@ export async function unjailedNubOk({ nub, pkg, version, dir, seed, run, evictSt
 /// ⛔ ARGV, NOT A SHELL PREFIX STRING. A free-form prefix has to be re-split by somebody, and a path
 /// with a space in it then becomes two arguments silently. Returning the vector leaves nothing to
 /// re-parse. Pure, so the shape is testable without sudo or a second user account.
-export function asIdentity({ cmd, args, user, path: pathValue }) {
+/// ⛔⛔ `PYTHON` RIDES THE SAME `env` VECTOR AS `PATH`, AND OMITTING IT ACCUSED NUB OF A HARNESS BUG.
+/// `sudo` resets the environment, so an exported `PYTHON` in the driver does NOT survive into the
+/// child — only what this vector re-sets does. Every other arm gets the era Python (`measure.sh:673`
+/// and `measure-macos.sh:560` for OBSERVE, and the npm reference arm since epoch 4); this control did
+/// not, so node-gyp inside it fell back to the runner's ambient Python.
+///
+/// MEASURED on `node-sass@9.0.0` (darwin, era Node 18.20.8, epoch 5). Every nub arm died with
+/// `ModuleNotFoundError: No module named 'distutils'` — Python 3.12 removed it and node-gyp 8.4.1
+/// needs it — while `era-python.mjs --era 18` returns Python **3.9**, which has it. The npm reference
+/// arm, holding that 3.9, installed the package fine. So the control reported "npm installs this but
+/// nub cannot" and the record was filed `BROKEN-UNJAILED-NUB`: a claimed NUB INSTALL DEFECT produced
+/// entirely by the harness handing two arms different interpreters.
+///
+/// This is the same error class as the epoch-4 npm-reference fix, on the Python axis, and it points
+/// the wrong way: a spurious failure here does not exonerate nub, it CONVICTS it.
+export function asIdentity({ cmd, args, user, path: pathValue, python }) {
   if (!user) return [cmd, args];
-  return ['sudo', ['-u', user, '-H', 'env', `PATH=${pathValue ?? process.env.PATH ?? ''}`, cmd, ...args]];
+  return ['sudo', ['-u', user, '-H', 'env', `PATH=${pathValue ?? process.env.PATH ?? ''}`,
+    ...(python ? [`PYTHON=${python}`] : []), cmd, ...args]];
 }
 
 /// The npm reference arm, consulted only when nub failed. Identical on all three platforms.
@@ -310,8 +326,11 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   const { spawn } = await import('node:child_process');
   const run = ({ cmd, args, cwd }) =>
     new Promise((resolve) => {
-      const [c, a] = asIdentity({ cmd, args, user: arg('--spawn-as'), path: arg('--spawn-path') });
-      const child = spawn(c, a, { cwd, env: process.env });
+      const python = arg('--spawn-python');
+      const [c, a] = asIdentity({ cmd, args, user: arg('--spawn-as'), path: arg('--spawn-path'), python });
+      // ⛔ SET IT ON THE CHILD ENV TOO. The `env` vector above only applies on the sudo path (macOS);
+      // Linux and Windows spawn plainly, and there the inherited environment is what the child sees.
+      const child = spawn(c, a, { cwd, env: python ? { ...process.env, PYTHON: python } : process.env });
       let out = '';
       let timedOut = false;
       const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); }, timeoutMs);
