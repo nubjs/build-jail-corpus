@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 14,
+  "currentEpoch": 15,
   "transitions": [
     {
       "fromEpoch": null,
@@ -132,6 +132,23 @@
         "verdicts": []
       },
       "reason": "Epoch 14 makes every driver print WHY the unjailed era fetch failed. All three captured npm's diagnosis already -- the shell drivers into \"$OBS/fetch.log\", the windows driver into a string -- and all three then discarded it, so the record kept only the verdict. MEASURED corpus-wide 2026-08-28: 165 of the 1409 BROKEN-WITHOUT-JAIL-TOO records exit at that fetch, and every one of the 165 has a driver.out of roughly eighteen lines carrying no reason at all (@ffmpeg-installer/linux-ia32@4.1.0 on darwin-arm64 is a worked example: it stops one line after ERA-RESOLUTION). That is exactly the bucket this corpus exists to split -- a package genuinely gone from the registry and a dated fetch asking for something that never existed produce byte-identical records, so no amount of re-measuring can separate a dead package from a harness defect. Each driver now prints a bounded 20-line tail, the idiom npm_ok already used on its own fetch. The darwin driver additionally captures the rc on its own line, because the exit now interpolates it and an unbound name under `set -u` aborts the whole run -- a runtime failure `bash -n` does not catch. The windows tail is deliberately one line and sits AFTER emitBinaryProvenance(), since venue-provenance-on-exit.test.mjs scans only five lines past the verdict for that call. Zero records are invalidated: the change adds output and changes no verdict any record could have reached."
+    },
+    {
+      "fromEpoch": 14,
+      "fromHarnessSha256": "20e8fdf7b19e7bb21a568a7c20d4708fb98f631ceaa73c83c9e3193d7a831011",
+      "toEpoch": 15,
+      "toHarnessSha256": "a2a7f6e0081687b697d079909060e2768aa4a09d621bb69b216fff6532650360",
+      "invalidate": {
+        "platforms": [
+          "linux-x64"
+        ],
+        "verdicts": [
+          "NO-STATE-PASSED",
+          "BROKEN-UNJAILED-NUB",
+          "BROKEN-WITHOUT-JAIL-TOO"
+        ]
+      },
+      "reason": "Epoch 15 gives the LINUX jail-off control the era PATH, so the two arms that decide fault finally hold the same toolchain. measure.sh never modifies its own PATH -- ERA_PATH is a SEPARATE variable (ERA_PATH=\"$ERA_NODE_BIN:$PATH\") -- so every arm opts in locally: the scaffold, OBSERVE, each verify rung and npm_ok's two installs all set it, and unjailed_nub_ok set nothing. Its lifecycle scripts therefore ran node/node-gyp from the RUNNER's Node while npm_ok, the arm it is compared against, ran the package's era Node -- and when that difference makes nub fail where npm succeeds, the record is filed BROKEN-UNJAILED-NUB: a nub install defect manufactured by the harness. Same class as the epoch-4 npm-reference fix and the epoch-13 Python fix, and specifically the half of epoch 13 left undone -- that change set PYTHON on the child env and left PATH behind, giving this arm the era interpreter under the runner's Node, a combination no real install ever has. Passing --spawn-path from the driver is NOT sufficient on its own: asIdentity returns [cmd, args] unchanged when there is no sudo user, so on Linux the flag was accepted and ignored, and the child env is what carries it. DARWIN IS UNAFFECTED -- sudo resets the environment, which forced it to pass PATH explicitly from the start; its protection was a side effect of the spawn strategy rather than a decision, which is why Linux never received it. WIN32 IS NOT FIXED and is stated rather than hidden: measure-windows.mjs runs its control in-process from imported classify/offSwitchEngaged and never calls this module, so the change does not reach it; win32 holds 5 valid records and is outside the current drain. SCOPE: the control only runs after every verify rung has already failed, so it cannot reach MINIMUM -- a record that found a working grant never consulted it -- and the three verdicts named here are the ones classify() can return. Cost measured before landing: 0 of 1680 reusable records, because epoch 13 already invalidated those same verdicts and no slice has yet measured at epoch 13 or later. This epoch also makes the control PRINT what nub said before accusing it. The arm's output was captured into logs and written by writeLogs into a scratch dir that is discarded, so a real nub defect and a harness asymmetry left byte-identical records. MEASURED on linux-x64 @stdlib/math-base-special-signum@0.0.6: the record carries the full node-gyp failure for every verify rung and not one line about why the control failed -- and both arms resolved the IDENTICAL tree there (digest 8189fa7ae585, 74 specs each), which is what isolates the difference to execution rather than resolution. That is the epoch-14 blind spot one arm over, on the arm where attribution matters most."
     }
   ]
 }

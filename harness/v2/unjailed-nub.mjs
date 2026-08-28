@@ -328,9 +328,27 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
     new Promise((resolve) => {
       const python = arg('--spawn-python');
       const [c, a] = asIdentity({ cmd, args, user: arg('--spawn-as'), path: arg('--spawn-path'), python });
-      // ⛔ SET IT ON THE CHILD ENV TOO. The `env` vector above only applies on the sudo path (macOS);
-      // Linux and Windows spawn plainly, and there the inherited environment is what the child sees.
-      const child = spawn(c, a, { cwd, env: python ? { ...process.env, PYTHON: python } : process.env });
+      // ⛔ SET THEM ON THE CHILD ENV TOO. The `env` vector inside `asIdentity` only applies on the
+      // sudo path (macOS); Linux and Windows spawn plainly, and there the INHERITED environment is what
+      // the child sees — so on those platforms `--spawn-path` was accepted and then silently ignored.
+      //
+      // ⛔⛔ THAT LEFT THE TWO ARMS THAT DECIDE FAULT RUNNING DIFFERENT NODE VERSIONS ON LINUX.
+      // `measure.sh` never modifies its own PATH — `ERA_PATH="$ERA_NODE_BIN:$PATH"` is a SEPARATE
+      // variable, and every arm opts in locally (the scaffold, OBSERVE, each verify rung, and npm_ok's
+      // two installs all set it; this control set nothing). So the control's lifecycle scripts ran
+      // node/node-gyp from the RUNNER's Node while the npm reference arm they are compared against ran
+      // the package's era Node. A failure caused by that difference reads as "npm installs this but nub
+      // cannot" and is filed BROKEN-UNJAILED-NUB — a nub install defect manufactured by the harness.
+      //
+      // Same class as the epoch-4 npm-reference fix and the epoch-13 Python fix, and it is the half of
+      // epoch 13 that was left undone: that change gave this arm the era PYTHON on the plain-spawn path
+      // while leaving it the harness NODE, which is a combination no real install ever has.
+      const spawnPath = arg('--spawn-path');
+      const child = spawn(c, a, { cwd, env: {
+        ...process.env,
+        ...(spawnPath ? { PATH: spawnPath } : {}),
+        ...(python ? { PYTHON: python } : {}),
+      } });
       let out = '';
       let timedOut = false;
       const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); }, timeoutMs);
@@ -406,6 +424,16 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   if (result.consultNpm) {
     // NO verdict line here — it depends on npm's answer, which this process cannot get soundly.
     console.log('  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit');
+    // ⛔ PRINT WHAT NUB ACTUALLY SAID. This branch is the one that goes on to accuse nub, and until
+    // now it accused it SILENTLY: the arm's output is captured into `logs` and written by
+    // `writeLogs` into the control's scratch dir, which is discarded with the run. MEASURED on
+    // linux-x64 @stdlib/math-base-special-signum@0.0.6 — the record carries the full node-gyp
+    // failure for every VERIFY rung and NOT ONE LINE about why the control failed, so there is no
+    // way to tell a real nub defect from a harness asymmetry after the fact. Same blind spot epoch
+    // 14 closed on the era fetch, one arm over, and this is the arm where attribution matters most.
+    for (const line of Object.values(result.nub.logs ?? {}).join('\n').trimEnd().split('\n').slice(-20)) {
+      if (line.trim()) console.log(`    | ${line}`);
+    }
     process.exit(CONSULT_NPM);
   }
   // ONE `=>` line: `record.mjs` walks the log and the LAST match wins, so a second verdict from this

@@ -989,8 +989,14 @@ unjailed_nub_ok () {
   # MEASURED on node-sass@9.0.0: the nub arms fell back to the runner's ambient Python 3.12, which has
   # no `distutils`, while the npm reference arm held the era Python 3.9, which does — and the record
   # was filed BROKEN-UNJAILED-NUB, a claimed nub install defect that was entirely ours.
-  local pyarg=()
-  [ -z "${ERA_PYTHON:-}" ] || pyarg=(--spawn-python "$ERA_PYTHON")
+  # ⛔ THE ERA TOOLCHAIN REACHES THIS ARM — BOTH HALVES OF IT. `measure.sh` never modifies its own
+  # PATH (`ERA_PATH` is a separate variable), so every arm opts in locally and this one opted into
+  # nothing: its lifecycle scripts ran the RUNNER's node while npm_ok, the arm it is compared against,
+  # ran the package's era node. That difference is filed as BROKEN-UNJAILED-NUB — a nub install defect
+  # that is entirely ours. Darwin was never exposed only because sudo resets the environment and
+  # forced it to pass PATH explicitly.
+  local pyarg=(--spawn-path "${ARM_PATH:-${ERA_PATH:-$PATH}}")
+  [ -z "${ERA_PYTHON:-}" ] || pyarg+=(--spawn-python "$ERA_PYTHON")
   node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
     "${pyarg[@]+"${pyarg[@]}"}" || return 1
   security_screen_tree "$d" nub-unjailed-resolved
