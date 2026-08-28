@@ -2,11 +2,16 @@
   ERA-NODE PINNED 18.20.8 (provisioned) (arms will run: v18.20.8)
   ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 18, whose node-gyp requires python3
   ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
-### fsevents@2.3.3   (/home/runner/v2-dbrQcu)
+### fsevents@2.3.3   (/home/runner/v2-0FuY96)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6ea3fdbb80e84f0db62fde42c44dc8302304c9ae50b5ced6a7b3662ad56058b5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T01:49:38.051Z","cacheHit":false,"clearancePath":"/home/runner/v2-dbrQcu/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6ea3fdbb80e84f0db62fde42c44dc8302304c9ae50b5ced6a7b3662ad56058b5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-28T21:40:57.544Z","cacheHit":false,"clearancePath":"/home/runner/v2-0FuY96/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 6ea3fdbb80e8
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   ERA-RESOLUTION DATED 2023-08-22T16:24:22.854Z (deps as of the package's own publish date + 1d)
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=1; nothing to measure)
+    | npm error code EBADPLATFORM
+    | npm error notsup Unsupported platform for fsevents@2.3.3: wanted {"os":"darwin"} (current: {"os":"linux"})
+    | npm error notsup Valid os:  darwin
+    | npm error notsup Actual os: linux
+    | npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-08-28T21_40_57_876Z-debug-0.log
