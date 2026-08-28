@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 11,
+  "currentEpoch": 12,
   "transitions": [
     {
       "fromEpoch": null,
@@ -95,6 +95,16 @@
         "verdicts": []
       },
       "reason": "Epoch 11 extends claim-cas.test.mjs from the claim push to the full cycle: two runners claim, publish INTERLEAVED, and complete, and origin must end up holding every record and every closed row from both. It passes on current code. Disabling the publisher's queue refresh makes it reproduce the header's failure exactly -- rows whose record published never closed -- so the test detects the real thing rather than passing vacuously. But that line has been in the publisher since its first commit on 2026-08-06, seventeen days BEFORE the 2026-08-23 two-runner measurement, so it was never the fix and the observation stays unexplained. The drain remains serial. THIS INVALIDATES NOTHING: one test file."
+    },
+    {
+      "fromEpoch": 11,
+      "fromHarnessSha256": "0fe9aa94dd21cd8576261533f1bca616bf4c4bc80d721c04e3d782eae1cad660",
+      "toEpoch": 12,
+      "toHarnessSha256": "cc31288d29fe1251a2485bd8568974d035e0ef79d3e8f82f8c25e52228e1f6ad",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 12 fixes the end-of-slice commit guard, which failed a slice that had fully SUCCEEDED. The publisher pushes each record as it is measured and its --reconcile closes the row as it lands, so a slice can reach the commit step with every record already on the branch and every row already done -- nothing left to stage. The old guard read \"manifest non-empty AND nothing staged\" as a failed sparse add and exited 1, which failed the job, skipped the queue-status and chaining steps, and discarded the --complete bookkeeping so settled rows were never recorded and the re-measure loop returned. The line written for this case, \"already up to date -- records already landed\", was UNREACHABLE: the guard fires first whenever the manifest is non-empty, i.e. whenever anything published. The discriminator is now whether the manifest's records are ON the branch, not whether anything was staged; a record absent from HEAD still FATALs, and names itself. THIS INVALIDATES NOTHING. The branch is only reachable when nothing was staged, so no record and no queue content changes -- only the job's exit status. No arm, driver or verdict is touched."
     }
   ]
 }

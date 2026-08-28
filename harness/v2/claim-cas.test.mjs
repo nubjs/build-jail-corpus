@@ -17,7 +17,7 @@
 // LIVE slice's rows to pending — a macos slice measured 221 minutes on 2026-08-28, and a slower one
 // would cross that cutoff underneath itself.
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -270,5 +270,114 @@ test('two runners interleaved through claim, publish and complete lose no record
   const stillOpen = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.status !== 'done');
   assert.deepEqual(stillOpen.map((r) => `${r.pkg}:${r.status}`), [],
     'rows whose record published never closed — the `completed 0 row(s)` failure, reproduced');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+// ⛔ GAP 3 CLOSED: the END-OF-SLICE COMMIT STEP, which is the step that actually printed
+// `completed 0 row(s)` in the 2026-08-23 two-runner measurement. Everything above called
+// `--complete` directly and so never exercised it. It is also the least-covered high-consequence
+// code in the lane: it hard-resets to origin, restores this run's records from a stash, re-runs
+// `--complete`, and retries twelve times.
+//
+// Reading it supplies a mechanism for `completed 0 row(s)` that needs NO erasure. The hard reset
+// takes ORIGIN's queue — including whatever the other runner's per-package `--reconcile` has already
+// closed. `--reconcile` closes any row with a matching record, checks neither run id nor `claimed`,
+// and `delete r.run`s. So by the time runner B's commit step runs `--complete --run B`, B's rows can
+// already be `done` with no `run` field, and `--complete` correctly touches nothing.
+//
+// The rows are NOT lost: reconcile stamped them from the record. What IS lost is the `--settled`
+// bookkeeping, because reconcile has no notion of it — so a WITHHELD row is reopened instead of
+// settled, which is the re-measure loop epoch 4 exists to stop. That is a real cost and a bounded
+// one, and it is the thing to weigh if parallel draining is ever enabled.
+const commitShell = () => {
+  const src = fs.readFileSync(path.join(REPO, '.github', 'workflows', 'corpus-v2-runner.yml'), 'utf8');
+  const start = src.indexOf('      - name: Commit records and queue\n');
+  assert.notEqual(start, -1, 'the end-of-slice commit step is gone from the workflow');
+  const runAt = src.indexOf('        run: |\n', start) + '        run: |\n'.length;
+  const end = src.indexOf('\n      - name:', runAt);
+  return src.slice(runAt, end).split('\n').map((l) => l.replace(/^ {10}/, '')).join('\n')
+    .replace(/\$\{\{ github\.run_id \}\}/g, '$RUN_ID')
+    // ⛔ THE STEP HARDCODES /tmp/slice.txt AND /tmp/verdicts.ndjson. On a runner each job owns its VM
+    // so they cannot collide; two simulated runners in one tmpdir would silently share them and the
+    // test would prove nothing about either.
+    .replace(/\/tmp\/slice\.txt/g, '$SLICE_FILE')
+    .replace(/\/tmp\/verdicts\.ndjson/g, '$VERDICTS_FILE');
+};
+
+test('the real commit step: a reconcile-closed row makes --complete report 0, and loses no row', async () => {
+  const { root, origin, nubBin } = scratch(40);
+  const A = clone(origin, root, 'ceA');
+  const B = clone(origin, root, 'ceB');
+  const ident = await instrumentNow(A);
+  const body = claimShell();
+
+  const runClaim = (dir, runId) => sh(
+    `set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=5 RUN_ID=${runId} `
+    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, dir);
+  runClaim(A, 'CEA');
+  runClaim(B, 'CEB');
+  const aPkgs = claimed(A, 'CEA');
+  const bPkgs = claimed(B, 'CEB');
+
+  for (let i = 0; i < 5; i++) {
+    publishOne(A, writeRecord(A, aPkgs[i], ident));
+    publishOne(B, writeRecord(B, bPkgs[i], ident));
+  }
+
+  const commitStep = (dir, runId, pkgs) => {
+    fs.writeFileSync(path.join(dir, '.slice'), `${pkgs.join('\n')}\n`);
+    execFileSync('node', ['harness/collect-verdicts.mjs', '--runs', 'records-v2',
+      '--out', path.join(dir, '.verdicts')], { cwd: dir, encoding: 'utf8' });
+    return sh(`set +e\nexport GITHUB_REF_NAME=main OS_NAME=linux RUN_ID=${runId} `
+      + `NUB_CORPUS_MANIFEST=${path.join(dir, '.manifest')} NUB_CORPUS_SETTLED=${path.join(dir, '.settled')} `
+      + `SLICE_FILE=${path.join(dir, '.slice')} VERDICTS_FILE=${path.join(dir, '.verdicts')}\n`
+      + `${body2}\n`, dir);
+  };
+  const body2 = commitShell();
+  const outA = commitStep(A, 'CEA', aPkgs);
+  const outB = commitStep(B, 'CEB', bPkgs);
+
+  // ⛔ THE PREDICTION, WRITTEN AS AN ASSERTION: at least one runner reports `completed 0 row(s)`,
+  // because the other's reconcile already closed its rows. If neither does, the mechanism above is
+  // wrong and the 2026-08-23 observation needs a different explanation.
+  const zero = [outA, outB].filter((o) => /completed 0 row\(s\)/.test(o)).length;
+
+  const verify = clone(origin, root, 'ceVerify');
+  const rows = fs.readFileSync(path.join(verify, 'queue-v2.ndjson'), 'utf8')
+    .split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const open = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.status !== 'done');
+  assert.deepEqual(open.map((r) => `${r.pkg}:${r.status}`), [],
+    `a row whose record published did not close, ${zero} runner(s) reported "completed 0 row(s)"`);
+  assert.equal(rows.length, 40, 'the queue lost or gained rows outright');
+  // Every closed row carries the verdict from its record, whichever path closed it.
+  const wrong = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.verdict !== 'MINIMUM');
+  assert.deepEqual(wrong.map((r) => `${r.pkg}:${r.verdict}`), [],
+    'a row closed WITHOUT its record\'s verdict — reconcile and --complete disagree');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('the guard still FATALs when a published record is genuinely absent from HEAD', async () => {
+  // ⛔ THE CONTROL THAT KEEPS THE FIX HONEST. Loosening the guard so a fully-landed slice stops
+  // failing is only correct if it still catches the case it was written for: the manifest names a
+  // record, nothing staged, and the record is NOT on the branch — a sparse add that silently
+  // dropped it. Without this, "make the FATAL stop firing" and "delete the safety check" are the
+  // same commit.
+  const { root, origin } = scratch(4);
+  const A = clone(origin, root, 'fatalA');
+  const manifest = path.join(A, '.manifest');
+  // A record the manifest claims was published, which exists nowhere: not on disk, not in HEAD.
+  fs.writeFileSync(manifest, 'records-v2/runs/linux-x64/ghost/1.0.0\n');
+  fs.writeFileSync(path.join(A, '.slice'), 'ghost@1.0.0\n');
+  fs.writeFileSync(path.join(A, '.verdicts'), '');
+  const out = spawnSync('bash', ['-c',
+    `set +e\nexport GITHUB_REF_NAME=main OS_NAME=linux RUN_ID=FATAL `
+    + `NUB_CORPUS_MANIFEST=${manifest} NUB_CORPUS_SETTLED=${path.join(A, '.settled')} `
+    + `SLICE_FILE=${path.join(A, '.slice')} VERDICTS_FILE=${path.join(A, '.verdicts')}\n${commitShell()}`],
+  { cwd: A, encoding: 'utf8' });
+  assert.equal(out.status, 1,
+    `the guard did not FATAL on a missing record — it exited ${out.status}; the safety check is gone`);
+  assert.match(out.stderr, /absent from HEAD/,
+    'the guard failed for some other reason than the missing record');
+  assert.match(out.stderr, /ghost/, 'the guard does not NAME what is missing, so nobody can act on it');
   fs.rmSync(root, { recursive: true, force: true });
 });

@@ -870,14 +870,43 @@ jobs:
             # stages and commits; without it, nothing.
             git add --sparse records-v2 queue-v2.ndjson
             # ⛔ LOUD-FAIL GUARD. If this run measured records (manifest non-empty) but git staged
-            # nothing, the sparse add failed — fail LOUD so the claim strands and --reclaim-stale
-            # re-measures it, rather than exit 0 and lose the slice. (A false trip only causes a safe
-            # re-measure; a missed silent-loss corrupts the corpus at 20x concurrency.)
-            if [ -s "$MANIFEST" ] && git diff --cached --quiet; then
-              echo "FATAL: non-empty publish manifest but git staged nothing — sparse add failed; refusing to drop the slice" >&2
-              exit 1
+            # nothing, the sparse add may have failed — and silently dropping a slice is worse than
+            # any false alarm. But "staged nothing" has a SECOND, benign cause, and the old spelling
+            # (`[ -s "$MANIFEST" ] && git diff --cached --quiet` -> exit 1) could not tell them apart.
+            #
+            # ⛔⛔ THE BENIGN CASE IS A SLICE THAT FULLY SUCCEEDED. The publisher pushes each record as
+            # it is measured and its `--reconcile` closes the row as it lands, so a slice can arrive
+            # here with every record already on the branch and every row already `done` — nothing left
+            # to stage. The old guard called that a FATAL and exited 1, failing a slice that had
+            # actually completed, skipping the queue-status and chaining steps, and DISCARDING the
+            # `--complete` bookkeeping (settled rows above all) so the re-measure loop came back.
+            #
+            # The line below it — "already up to date — records already landed" — was written for
+            # exactly this case and was UNREACHABLE, because the guard fires first whenever the
+            # manifest is non-empty, which is whenever anything published at all.
+            #
+            # REPRODUCED 2026-08-28 in `harness/v2/claim-cas.test.mjs`: two runners, interleaved
+            # publishes. Runner A's rows were closed by B's per-package `--reconcile` (which checks
+            # neither run id nor `claimed`, and deletes `run`), so A's `--complete` reported
+            # `completed 0 row(s)` — the 2026-08-23 signature — and A then died on this guard.
+            #
+            # The discriminator is not "did we stage anything" but "are the records ON the branch".
+            if git diff --cached --quiet; then
+              MISSING=""
+              if [ -s "$MANIFEST" ]; then
+                while IFS= read -r rel; do
+                  [ -n "$rel" ] || continue
+                  git cat-file -e "HEAD:$rel/results.json" 2>/dev/null || MISSING="$MISSING $rel"
+                done < "$MANIFEST"
+              fi
+              if [ -n "$MISSING" ]; then
+                echo "FATAL: nothing staged and these published records are absent from HEAD —" >&2
+                echo "       the sparse add failed; refusing to drop the slice:$MISSING" >&2
+                exit 1
+              fi
+              echo "already up to date — every published record is on the branch"
+              exit 0
             fi
-            git diff --cached --quiet && { echo "already up to date — records already landed"; exit 0; }
             git commit -q -m "corpus-v2($OS_NAME): slice of $SLICE_N [run ${{ github.run_id }}]"
             git push -q && exit 0
             echo "push $i rejected — another runner landed first; rebuilding on the new head" >&2
