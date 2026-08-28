@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 9,
+  "currentEpoch": 10,
   "transitions": [
     {
       "fromEpoch": null,
@@ -75,6 +75,16 @@
         "verdicts": []
       },
       "reason": "Epoch 9 corrects the near-miss account in the runner comment and pins it with a test. The epoch-6 version said the accidental run and the live darwin slice \"never overlapped at the queue\", and that a push needs ten-odd minutes to reach the claim step. The step timings refute both: run 33139321538 was created 03:35:08Z and claimed 03:36:07-10Z -- 59 seconds on a warm ubuntu runner with a cached binary -- while darwin's measure step ran to 03:36:57Z and its --complete to 03:37:05Z. They overlapped by 57 seconds. Nothing was erased because the two read-modify-write windows ran in SEQUENCE, not because they never met, so the near-miss is not evidence of safety and the exposure window is a minute rather than ten. THIS INVALIDATES NOTHING: a comment block and a test file, same as epochs 7 and 8."
+    },
+    {
+      "fromEpoch": 9,
+      "fromHarnessSha256": "186991e98b802ea4025fbcd9de01d0e2cdba26acfa9aca65608e789ff9c110fc",
+      "toEpoch": 10,
+      "toHarnessSha256": "ad45de108494c911537fecfa02001a0643e0bbd27c6b580a9fc0b3c9efb96cb0",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 10 adds one test file. The workflow header asserts that two concurrent runners erase each other's queue claims, because every runner rewrites the whole queue from a pre-claim snapshot. That is a real failure mode for a last-write-wins push, and this lane does not have one: the claim step re-claims against the new head when its push is rejected. claim-cas.test.mjs pins that by driving the step's OWN shell, extracted from the workflow rather than paraphrased, against two clones of a scratch repo where the second is cloned BEFORE the first claims. Both runners' claims survive on origin and the slices are disjoint; a last-write-wins control force-pushes the stale snapshot and DOES erase, so the green is not vacuous. It covers the CLAIM path only and does not make parallel draining safe. THIS INVALIDATES NOTHING: a new test file, no driver or arm touched."
     }
   ]
 }
