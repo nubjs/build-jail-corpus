@@ -937,6 +937,25 @@ jobs:
         env: { GH_TOKEN: "${{ github.token }}" }
         shell: bash
         run: |
+          # ⛔ --ref, OR THE CHAIN WALKS OFF THIS BRANCH ON ITS FIRST HOP. `gh workflow run` with no
+          # ref dispatches against the repository's DEFAULT branch, so every successor this step
+          # created ran `main`'s checkout — a corpus lane that has deliberately never been merged
+          # and still carries the epoch-3 harness.
+          #
+          # MEASURED 2026-08-28, and it is a perfect four-for-four split: runs 33187340541 and
+          # 33197089244, dispatched by hand with --ref, reported `instrument: epoch 15` / `epoch 16`
+          # and measured their slices; their chained successors 33196045838 and 33201592660 reported
+          # `instrument: epoch 3 b21a24cef3e3ab8c` and `find: 'records-v2': No such file or directory`,
+          # claimed 60 rows against main's queue, and died. That alternating pass/fail was read for
+          # two slices as an intermittent falsification-gate flake. It never was: the gate refused an
+          # epoch-3 harness thirteen epochs behind the binary it was handed, which is exactly its job,
+          # and it is the only reason no epoch-3 measurement ever entered a corpus.
+          #
+          # GITHUB_REF_NAME is the branch this run was dispatched on, so the chain stays wherever it
+          # was started — probe/corpus-v2-lane today, main if the lane is ever merged. Registration is
+          # sticky and this workflow's name is on main, so a per-branch --ref dispatch resolves (see
+          # win-etw-retain.yml's header for the 404-on-unregistered case this is NOT).
           gh workflow run corpus-v2-runner.yml \
+            --ref "$GITHUB_REF_NAME" \
             -f os="$OS_NAME" -f slice="${{ inputs.slice }}" \
             -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}

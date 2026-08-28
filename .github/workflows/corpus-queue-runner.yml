@@ -1006,6 +1006,11 @@ jobs:
           if [ "$NEXT" != "${{ inputs.nub_sha }}" ]; then
             echo "chain rolling forward: ${{ inputs.nub_sha }} -> ${NEXT:0:10}"
           fi
+          # ⛔ --ref: same defect the v2 runner carried, fixed here at the same time. A ref-less
+          # `gh workflow run` dispatches the DEFAULT branch, so this chain silently left whatever
+          # branch it was started on after one hop. See corpus-v2-runner.yml's Dispatch step for the
+          # measurement that found it.
           gh workflow run corpus-queue-runner.yml \
+            --ref "$GITHUB_REF_NAME" \
             -f os="${{ inputs.os }}" -f slice="${{ inputs.slice }}" \
             -f nub_sha="$NEXT" -f chain=true -f force=${{ inputs.force }}

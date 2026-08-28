@@ -53,6 +53,18 @@ const scratch = (rows) => {
   const seed = path.join(root, 'seed');
   fs.mkdirSync(seed);
   git(['init', '-q', '--bare', '--initial-branch=main', origin], root);
+  // ⛔ NO AUTO-GC ON THE BARE ORIGIN, OR ITS TEARDOWN RACES A PROCESS THIS TEST DOES NOT WAIT FOR.
+  // `receive-pack` runs `git gc --auto` after every push it accepts, and `gc.autoDetach` defaults
+  // to true, so the gc is a DETACHED child that outlives the synchronous `git push` this fixture
+  // blocks on. It then writes into origin.git — lock files, gc.log — while `discard()` is walking
+  // the same tree. MEASURED 2026-08-28 on run 33202504594: the last-write-wins control asserted
+  // correctly and then died in teardown with
+  // `ENOTEMPTY: directory not empty, rmdir '/tmp/claimcas-ClEEqA/origin.git'`, taking the whole
+  // suite step down and with it the slice — the runner never reached "Claim a slice". Three config
+  // keys because each closes the hole alone only on some git versions.
+  for (const [k, v] of [['receive.autogc', 'false'], ['gc.auto', '0'], ['gc.autoDetach', 'false']]) {
+    git(['-C', origin, 'config', k, v], root);
+  }
   git(['init', '-q', '--initial-branch=main'], seed);
   git(['config', 'user.email', 't@t'], seed);
   git(['config', 'user.name', 't'], seed);
@@ -96,6 +108,14 @@ const clone = (origin, root, name) => {
   return dir;
 };
 
+/// Teardown for a scratch root. Retries are Node's own documented handling for a transient
+/// ENOTEMPTY (`fs.rm` maxRetries names that exact errno), and this is TEARDOWN — it guards no
+/// assertion and cannot turn a red test green. It is the belt to the `receive.autogc` braces in
+/// `scratch()`: that removes the one background writer we can name, and this survives one we
+/// cannot. If a teardown ever exhausts these retries, something is still writing and the config
+/// above is not the whole story — do not raise the number, find the writer.
+const discard = (root) => fs.rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+
 const claimed = (dir, runId) => fs.readFileSync(path.join(dir, 'queue-v2.ndjson'), 'utf8')
   .split('\n').filter(Boolean).map((l) => JSON.parse(l))
   .filter((r) => r.status === 'claimed' && r.run === runId).map((r) => r.pkg);
@@ -130,7 +150,7 @@ test('an interleaved second claim cannot erase the first — the push is rejecte
   assert.equal(bFinal.length, 10, "runner B's claims did not land on origin");
   assert.equal(new Set([...aFinal, ...bFinal]).size, 20,
     'the two runners claimed OVERLAPPING rows — the slices are not disjoint');
-  fs.rmSync(root, { recursive: true, force: true });
+  discard(root);
 });
 
 test('the control: a last-write-wins push WOULD erase, so the assertion above is not vacuous', () => {
@@ -158,7 +178,7 @@ test('the control: a last-write-wins push WOULD erase, so the assertion above is
   const after = clone(origin, root, 'verify2');
   assert.equal(claimed(after, 'RUNA').length, 0,
     'the last-write-wins control did NOT erase — the fixture is not reproducing contention');
-  fs.rmSync(root, { recursive: true, force: true });
+  discard(root);
 });
 
 // ⛔ THE FULL CYCLE, NOT JUST THE CLAIM. The test above covers only the claim push. This one runs two
@@ -270,7 +290,7 @@ test('two runners interleaved through claim, publish and complete lose no record
   const stillOpen = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.status !== 'done');
   assert.deepEqual(stillOpen.map((r) => `${r.pkg}:${r.status}`), [],
     'rows whose record published never closed — the `completed 0 row(s)` failure, reproduced');
-  fs.rmSync(root, { recursive: true, force: true });
+  discard(root);
 });
 
 // ⛔ GAP 3 CLOSED: the END-OF-SLICE COMMIT STEP, which is the step that actually printed
@@ -353,7 +373,7 @@ test('the real commit step: a reconcile-closed row makes --complete report 0, an
   const wrong = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.verdict !== 'MINIMUM');
   assert.deepEqual(wrong.map((r) => `${r.pkg}:${r.verdict}`), [],
     'a row closed WITHOUT its record\'s verdict — reconcile and --complete disagree');
-  fs.rmSync(root, { recursive: true, force: true });
+  discard(root);
 });
 
 test('the guard still FATALs when a published record is genuinely absent from HEAD', async () => {
@@ -379,5 +399,5 @@ test('the guard still FATALs when a published record is genuinely absent from HE
   assert.match(out.stderr, /absent from HEAD/,
     'the guard failed for some other reason than the missing record');
   assert.match(out.stderr, /ghost/, 'the guard does not NAME what is missing, so nobody can act on it');
-  fs.rmSync(root, { recursive: true, force: true });
+  discard(root);
 });
