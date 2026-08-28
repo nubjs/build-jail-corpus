@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 10,
+  "currentEpoch": 11,
   "transitions": [
     {
       "fromEpoch": null,
@@ -85,6 +85,16 @@
         "verdicts": []
       },
       "reason": "Epoch 10 adds one test file. The workflow header asserts that two concurrent runners erase each other's queue claims, because every runner rewrites the whole queue from a pre-claim snapshot. That is a real failure mode for a last-write-wins push, and this lane does not have one: the claim step re-claims against the new head when its push is rejected. claim-cas.test.mjs pins that by driving the step's OWN shell, extracted from the workflow rather than paraphrased, against two clones of a scratch repo where the second is cloned BEFORE the first claims. Both runners' claims survive on origin and the slices are disjoint; a last-write-wins control force-pushes the stale snapshot and DOES erase, so the green is not vacuous. It covers the CLAIM path only and does not make parallel draining safe. THIS INVALIDATES NOTHING: a new test file, no driver or arm touched."
+    },
+    {
+      "fromEpoch": 10,
+      "fromHarnessSha256": "ad45de108494c911537fecfa02001a0643e0bbd27c6b580a9fc0b3c9efb96cb0",
+      "toEpoch": 11,
+      "toHarnessSha256": "0fe9aa94dd21cd8576261533f1bca616bf4c4bc80d721c04e3d782eae1cad660",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 11 extends claim-cas.test.mjs from the claim push to the full cycle: two runners claim, publish INTERLEAVED, and complete, and origin must end up holding every record and every closed row from both. It passes on current code. Disabling the publisher's queue refresh makes it reproduce the header's failure exactly -- rows whose record published never closed -- so the test detects the real thing rather than passing vacuously. But that line has been in the publisher since its first commit on 2026-08-06, seventeen days BEFORE the 2026-08-23 two-runner measurement, so it was never the fix and the observation stays unexplained. The drain remains serial. THIS INVALIDATES NOTHING: one test file."
     }
   ]
 }

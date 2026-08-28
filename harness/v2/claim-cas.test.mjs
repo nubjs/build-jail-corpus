@@ -160,3 +160,115 @@ test('the control: a last-write-wins push WOULD erase, so the assertion above is
     'the last-write-wins control did NOT erase — the fixture is not reproducing contention');
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+// ⛔ THE FULL CYCLE, NOT JUST THE CLAIM. The test above covers only the claim push. This one runs two
+// runners all the way through claim -> record -> publish -> `--complete`, with their publishes
+// INTERLEAVED, and asserts that origin ends up holding every record and every closed row from both.
+// It is the difference between "the claim path is a compare-and-swap" and "two runners can drain the
+// corpus without losing work", and only the second answers whether the serial rule is necessary.
+//
+// What it deliberately does NOT do is measure anything: the records are synthesised. The measuring
+// arms cannot run here and are not what the one-runner rule is about — the rule is about the QUEUE.
+//
+// ⛔⛔ IT DOES NOT EXPLAIN THE 2026-08-23 OBSERVATION, AND IT IS NOT A LICENCE TO RUN TWO RUNNERS.
+// The header's measurement is real, and disabling the publisher's `git checkout origin/$BRANCH --
+// "$QUEUE"` makes THIS test reproduce it exactly — "rows whose record published never closed". That
+// looked like the answer: the bug was real and had since been fixed. It was not. That line has been
+// in the publisher since its FIRST commit (b39a8507, 2026-08-06), seventeen days before the
+// measurement, so it was never the fix and the reproduction is a different failure with the same
+// signature.
+//
+// So the honest scope is: the CURRENT code survives two runners through the queue mechanics MODELLED
+// HERE. Three things are not modelled, and any of them could carry the real cause — synthesised
+// records skip `--reconcile --require-current-instrument` mismatches, withholds and `HARNESS-*`
+// verdicts entirely; the slices are 5 rows against the measured 50; and `--complete` is called
+// DIRECTLY, so the end-of-slice commit step's hard reset, record restore and 12-attempt retry loop —
+// the very step that printed `completed 0 row(s)` — never runs. Closing that third gap is what would
+// actually settle the question.
+const instrumentNow = async (repo) => {
+  const { computeHarnessIdentity } = await import(`${repo}/harness/v2/instrument.mjs`);
+  return computeHarnessIdentity();
+};
+
+const writeRecord = (dir, pkg, ident) => {
+  const rel = `records-v2/runs/linux-x64/${pkg}/1.0.0`;
+  const abs = path.join(dir, rel);
+  fs.mkdirSync(abs, { recursive: true });
+  fs.writeFileSync(path.join(abs, 'results.json'), JSON.stringify({
+    pkg, version: '1.0.0', harnessVersion: 2, harnessEpoch: ident.harnessEpoch, verdict: 'MINIMUM',
+    grant: {}, provenance: { platform: 'linux-x64', harnessSha256: ident.harnessSha256 },
+  }));
+  return abs;
+};
+
+const publishOne = (dir, abs) => execFileSync('bash',
+  [path.join(dir, 'harness', 'v2', 'publish-record-v2.sh'), abs], {
+    cwd: dir,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      NUB_CORPUS_REPO: dir,
+      NUB_CORPUS_BRANCH: 'main',
+      NUB_CORPUS_MANIFEST: path.join(dir, '.manifest'),
+      NUB_CORPUS_WITHHELD: path.join(dir, 'withheld-records'),
+    },
+  });
+
+test('two runners interleaved through claim, publish and complete lose no record and no row', async () => {
+  const { root, origin, nubBin } = scratch(40);
+  const A = clone(origin, root, 'cycleA');
+  const B = clone(origin, root, 'cycleB');
+  const body = claimShell();
+  const ident = await instrumentNow(A);
+
+  const runClaim = (dir, runId) => sh(
+    `set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=5 RUN_ID=${runId} `
+    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, dir);
+
+  runClaim(A, 'CYCA');
+  runClaim(B, 'CYCB');
+  const aPkgs = claimed(A, 'CYCA');
+  const bPkgs = claimed(B, 'CYCB');
+  assert.equal(aPkgs.length, 5);
+  assert.equal(bPkgs.length, 5);
+  assert.equal(new Set([...aPkgs, ...bPkgs]).size, 10, 'the two runners claimed overlapping rows');
+
+  // ⛔ INTERLEAVED, ALTERNATING. Publishing A's five and then B's five would serialise the very
+  // contention this exists to reproduce, and would pass without proving anything.
+  for (let i = 0; i < 5; i++) {
+    publishOne(A, writeRecord(A, aPkgs[i], ident));
+    publishOne(B, writeRecord(B, bPkgs[i], ident));
+  }
+
+  // Each runner closes its own rows, exactly as the end-of-slice step does.
+  for (const [dir, runId] of [[A, 'CYCA'], [B, 'CYCB']]) {
+    execFileSync('node', ['harness/collect-verdicts.mjs', '--runs', 'records-v2',
+      '--out', path.join(dir, '.verdicts')], { cwd: dir, encoding: 'utf8' });
+    execFileSync('node', ['harness/claim-slice.mjs', '--queue', 'queue-v2.ndjson',
+      '--complete', path.join(dir, '.verdicts'), '--run', runId], { cwd: dir, encoding: 'utf8' });
+  }
+
+  // ⛔ ASSERT ON ORIGIN, NEVER ON EITHER WORKING TREE. Each runner's own tree necessarily holds its
+  // own work; the question is whether BOTH survived the other's pushes.
+  const verify = clone(origin, root, 'cycleVerify');
+  const records = [];
+  (function walk(d) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name === 'results.json') records.push(JSON.parse(fs.readFileSync(p, 'utf8')).pkg);
+    }
+  })(path.join(verify, 'records-v2'));
+
+  const missing = [...aPkgs, ...bPkgs].filter((p) => !records.includes(p));
+  assert.deepEqual(missing, [],
+    `records LOST on origin — published by a runner and absent upstream: ${missing.join(', ')}`);
+
+  const rows = fs.readFileSync(path.join(verify, 'queue-v2.ndjson'), 'utf8')
+    .split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(rows.length, 40, 'the queue lost or gained rows outright');
+  const stillOpen = rows.filter((r) => [...aPkgs, ...bPkgs].includes(r.pkg) && r.status !== 'done');
+  assert.deepEqual(stillOpen.map((r) => `${r.pkg}:${r.status}`), [],
+    'rows whose record published never closed — the `completed 0 row(s)` failure, reproduced');
+  fs.rmSync(root, { recursive: true, force: true });
+});
