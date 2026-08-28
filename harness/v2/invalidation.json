@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 13,
+  "currentEpoch": 14,
   "transitions": [
     {
       "fromEpoch": null,
@@ -122,6 +122,16 @@
         ]
       },
       "reason": "Epoch 13 gives the era Python to the nub arms. Until now only the OBSERVE arm and the npm reference arm held it: the VERIFY ladder and the jail-off control fell back to the runner's ambient Python, so node-gyp inside them ran a different interpreter from the arm they are compared against. MEASURED on node-sass@9.0.0 (darwin, era Node 18.20.8, epoch 5, driver.out retained beside the record): every nub arm died on ModuleNotFoundError: No module named 'distutils' -- Python 3.12 removed it and node-gyp 8.4.1 needs it -- while era-python.mjs --era 18 returns Python 3.9, which has it. npm, holding that 3.9, installed the package cleanly, so the control reported \"npm installs this package but nub cannot\" and the record was filed BROKEN-UNJAILED-NUB: a claimed NUB INSTALL DEFECT manufactured entirely by the harness. This is the epoch-4 npm-reference bug on the Python axis and it points the other way -- there a spurious failure exonerated nub, here it convicts it. On macOS sudo resets the environment, so PYTHON now rides the same env vector as PATH in asIdentity rather than relying on an exported value. SCOPE: every verdict a wrong interpreter can reach. A Python failure is GRANT-INDEPENDENT -- it fails identically at every rung -- so it cannot produce a spuriously WIDE minimum; it produces total failure, which lands in one of the six verdicts named here. A record that found a working grant had a working Python, so every MINIMUM stands. RESIDUAL RISK, stated rather than hidden: a package whose ambient Python worked may resolve node-gyp paths differently under the era Python, which could in principle shift a minimum grant. PYTHONDONTWRITEBYTECODE is already set on every arm, which removes the obvious such path. Cost measured before landing: 226 of 1906 reusable records (11.9%), leaving 1680."
+    },
+    {
+      "fromEpoch": 13,
+      "fromHarnessSha256": "87861e8503292dce301a23e07b2864930a9f90f65e145289c0308f0563b2eed4",
+      "toEpoch": 14,
+      "toHarnessSha256": "20e8fdf7b19e7bb21a568a7c20d4708fb98f631ceaa73c83c9e3193d7a831011",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 14 makes every driver print WHY the unjailed era fetch failed. All three captured npm's diagnosis already -- the shell drivers into \"$OBS/fetch.log\", the windows driver into a string -- and all three then discarded it, so the record kept only the verdict. MEASURED corpus-wide 2026-08-28: 165 of the 1409 BROKEN-WITHOUT-JAIL-TOO records exit at that fetch, and every one of the 165 has a driver.out of roughly eighteen lines carrying no reason at all (@ffmpeg-installer/linux-ia32@4.1.0 on darwin-arm64 is a worked example: it stops one line after ERA-RESOLUTION). That is exactly the bucket this corpus exists to split -- a package genuinely gone from the registry and a dated fetch asking for something that never existed produce byte-identical records, so no amount of re-measuring can separate a dead package from a harness defect. Each driver now prints a bounded 20-line tail, the idiom npm_ok already used on its own fetch. The darwin driver additionally captures the rc on its own line, because the exit now interpolates it and an unbound name under `set -u` aborts the whole run -- a runtime failure `bash -n` does not catch. The windows tail is deliberately one line and sits AFTER emitBinaryProvenance(), since venue-provenance-on-exit.test.mjs scans only five lines past the verdict for that call. Zero records are invalidated: the change adds output and changes no verdict any record could have reached."
     }
   ]
 }

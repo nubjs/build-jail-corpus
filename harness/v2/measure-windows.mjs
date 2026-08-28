@@ -809,9 +809,20 @@ const eraResolution = fetchArgs({ spec: `${PKG}@${VER}`, publishedAt: ERA_NODE.s
 console.log(`  ${eraResolution.marker}`);
 const fetch = run(NODE, [NPM, ...eraResolution.args], { cwd: OBS, env: obsEnv });
 fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stderr ?? ''));
+// ⛔ PRINT WHY WHEN THE FETCH FAILS, and keep the exit COMPACT while doing it. This arm already
+// had the rc and already wrote the log, then dropped it on the floor: MEASURED corpus-wide
+// 2026-08-28, 165 of 1409 BROKEN-WITHOUT-JAIL-TOO records exit here with a ~18-line driver.out
+// carrying no reason at all. "The package is gone from the registry" and "our dated fetch asked
+// for something that never existed" are the two halves this corpus exists to tell apart, and
+// neither is visible without npm's own words.
+//
+// ⛔ THE TAIL GOES AFTER emitBinaryProvenance() AND STAYS ON ONE LINE. `venue-provenance-on-exit
+// .test.mjs` scans only five lines past the verdict announcement for that call, so a multi-line
+// block here pushes it out of the window and the guard goes red — measured, not guessed.
 if (fetch.status !== 0) {
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=${fetch.status}; nothing to measure)`);
   emitBinaryProvenance();
+  for (const l of ((fetch.stdout ?? '') + (fetch.stderr ?? '')).trimEnd().split('\n').slice(-20)) if (l.trim()) console.log(`    | ${l}`);
   process.exit(0);
 }
 securityScreen('npm-observe-resolved', ['--tree', OBS]);

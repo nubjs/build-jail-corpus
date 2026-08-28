@@ -441,8 +441,21 @@ printf '{"name":"o","version":"1.0.0","private":true}\n' > package.json
 ERA_BEFORE="$(printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n 1p)"
 printf '%s' "$NODE_SELECTION" | node "$HERE/era-resolution.mjs" --spec "$PKG@$VER" 2>/dev/null | sed -n '2s/^/  /p'
 npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$PKG@$VER" > "$OBS/fetch.log" 2>&1
-if [ $? -ne 0 ]; then
-  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)"; exit 0
+# ⛔ CAPTURE ON ITS OWN LINE. This guard used to read $? directly, which was fine while it only
+# branched. It now also PRINTS the rc, and under this driver's `set -u` an unbound name aborts the
+# whole run rather than printing an empty string. `bash -n` does NOT catch that -- it is a runtime
+# failure, not a parse error -- so the capture is the thing that makes the diagnosis safe to add.
+FETCH_RC=$?
+if [ "$FETCH_RC" -ne 0 ]; then
+  # ⛔ PRINT WHY. MEASURED 2026-08-28: 165 of 1409 BROKEN-WITHOUT-JAIL-TOO records exit at this
+  # line, and every single one has a driver.out of ~18 lines carrying NO REASON AT ALL. npm's own
+  # diagnosis was written to "$OBS/fetch.log" and then discarded with the scratch dir -- the answer
+  # was captured and thrown away. That bucket is precisely the one this corpus exists to split: a
+  # package genuinely gone from the registry is indistinguishable, in the record, from a dated fetch
+  # asking for something impossible. Same idiom `npm_ok` already uses on its own fetch below.
+  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=$FETCH_RC; nothing to measure)"
+  sed 's/^/    | /' "$OBS/fetch.log" 2>/dev/null | tail -20
+  exit 0
 fi
 security_screen_tree "$OBS" npm-observe-resolved
 # ⛔ CHOWN AFTER THE FETCH, NOT ONLY BEFORE IT. The chown at $ROOT creation predates this fetch, and
