@@ -537,10 +537,21 @@ else
     # tree pinned to 2016, and the era Node then could not parse them. The fetch had carried the date
     # since F2; this second install never did." The observe lane was fixed. NEITHER DRIVER WAS.
     #
-    # MEASURED on the retained darwin driver logs: of 282 `BROKEN-WITHOUT-JAIL-TOO` records, **178
-    # carry `Error: Unexpected token`** — an era Node refusing to parse modern JavaScript — against
-    # 102 `Cannot find module`. The tell that sent me here was the recovery rate collapsing: 22
-    # consecutive re-measured correction rows recovered ZERO, where the running rate was 45%.
+    # ⛔ THE FIX IS RIGHT; THE NUMBER THAT ORIGINALLY JUSTIFIED IT WAS NOT, AND IT IS RETRACTED.
+    # This comment used to read "of 282 BROKEN-WITHOUT-JAIL-TOO records, 178 carry Error: Unexpected
+    # token". Those came from two different commands: 178 counted OCCURRENCES across every retained
+    # log (`grep -o`, several per file), 282 counted verdict LINES. They share no denominator.
+    #
+    # Counted per RECORD over the 286 retained darwin logs, attributing each log to its own verdict:
+    # `Unexpected token` appears in 16 of 128 BROKEN-WITHOUT-JAIL-TOO records (12.5%) and in 70 of
+    # 140 MINIMUM records (50%) — FOUR TIMES more common where the measurement SUCCEEDED. Three
+    # sampled instances are byte-identical `SyntaxError: Unexpected token '&&='` from era Node
+    # 14.21.3 inside records whose verdict is MINIMUM. It is non-fatal noise with an unidentified
+    # source, and it is not this bug's signature.
+    #
+    # The dating stands on its mechanism alone, which `observe-only.mjs:330` already measured on the
+    # observe lane. Do not restore the ratio, and do not reason from a ratio whose numerator and
+    # denominator came from different commands.
     PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
   fi

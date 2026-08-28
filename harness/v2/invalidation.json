@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 7,
+  "currentEpoch": 8,
   "transitions": [
     {
       "fromEpoch": null,
@@ -55,6 +55,16 @@
         "verdicts": []
       },
       "reason": "Epoch 7 is comment and test only. The push gate added in epoch 6 tests the WHOLE commit message, because head_commit.message is the entire message and contains() is a plain substring test with no way to scope either to the subject line. So writing about the gate in a commit message opts that push in -- MEASURED by epoch 6's own commit, whose body explained the feature, spelled the token out while doing so, and dispatched run 33139919598. Nothing was harmed: the preflight found no older runner and let it through, which is the right answer. The trap is now written down at the gate and pinned by a test, because the next person to document this gate repeats it. THIS INVALIDATES NOTHING. No driver, arm, toolchain or verdict is touched; the diff is a comment block and a test file, and the empty scope says exactly that."
+    },
+    {
+      "fromEpoch": 7,
+      "fromHarnessSha256": "52a326738c715ab0311830b660045362448f301e24c83a5ded4d1fb3ce3ec592",
+      "toEpoch": 8,
+      "toHarnessSha256": "f90fe6191b3cad5d699b00894c8c7eb3367955d23160a811b6f96146d3e4d008",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 8 is one comment in measure.sh. The scaffold-dating change of epoch 5 justified itself in that comment with \"of 282 BROKEN-WITHOUT-JAIL-TOO records, 178 carry Error: Unexpected token\", a ratio assembled from two commands: 178 counted OCCURRENCES across every retained log, 282 counted verdict LINES. Per RECORD over the 286 retained darwin logs the string appears in 16 of 128 BROKEN records (12.5%) and 70 of 140 MINIMUM records (50%) -- four times more common where the measurement SUCCEEDED, so it is non-fatal noise rather than that bug's signature. The same retraction was applied to this policy's own epoch-5 reason earlier; this closes the last tracked copy. The scaffold dating itself is unchanged and stands on its mechanism. THIS INVALIDATES NOTHING: the diff is a shell COMMENT. No command, arm, toolchain or verdict is touched, and the empty scope says exactly that."
     }
   ]
 }
