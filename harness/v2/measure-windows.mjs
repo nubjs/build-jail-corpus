@@ -403,7 +403,30 @@ const unjailedNubOk = () => {
   // an error, which reads as a confident exoneration of the jail, and v1 shipped exactly that for
   // months. `engaged` is three-state on purpose: `null` means UNKNOWABLE, never disproven.
   const out = { ok: false, engaged: null, timedOut: false };
-  const resolve = run(NUB, ['install', '--ignore-scripts'], { cwd: d, timeout: ARM_TIMEOUT_MS });
+  // ⛔ THE CONTROL MUST HOLD THE SAME TOOLCHAIN AS THE ARM IT IS COMPARED AGAINST, OR IT MANUFACTURES
+  // A NUB DEFECT. This arm decides BROKEN-UNJAILED-NUB ("npm installs it, nub cannot") versus
+  // BROKEN-WITHOUT-JAIL-TOO ("nothing installs it"), and it decides it by comparison with npm_ok.
+  // Every other arm in this driver — the OBSERVE/npm reference and every verify rung — already runs
+  // on `PATH: ARM_PATH` with the era `PYTHON`; this one alone passed no env at all, so its lifecycle
+  // scripts ran node/node-gyp from the RUNNER's Node and an ambient Python while npm ran the
+  // package's era toolchain. When that difference alone makes nub fail, the record accuses nub of an
+  // install defect the harness created.
+  //
+  // This is epochs 13 and 15 reaching win32 at last. Both fixes were scoped to the POSIX drivers and
+  // both said so: epoch 15's reason records "WIN32 IS NOT FIXED ... measure-windows.mjs runs its
+  // control in-process ... and never calls this module", because this driver has its own
+  // `unjailedNubOk` rather than `unjailed-nub.mjs`'s. Stated rather than hidden then; closed now.
+  //
+  // It matters more here than on either POSIX platform, for the reason this arm's own header gives:
+  // 45 of the 62 `write:"disk"` grants in the catalog rest on a win32 record ALONE, so the widest
+  // capability the jail hands out was justified by the platform least able to attribute a failure.
+  //
+  // PATH and PYTHON only, mirroring `unjailed-nub.mjs`'s post-epoch-15 child env exactly. The verify
+  // rungs additionally set NUB_BUILD_JAIL_CATALOG and a per-arm XDG_CACHE_HOME; neither belongs here
+  // (this arm runs with the jail OFF and has no catalog), and widening beyond the measured reference
+  // would change more than the asymmetry being closed.
+  const ARM_ENV = { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}) };
+  const resolve = run(NUB, ['install', '--ignore-scripts'], { cwd: d, env: ARM_ENV, timeout: ARM_TIMEOUT_MS });
   if (timedOut(resolve)) { out.timedOut = true; return out; }
   // No lifecycle script has spawned yet, so nothing could have printed the claim — `engaged` stays
   // `null` rather than `false`, or a fetch failure would be filed as a broken off-switch.
@@ -412,7 +435,7 @@ const unjailedNubOk = () => {
 
   const logs = {};
   for (const [key, args] of [['i', ['install']], ['a', ['approve-builds', '--all']]]) {
-    const r = run(NUB, args, { cwd: d, timeout: ARM_TIMEOUT_MS });
+    const r = run(NUB, args, { cwd: d, env: ARM_ENV, timeout: ARM_TIMEOUT_MS });
     logs[key] = `${r.stdout ?? ''}${r.stderr ?? ''}`;
     if (timedOut(r)) { out.timedOut = true; return out; }
     if (r.status !== 0) {
