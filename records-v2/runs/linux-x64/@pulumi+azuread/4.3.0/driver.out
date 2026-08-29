@@ -1,56 +1,108 @@
-### @pulumi/azuread@4.3.0   (/home/nub/v2-NZI7Qt)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=11727 trace=9571 lines
-  CLOSURE   196 packages evicted per arm
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @pulumi/azuread@4.3.0   (/home/runner/v2-nudVF0)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c6eb580ac62263662e715095d6863ec64073dff7ca374601176d9c60b53c60b4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:41.939Z","cacheHit":false,"clearancePath":"/home/runner/v2-nudVF0/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c6eb580ac622
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2021-06-29T07:36:31.648Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"21a63e012aed81129f9d14011a035306489fb0e06b9e02579bf09d01fe7b66b2","specCount":98,"lockfiles":{"digest":"57138c32325d045f37b91d9baa92db866fce77208c7b7f543b79c304b11d0a6f","files":[{"path":"package-lock.json","sha256":"c707f6779afc8f7445f38f4c76ff1ce2d507d01b8d53042e0f97294469680e3b","bytes":40973}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:45.689Z","cacheHit":false,"clearancePath":"/home/runner/v2-nudVF0/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 98 exact package-version(s), tree 21a63e012aed
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/home/runner/v2-nudVF0/observe/node_modules/.bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna ts-node=/home/runner/v2-nudVF0/observe/node_modules/.bin/ts-node yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=2974 trace=6329 lines
+  CLOSURE   95 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":90,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (90) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-NZI7Qt/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-NZI7Qt/observe/capture.json
-  RAWLOG-BYTES raw=1818452 gz=66520
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-NZI7Qt/jailhome","TMPDIR":"/tmp/nub-tmp-obsSSszvQ","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-NZI7Qt/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 14
-    writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 6
+  RAWLOG-FILE /home/runner/v2-nudVF0/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-nudVF0/observe/capture.json
+  RAWLOG-BYTES raw=1156281 gz=45942
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@pulumi/azuread","packageVersion":"4.3.0","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":null,"publishedAt":"2021-06-28T07:36:31.648Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-nudVF0/jailhome","TMPDIR":"/tmp/nub-tmp-obsUuZeBc","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-nudVF0/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 9  /  whole traced tree 11
+    sockets script 22  /  whole traced tree 22
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-NZI7Qt/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-NZI7Qt/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-NZI7Qt/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsSSszvQ
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-NZI7Qt/observe/node_modules/@pulumi/azuread
+    project       /home/runner/v2-nudVF0/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-nudVF0/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-nudVF0/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsUuZeBc
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-nudVF0/observe/node_modules/@pulumi/azuread
   == WRITES the script actually performed ==
+    userHome      8
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsUuZeBc/pulumi-plugin-tar1970452580
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 2
+    AF_INET sockets: 22   distinct peers: 3
         127.0.0.53:53
-        104.16.11.34:443
+        140.82.113.4:443
+        13.226.238.103:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {}
+    {"write":{"userHome":true},"network":true}
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
     private-home writes observed: 0
     none declared — the script wrote nothing into its private home — there is nothing to promote
+    8 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 0
-    EVENTS    5164 distinct from 9116 calls (9572 lines, 432 rejoined, 0 unparsed)
-    PROCS     20   lifecycle shells 9
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×23 setsockopt×23 exit×14 getsockopt×9 recvmsg×6 getcwd×4 exit_group×4 wait4×4
-    wrote /home/nub/v2-NZI7Qt/observe/events.ndjson.gz (36341 bytes)
-  EVENTLOG-FILE /home/nub/v2-NZI7Qt/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9572,"parsed":9116,"unparsed":0,"unfinished":432,"rejoined":432,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":9,"distinctEvents":5164,"unknownSyscall":{"getsockname":23,"getsockopt":9,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":4,"wait4":4,"exit":14},"out":"/home/nub/v2-NZI7Qt/observe/events.ndjson.gz","gzipBytes":36341}
-  EVICT     205 store entries removed, 20 spared as nub tooling
+    count: 8
+        .pulumi/logs/pulumi-20260829T233447-55031-plugin_install.log
+        .pulumi/plugins/resource-azuread-v4.3.0.lock
+        .pulumi/plugins/resource-azuread-v4.3.0.partial
+        .pulumi/plugins/resource-azuread-v4.3.0
+        .pulumi/plugins/resource-azuread-v4.3.0/CHANGELOG.md
+        .pulumi/plugins/resource-azuread-v4.3.0/LICENSE
+        .pulumi/plugins/resource-azuread-v4.3.0/README.md
+        .pulumi/plugins/resource-azuread-v4.3.0/pulumi-resource-azuread
+    EVENTS    3381 distinct from 5549 calls (6330 lines, 642 rejoined, 0 unparsed)
+    PROCS     28   lifecycle shells 17
+    ⛔ 132 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: tgkill×107 setsockopt×32 getsockname×21 getpeername×17 exit×14 getsockopt×9 recvmsg×5 exit_group×4
+    wrote /home/runner/v2-nudVF0/observe/events.ndjson.gz (22201 bytes)
+  EVENTLOG-FILE /home/runner/v2-nudVF0/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":6330,"parsed":5549,"unparsed":0,"unfinished":642,"rejoined":642,"unresolvedDirfd":132,"truncatedArg":0,"procs":28,"lifecyclePids":17,"distinctEvents":3381,"unknownSyscall":{"getsockopt":9,"getsockname":21,"getcwd":3,"recvmsg":5,"tgkill":107,"setsockopt":32,"listen":1,"accept4":1,"getpeername":17,"exit_group":4,"wait4":4,"exit":14},"out":"/home/runner/v2-nudVF0/observe/events.ndjson.gz","gzipBytes":22201}
+  EVICT     51 store entries removed, 21 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @pulumi/azuread
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"36e8427e74b7d17686e9ac28fe19a9fd4a645b61c3787eef52c723ba24826c1d","specCount":209,"lockfiles":{"digest":"86606aad6ad15b2abfb023c973bc560e4ae708ae3a6a0919b14253f72e99dc8b","files":[{"path":"nub.lock","sha256":"db96446f812e989deaf04e8a7b61cb18fe3fd82242051eedb11300bc73387f4d","bytes":61548}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:50.933Z","cacheHit":false,"clearancePath":"/home/runner/v2-nudVF0/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 209 exact package-version(s), tree 36e8427e74b7
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=90/90 missing=0 shortfall=none (tree 49571/11727) OVERRIDDEN=2 REJECTED=0 grant={}
-  => VERIFIED {}   (observed, then verified)
-  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+  VERIFY[synth] rc=0 artifacts=90/90 missing=0 shortfall=none (tree 49590/2974) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     39 store entries removed, 23 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/azuread
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"36e8427e74b7d17686e9ac28fe19a9fd4a645b61c3787eef52c723ba24826c1d","specCount":209,"lockfiles":{"digest":"86606aad6ad15b2abfb023c973bc560e4ae708ae3a6a0919b14253f72e99dc8b","files":[{"path":"nub.lock","sha256":"db96446f812e989deaf04e8a7b61cb18fe3fd82242051eedb11300bc73387f4d","bytes":61548}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:50.933Z","cacheHit":true,"clearancePath":"/home/runner/v2-nudVF0/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 209 exact package-version(s), tree 36e8427e74b7 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=90/90 missing=0 shortfall=none (tree 49590/2974) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  EVICT     39 store entries removed, 23 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/azuread
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"36e8427e74b7d17686e9ac28fe19a9fd4a645b61c3787eef52c723ba24826c1d","specCount":209,"lockfiles":{"digest":"86606aad6ad15b2abfb023c973bc560e4ae708ae3a6a0919b14253f72e99dc8b","files":[{"path":"nub.lock","sha256":"db96446f812e989deaf04e8a7b61cb18fe3fd82242051eedb11300bc73387f4d","bytes":61548}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:50.933Z","cacheHit":true,"clearancePath":"/home/runner/v2-nudVF0/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 209 exact package-version(s), tree 36e8427e74b7 (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=90/90 missing=0 shortfall=none (tree 49590/2974) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     39 store entries removed, 23 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/azuread
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"36e8427e74b7d17686e9ac28fe19a9fd4a645b61c3787eef52c723ba24826c1d","specCount":209,"lockfiles":{"digest":"86606aad6ad15b2abfb023c973bc560e4ae708ae3a6a0919b14253f72e99dc8b","files":[{"path":"nub.lock","sha256":"db96446f812e989deaf04e8a7b61cb18fe3fd82242051eedb11300bc73387f4d","bytes":61548}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T23:34:50.933Z","cacheHit":true,"clearancePath":"/home/runner/v2-nudVF0/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 209 exact package-version(s), tree 36e8427e74b7 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=90/90 missing=0 shortfall=none (tree 49590/2974) OVERRIDDEN=3 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
