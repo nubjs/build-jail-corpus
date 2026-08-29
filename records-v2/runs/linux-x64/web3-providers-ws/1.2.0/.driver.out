@@ -2,11 +2,31 @@
   ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
   ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
   ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
-### web3-providers-ws@1.2.0   (/home/runner/v2-A7vmdk)
+### web3-providers-ws@1.2.0   (/home/runner/v2-hFAKey)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"75fecb93bf41811bbb5fc5416201362cdedd4a98f00548b31411a06d5bd22455","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-25T16:51:57.940Z","cacheHit":false,"clearancePath":"/home/runner/v2-A7vmdk/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"75fecb93bf41811bbb5fc5416201362cdedd4a98f00548b31411a06d5bd22455","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-28T23:24:00.559Z","cacheHit":false,"clearancePath":"/home/runner/v2-hFAKey/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 75fecb93bf41
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   ERA-RESOLUTION DATED 2019-07-24T09:34:22.845Z (deps as of the package's own publish date + 1d)
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=1; nothing to measure)
+    | npm warn EBADENGINE   package: 'web3-eth-iban@1.2.0',
+    | npm warn EBADENGINE   required: { node: '>=8.0.0 <=11.15.0' },
+    | npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+    | npm warn EBADENGINE }
+    | npm warn EBADENGINE Unsupported engine {
+    | npm warn EBADENGINE   package: 'web3-utils@1.2.0',
+    | npm warn EBADENGINE   required: { node: '>=8.0.0 <=11.15.0' },
+    | npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+    | npm warn EBADENGINE }
+    | npm warn deprecated yaeti@0.0.6: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+    | npm error code 1
+    | npm error git dep preparation failed
+    | npm error command /opt/hostedtoolcache/node/22.23.2/x64/bin/node /opt/hostedtoolcache/node/22.23.2/x64/lib/node_modules/npm/bin/npm-cli.js install --force --cache=/home/runner/.npm --prefer-offline=false --prefer-online=false --offline=false --before=2019-07-24T09:34:22.845Z --no-progress --no-save --no-audit --include=dev --include=peer --include=optional --no-package-lock-only --no-dry-run
+    | npm error npm warn using --force Recommended protections disabled.
+    | npm error npm error code 1
+    | npm error npm error The git reference could not be found
+    | npm error npm error command git --no-replace-objects checkout 4.0
+    | npm error npm error error: pathspec '4.0' did not match any file(s) known to git
+    | npm error npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-08-28T23_24_03_384Z-debug-0.log
+    | npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-08-28T23_24_01_002Z-debug-0.log
