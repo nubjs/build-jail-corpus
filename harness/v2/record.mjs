@@ -127,7 +127,22 @@ const VERDICTS = {
 };
 
 export function parseDriverLog(log) {
-  const lines = log.split('\n');
+  // ⛔ A QUOTED LINE IS PACKAGE OUTPUT, NEVER A VERDICT. The jail-off control echoes what nub said
+  // with a `    | ` prefix so a real nub defect and a harness asymmetry stop leaving byte-identical
+  // records. But every verdict pattern below is UNANCHORED -- `/=>\s*VERIFIED\s/` and 16 siblings --
+  // even though the drivers' own comments say the parser "keys every verdict on a LEADING `=>`".
+  // Code and comment disagreed, so a `=>` ANYWHERE in a line an arbitrary package printed could be
+  // read as a verdict, and the LAST match wins.
+  //
+  // Filtering here rather than anchoring 17 regexes: it states the intent once, and one of those
+  // patterns carries alternatives that do NOT involve `=>` at all (SYNTHESIZE FAILED, DTRACE NEVER
+  // STARTED), which a blanket `^\s*` would silently re-scope.
+  //
+  // MEASURED across all 6880 driver logs before landing: 2958 echoed lines in 135 files, of which
+  // ZERO currently match any verdict pattern. So this changes no existing record and closes the hole
+  // for every future one. (Anchoring instead was measured too: also 0 divergent lines.)
+  const ECHOED_LINE = /^\s*\|\s/;
+  const lines = log.split('\n').filter((l) => !ECHOED_LINE.test(l));
   const out = {
     verdict: null,
     grant: null,

@@ -2066,14 +2066,10 @@ if (!NUB_ARM.ok) {
   // scans FORWARD from the `=>` to `emitBinaryProvenance()` inside a FIVE-LINE window; anything
   // inserted below pushes the call out of it, which a comment block parked there has already done
   // once. The tail bound matches the POSIX control's.
-  // ⛔ NEUTRALISE `=>` IN ECHOED PACKAGE OUTPUT. record.mjs keys verdicts on `=>` with UNANCHORED
-  // regexes (e.g. /=>\\s*VERIFIED\\s/), despite this driver commenting that it matches a LEADING one --
-  // so a `=>` anywhere in a line an arbitrary package printed can be read as a verdict, and the LAST
-  // match wins. The POSIX control echoes unsanitised and carries the same exposure; that is a parser
-  // defect worth fixing at the source rather than per-caller, and it is NOT fixed here because
-  // changing verdict parsing affects every platform. This keeps the new echo from widening it.
+  // The echo is FAITHFUL: `record.mjs` drops quoted lines before matching verdicts, so package
+  // output can no longer be read as one and does not need mangling to be safe.
   for (const line of Object.values(NUB_ARM.logs ?? {}).join('\n').trimEnd().split('\n').slice(-20)) {
-    if (line.trim()) console.log(`    | ${line.replace(/=>/g, '=&gt;')}`);
+    if (line.trim()) console.log(`    | ${line}`);
   }
   // ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
   // second verdict after either branch would silently overwrite it and the stage would be inert.
