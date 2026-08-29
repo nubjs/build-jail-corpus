@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 22,
+  "currentEpoch": 23,
   "transitions": [
     {
       "fromEpoch": null,
@@ -226,6 +226,16 @@
         "verdicts": []
       },
       "reason": "Epoch 22 finishes making claim-cas.test.mjs run on Windows. Epoch 21 fixed the two defects the\nfirst probe exposed and the SECOND probe (33229020092) got three tests further before failing on\nthe same root cause in sites epoch 21 did not reach: 5 failures became 3.\n\nTHE CLASS, NOT THE INSTANCE. Epoch 21 quoted the four `NUB_BIN=${nubBin}` sites. Four MORE\npath-valued interpolations were handed to bash unquoted -- NUB_CORPUS_MANIFEST, NUB_CORPUS_SETTLED,\nSLICE_FILE and VERDICTS_FILE, at two call sites each. Fixing one instance of a class and leaving\nthe rest cost a full CI round trip, which is the lesson worth keeping: enumerate the class first.\n`RUN_ID` and the other identifier-valued exports are deliberately left unquoted -- they contain no\nseparators -- and `${commitShell()}` must NOT be quoted because it is the script body itself.\n\nWHAT THE MANGLING DID, precisely. Test 222 asserts the HEAD guard FATALs when a published record\nis absent from the branch; it read `expected: 1, actual: 0`. With the manifest path mangled the\nguard opened a file that did not exist, found nothing to check, and exited CLEAN -- so the test\nthat exists to stop \"make the FATAL stop firing\" and \"delete the safety check\" being the same\ncommit was itself reporting the safety check as absent. Tests 220 and 221 are the other half:\npublish-record-v2.sh is a POSIX script, and under Git Bash a backslash path is not a path, so it\npublished NOTHING while exiting 0 and the records never reached origin.\n\n`publishOne` now converts to forward slashes (`forBash`), which Git Bash accepts natively for a\ndrive-letter path, so no cygpath is needed. On POSIX it is a no-op: those paths contain no\nbackslashes.\n\nDO NOT READ THIS AS A LIVE WINDOWS PUBLISH BUG. The workflow hands the same script a Windows\n`github.workspace`, but 2265 win32 records were published historically, so the production path\nevidently works and this is a FIXTURE defect. Measuring the real path is a separate question and\nwas not done here.\n\nMeasurement-neutral: a test-file fix cannot move a verdict. Cost 0. Windows still stays out of\nLANE_ORDER until a probe clears the suite AND exercises the epoch-19/20 control on a real runner."
+    },
+    {
+      "fromEpoch": 22,
+      "fromHarnessSha256": "69e7b49b0c6a4d8b4b6a47c278a9bf93a3de2bad601d19621e6136037f307f6f",
+      "toEpoch": 23,
+      "toHarnessSha256": "37f9967d1cc1bddd0058b5d3366b220941bf83a69ba55094c074b0ad81039cc1",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 23 stops a no-claim debug probe from killing the drain.\n\nMEASURED, AND IT COST THE CORPUS ITS SELF-SUSTAINING DRAIN. The single-flight preflight refuses\nto start while an OLDER run of this workflow is live, because two real drains erase each other's\nqueue claims. A `packages:` debug probe is NOT a drain -- it skips the claim step entirely\n(`if: inputs.packages == ''`) and commits no records, so it holds nothing another run could\nerase. But the preflight could not tell them apart. On 2026-08-29 probe 33230149481 was still\nin_progress when the linux chain's successor 33230375263 started; the successor refused, exited\n1, and therefore NEVER REACHED its own dispatch step. The chain stopped there. Six consecutive\nself-chained hops ended because of a probe that held nothing.\n\nIt failed SILENTLY in the way that matters: a refused run reads as a deliberate yield, so nothing\nanywhere reported that the drain had ended.\n\nTHE DISCRIMINATOR. A workflow_dispatch run's INPUTS are absent from the runs-list payload, so\nneither query could inspect `packages` directly. `run-name:` sets `display_title`, which IS in\nthat payload, so every run now titles itself `corpus-v2 <os> drain` or `... [debug probe]` and\nboth preflight queries skip the marked ones. Yielding to a real drain is unchanged.\n\nGuarded by harness/v2/single-flight-ignores-probes.test.mjs, which pins BOTH halves -- the title\nmust MARK a probe and the queries must SKIP what it marks -- plus a known-answer control that the\ntwo status queries still exist at all, without which the exclusion assertions pass vacuously and\nsingle-flight would be silently gone. Both drives run RED, each failing only its own half.\n\nMeasurement-neutral: nothing about how a package is measured changed. Cost 0."
     }
   ]
 }

@@ -48,6 +48,14 @@
 # would arrive hours later as a drained queue.
 
 name: corpus-v2-runner
+# ⛔ THE TITLE IS THE ONLY THING THE SINGLE-FLIGHT PREFLIGHT CAN SEE. A workflow_dispatch run's
+# INPUTS are not carried in the runs-list payload, so a drain cannot otherwise tell a real drain from
+# a `packages:` debug probe -- and it must, because it yields to any older run and a probe holds no
+# claims to protect. MEASURED 2026-08-29: debug probe 33230149481 was live when the linux chain's
+# successor 33230375263 started; the successor refused at the preflight, exited 1, and NEVER REACHED
+# its dispatch step, so the self-sustaining drain simply stopped. One probe killed the chain.
+run-name: >-
+  corpus-v2 ${{ inputs.os || 'linux' }}${{ inputs.packages != '' && ' [debug probe]' || ' drain' }}
 
 on:
   workflow_dispatch:
@@ -554,11 +562,16 @@ jobs:
           # bare `[ -n "$X" ] && VAR=...` whose test is FALSE is a failing command, so the empty case
           # — the normal one — would exit the step non-zero and refuse every clean drain.
           OTHERS=$(
+            # ⛔ A DEBUG PROBE IS NOT A DRAIN AND MUST NOT BE YIELDED TO. It skips the claim step
+            # entirely (`if: inputs.packages == ''`) and commits no records, so it holds nothing this
+            # run could erase. Yielding to one costs the whole chain, which is exactly what happened.
             gh api "$API?status=in_progress&per_page=100" --jq \
               ".workflow_runs[] | select(.id < ($SELF|tonumber))
+               | select((.display_title // \"\") | contains(\"[debug probe]\") | not)
                | (.id|tostring) + \" in_progress \" + .created_at" 2>/dev/null || true
             gh api "$API?status=queued&per_page=100" --jq \
               ".workflow_runs[] | select(.id < ($SELF|tonumber))
+               | select((.display_title // \"\") | contains(\"[debug probe]\") | not)
                | select((now - (.created_at|fromdate)) < 7200)
                | (.id|tostring) + \" queued \" + .created_at" 2>/dev/null || true
           )
