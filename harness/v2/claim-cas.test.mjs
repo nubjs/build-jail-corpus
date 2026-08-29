@@ -22,6 +22,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -131,7 +132,7 @@ test('an interleaved second claim cannot erase the first — the push is rejecte
   // step were last-write-wins, B's push would silently drop A's 10 rows.
   const run = (dir, runId) => sh(
     `set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=10 RUN_ID=${runId} `
-    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, dir);
+    + `NUB_BIN='${nubBin}' NUB_GIT_SHA=deadbeef\n${body}`, dir);
 
   run(A, 'RUNA');
   const aAfterA = claimed(A, 'RUNA');
@@ -163,7 +164,7 @@ test('the control: a last-write-wins push WOULD erase, so the assertion above is
   const B = clone(origin, root, 'runnerB');
   const body = claimShell();
   sh(`set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=10 RUN_ID=RUNA `
-    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, A);
+    + `NUB_BIN='${nubBin}' NUB_GIT_SHA=deadbeef\n${body}`, A);
   assert.equal(claimed(clone(origin, root, 'mid'), 'RUNA').length, 10);
 
   // B never fetches; it stamps its stale snapshot and forces it over A's.
@@ -206,7 +207,10 @@ test('the control: a last-write-wins push WOULD erase, so the assertion above is
 // the very step that printed `completed 0 row(s)` — never runs. Closing that third gap is what would
 // actually settle the question.
 const instrumentNow = async (repo) => {
-  const { computeHarnessIdentity } = await import(`${repo}/harness/v2/instrument.mjs`);
+  // ⛔ `pathToFileURL`, NEVER A RAW ABSOLUTE PATH. On Windows an absolute path is not a valid ESM
+  // specifier -- node rejects it with "Received protocol 'c:'" -- so this line alone failed two of
+  // these tests on every Windows runner. `osv-screen.mjs` and `states.mjs` already use this idiom.
+  const { computeHarnessIdentity } = await import(pathToFileURL(`${repo}/harness/v2/instrument.mjs`).href);
   return computeHarnessIdentity();
 };
 
@@ -243,7 +247,7 @@ test('two runners interleaved through claim, publish and complete lose no record
 
   const runClaim = (dir, runId) => sh(
     `set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=5 RUN_ID=${runId} `
-    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, dir);
+    + `NUB_BIN='${nubBin}' NUB_GIT_SHA=deadbeef\n${body}`, dir);
 
   runClaim(A, 'CYCA');
   runClaim(B, 'CYCB');
@@ -333,7 +337,7 @@ test('the real commit step: a reconcile-closed row makes --complete report 0, an
 
   const runClaim = (dir, runId) => sh(
     `set -e\nexport GITHUB_REF_NAME=main OS_NAME=linux SLICE_IN=5 RUN_ID=${runId} `
-    + `NUB_BIN=${nubBin} NUB_GIT_SHA=deadbeef\n${body}`, dir);
+    + `NUB_BIN='${nubBin}' NUB_GIT_SHA=deadbeef\n${body}`, dir);
   runClaim(A, 'CEA');
   runClaim(B, 'CEB');
   const aPkgs = claimed(A, 'CEA');
