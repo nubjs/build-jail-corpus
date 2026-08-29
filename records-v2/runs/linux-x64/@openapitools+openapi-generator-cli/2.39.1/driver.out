@@ -1,7 +1,21 @@
-### @openapitools/openapi-generator-cli@2.39.1   (/home/nub/v2-z9iUf5)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=5310 trace=9448 lines
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @openapitools/openapi-generator-cli@2.39.1   (/home/runner/v2-IAyM0L)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c5c8b555ae6c011d1eb44fe0891c4017e8aa2e8e5c6cab5f07154956c581e33d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T10:14:37.824Z","cacheHit":false,"clearancePath":"/home/runner/v2-IAyM0L/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c5c8b555ae6c
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2026-07-01T02:55:19.811Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"739b0a7e16a6b0161b67f6c82acc52e1150d88ac1766973492b0738ff6cbf072","specCount":142,"lockfiles":{"digest":"78f1bb08229cefd98e49d129432010313f5e84b572c724d272eb77805330c92b","files":[{"path":"package-lock.json","sha256":"391acd201e816569977dd3b8bfdb1f8fc84ffb62b9cf8fad1b3e8c02321f0c31","bytes":66736}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T10:14:42.311Z","cacheHit":false,"clearancePath":"/home/runner/v2-IAyM0L/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 142 exact package-version(s), tree 739b0a7e16a6
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna opencollective=/home/runner/v2-IAyM0L/observe/node_modules/.bin/opencollective yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=5308 trace=8021 lines
   CLOSURE   131 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
@@ -9,32 +23,33 @@
        rc-vacuous: `postinstall` ends in a status-swallowing construct (`opencollective || exit 0`), so its exit code is 0 whether the work succeeded or failed
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-z9iUf5/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-z9iUf5/observe/capture.json
-  RAWLOG-BYTES raw=1818429 gz=67830
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-z9iUf5/jailhome","TMPDIR":"/tmp/nub-tmp-obsZ1eCHb","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-z9iUf5/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 19
-    writes  script 1  /  whole traced tree 1179
+  RAWLOG-FILE /home/runner/v2-IAyM0L/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-IAyM0L/observe/capture.json
+  RAWLOG-BYTES raw=1771330 gz=64883
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@openapitools/openapi-generator-cli","packageVersion":"2.39.1","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":">=22.0.0","publishedAt":"2026-06-30T02:55:19.811Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-IAyM0L/jailhome","TMPDIR":"/tmp/nub-tmp-obs9qwVpd","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-IAyM0L/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 20
+    writes  script 1  /  whole traced tree 1065
     sockets script 3  /  whole traced tree 7
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-z9iUf5/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-z9iUf5/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-z9iUf5/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsZ1eCHb
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-z9iUf5/observe/node_modules/@openapitools/openapi-generator-cli
+    project       /home/runner/v2-IAyM0L/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-IAyM0L/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-IAyM0L/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs9qwVpd
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-IAyM0L/observe/node_modules/@openapitools/openapi-generator-cli
   == WRITES the script actually performed ==
     kernelfs      1
         /dev/null
   == NETWORK ==
     AF_INET sockets: 3   distinct peers: 3
         127.0.0.53:53
-        104.16.11.34:443
+        104.16.1.34:443
         104.26.13.145:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
@@ -46,20 +61,24 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    5180 distinct from 9256 calls (9449 lines, 163 rejoined, 0 unparsed)
-    PROCS     25   lifecycle shells 14
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×42 getsockname×32 exit×18 getsockopt×16 recvmsg×8 wait4×6 socketpair×5 exit_group×5
-    wrote /home/nub/v2-z9iUf5/observe/events.ndjson.gz (36362 bytes)
-  EVENTLOG-FILE /home/nub/v2-z9iUf5/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9449,"parsed":9256,"unparsed":0,"unfinished":163,"rejoined":163,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":14,"distinctEvents":5180,"unknownSyscall":{"getsockname":32,"getsockopt":16,"getcwd":4,"recvmsg":8,"setsockopt":42,"sendmmsg":2,"socketpair":5,"shutdown":4,"exit_group":5,"wait4":6,"exit":18},"out":"/home/nub/v2-z9iUf5/observe/events.ndjson.gz","gzipBytes":36362}
-  EVICT     201 store entries removed, 2 spared as nub tooling
+    EVENTS    4688 distinct from 7783 calls (8022 lines, 207 rejoined, 0 unparsed)
+    PROCS     27   lifecycle shells 15
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×41 getsockname×32 exit×20 getsockopt×16 recvmsg×9 wait4×6 socketpair×5 exit_group×5
+    wrote /home/runner/v2-IAyM0L/observe/events.ndjson.gz (33476 bytes)
+  EVENTLOG-FILE /home/runner/v2-IAyM0L/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8022,"parsed":7783,"unparsed":0,"unfinished":207,"rejoined":207,"unresolvedDirfd":4,"truncatedArg":0,"procs":27,"lifecyclePids":15,"distinctEvents":4688,"unknownSyscall":{"getsockname":32,"getsockopt":16,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":41,"sendmmsg":2,"socketpair":5,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-IAyM0L/observe/events.ndjson.gz","gzipBytes":33476}
+  EVICT     58 store entries removed, 59 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @openapitools/openapi-generator-cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d575810a27216ada14a5ac4f6658587c7eab4e8550b0baaefbbb64b226b9645d","specCount":142,"lockfiles":{"digest":"ef820c55659669e5683407140c2445feee17b97b8f5d058d28ebcf9e39af49d8","files":[{"path":"nub.lock","sha256":"d935b76c9875bc055727b1cc5e7a6056447096d8d6bd481ce6ed20a2c9d6ce4b","bytes":37747}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T10:14:45.966Z","cacheHit":false,"clearancePath":"/home/runner/v2-IAyM0L/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 142 exact package-version(s), tree d575810a2721
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26418/5310) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26435/5308) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
-  EVICT     140 store entries removed, 2 spared as nub tooling
+  EVICT     115 store entries removed, 59 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @openapitools/openapi-generator-cli
-  VERIFY[drop-no-network] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26418/5310) OVERRIDDEN=2 REJECTED=0 grant={}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"d575810a27216ada14a5ac4f6658587c7eab4e8550b0baaefbbb64b226b9645d","specCount":142,"lockfiles":{"digest":"ef820c55659669e5683407140c2445feee17b97b8f5d058d28ebcf9e39af49d8","files":[{"path":"nub.lock","sha256":"d935b76c9875bc055727b1cc5e7a6056447096d8d6bd481ce6ed20a2c9d6ce4b","bytes":37747}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T10:14:45.966Z","cacheHit":true,"clearancePath":"/home/runner/v2-IAyM0L/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 142 exact package-version(s), tree d575810a2721 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26435/5308) OVERRIDDEN=3 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
   => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
