@@ -1,0 +1,99 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 22.23.2 (provisioned) (arms will run: v22.23.2)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 22, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### egg-bin@7.0.0-beta.0   (/home/runner/v2-LP4OJR)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7c827aebf63eb33870599ff85ce0a915c9ad5e348f3043e360470fca08ec9f44","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T01:16:21.996Z","cacheHit":false,"clearancePath":"/home/runner/v2-LP4OJR/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 7c827aebf63e
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2024-12-18T10:28:06.756Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b7f2e94170a170cc0dd1c50b2f235adc9a9b28b5139eac230467874a4cea9964","specCount":272,"lockfiles":{"digest":"fe4b39724977fd0f54216ca94220f35dd85532aa3b5d590b3e0f542ddcd6453b","files":[{"path":"package-lock.json","sha256":"811328ad2074046f9e3995295ba149a5bcec3406cdabbe9806c9e82d58305bb4","bytes":143089}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T01:16:29.589Z","cacheHit":false,"clearancePath":"/home/runner/v2-LP4OJR/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 272 exact package-version(s), tree b7f2e94170a1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/home/runner/v2-LP4OJR/observe/node_modules/.bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna ts-node=/home/runner/v2-LP4OJR/observe/node_modules/.bin/ts-node yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=7521 trace=12105 lines
+  CLOSURE   246 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":32,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (32) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-LP4OJR/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-LP4OJR/observe/capture.json
+  RAWLOG-BYTES raw=2789246 gz=77543
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"egg-bin","packageVersion":"7.0.0-beta.0","major":22,"version":"22.23.2","npm":"10.9.8","pinnable":true,"engines":">= 16.19.0","publishedAt":"2024-12-17T10:28:06.756Z","eraMajor":22,"startMajor":22,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/22.23.2/node-v22.23.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-LP4OJR/jailhome","TMPDIR":"/tmp/nub-tmp-obspew8Us","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-LP4OJR/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-LP4OJR/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-LP4OJR/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-LP4OJR/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obspew8Us
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-LP4OJR/observe/node_modules/egg-bin
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.8.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5121 distinct from 11466 calls (12106 lines, 617 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×15 getsockopt×9 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-LP4OJR/observe/events.ndjson.gz (36143 bytes)
+  EVENTLOG-FILE /home/runner/v2-LP4OJR/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12106,"parsed":11466,"unparsed":0,"unfinished":617,"rejoined":617,"unresolvedDirfd":1,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":5121,"unknownSyscall":{"getsockname":22,"getsockopt":9,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-LP4OJR/observe/events.ndjson.gz","gzipBytes":36143}
+  EVICT     23 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for egg-bin
+  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  ── nub's own words (tail of security-resolve.log) ──
+     
+       × failed to resolve dependencies
+       ╰─▶ trust downgrade for fastq@1.20.2 (trustPolicy=no-downgrade): earlier
+           published version 1.20.0 had trusted publisher but this version has no
+           trust evidence
+       help: this is a supply-chain trust failure, not an ordinary version-
+             resolution error. An earlier release carried trusted publisher, but
+             fastq@1.20.2 carries no trust evidence.
+             
+             This can signal a compromised publisher or tampered release. It can
+             also be benign release-process drift: a maintainer manually published,
+             backported outside the trusted workflow, skipped provenance for
+             convenience, or used a registry that stripped metadata.
+             
+             Before bypassing:
+             1. Inspect the package's npm release, source tag/commit, publisher
+             identity, and tarball; compare the metadata with npmjs.org, and
+             confirm the change is expected and nothing appears tampered with.
+             2. Report inconsistent evidence to the relevant upstream owner.
+             Package-release drift belongs with the maintainer; metadata present
+             on npmjs.org but missing from a proxy or mirror belongs with that
+             registry operator.
+             3. Only after review, pin a version that retains evidence or add
+             the narrow `fastq@1.20.2` exception to `trustPolicyExclude`. A bare
+             `fastq` exempts every version; `trustPolicy = off` disables this
+             protection for the entire install.
+             
+             Details and known built-in 
+             policy-exceptions
+     
