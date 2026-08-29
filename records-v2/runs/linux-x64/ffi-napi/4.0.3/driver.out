@@ -1,5 +1,134 @@
-### ffi-napi@4.0.3   (/home/nub/v2-X2NSUg)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=790 trace=61520 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### ffi-napi@4.0.3   (/home/runner/v2-gD9u6A)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e4628d4154d74c17f0870659e48e90043397bc849fd270f49aaa292326ce25ed","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:37.560Z","cacheHit":false,"clearancePath":"/home/runner/v2-gD9u6A/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e4628d4154d7
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2021-03-19T13:28:58.751Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"83109b83aef559d7c9cb2cd12fabf8711e089c969a969e96e11f1dae71354cb7","specCount":11,"lockfiles":{"digest":"eef44cae2f82e4b4931b455480b2e6271a0d3ea97f7928ed3cff3e9a55add916","files":[{"path":"package-lock.json","sha256":"7d2b769f5ecb1e9392ddc4ddd7116023f54d05a6412c2e55bc1a69fc3d416c60","bytes":4724}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:39.350Z","cacheHit":false,"clearancePath":"/home/runner/v2-gD9u6A/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 11 exact package-version(s), tree 83109b83aef5
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=943 trace=75540 lines
+  CLOSURE   9 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":669,"filesTheScriptProduced":48,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-gD9u6A/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-gD9u6A/observe/capture.json
+  RAWLOG-BYTES raw=9402834 gz=297584
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"ffi-napi","packageVersion":"4.0.3","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":">=10","publishedAt":"2021-03-18T13:28:58.751Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-gD9u6A/jailhome","TMPDIR":"/tmp/nub-tmp-obsVyList","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-gD9u6A/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 386
+    writes  script 1055  /  whole traced tree 1057
+    sockets script 8  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-gD9u6A/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-gD9u6A/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-gD9u6A/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsVyList
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi
+  == WRITES the script actually performed ==
+    jailHome    951  (base profile already grants this — NOT billed)
+        /home/runner/v2-gD9u6A/jailhome/.cache
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node/common.gypi
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node/config.gypi
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node/node.h
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node/node_api.h
+        /home/runner/v2-gD9u6A/jailhome/.cache/node-gyp/14.21.3/include/node/js_native_api.h
+        … and 941 more
+    ownPkg       88  (base profile already grants this — NOT billed)
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/config.gypi
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/Makefile
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/node-addon-api
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/node-addon-api/nothing.target.mk
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/deps
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/deps/libffi
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/deps/libffi/ffi.target.mk
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/deps/libffi/test.target.mk
+        /home/runner/v2-gD9u6A/observe/node_modules/ffi-napi/build/ffi_bindings.target.mk
+        … and 78 more
+    jailTmp      16  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsVyList/ccMendmp.s
+        /tmp/nub-tmp-obsVyList/ccR0Wrqk.s
+        /tmp/nub-tmp-obsVyList/ccq0IaaV.s
+        /tmp/nub-tmp-obsVyList/ccq0ugoI.s
+        /tmp/nub-tmp-obsVyList/ccxLAnv7.s
+        /tmp/nub-tmp-obsVyList/ccuAofLs.s
+        /tmp/nub-tmp-obsVyList/ccKmmFYU.s
+        /tmp/nub-tmp-obsVyList/ccUUEUmV.s
+        /tmp/nub-tmp-obsVyList/ccT8XonU.s
+        /tmp/nub-tmp-obsVyList/ccnPcWSj.s
+        … and 6 more
+  == NETWORK ==
+    AF_INET sockets: 8   distinct peers: 2
+        127.0.0.53:53
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 951
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    34566 distinct from 73188 calls (75541 lines, 1837 rejoined, 0 unparsed)
+    PROCS     391   lifecycle shells 380
+    ⛔ 11 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×396 exit_group×334 getcwd×319 exit×43 getsockname×13 recvmsg×9 socketpair×9 getsockopt×8
+    wrote /home/runner/v2-gD9u6A/observe/events.ndjson.gz (172208 bytes)
+  EVENTLOG-FILE /home/runner/v2-gD9u6A/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":75541,"parsed":73188,"unparsed":0,"unfinished":1837,"rejoined":1837,"unresolvedDirfd":11,"truncatedArg":0,"procs":391,"lifecyclePids":380,"distinctEvents":34566,"unknownSyscall":{"getsockopt":8,"getsockname":13,"getcwd":319,"recvmsg":9,"socketpair":9,"tgkill":1,"wait4":396,"exit_group":334,"setsockopt":2,"sendmmsg":2,"exit":43},"out":"/home/runner/v2-gD9u6A/observe/events.ndjson.gz","gzipBytes":172208}
+  EVICT     2 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ffi-napi
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c1ccc5add3faa029ec885c99e865983062c6a09f67a621ce19af08563914495d","specCount":10,"lockfiles":{"digest":"de79c850d1cecf3d25fe2e5f32b3a85f0e1b71c6f38d77b2ba303f7358b537f8","files":[{"path":"nub.lock","sha256":"be9b96bc269739a226d82b0ed9feaf060532b86fc58da8c4e8502fdbc258babd","bytes":2948}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:57.117Z","cacheHit":false,"clearancePath":"/home/runner/v2-gD9u6A/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 10 exact package-version(s), tree c1ccc5add3fa
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=664/669 missing=7 shortfall=efbc26e0cff2 (tree 2440/943) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: build/Release/.deps/Release/node-addon-api/nothing.a.d, build/Release/.deps/Release/obj.target/deps/libffi/libffi.a.d, build/Release/.deps/Release/obj.target/node-addon-api/nothing.o.d, build/Release/node-addon-api/nothing.a, build/Release/obj.target/node-addon-api/nothing.o, node-addon-api/node_api.Makefile (+1)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     10 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ffi-napi
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"c1ccc5add3faa029ec885c99e865983062c6a09f67a621ce19af08563914495d","specCount":10,"lockfiles":{"digest":"de79c850d1cecf3d25fe2e5f32b3a85f0e1b71c6f38d77b2ba303f7358b537f8","files":[{"path":"nub.lock","sha256":"be9b96bc269739a226d82b0ed9feaf060532b86fc58da8c4e8502fdbc258babd","bytes":2948}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:57.117Z","cacheHit":true,"clearancePath":"/home/runner/v2-gD9u6A/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 10 exact package-version(s), tree c1ccc5add3fa (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=664/669 missing=7 shortfall=efbc26e0cff2 (tree 2440/943) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Release/.deps/Release/node-addon-api/nothing.a.d, build/Release/.deps/Release/obj.target/deps/libffi/libffi.a.d, build/Release/.deps/Release/obj.target/node-addon-api/nothing.o.d, build/Release/node-addon-api/nothing.a, build/Release/obj.target/node-addon-api/nothing.o, node-addon-api/node_api.Makefile (+1)
+  EVICT     10 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ffi-napi
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"c1ccc5add3faa029ec885c99e865983062c6a09f67a621ce19af08563914495d","specCount":10,"lockfiles":{"digest":"de79c850d1cecf3d25fe2e5f32b3a85f0e1b71c6f38d77b2ba303f7358b537f8","files":[{"path":"nub.lock","sha256":"be9b96bc269739a226d82b0ed9feaf060532b86fc58da8c4e8502fdbc258babd","bytes":2948}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:57.117Z","cacheHit":true,"clearancePath":"/home/runner/v2-gD9u6A/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 10 exact package-version(s), tree c1ccc5add3fa (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=0 artifacts=664/669 missing=7 shortfall=efbc26e0cff2 (tree 2440/943) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Release/.deps/Release/node-addon-api/nothing.a.d, build/Release/.deps/Release/obj.target/deps/libffi/libffi.a.d, build/Release/.deps/Release/obj.target/node-addon-api/nothing.o.d, build/Release/node-addon-api/nothing.a, build/Release/obj.target/node-addon-api/nothing.o, node-addon-api/node_api.Makefile (+1)
+  EVICT     10 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for ffi-napi
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"c1ccc5add3faa029ec885c99e865983062c6a09f67a621ce19af08563914495d","specCount":10,"lockfiles":{"digest":"de79c850d1cecf3d25fe2e5f32b3a85f0e1b71c6f38d77b2ba303f7358b537f8","files":[{"path":"nub.lock","sha256":"be9b96bc269739a226d82b0ed9feaf060532b86fc58da8c4e8502fdbc258babd","bytes":2948}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T07:16:57.117Z","cacheHit":true,"clearancePath":"/home/runner/v2-gD9u6A/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 10 exact package-version(s), tree c1ccc5add3fa (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=664/669 missing=7 shortfall=efbc26e0cff2 (tree 2440/943) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Release/.deps/Release/node-addon-api/nothing.a.d, build/Release/.deps/Release/obj.target/deps/libffi/libffi.a.d, build/Release/.deps/Release/obj.target/node-addon-api/nothing.o.d, build/Release/node-addon-api/nothing.a, build/Release/obj.target/node-addon-api/nothing.o, node-addon-api/node_api.Makefile (+1)
+  => ARTIFACT-GATE-SUSPECT {"network":true}   (every arm rc=0 and the SAME 7-artifact shortfall at every
+     grant up to write:"disk" — invariant under widening, so it is not a capability gap)
+     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
