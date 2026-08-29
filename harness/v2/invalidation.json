@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 26,
+  "currentEpoch": 27,
   "transitions": [
     {
       "fromEpoch": null,
@@ -273,6 +273,16 @@
         ]
       },
       "reason": "Epoch 26 gives the win32 driver the era interpreters the workflow already provisions for it. MEASURED on probe 33229392476 (@aws-amplify/cli@2.0.0, driver.out line 5): `ERA-PYTHON NOT-SATISFIED (era Node 10 needs python3-legacy; none of 2 candidate(s) matched)` -- while setup-python had installed a 3.9 and exported ERA_PYTHON_LEGACY, and the 2.7 MSI had exported ERA_PYTHON2. TWO independent halves, either sufficient on its own to lose the interpreter: measure-windows.mjs composed its candidate list from `discoverPythons(probe)` ALONE, because the injected channel lived in era-python.mjs's CLI block which only the POSIX measure.sh/measure-macos.sh path ever runs; and its probe resolved every name through `where`, which searches the PATH -- exactly where both interpreters are deliberately NOT placed (TARGETDIR for the MSI, `update-environment: false` for setup-python). observe-only.mjs had already been fixed for this and carried a third copy of the discovery logic, so the fix is a SHARED export (candidatePythons + resolveInterpreter) rather than a third reimplementation that the next driver could drop again. This is epoch 13's manufactured-defect shape on the platform epoch 13 never reached: an era arm ran with PYTHON unset while the npm reference it is compared against held the era toolchain, so a node-gyp failure caused by our own provisioning was filed against the package. BLAST RADIUS, measured over the 2811 driver logs carrying an ERA-NODE PINNED line: 1321 (47%) select an era <= 14, the band needing a non-default interpreter, against a 2265-row win32 lane. SCOPE mirrors epoch 19, on epoch 13's reasoning: a Python failure is GRANT-INDEPENDENT -- it fails identically at every rung -- so it cannot produce a spuriously WIDE minimum, only total failure, which lands in one of the three verdicts named here. All 5 currently-valid win32 records are MINIMUM, so each found a working grant and therefore had a working Python; every one stands. COST measured before landing: 0 records."
+    },
+    {
+      "fromEpoch": 26,
+      "fromHarnessSha256": "af217384bc8f7818dce6704bf1ed6636dd6eccac061249162a56f1cf7b4ea931",
+      "toEpoch": 27,
+      "toHarnessSha256": "17acb11908e92dc52af7c0b86275b0c01688f4f678e45c11615a62dbc2080fcd",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 27 makes the drain chain survive a transient failure, which is what the deliverable (A COMPLETE CORPUS) actually requires. `Dispatch the next slice` carries no `always()`, so ONE failed step ends a drain permanently. MEASURED 2026-08-29 on run 33256179837: the falsification pre-flight returned INCONCLUSIVE because `hugo-extended@0.141.0`'s CONTROL arm came back BROKEN-WITHOUT-JAIL-TOO -- the venue failed, so the question was never put. Refusing the batch was CORRECT and wrote no records, but the lane then sat idle with 60 rows stranded `claimed` until a human noticed; Collect verdicts, Commit records and Dispatch the next slice were all skipped. The same two falsification cases had passed 2/2 on each of the four runs immediately before, so this was a download blip and not a broken case. RATE: 1 of the 18 drain runs that actually executed failed (5.6%); the windows lane is ~453 slices, so that is a stall roughly every 18 slices across 30-87 unattended days -- the corpus cannot reach COMPLETE without a babysitter, and running windows to completion was already the recorded decision. The revive is BOUNDED on purpose: a bare `always()` would re-dispatch a permanently-broken lane every ~100 s forever, so it fires only when the PREVIOUS terminal run on this branch SUCCEEDED, and that lookup excludes the CURRENT run by databaseId -- excluding by status alone would let a run already recorded as completed/failure be read as its own predecessor, making PREV always 'failure' so the revive never fired at all. VERIFIED by executing the extracted step against a stub gh in four cases: prev=success dispatches once with --ref $GITHUB_REF_NAME; prev=failure dispatches nothing; this-run-already-failed still dispatches once; empty history dispatches once. `chain-revives-after-failure.test.mjs` guards all of it and each assertion was driven RED (step removed -> 5 fail; failure()->always(), guard deleted, and id-exclusion removed -> exactly 1 fail each). Also corrects a stale `~130 hours` windows-cost comment to the measured 716-2078 h (~30-87 days), since that figure assumed no timeouts. COST: zero records -- a revive step cannot reach a measurement, so the transition invalidates nothing."
     }
   ]
 }

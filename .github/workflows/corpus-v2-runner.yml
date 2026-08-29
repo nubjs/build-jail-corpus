@@ -187,8 +187,11 @@ jobs:
     env:
       OS_NAME: ${{ inputs.os || 'linux' }}
       # Lanes a drained chain may hand off to, in order. Windows is LAST because its slice is clamped
-      # to 5 rows (see the clamp in "Claim a slice"), so at ~5 records per ~16-minute job its 2265 rows
-      # are on the order of 130 hours — real work, but it must not displace the faster lanes.
+      # to 5 rows (see the clamp in "Claim a slice"), and MEASURED on probe 33241988164 its cost is
+      # dominated by TIMEOUTS rather than by measurement: 6 of 18 packages hit the 1800 s arm cap and
+      # burned 186 of 207 minutes, while the other 12 took 21 minutes COMBINED. At that rate its 2265
+      # rows are 716-2078 hours (~30-87 days) across the binomial interval on a 6-of-18 sample. An
+      # earlier "~130 hours" here assumed no timeouts at all and is withdrawn.
       #
       # It was excluded until epoch 23 while its control was brought level (epochs 19-20) and while
       # the harness suite was made to RUN there at all (epochs 21-22). Admitted on measurement, not
@@ -1000,4 +1003,45 @@ jobs:
           gh workflow run corpus-v2-runner.yml \
             --ref "$GITHUB_REF_NAME" \
             -f os="${NEXT_OS:-$OS_NAME}" -f slice="${{ inputs.slice }}" \
+            -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}
+
+      # ⛔ THE CHAIN DIES ON ANY FAILED STEP, AND NOTHING RESTARTS IT. "Dispatch the next slice" above
+      # carries no `always()`, so ONE transient failure ends the drain permanently. MEASURED 2026-08-29
+      # on run 33256179837: the falsification pre-flight returned INCONCLUSIVE because
+      # `hugo-extended@0.141.0`'s CONTROL arm came back BROKEN-WITHOUT-JAIL-TOO -- the venue failed, so
+      # the question was never put. The harness was RIGHT to refuse the batch (an unanswered control is
+      # not a green one) and wrote no records; but the lane then sat idle with 60 rows stranded
+      # `claimed` until a human happened to look. The same two cases passed 2/2 on each of the four runs
+      # immediately before, so it was a download blip and not a broken case.
+      #
+      # WHY THIS EARNS A STEP: 1 of the 18 drain runs that actually executed failed (5.6%). The windows
+      # lane is ~453 slices, so that is a stall roughly every 18 slices across 30-87 unattended days --
+      # i.e. the corpus cannot reach COMPLETE without a babysitter.
+      #
+      # ⛔ AND IT IS BOUNDED, BECAUSE A BARE `always()` IS A RUNAWAY. A permanently-broken lane would
+      # re-dispatch itself every ~100 s forever on free runners. This fires only when the PREVIOUS
+      # terminal run on this branch SUCCEEDED, so a blip self-heals while a genuine breakage stalls
+      # loudly after exactly one retry -- which is what a stalled lane is supposed to do. It never runs
+      # for a debug probe, because those pass `packages:`.
+      - name: Revive the chain after a transient failure
+        if: failure() && inputs.packages == '' && inputs.chain
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          THIS_RUN: "${{ github.run_id }}"
+        shell: bash
+        run: |
+          set -uo pipefail
+          PREV=$(gh run list -R "$GITHUB_REPOSITORY" --workflow=corpus-v2-runner.yml \
+                   --branch "$GITHUB_REF_NAME" --limit 15 \
+                   --json databaseId,status,conclusion \
+                   --jq "[.[] | select(.status == \"completed\" and (.databaseId | tostring) != \"$THIS_RUN\")][0].conclusion // \"\"")
+          echo "previous terminal run on this branch concluded: ${PREV:-<none>}"
+          if [ "$PREV" = "failure" ]; then
+            echo "the run before this one ALSO failed -- not retrying. The lane stalls here on purpose."
+            exit 0
+          fi
+          echo "transient failure -- re-dispatching $OS_NAME once"
+          gh workflow run corpus-v2-runner.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f os="$OS_NAME" -f slice="${{ inputs.slice }}" \
             -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}
