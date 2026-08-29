@@ -1,5 +1,140 @@
-### p5@0.7.0   (/home/nub/v2-RTmnio)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=127 files=13 trace=8590 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 8.17.0 (provisioned) (arms will run: v8.17.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 8, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### p5@0.7.0   (/home/runner/v2-4J7M5r)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":false,"clearancePath":"/home/runner/v2-4J7M5r/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b9360762b48b
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2018-08-11T03:23:36.731Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"b28c9990b8dbe06211a5182204051d644870082176e0de9d8f38898e61bec5c8","files":[{"path":"package-lock.json","sha256":"8e6867503b35354ad3db5fd57df66c0ed93478edacb13cf87447f606f435f4f8","bytes":523}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD 1 added: patch-package@^5.1.1
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
+  OBSERVE   rc=0 files=582 trace=3960 lines
+  CLOSURE   96 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":null,"filesTheScriptProduced":null,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-4J7M5r/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-4J7M5r/observe/capture.json
+  RAWLOG-BYTES raw=552469 gz=25157
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"p5","packageVersion":"0.7.0","major":8,"version":"8.17.0","npm":"6.13.4","pinnable":true,"engines":null,"publishedAt":"2018-08-10T03:23:36.731Z","eraMajor":8,"startMajor":8,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/8.17.0/node-v8.17.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-4J7M5r/jailhome","TMPDIR":"/tmp/nub-tmp-obsjUetGP","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-4J7M5r/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 2
+    sockets script 0  /  whole traced tree 0
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-4J7M5r/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-4J7M5r/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-4J7M5r/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsjUetGP
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-4J7M5r/observe/node_modules/p5
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    2600 distinct from 3389 calls (3961 lines, 561 rejoined, 0 unparsed)
+    PROCS     10   lifecycle shells 0
+    unsubscribed/unmapped syscalls: recvmsg×5 getcwd×4 exit×4 getsockname×1 exit_group×1
+    wrote /home/runner/v2-4J7M5r/observe/events.ndjson.gz (15258 bytes)
+  EVENTLOG-FILE /home/runner/v2-4J7M5r/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":3961,"parsed":3389,"unparsed":0,"unfinished":561,"rejoined":561,"unresolvedDirfd":0,"truncatedArg":0,"procs":10,"lifecyclePids":0,"distinctEvents":2600,"unknownSyscall":{"getcwd":4,"getsockname":1,"recvmsg":5,"exit":4,"exit_group":1},"out":"/home/runner/v2-4J7M5r/observe/events.ndjson.gz","gzipBytes":15258}
+  EVICT     32 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={}
+     [synth/i] DEBUG final message final_message=; header 9115:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 39437:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 26362:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 9115:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 9115:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 26362:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 39437:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 26362:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 39437:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 40418:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 40418:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 40418:RESPONSE:RD,RA:NoError:QUERY
+     NOTE no artifact reference for p5 — gating on rc alone
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     NOTE no artifact reference for p5 — gating on rc alone
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     NOTE no artifact reference for p5 — gating on rc alone
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"deps":true,"project":true,"userHome":true}} is sufficient
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     NOTE no artifact reference for p5 — gating on rc alone
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"write":{"project":true,"userHome":true},"network":true} is sufficient
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-project-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-drop-no-write-project-resolved.json"}
+  SECURITY nub-drop-no-write-project-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[drop-no-write-project] rc=0 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     NOTE no artifact reference for p5 — gating on rc alone
+     ⛔ OVER-PREDICTED: dropping 'no-write-project' STILL VERIFIES — {"write":{"deps":true,"userHome":true},"network":true} is sufficient
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=1 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     [drop-no-write-userHome/i] DEBUG final message final_message=; header 25008:QUERY:RD:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG final message final_message=; header 28467:QUERY:RD:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG final message final_message=; header 16576:QUERY:RD:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG final message final_message=; header 30211:QUERY:RD:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 30211:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 30211:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 25008:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 25008:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 16576:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 16576:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 28467:RESPONSE:RD,RA:NoError:QUERY
+     [drop-no-write-userHome/i] DEBUG response: ; header 28467:RESPONSE:RD,RA:NoError:QUERY
+     NOTE no artifact reference for p5 — gating on rc alone
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => OVER-PREDICTED by: no-network no-write-deps no-write-project  (ladder-rung {"write":{"deps":true,"project":true,"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     1 store entries removed, 61 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for p5
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"b9360762b48b5c7107b43396d6c03083f8a72d175f776b68e6203bd4aa364b90","specCount":1,"lockfiles":{"digest":"0eb7899914ea1c5c53d4f642f85f6188342b8afdad8841380cacb6fa00fd0d9a","files":[{"path":"nub.lock","sha256":"c739531b9c86d2d21a3cacb87e51c172a9b6df4e5e21450800f433d0993fb6fd","bytes":364}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T03:00:13.883Z","cacheHit":true,"clearancePath":"/home/runner/v2-4J7M5r/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 1 exact package-version(s), tree b9360762b48b (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 NO-REFERENCE p5@0.7.0 produced no files under /home/runner/v2-4J7M5r/observe — cannot gate (tree 35/582) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+     NOTE no artifact reference for p5 — gating on rc alone
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true}} — all 3 capabilities drop TOGETHER, measured
