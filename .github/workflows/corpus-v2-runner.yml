@@ -178,6 +178,11 @@ jobs:
       actions: write
     env:
       OS_NAME: ${{ inputs.os || 'linux' }}
+      # Lanes a drained chain may hand off to, in order. WINDOWS IS DELIBERATELY ABSENT: its
+      # control never received the epoch-15 era-PATH fix, so its 2265 rows would be measured by a
+      # driver a later epoch has to invalidate anyway. Adding it back is this one word, once that
+      # lane's control is brought level.
+      LANE_ORDER: linux,macos
       # ⛔ JOB-SCOPED, NOT STEP-SCOPED. The publisher WRITES this manifest during the measure step and
       # the end-of-slice commit READS it to decide which records are genuinely this run's. A
       # step-level `env:` does not reach other steps, and on macOS the shared `${TMPDIR:-/tmp}`
@@ -602,7 +607,19 @@ jobs:
               --claim "$SLICE" --os "$OS_NAME" --run "${{ github.run_id }}" \
               --subject-nub "$NUB_BIN" --subject-nub-git-sha "$NUB_GIT_SHA" > /tmp/slice.txt
             if [ ! -s /tmp/slice.txt ]; then
-              echo "DRAINED=1" >> "$GITHUB_ENV"; CLAIMED=1; break
+              # This lane is empty. DRAINED=1 still skips every measure/commit step below, but the
+              # chain must move to a lane that is NOT empty rather than ending the whole drain --
+              # see claim-slice.mjs --next-os for the measurement that made this necessary. An empty
+              # NEXT_OS means every listed lane is drained, which is the one honest place to stop.
+              NEXT_OS=$(node harness/claim-slice.mjs --queue queue-v2.ndjson --next-os "$LANE_ORDER" || true)
+              echo "DRAINED=1" >> "$GITHUB_ENV"
+              echo "NEXT_OS=$NEXT_OS" >> "$GITHUB_ENV"
+              if [ -n "$NEXT_OS" ]; then
+                echo "lane $OS_NAME is drained; handing the chain to $NEXT_OS"
+              else
+                echo "every lane in $LANE_ORDER is drained; the chain ends here"
+              fi
+              CLAIMED=1; break
             fi
             N=$(wc -l < /tmp/slice.txt | tr -d ' ')
             git add queue-v2.ndjson
@@ -933,7 +950,7 @@ jobs:
         run: node harness/claim-slice.mjs --queue queue-v2.ndjson --status
 
       - name: Dispatch the next slice
-        if: inputs.packages == '' && inputs.chain && env.DRAINED != '1'
+        if: inputs.packages == '' && inputs.chain && (env.DRAINED != '1' || env.NEXT_OS != '')
         env: { GH_TOKEN: "${{ github.token }}" }
         shell: bash
         run: |
@@ -955,7 +972,9 @@ jobs:
           # was started — probe/corpus-v2-lane today, main if the lane is ever merged. Registration is
           # sticky and this workflow's name is on main, so a per-branch --ref dispatch resolves (see
           # win-etw-retain.yml's header for the 404-on-unregistered case this is NOT).
+          # NEXT_OS is set only when this lane drained and another still has work, so the ordinary
+          # chain hop is unaffected and the handoff hop retargets without a second dispatch site.
           gh workflow run corpus-v2-runner.yml \
             --ref "$GITHUB_REF_NAME" \
-            -f os="$OS_NAME" -f slice="${{ inputs.slice }}" \
+            -f os="${NEXT_OS:-$OS_NAME}" -f slice="${{ inputs.slice }}" \
             -f nub_sha="${{ inputs.nub_sha }}" -f chain=true -f force=${{ inputs.force }}

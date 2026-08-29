@@ -11,6 +11,7 @@
 //   --complete <file> --run <id>       mark this run's claimed rows done, from an NDJSON verdict list
 //   --reclaim-stale <minutes>          return rows claimed longer ago than that to pending
 //   --status                           counts by status and os
+//   --next-os <a,b,c>                  print the first of those lanes still holding pending rows
 //
 // ONE OS PER SLICE, deliberately: a runner is a single operating system, so a mixed slice could
 // never be completed by the job that claimed it.
@@ -99,6 +100,30 @@ if (argv.includes('--status')) {
   for (const [os, s] of Object.entries(by)) {
     console.log(`  ${os.padEnd(8)} ${Object.entries(s).map(([k, v]) => `${k}=${v}`).join('  ')}`);
   }
+  process.exit(0);
+}
+
+// ⛔ A DRAINED LANE MUST HAND OFF, NOT HALT — THE WHOLE CORPUS RIDES ON IT.
+//
+// The chaining runner dispatches its successor with the SAME `os` it ran, and stops chaining
+// entirely once its own lane claims nothing (`DRAINED=1`). So the first lane to empty ends the
+// drain for every lane. MEASURED 2026-08-29: linux held 850 pending rows against macos's 1652 and
+// windows's 2265, so linux would have exhausted in ~19 slices (~21 h) and halted the corpus at
+// roughly 41% with 3917 rows never measured and nothing reporting that anything had stopped.
+//
+// This prints the first lane in `order` that still has PENDING rows, or nothing when every listed
+// lane is empty — which is the only condition that should genuinely end a drain. The current lane
+// is not special-cased: it simply has no pending rows when it is drained, so it cannot be picked.
+if (argv.includes('--next-os')) {
+  const order = String(opt('--next-os', '')).split(',').map((s) => s.trim()).filter(Boolean);
+  if (!order.length) {
+    console.error('--next-os needs a comma-separated lane order, e.g. --next-os linux,macos');
+    process.exit(2);
+  }
+  const pending = new Set();
+  for (const r of read()) if (r.status === 'pending') pending.add(r.os);
+  const next = order.find((os) => pending.has(os));
+  if (next) console.log(next);
   process.exit(0);
 }
 
