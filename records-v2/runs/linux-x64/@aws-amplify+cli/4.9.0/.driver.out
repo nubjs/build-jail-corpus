@@ -1,0 +1,105 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 12.22.12 (provisioned) (arms will run: v12.22.12)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 12, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @aws-amplify/cli@4.9.0   (/home/runner/v2-OlOnDj)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6e0719012a69d6a3a6777f6ae30bbf14614866e988836469621cebfd4dda01e3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:29:42.744Z","cacheHit":false,"clearancePath":"/home/runner/v2-OlOnDj/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6e0719012a69
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2019-12-27T23:47:08.555Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5e2ef21240f98b0bdbd509a4778edb26252f4dc488e3b725f66a79fb83533688","specCount":890,"lockfiles":{"digest":"b8fd6e6b0ea730d93ce90f49b8f997bff81f07545f142fec896b7140c599a4a7","files":[{"path":"package-lock.json","sha256":"fdf5dd1e77160beb6e4fa9456d2a4fda42c40c5018157decc53c206640b7d049","bytes":451331}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:30:05.425Z","cacheHit":false,"clearancePath":"/home/runner/v2-OlOnDj/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 890 exact package-version(s), tree 5e2ef21240f9
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/home/runner/v2-OlOnDj/observe/node_modules/.bin/tsc rimraf=/home/runner/v2-OlOnDj/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna ts-node=/home/runner/v2-OlOnDj/observe/node_modules/.bin/ts-node yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=34331 trace=31598 lines
+  CLOSURE   760 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":481,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (481) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-OlOnDj/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-OlOnDj/observe/capture.json
+  RAWLOG-BYTES raw=4786087 gz=163189
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@aws-amplify/cli","packageVersion":"4.9.0","major":12,"version":"12.22.12","npm":"6.14.16","pinnable":true,"engines":">=8.12.0","publishedAt":"2019-12-26T23:47:08.555Z","eraMajor":12,"startMajor":12,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/12.22.12/node-v12.22.12-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-OlOnDj/jailhome","TMPDIR":"/tmp/nub-tmp-obs9niwLv","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-OlOnDj/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 10  /  whole traced tree 13
+    sockets script 0  /  whole traced tree 0
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-OlOnDj/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-OlOnDj/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-OlOnDj/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs9niwLv
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli
+  == WRITES the script actually performed ==
+    deps          5
+    ownPkg        5  (base profile already grants this — NOT billed)
+        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli/node_modules
+        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli/node_modules/.cache
+        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli/node_modules/.cache/esm
+        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli/node_modules/.cache/esm/.data.blob
+        /home/runner/v2-OlOnDj/observe/node_modules/@aws-amplify/cli/node_modules/.cache/esm/.data.json
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 0
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    13318 distinct from 22360 calls (31599 lines, 9217 rejoined, 0 unparsed)
+    PROCS     19   lifecycle shells 8
+    ⛔ 1099 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: exit×14 getsockname×5 getcwd×5 recvmsg×5 getsockopt×4 exit_group×3 wait4×3
+    wrote /home/runner/v2-OlOnDj/observe/events.ndjson.gz (71484 bytes)
+  EVENTLOG-FILE /home/runner/v2-OlOnDj/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":31599,"parsed":22360,"unparsed":0,"unfinished":9217,"rejoined":9217,"unresolvedDirfd":1099,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":13318,"unknownSyscall":{"getsockopt":4,"getsockname":5,"getcwd":5,"recvmsg":5,"exit":14,"exit_group":3,"wait4":3},"out":"/home/runner/v2-OlOnDj/observe/events.ndjson.gz","gzipBytes":71484}
+  EVICT     147 store entries removed, 109 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran
+  ── nub's own words (tail of security-resolve.log) ──
+     
+       × failed to resolve dependencies
+       ╰─▶ trust downgrade for fastq@1.20.2 (trustPolicy=no-downgrade): earlier
+           published version 1.20.0 had trusted publisher but this version has no
+           trust evidence
+       help: this is a supply-chain trust failure, not an ordinary version-
+             resolution error. An earlier release carried trusted publisher, but
+             fastq@1.20.2 carries no trust evidence.
+             
+             This can signal a compromised publisher or tampered release. It can
+             also be benign release-process drift: a maintainer manually published,
+             backported outside the trusted workflow, skipped provenance for
+             convenience, or used a registry that stripped metadata.
+             
+             Before bypassing:
+             1. Inspect the package's npm release, source tag/commit, publisher
+             identity, and tarball; compare the metadata with npmjs.org, and
+             confirm the change is expected and nothing appears tampered with.
+             2. Report inconsistent evidence to the relevant upstream owner.
+             Package-release drift belongs with the maintainer; metadata present
+             on npmjs.org but missing from a proxy or mirror belongs with that
+             registry operator.
+             3. Only after review, pin a version that retains evidence or add
+             the narrow `fastq@1.20.2` exception to `trustPolicyExclude`. A bare
+             `fastq` exempts every version; `trustPolicy = off` disables this
+             protection for the entire install.
+             
+             Details and known built-in 
+             policy-exceptions
+     

@@ -2,67 +2,638 @@
   "pkg": "@eth-optimism/sdk",
   "version": "0.0.0-will-20230915154458",
   "harnessVersion": 2,
+  "harnessEpoch": 27,
   "verdict": "MINIMUM",
   "grant": {
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    },
     "network": true
   },
-  "synthesized": {
-    "network": true
-  },
-  "verifiedBy": "synth",
-  "minimality": "MINIMAL",
-  "overPredictedBy": [],
+  "synthesized": {},
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps",
+    "no-write-project",
+    "no-write-userHome"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "cd41a2ebe420f10abe92af0c6a09b491fdc2cedb0cc2790f396e4df89fb1540e",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:24:57.588Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "d0ebbb449a3f816a7d195a084e6ebcaed61ee4902ad7a75c108081f9e67a358a",
+      "specCount": 89,
+      "lockfiles": {
+        "digest": "c0b700dac864d2d106c2bc65e65a6deb9d12de5e6d0610bf164c10f9bb9cda93",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4cdcbf0dd911dd258cb233559bf2a6fdce0335ec40f0e1c357755e74cdcc58e6",
+            "bytes": 52341
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:04.481Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2126003217-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-network-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-project-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-userHome-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T22:25:10.412Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "cd41a2ebe420f10abe92af0c6a09b491fdc2cedb0cc2790f396e4df89fb1540e",
+      "specCount": 1,
+      "specs": [
+        "@eth-optimism/sdk@0.0.0-will-20230915154458"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-29T22:24:57.588Z"
+    },
+    {
+      "digest": "d0ebbb449a3f816a7d195a084e6ebcaed61ee4902ad7a75c108081f9e67a358a",
+      "specCount": 89,
+      "specs": [
+        "@eth-optimism/contracts-bedrock@0.0.0-will-20230915154458",
+        "@eth-optimism/contracts@0.6.0",
+        "@eth-optimism/core-utils@0.12.0",
+        "@eth-optimism/core-utils@0.12.3",
+        "@eth-optimism/sdk@0.0.0-will-20230915154458",
+        "@ethereumjs/rlp@4.0.1",
+        "@ethereumjs/util@8.1.0",
+        "@ethersproject/abi@5.7.0",
+        "@ethersproject/abstract-provider@5.7.0",
+        "@ethersproject/abstract-signer@5.7.0",
+        "@ethersproject/address@5.7.0",
+        "@ethersproject/base64@5.7.0",
+        "@ethersproject/basex@5.7.0",
+        "@ethersproject/bignumber@5.7.0",
+        "@ethersproject/bytes@5.7.0",
+        "@ethersproject/constants@5.7.0",
+        "@ethersproject/contracts@5.7.0",
+        "@ethersproject/hash@5.7.0",
+        "@ethersproject/hdnode@5.7.0",
+        "@ethersproject/json-wallets@5.7.0",
+        "@ethersproject/keccak256@5.7.0",
+        "@ethersproject/logger@5.7.0",
+        "@ethersproject/networks@5.7.1",
+        "@ethersproject/pbkdf2@5.7.0",
+        "@ethersproject/properties@5.7.0",
+        "@ethersproject/providers@5.7.2",
+        "@ethersproject/random@5.7.0",
+        "@ethersproject/rlp@5.7.0",
+        "@ethersproject/sha2@5.7.0",
+        "@ethersproject/signing-key@5.7.0",
+        "@ethersproject/solidity@5.7.0",
+        "@ethersproject/strings@5.7.0",
+        "@ethersproject/transactions@5.7.0",
+        "@ethersproject/units@5.7.0",
+        "@ethersproject/wallet@5.7.0",
+        "@ethersproject/web@5.7.1",
+        "@ethersproject/wordlists@5.7.0",
+        "@noble/curves@1.1.0",
+        "@noble/hashes@1.3.1",
+        "@scure/base@1.1.3",
+        "@scure/bip32@1.3.1",
+        "@scure/bip39@1.2.1",
+        "aes-js@3.0.0",
+        "assertion-error@1.1.0",
+        "bech32@1.1.4",
+        "bignumber.js@9.1.2",
+        "bn.js@4.11.6",
+        "bn.js@4.12.0",
+        "bn.js@5.2.1",
+        "brorand@1.1.0",
+        "buffer-reverse@1.0.1",
+        "bufio@1.2.1",
+        "chai@4.3.8",
+        "check-error@1.0.2",
+        "crypto-js@3.3.0",
+        "deep-eql@4.1.3",
+        "elliptic@6.5.4",
+        "ethereum-bloom-filters@1.0.10",
+        "ethereum-cryptography@2.1.2",
+        "ethers@5.7.2",
+        "ethjs-unit@0.1.6",
+        "get-func-name@2.0.0",
+        "hash.js@1.1.7",
+        "hmac-drbg@1.0.1",
+        "inherits@2.0.4",
+        "is-hex-prefixed@1.0.0",
+        "js-sha3@0.8.0",
+        "lodash@4.17.21",
+        "loupe@2.3.6",
+        "merkletreejs@0.3.10",
+        "micro-ftch@0.3.1",
+        "minimalistic-assert@1.0.1",
+        "minimalistic-crypto-utils@1.0.1",
+        "node-fetch@2.7.0",
+        "number-to-bn@1.7.0",
+        "pathval@1.1.1",
+        "randombytes@2.1.0",
+        "rlp@2.2.7",
+        "safe-buffer@5.2.1",
+        "scrypt-js@3.0.1",
+        "strip-hex-prefix@1.0.0",
+        "tr46@0.0.3",
+        "treeify@1.1.0",
+        "type-detect@4.0.8",
+        "utf8@3.0.0",
+        "web3-utils@1.10.2",
+        "webidl-conversions@3.0.1",
+        "whatwg-url@5.0.0",
+        "ws@7.4.6"
+      ],
+      "lockfiles": {
+        "digest": "c0b700dac864d2d106c2bc65e65a6deb9d12de5e6d0610bf164c10f9bb9cda93",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4cdcbf0dd911dd258cb233559bf2a6fdce0335ec40f0e1c357755e74cdcc58e6",
+            "bytes": 52341
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-29T22:25:04.481Z"
+    },
+    {
+      "digest": "fbeb8eeb53d2ecbee3c1dd01dc2ebee75ab3a964612af7124d0ea9de3d6ceb4c",
+      "specCount": 90,
+      "specs": [
+        "@eth-optimism/contracts-bedrock@0.0.0-will-20230915154458",
+        "@eth-optimism/contracts@0.6.0",
+        "@eth-optimism/core-utils@0.12.0",
+        "@eth-optimism/core-utils@0.12.3",
+        "@eth-optimism/sdk@0.0.0-will-20230915154458",
+        "@ethereumjs/rlp@4.0.1",
+        "@ethereumjs/util@8.1.0",
+        "@ethersproject/abi@5.8.0",
+        "@ethersproject/abstract-provider@5.8.0",
+        "@ethersproject/abstract-signer@5.8.0",
+        "@ethersproject/address@5.8.0",
+        "@ethersproject/base64@5.8.0",
+        "@ethersproject/basex@5.8.0",
+        "@ethersproject/bignumber@5.8.0",
+        "@ethersproject/bytes@5.8.0",
+        "@ethersproject/constants@5.8.0",
+        "@ethersproject/contracts@5.8.0",
+        "@ethersproject/hash@5.8.0",
+        "@ethersproject/hdnode@5.8.0",
+        "@ethersproject/json-wallets@5.8.0",
+        "@ethersproject/keccak256@5.8.0",
+        "@ethersproject/logger@5.8.0",
+        "@ethersproject/networks@5.8.0",
+        "@ethersproject/pbkdf2@5.8.0",
+        "@ethersproject/properties@5.8.0",
+        "@ethersproject/providers@5.8.0",
+        "@ethersproject/random@5.8.0",
+        "@ethersproject/rlp@5.8.0",
+        "@ethersproject/sha2@5.8.0",
+        "@ethersproject/signing-key@5.8.0",
+        "@ethersproject/solidity@5.8.0",
+        "@ethersproject/strings@5.8.0",
+        "@ethersproject/transactions@5.8.0",
+        "@ethersproject/units@5.8.0",
+        "@ethersproject/wallet@5.8.0",
+        "@ethersproject/web@5.8.0",
+        "@ethersproject/wordlists@5.8.0",
+        "@noble/curves@1.4.2",
+        "@noble/hashes@1.4.0",
+        "@noble/hashes@1.8.0",
+        "@scure/base@1.1.9",
+        "@scure/bip32@1.4.0",
+        "@scure/bip39@1.3.0",
+        "aes-js@3.0.0",
+        "assertion-error@1.1.0",
+        "bech32@1.1.4",
+        "bignumber.js@9.3.1",
+        "bn.js@4.11.6",
+        "bn.js@4.12.5",
+        "bn.js@5.2.5",
+        "brorand@1.1.0",
+        "buffer-reverse@1.0.1",
+        "bufio@1.2.3",
+        "chai@4.5.0",
+        "check-error@1.0.3",
+        "crypto-js@4.2.0",
+        "deep-eql@4.1.4",
+        "elliptic@6.6.1",
+        "ethereum-bloom-filters@1.2.0",
+        "ethereum-cryptography@2.2.1",
+        "ethers@5.8.0",
+        "ethjs-unit@0.1.6",
+        "get-func-name@2.0.2",
+        "hash.js@1.1.7",
+        "hmac-drbg@1.0.1",
+        "inherits@2.0.4",
+        "is-hex-prefixed@1.0.0",
+        "js-sha3@0.8.0",
+        "lodash@4.18.1",
+        "loupe@2.3.7",
+        "merkletreejs@0.3.11",
+        "micro-ftch@0.3.1",
+        "minimalistic-assert@1.0.1",
+        "minimalistic-crypto-utils@1.0.1",
+        "node-fetch@2.7.0",
+        "number-to-bn@1.7.0",
+        "pathval@1.1.1",
+        "randombytes@2.1.0",
+        "rlp@2.2.7",
+        "safe-buffer@5.2.1",
+        "scrypt-js@3.0.1",
+        "strip-hex-prefix@1.0.0",
+        "tr46@0.0.3",
+        "treeify@1.1.0",
+        "type-detect@4.1.0",
+        "utf8@3.0.0",
+        "web3-utils@1.10.4",
+        "webidl-conversions@3.0.1",
+        "whatwg-url@5.0.0",
+        "ws@8.18.0"
+      ],
+      "lockfiles": {
+        "digest": "1f0391e4836588ac13beef49d076e279dd51ceea2f30a2cff5c34a290cf118cd",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4389d38b82499f450d652aaa334faade9c0717ad2ed01903e43e079d0f85f7ff",
+            "bytes": 29512
+          }
+        ]
+      },
+      "kinds": [
+        "nub-drop-no-network-resolved",
+        "nub-drop-no-write-deps-resolved",
+        "nub-drop-no-write-project-resolved",
+        "nub-drop-no-write-userHome-resolved",
+        "nub-fb2126003217-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-29T22:25:10.412Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-29T22:24:56.389Z",
+    "latestVersion": "3.3.3",
+    "weeklyDownloads": 116247,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/%40eth-optimism%2Fsdk/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/%40eth-optimism%2Fsdk"
+    }
+  },
   "grantSource": "synthesized",
-  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
   "descendedGrant": {
     "network": true
   },
   "notes": [
-    "arms-unfalsifiable"
+    "arms-unfalsifiable",
+    "under-predicted"
   ],
   "eventLog": {
-    "lines": 22218,
-    "parsed": 21988,
+    "lines": 13189,
+    "parsed": 13038,
     "unparsed": 0,
-    "unfinished": 192,
-    "rejoined": 192,
+    "unfinished": 115,
+    "rejoined": 115,
     "unresolvedDirfd": 3,
     "truncatedArg": 0,
-    "procs": 33,
-    "lifecyclePids": 21,
-    "distinctEvents": 9229,
+    "procs": 31,
+    "lifecyclePids": 20,
+    "distinctEvents": 5734,
     "unknownSyscall": {
-      "getsockname": 54,
-      "getsockopt": 29,
-      "getcwd": 5,
-      "recvmsg": 14,
-      "exit": 25,
-      "setsockopt": 54,
-      "sendmmsg": 2,
+      "getsockname": 42,
+      "getsockopt": 28,
+      "getcwd": 3,
+      "recvmsg": 12,
+      "setsockopt": 11,
+      "sendmmsg": 1,
       "socketpair": 3,
       "shutdown": 3,
+      "exit": 23,
       "exit_group": 5,
       "wait4": 6
     },
-    "out": "/home/runner/v2-EFfuv2/observe/events.ndjson.gz",
-    "gzipBytes": 58392
+    "out": "/home/runner/v2-KCcDFf/observe/events.ndjson.gz",
+    "gzipBytes": 30876
   },
   "driverRc": 0,
-  "durationMs": 88694,
+  "durationMs": 245547,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "24855ed25327701dd33f1f29968aaad19d1f670f",
-    "node": "v22.23.1",
-    "at": "2026-08-07T21:04:47.309Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 27,
+    "harnessSha256": "17acb11908e92dc52af7c0b86275b0c01688f4f678e45c11615a62dbc2080fcd",
+    "harnessInputCount": 288,
+    "invalidationPolicySha256": "8d977f39d20f41bbb6ddccf1635c1d154f0fad8868c3bf3d07dc78b18a852310",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260823.283.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260823.283.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-29T22:29:02.391Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/opt/hostedtoolcache/node/22.23.1/x64",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
     "interpreterInsideHome": false,
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
@@ -71,24 +642,46 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8",
-      "bytes": 207810856,
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "@eth-optimism/sdk",
+      "packageVersion": "0.0.0-will-20230915154458",
+      "major": 18,
+      "version": "18.20.8",
+      "npm": "10.8.2",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2023-09-15T15:47:50.494Z",
+      "eraMajor": 18,
+      "startMajor": 18,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/runner/v2-EFfuv2/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obs98PmPT",
+        "HOME": "/home/runner/v2-KCcDFf/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsEMNihk",
         "NODE_COMPAT": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
         "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/runner/v2-EFfuv2/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-KCcDFf/nubcache"
       },
       "unset": [
         "CI",
