@@ -1,0 +1,205 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
+  ERA-PYTHON /usr/bin/python2.7 (Python 2.7.18) for era Node 4, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### electron-prebuilt@0.36.9   (/home/runner/v2-ynp3y6)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f8ff90d91c3f0eeced212dcec8e3ba43f11aa728b6819eabbe79086590d8e761","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:52:49.924Z","cacheHit":false,"clearancePath":"/home/runner/v2-ynp3y6/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f8ff90d91c3f
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2016-02-27T07:33:09.269Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"79e6c2cc2b60f63d372f1ed7dd4ae61f58932721ceb48c7e23641b3320b44918","specCount":150,"lockfiles":{"digest":"9fae88686bd03057bd0b8b20593e65b9858f03af04294fde4ddcccbeb1f90ded","files":[{"path":"package-lock.json","sha256":"2c79dfea98fb32c6b79a51bc07584835abfb0a73536ad71e4db1b8673ba6a738","bytes":60851}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:52:53.400Z","cacheHit":false,"clearancePath":"/home/runner/v2-ynp3y6/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 150 exact package-version(s), tree 79e6c2cc2b60
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-ynp3y6/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=1329 trace=8103 lines
+  CLOSURE   143 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":81,"filesTheScriptProduced":71,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-ynp3y6/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ynp3y6/observe/capture.json
+  RAWLOG-BYTES raw=1154217 gz=48618
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"electron-prebuilt","packageVersion":"0.36.9","major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":null,"publishedAt":"2016-02-26T07:33:09.269Z","eraMajor":4,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ynp3y6/jailhome","TMPDIR":"/tmp/nub-tmp-obsqT9zij","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ynp3y6/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 16
+    writes  script 79  /  whole traced tree 82
+    sockets script 7  /  whole traced tree 7
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ynp3y6/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ynp3y6/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ynp3y6/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsqT9zij
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt
+  == WRITES the script actually performed ==
+    jailHome      2  (base profile already grants this — NOT billed)
+        /home/runner/v2-ynp3y6/jailhome/.electron
+        /home/runner/v2-ynp3y6/jailhome/.electron/electron-v0.36.9-linux-x64.zip
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsqT9zij/electron-tmp-download-60380-1788007975189
+        /tmp/nub-tmp-obsqT9zij/electron-tmp-download-60380-1788007975189/electron-v0.36.9-linux-x64.zip
+    ownPkg       75  (base profile already grants this — NOT billed)
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/path.txt
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/electron
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/content_shell.pak
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/icudtl.dat
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/libffmpeg.so
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/libnode.so
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/natives_blob.bin
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/snapshot_blob.bin
+        /home/runner/v2-ynp3y6/observe/node_modules/electron-prebuilt/dist/LICENSE
+        … and 65 more
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 2
+        127.0.0.53:53
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        execve /
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4908 distinct from 7138 calls (8104 lines, 938 rejoined, 0 unparsed)
+    PROCS     23   lifecycle shells 11
+    unsubscribed/unmapped syscalls: exit×16 recvmsg×11 getsockname×8 wait4×7 getcwd×6 exit_group×5 setsockopt×3 sendmmsg×3
+    wrote /home/runner/v2-ynp3y6/observe/events.ndjson.gz (28240 bytes)
+  EVENTLOG-FILE /home/runner/v2-ynp3y6/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8104,"parsed":7138,"unparsed":0,"unfinished":938,"rejoined":938,"unresolvedDirfd":0,"truncatedArg":0,"procs":23,"lifecyclePids":11,"distinctEvents":4908,"unknownSyscall":{"exit_group":5,"wait4":7,"getcwd":6,"getsockname":8,"recvmsg":11,"setsockopt":3,"sendmmsg":3,"getsockopt":3,"exit":16},"out":"/home/runner/v2-ynp3y6/observe/events.ndjson.gz","gzipBytes":28240}
+  EVICT     83 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":false,"clearancePath":"/home/runner/v2-ynp3y6/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 146 exact package-version(s), tree d076b7ddd014
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=9/80 missing=71 shortfall=91ef1a424b2a (tree 4220/1329) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpeg.so (+65)
+     [synth/i] DEBUG final message final_message=; header 45255:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 3746:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 8839:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 62094:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 62094:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 62094:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 3746:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 3746:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 8839:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 8839:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 45255:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 45255:RESPONSE:RD,RA:NoError:QUERY
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     68 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":true,"clearancePath":"/home/runner/v2-ynp3y6/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=9/80 missing=71 shortfall=91ef1a424b2a (tree 4220/1329) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpeg.so (+65)
+     [fb2126003217/i] DEBUG final message final_message=; header 54878:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 6330:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 50307:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 5396:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 54878:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 6330:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 6330:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 54878:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 50307:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 50307:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 5396:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 5396:RESPONSE:RD,RA:NoError:QUERY
+  EVICT     68 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":true,"clearancePath":"/home/runner/v2-ynp3y6/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=9/80 missing=71 shortfall=91ef1a424b2a (tree 4220/1329) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpeg.so (+65)
+     [fb3938809772/i] DEBUG final message final_message=; header 46304:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 34421:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 27005:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 43982:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 34421:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 34421:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 46304:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 46304:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 43982:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 27005:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 43982:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 27005:RESPONSE:RD,RA:NoError:QUERY
+  EVICT     68 store entries removed, 82 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron-prebuilt
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":true,"clearancePath":"/home/runner/v2-ynp3y6/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=1 artifacts=9/80 missing=71 shortfall=91ef1a424b2a (tree 4220/1329) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: dist/LICENSE, dist/LICENSES.chromium.html, dist/content_shell.pak, dist/electron, dist/icudtl.dat, dist/libffmpeg.so (+65)
+     [fb2742342390/i] DEBUG final message final_message=; header 51161:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 5041:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 46253:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 9178:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 5041:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 5041:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 9178:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 9178:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 51161:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 51161:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 46253:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 46253:RESPONSE:RD,RA:NoError:QUERY
+  NOT-GRANT-INDEPENDENT every arm exited non-zero — nothing installed at any grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":true,"clearancePath":"/home/runner/v2-ynp3y6/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit
+    | warn:   punycode@2.3.1: wanted node >=6, got 4.9.1
+    | warn:   request@2.88.2: wanted node >= 6, got 4.9.1
+    | WARN defaultTrust: running build scripts for electron-prebuilt@0.36.9
+    | warning: electron-prebuilt build scripts are running without the build sandbox (install.buildJail is false in nub.jsonc)
+    | /home/runner/.cache/nub/pm/store/psl@1.15.0-2f9ec0a830a560da/node_modules/psl/dist/psl.cjs:1
+    | (function (exports, require, module, __filename, __dirname) { "use strict";Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:"Module"}});function K(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}var O,F;function Q(){if(F)return O;F=1;const e=2147483647,s=36,c=1,o=26,t=38,d=700,z=72,y=128,g="-",P=/^xn--/,V=/[^\0-\x7F]/,G=/[\x2E\u3002\uFF0E\uFF61]/g,W={overflow:"Overflow: input needs wider integers to process","not-basic":"Illegal input >= 0x80 (not a basic code point)","invalid-input":"Invalid input"},C=s-c,h=Math.floor,I=String.fromCharCode;function v(a){throw new RangeError(W[a])}function U(a,i){const m=[];let n=a.length;for(;n--;)m[n]=i(a[n]);return m}function S(a,i){const m=a.split("@");let n="";m.length>1&&(n=m[0]+"@",a=m[1]),a=a.replace(G,".");const r=a.split("."),p=U(r,i).join(".");return n+p}function L(a){const i=[];let m=0;const n=a.l
+    | SyntaxError: Unexpected token ...
+    |     at exports.runInThisContext (vm.js:53:16)
+    |     at Module._compile (module.js:373:25)
+    |     at Object.Module._extensions..js (module.js:416:10)
+    |     at Module.load (module.js:343:32)
+    |     at Function.Module._load (module.js:300:12)
+    |     at Module.require (module.js:353:17)
+    |     at require (internal/module.js:12:17)
+    |     at Object.<anonymous> (/home/runner/.cache/nub/pm/store/tough-cookie@2.5.0-999edf9b5e6f617d/node_modules/tough-cookie/lib/pubsuffix-psl.js:32:11)
+    |     at Module._compile (module.js:409:26)
+    |     at Object.Module._extensions..js (module.js:416:10)
+    |   × lifecycle script postinstall failed for electron-prebuilt@0.36.9: script
+    |   │ `postinstall` exited with code 1
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-fallback-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T12:53:03.852Z","cacheHit":true,"clearancePath":"/home/runner/v2-ynp3y6/security/npm-fallback-resolved.json"}
+  SECURITY npm-fallback-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  NPM-REFERENCE rebuild rc=1 for electron-prebuilt@0.36.9 (era 4.9.1)
+    | npm ERR! node v4.9.1
+    | npm ERR! npm  v2.15.11
+    | npm ERR! code ELIFECYCLE
+    | npm ERR! electron-prebuilt@0.36.9 postinstall: `node install.js`
+    | npm ERR! Exit status 1
+    | npm ERR! 
+    | npm ERR! Failed at the electron-prebuilt@0.36.9 postinstall script 'node install.js'.
+    | npm ERR! This is most likely a problem with the electron-prebuilt package,
+    | npm ERR! not with npm itself.
+    | npm ERR! Tell the author that this fails on your system:
+    | npm ERR!     node install.js
+    | npm ERR! You can get information on how to open an issue for this project with:
+    | npm ERR!     npm bugs electron-prebuilt
+    | npm ERR! Or if that isn't available, you can get their info via:
+    | npm ERR! 
+    | npm ERR!     npm owner ls electron-prebuilt
+    | npm ERR! There is likely additional logging output above.
+    | 
+    | npm ERR! Please include the following file with any support request:
+    | npm ERR!     /tmp/nspnpm-iSkWTB/npm-debug.log
+  jail-off control: neither nub nor npm installs this unjailed; nothing to measure
+  => BROKEN-WITHOUT-JAIL-TOO
