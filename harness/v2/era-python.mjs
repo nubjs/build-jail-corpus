@@ -108,6 +108,53 @@ export function discoverPythons(run, names = PROBE_NAMES) {
   return out;
 }
 
+/** Every interpreter this box offers an era arm, INJECTED FIRST, de-duplicated by path.
+ *
+ *  ⛔ THE INJECTED PATHS ARE THE WHOLE MECHANISM, AND THEY ARE DELIBERATELY OFF THE `PATH`. A legacy
+ *  era needs a Python no newer than 3.9 and no runner ships one by default, so CI installs one and
+ *  hands the path over. `ERA_PYTHON_LEGACY` is setup-python's <= 3.9, kept off PATH by
+ *  `update-environment: false` so it never becomes the AMBIENT interpreter every child inherits;
+ *  it is offered here as a CANDIDATE instead. `ERA_PYTHON2` is the Windows MSI's 2.7, whose
+ *  TARGETDIR install is not on PATH either. A name probe cannot find either one BY CONSTRUCTION,
+ *  so composing this list is not an optimisation.
+ *
+ *  ⛔ INJECTED WINS THE ORDER, WHICH ALSO DECIDES A MODERN ERA. `pythonForEra` takes the FIRST
+ *  candidate satisfying the family, so a box with `ERA_PYTHON_LEGACY` set hands its 3.9 to era 24
+ *  as well -- 3.9 satisfies `python3`, so this is correct rather than merely tolerated, and it is
+ *  the ordering the POSIX path has always had. Changing it would move measurement on every
+ *  platform, so it is stated here rather than quietly adjusted.
+ *
+ *  ⛔ IT LIVES HERE, NOT IN A DRIVER, BECAUSE THE DRIVER THAT REIMPLEMENTED IT DROPPED IT. MEASURED
+ *  on win32 probe 33229392476: `measure-windows.mjs` carried its own `where`-based probe and passed
+ *  only `discoverPythons(probe)`, so BOTH injected interpreters were invisible and every era <= 14
+ *  arm ran with PYTHON unset -- `ERA-PYTHON NOT-SATISFIED (era Node 10 needs python3-legacy; none of
+ *  2 candidate(s) matched)`, with a provisioned 3.9 sitting unused beside it. 47% of the corpus
+ *  selects an era in that band (measured over 2811 driver logs: 1321 at era <= 14), so it would have
+ *  filed a harness toolchain gap as a package defect across roughly half the 2265-row win32 lane --
+ *  the epoch-13 manufactured-defect shape, on the platform epoch 13 never reached.
+ *
+ *  `observe-only.mjs` had already been fixed for exactly this and grew its own third copy of the
+ *  logic; that is why this is a shared export rather than a fix applied twice.
+ *
+ *  `pythonForEra` still selects by FAMILY, so offering both injected paths cannot mis-assign either
+ *  and a modern era is unaffected. */
+export function candidatePythons(probe, env = process.env, names = PROBE_NAMES) {
+  const injected = [env.ERA_PYTHON2, env.ERA_PYTHON_LEGACY].filter(Boolean).map(probe).filter(Boolean);
+  return [...injected, ...discoverPythons(probe, names)]
+    .filter((c, i, all) => all.findIndex((o) => o.path === c.path) === i);
+}
+
+/** Resolve what the caller named: a NAME through the box's own PATH lookup, an absolute PATH as-is.
+ *
+ *  ⛔ WINDOWS `where` SEARCHES THE `PATH`, WHICH IS EXACTLY WHERE THE INJECTED INTERPRETERS ARE NOT.
+ *  POSIX `command -v` happens to accept an absolute path, so that probe needed no branch and the
+ *  asymmetry stayed invisible. Handing the Windows probe the right candidate list is useless on its
+ *  own: without this it resolves each injected path through `where`, finds nothing, and drops it. */
+export function resolveInterpreter(nameOrPath, lookup, exists) {
+  if (/[\\/]/.test(nameOrPath)) return exists(nameOrPath) ? nameOrPath : null;
+  return lookup(nameOrPath) || null;
+}
+
 if (import.meta.filename === process.argv[1]) {
   const { execFileSync } = await import('node:child_process');
   const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i === -1 ? undefined : process.argv[i + 1]; };
@@ -121,7 +168,7 @@ if (import.meta.filename === process.argv[1]) {
     catch { return ''; }
   };
   const probe = (name) => {
-    const path = sh(`command -v ${name}`);
+    const path = sh(`command -v "${name}"`);
     if (!path) return null;
     // ⛔ REDIRECT STDERR INTO STDOUT. Python 2 prints `--version` to STDERR and Python 3 to stdout.
     // Reading only stdout reports every python2 as version-less, so the version match fails and the
@@ -129,17 +176,6 @@ if (import.meta.filename === process.argv[1]) {
     const version = sh(`"${path}" --version 2>&1`);
     return version ? { path, version } : null;
   };
-  // An interpreter the CALLER provisioned wins the search. A legacy era needs a Python no newer than
-  // 3.9 and no runner ships one by default, so CI installs it off-PATH and passes the path in —
-  // setup-python exposes it as `python3`, never as `python3.9`, so name-probing alone misses it.
-  // BOTH injected paths, not just one. `ERA_PYTHON2` is the Windows MSI's interpreter — a TARGETDIR
-  // install is not on PATH, so name-probing never finds it — and `ERA_PYTHON_LEGACY` is
-  // setup-python's <=3.9, deliberately kept off PATH so a modern era still gets a modern one.
-  // `pythonForEra` still selects by FAMILY, so offering both here cannot mis-assign either.
-  const injected = [process.env.ERA_PYTHON2, process.env.ERA_PYTHON_LEGACY]
-    .filter(Boolean).map(probe).filter(Boolean);
-  const candidates = [...injected, ...discoverPythons(probe)]
-    .filter((c, i, all) => all.findIndex((o) => o.path === c.path) === i);
-  const chosen = pythonForEra(Number.isInteger(era) ? era : null, candidates);
+  const chosen = pythonForEra(Number.isInteger(era) ? era : null, candidatePythons(probe));
   process.stdout.write(`${chosen.path ?? ''}\n${chosen.marker}\n`);
 }

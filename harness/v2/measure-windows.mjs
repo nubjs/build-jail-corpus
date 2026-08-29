@@ -11,7 +11,7 @@
 //          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}'
 import fs from 'node:fs';
 import { fetchArgs } from './era-resolution.mjs';
-import { pythonForEra, discoverPythons } from './era-python.mjs';
+import { pythonForEra, candidatePythons, resolveInterpreter } from './era-python.mjs';
 import { chooseMake, MAKE_CANDIDATES } from './arm-make.mjs';
 import path from 'node:path';
 import os from 'node:os';
@@ -786,9 +786,13 @@ fs.mkdirSync(OBS_TMP, { recursive: true });
 // emitted whether or not a candidate was found, because a silently-unset PYTHON is how these
 // failures came to be filed against the package rather than the toolchain.
 const ERA_PYTHON = (() => {
-  const probe = (name) => {
-    const where = run('where', [name]);
-    const p = (where.stdout ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0];
+  const probe = (nameOrPath) => {
+    // An INJECTED candidate is an absolute path the workflow installed off the PATH, and `where`
+    // searches only the PATH -- so resolving it needs the other branch. See `resolveInterpreter`.
+    const p = resolveInterpreter(nameOrPath, (n) => {
+      const where = run('where', [n]);
+      return (where.stdout ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0];
+    }, fs.existsSync);
     if (!p) return null;
     // Python 2 prints --version to STDERR, Python 3 to stdout: read BOTH or every python2 looks
     // version-less and the box appears to have none.
@@ -796,7 +800,7 @@ const ERA_PYTHON = (() => {
     const version = ((v.stdout ?? '') + (v.stderr ?? '')).trim();
     return version ? { path: p, version } : null;
   };
-  const chosen = pythonForEra(ERA_NODE.selection?.eraMajor ?? null, discoverPythons(probe));
+  const chosen = pythonForEra(ERA_NODE.selection?.eraMajor ?? null, candidatePythons(probe));
   console.log(`  ${chosen.marker}`);
   return chosen.path;
 })();

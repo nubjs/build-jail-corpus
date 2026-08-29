@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 25,
+  "currentEpoch": 26,
   "transitions": [
     {
       "fromEpoch": null,
@@ -256,6 +256,23 @@
         "verdicts": []
       },
       "reason": "Epoch 25 stops echoed package output from being read as a verdict. This was parked for the\nmaintainer at epoch 20 as \"changing verdict parsing affects every platform\"; that blast radius\nturned out to be MEASURABLE rather than a reason to guess, and it measures to zero.\n\nTHE DEFECT. The jail-off control echoes what nub said with a `    | ` prefix. Every verdict\npattern in record.mjs is UNANCHORED -- /=>\\s*VERIFIED\\s/ and 16 siblings -- while the drivers\ncomment that the parser \"keys every verdict on a LEADING `=>`\". Code and comment disagreed, so a\n`=>` anywhere in a line an arbitrary package printed could be read as a verdict.\n\nTHE MECHANISM IS NARROWER AND MORE INTERESTING THAN \"LAST MATCH WINS\", and the RED drive is what\nestablished it. An echoed `=> REFUSED-MALICIOUS` is HARMLESS: the driver prints its real verdict\nAFTER the echo and a later match overwrites an earlier one. But MINIMUM and VERIFIED are\ndeliberately never downgraded once seen, so an echoed MINIMUM SURVIVES the real verdict that\nfollows it. Only sticky verdicts inject. Two drafts of a test here passed with the fix removed\nbecause they used non-sticky tokens; both were deleted rather than left as decoration.\n\nMEASURED ACROSS ALL 6880 DRIVER LOGS BEFORE LANDING: 2958 echoed lines in 135 files, of which\nZERO match any verdict pattern. So this changes no existing record and closes the hole for every\nfuture one. Anchoring the regexes instead was measured too (also 0 divergent lines) and REJECTED\nas the fix: it would need 17 edits, and one of those patterns carries alternatives that do not\ninvolve `=>` at all (SYNTHESIZE FAILED, DTRACE NEVER STARTED) which a blanket `^\\s*` re-scopes\nsilently. Filtering at the single `lines` definition states the intent once.\n\nThe first measurement of this was WRONG and its control caught it: a `return` where a `continue`\nbelonged aborted the walk on the first non-driver.out file, reporting 1029 files and ZERO with a\nleading verdict line -- an absurd number for a corpus where nearly every record has one. The\ncorrected walk reads 6880 files and 6869 with one. A second error followed: the regex extractor\nfound only the 9 patterns followed by `.test`, missing the 10-entry VERDICT map, so the first\n\"0 divergent\" figure covered less than half the surface. Both were caught by stating the expected\ncount first.\n\nEpoch 20's `=>`-escaping in the win32 echo is REVERTED as now redundant, so that echo is faithful\nagain rather than printing `=&gt;` into a log a human reads.\n\nMeasurement-neutral: no existing record's verdict changes. Cost 0."
+    },
+    {
+      "fromEpoch": 25,
+      "fromHarnessSha256": "655a6350859b73f20d31e72e842c99ff028e6bbd2c8fc3a56bf15789be9c8e53",
+      "toEpoch": 26,
+      "toHarnessSha256": "af217384bc8f7818dce6704bf1ed6636dd6eccac061249162a56f1cf7b4ea931",
+      "invalidate": {
+        "platforms": [
+          "win32-x64"
+        ],
+        "verdicts": [
+          "NO-STATE-PASSED",
+          "BROKEN-UNJAILED-NUB",
+          "BROKEN-WITHOUT-JAIL-TOO"
+        ]
+      },
+      "reason": "Epoch 26 gives the win32 driver the era interpreters the workflow already provisions for it. MEASURED on probe 33229392476 (@aws-amplify/cli@2.0.0, driver.out line 5): `ERA-PYTHON NOT-SATISFIED (era Node 10 needs python3-legacy; none of 2 candidate(s) matched)` -- while setup-python had installed a 3.9 and exported ERA_PYTHON_LEGACY, and the 2.7 MSI had exported ERA_PYTHON2. TWO independent halves, either sufficient on its own to lose the interpreter: measure-windows.mjs composed its candidate list from `discoverPythons(probe)` ALONE, because the injected channel lived in era-python.mjs's CLI block which only the POSIX measure.sh/measure-macos.sh path ever runs; and its probe resolved every name through `where`, which searches the PATH -- exactly where both interpreters are deliberately NOT placed (TARGETDIR for the MSI, `update-environment: false` for setup-python). observe-only.mjs had already been fixed for this and carried a third copy of the discovery logic, so the fix is a SHARED export (candidatePythons + resolveInterpreter) rather than a third reimplementation that the next driver could drop again. This is epoch 13's manufactured-defect shape on the platform epoch 13 never reached: an era arm ran with PYTHON unset while the npm reference it is compared against held the era toolchain, so a node-gyp failure caused by our own provisioning was filed against the package. BLAST RADIUS, measured over the 2811 driver logs carrying an ERA-NODE PINNED line: 1321 (47%) select an era <= 14, the band needing a non-default interpreter, against a 2265-row win32 lane. SCOPE mirrors epoch 19, on epoch 13's reasoning: a Python failure is GRANT-INDEPENDENT -- it fails identically at every rung -- so it cannot produce a spuriously WIDE minimum, only total failure, which lands in one of the three verdicts named here. All 5 currently-valid win32 records are MINIMUM, so each found a working grant and therefore had a working Python; every one stands. COST measured before landing: 0 records."
     }
   ]
 }
