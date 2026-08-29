@@ -1,37 +1,53 @@
-### @fingerprintjs/fingerprintjs-pro-react@1.5.0   (/home/nub/v2-1AYvw2)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=52 trace=8669 lines
-  CLOSURE   5 packages evicted per arm
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 18.20.8 (provisioned) (arms will run: v18.20.8)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 18, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### @fingerprintjs/fingerprintjs-pro-react@1.5.0   (/home/runner/v2-DpDHwV)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6acbc837a025eee3b08f9a70838c6431327441df39e19afb001af633f8b45278","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T11:48:35.416Z","cacheHit":false,"clearancePath":"/home/runner/v2-DpDHwV/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6acbc837a025
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2022-11-01T15:02:06.834Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"f1cc00f60888f4426bf1fd3010348b5ce16da6652e6cec0f5bece50e223c9aa9","specCount":5,"lockfiles":{"digest":"d81b3ebb3e88802610351c434ee617bc0b4e448cd79d51c5eaaeb08b107e1c6b","files":[{"path":"package-lock.json","sha256":"2002101ffb987b61d53311bd3c511104927fdcdca5032f49029cab92b0bd5e84","bytes":2192}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T11:48:36.758Z","cacheHit":false,"clearancePath":"/home/runner/v2-DpDHwV/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 5 exact package-version(s), tree f1cc00f60888
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD 1 added: husky@^8.0.1
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
+  OBSERVE   rc=0 files=57 trace=6339 lines
+  CLOSURE   6 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-1AYvw2/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-1AYvw2/observe/capture.json
-  RAWLOG-BYTES raw=1703082 gz=61290
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-1AYvw2/jailhome","TMPDIR":"/tmp/nub-tmp-obs6Jrm6i","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-1AYvw2/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 13
-    writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 6
+  RAWLOG-FILE /home/runner/v2-DpDHwV/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-DpDHwV/observe/capture.json
+  RAWLOG-BYTES raw=1531958 gz=43935
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"@fingerprintjs/fingerprintjs-pro-react","packageVersion":"1.5.0","major":18,"version":"18.20.8","npm":"10.8.2","pinnable":true,"engines":null,"publishedAt":"2022-10-31T15:02:06.834Z","eraMajor":18,"startMajor":18,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-DpDHwV/jailhome","TMPDIR":"/tmp/nub-tmp-obsgT5Tmc","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-DpDHwV/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 14
+    writes  script 0  /  whole traced tree 4
+    sockets script 0  /  whole traced tree 4
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-1AYvw2/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-1AYvw2/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-1AYvw2/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs6Jrm6i
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-1AYvw2/observe/node_modules/@fingerprintjs/fingerprintjs-pro-react
+    project       /home/runner/v2-DpDHwV/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-DpDHwV/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-DpDHwV/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsgT5Tmc
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-DpDHwV/observe/node_modules/@fingerprintjs/fingerprintjs-pro-react
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 2
         127.0.0.53:53
-        104.16.6.34:443
+        104.16.10.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -41,16 +57,18 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    4686 distinct from 8633 calls (8670 lines, 15 rejoined, 0 unparsed)
+    EVENTS    2691 distinct from 6298 calls (6340 lines, 20 rejoined, 0 unparsed)
     PROCS     19   lifecycle shells 8
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×14 getsockopt×7 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/nub/v2-1AYvw2/observe/events.ndjson.gz (33047 bytes)
-  EVENTLOG-FILE /home/nub/v2-1AYvw2/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":8670,"parsed":8633,"unparsed":0,"unfinished":15,"rejoined":15,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":4686,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-1AYvw2/observe/events.ndjson.gz","gzipBytes":33047}
-  EVICT     5 store entries removed, 0 spared as nub tooling
+    ⛔ 2 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×20 exit×14 setsockopt×11 getsockopt×7 recvmsg×7 getcwd×3 socketpair×3 shutdown×3
+    wrote /home/runner/v2-DpDHwV/observe/events.ndjson.gz (16966 bytes)
+  EVENTLOG-FILE /home/runner/v2-DpDHwV/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":6340,"parsed":6298,"unparsed":0,"unfinished":20,"rejoined":20,"unresolvedDirfd":2,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":2691,"unknownSyscall":{"getsockname":20,"getsockopt":7,"getcwd":3,"recvmsg":7,"setsockopt":11,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/runner/v2-DpDHwV/observe/events.ndjson.gz","gzipBytes":16966}
+  EVICT     1 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @fingerprintjs/fingerprintjs-pro-react
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"b3804ea59c2185e40382f4b386a45be2b0be2da81343e6428f5938d21dd83594","specCount":5,"lockfiles":{"digest":"1fbd5d2c3e5cb0b96627fb6bd09acbc63b85ca715d1c0fdd387f9d353eb5663d","files":[{"path":"nub.lock","sha256":"df74dc167c1b66107be74e4cab39dc301cdd76d92ffb6163dfd383d7396fa7d0","bytes":1446}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T11:48:39.990Z","cacheHit":false,"clearancePath":"/home/runner/v2-DpDHwV/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 5 exact package-version(s), tree b3804ea59c21
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 152/52) OVERRIDDEN=2 REJECTED=0 grant={}
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 152/57) OVERRIDDEN=2 REJECTED=0 grant={}
   => VERIFIED {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
