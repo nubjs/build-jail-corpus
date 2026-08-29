@@ -186,11 +186,21 @@ jobs:
       actions: write
     env:
       OS_NAME: ${{ inputs.os || 'linux' }}
-      # Lanes a drained chain may hand off to, in order. WINDOWS IS DELIBERATELY ABSENT: its
-      # control never received the epoch-15 era-PATH fix, so its 2265 rows would be measured by a
-      # driver a later epoch has to invalidate anyway. Adding it back is this one word, once that
-      # lane's control is brought level.
-      LANE_ORDER: linux,macos
+      # Lanes a drained chain may hand off to, in order. Windows is LAST because its slice is clamped
+      # to 5 rows (see the clamp in "Claim a slice"), so at ~5 records per ~16-minute job its 2265 rows
+      # are on the order of 130 hours — real work, but it must not displace the faster lanes.
+      #
+      # It was excluded until epoch 23 while its control was brought level (epochs 19-20) and while
+      # the harness suite was made to RUN there at all (epochs 21-22). Admitted on measurement, not
+      # on the fixes alone: probe 33230149481 re-measured five packages already holding win32 MINIMUM
+      # records — a MINIMUM never consults the control arm, so those verdicts could not move for the
+      # reasons we had just changed, which is what makes them a known-answer control. Three
+      # reproduced exactly, iedriver@4.0.0 NARROWED from {"write":{"project":true},"network":true} to
+      # {"network":true} — and its old record is itself stamped minimality:OVER-PREDICTED, so the
+      # narrowing is that flag being corrected rather than a regression — and nx@15.9.7 returned
+      # HARNESS-ERROR, which claim-slice.mjs sends back to pending rather than into the corpus.
+      # falsify PASSED 2/2 on that run and on 33229392476 before it.
+      LANE_ORDER: linux,macos,windows
       # ⛔ JOB-SCOPED, NOT STEP-SCOPED. The publisher WRITES this manifest during the measure step and
       # the end-of-slice commit READS it to decide which records are genuinely this run's. A
       # step-level `env:` does not reach other steps, and on macOS the shared `${TMPDIR:-/tmp}`

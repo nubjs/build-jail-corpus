@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 23,
+  "currentEpoch": 24,
   "transitions": [
     {
       "fromEpoch": null,
@@ -236,6 +236,16 @@
         "verdicts": []
       },
       "reason": "Epoch 23 stops a no-claim debug probe from killing the drain.\n\nMEASURED, AND IT COST THE CORPUS ITS SELF-SUSTAINING DRAIN. The single-flight preflight refuses\nto start while an OLDER run of this workflow is live, because two real drains erase each other's\nqueue claims. A `packages:` debug probe is NOT a drain -- it skips the claim step entirely\n(`if: inputs.packages == ''`) and commits no records, so it holds nothing another run could\nerase. But the preflight could not tell them apart. On 2026-08-29 probe 33230149481 was still\nin_progress when the linux chain's successor 33230375263 started; the successor refused, exited\n1, and therefore NEVER REACHED its own dispatch step. The chain stopped there. Six consecutive\nself-chained hops ended because of a probe that held nothing.\n\nIt failed SILENTLY in the way that matters: a refused run reads as a deliberate yield, so nothing\nanywhere reported that the drain had ended.\n\nTHE DISCRIMINATOR. A workflow_dispatch run's INPUTS are absent from the runs-list payload, so\nneither query could inspect `packages` directly. `run-name:` sets `display_title`, which IS in\nthat payload, so every run now titles itself `corpus-v2 <os> drain` or `... [debug probe]` and\nboth preflight queries skip the marked ones. Yielding to a real drain is unchanged.\n\nGuarded by harness/v2/single-flight-ignores-probes.test.mjs, which pins BOTH halves -- the title\nmust MARK a probe and the queries must SKIP what it marks -- plus a known-answer control that the\ntwo status queries still exist at all, without which the exclusion assertions pass vacuously and\nsingle-flight would be silently gone. Both drives run RED, each failing only its own half.\n\nMeasurement-neutral: nothing about how a package is measured changed. Cost 0."
+    },
+    {
+      "fromEpoch": 23,
+      "fromHarnessSha256": "37f9967d1cc1bddd0058b5d3366b220941bf83a69ba55094c074b0ad81039cc1",
+      "toEpoch": 24,
+      "toHarnessSha256": "7079f8d00fbab97e527ecd38ef46c7ab80fe51074d1874c402c9d2e8f8914c83",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 24 admits windows to LANE_ORDER, lifting the corpus ceiling from ~64% toward complete.\n\nWHY IT WAS THE CEILING. win32 holds 2265 pending rows -- 33% of the 6880 -- so a drain that can\nnever enter that lane tops out near 64% no matter how long it runs.\n\nADMITTED ON MEASUREMENT, NOT ON THE FIXES. Epochs 19-20 gave the win32 control the era toolchain\nand made it print what nub said; epochs 21-22 made the harness suite RUN on Windows at all, which\nthe first probe proved it could not. None of that is evidence the lane MEASURES correctly. Probe\n33230149481 is: it re-measured five packages that already hold win32 MINIMUM records, and a\nMINIMUM never consults the control arm -- it runs only after every verify rung has failed -- so\nthose verdicts could not move for the reasons we had just changed. That is what makes them a\nknown-answer control rather than a hopeful re-run.\n\nRESULT: flow-bin@0.27.0, jest-preview@0.3.2 and cy2@4.0.9 reproduced MINIMUM {} exactly.\niedriver@4.0.0 NARROWED from {\"write\":{\"project\":true},\"network\":true} to {\"network\":true} -- and\nits existing record is itself stamped `minimality: OVER-PREDICTED`, so the narrowing is that flag\nbeing corrected, not a regression. nx@15.9.7 returned HARNESS-ERROR, which claim-slice.mjs sends\nback to `pending` rather than into the corpus, so it costs a retry and cannot record a false\nmeasurement. falsify PASSED 2/2 on that run and on 33229392476 before it.\n\nWINDOWS IS LAST IN THE ORDER, deliberately. Its slice is clamped to 5 rows, so at roughly 5\nrecords per ~16-minute job those 2265 rows are on the order of 130 hours. That is real work and\nit must not displace the faster lanes -- linux (~790 pending) and macos (1652) drain first, so\nthis costs nothing today and only matters at the moment the chain would otherwise have STOPPED.\n\nVerified by known-answer control on the real and synthetic queues: with linux still pending the\nhandoff picks linux; with linux and macos drained it picks windows (reachable at last); with\nevery lane drained it prints nothing and the chain ends, which is the one honest place to stop.\n\nMeasurement-neutral: nothing about how a package is measured changed. Cost 0."
     }
   ]
 }
