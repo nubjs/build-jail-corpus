@@ -1,0 +1,117 @@
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### node@24.18.0   (/home/runner/v2-27amog)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2146982a9c13eb177af5a7664b7d4535f54496517aa9ef7ad9a5c423ba532c3a","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:42.728Z","cacheHit":false,"clearancePath":"/home/runner/v2-27amog/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 2146982a9c13
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2026-06-25T01:09:35.355Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a923adfe5d79afda5edec51430a2327d8565b7d55f1bd56b899b02fd295df383","specCount":2,"lockfiles":{"digest":"77ee613ba2015a1ebb21edce56c8067171ac973e9e712778b01704ba6dde4e37","files":[{"path":"package-lock.json","sha256":"432fcb2542832a0c56a35451fba28bb196edc9c0490fd4c813ba2892307e9da2","bytes":1005}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:43.880Z","cacheHit":false,"clearancePath":"/home/runner/v2-27amog/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree a923adfe5d79
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=2749 trace=61193 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-27amog/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-27amog/observe/capture.json
+  RAWLOG-BYTES raw=13962901 gz=288393
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"node","packageVersion":"24.18.0","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":null,"publishedAt":"2026-06-24T01:09:35.355Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-27amog/jailhome","TMPDIR":"/tmp/nub-tmp-obsXc4lZP","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-27amog/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 26
+    writes  script 4467  /  whole traced tree 5005
+    sockets script 6  /  whole traced tree 10
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-27amog/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-27amog/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-27amog/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXc4lZP
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-27amog/observe/node_modules/node
+  == WRITES the script actually performed ==
+    jailHome     34  (base profile already grants this — NOT billed)
+        /home/runner/v2-27amog/jailhome/.npm/_logs/2026-08-29T20_18_45_273Z-debug-0.log
+        /home/runner/v2-27amog/jailhome/.npm/_cacache
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/tmp
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/tmp/235e0714-c0c3-4211-8677-c4c5adc98ba4
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/content-v2
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/content-v2/sha512
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/content-v2/sha512/aa
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/content-v2/sha512/aa/f1
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/content-v2/sha512/aa/f1/9b72c4689fd9b0fbb58b1525748c2f30fbf1555aa9b02ca05636bde1a49c2d0bf1b7471ac4109e85886b4bcfe3f05ff8f10bbc15ba9d58bdc4e08f696bb6
+        /home/runner/v2-27amog/jailhome/.npm/_cacache/index-v5
+        … and 24 more
+    ownPkg     3351  (base profile already grants this — NOT billed)
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-linux-x64
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-bin-setup
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-linux-x64/share
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-linux-x64/share/doc
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-bin-setup/index.js
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-linux-x64/share/doc/node
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-linux-x64/share/doc/node/gdbinit
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-bin-setup/package.json
+        /home/runner/v2-27amog/observe/node_modules/node/node_modules/node-bin-setup/.github
+        … and 3341 more
+    jailTmp    1082  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/60940a9d.zE4O3X
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/60940a9d
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/ee933ea5.1p9gsN
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/ee933ea5
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/608012a1.lRzjrF
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/608012a1
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/b3821835.OJ0XhE
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/b3821835
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/ab87b52d.iqPJ2H
+        /tmp/nub-tmp-obsXc4lZP/node-compile-cache/v24.19.0-x64-cf738c9d-1001/ab87b52d
+        … and 1072 more
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        104.16.1.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 34
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    17642 distinct from 61133 calls (61194 lines, 23 rejoined, 0 unparsed)
+    PROCS     33   lifecycle shells 21
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×55 setsockopt×50 getsockopt×31 exit×25 recvmsg×14 getcwd×7 wait4×6 exit_group×5
+    wrote /home/runner/v2-27amog/observe/events.ndjson.gz (108338 bytes)
+  EVENTLOG-FILE /home/runner/v2-27amog/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":61194,"parsed":61133,"unparsed":0,"unfinished":23,"rejoined":23,"unresolvedDirfd":4,"truncatedArg":0,"procs":33,"lifecyclePids":21,"distinctEvents":17642,"unknownSyscall":{"getsockname":55,"getsockopt":31,"getcwd":7,"recvmsg":14,"exit":25,"setsockopt":50,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":5,"wait4":6},"out":"/home/runner/v2-27amog/observe/events.ndjson.gz","gzipBytes":108338}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for node
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a923adfe5d79afda5edec51430a2327d8565b7d55f1bd56b899b02fd295df383","specCount":2,"lockfiles":{"digest":"fce33afad2bf474f4a57e34cf27c8df35300994441b01ff10a4a2d1f025b5473","files":[{"path":"nub.lock","sha256":"314e710930a6f9f53a06f9f277f4a5b304c635715b9d94b00026ec79a83e75b4","bytes":646}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:43.880Z","cacheHit":true,"clearancePath":"/home/runner/v2-27amog/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree a923adfe5d79 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=3/4 missing=1 shortfall=d7e3e91e0f42 (tree 29/2749) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+       missing: bin/node
+     [synth/i] DEBUG final message final_message=; header 43319:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 63431:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 19587:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 43319:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 43319:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 63431:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 63431:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 19587:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 29891:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 19587:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 29891:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 29891:RESPONSE:RD,RA:NoError:QUERY

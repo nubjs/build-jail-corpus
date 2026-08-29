@@ -1,6 +1,105 @@
-### diskusage@0.2.6   (/home/runner/v2-mc5MVl)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### diskusage@0.2.6   (/home/runner/v2-EQBcam)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"83a56104b1fca060dbd412dd88df8d32c39f2767d92efc86c54882a12c4e6477","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:17:59.414Z","cacheHit":false,"clearancePath":"/home/runner/v2-EQBcam/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 83a56104b1fc
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=69 trace=101399 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2018-11-01T23:20:47.286Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"cbe30f1bf5f1c5ea6badc7d8fce78428fbe13e0959512e29fe103367eda12b5c","specCount":2,"lockfiles":{"digest":"f0f10d2ce02b54504b77691497da3ed50b5a071929c1741d02063f12f5c4e349","files":[{"path":"package-lock.json","sha256":"1bbbe1b83e82b518649f526a72b5d79ff5469cd88d8d92286df88a9929ee90c4","bytes":874}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:00.484Z","cacheHit":false,"clearancePath":"/home/runner/v2-EQBcam/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree cbe30f1bf5f1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=73 trace=29805 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":22,"filesTheScriptProduced":12,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-EQBcam/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-EQBcam/observe/capture.json
+  RAWLOG-BYTES raw=4325290 gz=126362
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"diskusage","packageVersion":"0.2.6","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":null,"publishedAt":"2018-10-31T23:20:47.286Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-EQBcam/jailhome","TMPDIR":"/tmp/nub-tmp-obsGr5Ckg","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-EQBcam/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 88
+    writes  script 849  /  whole traced tree 851
+    sockets script 8  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-EQBcam/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-EQBcam/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-EQBcam/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsGr5Ckg
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-EQBcam/observe/node_modules/diskusage
+  == WRITES the script actually performed ==
+    jailHome    820  (base profile already grants this — NOT billed)
+        /home/runner/v2-EQBcam/jailhome/.cache
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node/common.gypi
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node/config.gypi
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node/node.h
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node/node_api.h
+        /home/runner/v2-EQBcam/jailhome/.cache/node-gyp/10.24.1/include/node/node_api_types.h
+        … and 810 more
+    ownPkg       24  (base profile already grants this — NOT billed)
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/config.gypi
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/Makefile
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/diskusage.target.mk
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/binding.Makefile
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/Release
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/obj.target
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/diskusage
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/src
+        /home/runner/v2-EQBcam/observe/node_modules/diskusage/build/Release/.deps
+        … and 14 more
+    jailTmp       5  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsGr5Ckg/cc2PatyM.s
+        /tmp/nub-tmp-obsGr5Ckg/cc0BTyVw.s
+        /tmp/nub-tmp-obsGr5Ckg/cc4eHqjr.res
+        /tmp/nub-tmp-obsGr5Ckg/ccONmCEq.cdtor.c
+        /tmp/nub-tmp-obsGr5Ckg/ccZMUyli.cdtor.o
+  == NETWORK ==
+    AF_INET sockets: 8   distinct peers: 2
+        127.0.0.53:53
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 820
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    12178 distinct from 29361 calls (29806 lines, 321 rejoined, 0 unparsed)
+    PROCS     93   lifecycle shells 82
+    ⛔ 2 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×96 wait4×79 exit_group×67 exit×23 recvmsg×9 getsockname×7 socketpair×6 setsockopt×2
+    wrote /home/runner/v2-EQBcam/observe/events.ndjson.gz (68857 bytes)
+  EVENTLOG-FILE /home/runner/v2-EQBcam/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":29806,"parsed":29361,"unparsed":0,"unfinished":321,"rejoined":321,"unresolvedDirfd":2,"truncatedArg":0,"procs":93,"lifecyclePids":82,"distinctEvents":12178,"unknownSyscall":{"getcwd":96,"getsockname":7,"recvmsg":9,"socketpair":6,"exit_group":67,"wait4":79,"setsockopt":2,"sendmmsg":2,"getsockopt":2,"exit":23},"out":"/home/runner/v2-EQBcam/observe/events.ndjson.gz","gzipBytes":68857}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for diskusage
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"0fe2208e2d6b17e1a4aaf2b1b5888fb715e5a136227b0c2afa801bf16ed4af58","specCount":2,"lockfiles":{"digest":"8c8f93382b78eeda8c3be4c1a860c004ff2fbef6ca38d9dd29cebd8524fd876a","files":[{"path":"nub.lock","sha256":"105330f0bd5988dde2cfd69a31ab5cbe6d75836b4fff47830b1b07a02631284c","bytes":576}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:08.166Z","cacheHit":false,"clearancePath":"/home/runner/v2-EQBcam/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 0fe2208e2d6b
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=22/22 missing=0 shortfall=none (tree 152/73) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     3 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for diskusage
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"0fe2208e2d6b17e1a4aaf2b1b5888fb715e5a136227b0c2afa801bf16ed4af58","specCount":2,"lockfiles":{"digest":"8c8f93382b78eeda8c3be4c1a860c004ff2fbef6ca38d9dd29cebd8524fd876a","files":[{"path":"nub.lock","sha256":"105330f0bd5988dde2cfd69a31ab5cbe6d75836b4fff47830b1b07a02631284c","bytes":576}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T20:18:08.166Z","cacheHit":true,"clearancePath":"/home/runner/v2-EQBcam/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 2 exact package-version(s), tree 0fe2208e2d6b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=22/22 missing=0 shortfall=none (tree 152/73) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
