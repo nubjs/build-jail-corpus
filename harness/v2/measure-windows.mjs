@@ -402,7 +402,12 @@ const unjailedNubOk = () => {
   // one — a control whose off-switch silently stopped working produces unanimous agreement rather than
   // an error, which reads as a confident exoneration of the jail, and v1 shipped exactly that for
   // months. `engaged` is three-state on purpose: `null` means UNKNOWABLE, never disproven.
-  const out = { ok: false, engaged: null, timedOut: false };
+  // ⛔ `logs` ESCAPES ON THE OBJECT, because a caller that is about to accuse nub needs to be able
+  // to say WHY. It was local here and died with the call, so this driver's accusation branch printed
+  // nothing at all about the control -- the other half of epoch 15, which landed that fix only in
+  // `unjailed-nub.mjs`. Mutated in place below; the reference sees every update.
+  const logs = {};
+  const out = { ok: false, engaged: null, timedOut: false, logs };
   // ⛔ THE CONTROL MUST HOLD THE SAME TOOLCHAIN AS THE ARM IT IS COMPARED AGAINST, OR IT MANUFACTURES
   // A NUB DEFECT. This arm decides BROKEN-UNJAILED-NUB ("npm installs it, nub cannot") versus
   // BROKEN-WITHOUT-JAIL-TOO ("nothing installs it"), and it decides it by comparison with npm_ok.
@@ -430,10 +435,12 @@ const unjailedNubOk = () => {
   if (timedOut(resolve)) { out.timedOut = true; return out; }
   // No lifecycle script has spawned yet, so nothing could have printed the claim — `engaged` stays
   // `null` rather than `false`, or a fetch failure would be filed as a broken off-switch.
+  // Captured even on the failing path: a resolve failure is exactly a case where the record would
+  // otherwise carry no explanation of what the control did.
+  logs['security-resolve.log'] = `${resolve.stdout ?? ''}${resolve.stderr ?? ''}`;
   if (resolve.status !== 0) return out;
   securityScreen('nub-unjailed-resolved', ['--tree', d]);
 
-  const logs = {};
   for (const [key, args] of [['i', ['install']], ['a', ['approve-builds', '--all']]]) {
     const r = run(NUB, args, { cwd: d, env: ARM_ENV, timeout: ARM_TIMEOUT_MS });
     logs[key] = `${r.stdout ?? ''}${r.stderr ?? ''}`;
@@ -2050,6 +2057,24 @@ if (NUB_ARM.timedOut || NUB_ARM.engaged === false) {
   process.exit(0);
 }
 if (!NUB_ARM.ok) {
+  // ⛔ PRINT WHAT NUB ACTUALLY SAID, AND PRINT IT HERE. This branch is the one that goes on to accuse
+  // nub, and it accused it SILENTLY: the arm's output was captured and discarded with the call, so a
+  // real nub defect and a harness asymmetry left byte-identical records. That is epoch 15's second
+  // half, which reached `unjailed-nub.mjs` and not this driver.
+  //
+  // ⛔ BEFORE THE VERDICT LINE, NEVER BETWEEN IT AND THE EXIT. `venue-provenance-on-exit.test.mjs`
+  // scans FORWARD from the `=>` to `emitBinaryProvenance()` inside a FIVE-LINE window; anything
+  // inserted below pushes the call out of it, which a comment block parked there has already done
+  // once. The tail bound matches the POSIX control's.
+  // ⛔ NEUTRALISE `=>` IN ECHOED PACKAGE OUTPUT. record.mjs keys verdicts on `=>` with UNANCHORED
+  // regexes (e.g. /=>\\s*VERIFIED\\s/), despite this driver commenting that it matches a LEADING one --
+  // so a `=>` anywhere in a line an arbitrary package printed can be read as a verdict, and the LAST
+  // match wins. The POSIX control echoes unsanitised and carries the same exposure; that is a parser
+  // defect worth fixing at the source rather than per-caller, and it is NOT fixed here because
+  // changing verdict parsing affects every platform. This keeps the new echo from widening it.
+  for (const line of Object.values(NUB_ARM.logs ?? {}).join('\n').trimEnd().split('\n').slice(-20)) {
+    if (line.trim()) console.log(`    | ${line.replace(/=>/g, '=&gt;')}`);
+  }
   // ⛔ ONE `=>` LINE PER PATH — `record.mjs` walks the log and the LAST match wins, so emitting a
   // second verdict after either branch would silently overwrite it and the stage would be inert.
   // ⛔ NAME THE BINARY BEFORE EXITING. Both of these publish a record, and a record that cannot say
