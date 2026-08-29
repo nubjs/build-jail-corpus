@@ -1,5 +1,112 @@
-### libxmljs2@0.20.3   (/home/nub/v2-wqnvvF)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=755 trace=39031 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### libxmljs2@0.20.3   (/home/runner/v2-eE8Pm3)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c224384de278da30d6f255386d0ae436f693c2d641bfa8ba33cf9ed017c4932e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:52:44.709Z","cacheHit":false,"clearancePath":"/home/runner/v2-eE8Pm3/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c224384de278
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2019-05-22T17:04:30.260Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ad43b0bc6111b8f1cc0280ed9c85e87b55eb4bef1cb6fb69f7d7a60610eca56a","specCount":69,"lockfiles":{"digest":"4fb4dafafcbb881ad1dfa08bce41557ba1a4d51545a4f6c105308911dbd5afb0","files":[{"path":"package-lock.json","sha256":"be445ff84076bc6a08a83033eb43719440201abf18b66d1cc9f5c4efffb65870","bytes":27050}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:52:46.658Z","cacheHit":false,"clearancePath":"/home/runner/v2-eE8Pm3/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 69 exact package-version(s), tree ad43b0bc6111
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-eE8Pm3/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-eE8Pm3/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=869 trace=262233 lines
+  CLOSURE   68 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":299,"filesTheScriptProduced":108,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-eE8Pm3/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-eE8Pm3/observe/capture.json
+  RAWLOG-BYTES raw=28834873 gz=875794
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"libxmljs2","packageVersion":"0.20.3","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">=8","publishedAt":"2019-05-21T17:04:30.260Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-eE8Pm3/jailhome","TMPDIR":"/tmp/nub-tmp-obsug5bIw","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-eE8Pm3/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 1129
+    writes  script 1045  /  whole traced tree 1047
+    sockets script 9  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-eE8Pm3/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-eE8Pm3/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-eE8Pm3/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsug5bIw
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2
+  == WRITES the script actually performed ==
+    ownPkg      172  (base profile already grants this — NOT billed)
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/Release
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/config.gypi
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/Makefile
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/xmljs.target.mk
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/binding.Makefile
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/obj.target
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/xmljs
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/src
+        /home/runner/v2-eE8Pm3/observe/node_modules/libxmljs2/build/Release/.deps
+        … and 162 more
+    jailHome    820  (base profile already grants this — NOT billed)
+        /home/runner/v2-eE8Pm3/jailhome/.cache
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node/common.gypi
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node/config.gypi
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node/node.h
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node/node_api.h
+        /home/runner/v2-eE8Pm3/jailhome/.cache/node-gyp/10.24.1/include/node/node_api_types.h
+        … and 810 more
+    jailTmp      53  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsug5bIw/ccfTU5km.s
+        /tmp/nub-tmp-obsug5bIw/ccOcuxLI.s
+        /tmp/nub-tmp-obsug5bIw/ccKDvgqw.s
+        /tmp/nub-tmp-obsug5bIw/ccaWILfU.s
+        /tmp/nub-tmp-obsug5bIw/ccST5AaT.s
+        /tmp/nub-tmp-obsug5bIw/ccG61o7Q.s
+        /tmp/nub-tmp-obsug5bIw/cctTktJY.s
+        /tmp/nub-tmp-obsug5bIw/ccUl0G6b.s
+        /tmp/nub-tmp-obsug5bIw/ccgyciDU.s
+        /tmp/nub-tmp-obsug5bIw/ccVl8c76.s
+        … and 43 more
+  == NETWORK ==
+    AF_INET sockets: 9   distinct peers: 3
+        127.0.0.53:53
+        140.82.113.4:443
+        104.16.212.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 820
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    103626 distinct from 254125 calls (262234 lines, 6628 rejoined, 0 unparsed)
+    PROCS     1134   lifecycle shells 1123
+    ⛔ 89 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×1233 exit_group×1078 getcwd×924 exit×50 recvmsg×11 socketpair×9 getsockname×8 setsockopt×3
+    wrote /home/runner/v2-eE8Pm3/observe/events.ndjson.gz (451373 bytes)
+  EVENTLOG-FILE /home/runner/v2-eE8Pm3/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":262234,"parsed":254125,"unparsed":0,"unfinished":6628,"rejoined":6628,"unresolvedDirfd":89,"truncatedArg":0,"procs":1134,"lifecyclePids":1123,"distinctEvents":103626,"unknownSyscall":{"getcwd":924,"getsockname":8,"recvmsg":11,"socketpair":9,"shutdown":1,"exit_group":1078,"wait4":1233,"setsockopt":3,"sendmmsg":3,"getsockopt":3,"exit":50},"out":"/home/runner/v2-eE8Pm3/observe/events.ndjson.gz","gzipBytes":451373}
+  EVICT     12 store entries removed, 86 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for libxmljs2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1232f335782de4d8e2e1a20be2f74ac3f9d514a67da7b5d49727ed0fc55e77cd","specCount":70,"lockfiles":{"digest":"c1eab655283755b0f26f347e960a01ad6c0a649a185a03903845c150652726c5","files":[{"path":"nub.lock","sha256":"8507fc5155a01504332175baaaf43b0bc5d82d3e618ef31f29db582228806683","bytes":16816}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:53:47.924Z","cacheHit":false,"clearancePath":"/home/runner/v2-eE8Pm3/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 70 exact package-version(s), tree 1232f335782d
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=298/298 missing=0 shortfall=none (tree 2676/869) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     17 store entries removed, 95 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for libxmljs2
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"1232f335782de4d8e2e1a20be2f74ac3f9d514a67da7b5d49727ed0fc55e77cd","specCount":70,"lockfiles":{"digest":"c1eab655283755b0f26f347e960a01ad6c0a649a185a03903845c150652726c5","files":[{"path":"nub.lock","sha256":"8507fc5155a01504332175baaaf43b0bc5d82d3e618ef31f29db582228806683","bytes":16816}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T22:53:47.924Z","cacheHit":true,"clearancePath":"/home/runner/v2-eE8Pm3/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 70 exact package-version(s), tree 1232f335782d (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=298/298 missing=0 shortfall=none (tree 2676/869) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
