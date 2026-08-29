@@ -225,16 +225,30 @@ const writeRecord = (dir, pkg, ident) => {
   return abs;
 };
 
+/// ⛔ FORWARD SLASHES FOR ANYTHING HANDED TO BASH. `publish-record-v2.sh` is a POSIX shell script,
+/// and under Git Bash a backslash-separated path is not a path -- each separator reads as an escape,
+/// so every path operation inside the script silently addresses something else. Git Bash accepts a
+/// drive-letter path with forward slashes (`C:/Users/...`) natively, which is why this needs no
+/// `cygpath`. MEASURED on win32 probe 33229020092: without it the script exited 0 having published
+/// NOTHING, so the records never reached origin and the HEAD guard -- whose whole job is to catch
+/// exactly that -- returned 0 instead of FATAL. Three tests failed on the two halves of one cause.
+///
+/// ⛔ THE PRODUCTION PUBLISH PATH IS NOT KNOWN TO SHARE THIS. The workflow hands the same script a
+/// Windows `github.workspace`, but 2265 win32 records were published historically, so production
+/// evidently works and this is a fixture defect. Do NOT cite these tests as proof of a live Windows
+/// publish bug without measuring the real path.
+const forBash = (p) => p.replace(/\\/g, '/');
+
 const publishOne = (dir, abs) => execFileSync('bash',
-  [path.join(dir, 'harness', 'v2', 'publish-record-v2.sh'), abs], {
+  [forBash(path.join(dir, 'harness', 'v2', 'publish-record-v2.sh')), forBash(abs)], {
     cwd: dir,
     encoding: 'utf8',
     env: {
       ...process.env,
-      NUB_CORPUS_REPO: dir,
+      NUB_CORPUS_REPO: forBash(dir),
       NUB_CORPUS_BRANCH: 'main',
-      NUB_CORPUS_MANIFEST: path.join(dir, '.manifest'),
-      NUB_CORPUS_WITHHELD: path.join(dir, 'withheld-records'),
+      NUB_CORPUS_MANIFEST: forBash(path.join(dir, '.manifest')),
+      NUB_CORPUS_WITHHELD: forBash(path.join(dir, 'withheld-records')),
     },
   });
 
@@ -353,8 +367,8 @@ test('the real commit step: a reconcile-closed row makes --complete report 0, an
     execFileSync('node', ['harness/collect-verdicts.mjs', '--runs', 'records-v2',
       '--out', path.join(dir, '.verdicts')], { cwd: dir, encoding: 'utf8' });
     return sh(`set +e\nexport GITHUB_REF_NAME=main OS_NAME=linux RUN_ID=${runId} `
-      + `NUB_CORPUS_MANIFEST=${path.join(dir, '.manifest')} NUB_CORPUS_SETTLED=${path.join(dir, '.settled')} `
-      + `SLICE_FILE=${path.join(dir, '.slice')} VERDICTS_FILE=${path.join(dir, '.verdicts')}\n`
+      + `NUB_CORPUS_MANIFEST='${path.join(dir, '.manifest')}' NUB_CORPUS_SETTLED='${path.join(dir, '.settled')}' `
+      + `SLICE_FILE='${path.join(dir, '.slice')}' VERDICTS_FILE='${path.join(dir, '.verdicts')}'\n`
       + `${body2}\n`, dir);
   };
   const body2 = commitShell();
@@ -395,8 +409,8 @@ test('the guard still FATALs when a published record is genuinely absent from HE
   fs.writeFileSync(path.join(A, '.verdicts'), '');
   const out = spawnSync('bash', ['-c',
     `set +e\nexport GITHUB_REF_NAME=main OS_NAME=linux RUN_ID=FATAL `
-    + `NUB_CORPUS_MANIFEST=${manifest} NUB_CORPUS_SETTLED=${path.join(A, '.settled')} `
-    + `SLICE_FILE=${path.join(A, '.slice')} VERDICTS_FILE=${path.join(A, '.verdicts')}\n${commitShell()}`],
+    + `NUB_CORPUS_MANIFEST='${manifest}' NUB_CORPUS_SETTLED='${path.join(A, '.settled')}' `
+    + `SLICE_FILE='${path.join(A, '.slice')}' VERDICTS_FILE='${path.join(A, '.verdicts')}'\n${commitShell()}`],
   { cwd: A, encoding: 'utf8' });
   assert.equal(out.status, 1,
     `the guard did not FATAL on a missing record — it exited ${out.status}; the safety check is gone`);
