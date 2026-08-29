@@ -2,34 +2,601 @@
   "pkg": "@wojtekmaj/enzyme-adapter-utils",
   "version": "0.1.3",
   "harnessVersion": 2,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
-  "overPredictedBy": [],
+  "harnessEpoch": 26,
+  "verdict": "MINIMUM",
+  "grant": {
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    },
+    "network": true
+  },
+  "synthesized": {},
+  "verifiedBy": "ladder",
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-network",
+    "no-write-deps",
+    "no-write-project"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "18c8fbfe44c4e24c96355af8da9795696b546ff98bec7d07b4b95b155b240a56",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:33.941Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "0210f2d411c8a128dd4d716383eb02fba0f0964b72f5f3eec117fbcf3f6fb523",
+      "specCount": 41,
+      "lockfiles": {
+        "digest": "6ebcc8bf17cda436a0ce9d46e457481b1e0b11061196a7be52ea5fbca391e5e8",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "45856cd0eb2b653aba3a1c3aabc66055ac73d571ccf79f65edb337558286c0d8",
+            "bytes": 20153
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:35.703Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2126003217-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-network-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-project-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-userHome-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-29T09:29:38.911Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "18c8fbfe44c4e24c96355af8da9795696b546ff98bec7d07b4b95b155b240a56",
+      "specCount": 1,
+      "specs": [
+        "@wojtekmaj/enzyme-adapter-utils@0.1.3"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-29T09:29:33.941Z"
+    },
+    {
+      "digest": "0210f2d411c8a128dd4d716383eb02fba0f0964b72f5f3eec117fbcf3f6fb523",
+      "specCount": 41,
+      "specs": [
+        "@wojtekmaj/enzyme-adapter-utils@0.1.3",
+        "call-bind@1.0.2",
+        "define-properties@1.1.3",
+        "es-abstract@1.19.1",
+        "es-to-primitive@1.2.1",
+        "function-bind@1.1.1",
+        "function.prototype.name@1.1.5",
+        "functions-have-names@1.2.2",
+        "get-intrinsic@1.1.1",
+        "get-symbol-description@1.0.0",
+        "has-bigints@1.0.1",
+        "has-symbols@1.0.2",
+        "has-tostringtag@1.0.0",
+        "has@1.0.3",
+        "internal-slot@1.0.3",
+        "is-bigint@1.0.4",
+        "is-boolean-object@1.1.2",
+        "is-callable@1.2.4",
+        "is-date-object@1.0.5",
+        "is-negative-zero@2.0.2",
+        "is-number-object@1.0.6",
+        "is-regex@1.1.4",
+        "is-shared-array-buffer@1.0.1",
+        "is-string@1.0.7",
+        "is-symbol@1.0.4",
+        "is-weakref@1.0.2",
+        "js-tokens@4.0.0",
+        "loose-envify@1.4.0",
+        "object-assign@4.1.1",
+        "object-inspect@1.12.0",
+        "object-keys@1.1.1",
+        "object.assign@4.1.2",
+        "object.fromentries@2.0.5",
+        "prop-types@15.8.1",
+        "react-is@16.13.1",
+        "react@17.0.2",
+        "side-channel@1.0.4",
+        "string.prototype.trimend@1.0.4",
+        "string.prototype.trimstart@1.0.4",
+        "unbox-primitive@1.0.1",
+        "which-boxed-primitive@1.0.2"
+      ],
+      "lockfiles": {
+        "digest": "6ebcc8bf17cda436a0ce9d46e457481b1e0b11061196a7be52ea5fbca391e5e8",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "45856cd0eb2b653aba3a1c3aabc66055ac73d571ccf79f65edb337558286c0d8",
+            "bytes": 20153
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-29T09:29:35.703Z"
+    },
+    {
+      "digest": "5de44e410079df0136956b085b7081123d8ae709086c2f73ffb20c7f44b96d30",
+      "specCount": 100,
+      "specs": [
+        "@wojtekmaj/enzyme-adapter-utils@0.1.3",
+        "array-buffer-byte-length@1.0.2",
+        "arraybuffer.prototype.slice@1.0.4",
+        "async-function@1.0.0",
+        "available-typed-arrays@1.0.7",
+        "call-bind-apply-helpers@1.0.2",
+        "call-bind@1.0.9",
+        "call-bound@1.0.4",
+        "data-view-buffer@1.0.2",
+        "data-view-byte-length@1.0.2",
+        "data-view-byte-offset@1.0.1",
+        "define-data-property@1.1.4",
+        "define-properties@1.2.1",
+        "dunder-proto@1.0.1",
+        "es-abstract-get@1.0.0",
+        "es-abstract@1.24.2",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "es-set-tostringtag@2.1.0",
+        "es-to-primitive@1.3.4",
+        "for-each@0.3.5",
+        "function-bind@1.1.2",
+        "function.prototype.name@1.2.0",
+        "functions-have-names@1.2.3",
+        "generator-function@2.0.1",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "get-symbol-description@1.1.0",
+        "globalthis@1.0.4",
+        "gopd@1.2.0",
+        "has-bigints@1.1.0",
+        "has-property-descriptors@1.0.2",
+        "has-proto@1.2.0",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "has@1.0.4",
+        "hasown@2.0.4",
+        "internal-slot@1.1.0",
+        "is-array-buffer@3.0.5",
+        "is-async-function@2.1.1",
+        "is-bigint@1.1.0",
+        "is-boolean-object@1.2.2",
+        "is-callable@1.2.7",
+        "is-data-view@1.0.2",
+        "is-date-object@1.1.0",
+        "is-document.all@1.0.0",
+        "is-finalizationregistry@1.1.1",
+        "is-generator-function@1.1.2",
+        "is-map@2.0.3",
+        "is-negative-zero@2.0.3",
+        "is-number-object@1.1.1",
+        "is-regex@1.2.1",
+        "is-set@2.0.3",
+        "is-shared-array-buffer@1.0.4",
+        "is-string@1.1.1",
+        "is-symbol@1.1.1",
+        "is-typed-array@1.1.15",
+        "is-weakmap@2.0.2",
+        "is-weakref@1.1.1",
+        "is-weakset@2.0.4",
+        "isarray@2.0.5",
+        "js-tokens@4.0.0",
+        "loose-envify@1.4.0",
+        "math-intrinsics@1.1.0",
+        "object-assign@4.1.1",
+        "object-inspect@1.13.4",
+        "object-keys@1.1.1",
+        "object.assign@4.1.7",
+        "object.fromentries@2.0.8",
+        "own-keys@1.0.2",
+        "possible-typed-array-names@1.1.0",
+        "prop-types@15.8.1",
+        "react-is@16.13.1",
+        "react@17.0.2",
+        "reflect.getprototypeof@1.0.10",
+        "regexp.prototype.flags@1.5.4",
+        "safe-array-concat@1.1.4",
+        "safe-push-apply@1.0.0",
+        "safe-regex-test@1.1.0",
+        "set-function-length@1.2.2",
+        "set-function-name@2.0.2",
+        "set-proto@1.0.0",
+        "side-channel-list@1.0.1",
+        "side-channel-map@1.0.1",
+        "side-channel-weakmap@1.0.2",
+        "side-channel@1.1.1",
+        "stop-iteration-iterator@1.1.0",
+        "string.prototype.trim@1.2.11",
+        "string.prototype.trimend@1.0.10",
+        "string.prototype.trimstart@1.0.8",
+        "typed-array-buffer@1.0.3",
+        "typed-array-byte-length@1.0.3",
+        "typed-array-byte-offset@1.0.4",
+        "typed-array-length@1.0.8",
+        "unbox-primitive@1.1.0",
+        "which-boxed-primitive@1.1.1",
+        "which-builtin-type@1.2.1",
+        "which-collection@1.0.2",
+        "which-typed-array@1.1.22"
+      ],
+      "lockfiles": {
+        "digest": "dc6f36245caf8945245d44d2ca9a203ff68b4932239cf0875be9bd5c590c7c9f",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "b17e9b5546ce99e852cd4a3242f83a4709192bc24347bcd0384a2607b3bc1533",
+            "bytes": 31212
+          }
+        ]
+      },
+      "kinds": [
+        "nub-drop-no-network-resolved",
+        "nub-drop-no-write-deps-resolved",
+        "nub-drop-no-write-project-resolved",
+        "nub-drop-no-write-userHome-resolved",
+        "nub-fb2126003217-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-29T09:29:38.911Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-29T09:29:32.763Z",
+    "latestVersion": "0.2.0",
+    "weeklyDownloads": 380951,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/%40wojtekmaj%2Fenzyme-adapter-utils/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/%40wojtekmaj%2Fenzyme-adapter-utils"
+    }
+  },
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "descendedGrant": {
+    "write": {
+      "userHome": true
+    }
+  },
+  "notes": [
+    "arms-unfalsifiable",
+    "under-predicted"
+  ],
+  "eventLog": {
+    "lines": 5947,
+    "parsed": 5902,
+    "unparsed": 0,
+    "unfinished": 21,
+    "rejoined": 21,
+    "unresolvedDirfd": 2,
+    "truncatedArg": 0,
+    "procs": 20,
+    "lifecyclePids": 9,
+    "distinctEvents": 2930,
+    "unknownSyscall": {
+      "getsockopt": 4,
+      "getsockname": 5,
+      "getcwd": 4,
+      "recvmsg": 5,
+      "socketpair": 3,
+      "shutdown": 1,
+      "exit_group": 4,
+      "wait4": 4,
+      "exit": 14
+    },
+    "out": "/home/runner/v2-1D1LBz/observe/events.ndjson.gz",
+    "gzipBytes": 18310
+  },
   "driverRc": 0,
-  "durationMs": 5237,
+  "durationMs": 15442,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "207252352923cf12c24102ee34032aa2c3b9dd6a",
-    "node": "v22.23.1",
-    "at": "2026-08-07T20:26:22.819Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 26,
+    "harnessSha256": "af217384bc8f7818dce6704bf1ed6636dd6eccac061249162a56f1cf7b4ea931",
+    "harnessInputCount": 287,
+    "invalidationPolicySha256": "f3f9bab11a57de8e1258e0afb47e0483370a8f5dbf7767377fa87dbb8b8a3257",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260823.283.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260823.283.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-29T09:29:48.670Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "storeLayout": "isolated",
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
+    "interpreterInsideHome": false,
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
@@ -37,13 +604,56 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8",
-      "bytes": 207810856,
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "@wojtekmaj/enzyme-adapter-utils",
+      "packageVersion": "0.1.3",
+      "major": 16,
+      "version": "16.20.2",
+      "npm": "8.19.4",
+      "pinnable": true,
+      "engines": null,
+      "publishedAt": "2022-02-03T18:22:33.839Z",
+      "eraMajor": 16,
+      "startMajor": 16,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/16.20.2/node-v16.20.2-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "HOME": "/home/runner/v2-1D1LBz/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obsCNIXOe",
+        "NODE_COMPAT": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NUB_CACHE_DIR": "/home/runner/v2-1D1LBz/nubcache"
+      },
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
