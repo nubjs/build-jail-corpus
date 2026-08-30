@@ -153,6 +153,39 @@ const VERDICTS = {
 // It reads the RAW log on purpose. `parseDriverLog` strips `    | ` echoed lines because a package's
 // own output must never be read as a verdict -- and those echoed lines are exactly where nub's warning
 // and the dependency's stack trace live.
+// ⛔⛔ THE FILE PATHS NODE PRINTS ABOVE A PARSE ERROR — SCANNED FORWARD FROM THE SUFFIX, NEVER WITH
+// A GREEDY PREFIX. Epoch 40 wrote this as `/(\S*\/\S+\.(?:c|m)?js):\d+/g` and shipped a CUBIC
+// blowup into the instrument: two unbounded `\S` quantifiers ahead of a literal suffix means that on
+// any whitespace-free run WITHOUT a match, the engine tries every split of that run. Measured on that
+// shape: 1,500 chars costs 228 ms, 2,000 costs 537 ms, 3,000 costs 1,805 ms, 4,000 costs 4,273 ms --
+// doubling the token multiplies the cost by eight.
+//
+// MEASURED on `@vscode+windows-process-tree@0.8.0` (darwin, 25 KB log): the old pattern took
+// **5,556 ms and returned ZERO matches**, while the warning regex beside it took 0.3 ms. The trigger
+// is a 5,532-character token with no whitespace in it -- a node-gyp `.deps` line listing every
+// include path -- and every native-build package emits one.
+// Across 817 real logs the detector averaged 52 ms of pure backtracking each. `record.mjs` runs
+// under a 120 s budget per record, and a token twice that long costs EIGHT times as much, so this
+// was a live path from "a package uses node-gyp" to HARNESS-TIMEOUT on a measurement that was fine.
+//
+// Scanning from the `.js:<line>` suffix and walking back to whitespace is linear and has no
+// quantifier ahead of a literal at all. The `/`-must-be-present test moved out of the pattern and
+// into code for the same reason: it is a structural check, not something to make the engine search
+// for. Caller short-circuits on `syntaxError` too -- the result is only ever read on that branch,
+// so the common log now pays nothing here.
+function loadPaths(log) {
+  const out = [];
+  for (const line of log.split('\n')) {
+    for (const m of line.matchAll(/\.(?:c|m)?js:\d+/g)) {
+      let i = m.index;
+      while (i > 0 && !/\s/.test(line[i - 1])) i--;
+      const p = line.slice(i, m.index) + m[0].slice(0, m[0].indexOf(':'));
+      if (p.includes('/')) out.push(p);
+    }
+  }
+  return out;
+}
+
 export function detectEraDepMismatch(log) {
   // Nub's own engine warning. Three shapes are observed and all three must match, which is why the
   // version is a full semver rather than a bare major: spacing varies (`node >=6` and `node >= 6`),
@@ -175,7 +208,7 @@ export function detectEraDepMismatch(log) {
   //                with dependency dating; recorded separately rather than folded in, because a
   //                single number covering both would be actionable for neither.
   const syntaxError = /SyntaxError: Unexpected token/.test(log);
-  const loading = [...log.matchAll(/(\S*\/\S+\.(?:c|m)?js):\d+/g)].map((m) => m[1]);
+  const loading = syntaxError ? loadPaths(log) : [];
   const dependency = syntaxError
     ? loading.find((p) => /\/store\//.test(p) && !/\/node_modules\/npm\//.test(p)) ?? null : null;
   const toolchain = syntaxError

@@ -3,6 +3,30 @@ node_modules/
 .DS_Store
 harness/v2/.measure-sabotaged.sh
 
+# ⛔⛔ THE DRIVER LOG'S TEMP TWIN, WHICH WAS BEING COMMITTED AND LYING TO EVERY READER.
+#
+# `run-batch-v2.mjs:295` writes the driver's stdout to `<record-dir>/.driver.out` purely to hand it
+# to `record.mjs --log`; `record.mjs:963` then writes the CANONICAL `driver.out` beside the record.
+# The temp is deleted afterwards only for verdicts outside `KEEP_LOG_VERDICTS` -- so the survivors
+# were being swept into the corpus by `git add records-v2`, 733 of them.
+#
+# MEASURED 2026-08-30 across all 6,880 records: `driver.out` is present for 6,880 of them, and
+# `.driver.out` for 733 -- of which **252 DISAGREE WITH THEIR OWN `driver.out`**. They are residue
+# from an EARLIER measurement of the same package: a later re-measure rewrote `driver.out` and
+# deleted its own temp on the runner, but nothing ever deletes the committed blob. 246 of the 733 sit
+# on records whose verdict is not even in the keep-set, which is how you can tell.
+#
+# WHAT IT COST, in this repo, within minutes of being encountered: reading `.driver.out` for the 13
+# `BROKEN-UNJAILED-NUB` records that carry one produced 13 logs that END IN A DIFFERENT VERDICT than
+# the record beside them, and the first reading of that was "the record and its log disagree" rather
+# than "this file is three days stale". The related belief that only 733 records keep a log at all --
+# and so that 887 `BROKEN-WITHOUT-JAIL-TOO` causes were unknowable -- was false for the same reason.
+#
+# The canonical log is `driver.out` and every record has one. Nothing reads the committed `.driver.out`:
+# `publish-record-v2.sh:149` reads `$STASH/rec/.driver.out` on the RUNNER, which is a different file
+# in a different tree, and is unaffected by this rule.
+.driver.out
+
 # Records the publish guard refused (publish-guard.mjs). Parked OUTSIDE records-v2 so no
 # bulk `git add records-v2` or whole-tree stash can sweep a withheld record into the corpus.
 withheld-records/
