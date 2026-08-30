@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 33,
+  "currentEpoch": 34,
   "transitions": [
     {
       "fromEpoch": null,
@@ -343,6 +343,16 @@
         "verdicts": []
       },
       "reason": "Epoch 33 stops the resolve-log noise at its SOURCE instead of filtering it. The security-resolve pre-step -- the `--ignore-scripts` install that materializes a tree for the OSV screen -- ran under RUST_LOG=debug on linux and windows, and when it fails the drivers tail its log because that is the only place the reason exists. Epoch 31 filtered ` DEBUG ` lines out of that tail; MEASURED on run 33299339164 the tail then became 30 lines of hickory-resolver DNS records (`;; registry.npmjs.org. IN AAAA`, `; answers 12`, twelve AAAA rows), because the CONTINUATION lines of a multi-line debug record carry no level prefix for any level filter to match. Filtering was whack-a-mole against a log the harness never wanted. Debug is load-bearing on the MEASURED arms -- `side-effects-cache: restored` is a `tracing::debug!` and is the only line distinguishing a built arm from a replayed one -- but nothing reads this pre-step's log except the failure dump: the replay predicate reads `i.log` + `a.log` only, and `unjailed-nub.mjs` records that security-resolve.log is deliberately not read. `measure-macos.sh` has never set debug on this call and its dumps have always been readable, so this is parity with the driver that was already right. The epoch-31 filters stay, because the measured arms genuinely do run under debug and their own dumps still need them. The guard EXECUTES the extracted POSIX subshell with a stub standing in for nub and reads the child's real environment, seeded with a SENTINEL value rather than `debug` so it distinguishes a quiet driver from a noisy one instead of firing on a value the test injected; its fourth test is the OVERSHOOT control, requiring the measured arms to keep debug, because removing it there would silently make the replay assertion unfalsifiable. ZERO records: this changes what a FAILING pre-step logs, and the pre-step runs with every lifecycle hook disabled. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 33,
+      "fromHarnessSha256": "e2b8e4d87cf7371974ff366e8de6f4f3ce5c3222f851757bee81e13d569237db",
+      "toEpoch": 34,
+      "toHarnessSha256": "0e2ed2b99cbf5d71170144f887a5c162ff3a67e3c1255ddda504864e74ffa0ba",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 34 stops the OSV screen failing closed on an EMPTY package directory. MEASURED on run 33299339164: 4 of the 12 withheld instrument failures were `cannot read installed manifest .../node_modules/fsevents/package.json: ENOENT` in the npm REFERENCE tree -- a third of the whole residual, and every one of them a package that would otherwise have produced a verdict. That class had been parked at n=1 because it could not be sized from committed data: a HARNESS-* record is withheld and never commits, so no committed driver log can contain it. Epoch 32's tail fallback is what made it countable, and it turned out to BE the previously-silent class. An empty directory holds no code, so nothing can execute from it and there is nothing a vulnerability screen could screen; fail-closed exists to stop an unscreened PACKAGE slipping through, and an empty directory is not a package. The NON-empty case still refuses exactly as before and now NAMES the entries it found. That matters because the mechanism is NOT known: `fsevents` is `os: darwin`, and the obvious theory -- era npm leaving an empty directory for a platform-skipped optional dependency -- was tested on npm 5.5.1 and 6.4.1 and FALSIFIED, both omitting the directory entirely. So this fixes the case that is provably safe and makes the ambiguous case self-diagnosing, rather than guessing. An existing test asserted the ENOENT throw using a fixture whose directory became EMPTY once the manifest was removed, so it expressed the opposite of its own name; it now leaves an `index.js` behind, which is the fail-closed case it meant. Red drives: revert the skip, skip on ANY ENOENT (the over-broad fix that would weaken fail-closed), and drop the contents from the message -- one failure each. ZERO records: a screen that previously ABORTED the measurement now completes it, so no existing record's grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

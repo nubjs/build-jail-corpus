@@ -88,9 +88,33 @@ export function collectInstalledSpecs(projectRoot) {
     if (!physical || visitedPackages.has(physical)) return;
     visitedPackages.add(physical);
 
+    // ⛔ AN EMPTY PACKAGE DIRECTORY IS NOT A PACKAGE, AND FAILING CLOSED ON ONE COSTS A MEASUREMENT.
+    // MEASURED on run 33299339164: 4 of the 12 withheld instrument failures were this screen dying on
+    // `node_modules/fsevents/package.json: ENOENT` in the npm reference tree -- a third of the whole
+    // residual, and every one of them a package that would otherwise have produced a verdict.
+    //
+    // Skipping an EMPTY directory is safe by construction: it holds no code, so nothing can execute
+    // from it and there is nothing a vulnerability screen could screen. Fail-closed exists to stop an
+    // unscreened package from slipping through, and an empty directory is not a package.
+    //
+    // ⛔ THE NON-EMPTY CASE STILL FAILS CLOSED, AND NOW SAYS WHAT IT FOUND. The mechanism is NOT known:
+    // `fsevents` is `os: darwin`, and the obvious theory -- that era npm leaves an empty directory for
+    // a platform-skipped optional dependency -- was TESTED AND FALSIFIED on npm 5.5.1 and 6.4.1, both
+    // of which omit the directory entirely. So this does not guess. If the directory has contents, the
+    // screen refuses exactly as before and names them, which turns the next occurrence into an answer
+    // instead of another round of theorising.
+    const manifestPath = path.join(pkgDir, 'package.json');
     let manifest;
-    try { manifest = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')); } catch (e) {
-      throw new Error(`cannot read installed manifest ${path.join(pkgDir, 'package.json')}: ${e.message}`);
+    try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch (e) {
+      if (e.code === 'ENOENT') {
+        let entries = null;
+        try { entries = fs.readdirSync(pkgDir); } catch { /* unreadable: fall through and fail closed */ }
+        if (entries && entries.length === 0) return;
+        throw new Error(`cannot read installed manifest ${manifestPath}: ${e.message}; the directory is `
+          + `NOT empty, so this is not a skipped optional dependency — it holds: `
+          + `${(entries ?? ['<unreadable>']).slice(0, 20).join(', ')}`);
+      }
+      throw new Error(`cannot read installed manifest ${manifestPath}: ${e.message}`);
     }
     if (typeof manifest.name !== 'string' || !manifest.name
       || typeof manifest.version !== 'string' || !manifest.version) {

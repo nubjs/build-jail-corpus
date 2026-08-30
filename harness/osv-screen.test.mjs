@@ -31,7 +31,43 @@ test('screens every isolated virtual-store entry, not only dependencies nested u
   fs.symlinkSync(path.relative(path.join(root, 'node_modules'), target),
     path.join(root, 'node_modules', 'target'), 'dir');
   assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0', 'transitive@2.0.0']);
+  // A package directory that still holds CODE but has lost its manifest must fail closed: it can be
+  // executed and cannot be screened. `index.js` is what makes this the fail-closed case rather than
+  // the empty-directory case below — removing the manifest alone left the directory EMPTY, which is
+  // now legitimately skipped, so this fixture no longer expressed the intent its name gives it.
   fs.rmSync(path.join(transitive, 'package.json'));
+  fs.writeFileSync(path.join(transitive, 'index.js'), 'module.exports = 1;\n');
+  assert.throws(() => collectInstalledSpecs(root), /cannot read installed manifest/);
+  assert.throws(() => collectInstalledSpecs(root), /it holds: index\.js/,
+    'the refusal must name what it found, or the next occurrence is another round of theorising');
+});
+
+// ⛔ THE EMPTY DIRECTORY IS THE ONE THAT COST MEASUREMENTS. MEASURED on run 33299339164: 4 of the 12
+// withheld instrument failures were this screen dying on `node_modules/fsevents/package.json: ENOENT`
+// in the npm reference tree — a third of the residual, each one a package that would otherwise have
+// produced a verdict. An empty directory holds no code, so nothing can execute from it and there is
+// nothing for a vulnerability screen to screen; fail-closed exists to stop an unscreened PACKAGE
+// slipping through, and an empty directory is not a package.
+//
+// The mechanism that creates it is NOT known. `fsevents` is `os: darwin`, and the obvious theory —
+// era npm leaving an empty directory for a platform-skipped optional dependency — was tested on npm
+// 5.5.1 and 6.4.1 and FALSIFIED: both omit the directory entirely. So the non-empty case above still
+// refuses, and now reports its contents, which is what will identify this next time.
+test('an empty package directory is skipped, and the rest of the tree is still screened', () => {
+  const root = fixture();
+  manifest(path.join(root, 'node_modules', 'target'), 'target', '1.0.0');
+  fs.mkdirSync(path.join(root, 'node_modules', 'fsevents'), { recursive: true });
+  assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0'],
+    'an empty directory must neither throw nor contribute a spec, and must not stop the walk');
+});
+
+test('a manifest that exists but does not parse still fails closed', () => {
+  const root = fixture();
+  manifest(path.join(root, 'node_modules', 'target'), 'target', '1.0.0');
+  const broken = path.join(root, 'node_modules', 'broken');
+  fs.mkdirSync(broken, { recursive: true });
+  fs.writeFileSync(path.join(broken, 'package.json'), '{ this is not json');
+  // The ENOENT branch must not swallow a parse failure: that package IS present and IS unscreened.
   assert.throws(() => collectInstalledSpecs(root), /cannot read installed manifest/);
 });
 
