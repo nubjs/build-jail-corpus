@@ -1201,10 +1201,29 @@ JW
   # and buries the installer's own message. Verified against a debug-heavy log — a tail returned 12 lines
   # of linker noise while the filter returned the `command not found` and `gyp ERR!` lines that explain
   # the failure. Bounded on purpose: a record is evidence, not an archive.
+  #
+  # ⛔⛔ THE LAST ALTERNATIVE IS NODE'S ERROR HEADER, AND THIS DRIVER IS THE REASON IT WAS ADDED. Node
+  # prints the offending module's path on the line ABOVE the error; the error line matches this filter
+  # already (`SyntaxError:` contains `Error:`) but the PATH line matched nothing, so what reached
+  # `driver.out` was a bare `[synth/i] SyntaxError: Unexpected token ...` with its subject amputated.
+  #
+  # MEASURED 2026-08-30 over all 6,880 committed `driver.out`: exactly 40 carry a path line and ALL
+  # FORTY ARE `linux-x64`. Darwin has ZERO — and that is an artifact of this echo, not a clean lane:
+  # 18 darwin BROKEN-WITHOUT-JAIL-TOO records carry the identical amputated signature. It is also what
+  # falsified the "non-fatal noise" verdict recorded at `measure.sh:548-558`, which was computed over
+  # the stale `.driver.out` residue; canonically darwin MINIMUM is 0 of 1,665.
+  #
+  # The path is the only thing separating two failures with byte-identical text and opposite meanings:
+  # a DEPENDENCY the era Node cannot parse (a real finding about the package) from the HARNESS running
+  # its own `arm-cap.mjs` under an era Node after a PATH rewrite (`measure.sh:104` — our bug).
+  #
+  # ANCHORED to the whole line so it cannot creep: an absolute path (optionally a `file://` URL, which
+  # is what an ESM loader prints) ending in `:<line>`. A stack FRAME (`at require (/x/y.js:7:3)`) has
+  # text before the path and a column after it, so it does not match and the output stays bounded.
   if [ "$rc" -ne 0 ]; then
     for _al in i a; do
       [ -f "$v/$_al.log" ] || continue
-      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT' \
+      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT|^[[:space:]]*(file://)?/[^ ]*\.(c|m)?js:[0-9]+$' \
         "$v/$_al.log" 2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
     done
   fi

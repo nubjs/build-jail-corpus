@@ -1596,10 +1596,34 @@ verify () {
   # 27% of the classifiable failures), a native toolchain mismatch (`gyp ERR!`, 23%), a denied fetch, and
   # npm's own error channel. The cap is deliberate: a record is evidence, not an archive, and an
   # unbounded dump would bloat 6,880 of them.
+  #
+  # ⛔⛔ THE LAST ALTERNATIVE IS NODE'S ERROR HEADER, AND WITHOUT IT A `SyntaxError` IS UNCLASSIFIABLE.
+  # Node prints the offending module's path on the line ABOVE the error:
+  #
+  #     /home/runner/.cache/nub/pm/store/psl@1.15.0-2f9ec.../node_modules/psl/dist/psl.cjs:1
+  #     SyntaxError: Unexpected token ...
+  #
+  # The error line matches the filter already — `SyntaxError:` contains `Error:` — but the PATH line
+  # matches nothing, so it was dropped and the reader got a bare `SyntaxError` with no subject. That
+  # path is the only thing separating two failures with byte-identical text and opposite meanings: a
+  # DEPENDENCY the era Node is too old to parse (a real finding about the package) from the HARNESS
+  # running its own `arm-cap.mjs` under an era Node after a PATH rewrite (`measure.sh:104` — our bug,
+  # not the package's). Classifying on the string alone cannot tell them apart.
+  #
+  # MEASURED 2026-08-30 across all 6,880 committed `driver.out`: exactly 40 carry such a path line and
+  # ALL FORTY ARE `linux-x64`. Darwin has zero — not because darwin is clean, but because darwin
+  # summarises each arm error to one line (`[synth/i] SyntaxError: Unexpected token ...`) and 18
+  # darwin BROKEN-WITHOUT-JAIL-TOO records carry that exact signature with the subject amputated. The
+  # two drivers ran the SAME filter; linux only kept its paths through a different, unfiltered echo.
+  #
+  # ANCHORED, so it cannot creep. `^[[:space:]]*(file://)?/…\.(c|m)?js:[0-9]+$` is the whole line —
+  # an absolute path (optionally a `file://` URL, which is what an ESM loader prints) ending in
+  # `:<line>`. A stack FRAME (`at require (/x/y.js:7:3)`) has text before the path and a column after
+  # it, so it does not match and the arm output stays bounded.
   if [ "$rc" -ne 0 ]; then
     for _al in i a; do
       [ -f "$v/$_al.log" ] || continue
-      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT' \
+      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT|^[[:space:]]*(file://)?/[^ ]*\.(c|m)?js:[0-9]+$' \
         "$v/$_al.log" 2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
     done
   fi
