@@ -1,6 +1,227 @@
-### lzma-native@0.5.3   (/home/runner/v2-q7EHWN)
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
+  ERA-PYTHON /usr/bin/python2.7 (Python 2.7.18) for era Node 4, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### lzma-native@0.5.3   (/home/runner/v2-GrAMCD)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3b4a5b429d4fcd792d5e63016c568b75b412169b0a91e61a5a50b4a79407259f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:00:06.433Z","cacheHit":false,"clearancePath":"/home/runner/v2-GrAMCD/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3b4a5b429d4f
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"23b243517ac1483b030d39f153d815260acdf6f205d2d2d40e96cfe1498ec9d8","bytes":207810856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=1 files=986 trace=824359 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2016-01-11T01:19:24.553Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"d100d897683ee07803fc851c3f44bea519243857b84118d8ec12470ac5e70a50","specCount":13,"lockfiles":{"digest":"6a4e1dba1bfac5f3237fd2d7ff8ec2b5f1b5f49c2cf4fe7437de5776b7fe57c2","files":[{"path":"package-lock.json","sha256":"4004d5108d6e58a558f9f69710aec40c511e906a8ad56b1f9ef9810cdccbc0e5","bytes":4749}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:00:07.724Z","cacheHit":false,"clearancePath":"/home/runner/v2-GrAMCD/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 13 exact package-version(s), tree d100d897683e
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=1000 trace=781362 lines
+  CLOSURE   13 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":881,"filesTheScriptProduced":806,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-GrAMCD/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-GrAMCD/observe/capture.json
+  RAWLOG-BYTES raw=85856224 gz=3117329
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"lzma-native","packageVersion":"0.5.3","major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":">=0.10","publishedAt":"2016-01-10T01:19:24.553Z","eraMajor":4,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-GrAMCD/jailhome","TMPDIR":"/tmp/nub-tmp-obsRm9hZz","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-GrAMCD/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 7414
+    writes  script 1622  /  whole traced tree 1625
+    sockets script 8  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-GrAMCD/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-GrAMCD/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-GrAMCD/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsRm9hZz
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native
+  == WRITES the script actually performed ==
+    jailHome    157  (base profile already grants this — NOT billed)
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/android-ifaddrs.h
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/ares.h
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/ares_version.h
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/common.gypi
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/config.gypi
+        /home/runner/v2-GrAMCD/jailhome/.node-gyp/4.9.1/include/node/nameser.h
+        … and 147 more
+    ownPkg     1123  (base profile already grants this — NOT billed)
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/config.gypi
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/testsupp.c
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/testsupp.o
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma/node_liblzma_config.log
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma/xz-5.2.1
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma/xz-5.2.1/debug
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma/xz-5.2.1/debug/translation.bash
+        /home/runner/v2-GrAMCD/observe/node_modules/lzma-native/build/liblzma/xz-5.2.1/debug/sync_flush.c
+        … and 1113 more
+    jailTmp     323  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsRm9hZz/ccbTQm09.s
+        /tmp/nub-tmp-obsRm9hZz/cgfmE3Pl
+        /tmp/nub-tmp-obsRm9hZz/cgfmE3Pl/dummy.c
+        /tmp/nub-tmp-obsRm9hZz/ccGTA74m.s
+        /tmp/nub-tmp-obsRm9hZz/cgfmE3Pl/dummy.o
+        /tmp/nub-tmp-obsRm9hZz/GmacU4Sp
+        /tmp/nub-tmp-obsRm9hZz/cctJlGi2.s
+        /tmp/nub-tmp-obsRm9hZz/ccZZo78d.o
+        /tmp/nub-tmp-obsRm9hZz/ccqxhRx3.res
+        /tmp/nub-tmp-obsRm9hZz/cckVQuD5.cdtor.c
+        … and 313 more
+    kernelfs     10
+        /dev/null
+        /dev/urandom/conftst2.h
+        /dev/urandom/conftst6.h
+        /dev/urandom/conftst1.h
+        /dev/urandom/conftst4.h
+        /dev/urandom/conftst3.h
+        /dev/urandom/conftst5.h
+        /dev/urandom/conftest.c
+        /dev/urandom/conftest.Po
+        /dev/urandom/conftest.o
+    userHome      9
+  == NETWORK ==
+    AF_INET sockets: 8   distinct peers: 2
+        127.0.0.53:53
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 2
+        execve /
+        openat /var/cache/ldconfig/aux-cache
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true,"writePaths":[".node-gyp"]}
+    NOTE 10 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 157
+        .node-gyp
+    9 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 9
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/conftest.two
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/conftest.one
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/sub
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/depcomp
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/conftest.err
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/confmf
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/subs.awk
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/defines.awk
+        .cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py/subs1.awk
+    EVENTS    416395 distinct from 751188 calls (781363 lines, 16445 rejoined, 0 unparsed)
+    PROCS     7421   lifecycle shells 7409
+    unsubscribed/unmapped syscalls: wait4×13212 exit_group×7398 getcwd×769 getpeername×179 exit×20 recvmsg×9 getsockname×7 socketpair×3
+    wrote /home/runner/v2-GrAMCD/observe/events.ndjson.gz (1692612 bytes)
+  EVENTLOG-FILE /home/runner/v2-GrAMCD/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":781363,"parsed":751188,"unparsed":0,"unfinished":16445,"rejoined":16445,"unresolvedDirfd":0,"truncatedArg":0,"procs":7421,"lifecyclePids":7409,"distinctEvents":416395,"unknownSyscall":{"exit_group":7398,"wait4":13212,"getcwd":769,"getsockname":7,"recvmsg":9,"socketpair":3,"setsockopt":2,"sendmmsg":2,"getsockopt":2,"exit":20,"getpeername":179},"out":"/home/runner/v2-GrAMCD/observe/events.ndjson.gz","gzipBytes":1692612}
+  EVICT     2 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":"d12b74c0c7024f8d96aee1d6bee498cdb3de5c318d75b86ba7be86388eb790ff","files":[{"path":"nub.lock","sha256":"85469241cf2f30754e7f58406644278ee84fe2b3140991add598e3b47d584dc7","bytes":2903}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":false,"clearancePath":"/home/runner/v2-GrAMCD/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=73/879 missing=806 shortfall=5dec2a11fc24 (tree 581/1000) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true,"writePaths":[".node-gyp"]}
+       missing: build/Makefile, build/Release/.deps/..d, build/Release/.deps/Release/lzma_native.node.d, build/Release/.deps/Release/obj.target/liblzma.stamp.d, build/Release/.deps/Release/obj.target/lzma_native/src/filter-array.o.d, build/Release/.deps/Release/obj.target/lzma_native/src/liblzma-functions.o.d (+800)
+     [synth/i] DEBUG final message final_message=; header 7937:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 49498:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 29206:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 7937:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 7937:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG final message final_message=; header 42053:QUERY:RD:NoError:QUERY
+     [synth/i] DEBUG response: ; header 29206:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 49498:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 49498:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 29206:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 42053:RESPONSE:RD,RA:NoError:QUERY
+     [synth/i] DEBUG response: ; header 42053:RESPONSE:RD,RA:NoError:QUERY
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     10 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":"d12b74c0c7024f8d96aee1d6bee498cdb3de5c318d75b86ba7be86388eb790ff","files":[{"path":"nub.lock","sha256":"85469241cf2f30754e7f58406644278ee84fe2b3140991add598e3b47d584dc7","bytes":2903}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":true,"clearancePath":"/home/runner/v2-GrAMCD/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=73/879 missing=806 shortfall=5dec2a11fc24 (tree 581/1000) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Makefile, build/Release/.deps/..d, build/Release/.deps/Release/lzma_native.node.d, build/Release/.deps/Release/obj.target/liblzma.stamp.d, build/Release/.deps/Release/obj.target/lzma_native/src/filter-array.o.d, build/Release/.deps/Release/obj.target/lzma_native/src/liblzma-functions.o.d (+800)
+     [fb2126003217/i] DEBUG final message final_message=; header 4169:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 38527:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 27239:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG final message final_message=; header 20724:QUERY:RD:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 4169:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 4169:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 38527:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 38527:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 20724:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 20724:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 27239:RESPONSE:RD,RA:NoError:QUERY
+     [fb2126003217/i] DEBUG response: ; header 27239:RESPONSE:RD,RA:NoError:QUERY
+  EVICT     10 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":"d12b74c0c7024f8d96aee1d6bee498cdb3de5c318d75b86ba7be86388eb790ff","files":[{"path":"nub.lock","sha256":"85469241cf2f30754e7f58406644278ee84fe2b3140991add598e3b47d584dc7","bytes":2903}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":true,"clearancePath":"/home/runner/v2-GrAMCD/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=73/879 missing=806 shortfall=5dec2a11fc24 (tree 581/1000) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/..d, build/Release/.deps/Release/lzma_native.node.d, build/Release/.deps/Release/obj.target/liblzma.stamp.d, build/Release/.deps/Release/obj.target/lzma_native/src/filter-array.o.d, build/Release/.deps/Release/obj.target/lzma_native/src/liblzma-functions.o.d (+800)
+     [fb3938809772/i] DEBUG final message final_message=; header 14308:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 32760:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 27318:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 32760:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 32760:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 14308:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 14308:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG final message final_message=; header 62382:QUERY:RD:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 27318:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 27318:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 62382:RESPONSE:RD,RA:NoError:QUERY
+     [fb3938809772/i] DEBUG response: ; header 62382:RESPONSE:RD,RA:NoError:QUERY
+  EVICT     10 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for lzma-native
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":"d12b74c0c7024f8d96aee1d6bee498cdb3de5c318d75b86ba7be86388eb790ff","files":[{"path":"nub.lock","sha256":"85469241cf2f30754e7f58406644278ee84fe2b3140991add598e3b47d584dc7","bytes":2903}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":true,"clearancePath":"/home/runner/v2-GrAMCD/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=1 artifacts=73/879 missing=806 shortfall=5dec2a11fc24 (tree 581/1000) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/..d, build/Release/.deps/Release/lzma_native.node.d, build/Release/.deps/Release/obj.target/liblzma.stamp.d, build/Release/.deps/Release/obj.target/lzma_native/src/filter-array.o.d, build/Release/.deps/Release/obj.target/lzma_native/src/liblzma-functions.o.d (+800)
+     [fb2742342390/i] DEBUG final message final_message=; header 43518:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 6250:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 16273:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 43518:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 43518:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG final message final_message=; header 8005:QUERY:RD:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 6250:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 6250:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 8005:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 8005:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 16273:RESPONSE:RD,RA:NoError:QUERY
+     [fb2742342390/i] DEBUG response: ; header 16273:RESPONSE:RD,RA:NoError:QUERY
+  NOT-GRANT-INDEPENDENT every arm exited non-zero — nothing installed at any grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":"d12b74c0c7024f8d96aee1d6bee498cdb3de5c318d75b86ba7be86388eb790ff","files":[{"path":"nub.lock","sha256":"85469241cf2f30754e7f58406644278ee84fe2b3140991add598e3b47d584dc7","bytes":2903}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":true,"clearancePath":"/home/runner/v2-GrAMCD/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0 (cached exact-tree clearance)
+  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit
+    | gyp ERR! stack     at exports.runInThisContext (vm.js:53:16)
+    | gyp ERR! stack     at Module._compile (module.js:373:25)
+    | gyp ERR! stack     at Object.Module._extensions..js (module.js:416:10)
+    | gyp ERR! stack     at Module.load (module.js:343:32)
+    | gyp ERR! stack     at Function.Module._load (module.js:300:12)
+    | gyp ERR! stack     at Module.require (module.js:353:17)
+    | gyp ERR! stack     at require (internal/module.js:12:17)
+    | gyp ERR! stack     at Object.<anonymous> (/home/runner/.cache/nub/pm/store/tough-cookie@2.5.0-999edf9b5e6f617d/node_modules/tough-cookie/lib/pubsuffix-psl.js:32:11)
+    | gyp ERR! stack     at Module._compile (module.js:409:26)
+    | gyp ERR! stack     at Object.Module._extensions..js (module.js:416:10)
+    | gyp ERR! System Linux 6.17.0-1022-azure
+    | gyp ERR! command "/home/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-linux-x64/bin/node" "/home/runner/.cache/nub/pm/tools/node-gyp/v3/node_modules/.store/node-gyp@3.8.0/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+    | gyp ERR! cwd /home/runner/v2-GrAMCD/jail-off-control/node_modules/.store/lzma-native@0.5.3/node_modules/lzma-native
+    | gyp ERR! node -v v4.9.1
+    | gyp ERR! node-gyp -v v3.8.0
+    | gyp ERR! This is a bug in `node-gyp`.
+    | gyp ERR! Try to update node-gyp and file an Issue if it does not help:
+    | gyp ERR!     <https://github.com/nodejs/node-gyp/issues>
+    |   × lifecycle script install failed for lzma-native@0.5.3: script `install`
+    |   │ exited with code 7
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-fallback-resolved","status":"clean","digest":"19ccb1e742e0376ae6382d429f923f9f71ba14dafeb2d7768cb880ca2676fad7","specCount":13,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T00:02:13.713Z","cacheHit":true,"clearancePath":"/home/runner/v2-GrAMCD/security/npm-fallback-resolved.json"}
+  SECURITY npm-fallback-resolved clean: 13 exact package-version(s), tree 19ccb1e742e0 (cached exact-tree clearance)
+  jail-off control: npm installs this package but nub cannot, even with the jail OFF — a nub install defect, not an under-grant
+  => BROKEN-UNJAILED-NUB
