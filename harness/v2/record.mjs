@@ -126,6 +126,64 @@ const VERDICTS = {
   'HARNESS-ERROR': /=>\s*(?:HARNESS-ERROR|CAPTURE FAILED|PARSE FAILED)|SYNTHESIZE FAILED|DTRACE NEVER STARTED/,
 };
 
+// ⛔⛔ THE ARM RESOLVED TODAY'S DEPENDENCIES AND THEN RAN THEM ON AN ERA NODE THAT CANNOT PARSE THEM.
+//
+// The harness dates the npm arms with `--before` (`measure.sh:487`, applied at 489, 563 and 2054) so
+// they resolve the dependency versions that existed when the package shipped. NO `nub install` is
+// dated anywhere, and nub has no `--before` equivalent to pass -- `minimumReleaseAge` is a FLOOR on
+// package age, not a ceiling on publish date. So every nub arm resolves TODAY's versions into a tree
+// running an era Node, which is precisely the failure `measure.sh:2038` already describes for the npm
+// reference arm: "Undated resolution alone pulls TODAY's dependency versions into a tree pinned to
+// nothing, which is the exact failure `--before` was added at line 487 to stop."
+//
+// MEASURED on `electron-prebuilt@0.28.3` (run 33319235832, the first log epoch 38 preserved): the
+// era-dated npm OBSERVE arm resolved 108 packages and installed cleanly on Node 4.9.1; every nub arm
+// resolved 146 and every one failed, because `psl@1.15.0` throws `SyntaxError: Unexpected token ...`
+// on a spread operator under Node 4. Nub warned about it itself -- `punycode@2.3.1: wanted node >=6,
+// got 4.9.1` -- and nobody had ever seen the line, because withheld driver logs were deleted with the
+// runner until epoch 38.
+//
+// ⛔ THIS DETECTOR CHANGES NO VERDICT, AND THAT IS DELIBERATE. The root fix is dated resolution in
+// nub, which the corpus cannot validate because it PINS its subject binary. Rewriting verdicts on a
+// heuristic, mid-drain, is the kind of change that is hard to undo -- so this makes the class
+// COUNTABLE on every future measurement instead, which is what the macOS and windows lanes (3900 rows
+// still ahead, and the same old-package population) actually need. Epoch 34's lesson: when a fix
+// rests on an unknown mechanism, ship the instrument that measures it.
+//
+// It reads the RAW log on purpose. `parseDriverLog` strips `    | ` echoed lines because a package's
+// own output must never be read as a verdict -- and those echoed lines are exactly where nub's warning
+// and the dependency's stack trace live.
+export function detectEraDepMismatch(log) {
+  // Nub's own engine warning. Three shapes are observed and all three must match, which is why the
+  // version is a full semver rather than a bare major: spacing varies (`node >=6` and `node >= 6`),
+  // and the bound may be `>=6` OR `>=16.20.0`. Requiring `(\d+),` matched the first two and silently
+  // dropped `eslint-plugin-functional@4.0.0-rc1`'s `wanted node >=16.20.0, got 14.21.3` — caught only
+  // because a loose hand count said 18 and this said 17.
+  const warned = [...log.matchAll(/^\s*\|?\s*warn:\s+(\S+):\s+wanted node\s*>=?\s*(\d+)(?:\.\d+)*\s*,\s*got\s+(\S+)/gm)]
+    .map((m) => ({ spec: m[1], wantsMajor: Number(m[2]), got: m[3] }));
+  // A parse failure raised while LOADING A FILE is Node printing `<path>:<line>` immediately before
+  // the offending source and the `SyntaxError`. WHICH path it is separates two DIFFERENT defects,
+  // and an early version of this conflated them — it matched any `node_modules/...js:N` anywhere in
+  // the log and fired on 75 `MINIMUM` records against a hand count of 6, which is what a filter
+  // producing a surprising split looks like.
+  //
+  //   dependency — the path is under the content-addressed package STORE. This is the finding above:
+  //                an undated resolution put a modern dependency in a tree running an era Node.
+  //   toolchain  — the path is the runner's own npm out of the hosted toolcache. A DIFFERENT defect,
+  //                measured on `cldr-data@26.0.9` (darwin): era Node 4 execing Node 22's npm, which
+  //                dies on `const { enableCompileCache } = require('node:module')`. Nothing to do
+  //                with dependency dating; recorded separately rather than folded in, because a
+  //                single number covering both would be actionable for neither.
+  const syntaxError = /SyntaxError: Unexpected token/.test(log);
+  const loading = [...log.matchAll(/(\S*\/\S+\.(?:c|m)?js):\d+/g)].map((m) => m[1]);
+  const dependency = syntaxError
+    ? loading.find((p) => /\/store\//.test(p) && !/\/node_modules\/npm\//.test(p)) ?? null : null;
+  const toolchain = syntaxError
+    ? loading.find((p) => /hostedtoolcache|\/node_modules\/npm\//.test(p)) ?? null : null;
+  if (!warned.length && !dependency && !toolchain) return null;
+  return { warned, storeSyntaxError: dependency, toolchainSyntaxError: toolchain };
+}
+
 export function parseDriverLog(log) {
   // ⛔ A QUOTED LINE IS PACKAGE OUTPUT, NEVER A VERDICT. The jail-off control echoes what nub said
   // with a `    | ` prefix so a real nub defect and a harness asymmetry stop leaving byte-identical
@@ -144,6 +202,9 @@ export function parseDriverLog(log) {
   const ECHOED_LINE = /^\s*\|\s/;
   const lines = log.split('\n').filter((l) => !ECHOED_LINE.test(l));
   const out = {
+    // ⛔ COMPUTED FROM THE RAW `log`, NOT FROM `lines`. The evidence lives in the echoed lines the
+    // filter above removes. Null when nothing was detected; never guessed.
+    eraDepMismatch: detectEraDepMismatch(log),
     verdict: null,
     grant: null,
     synthesized: null,
@@ -832,6 +893,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     harnessVersion: 2,
     harnessEpoch: harnessIdentity.harnessEpoch,
     verdict: parsed.verdict,
+    // ⛔ ON THE RECORD, NOT ONLY IN THE LOG, SO THE CLASS IS QUERYABLE WITHOUT ARTIFACT ARCHAEOLOGY.
+    // Sizing this from logs took downloading a run artifact and grepping 733 files, and it could only
+    // ever see the 733 records that KEEP a log -- 887 `BROKEN-WITHOUT-JAIL-TOO` records keep none, so
+    // their cause is unknowable that way. A field on the record answers it for all 6880.
+    eraDepMismatch: parsed.eraDepMismatch ?? null,
     grant: parsed.grant,
     synthesized: parsed.synthesized ?? null,
     verifiedBy: parsed.verifiedBy,
