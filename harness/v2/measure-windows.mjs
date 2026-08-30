@@ -1475,6 +1475,11 @@ let storeLayoutReported = false;
 const verify = (grant, label) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
+  // The arm opts out of nub's resolve-time supply-chain gates. Full reasoning at the same point in
+  // `measure.sh`; the short version is that they refuse during RESOLUTION, before any lifecycle
+  // script exists to confine, so when they fire the jail question cannot be asked at all. A project
+  // `.npmrc` rather than an env var, because the env form reaches npm and makes it warn on stderr.
+  fs.writeFileSync(path.join(v, '.npmrc'), 'trust-policy=off\nminimum-release-age=0\n');
   // ⛔ A UNIQUE PACKAGE NAME PER ARM. nub memoises a lifecycle script's outcome keyed on package
   // identity, so a reused name REPLAYS the previous arm's result with every precondition green.
   fs.writeFileSync(path.join(v, 'package.json'),

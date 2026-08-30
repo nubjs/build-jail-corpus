@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 28,
+  "currentEpoch": 29,
   "transitions": [
     {
       "fromEpoch": null,
@@ -293,6 +293,16 @@
         "verdicts": []
       },
       "reason": "Epoch 28 ends the withheld-instrument-failure loop, which had made the corpus unable to complete on ANY lane. `publish-record-v2.sh` parks a `HARNESS-*` record and restores origin's PRIOR one; `collect-verdicts.mjs` walks the records tree, so `--complete` saw that prior REAL verdict, closed the row `done`, and stamped it from a record with a stale `harnessSha256` -- which the next claim's invalidation pass reopened, and the next slice re-measured, forever. The publisher's own message (\"the row stays open; claim-slice --complete returns it to pending for retry\") was false for every package with a prior record on origin, and every recent slice logged `0 instrument failure(s) returned to pending` while withholding 47 of 60. MEASURED across three linux slices 4.5 h apart (33272217260, 33278756575, 33283327384): each claimed 60 and each withheld the SAME 42 package@versions, 42 of 42 on every pairwise `comm -12`. The stuck set grew 27 -> 48 per slice over 15 h as converging rows left the pool, and had taken 42 of the linux lane's last 105 rows, so that lane could never have drained and macOS could never have started. A new channel carries the withheld verdict past the restored record so the bounded retry that already exists can see it: two returns to `pending`, then an honest settle at this hash. The same branch now prints the driver's `=> HARNESS-...:` reason, which reached no reader before -- the log is kept inside the record dir, which is then parked outside `records-v2/`, and the slice artifact uploads only `records-v2/`. ZERO records: this changes queue bookkeeping and a diagnostic line. It cannot reach a measurement, a grant, a ladder or a verdict. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict, so it matches nothing."
+    },
+    {
+      "fromEpoch": 28,
+      "fromHarnessSha256": "66f35ac947af19289d9682b907aa85259aaeec60e4c516661b0babf92ab7b704",
+      "toEpoch": 29,
+      "toHarnessSha256": "dbf0fc0ac63bd42fde4c0c73e27882ec6ac9976b997295e8ed81855b8c9c4dd4",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 29 takes nub's RESOLVE-TIME supply-chain gates out of the measurement arm, which is what made 20 of the 21 reasons epoch 28 printed on run 33285785801 unmeasurable. `trustPolicy` and `minimumReleaseAge` refuse during RESOLUTION, before any lifecycle script exists to confine, so they can never produce a jail finding -- and when they fire the jail question cannot be asked at all: the record comes back HARNESS-ERROR, an instrument failure rather than a measurement. MEASURED 2026-08-30, and it is a DEADLOCK rather than a tunable: fast-glob@^3.3.2 -> fastq, where 1.20.3 has a trusted publisher but is 1 day old (age gate, exit 21), 1.20.2 is old enough but was published manually with attestations null (trust gate, exit 23), and the resolver picks 1.20.2 and ABORTS rather than continuing to 1.20.1 -- which satisfies the range, is 249 days old and is fully signed. No version clears both gates for ~14 days, so every tree containing fast-glob is unmeasurable, which is exactly the ~20x tree-size correlation of the stuck set. This is NOT screening off: the harness runs its own fail-closed OSV screen over the resolved tree, so supply-chain screening is the INSTRUMENT's job here rather than the subject's. Written as a project .npmrc in the ARM directory, never an env var -- npm reads npm_config_* too and answers `npm warn Unknown env config` on stderr for both keys, including in the reference rebuild that decides BROKEN-WITHOUT-JAIL-TOO; OBSERVE lives in a sibling directory so a file in the arm cannot reach it. The same epoch widens the epoch-28 reason printer to keep the trailing context the drivers already emit (\"nub's own words\"), because grepping only the `=> HARNESS-` line dropped the cause one line short of being readable. ZERO records: this changes what an arm's RESOLVER is permitted to refuse before any measurement begins, plus a diagnostic line. No grant, ladder or verdict already recorded can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict, so it matches nothing."
     }
   ]
 }

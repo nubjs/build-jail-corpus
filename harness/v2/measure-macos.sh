@@ -964,6 +964,12 @@ unjailed_nub_ok () {
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
   local v="$ROOT/verify-$label"; mkdir -p "$v"; chown -R "$RUNUSER" "$v" 2>/dev/null
+  # The arm opts out of nub's resolve-time supply-chain gates. Full reasoning at the same point in
+  # `measure.sh`; the short version is that they refuse during RESOLUTION, before any lifecycle
+  # script exists to confine, so when they fire the jail question cannot be asked at all. A project
+  # `.npmrc` rather than an env var, because the env form reaches npm and makes it warn on stderr.
+  printf 'trust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
+  chown "$RUNUSER" "$v/.npmrc" 2>/dev/null
   # A unique root package name per arm: nub's side-effects memo replays a lifecycle outcome keyed
   # on package identity, and a replayed arm is indistinguishable from a real one by exit code.
   local name="v$(echo "$label" | tr -dc 'a-z0-9')$RANDOM"

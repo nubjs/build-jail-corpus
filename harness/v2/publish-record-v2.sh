@@ -127,9 +127,17 @@ note_instrument_failure () {
 # `records-v2/`, and the slice artifact uploads only `records-v2/`. So the one line that says WHY
 # reaches no reader at all: 42 packages failed identically for 15 hours with the cause on disk on a
 # runner that was then destroyed. The driver prints it as `=> HARNESS-...: <reason>`.
+#
+# ⛔ THE LINES AFTER THE VERDICT, NOT JUST THE VERDICT LINE. The drivers already print nub's own
+# stderr under it -- `measure.sh:1374` emits "── nub's own words (tail of security-resolve.log) ──"
+# and 30 lines of it -- and epoch 28 grepped only the `=> HARNESS-` line, so the CAUSE was dropped
+# one line short of being readable. MEASURED on run 33285785801: 20 of 21 reasons came back as
+# "Nub could not materialize the tree with --ignore-scripts", which names the step and not the
+# refusal, and the exit code that would have identified it (23 trust-policy vs 21 age-gate) was in
+# the very next lines. Keeping the trailing context is the difference between a class and a cause.
 show_failure_reason () {
   [ -f "$STASH/rec/.driver.out" ] || { echo "     (no driver log stashed — cannot say why)" >&2; return 0; }
-  grep -aE '=> HARNESS-' "$STASH/rec/.driver.out" | tail -3 | sed 's/^ */     WHY: /' >&2 || true
+  grep -aA 14 -E '=> HARNESS-' "$STASH/rec/.driver.out" | tail -30 | sed 's/^ */     WHY: /' >&2 || true
 }
 
 # ⛔ AN INSTRUMENT FAILURE IS NOT A MEASUREMENT AND MUST NOT REACH THE MANIFEST. `record-validity.mjs`
