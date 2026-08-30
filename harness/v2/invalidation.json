@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 30,
+  "currentEpoch": 31,
   "transitions": [
     {
       "fromEpoch": null,
@@ -313,6 +313,16 @@
         "verdicts": []
       },
       "reason": "Epoch 30 makes epoch 29 actually happen. Epoch 29 added a SECOND `.npmrc` write at the top of each arm function and was a TOTAL NO-OP: the pre-existing `side-effects-cache=false` write further down the same function truncated it before any install ran. MEASURED on run 33288984054, the first slice to run epoch 29 -- withheld count UNCHANGED at 22, and 17 of the reasons still read `trust downgrade for fastq@1.20.2 (trustPolicy=no-downgrade)`. The epoch-29 guard passed the bug because it asserted only that the keys appeared within 40 lines of the arm mint site, which a clobbered write satisfies perfectly. Epoch 30 writes ONE `.npmrc` per arm directory carrying all three keys, at the site that already owned the file; adds the second Windows arm dir (measure-windows.mjs:400, feeding the `install --ignore-scripts` at :434) that epoch 29 missed entirely; routes both Windows writes through one ARM_NPMRC constant; and re-asserts the guard as EVERY write must carry EVERY key, which is the invariant a clobber cannot satisfy. ZERO records: this changes what an arm's RESOLVER may refuse before any measurement begins. No grant, ladder or verdict already recorded can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict, so it matches nothing."
+    },
+    {
+      "fromEpoch": 30,
+      "fromHarnessSha256": "a40159400aaf1492c2517baf3d49c151849be13a606ddc434d43234c0e8bc13e",
+      "toEpoch": 31,
+      "toHarnessSha256": "3d8ad5166485d2cad5c2d27052ffd23ecf0d739396e8081a2cb2f3338151e329",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 31 makes the resolve-log failure dump readable again. When nub cannot materialize an arm's tree the drivers print the tail of `security-resolve.log`, because that is the only place the reason exists -- the record carries `verdict: HARNESS-ERROR` and nothing about why, and the log is parked outside `records-v2/` so it never reaches the artifact. The arm runs nub under `RUST_LOG=debug` for phase timings, so MEASURED on run 33293351038 five HARNESS-ERRORs printed the header and then 30 unbroken lines of `DEBUG received frame=Data { stream_id: ... }`: nub's actual error had scrolled out of the window. It had appeared to work one epoch earlier only because a trust refusal aborts EARLY, before any registry traffic -- the diagnostic was never right, it was lucky. All three drivers now drop ` DEBUG ` lines before tailing, at the dump itself so `.driver.out` is useful and not only the CI view. Both filters are verified by EXECUTION against a synthetic log carrying every shape that matters, and a guard runs the shell ERE and the JS regex against that same input and asserts they agree line for line, because a POSIX/Windows divergence here is how a platform-only blind spot starts. A local reproduction of the first residual failure (@aws-amplify/cli@6.4.0) returned rc=0 on macOS with the same arm `.npmrc`, so the class is environment-specific and this dump is the only instrument that can identify it. ZERO records: this changes what a FAILING arm prints after it has already failed. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

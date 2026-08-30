@@ -1408,7 +1408,14 @@ verify () {
     # specific when it fails here (`prewarm GVS ...: Permission denied (os error 13)` names an
     # unwritable store); the tail is the difference between a diagnosis and another CI round.
     echo "  ── nub's own words (tail of security-resolve.log) ──"
-    tail -30 "$v/security-resolve.log" 2>/dev/null | sed -e 's/^/     /'
+    # ⛔ DROP THE `RUST_LOG=debug` SPEW FIRST, OR THE TAIL IS ALL h2 FRAMES AND NO ERROR.
+    # MEASURED on run 33293351038: five `HARNESS-ERROR`s printed this header and then 30 lines of
+    # `DEBUG received frame=Data { stream_id: ... }` — nub's actual error had scrolled out of the
+    # window. It looked like it worked at epoch 29 only because a trust refusal aborts EARLY, before
+    # the registry traffic. The arm needs `RUST_LOG=debug` for phase timings, so filter here rather
+    # than turning it off.
+    grep -avE '(^|[[:space:]])DEBUG[[:space:]]' "$v/security-resolve.log" 2>/dev/null \
+      | tail -30 | sed -e 's/^/     /'
     exit 1
   }
   security_screen_tree "$v" "nub-$label-resolved"

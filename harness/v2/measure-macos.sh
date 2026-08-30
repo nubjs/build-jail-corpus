@@ -1092,7 +1092,9 @@ verify () {
       # store left root-owned by an earlier step is the mechanism worth ruling in or out FIRST —
       # hence the ownership line beside the tail.
       echo "  ── nub's own words (tail of security-resolve.log) ──"
-      tail -30 "$v/security-resolve.log" 2>/dev/null | sed -e 's/^/     /'
+      # Drop the RUST_LOG=debug spew first; see the same dump in `measure.sh` for what it cost.
+      grep -avE '(^|[[:space:]])DEBUG[[:space:]]' "$v/security-resolve.log" 2>/dev/null \
+        | tail -30 | sed -e 's/^/     /'
       echo "  ── who owns the store (arm ran as $RUNUSER) ──"
       ls -ld "$USER_HOME/.cache/nub" "$USER_HOME/.cache/nub/pm" "$STORE" 2>&1 | sed -e 's/^/     /'
       exit 1

@@ -1620,8 +1620,10 @@ const verify = (grant, label) => {
     // specific when it fails here, so the tail is the difference between a diagnosis and another
     // CI round. Kept identical in all three drivers on purpose.
     console.log("  ── nub's own words (tail of security-resolve.log) ──");
+    // Drop the RUST_LOG=debug spew first; see the same dump in `measure.sh` for what it cost.
     console.log(((safeResolve.stdout ?? '') + (safeResolve.stderr ?? ''))
-      .split(/\r?\n/).slice(-30).map((l) => '     ' + l).join('\n'));
+      .split(/\r?\n/).filter((l) => !/(^|\s)DEBUG\s/.test(l))
+      .slice(-30).map((l) => '     ' + l).join('\n'));
     process.exit(1);
   }
   // Record the SUBJECT arm's materialized layout, never OBSERVE's npm layout and never a value
