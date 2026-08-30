@@ -232,7 +232,7 @@ const OBSERVE_ONLY = argv.includes('--observe-only');
 /// Every nub arm's project `.npmrc`. ONE definition because there is ONE file: a second
 /// `writeFileSync` to the same path TRUNCATES the first, which is exactly how the epoch-29
 /// attempt at this became a silent no-op.
-const ARM_NPMRC = 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n';
+const ARM_NPMRC = 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\nblockExoticSubdeps=false\n';
 
 // DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
 // ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers

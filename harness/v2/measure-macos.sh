@@ -993,7 +993,7 @@ verify () {
   # So the memo needs its own opt-out, read by `aube_settings::resolved::side_effects_cache`.
   # The arm also opts out of nub's resolve-time supply-chain gates; full reasoning at the same
   # write in `measure.sh`. ONE file, ONE write — a second `>` to this path truncates it.
-  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
+  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\nblockExoticSubdeps=false\n' > "$v/.npmrc"
   chown "$RUNUSER" "$v/.npmrc" 2>/dev/null
   # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
   # default block, which would make the arm VOID and read as "the grant did not work" rather than

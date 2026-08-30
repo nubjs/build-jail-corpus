@@ -1070,7 +1070,7 @@ verify () {
   # function and was a total no-op: this line truncated it before any install ran, and CI kept
   # refusing `fastq@1.20.2` at the new epoch exactly as before. Add a key HERE; never a second
   # write to the same path.
-  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
+  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\nblockExoticSubdeps=false\n' > "$v/.npmrc"
   # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM EVICTS THE STORE.
   #
   # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 35,
+  "currentEpoch": 36,
   "transitions": [
     {
       "fromEpoch": null,
@@ -363,6 +363,16 @@
         "verdicts": []
       },
       "reason": "Epoch 35 fixes the `fsevents` OSV failure for real, using the shape epoch 34 MEASURED rather than the one it guessed. Epoch 34 assumed the manifest-less directory was EMPTY and skipped only that; on run 33304342265 the count did not move, staying at 4 of 12. What DID work was epoch 34's other half -- making the refusal NAME its contents -- which answered in one line: `it holds: node_modules`. Era npm declines to extract the platform-mismatched `fsevents` (`os: darwin`; npm 5.5.1, 6.4.1 and 11 all skip it) while still materialising ITS dependencies underneath it, so the directory is a CARRIER for real nested packages and holds no code of its own. The screen now DESCENDS into such a directory instead of aborting on it, which is the fail-closed direction and not a relaxation: those nested packages are installed and real, and every earlier behaviour either aborted over them (epoch <= 33) or skipped them entirely unscreened (epoch 34). A directory holding ANYTHING else alongside a missing manifest still refuses, because Node resolves a manifest-less directory through `index.js`, so it is executable and unscreened; `[].every()` is true, so the empty case falls out of the same branch. Red drives: skip without descending (the epoch-34 behaviour), treat ANY manifest-less directory as a carrier, and revert to always throwing -- one, two and two failures. Also landed in this epoch: the guard comment asserting the mechanism was unknown is now false and has been corrected in place. ZERO records: a screen that previously ABORTED the measurement now completes it, so no existing record's grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 35,
+      "fromHarnessSha256": "ba1f28bace051f1cdaf7274e6cffb4a86f5eeffcff049861020f7e17b5b01551",
+      "toEpoch": 36,
+      "toHarnessSha256": "6964b5cbbf53998b20bc7bc59074f3e8e839ad494d1e3ca5768b797bcd19026e",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 36 adds `blockExoticSubdeps=false` to the arm `.npmrc`, the third nub supply-chain policy the measurement arm opts out of. Epoch 33 made the resolve-log dump readable, and on run 33304342265 it named this one for the first time: `web3@2.0.0-alpha.1` died `ERR_NUB_REGISTRY_ERROR -- registry error for websocket: uses exotic specifier \"github:web3-js/WebSocket-Node#polyfill/globalThis\" which is blocked by blockExoticSubdeps (declared by web3-providers)`. Same shape as the trust gate and the age gate that epoch 30 opted out of: a nub POLICY declining to resolve, in an arm whose job is to measure the BUILD JAIL and not nub's supply-chain posture. Nub's own error names the knob -- \"set blockExoticSubdeps=false in .npmrc\" -- and `use_nub.rs:58` accepts the key. VERIFIED LOCALLY WITH A NEGATIVE CONTROL rather than assumed, which is the epoch-29 lesson: the same fixture is rc=1 with three keys and rc=0 with four, and only the four-key run materialises `node_modules/web3`. It also improves comparability rather than trading it away, because the npm REFERENCE arm has no such policy and installs the exotic subdep already -- the two arms now agree about what is resolvable. The OSV screen is unaffected: it screens the MATERIALIZED tree, whatever resolved it. Red drives: drop the key from one driver only, and re-introduce the epoch-29 clobber as a second `.npmrc` write carrying only the new key -- one failure each. ZERO records: this changes what a measurement arm can RESOLVE, and every affected package currently produces no record at all. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

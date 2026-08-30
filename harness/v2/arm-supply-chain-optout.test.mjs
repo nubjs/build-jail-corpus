@@ -28,7 +28,15 @@ import test from 'node:test';
 
 const here = import.meta.dirname;
 const read = (f) => fs.readFileSync(path.join(here, f), 'utf8');
-const KEYS = ['side-effects-cache=false', 'trust-policy=off', 'minimum-release-age=0'];
+// `blockExoticSubdeps=false` joined the set at epoch 36. MEASURED on run 33304342265:
+// `web3@2.0.0-alpha.1` died `ERR_NUB_REGISTRY_ERROR ... uses exotic specifier
+// "github:web3-js/WebSocket-Node#polyfill/globalThis" which is blocked by blockExoticSubdeps`.
+// Same shape as the trust and age gates: a nub SUPPLY-CHAIN POLICY refusing to resolve, in an arm
+// whose job is to measure the BUILD JAIL. Verified locally with a negative control -- the same
+// fixture is rc=1 with three keys and rc=0 with four, and only the four-key run materialises
+// `node_modules/web3`. Nub's own error names the knob: "set blockExoticSubdeps=false in .npmrc".
+const KEYS = ['side-effects-cache=false', 'trust-policy=off', 'minimum-release-age=0',
+  'blockExoticSubdeps=false'];
 
 /// Every statement that writes an arm's `.npmrc`, with the literal content it writes. The JS driver
 /// writes through a shared constant, so its definition is what carries the content.
