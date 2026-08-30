@@ -88,31 +88,40 @@ export function collectInstalledSpecs(projectRoot) {
     if (!physical || visitedPackages.has(physical)) return;
     visitedPackages.add(physical);
 
-    // ⛔ AN EMPTY PACKAGE DIRECTORY IS NOT A PACKAGE, AND FAILING CLOSED ON ONE COSTS A MEASUREMENT.
-    // MEASURED on run 33299339164: 4 of the 12 withheld instrument failures were this screen dying on
-    // `node_modules/fsevents/package.json: ENOENT` in the npm reference tree -- a third of the whole
-    // residual, and every one of them a package that would otherwise have produced a verdict.
+    // ⛔ A MANIFEST-LESS DIRECTORY THAT HOLDS ONLY `node_modules` IS A CARRIER, NOT A PACKAGE — AND
+    // FAILING CLOSED ON ONE COSTS A MEASUREMENT. MEASURED on run 33299339164: 4 of the 12 withheld
+    // instrument failures were this screen dying on `node_modules/fsevents/package.json: ENOENT` in the
+    // npm REFERENCE tree -- a third of the residual, each a package that would otherwise have produced
+    // a verdict.
     //
-    // Skipping an EMPTY directory is safe by construction: it holds no code, so nothing can execute
-    // from it and there is nothing a vulnerability screen could screen. Fail-closed exists to stop an
-    // unscreened package from slipping through, and an empty directory is not a package.
+    // ⛔ THE SHAPE WAS MEASURED, NOT GUESSED, AND THE FIRST GUESS WAS WRONG. Epoch 34 assumed the
+    // directory was EMPTY and skipped only that; the count did not move. Epoch 34 also made the refusal
+    // NAME what it found, and on run 33304342265 it answered in one line: `it holds: node_modules`. Era
+    // npm skips the platform-mismatched `fsevents` itself -- `os: darwin`, and npm 5.5.1, 6.4.1 and 11
+    // all decline to extract it -- while still materialising ITS dependencies underneath it. So the
+    // directory is a carrier for real nested packages and holds no code of its own.
     //
-    // ⛔ THE NON-EMPTY CASE STILL FAILS CLOSED, AND NOW SAYS WHAT IT FOUND. The mechanism is NOT known:
-    // `fsevents` is `os: darwin`, and the obvious theory -- that era npm leaves an empty directory for
-    // a platform-skipped optional dependency -- was TESTED AND FALSIFIED on npm 5.5.1 and 6.4.1, both
-    // of which omit the directory entirely. So this does not guess. If the directory has contents, the
-    // screen refuses exactly as before and names them, which turns the next occurrence into an answer
-    // instead of another round of theorising.
+    // Descending is what makes this SAFER than either previous behaviour: those nested packages are
+    // real, they are installed, and today they are either aborted over (epoch <= 33) or silently
+    // skipped (epoch 34). Screening them is the fail-closed direction.
+    //
+    // Anything ELSE alongside a missing manifest still refuses, because such a directory can be
+    // REQUIRED -- Node resolves a manifest-less directory through `index.js` -- so it is executable and
+    // unscreened. `[].every()` is true, so the empty case falls out of the same branch, and
+    // `visitModules` returns immediately when the path does not exist.
     const manifestPath = path.join(pkgDir, 'package.json');
     let manifest;
     try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch (e) {
       if (e.code === 'ENOENT') {
         let entries = null;
         try { entries = fs.readdirSync(pkgDir); } catch { /* unreadable: fall through and fail closed */ }
-        if (entries && entries.length === 0) return;
-        throw new Error(`cannot read installed manifest ${manifestPath}: ${e.message}; the directory is `
-          + `NOT empty, so this is not a skipped optional dependency — it holds: `
-          + `${(entries ?? ['<unreadable>']).slice(0, 20).join(', ')}`);
+        if (entries && entries.every((n) => n === 'node_modules')) {
+          visitModules(path.join(pkgDir, 'node_modules'));
+          return;
+        }
+        throw new Error(`cannot read installed manifest ${manifestPath}: ${e.message}; the directory `
+          + `holds more than a nested node_modules, so it is not a skipped optional dependency — `
+          + `it holds: ${(entries ?? ['<unreadable>']).slice(0, 20).join(', ')}`);
       }
       throw new Error(`cannot read installed manifest ${manifestPath}: ${e.message}`);
     }

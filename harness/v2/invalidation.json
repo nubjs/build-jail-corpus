@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 34,
+  "currentEpoch": 35,
   "transitions": [
     {
       "fromEpoch": null,
@@ -353,6 +353,16 @@
         "verdicts": []
       },
       "reason": "Epoch 34 stops the OSV screen failing closed on an EMPTY package directory. MEASURED on run 33299339164: 4 of the 12 withheld instrument failures were `cannot read installed manifest .../node_modules/fsevents/package.json: ENOENT` in the npm REFERENCE tree -- a third of the whole residual, and every one of them a package that would otherwise have produced a verdict. That class had been parked at n=1 because it could not be sized from committed data: a HARNESS-* record is withheld and never commits, so no committed driver log can contain it. Epoch 32's tail fallback is what made it countable, and it turned out to BE the previously-silent class. An empty directory holds no code, so nothing can execute from it and there is nothing a vulnerability screen could screen; fail-closed exists to stop an unscreened PACKAGE slipping through, and an empty directory is not a package. The NON-empty case still refuses exactly as before and now NAMES the entries it found. That matters because the mechanism is NOT known: `fsevents` is `os: darwin`, and the obvious theory -- era npm leaving an empty directory for a platform-skipped optional dependency -- was tested on npm 5.5.1 and 6.4.1 and FALSIFIED, both omitting the directory entirely. So this fixes the case that is provably safe and makes the ambiguous case self-diagnosing, rather than guessing. An existing test asserted the ENOENT throw using a fixture whose directory became EMPTY once the manifest was removed, so it expressed the opposite of its own name; it now leaves an `index.js` behind, which is the fail-closed case it meant. Red drives: revert the skip, skip on ANY ENOENT (the over-broad fix that would weaken fail-closed), and drop the contents from the message -- one failure each. ZERO records: a screen that previously ABORTED the measurement now completes it, so no existing record's grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 34,
+      "fromHarnessSha256": "0e2ed2b99cbf5d71170144f887a5c162ff3a67e3c1255ddda504864e74ffa0ba",
+      "toEpoch": 35,
+      "toHarnessSha256": "ba1f28bace051f1cdaf7274e6cffb4a86f5eeffcff049861020f7e17b5b01551",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 35 fixes the `fsevents` OSV failure for real, using the shape epoch 34 MEASURED rather than the one it guessed. Epoch 34 assumed the manifest-less directory was EMPTY and skipped only that; on run 33304342265 the count did not move, staying at 4 of 12. What DID work was epoch 34's other half -- making the refusal NAME its contents -- which answered in one line: `it holds: node_modules`. Era npm declines to extract the platform-mismatched `fsevents` (`os: darwin`; npm 5.5.1, 6.4.1 and 11 all skip it) while still materialising ITS dependencies underneath it, so the directory is a CARRIER for real nested packages and holds no code of its own. The screen now DESCENDS into such a directory instead of aborting on it, which is the fail-closed direction and not a relaxation: those nested packages are installed and real, and every earlier behaviour either aborted over them (epoch <= 33) or skipped them entirely unscreened (epoch 34). A directory holding ANYTHING else alongside a missing manifest still refuses, because Node resolves a manifest-less directory through `index.js`, so it is executable and unscreened; `[].every()` is true, so the empty case falls out of the same branch. Red drives: skip without descending (the epoch-34 behaviour), treat ANY manifest-less directory as a carrier, and revert to always throwing -- one, two and two failures. Also landed in this epoch: the guard comment asserting the mechanism was unknown is now false and has been corrected in place. ZERO records: a screen that previously ABORTED the measurement now completes it, so no existing record's grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

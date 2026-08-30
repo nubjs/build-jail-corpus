@@ -38,27 +38,60 @@ test('screens every isolated virtual-store entry, not only dependencies nested u
   fs.rmSync(path.join(transitive, 'package.json'));
   fs.writeFileSync(path.join(transitive, 'index.js'), 'module.exports = 1;\n');
   assert.throws(() => collectInstalledSpecs(root), /cannot read installed manifest/);
-  assert.throws(() => collectInstalledSpecs(root), /it holds: index\.js/,
+  assert.throws(() => collectInstalledSpecs(root), /holds more than a nested node_modules/,
     'the refusal must name what it found, or the next occurrence is another round of theorising');
 });
 
-// ⛔ THE EMPTY DIRECTORY IS THE ONE THAT COST MEASUREMENTS. MEASURED on run 33299339164: 4 of the 12
-// withheld instrument failures were this screen dying on `node_modules/fsevents/package.json: ENOENT`
-// in the npm reference tree — a third of the residual, each one a package that would otherwise have
-// produced a verdict. An empty directory holds no code, so nothing can execute from it and there is
+// ⛔ A MANIFEST-LESS DIRECTORY COST MEASUREMENTS. MEASURED on run 33299339164: 4 of the 12 withheld
+// instrument failures were this screen dying on `node_modules/fsevents/package.json: ENOENT` in the
+// npm reference tree — a third of the residual, each one a package that would otherwise have produced
+// a verdict. Such a directory holds no code of its own, so nothing can execute from it and there is
 // nothing for a vulnerability screen to screen; fail-closed exists to stop an unscreened PACKAGE
-// slipping through, and an empty directory is not a package.
+// slipping through, and a directory with no manifest and no code is not a package.
 //
-// The mechanism that creates it is NOT known. `fsevents` is `os: darwin`, and the obvious theory —
-// era npm leaving an empty directory for a platform-skipped optional dependency — was tested on npm
-// 5.5.1 and 6.4.1 and FALSIFIED: both omit the directory entirely. So the non-empty case above still
-// refuses, and now reports its contents, which is what will identify this next time.
+// ⛔ THE MECHANISM IS NOW KNOWN, AND IT IS NOT "EMPTY". Epoch 34 guessed empty and skipped only that;
+// the count did not move. Two theories died on the way: era npm leaving an empty directory was tested
+// on npm 5.5.1, 6.4.1 and 11 and FALSIFIED — all three omit the directory entirely — and the empty-only
+// skip was falsified by production. What settled it was epoch 34's other half, the refusal naming its
+// contents: run 33304342265 printed `it holds: node_modules`. Era npm declines to extract the
+// platform-mismatched `fsevents` while still materialising ITS dependencies underneath it. The empty
+// case below is kept because `[].every()` is true and the same branch covers it.
 test('an empty package directory is skipped, and the rest of the tree is still screened', () => {
   const root = fixture();
   manifest(path.join(root, 'node_modules', 'target'), 'target', '1.0.0');
   fs.mkdirSync(path.join(root, 'node_modules', 'fsevents'), { recursive: true });
   assert.deepEqual(collectInstalledSpecs(root), ['target@1.0.0'],
     'an empty directory must neither throw nor contribute a spec, and must not stop the walk');
+});
+
+// ⛔ THIS IS THE REAL SHAPE, AND EPOCH 34's GUESS AT IT WAS WRONG. Epoch 34 assumed the directory was
+// EMPTY; the `fsevents` count did not move. What DID move was the refusal message, and on run
+// 33304342265 it answered in one line: `it holds: node_modules`. Era npm skips the platform-mismatched
+// `fsevents` itself while still materialising ITS dependencies underneath it, so the directory is a
+// carrier holding real nested packages and no code of its own.
+//
+// Descending is the fail-closed direction, not a relaxation: those nested packages are installed and
+// real, and every earlier behaviour either aborted over them or skipped them unscreened.
+test('a manifest-less carrier directory is descended into, and its nested packages ARE screened', () => {
+  const root = fixture();
+  manifest(path.join(root, 'node_modules', 'target'), 'target', '1.0.0');
+  const carrier = path.join(root, 'node_modules', 'fsevents');
+  fs.mkdirSync(carrier, { recursive: true });
+  manifest(path.join(carrier, 'node_modules', 'nan'), 'nan', '2.14.0');
+  assert.deepEqual(collectInstalledSpecs(root), ['nan@2.14.0', 'target@1.0.0'],
+    'the nested package under a manifest-less carrier must be screened, not skipped — skipping it is '
+    + 'the one direction fail-closed exists to prevent');
+});
+
+test('a manifest-less directory holding anything ELSE still fails closed', () => {
+  const root = fixture();
+  manifest(path.join(root, 'node_modules', 'target'), 'target', '1.0.0');
+  const executable = path.join(root, 'node_modules', 'sneaky');
+  fs.mkdirSync(path.join(executable, 'node_modules'), { recursive: true });
+  // A manifest-less directory is still resolvable through `index.js`, so it can execute.
+  fs.writeFileSync(path.join(executable, 'index.js'), 'module.exports = 1;\n');
+  assert.throws(() => collectInstalledSpecs(root), /holds more than a nested node_modules/,
+    'a carrier is ONLY a carrier when node_modules is all it holds');
 });
 
 test('a manifest that exists but does not parse still fails closed', () => {
