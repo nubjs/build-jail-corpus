@@ -20,7 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeHarnessIdentity, loadInvalidationPolicy } from './v2/instrument.mjs';
-import { recordValidity } from './v2/record-validity.mjs';
+import { recordValidity, settlementSurvives } from './v2/record-validity.mjs';
 import { fileIdentity } from './v2/runtime-provenance.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -371,7 +371,23 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
     //
     // Scoped to the exact hash rather than a boolean, so a genuine harness change still reopens it.
     // That is the difference between "settled" and "abandoned", and only the hash expresses it.
-    if (row.settledAtHash && row.settledAtHash === instrument.harnessSha256) continue;
+    //
+    // ⛔⛔ AND THE HASH IS NOW WALKED FORWARD, NOT COMPARED RAW — the raw comparison made every epoch
+    // bump reopen every settled row, including a bump that invalidates nothing. MEASURED by replaying
+    // this pass over a copy of the live queue at epoch 42: 59 linux rows reopened `done` -> `pending`,
+    // all 59 lost `settledAtHash`, and 5 lost `attempts`. 55 carry `priorHarnessEpoch: null` — records
+    // from the UNVERSIONED v2 instrument, which no chain can rescue — so each bump costs three
+    // ~90-minute slices re-measuring rows that will be withheld again, because `RETRY_LIMIT` is 3
+    // TOTAL attempts and the reopen below deletes the counter. That, not a lane-order defect, is what
+    // held the macOS handoff for twelve hours across epochs 37-41.
+    //
+    // `settlementSurvives` asks the question the raw comparison was standing in for: is the digest
+    // this row settled at still reachable from the current one through transitions whose scope does
+    // not match this row? A `{verdicts: []}` transition invalidates nothing, so the settlement holds;
+    // anything that actually matches drops it. Fails CLOSED on an unknown digest or a forked chain.
+    if (settlementSurvives(row.settledAtHash, {
+      ...row, provenance: { platform: row.platform ?? null },
+    }, instrument, invalidation).survives) continue;
     const pseudoRecord = {
       ...row,
       provenance: {

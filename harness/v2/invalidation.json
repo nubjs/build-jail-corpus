@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 42,
+  "currentEpoch": 43,
   "transitions": [
     {
       "fromEpoch": null,
@@ -433,6 +433,16 @@
         "verdicts": []
       },
       "reason": "Epoch 42 makes a failing arm's SyntaxError classifiable on every platform, by keeping the module path\nNode prints on the line ABOVE the error.\n\nThe failing-arm echo in both POSIX drivers filters the arm log by signature. The ERROR line always\nmatched -- `SyntaxError:` contains the substring `Error:` -- while the PATH line matched no\nalternative, so `driver.out` recorded a bare `[synth/i] SyntaxError: Unexpected token ...` with its\nsubject amputated. That path is the only thing separating two failures whose text is byte-identical\nand whose meanings are opposite: a DEPENDENCY the era Node cannot parse (a real finding about the\npackage) versus the HARNESS running its own arm-cap.mjs under an era Node after a PATH rewrite\n(measure.sh:104 -- our bug, which must never enter the corpus as a package verdict).\n\nMEASURED over all 6,880 committed driver.out: exactly 40 carry a path line and ALL FORTY are\nlinux-x64. Darwin has zero, not because darwin is clean but because this echo amputated it -- 18\ndarwin BROKEN-WITHOUT-JAIL-TOO records carry the identical stripped signature.\n\nCOST 0. The change only ADDS lines to a failing arm's echo; it decides no verdict, and it cannot\nchange one, because record.mjs classifies on a path that was previously absent and is now present.\nNo existing record's verdict is reachable from it, so no verdict is invalidated."
+    },
+    {
+      "fromEpoch": 42,
+      "fromHarnessSha256": "776fe75493bdc1f98ac2ab1d9187b3d20324efa409cdc6f933498a8f72ba6b4b",
+      "toEpoch": 43,
+      "toHarnessSha256": "22938be393750d0d5971733512368b256bf0db4ce7c25e48dc5c6f1a9a92009a",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 43 stops every epoch bump from reopening every settled row.\n\nA row is SETTLED when re-measuring provably cannot change the outcome: the publish guard withheld its\nrecord and will withhold it again, so the queue stops re-running it. claim-slice.mjs held that\nsettlement only while settledAtHash equalled the CURRENT digest, compared raw -- and any harness\ncommit moves that digest, so every settled row reopened on every bump, including a bump whose\ntransition invalidates nothing.\n\nMEASURED by replaying the reopen pass over a copy of the live queue at epoch 42: 59 linux rows\nreopened done -> pending, all 59 lost settledAtHash, and 5 lost their attempts counter. 55 carry\npriorHarnessEpoch: null -- records from the unversioned v2 instrument, which no transition chain can\nrescue -- so they re-settle only by being re-measured and re-withheld three times each, because\nRETRY_LIMIT is 3 TOTAL attempts and the reopen deletes the counter. Three ~90-minute linux slices per\nbump, publishing nothing. That is what held the macOS handoff across epochs 37-41.\n\nsettlementSurvives walks the settled digest forward along the same chain a RECORD is walked along,\nand drops the settlement the instant a transition scope actually matches the row. Fails closed on an\nunknown digest, a forked chain, a cycle, or a policy that does not name the current epoch.\n\nCOST 0. The change decides no verdict and alters no record; it only stops the queue discarding\nsettlement bookkeeping that the policy says is still valid."
     }
   ]
 }

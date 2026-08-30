@@ -25,6 +25,68 @@ function scopeMatches(scope, record) {
   return selectors.every(([key, value]) => Array.isArray(scope[key]) && scope[key].includes(value));
 }
 
+// ⛔⛔ A SETTLEMENT SURVIVES AN INSTRUMENT CHANGE THAT INVALIDATES NOTHING — AND WITHOUT THIS IT DID
+// NOT, WHICH IS THE SINGLE MOST EXPENSIVE DEFECT IN THIS HARNESS.
+//
+// A row is SETTLED when re-measuring provably cannot change the outcome: the publish guard withheld
+// its record and will withhold it again, so the queue stops re-running it. `claim-slice.mjs` used to
+// hold that settlement only while `settledAtHash` equalled the CURRENT digest, compared raw. Any
+// harness commit moves that digest, so EVERY settled row reopened on EVERY epoch bump — even a bump
+// whose transition invalidates nothing at all.
+//
+// MEASURED 2026-08-30 by replaying the reopen pass over a copy of the live queue at epoch 42: **59
+// linux rows reopened `done` -> `pending`, all 59 lost `settledAtHash`, and 5 lost their `attempts`
+// counter.** 55 of them carry `priorHarnessEpoch: null` — records from the UNVERSIONED v2 instrument,
+// which no transition chain can ever rescue — so they re-settle only by being re-measured and
+// re-withheld, three times each, because `RETRY_LIMIT` is 3 TOTAL attempts and the reopen deletes the
+// counter. That is three ~90-minute linux slices per bump, publishing nothing.
+//
+// It is also why the corpus looked stalled for twelve hours: epochs 37-41 each bought those rows
+// three fresh attempts, `--claim` runs BEFORE `--next-os`, and one pending row is enough to stop the
+// lane handing off. The cost falls on whichever lane is draining, and on windows an attempt costs
+// ~30 minutes rather than ~1.5.
+//
+// THE SEMANTICS ARE THE POINT, NOT THE SAVING. "Re-measuring cannot change the outcome under
+// instrument X" stays true when X changes in a way that invalidates nothing — that is precisely what
+// a `{verdicts: []}` transition asserts. So the settlement is walked forward along the same chain a
+// RECORD is walked along, and it is dropped the instant a transition's scope actually matches the
+// row. A genuine harness change still reopens it; a measurement-neutral one no longer does.
+//
+// Fails CLOSED in every uncertain case — an unknown digest, a forked chain, a malformed scope — so a
+// settlement is only ever preserved when the chain positively says it is safe.
+export function settlementSurvives(settledAtHash, record, current, policy) {
+  if (!settledAtHash) return { survives: false, reason: 'row is not settled' };
+  if (settledAtHash === current?.harnessSha256) return { survives: true, via: 'exact-instrument' };
+  if (policy?.currentEpoch !== current?.harnessEpoch) {
+    return { survives: false, reason: 'invalidation policy does not name the current harness epoch' };
+  }
+  // Locate the settlement on the chain by the digest it settled AT. The row records only that hash,
+  // never the epoch, so the transition that PRODUCED the hash is what places it.
+  const origin = policy.transitions?.find((t) => t.toHarnessSha256 === settledAtHash);
+  if (!origin) return { survives: false, reason: 'the digest this row settled at is not on the transition chain' };
+
+  let hash = origin.toHarnessSha256;
+  const seen = new Set();
+  while (hash !== current.harnessSha256) {
+    if (seen.has(hash)) return { survives: false, reason: 'invalidation transition cycle' };
+    seen.add(hash);
+    const candidates = policy.transitions.filter((t) => t.fromHarnessSha256 === hash);
+    if (candidates.length !== 1) {
+      return { survives: false, reason: `no unique transition from digest ${hash.slice(0, 16)}` };
+    }
+    const [transition] = candidates;
+    let invalidated;
+    try { invalidated = scopeMatches(transition.invalidate, record); }
+    catch (error) { return { survives: false, reason: `invalid policy: ${error.message}` }; }
+    if (invalidated) return { survives: false, reason: transition.reason || 'instrument transition invalidates record' };
+    if (typeof transition.toHarnessSha256 !== 'string') {
+      return { survives: false, reason: 'targeted transition lacks an exact forward target identity' };
+    }
+    hash = transition.toHarnessSha256;
+  }
+  return { survives: true, via: 'targeted-transition' };
+}
+
 export function instrumentCompatibility(record, current, policy) {
   if (policy?.currentEpoch !== current?.harnessEpoch) {
     return { reusable: false, reason: 'invalidation policy does not name the current harness epoch' };
