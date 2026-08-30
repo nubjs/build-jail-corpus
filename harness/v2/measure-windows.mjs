@@ -1605,7 +1605,19 @@ const verify = (grant, label) => {
     XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
   // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
   // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.
-  const safeResolve = run(NUB, ['install', '--ignore-scripts'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
+  //
+  // ⛔⛔ THIS PRE-STEP RUNS WITHOUT `RUST_LOG=debug`, UNLIKE THE ARMS BELOW. Debug is load-bearing
+  // for them and pure noise here: the replay predicate reads `i.log` + `a.log` only, and nothing
+  // reads this log except the failure dump beneath it. Under debug that dump is engine trace instead
+  // of nub's error -- MEASURED on run 33299339164, where filtering ` DEBUG ` still left 30 lines of
+  // hickory-resolver DNS records, because the CONTINUATION lines of a multi-line debug record carry
+  // no level prefix. `measure-macos.sh` has never set it on this call. `delete` rather than a spread
+  // of `RUST_LOG: undefined` -- both were measured to leave the key absent in the child, so this is
+  // for the reader: the intent is removal, and it does not rest on how a runtime treats undefined.
+  const resolveEnv = { ...env };
+  delete resolveEnv.RUST_LOG;
+  const safeResolve = run(NUB, ['install', '--ignore-scripts'],
+    { cwd: v, env: resolveEnv, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'security-resolve.log'),
     (safeResolve.stdout ?? '') + (safeResolve.stderr ?? ''));
   if (timedOut(safeResolve)) {

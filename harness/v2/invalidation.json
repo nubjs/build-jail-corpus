@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 32,
+  "currentEpoch": 33,
   "transitions": [
     {
       "fromEpoch": null,
@@ -333,6 +333,16 @@
         "verdicts": []
       },
       "reason": "Epoch 32 closes the one case the failure-reason printer was blind to: a HARNESS-ERROR with NO verdict marker. `record.mjs:794` assigns HARNESS-ERROR as a FALLBACK when no marker matched anywhere in the driver log -- the driver died before it could print one -- and `show_failure_reason` greps for `=> HARNESS-`, piping an empty match straight to sed. So that class printed NOTHING: no reason, and not the \"no driver log stashed\" line either, because the log is present. The reader saw a WITHHELD line, a Parked line, and silence. MEASURED on run 33293351038 (the first epoch-30 slice): 4 of the 11 withheld instrument failures did exactly that -- @aws-amplify/cli 1.12.0, 2.0.0 and 3.9.0, and @nuxt/content@3.0.0-alpha.3. They ran 51-137 s, so no timeout explains them, and the runner was destroyed holding the only copy of the log. Epoch 31 does not help them: it filters the resolve-log dump, and these never reached a dump. The printer now falls back to the tail of the driver log whenever no marker is present, which cannot be worse than printing nothing. The guard EXECUTES the real function lifted out of the publisher rather than reading its source -- the whole lesson of epoch 29 is that a source assertion passes for code that does nothing -- and it carries a control that reconstructs the pre-fix body and requires it to stay silent on the same input. The no-marker sample is 40 lines with the cause 9 from the end, because a 5-line sample cannot tell `tail -2` from `tail -30` and made the depth assertion unfailable. ZERO records: this changes what a FAILING publish prints after the record has already been withheld. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 32,
+      "fromHarnessSha256": "da591db6ae49f4c7a1faee029d290640647639e491c0a70721d0a6f62e5d1982",
+      "toEpoch": 33,
+      "toHarnessSha256": "e2b8e4d87cf7371974ff366e8de6f4f3ce5c3222f851757bee81e13d569237db",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 33 stops the resolve-log noise at its SOURCE instead of filtering it. The security-resolve pre-step -- the `--ignore-scripts` install that materializes a tree for the OSV screen -- ran under RUST_LOG=debug on linux and windows, and when it fails the drivers tail its log because that is the only place the reason exists. Epoch 31 filtered ` DEBUG ` lines out of that tail; MEASURED on run 33299339164 the tail then became 30 lines of hickory-resolver DNS records (`;; registry.npmjs.org. IN AAAA`, `; answers 12`, twelve AAAA rows), because the CONTINUATION lines of a multi-line debug record carry no level prefix for any level filter to match. Filtering was whack-a-mole against a log the harness never wanted. Debug is load-bearing on the MEASURED arms -- `side-effects-cache: restored` is a `tracing::debug!` and is the only line distinguishing a built arm from a replayed one -- but nothing reads this pre-step's log except the failure dump: the replay predicate reads `i.log` + `a.log` only, and `unjailed-nub.mjs` records that security-resolve.log is deliberately not read. `measure-macos.sh` has never set debug on this call and its dumps have always been readable, so this is parity with the driver that was already right. The epoch-31 filters stay, because the measured arms genuinely do run under debug and their own dumps still need them. The guard EXECUTES the extracted POSIX subshell with a stub standing in for nub and reads the child's real environment, seeded with a SENTINEL value rather than `debug` so it distinguishes a quiet driver from a noisy one instead of firing on a value the test injected; its fourth test is the OVERSHOOT control, requiring the measured arms to keep debug, because removing it there would silently make the replay assertion unfalsifiable. ZERO records: this changes what a FAILING pre-step logs, and the pre-step runs with every lifecycle hook disabled. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

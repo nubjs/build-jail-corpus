@@ -1397,8 +1397,22 @@ verify () {
   # clearance for its sorted exact spec set may precede the ordinary install below; npm's OBSERVE
   # clearance is not transferable across resolvers. Nub's own regression suite proves an
   # `--ignore-scripts` install does not make the subsequent ordinary install look fresh.
+  #
+  # ⛔⛔ NO `RUST_LOG=debug` HERE, AND THAT IS DELIBERATE — IT IS LOAD-BEARING FOR THE ARMS BELOW AND
+  # PURE NOISE FOR THIS ONE. The measured arms need it because `side-effects-cache: restored` is a
+  # `tracing::debug!` and nothing else distinguishes a built arm from a replayed one. This step is a
+  # PRE-STEP: it materializes a tree for the OSV screen, and NOTHING reads its log except the failure
+  # dump below. `logs` for the replay predicate is `i.log` + `a.log` only.
+  #
+  # What debug cost here, twice: when this install fails the dump tails `security-resolve.log`, and
+  # under debug that tail is engine trace rather than nub's error. Epoch 31 filtered ` DEBUG ` lines
+  # and MEASURED on run 33299339164 that the tail was then 30 lines of hickory-resolver DNS records --
+  # `;; registry.npmjs.org. IN AAAA`, `; answers 12`, twelve AAAA rows -- because the CONTINUATION
+  # lines of a multi-line debug record carry no level prefix for a filter to match. Filtering was
+  # whack-a-mole against a log the harness never wanted. `measure-macos.sh` has never set it on this
+  # call and its dumps have always been readable; this is now parity with the driver that was right.
   ( cd "$v"
-    RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+    NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
       "$NUB" install --ignore-scripts > "$v/security-resolve.log" 2>&1
   ) || {
     echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
