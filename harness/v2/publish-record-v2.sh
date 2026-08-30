@@ -135,9 +135,24 @@ note_instrument_failure () {
 # "Nub could not materialize the tree with --ignore-scripts", which names the step and not the
 # refusal, and the exit code that would have identified it (23 trust-policy vs 21 age-gate) was in
 # the very next lines. Keeping the trailing context is the difference between a class and a cause.
+#
+# ⛔⛔ AND THE CLASS WITH NO MARKER AT ALL, WHICH THIS PRINTER WAS BLIND TO. `record.mjs:794` assigns
+# `HARNESS-ERROR` as a FALLBACK when no verdict marker matched anywhere in the log — the driver died
+# before it could print one. For that class the grep below matches nothing, so the printer emitted
+# NOTHING: not a reason, and not the "no driver log stashed" line either, because the log is there.
+# MEASURED on run 33293351038: 4 of the 11 withheld instrument failures — `@aws-amplify/cli` 1.12.0,
+# 2.0.0 and 3.9.0, and `@nuxt/content@3.0.0-alpha.3` — printed a WITHHELD line, a Parked line, and then
+# silence. They ran 51-137 s, so no timeout explains them, and nothing on that runner survived to say
+# more. A failure with no marker is exactly the one whose log is the ONLY evidence, and it was the one
+# case that produced no output. A tail cannot be worse than nothing.
 show_failure_reason () {
   [ -f "$STASH/rec/.driver.out" ] || { echo "     (no driver log stashed — cannot say why)" >&2; return 0; }
-  grep -aA 14 -E '=> HARNESS-' "$STASH/rec/.driver.out" | tail -30 | sed 's/^ */     WHY: /' >&2 || true
+  if grep -aqE '=> HARNESS-' "$STASH/rec/.driver.out"; then
+    grep -aA 14 -E '=> HARNESS-' "$STASH/rec/.driver.out" | tail -30 | sed 's/^ */     WHY: /' >&2
+  else
+    echo '     WHY: (no verdict marker — record.mjs fell back to HARNESS-ERROR; tail of the driver log follows)' >&2
+    tail -30 "$STASH/rec/.driver.out" | sed 's/^ */     WHY: /' >&2 || true
+  fi
 }
 
 # ⛔ AN INSTRUMENT FAILURE IS NOT A MEASUREMENT AND MUST NOT REACH THE MANIFEST. `record-validity.mjs`

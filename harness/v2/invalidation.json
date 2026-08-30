@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 31,
+  "currentEpoch": 32,
   "transitions": [
     {
       "fromEpoch": null,
@@ -323,6 +323,16 @@
         "verdicts": []
       },
       "reason": "Epoch 31 makes the resolve-log failure dump readable again. When nub cannot materialize an arm's tree the drivers print the tail of `security-resolve.log`, because that is the only place the reason exists -- the record carries `verdict: HARNESS-ERROR` and nothing about why, and the log is parked outside `records-v2/` so it never reaches the artifact. The arm runs nub under `RUST_LOG=debug` for phase timings, so MEASURED on run 33293351038 five HARNESS-ERRORs printed the header and then 30 unbroken lines of `DEBUG received frame=Data { stream_id: ... }`: nub's actual error had scrolled out of the window. It had appeared to work one epoch earlier only because a trust refusal aborts EARLY, before any registry traffic -- the diagnostic was never right, it was lucky. All three drivers now drop ` DEBUG ` lines before tailing, at the dump itself so `.driver.out` is useful and not only the CI view. Both filters are verified by EXECUTION against a synthetic log carrying every shape that matters, and a guard runs the shell ERE and the JS regex against that same input and asserts they agree line for line, because a POSIX/Windows divergence here is how a platform-only blind spot starts. A local reproduction of the first residual failure (@aws-amplify/cli@6.4.0) returned rc=0 on macOS with the same arm `.npmrc`, so the class is environment-specific and this dump is the only instrument that can identify it. ZERO records: this changes what a FAILING arm prints after it has already failed. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 31,
+      "fromHarnessSha256": "3d8ad5166485d2cad5c2d27052ffd23ecf0d739396e8081a2cb2f3338151e329",
+      "toEpoch": 32,
+      "toHarnessSha256": "da591db6ae49f4c7a1faee029d290640647639e491c0a70721d0a6f62e5d1982",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 32 closes the one case the failure-reason printer was blind to: a HARNESS-ERROR with NO verdict marker. `record.mjs:794` assigns HARNESS-ERROR as a FALLBACK when no marker matched anywhere in the driver log -- the driver died before it could print one -- and `show_failure_reason` greps for `=> HARNESS-`, piping an empty match straight to sed. So that class printed NOTHING: no reason, and not the \"no driver log stashed\" line either, because the log is present. The reader saw a WITHHELD line, a Parked line, and silence. MEASURED on run 33293351038 (the first epoch-30 slice): 4 of the 11 withheld instrument failures did exactly that -- @aws-amplify/cli 1.12.0, 2.0.0 and 3.9.0, and @nuxt/content@3.0.0-alpha.3. They ran 51-137 s, so no timeout explains them, and the runner was destroyed holding the only copy of the log. Epoch 31 does not help them: it filters the resolve-log dump, and these never reached a dump. The printer now falls back to the tail of the driver log whenever no marker is present, which cannot be worse than printing nothing. The guard EXECUTES the real function lifted out of the publisher rather than reading its source -- the whole lesson of epoch 29 is that a source assertion passes for code that does nothing -- and it carries a control that reconstructs the pre-fix body and requires it to stay silent on the same input. The no-marker sample is 40 lines with the cause 9 from the end, because a 5-line sample cannot tell `tail -2` from `tail -30` and made the depth assertion unfailable. ZERO records: this changes what a FAILING publish prints after the record has already been withheld. No grant, ladder or verdict can move. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }
