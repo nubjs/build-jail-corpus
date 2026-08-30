@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 36,
+  "currentEpoch": 37,
   "transitions": [
     {
       "fromEpoch": null,
@@ -373,6 +373,16 @@
         "verdicts": []
       },
       "reason": "Epoch 36 adds `blockExoticSubdeps=false` to the arm `.npmrc`, the third nub supply-chain policy the measurement arm opts out of. Epoch 33 made the resolve-log dump readable, and on run 33304342265 it named this one for the first time: `web3@2.0.0-alpha.1` died `ERR_NUB_REGISTRY_ERROR -- registry error for websocket: uses exotic specifier \"github:web3-js/WebSocket-Node#polyfill/globalThis\" which is blocked by blockExoticSubdeps (declared by web3-providers)`. Same shape as the trust gate and the age gate that epoch 30 opted out of: a nub POLICY declining to resolve, in an arm whose job is to measure the BUILD JAIL and not nub's supply-chain posture. Nub's own error names the knob -- \"set blockExoticSubdeps=false in .npmrc\" -- and `use_nub.rs:58` accepts the key. VERIFIED LOCALLY WITH A NEGATIVE CONTROL rather than assumed, which is the epoch-29 lesson: the same fixture is rc=1 with three keys and rc=0 with four, and only the four-key run materialises `node_modules/web3`. It also improves comparability rather than trading it away, because the npm REFERENCE arm has no such policy and installs the exotic subdep already -- the two arms now agree about what is resolvable. The OSV screen is unaffected: it screens the MATERIALIZED tree, whatever resolved it. Red drives: drop the key from one driver only, and re-introduce the epoch-29 clobber as a second `.npmrc` write carrying only the new key -- one failure each. ZERO records: this changes what a measurement arm can RESOLVE, and every affected package currently produces no record at all. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
+    },
+    {
+      "fromEpoch": 36,
+      "fromHarnessSha256": "6964b5cbbf53998b20bc7bc59074f3e8e839ad494d1e3ca5768b797bcd19026e",
+      "toEpoch": 37,
+      "toHarnessSha256": "718e594be80ee017d7298810d3e3962b533178c1c108bc2794c45756cd12b27a",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 37 stops the jail-off control filing a MEASUREMENT as a broken instrument. `unjailed_nub_ok` runs `unjailed-nub.mjs --phase resolve` first, and that phase deliberately prints NO verdict -- its own comment explains why: a `=>` emitted before the security screen could be overwritten, because `record.mjs` takes the LAST match. The caller then did `|| return 1`, while the branch reading its exit code says \"any other non-zero code means the module already printed the verdict\". For that one code it was FALSE, so the driver ended with no verdict marker anywhere and `record.mjs:794` fell back to HARNESS-ERROR -- filing \"nub cannot install this package unjailed\", precisely what the stage exists to measure, as an instrument failure, and costing three retries per package. MEASURED on run 33309505516: `botframework-connector@4.0.0-m1.5` climbed the whole ladder, failed every rung, reached the control, printed `jail-off control: resolved as nspjailoffcontrol (rc=1)` and then stopped. It was the LAST of the five remaining withheld packages the harness itself could fix; the other four are three `ERR_NUB_PEER_CONTEXT_NOT_CONVERGED` (a nub resolver bug in the pinned 0.7.1) and one real `duckdb` timeout. Exit 3 is the right code rather than a new one: \"nub could not install it unjailed -- ask npm whose fault that is\" is exactly the question the CONSULT_NPM branch answers, ending in BROKEN-UNJAILED-NUB or BROKEN-WITHOUT-JAIL-TOO, both measurements. The verdict phase's `nub: {rc: 1, engaged: true}` stays sound because this install runs `--ignore-scripts`, so no lifecycle script and hence no jail was involved for an off-switch to fail to disable. FIXED ON macOS AT THE SAME TIME: that driver carried the identical `|| return 1` and is the NEXT lane with 1652 rows pending, so a linux-only fix would have left the defect live exactly where it was about to matter most. Windows was CHECKED and does not share it -- its `unjailedNubOk` returns a structured outcome and the `if (!NUB_ARM.ok)` branch emits a verdict. The guard EXECUTES the real function lifted out of the driver with `node` stubbed, because the ladder suites stub `unjailed_nub_ok` wholesale and cannot reach its interior; its second test is the overshoot control, requiring a SUCCESSFUL resolve to still proceed to the run phase. Red drives: revert to `return 1`, and return 3 unconditionally -- one failure each. ZERO records: this changes what a driver prints on a path that currently produces no record at all. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict."
     }
   ]
 }

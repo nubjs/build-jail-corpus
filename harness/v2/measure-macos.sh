@@ -953,8 +953,20 @@ unjailed_nub_ok () {
   # was filed BROKEN-UNJAILED-NUB, a claimed nub install defect that was entirely ours.
   local as=(--spawn-as "$RUNUSER" --spawn-path "${ARM_PATH:-${ERA_PATH:-$PATH}}")
   [ -z "${ERA_PYTHON:-}" ] || as+=(--spawn-python "$ERA_PYTHON")
-  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
-    "${as[@]}" || return 1
+  # ⛔⛔ A RESOLVE FAILURE IS A MEASUREMENT, NOT AN INSTRUMENT FAILURE — full reasoning at the same
+  # call in `measure.sh`. The `resolve` phase prints NO verdict by design, so `return 1` left the
+  # driver with no verdict marker and `record.mjs:794` filed `HARNESS-ERROR` for the very thing this
+  # stage exists to measure. 3 routes to the branch at `NSP_RC -eq 3` that asks npm whose fault it is.
+  #
+  # ⛔ FIXED HERE AT THE SAME TIME AS LINUX, DELIBERATELY. It was MEASURED on linux (run 33309505516,
+  # `botframework-connector@4.0.0-m1.5`) and this driver carried the identical `|| return 1` — and
+  # macOS is the NEXT lane, with 1652 rows pending, so a linux-only fix would leave the defect live
+  # exactly where it is about to matter most.
+  if ! node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+      "${as[@]}"; then
+    echo "  jail-off control: nub could not resolve the control fixture with the jail OFF; asking npm before naming a culprit"
+    return 3
+  fi
   security_screen_tree "$d" nub-unjailed-resolved
   node "$HERE/unjailed-nub.mjs" --phase run --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
     "${as[@]}" --context '— no state passed, up to and including write:"disk"'

@@ -997,8 +997,29 @@ unjailed_nub_ok () {
   # forced it to pass PATH explicitly.
   local pyarg=(--spawn-path "${ARM_PATH:-${ERA_PATH:-$PATH}}")
   [ -z "${ERA_PYTHON:-}" ] || pyarg+=(--spawn-python "$ERA_PYTHON")
-  node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
-    "${pyarg[@]+"${pyarg[@]}"}" || return 1
+  # ⛔⛔ A RESOLVE FAILURE IS A MEASUREMENT, AND `return 1` FILED IT AS AN INSTRUMENT FAILURE.
+  #
+  # The caller's own comment says "any other non-zero code means the module already printed the
+  # verdict" — and for this one code that is FALSE. The `resolve` phase deliberately prints NO verdict
+  # (its comment explains why: a `=>` emitted before the screen could be overwritten, and `record.mjs`
+  # takes the LAST match). So `return 1` left the driver with no verdict marker at all, and
+  # `record.mjs:794` fell back to `HARNESS-ERROR` — filing "nub cannot install this package unjailed",
+  # which is exactly what this stage exists to measure, as a broken instrument.
+  #
+  # MEASURED on run 33309505516: `botframework-connector@4.0.0-m1.5` climbed the whole ladder, failed
+  # every rung, reached this control, printed `jail-off control: resolved as nspjailoffcontrol (rc=1)`
+  # and then nothing. It was the only withheld package left that the harness itself could fix.
+  #
+  # 3 is the right code, not a new one: "nub could not install it unjailed — ask npm whose fault that
+  # is" is precisely the question the CONSULT_NPM branch answers, and it ends in the same fork
+  # (`BROKEN-UNJAILED-NUB` if npm manages it, `BROKEN-WITHOUT-JAIL-TOO` if nothing does). The verdict
+  # phase's `nub: { rc: 1, engaged: true }` stays sound here: this install runs `--ignore-scripts`, so
+  # no lifecycle script and hence no jail was ever involved for an off-switch to fail to disable.
+  if ! node "$HERE/unjailed-nub.mjs" --phase resolve --pkg "$p" --version "$v" --nub "$NUB" --dir "$d" \
+      "${pyarg[@]+"${pyarg[@]}"}"; then
+    echo "  jail-off control: nub could not resolve the control fixture with the jail OFF; asking npm before naming a culprit"
+    return 3
+  fi
   security_screen_tree "$d" nub-unjailed-resolved
   # `--context` keeps the detail THIS ladder earned on the shared verdict token: "even at write:disk"
   # states that every rung was climbed, which is a Linux-ladder fact the other two drivers have no
