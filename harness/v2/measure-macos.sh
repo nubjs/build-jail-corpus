@@ -968,8 +968,6 @@ verify () {
   # `measure.sh`; the short version is that they refuse during RESOLUTION, before any lifecycle
   # script exists to confine, so when they fire the jail question cannot be asked at all. A project
   # `.npmrc` rather than an env var, because the env form reaches npm and makes it warn on stderr.
-  printf 'trust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
-  chown "$RUNUSER" "$v/.npmrc" 2>/dev/null
   # A unique root package name per arm: nub's side-effects memo replays a lifecycle outcome keyed
   # on package identity, and a replayed arm is indistinguishable from a real one by exit code.
   local name="v$(echo "$label" | tr -dc 'a-z0-9')$RANDOM"
@@ -993,7 +991,10 @@ verify () {
   # cache_dir()`, and the memo from `side_effects_cache_root()` = `virtual_store_dir()/../
   # side-effects-v1`, i.e. BOTH live beside the store under the XDG cache and neither moves with it.
   # So the memo needs its own opt-out, read by `aube_settings::resolved::side_effects_cache`.
-  printf 'side-effects-cache=false\n' > "$v/.npmrc"
+  # The arm also opts out of nub's resolve-time supply-chain gates; full reasoning at the same
+  # write in `measure.sh`. ONE file, ONE write — a second `>` to this path truncates it.
+  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
+  chown "$RUNUSER" "$v/.npmrc" 2>/dev/null
   # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
   # default block, which would make the arm VOID and read as "the grant did not work" rather than
   # "the package needs nothing". The override REPLACES the compiled-in table rather than merging

@@ -1011,34 +1011,6 @@ unjailed_nub_ok () {
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
   local v="$ROOT/verify-$label"; mkdir -p "$v/pkg"
-  # ⛔ THE ARM OPTS OUT OF NUB'S RESOLVE-TIME SUPPLY-CHAIN GATES, AND ONLY THE ARM.
-  #
-  # `trustPolicy` and `minimumReleaseAge` refuse an install during RESOLUTION, before any lifecycle
-  # script exists to confine — so they can never produce a jail finding, and when they fire the jail
-  # question cannot be asked at all. The record comes back `HARNESS-ERROR: Nub could not materialize
-  # the tree with --ignore-scripts`, which is an instrument failure, not a measurement.
-  #
-  # MEASURED 2026-08-30, and it is a DEADLOCK rather than a tunable: `fast-glob@^3.3.2` -> `fastq`.
-  # `fastq@1.20.3` has a trusted publisher but is 1 day old, so the age gate refuses it (exit 21);
-  # `fastq@1.20.2` is old enough but was published manually with `attestations: null`, so the trust
-  # gate refuses it (exit 23); the resolver picks 1.20.2 and ABORTS rather than continuing to
-  # `fastq@1.20.1`, which satisfies the range, is 249 days old and is fully signed. No version
-  # satisfies both gates for ~14 days, so EVERY tree containing fast-glob is unmeasurable. That is
-  # 20 of the 21 reasons the epoch-28 diagnostic printed on run 33285785801, and it explains the
-  # ~20x tree-size correlation of the stuck set: a bigger tree is likelier to hold one package
-  # mid-drift.
-  #
-  # THIS IS NOT "SCREENING OFF". The harness runs its OWN fail-closed OSV malware screen over the
-  # resolved tree (`security-screen.sh`), which is why supply-chain screening is the INSTRUMENT's
-  # job here rather than the subject's. Nub's gates duplicate it and break the measurement.
-  #
-  # ⛔ IT IS A PROJECT `.npmrc` IN THE ARM DIR, NOT AN ENV VAR, AND THAT IS DELIBERATE. Setting
-  # `npm_config_trust_policy` / `npm_config_minimum_release_age` in the driver's environment reaches
-  # npm too, and npm prints `npm warn Unknown env config "trust-policy"` on stderr for each --
-  # measured, both keys, rc=0 but two extra stderr lines in every npm arm, including the reference
-  # rebuild that decides BROKEN-WITHOUT-JAIL-TOO. OBSERVE lives in `$ROOT/observe`, a SIBLING of this
-  # directory, so a file here cannot reach it.
-  printf 'trust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
   # A unique package name per arm: nub's side-effects cache memoises a lifecycle outcome keyed on
   # package identity, so a reused name REPLAYS the previous arm's result with every precondition
   # still green. Measured — the most dangerous failure shape here, because nothing looks wrong.
@@ -1067,7 +1039,38 @@ verify () {
   #   evict binary-install=yes   {"network":true}   rc=1   bin/ empty      -> correct FAIL
   #
   # So the config line does NOT subsume the eviction. Keep both.
-  printf 'side-effects-cache=false\n' > "$v/.npmrc"
+  # ⛔ THE ARM OPTS OUT OF NUB'S RESOLVE-TIME SUPPLY-CHAIN GATES, AND ONLY THE ARM.
+  #
+  # `trustPolicy` and `minimumReleaseAge` refuse an install during RESOLUTION, before any lifecycle
+  # script exists to confine — so they can never produce a jail finding, and when they fire the jail
+  # question cannot be asked at all. The record comes back `HARNESS-ERROR: Nub could not materialize
+  # the tree with --ignore-scripts`, which is an instrument failure, not a measurement.
+  #
+  # MEASURED 2026-08-30, and it is a DEADLOCK rather than a tunable: `fast-glob@^3.3.2` -> `fastq`.
+  # `fastq@1.20.3` has a trusted publisher but is 1 day old, so the age gate refuses it (exit 21);
+  # `fastq@1.20.2` is old enough but was published manually with `attestations: null`, so the trust
+  # gate refuses it (exit 23); the resolver picks 1.20.2 and ABORTS rather than continuing to
+  # `fastq@1.20.1`, which satisfies the range, is 249 days old and is fully signed. No version
+  # satisfies both gates for ~14 days, so EVERY tree containing fast-glob is unmeasurable. That is
+  # 20 of the 21 reasons the epoch-28 diagnostic printed on run 33285785801, and it explains the
+  # ~20x tree-size correlation of the stuck set: a bigger tree is likelier to hold one package
+  # mid-drift.
+  #
+  # THIS IS NOT "SCREENING OFF". The harness runs its OWN fail-closed OSV malware screen over the
+  # resolved tree (`security-screen.sh`), which is why supply-chain screening is the INSTRUMENT's
+  # job here rather than the subject's. Nub's gates duplicate it and break the measurement.
+  #
+  # ⛔ IT IS A PROJECT `.npmrc` IN THE ARM DIR, NOT AN ENV VAR, AND THAT IS DELIBERATE. Setting
+  # `npm_config_trust_policy` / `npm_config_minimum_release_age` in the driver's environment reaches
+  # npm too, and npm prints `npm warn Unknown env config "trust-policy"` on stderr for each --
+  # measured, both keys, rc=0 but two extra stderr lines in every npm arm, including the reference
+  # rebuild that decides BROKEN-WITHOUT-JAIL-TOO. OBSERVE lives in `$ROOT/observe`, a SIBLING of this
+  # directory, so a file here cannot reach it.
+  # ⛔ ONE FILE, ONE WRITE. Epoch 29 added a SECOND `printf ... > "$v/.npmrc"` at the top of this
+  # function and was a total no-op: this line truncated it before any install ran, and CI kept
+  # refusing `fastq@1.20.2` at the new epoch exactly as before. Add a key HERE; never a second
+  # write to the same path.
+  printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n' > "$v/.npmrc"
   # ⛔⛔ A UNIQUE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE MEMO. THIS ARM EVICTS THE STORE.
   #
   # The memo keys on the DEPENDENCY's identity, which is identical across arms by construction, so

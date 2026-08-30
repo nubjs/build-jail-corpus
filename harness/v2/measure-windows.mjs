@@ -229,6 +229,11 @@ const ERA_NODE = (() => {
 // (`OBSERVE-ONLY`, which `collate.mjs` keeps out of the catalog).
 const OBSERVE_ONLY = argv.includes('--observe-only');
 
+/// Every nub arm's project `.npmrc`. ONE definition because there is ONE file: a second
+/// `writeFileSync` to the same path TRUNCATES the first, which is exactly how the epoch-29
+/// attempt at this became a silent no-op.
+const ARM_NPMRC = 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\n';
+
 // DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
 // ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers
 // "does this ONE grant suffice", where MINIMUM answers "what is the least that does", and reporting
@@ -392,7 +397,7 @@ const unjailedNubOk = () => {
   fs.writeFileSync(path.join(d, 'nub.jsonc'), `${JSON.stringify({ install: { buildJail: false } })}\n`);
   // The memo off at SOURCE, not merely swept afterwards — the same single point of failure the
   // verify arms in this driver already close.
-  fs.writeFileSync(path.join(d, '.npmrc'), 'side-effects-cache=false\n');
+  fs.writeFileSync(path.join(d, '.npmrc'), ARM_NPMRC);
   // Resolve WITHOUT running anything, screen the tree while it is still inert, and only then install:
   // a known-malicious dependency is refused before a single lifecycle script executes.
   //
@@ -1479,7 +1484,6 @@ const verify = (grant, label) => {
   // `measure.sh`; the short version is that they refuse during RESOLUTION, before any lifecycle
   // script exists to confine, so when they fire the jail question cannot be asked at all. A project
   // `.npmrc` rather than an env var, because the env form reaches npm and makes it warn on stderr.
-  fs.writeFileSync(path.join(v, '.npmrc'), 'trust-policy=off\nminimum-release-age=0\n');
   // ⛔ A UNIQUE PACKAGE NAME PER ARM. nub memoises a lifecycle script's outcome keyed on package
   // identity, so a reused name REPLAYS the previous arm's result with every precondition green.
   fs.writeFileSync(path.join(v, 'package.json'),
@@ -1503,7 +1507,7 @@ const verify = (grant, label) => {
   //
   // Both defences are kept deliberately: the `.npmrc` stops an entry being written at all, the
   // `rmSync` clears anything a prior arm or another lane on this box already left.
-  fs.writeFileSync(path.join(v, '.npmrc'), 'side-effects-cache=false\n');
+  fs.writeFileSync(path.join(v, '.npmrc'), ARM_NPMRC);
   const cat = path.join(v, 'cat.json');
   // ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   // MODAL CASE. nub REJECTS a catalog entry that widens nothing -- "`default` widens nothing and
