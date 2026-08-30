@@ -2,98 +2,739 @@
   "pkg": "n8n-nodes-evolution-api",
   "version": "1.0.4",
   "harnessVersion": 2,
+  "harnessEpoch": 30,
   "verdict": "MINIMUM",
   "grant": {
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    },
     "network": true
   },
-  "synthesized": {
-    "network": true
-  },
-  "verifiedBy": "synth",
+  "synthesized": {},
+  "verifiedBy": "ladder",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "no-network"
+    "no-write-deps",
+    "no-write-project",
+    "no-write-userHome"
   ],
   "writePaths": [],
   "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "2a9ef433c47b4392f150a83d8cb3a8ce84785d19f19b8bd4f8c48b1de1dff6f7",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:16.329Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "2ae6ef4169569e2922f73fa50ce29ad81e2472a845a5ad5c13e7201ebf851fd7",
+      "specCount": 122,
+      "lockfiles": {
+        "digest": "01f009f15eefd5d76ab1ced69a355082f45e8d9c4213269c500c40991fa765ea",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "fdcdd153bd2024bd800be7b9965af6f607a7f45ab4859ff76d40d46b909132bc",
+            "bytes": 59242
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:20.374Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb2126003217-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-network-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-project-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-drop-no-write-userHome-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-30T07:21:26.740Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "2a9ef433c47b4392f150a83d8cb3a8ce84785d19f19b8bd4f8c48b1de1dff6f7",
+      "specCount": 1,
+      "specs": [
+        "n8n-nodes-evolution-api@1.0.4"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-30T07:21:16.329Z"
+    },
+    {
+      "digest": "2ae6ef4169569e2922f73fa50ce29ad81e2472a845a5ad5c13e7201ebf851fd7",
+      "specCount": 122,
+      "specs": [
+        "@n8n/tournament@1.0.6",
+        "@n8n_io/riot-tmpl@4.0.0",
+        "@n8n_io/riot-tmpl@4.0.1",
+        "ansi-regex@5.0.1",
+        "ansi-styles@4.3.0",
+        "assert@2.1.0",
+        "ast-types@0.15.2",
+        "ast-types@0.16.1",
+        "asynckit@0.4.0",
+        "available-typed-arrays@1.0.7",
+        "axios@1.8.2",
+        "axios@1.8.4",
+        "call-bind-apply-helpers@1.0.2",
+        "call-bind@1.0.8",
+        "call-bound@1.0.4",
+        "callsites@3.1.0",
+        "charenc@0.0.2",
+        "cliui@8.0.1",
+        "color-convert@2.0.1",
+        "color-name@1.1.4",
+        "combined-stream@1.0.8",
+        "crypt@0.0.2",
+        "deep-equal@2.2.0",
+        "define-data-property@1.1.4",
+        "define-properties@1.2.1",
+        "delayed-stream@1.0.0",
+        "dunder-proto@1.0.1",
+        "emoji-regex@8.0.0",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-get-iterator@1.1.3",
+        "es-object-atoms@1.1.1",
+        "es-set-tostringtag@2.1.0",
+        "escalade@3.2.0",
+        "eslint-config-riot@1.0.0",
+        "esprima-next@5.8.4",
+        "esprima@4.0.1",
+        "follow-redirects@1.15.9",
+        "for-each@0.3.5",
+        "form-data@4.0.0",
+        "form-data@4.0.2",
+        "function-bind@1.1.2",
+        "functions-have-names@1.2.3",
+        "get-caller-file@2.0.5",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "gopd@1.2.0",
+        "has-bigints@1.1.0",
+        "has-property-descriptors@1.0.2",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "hasown@2.0.2",
+        "inherits@2.0.4",
+        "internal-slot@1.1.0",
+        "is-arguments@1.2.0",
+        "is-array-buffer@3.0.5",
+        "is-bigint@1.1.0",
+        "is-boolean-object@1.2.2",
+        "is-buffer@1.1.6",
+        "is-callable@1.2.7",
+        "is-date-object@1.1.0",
+        "is-fullwidth-code-point@3.0.0",
+        "is-generator-function@1.1.0",
+        "is-map@2.0.3",
+        "is-nan@1.3.2",
+        "is-number-object@1.1.1",
+        "is-regex@1.2.1",
+        "is-set@2.0.3",
+        "is-shared-array-buffer@1.0.4",
+        "is-string@1.1.1",
+        "is-symbol@1.1.1",
+        "is-typed-array@1.1.15",
+        "is-weakmap@2.0.2",
+        "is-weakset@2.0.4",
+        "isarray@2.0.5",
+        "jmespath@0.16.0",
+        "js-base64@3.7.2",
+        "jssha@3.3.1",
+        "lodash@4.17.21",
+        "luxon@3.4.4",
+        "math-intrinsics@1.1.0",
+        "md5@2.3.0",
+        "mime-db@1.52.0",
+        "mime-types@2.1.35",
+        "n8n-nodes-evolution-api@1.0.4",
+        "n8n-workflow@1.82.0",
+        "object-inspect@1.13.4",
+        "object-is@1.1.6",
+        "object-keys@1.1.1",
+        "object.assign@4.1.7",
+        "possible-typed-array-names@1.1.0",
+        "proxy-from-env@1.1.0",
+        "recast@0.21.5",
+        "recast@0.22.0",
+        "regexp.prototype.flags@1.5.4",
+        "require-directory@2.1.1",
+        "safe-regex-test@1.1.0",
+        "sax@1.4.1",
+        "set-function-length@1.2.2",
+        "set-function-name@2.0.2",
+        "side-channel-list@1.0.0",
+        "side-channel-map@1.0.1",
+        "side-channel-weakmap@1.0.2",
+        "side-channel@1.1.0",
+        "source-map@0.6.1",
+        "stop-iteration-iterator@1.1.0",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1",
+        "title-case@3.0.3",
+        "transliteration@2.3.5",
+        "tslib@2.8.1",
+        "util@0.12.5",
+        "which-boxed-primitive@1.1.1",
+        "which-collection@1.0.2",
+        "which-typed-array@1.1.19",
+        "wrap-ansi@7.0.0",
+        "xml2js@0.6.2",
+        "xmlbuilder@11.0.1",
+        "y18n@5.0.8",
+        "yargs-parser@21.1.1",
+        "yargs@17.7.2",
+        "zod@3.24.1"
+      ],
+      "lockfiles": {
+        "digest": "01f009f15eefd5d76ab1ced69a355082f45e8d9c4213269c500c40991fa765ea",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "fdcdd153bd2024bd800be7b9965af6f607a7f45ab4859ff76d40d46b909132bc",
+            "bytes": 59242
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-30T07:21:20.374Z"
+    },
+    {
+      "digest": "7c75ef34e0b477c35a3ba00bbbb67abb36e3f67b8ea0ed1b94cd57182570b502",
+      "specCount": 102,
+      "specs": [
+        "@n8n/errors@0.6.0",
+        "@n8n/expression-runtime@0.8.0",
+        "@n8n/tournament@1.0.6",
+        "@n8n_io/riot-tmpl@4.0.1",
+        "agent-base@6.0.2",
+        "ansi-regex@5.0.1",
+        "ansi-styles@4.3.0",
+        "assert@2.1.0",
+        "ast-types@0.15.2",
+        "ast-types@0.16.1",
+        "asynckit@0.4.0",
+        "available-typed-arrays@1.0.7",
+        "axios@1.20.0",
+        "call-bind-apply-helpers@1.0.2",
+        "call-bind@1.0.9",
+        "call-bound@1.0.4",
+        "callsites@3.1.0",
+        "charenc@0.0.2",
+        "cliui@8.0.1",
+        "color-convert@2.0.1",
+        "color-name@1.1.4",
+        "combined-stream@1.0.8",
+        "crypt@0.0.2",
+        "debug@4.4.3",
+        "define-data-property@1.1.4",
+        "define-properties@1.2.1",
+        "delayed-stream@1.0.0",
+        "dunder-proto@1.0.1",
+        "emoji-regex@8.0.0",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "es-set-tostringtag@2.1.0",
+        "escalade@3.2.0",
+        "eslint-config-riot@1.0.0",
+        "esprima-next@5.8.4",
+        "esprima@4.0.1",
+        "follow-redirects@1.16.0",
+        "for-each@0.3.5",
+        "form-data@4.0.4",
+        "form-data@4.0.6",
+        "function-bind@1.1.2",
+        "generator-function@2.0.1",
+        "get-caller-file@2.0.5",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "gopd@1.2.0",
+        "has-property-descriptors@1.0.2",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "hasown@2.0.4",
+        "https-proxy-agent@5.0.1",
+        "inherits@2.0.4",
+        "is-arguments@1.2.0",
+        "is-buffer@1.1.6",
+        "is-callable@1.2.7",
+        "is-fullwidth-code-point@3.0.0",
+        "is-generator-function@1.1.2",
+        "is-nan@1.3.2",
+        "is-regex@1.2.1",
+        "is-typed-array@1.1.15",
+        "isolated-vm@6.2.0",
+        "jmespath@0.16.0",
+        "js-base64@3.7.2",
+        "jsonrepair@3.13.2",
+        "jssha@3.3.1",
+        "lodash@4.17.23",
+        "luxon@3.7.2",
+        "math-intrinsics@1.1.0",
+        "md5@2.3.0",
+        "mime-db@1.52.0",
+        "mime-types@2.1.35",
+        "ms@2.1.3",
+        "n8n-nodes-evolution-api@1.0.4",
+        "n8n-workflow@2.16.0",
+        "node-gyp-build@4.8.4",
+        "object-is@1.1.6",
+        "object-keys@1.1.1",
+        "object.assign@4.1.7",
+        "possible-typed-array-names@1.1.0",
+        "proxy-from-env@2.1.0",
+        "recast@0.22.0",
+        "require-directory@2.1.1",
+        "safe-regex-test@1.1.0",
+        "sax@1.6.1",
+        "set-function-length@1.2.2",
+        "source-map@0.6.1",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1",
+        "title-case@3.0.3",
+        "transliteration@2.3.5",
+        "tslib@2.8.1",
+        "util@0.12.5",
+        "uuid@10.0.0",
+        "which-typed-array@1.1.22",
+        "wrap-ansi@7.0.0",
+        "xml2js@0.6.2",
+        "xmlbuilder@11.0.1",
+        "y18n@5.0.8",
+        "yargs-parser@21.1.1",
+        "yargs@17.7.3",
+        "zod@3.25.67"
+      ],
+      "lockfiles": {
+        "digest": "0075d11e01ce0f4058ee0553e053aa83b656c4af1b1a91d07a5c9d1dd4818eb9",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f6eb4b0b79ff264b05a7772c1809f39c85b21b076b82024a26f9b5fee7306dd3",
+            "bytes": 26329
+          }
+        ]
+      },
+      "kinds": [
+        "nub-drop-no-network-resolved",
+        "nub-drop-no-write-deps-resolved",
+        "nub-drop-no-write-project-resolved",
+        "nub-drop-no-write-userHome-resolved",
+        "nub-fb2126003217-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-30T07:21:26.740Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-30T07:21:15.102Z",
+    "latestVersion": "1.0.4",
+    "weeklyDownloads": 983587,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/n8n-nodes-evolution-api/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/n8n-nodes-evolution-api"
+    }
+  },
   "grantSource": "synthesized",
   "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
-  "descendedGrant": {},
+  "descendedGrant": {
+    "network": true
+  },
   "notes": [
-    "arms-unfalsifiable"
+    "arms-unfalsifiable",
+    "under-predicted"
   ],
   "eventLog": {
-    "lines": 17994,
-    "parsed": 17850,
+    "lines": 21963,
+    "parsed": 21701,
     "unparsed": 0,
-    "unfinished": 108,
-    "rejoined": 108,
+    "unfinished": 224,
+    "rejoined": 224,
     "unresolvedDirfd": 3,
     "truncatedArg": 0,
-    "procs": 31,
-    "lifecyclePids": 20,
-    "distinctEvents": 9802,
+    "procs": 33,
+    "lifecyclePids": 21,
+    "distinctEvents": 9068,
     "unknownSyscall": {
-      "getsockname": 54,
-      "getsockopt": 29,
+      "getsockname": 40,
+      "getsockopt": 26,
       "getcwd": 5,
       "recvmsg": 12,
-      "setsockopt": 54,
-      "sendmmsg": 2,
+      "exit": 25,
+      "setsockopt": 23,
+      "sendmmsg": 1,
       "socketpair": 3,
       "shutdown": 3,
-      "exit": 23,
       "exit_group": 5,
       "wait4": 6
     },
-    "out": "/home/nub/v2-LZQG0B/observe/events.ndjson.gz",
-    "gzipBytes": 61496
+    "out": "/home/runner/v2-tijoFd/observe/events.ndjson.gz",
+    "gzipBytes": 56624
   },
   "driverRc": 0,
-  "durationMs": 13533,
+  "durationMs": 238034,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
-    "nubGitSha": null,
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "e546d4339fee53013be9caebc6fa15d48e00060b",
-    "node": "v22.20.0",
-    "at": "2026-08-07T15:26:42.524Z",
-    "venue": "vm",
-    "ciEnvSet": false,
+    "corpusGitSha": null,
+    "harnessEpoch": 30,
+    "harnessSha256": "a40159400aaf1492c2517baf3d49c151849be13a606ddc434d43234c0e8bc13e",
+    "harnessInputCount": 290,
+    "invalidationPolicySha256": "3ec1897bfcfea96b907818ce3900646e0ac639d2a44e8ce233023d1119b1685d",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "bytes": 124836408
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+        "executable": {
+          "path": "/opt/hostedtoolcache/node/22.23.2/x64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/usr/bin/python3",
+          "executable": {
+            "path": "/usr/bin/python3",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/bin/python",
+          "executable": {
+            "path": "/usr/bin/python",
+            "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+            "bytes": 8020928
+          },
+          "version": "Python 3.12.3"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+            "bytes": 1023032
+          },
+          "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+            "bytes": 1027128
+          },
+          "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+            "bytes": 259808
+          },
+          "version": "GNU Make 4.3"
+        }
+      },
+      "os": {
+        "platform": "linux",
+        "arch": "x64",
+        "libc": {
+          "family": "glibc",
+          "version": "2.39"
+        },
+        "type": "Linux",
+        "release": "6.17.0-1022-azure",
+        "version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Linux",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "ubuntu24",
+        "imageVersion": "20260823.283.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Linux",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "ubuntu24",
+          "ImageVersion": "20260823.283.1",
+          "LANG": "C.UTF-8",
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "0a740522aa55b7d3148339662408f4359ff4e8123a5528648d60c5690db930a9",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-30T07:25:13.581Z",
+    "venue": "ci",
+    "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/home/nub/node",
-    "interpreterInsideHome": true,
+    "interpreterPath": "/opt/hostedtoolcache/node/22.23.2/x64",
+    "interpreterInsideHome": false,
     "jailRoot": null,
-    "observeUser": "{\"uid\":1001,\"user\":\"nub\",\"umask\":\"0002\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
+    "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
-      "path": "/home/nub/nub-catalog-override.bin",
-      "sha256": "0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd",
-      "bytes": 49587440,
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d",
+      "bytes": 208304640,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": {
+      "pkg": "n8n-nodes-evolution-api",
+      "packageVersion": "1.0.4",
+      "major": 22,
+      "version": "22.23.2",
+      "npm": "10.9.8",
+      "pinnable": true,
+      "engines": ">=18.10",
+      "publishedAt": "2025-03-20T12:46:53.901Z",
+      "eraMajor": 22,
+      "startMajor": 22,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/home/runner/.cache/nub/era-node/22.23.2/node-v22.23.2-linux-x64/bin",
+      "eraNodeRoot": "/home/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
-        "HOME": "/home/nub/v2-LZQG0B/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsxUSPt6",
+        "HOME": "/home/runner/v2-tijoFd/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obs0xQpIv",
         "NODE_COMPAT": "1",
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/nub/.cache/nub/pm/tools/ms-playwright",
-        "ELECTRON_CACHE": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "electron_config_cache": "/home/nub/.cache/nub/pm/tools/electron-cache",
-        "npm_config_prefix": "/home/nub/.cache/nub/pm/tools/npm-prefix",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/nub/v2-LZQG0B/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-tijoFd/nubcache"
       },
-      "unset": [],
+      "unset": [
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
       "passedThrough": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
         "NODE_ENV": null
       }
     }
