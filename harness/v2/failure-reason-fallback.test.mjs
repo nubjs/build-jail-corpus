@@ -35,11 +35,14 @@ function extractFunction(name) {
 }
 
 /// Runs a shell function body against a stash holding `log`, and returns what it wrote to stderr.
-function runReason(body, log) {
+/// `verdict` seeds `RECORD_VERDICT`, which the publisher reads from the stashed record before the
+/// only call site; leaving it undefined exercises the unset case the `:-` default covers.
+function runReason(body, log, verdict) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'failure-reason-'));
   fs.mkdirSync(path.join(dir, 'rec'), { recursive: true });
   if (log !== null) fs.writeFileSync(path.join(dir, 'rec', '.driver.out'), log);
-  const r = spawnSync('bash', ['-c', `STASH=${JSON.stringify(dir)}\n${body}\nshow_failure_reason`],
+  const seed = verdict === undefined ? '' : `RECORD_VERDICT=${JSON.stringify(verdict)}\n`;
+  const r = spawnSync('bash', ['-c', `STASH=${JSON.stringify(dir)}\n${seed}${body}\nshow_failure_reason`],
     { encoding: 'utf8' });
   assert.equal(r.status, 0, `the reason printer must never fail the publish: ${r.stderr}`);
   return r.stderr;
@@ -106,4 +109,49 @@ test('a missing driver log still says so', () => {
   const out = runReason(extractFunction('show_failure_reason'), null);
   assert.match(out, /no driver log stashed/,
     'an absent log and a log with no marker are different facts and must read differently');
+});
+
+// ⛔ THE MESSAGE MUST NAME THE VERDICT THAT ACTUALLY LANDED. `record.mjs:793` chooses between TWO
+// fallbacks — `rc === 124 || rc === 137 ? 'HARNESS-TIMEOUT' : 'HARNESS-ERROR'` — and epoch 32 wrote
+// only the second into the printer. MEASURED on run 33313922458: `node@24.18.0` was withheld as
+// HARNESS-TIMEOUT while the line told the reader HARNESS-ERROR, sending them to hunt for a crash in
+// a log whose real story is a deadline kill. The wrong name is worse than no name: it is a lead.
+test('the fallback message names the verdict that actually landed', () => {
+  const body = extractFunction('show_failure_reason');
+  const timeout = runReason(body, NO_MARKER, 'HARNESS-TIMEOUT');
+  assert.match(timeout, /fell back to HARNESS-TIMEOUT/,
+    'a deadline kill was reported as HARNESS-ERROR, which points the reader at the wrong failure');
+  assert.doesNotMatch(timeout, /fell back to HARNESS-ERROR/,
+    'the hardcoded verdict is still in the message');
+
+  // The control that keeps it honest: the OTHER fallback must still read correctly, so this cannot
+  // be satisfied by swapping one hardcoded string for another.
+  assert.match(runReason(body, NO_MARKER, 'HARNESS-ERROR'), /fell back to HARNESS-ERROR/,
+    'the error fallback stopped being reported correctly');
+
+  // A record too broken to parse leaves RECORD_VERDICT unset; the message must still say something.
+  assert.match(runReason(body, NO_MARKER, undefined), /fell back to HARNESS-ERROR/,
+    'an unset verdict produced an empty name instead of falling back');
+});
+
+// ⛔⛔ AND THE OTHER WAY A WITHHELD RECORD'S EVIDENCE REACHES A READER: THE UPLOADED ARTIFACT.
+//
+// `withhold_record` parks the record under `withheld-records/`, deliberately OUTSIDE `records-v2/`
+// so no bulk commit can sweep it in — and the artifact step named `records-v2/` alone, so every
+// withheld driver log died with the runner. MEASURED on run 33313922458: 54 of 60 records withheld,
+// 59 linux rows permanently stuck behind that class, and not one log anywhere to say why. The job
+// log carries the guard's one-line verdict and nothing else.
+//
+// Asserted against the YAML because there is nothing to execute: the step is a third-party action.
+// Both paths are checked, so a well-meaning edit cannot swap one for the other.
+test('the slice artifact preserves withheld records, not just published ones', () => {
+  const yml = fs.readFileSync(
+    path.join(here, '..', '..', '.github', 'workflows', 'corpus-v2-runner.yml'), 'utf8');
+  const step = yml.slice(yml.indexOf("Preserve this slice's records as an artifact"));
+  assert.ok(step, 'the artifact step was not found — this test asserts nothing');
+  const block = step.slice(0, step.indexOf('retention-days'));
+  assert.match(block, /^\s*records-v2\/$/m,
+    'the published records are no longer uploaded');
+  assert.match(block, /^\s*withheld-records\/$/m,
+    'withheld records are not uploaded, so the only copy of their driver logs dies with the runner');
 });

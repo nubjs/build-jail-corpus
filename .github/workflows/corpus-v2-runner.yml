@@ -814,12 +814,31 @@ jobs:
           done
           [ "$found" = 1 ] || echo "no kept arm roots under $HOME or /c/jail -- falsify may have cleaned up, or died before creating one"
 
+      # ⛔⛔ `withheld-records/` IS HERE BECAUSE IT IS THE ONLY COPY. A withheld record is parked
+      # OUTSIDE `records-v2/` on purpose -- that is what stops a bulk commit sweeping it in -- and
+      # this upload named `records-v2/` alone, so the runner was destroyed holding the sole evidence
+      # for every withhold. MEASURED on run 33313922458: 54 of the 60 records in that slice were
+      # withheld, and 59 linux rows are permanently stuck behind exactly this class with no driver
+      # log anywhere to say why. The job log carries the guard's one-line verdict and nothing more:
+      # no `era node:` line, no download error, no arm output.
+      #
+      # It is the epoch-32 defect one level out. There the printer went silent on the one class whose
+      # log was the only evidence; here the log itself is deleted. A failure you cannot read is a
+      # failure you will theorise about -- two rounds of theorising on this class (link-rot, then a
+      # slow network timeout) were both falsified by cheap probes that one driver log would have
+      # pre-empted.
+      #
+      # `if-no-files-found: warn` already covers a slice that withheld nothing, so an absent
+      # directory is not an error. Size is not a concern: `records-v2/` was 12.8 MB for 60 records on
+      # that run, and a withheld record carries the same payload.
       - name: Preserve this slice's records as an artifact
         if: always() && env.DRAINED != '1'
         uses: actions/upload-artifact@v7
         with:
           name: records-v2-${{ env.OS_NAME }}-${{ github.run_id }}
-          path: records-v2/
+          path: |
+            records-v2/
+            withheld-records/
           if-no-files-found: warn
           retention-days: 30
 

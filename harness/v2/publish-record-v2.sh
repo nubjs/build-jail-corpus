@@ -150,7 +150,14 @@ show_failure_reason () {
   if grep -aqE '=> HARNESS-' "$STASH/rec/.driver.out"; then
     grep -aA 14 -E '=> HARNESS-' "$STASH/rec/.driver.out" | tail -30 | sed 's/^ */     WHY: /' >&2
   else
-    echo '     WHY: (no verdict marker — record.mjs fell back to HARNESS-ERROR; tail of the driver log follows)' >&2
+    # ⛔ NAME THE VERDICT THAT ACTUALLY LANDED, NOT A HARDCODED ONE. `record.mjs:793` picks between
+    # TWO fallbacks — `rc === 124 || rc === 137 ? 'HARNESS-TIMEOUT' : 'HARNESS-ERROR'` — and epoch 32
+    # wrote only the second into this message. MEASURED on run 33313922458: `node@24.18.0` was
+    # withheld as HARNESS-TIMEOUT while this line told the reader it was HARNESS-ERROR, which sends
+    # them hunting for a crash in a log whose real story is a deadline kill. `$RECORD_VERDICT` is
+    # read from the stashed record at line 168, before the only call site, so it is always in scope
+    # here; the `:-HARNESS-ERROR` default covers a record too broken to parse.
+    echo "     WHY: (no verdict marker — record.mjs fell back to ${RECORD_VERDICT:-HARNESS-ERROR}; tail of the driver log follows)" >&2
     tail -30 "$STASH/rec/.driver.out" | sed 's/^ */     WHY: /' >&2 || true
   fi
 }
