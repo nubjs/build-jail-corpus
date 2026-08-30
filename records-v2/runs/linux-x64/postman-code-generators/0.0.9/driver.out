@@ -1,100 +1,140 @@
-### postman-code-generators@0.0.9   (/home/nub/v2-G4YI3b)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=3343 trace=192870 lines
-  CLOSURE   72 packages evicted per arm
-  ARM-FALSIFIABILITY {"manifestFiles":303,"filesTheScriptProduced":19,"reasons":[]}
-  RAWLOG-FILE /home/nub/v2-G4YI3b/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-G4YI3b/observe/capture.json
-  RAWLOG-BYTES raw=37533024 gz=1254871
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-G4YI3b/jailhome","TMPDIR":"/tmp/nub-tmp-obsdNzPZz","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-G4YI3b/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 585
-    writes  script 2041  /  whole traced tree 2633
-    sockets script 92  /  whole traced tree 98
+  HARNESS-NODE /opt/hostedtoolcache/node/22.23.2/x64/bin/node (v22.23.2); arm-cap present
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
+### postman-code-generators@0.0.9   (/home/runner/v2-JQRfKA)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ec57ba7030a6d36d2ef772c909309445a27889f3449c72840d27f7c6fee0282b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T01:25:54.242Z","cacheHit":false,"clearancePath":"/home/runner/v2-JQRfKA/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ec57ba7030a6
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ERA-RESOLUTION DATED 2019-07-11T14:12:17.544Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"edea80b666e1710a61edc4f94246df2947b80761607de6b50175cbe57ec41a31","specCount":69,"lockfiles":{"digest":"2d3640f19e4f16e407cea87a854337bdf444f4fd37d3dc0d1c031b45de858332","files":[{"path":"package-lock.json","sha256":"d23f62b090af65594150abf329d0e2aca51328db4aa6907e1ca22ddd0a54f513","bytes":26334}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T01:25:57.144Z","cacheHit":false,"clearancePath":"/home/runner/v2-JQRfKA/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 69 exact package-version(s), tree edea80b666e1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  OBSERVE   rc=0 files=3229 trace=183759 lines
+  CLOSURE   66 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":303,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (303) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-JQRfKA/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-JQRfKA/observe/capture.json
+  RAWLOG-BYTES raw=44484846 gz=1210740
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-NODE-SELECTION {"pkg":"postman-code-generators","packageVersion":"0.0.9","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">=6","publishedAt":"2019-07-10T14:12:17.544Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-JQRfKA/jailhome","TMPDIR":"/tmp/nub-tmp-obsMD51G3","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-JQRfKA/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 586
+    writes  script 180  /  whole traced tree 181
+    sockets script 0  /  whole traced tree 0
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-G4YI3b/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-G4YI3b/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-G4YI3b/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsdNzPZz
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators
+    project       /home/runner/v2-JQRfKA/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-JQRfKA/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-JQRfKA/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsMD51G3
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators
   == WRITES the script actually performed ==
-    jailTmp    1291  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obsdNzPZz/shelljs_1a13745a80cd17404077
-        /tmp/nub-tmp-obsdNzPZz/shelljs_d7b4b77d13d7d458e568
-        /tmp/nub-tmp-obsdNzPZz/shelljs_d94c54dddcb4f64ab36b
-        /tmp/nub-tmp-obsdNzPZz/shelljs_91aa9f3ca5ed0f5c88ae
-        /tmp/nub-tmp-obsdNzPZz/shelljs_2954350c9f1e6cf11a53
-        /tmp/nub-tmp-obsdNzPZz/shelljs_1f5564078033cfd9a9a5
-        /tmp/nub-tmp-obsdNzPZz/shelljs_b2b888608fcb5bb0ca90
-        /tmp/nub-tmp-obsdNzPZz/shelljs_f7880e95d010ca231dc5
-        /tmp/nub-tmp-obsdNzPZz/node-compile-cache/v22.20.0-x64-9de703df-1001/103b828d.wiTRvd
-        /tmp/nub-tmp-obsdNzPZz/node-compile-cache/v22.20.0-x64-9de703df-1001/103b828d
-        … and 1281 more
-    ownPkg      175  (base profile already grants this — NOT billed)
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/lib/assets/languages.js
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/csharp-restsharp/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/curl/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/golang/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/http/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/java-okhttp/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/java-unirest/npm-shrinkwrap.json
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules/combined-stream
-        /home/nub/v2-G4YI3b/observe/node_modules/postman-code-generators/codegens/js-fetch/node_modules/delayed-stream
-        … and 165 more
+    jailTmp      97  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsMD51G3/shelljs_b78967f41cc5ebcbd424
+        /tmp/nub-tmp-obsMD51G3/shelljs_ddfe4ff364ab08e0369a
+        /tmp/nub-tmp-obsMD51G3/shelljs_521cdf8e5495b0082d45
+        /tmp/nub-tmp-obsMD51G3/shelljs_4f7e27c03250a33c34a4
+        /tmp/nub-tmp-obsMD51G3/shelljs_c9baf350350cd4dddcd9
+        /tmp/nub-tmp-obsMD51G3/shelljs_a8e2042a340f6433c675
+        /tmp/nub-tmp-obsMD51G3/shelljs_de5b64ac8fecb281234f
+        /tmp/nub-tmp-obsMD51G3/shelljs_2452355dce3986b0e452
+        /tmp/nub-tmp-obsMD51G3/shelljs_14fa1b9de0200cfb6b18
+        /tmp/nub-tmp-obsMD51G3/shelljs_c56b6c7fbea05f95c773
+        … and 87 more
+    ownPkg        9  (base profile already grants this — NOT billed)
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/lib/assets/languages.js
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/libcurl/package-lock.json.449247598
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/libcurl/package-lock.json
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/php-pecl-http/package-lock.json.1643677920
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/php-pecl-http/package-lock.json
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/python-http.client/package-lock.json.1228047170
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/python-http.client/package-lock.json
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/shell-httpie/package-lock.json.3215009875
+        /home/runner/v2-JQRfKA/observe/node_modules/postman-code-generators/codegens/shell-httpie/package-lock.json
     kernelfs      1
         /dev/null
-    jailHome    574  (base profile already grants this — NOT billed)
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_41_071Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_42_568Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_43_897Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_45_283Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_46_741Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_48_103Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_logs/2026-08-07T09_01_49_558Z-debug-0.log
-        /home/nub/v2-G4YI3b/jailhome/.npm/_cacache
-        /home/nub/v2-G4YI3b/jailhome/.npm/_cacache/tmp
-        /home/nub/v2-G4YI3b/jailhome/.npm/_cacache/tmp/2b02af19
-        … and 564 more
+    userHome     24
+    jailHome     49  (base profile already grants this — NOT billed)
+        /home/runner/v2-JQRfKA/jailhome/.npm
+        /home/runner/v2-JQRfKA/jailhome/.npm/_locks
+        /home/runner/v2-JQRfKA/jailhome/.npm/_locks/staging-c6c6627806a6a604.lock
+        /home/runner/v2-JQRfKA/jailhome/.npm/anonymous-cli-metrics.json.3117886807
+        /home/runner/v2-JQRfKA/jailhome/.npm/anonymous-cli-metrics.json
+        /home/runner/v2-JQRfKA/jailhome/.npm/_locks/staging-285e3780327dc9d2.lock
+        /home/runner/v2-JQRfKA/jailhome/.npm/anonymous-cli-metrics.json.3805081141
+        /home/runner/v2-JQRfKA/jailhome/.npm/_locks/staging-1ab0f683eadd67fe.lock
+        /home/runner/v2-JQRfKA/jailhome/.npm/anonymous-cli-metrics.json.1650346870
+        /home/runner/v2-JQRfKA/jailhome/.npm/_locks/staging-60050ddcd7c048b6.lock
+        … and 39 more
   == NETWORK ==
-    AF_INET sockets: 92   distinct peers: 7
-        127.0.0.53:53
-        104.16.11.34:443
-        104.16.0.34:443
-        104.16.1.34:443
-        104.16.5.34:443
-        104.16.4.34:443
-        104.16.10.34:443
+    AF_INET sockets: 0   distinct peers: 0
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"network":true}
+    {"write":{"userHome":true}}
     NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
-    private-home writes observed: 574
+    private-home writes observed: 49
     none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+    24 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 0
-    EVENTS    91347 distinct from 189682 calls (192871 lines, 2499 rejoined, 0 unparsed)
+    count: 24
+        .config/configstore/update-notifier-npm.json.2939074453
+        .config/configstore/update-notifier-npm.json
+        .config/configstore/update-notifier-npm.json.2764189440
+        .config/configstore/update-notifier-npm.json.1896282130
+        .config/configstore/update-notifier-npm.json.66440762
+        .config/configstore/update-notifier-npm.json.147083319
+        .config/configstore/update-notifier-npm.json.1889928985
+        .config/configstore/update-notifier-npm.json.2300384980
+        .config/configstore/update-notifier-npm.json.3525681404
+        .config/configstore/update-notifier-npm.json.2972783161
+        .config/configstore/update-notifier-npm.json.879341237
+        .config/configstore/update-notifier-npm.json.1477784468
+        .config/configstore/update-notifier-npm.json.3792211837
+        .config/configstore/update-notifier-npm.json.541329902
+        .config/configstore/update-notifier-npm.json.3692534290
+        .config/configstore/update-notifier-npm.json.1910024070
+        .config/configstore/update-notifier-npm.json.1719885600
+        .config/configstore/update-notifier-npm.json.597609400
+        .config/configstore/update-notifier-npm.json.1916032594
+        .config/configstore/update-notifier-npm.json.1519149523
+        .config/configstore/update-notifier-npm.json.2210552798
+        .config/configstore/update-notifier-npm.json.2940873228
+        .config/configstore/update-notifier-npm.json.431239658
+        .config/configstore/update-notifier-npm.json.216560000
+    EVENTS    77367 distinct from 182022 calls (183760 lines, 1048 rejoined, 0 unparsed)
     PROCS     591   lifecycle shells 580
-    ⛔ 13 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×781 setsockopt×593 getsockopt×484 exit×442 wait4×147 recvmsg×142 getcwd×119 exit_group×99
-    wrote /home/nub/v2-G4YI3b/observe/events.ndjson.gz (432939 bytes)
-  EVENTLOG-FILE /home/nub/v2-G4YI3b/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":192871,"parsed":189682,"unparsed":0,"unfinished":2499,"rejoined":2499,"unresolvedDirfd":13,"truncatedArg":0,"procs":591,"lifecyclePids":580,"distinctEvents":91347,"unknownSyscall":{"getsockname":781,"getsockopt":484,"getcwd":119,"recvmsg":142,"setsockopt":593,"sendmmsg":23,"socketpair":75,"shutdown":51,"exit":442,"exit_group":99,"wait4":147},"out":"/home/nub/v2-G4YI3b/observe/events.ndjson.gz","gzipBytes":432939}
-  EVICT     67 store entries removed, 1 spared as nub tooling
+    ⛔ 111 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: exit×442 getcwd×241 wait4×147 getsockname×120 recvmsg×120 exit_group×99 getsockopt×96 socketpair×72
+    wrote /home/runner/v2-JQRfKA/observe/events.ndjson.gz (362318 bytes)
+  EVENTLOG-FILE /home/runner/v2-JQRfKA/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":183760,"parsed":182022,"unparsed":0,"unfinished":1048,"rejoined":1048,"unresolvedDirfd":111,"truncatedArg":0,"procs":591,"lifecyclePids":580,"distinctEvents":77367,"unknownSyscall":{"getcwd":241,"getsockname":120,"recvmsg":120,"socketpair":72,"getsockopt":96,"exit":442,"exit_group":99,"wait4":147},"out":"/home/runner/v2-JQRfKA/observe/events.ndjson.gz","gzipBytes":362318}
+  EVICT     5 store entries removed, 35 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for postman-code-generators
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"792d4905169437d793cad00e77665a48ecf7dd9e0b4fcf419bbe7f093687f291","specCount":75,"lockfiles":{"digest":"39ec86a874d942b5e22fddfb658402c916b714ce77a86ea160c75ff083bb292e","files":[{"path":"nub.lock","sha256":"a6527ae254505b0b62e9aff10f440124e7db991606198f5afd8b5383695c9583","bytes":17267}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T01:26:41.180Z","cacheHit":false,"clearancePath":"/home/runner/v2-JQRfKA/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 75 exact package-version(s), tree 792d49051694
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=303/303 missing=0 shortfall=none (tree 8966/3343) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-  => VERIFIED {"network":true}   (observed, then verified)
-  EVICT     75 store entries removed, 1 spared as nub tooling
+  VERIFY[synth] rc=0 artifacts=303/303 missing=0 shortfall=none (tree 8953/3229) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}   (observed, then verified)
+  EVICT     55 store entries removed, 35 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for postman-code-generators
-  VERIFY[drop-no-network] rc=0 artifacts=303/303 missing=0 shortfall=none (tree 8966/3343) OVERRIDDEN=2 REJECTED=0 grant={}
-     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
-  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"792d4905169437d793cad00e77665a48ecf7dd9e0b4fcf419bbe7f093687f291","specCount":75,"lockfiles":{"digest":"39ec86a874d942b5e22fddfb658402c916b714ce77a86ea160c75ff083bb292e","files":[{"path":"nub.lock","sha256":"a6527ae254505b0b62e9aff10f440124e7db991606198f5afd8b5383695c9583","bytes":17267}]},"maliciousAdvisories":[],"screenedAt":"2026-08-30T01:26:41.180Z","cacheHit":true,"clearancePath":"/home/runner/v2-JQRfKA/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 75 exact package-version(s), tree 792d49051694 (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=303/303 missing=0 shortfall=none (tree 8953/3229) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true}}; each named capability drops on its own)
