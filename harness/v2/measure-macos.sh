@@ -485,8 +485,24 @@ else
   printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const m of JSON.parse(s).markers||[])process.stdout.write("  "+m+"\n")}catch{}})'
   ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
   if [ -n "$ARM_SCAFFOLD" ]; then
-    sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
     # Dated, for the reason spelled out at the same site in `measure.sh`.
+    #
+    # ⛔⛔ THIS COMMENT SAT BETWEEN THE `\` AND THE `npm`, AND IT SILENTLY UNDID THE WHOLE LINE.
+    # Bash folds a backslash continuation BEFORE it honours `#`, so the join produced
+    # `sudo -u ... env "PATH=..." "HOME=..."   # Dated, ...` -- a sudo with NO command -- and the
+    # `npm install` below then ran as its OWN command: as ROOT rather than $RUNUSER, and on the
+    # DRIVER's PATH rather than the era $ARM_PATH. MEASURED with stubbed sudo/env/npm: as written the
+    # stubs report `SUDO got: -u nobody -H env PATH=/arm/bin HOME=/jail` with no npm, then `NPM ran
+    # BARE, PATH=/usr/bin:/bin`; with the comment moved up here sudo carries the full npm command.
+    #
+    # It reports rc=0 either way, because `$?` is npm's and npm succeeds -- and `chown -R "$RUNUSER"`
+    # on the next line hides the ownership half. So the arm scaffold was installed with the wrong
+    # toolchain and nothing said so. That is the asymmetry class epochs 4, 13, 15 and 19 exist to
+    # close, re-opened by a misplaced comment, in the driver about to measure 1652 macOS rows.
+    #
+    # SAME DEFECT AS EPOCH 18, WHERE A COMMENT BETWEEN `--ref` and `-f os=` broke the dispatch. Both
+    # were invisible to `bash -n`, which calls this file clean.
+    sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
       npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
     chown -R "$RUNUSER" "$ROOT" 2>/dev/null
