@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 27,
+  "currentEpoch": 28,
   "transitions": [
     {
       "fromEpoch": null,
@@ -283,6 +283,16 @@
         "verdicts": []
       },
       "reason": "Epoch 27 makes the drain chain survive a transient failure, which is what the deliverable (A COMPLETE CORPUS) actually requires. `Dispatch the next slice` carries no `always()`, so ONE failed step ends a drain permanently. MEASURED 2026-08-29 on run 33256179837: the falsification pre-flight returned INCONCLUSIVE because `hugo-extended@0.141.0`'s CONTROL arm came back BROKEN-WITHOUT-JAIL-TOO -- the venue failed, so the question was never put. Refusing the batch was CORRECT and wrote no records, but the lane then sat idle with 60 rows stranded `claimed` until a human noticed; Collect verdicts, Commit records and Dispatch the next slice were all skipped. The same two falsification cases had passed 2/2 on each of the four runs immediately before, so this was a download blip and not a broken case. RATE: 1 of the 18 drain runs that actually executed failed (5.6%); the windows lane is ~453 slices, so that is a stall roughly every 18 slices across 30-87 unattended days -- the corpus cannot reach COMPLETE without a babysitter, and running windows to completion was already the recorded decision. The revive is BOUNDED on purpose: a bare `always()` would re-dispatch a permanently-broken lane every ~100 s forever, so it fires only when the PREVIOUS terminal run on this branch SUCCEEDED, and that lookup excludes the CURRENT run by databaseId -- excluding by status alone would let a run already recorded as completed/failure be read as its own predecessor, making PREV always 'failure' so the revive never fired at all. VERIFIED by executing the extracted step against a stub gh in four cases: prev=success dispatches once with --ref $GITHUB_REF_NAME; prev=failure dispatches nothing; this-run-already-failed still dispatches once; empty history dispatches once. `chain-revives-after-failure.test.mjs` guards all of it and each assertion was driven RED (step removed -> 5 fail; failure()->always(), guard deleted, and id-exclusion removed -> exactly 1 fail each). Also corrects a stale `~130 hours` windows-cost comment to the measured 716-2078 h (~30-87 days), since that figure assumed no timeouts. COST: zero records -- a revive step cannot reach a measurement, so the transition invalidates nothing."
+    },
+    {
+      "fromEpoch": 27,
+      "fromHarnessSha256": "17acb11908e92dc52af7c0b86275b0c01688f4f678e45c11615a62dbc2080fcd",
+      "toEpoch": 28,
+      "toHarnessSha256": "66f35ac947af19289d9682b907aa85259aaeec60e4c516661b0babf92ab7b704",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 28 ends the withheld-instrument-failure loop, which had made the corpus unable to complete on ANY lane. `publish-record-v2.sh` parks a `HARNESS-*` record and restores origin's PRIOR one; `collect-verdicts.mjs` walks the records tree, so `--complete` saw that prior REAL verdict, closed the row `done`, and stamped it from a record with a stale `harnessSha256` -- which the next claim's invalidation pass reopened, and the next slice re-measured, forever. The publisher's own message (\"the row stays open; claim-slice --complete returns it to pending for retry\") was false for every package with a prior record on origin, and every recent slice logged `0 instrument failure(s) returned to pending` while withholding 47 of 60. MEASURED across three linux slices 4.5 h apart (33272217260, 33278756575, 33283327384): each claimed 60 and each withheld the SAME 42 package@versions, 42 of 42 on every pairwise `comm -12`. The stuck set grew 27 -> 48 per slice over 15 h as converging rows left the pool, and had taken 42 of the linux lane's last 105 rows, so that lane could never have drained and macOS could never have started. A new channel carries the withheld verdict past the restored record so the bounded retry that already exists can see it: two returns to `pending`, then an honest settle at this hash. The same branch now prints the driver's `=> HARNESS-...:` reason, which reached no reader before -- the log is kept inside the record dir, which is then parked outside `records-v2/`, and the slice artifact uploads only `records-v2/`. ZERO records: this changes queue bookkeeping and a diagnostic line. It cannot reach a measurement, a grant, a ladder or a verdict. `{verdicts: []}` is a NAMED selector whose .includes() is false for every verdict, so it matches nothing."
     }
   ]
 }

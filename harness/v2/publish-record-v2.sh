@@ -95,6 +95,43 @@ note_settled () {
   ' "$STASH/rec" "$NUB_CORPUS_SETTLED" "$1" 2>/dev/null || true
 }
 
+# ⛔ CARRY THE WITHHELD VERDICT PAST THE RESTORED RECORD, OR THE RETRY BELOW IS A FICTION.
+#
+# `withhold_record` puts origin's PRIOR record back, and `collect-verdicts.mjs` walks the records
+# tree — so `--complete` sees that prior REAL verdict and marks the row done, stamped from a record
+# whose `harnessSha256` is stale. The next claim's invalidation pass reopens it and the slice
+# re-measures it, forever. This is the same non-convergence `note_settled` documents for the guard
+# path, on the branch that was left without the fix.
+#
+# MEASURED 2026-08-30 across three linux slices 4.5 h apart (33272217260, 33278756575, 33283327384):
+# each claimed 60 and each withheld the SAME 42 package@versions, and each logged `0 instrument
+# failure(s) returned to pending`. The stuck set grew 27 -> 48 per slice over 15 hours and had taken
+# 42 of the linux lane's last 105 rows.
+#
+# NOT `note_settled`: settling here would freeze a TRANSIENT instrument failure on its first
+# attempt, and the bounded retry exists because some are transient. This restores the retry the
+# message below already promises — two returns to `pending`, then an honest settle on the third.
+note_instrument_failure () {
+  [ -n "${NUB_CORPUS_INSTRUMENT_FAILURES:-}" ] || return 0
+  node -e '
+    const fs = require("fs");
+    let r = {}; try { r = require(process.argv[1] + "/results.json"); } catch { }
+    if (!r.pkg || !r.version) process.exit(0);
+    fs.appendFileSync(process.argv[2],
+      JSON.stringify({ pkg: r.pkg, version: r.version, verdict: process.argv[3] }) + "\n");
+  ' "$STASH/rec" "$NUB_CORPUS_INSTRUMENT_FAILURES" "$1" 2>/dev/null || true
+}
+
+# ⛔ THE REASON, NOT JUST THE VERDICT. `run-batch-v2.mjs` KEEPS the driver log for a `HARNESS-*` and
+# reports it by path — but that path is inside the record dir, which this script then parks outside
+# `records-v2/`, and the slice artifact uploads only `records-v2/`. So the one line that says WHY
+# reaches no reader at all: 42 packages failed identically for 15 hours with the cause on disk on a
+# runner that was then destroyed. The driver prints it as `=> HARNESS-...: <reason>`.
+show_failure_reason () {
+  [ -f "$STASH/rec/.driver.out" ] || { echo "     (no driver log stashed — cannot say why)" >&2; return 0; }
+  grep -aE '=> HARNESS-' "$STASH/rec/.driver.out" | tail -3 | sed 's/^ */     WHY: /' >&2 || true
+}
+
 # ⛔ AN INSTRUMENT FAILURE IS NOT A MEASUREMENT AND MUST NOT REACH THE MANIFEST. `record-validity.mjs`
 # rejects a `HARNESS-*` verdict outright, and `claim-slice.mjs` returns such a row to `pending` for
 # retry — but this script published it regardless, so the slice gate then failed on a record the
@@ -124,6 +161,8 @@ for attempt in 1 2 3; do
   case "$RECORD_VERDICT" in
     HARNESS-*)
       withhold_record "instrument failure, not a measurement: $RECORD_VERDICT"
+      note_instrument_failure "$RECORD_VERDICT"
+      show_failure_reason
       echo "     The row stays open; claim-slice --complete returns it to pending for retry." >&2
       exit 0 ;;
   esac

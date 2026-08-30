@@ -211,6 +211,10 @@ jobs:
       # resolve DIFFERENT paths and the commit would fall back to stashing the whole tree.
       NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
       NUB_CORPUS_SETTLED: /tmp/nub-corpus-v2-settled.ndjson
+      # The withheld `HARNESS-*` verdicts. Job-level for the same reason as the line above: the
+      # measure step writes it and BOTH `--complete` calls read it, and a step-level `env:` reaches
+      # neither of them.
+      NUB_CORPUS_INSTRUMENT_FAILURES: /tmp/nub-corpus-v2-instrument-failures.ndjson
       # ⛔⛔ A `/tmp` PATH IS FINE AS AN ARGUMENT OR AN ENV VALUE, AND BROKEN INSIDE A `node -e` BODY.
       # THAT IS THE WHOLE RULE, AND IT IS WHY THIS FILE MUST NOT BE `/tmp`-SWEPT WHOLESALE.
       #
@@ -686,6 +690,7 @@ jobs:
           NUB_CORPUS_BRANCH: ${{ github.ref_name }}
           NUB_CORPUS_MANIFEST: /tmp/nub-corpus-v2-published.txt
           NUB_CORPUS_SETTLED: /tmp/nub-corpus-v2-settled.ndjson
+          NUB_CORPUS_INSTRUMENT_FAILURES: /tmp/nub-corpus-v2-instrument-failures.ndjson
         run: |
           set -uo pipefail
           chmod +x harness/v2/*.sh
@@ -764,7 +769,8 @@ jobs:
           # was removed: its whole-tree walk (~20s) is likewise discarded by that reset, so it was
           # pure per-run waste — the self-heal it provided is delegated to `--reclaim-stale`.
           node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}" \
-            --settled "$NUB_CORPUS_SETTLED"
+            --settled "$NUB_CORPUS_SETTLED" \
+            --instrument-failures "$NUB_CORPUS_INSTRUMENT_FAILURES"
 
       # ⛔ `if: always()` IS THE WHOLE POINT: this must run precisely when a later step FAILS. A slice
       # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
@@ -915,7 +921,8 @@ jobs:
             # `--reclaim-stale` (it re-measures), which does not need to sit in this hot loop.
             node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}" \
             --measured-harness-sha "${MEASURED_SHA:-}" \
-            --settled "$NUB_CORPUS_SETTLED"
+            --settled "$NUB_CORPUS_SETTLED" \
+            --instrument-failures "$NUB_CORPUS_INSTRUMENT_FAILURES"
             # ⛔ --sparse IS MANDATORY under the sparse checkout: records-v2/runs/<plat>/... is
             # OUTSIDE the cone, and a plain `git add records-v2` stages NOTHING there (it warns and
             # skips), so the slice would be silently dropped. VERIFIED: with --sparse the new record

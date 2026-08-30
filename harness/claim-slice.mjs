@@ -242,6 +242,37 @@ if (argv.includes('--complete')) {
       } catch { /* a malformed line must not lose the whole slice */ }
     }
   }
+  // ⛔ THE VERDICT THIS ATTEMPT ACTUALLY PRODUCED, WHICH IS NOT THE ONE LEFT ON DISK.
+  //
+  // `publish-record-v2.sh` withholds a `HARNESS-*` record and puts ORIGIN'S PRIOR record back, so
+  // `collect-verdicts.mjs` — which walks the records tree — reports the PRIOR verdict for that
+  // package. It is a real verdict, so the branch below marks the row `done` and stamps it from the
+  // prior record, whose `harnessSha256` is stale; the next claim's invalidation pass reopens it, the
+  // slice re-measures it, and it fails the same way. The row can never converge, and the message
+  // that script prints — "the row stays open; claim-slice --complete returns it to pending for
+  // retry" — is false for every package that has a prior record on origin.
+  //
+  // MEASURED 2026-08-30 on three linux slices 4.5 h apart (33272217260, 33278756575, 33283327384):
+  // each claimed 60 and each withheld the SAME 42 package@versions — `comm -12` gives 42 of 42 for
+  // every pair — while every one of them logged `0 instrument failure(s) returned to pending`. The
+  // stuck set GREW 27 -> 48 per slice over 15 hours as converging rows left the pending pool, and it
+  // had reached 42 of the 105 rows the linux lane had left. That lane could not have drained.
+  //
+  // This channel carries the withheld verdict past the restored record so the bounded retry the
+  // design already has can see it: attempts 1 and 2 return the row to `pending`, and the third
+  // settles it at this hash with a reason naming the failure. `r.verdict` and `stampIdentity` still
+  // come from the RECORD, because the corpus genuinely still holds the prior measurement — only the
+  // retry accounting is a property of the attempt.
+  const instrumentFailures = new Map();
+  const failureFile = opt('--instrument-failures', '');
+  if (failureFile && fs.existsSync(failureFile)) {
+    for (const line of fs.readFileSync(failureFile, 'utf8').split('\n').filter(Boolean)) {
+      try {
+        const v = JSON.parse(line);
+        if (v.pkg && v.version && v.verdict) instrumentFailures.set(`${v.pkg}@${v.version}`, v.verdict);
+      } catch { /* a malformed line must not lose the whole slice */ }
+    }
+  }
   // ⛔ THE HASH THE SLICE MEASURED UNDER — NOT THE ONE ON DISK RIGHT NOW.
   //
   // `settledAtHash` means "the attempt happened at THIS instrument", and the claim path reopens the
@@ -268,11 +299,14 @@ if (argv.includes('--complete')) {
     const record = verdicts.get(`${r.pkg}@${r.version}`);
     if (record === undefined) { stranded++; continue; }
     const v = record.verdict;
+    // The verdict this attempt produced: the withheld `HARNESS-*` when there was one, else what the
+    // record on disk says. Only the retry accounting reads it.
+    const attempt = instrumentFailures.get(`${r.pkg}@${r.version}`) ?? v;
     const why = settled.get(`${r.pkg}@${r.version}`);
     // ⛔ SETTLE BEFORE THE RETRY CHECK, NEVER AFTER. `returnForRetry` puts the row straight back to
     // `pending` and `continue`s, so a settled row reached after it would never be stamped — the
     // retry path would win and the loop this fixes would survive the fix.
-    if (why === undefined && !isInstrumentFailure(v)) {
+    if (why === undefined && !isInstrumentFailure(attempt)) {
       r.status = 'done';
       r.verdict = v;
       stampIdentity(r, record);
@@ -281,7 +315,7 @@ if (argv.includes('--complete')) {
       done++;
       continue;
     }
-    if (why === undefined && returnForRetry(r, v)) { retry++; continue; }
+    if (why === undefined && returnForRetry(r, attempt)) { retry++; continue; }
     // Either the publisher withheld this record, or an instrument failure has exhausted its
     // retries. Both keep whatever the corpus already holds, so the row records the PRIOR verdict —
     // and `settledAtHash` says the attempt happened at THIS instrument, which is what stops the
@@ -291,7 +325,7 @@ if (argv.includes('--complete')) {
     stampIdentity(r, record);
     if (currentSha) {
       r.settledAtHash = currentSha;
-      r.settledReason = why ?? `instrument failure after ${r.attempts ?? RETRY_LIMIT} attempts: ${v}`;
+      r.settledReason = why ?? `instrument failure after ${r.attempts ?? RETRY_LIMIT} attempts: ${attempt}`;
     }
     delete r.run;
     delete r.at;
