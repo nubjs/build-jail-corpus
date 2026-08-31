@@ -1,5 +1,10 @@
-### canvas@2.11.2   (/Users/runner/v2m-dFOCXN)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b5bdd025b9dbe48b6aa4868e3d570e5e0fd0fdd733eefbe3c56756e3bc1c3fed","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:13:38.839Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-yIAAGp/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b5bdd025b9db
+  ERA-NODE PINNED 18.20.8 (provisioned) (arms will run: v18.20.8)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 18, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### canvas@2.11.2   (/Users/runner/v2m-yIAAGp)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,61 +14,69 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2023-04-03T21:33:55.740Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1a94aca4c695bb9b7a9f3788e8fc08c5ff60e6d3f5bf83707eaf201ba6dfae47","specCount":63,"lockfiles":{"digest":"3ad9eddbe6968f292ab7e0258df29080194b6c3a70fd41ef1def54509c23ec45","files":[{"path":"package-lock.json","sha256":"343602c12ecd6a70428966db5dc50c31bd9d9e63aba7608768c1f9f0ed40a017","bytes":26522}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:13:48.254Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-yIAAGp/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 63 exact package-version(s), tree 1a94aca4c695
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 2 leaked: rimraf=/Users/runner/v2m-yIAAGp/Observe/node_modules/.bin/rimraf node-pre-gyp=/Users/runner/v2m-yIAAGp/Observe/node_modules/.bin/node-pre-gyp
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC canvas@2.11.2
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-dFOCXN/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-dFOCXN/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs0YPKaj"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "canvas" > "/Users/runner/v2m-dFOCXN/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-dFOCXN/Observe/rc"
+     cd "/Users/runner/v2m-yIAAGp/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-yIAAGp/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-yIAAGp/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obszBJb5d"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "canvas@2.11.2" > "/Users/runner/v2m-yIAAGp/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-yIAAGp/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-dFOCXN/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-dFOCXN/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs0YPKaj NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund canvas
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003f4c090) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 53 (ID 189: syscall::unlink:return): invalid address (0x6000015afe90) in action #10 at DIF offset 12
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x103a82ab0) in action #1 at DIF offset 20
-  OBSERVE   rc=1 dtrace_rc=0 files=595 (pre=592) trace=97128 lines
+     + cd /Users/runner/v2m-yIAAGp/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-yIAAGp/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-yIAAGp/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obszBJb5d NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund canvas@2.11.2
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003428090) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104348440) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x104d8c9b0) in action #1 at DIF offset 20
+  OBSERVE   rc=1 dtrace_rc=0 files=593 (pre=590) trace=23541 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     npm error gyp ERR! node-gyp -v v11.5.0
+     npm error gyp ERR! node-gyp -v v10.1.0
      npm error gyp ERR! not ok 
      npm error node-pre-gyp ERR! build error 
-     npm error node-pre-gyp ERR! stack Error: Failed to execute '/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/node /Users/runner/hostedtoolcache/node/22.23.1/arm64/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js configure --fallback-to-build --update-binary --module=/Users/runner/v2m-dFOCXN/Observe/node_modules/canvas/build/Release/canvas.node --module_name=canvas --module_path=/Users/runner/v2m-dFOCXN/Observe/node_modules/canvas/build/Release --napi_version=10 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v127' (1)
-     npm error node-pre-gyp ERR! stack     at ChildProcess.<anonymous> (/Users/runner/v2m-dFOCXN/Observe/node_modules/@mapbox/node-pre-gyp/lib/util/compile.js:89:23)
-     npm error node-pre-gyp ERR! stack     at ChildProcess.emit (node:events:519:28)
-     npm error node-pre-gyp ERR! stack     at maybeClose (node:internal/child_process:1101:16)
-     npm error node-pre-gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:304:5)
+     npm error node-pre-gyp ERR! stack Error: Failed to execute '/Users/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-darwin-arm64/bin/node /Users/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-darwin-arm64/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js configure --fallback-to-build --update-binary --module=/Users/runner/v2m-yIAAGp/Observe/node_modules/canvas/build/Release/canvas.node --module_name=canvas --module_path=/Users/runner/v2m-yIAAGp/Observe/node_modules/canvas/build/Release --napi_version=9 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v108' (1)
+     npm error node-pre-gyp ERR! stack     at ChildProcess.<anonymous> (/Users/runner/v2m-yIAAGp/Observe/node_modules/@mapbox/node-pre-gyp/lib/util/compile.js:89:23)
+     npm error node-pre-gyp ERR! stack     at ChildProcess.emit (node:events:517:28)
+     npm error node-pre-gyp ERR! stack     at maybeClose (node:internal/child_process:1098:16)
+     npm error node-pre-gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:303:5)
      npm error node-pre-gyp ERR! System Darwin 24.6.0
-     npm error node-pre-gyp ERR! command "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/node" "/Users/runner/v2m-dFOCXN/Observe/node_modules/.bin/node-pre-gyp" "install" "--fallback-to-build" "--update-binary"
-     npm error node-pre-gyp ERR! cwd /Users/runner/v2m-dFOCXN/Observe/node_modules/canvas
-     npm error node-pre-gyp ERR! node -v v22.23.1
-     npm error node-pre-gyp ERR! node-pre-gyp -v v1.0.11
+     npm error node-pre-gyp ERR! command "/Users/runner/.cache/nub/era-node/18.20.8/node-v18.20.8-darwin-arm64/bin/node" "/Users/runner/v2m-yIAAGp/Observe/node_modules/.bin/node-pre-gyp" "install" "--fallback-to-build" "--update-binary"
+     npm error node-pre-gyp ERR! cwd /Users/runner/v2m-yIAAGp/Observe/node_modules/canvas
+     npm error node-pre-gyp ERR! node -v v18.20.8
+     npm error node-pre-gyp ERR! node-pre-gyp -v v1.0.10
      npm error node-pre-gyp ERR! not ok
      npm notice
-     npm notice New major version of npm available! 10.9.8 -> 12.0.2
+     npm notice New major version of npm available! 10.8.2 -> 12.0.2
      npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
      npm notice To update run: npm install -g npm@12.0.2
      npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-dFOCXN/jailhome/.npm/_logs/2026-08-07T22_26_21_213Z-debug-0.log
+     npm error A complete log of this run can be found in: /Users/runner/v2m-yIAAGp/jailhome/.npm/_logs/2026-08-31T19_13_50_944Z-debug-0.log
