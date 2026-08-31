@@ -2,7 +2,9 @@
   "pkg": "neonctl",
   "version": "1.1.0",
   "harnessVersion": 2,
+  "harnessEpoch": 45,
   "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "eraDepMismatch": null,
   "grant": null,
   "synthesized": null,
   "verifiedBy": null,
@@ -10,21 +12,275 @@
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "775f889795c2a0f836a084a93071d96120c4d5ecc6a03b020d16d535416b7e54",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T09:34:39.879Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "644c0c5864ddcf5e9046a2b44390b8207c9efdb819eb3aa3c763b9f37d9e1db9",
+      "specCount": 40,
+      "lockfiles": {
+        "digest": "2401c6e040fd861a03562e96b0b4edc01b218b5257cb07f4f21c4019a14de67e",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "3a23e39dd8d31dd459c598e958d27be273af445045bd4591629501d626a1a697",
+            "bytes": 16375
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T09:34:46.271Z",
+      "cacheHit": false
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "775f889795c2a0f836a084a93071d96120c4d5ecc6a03b020d16d535416b7e54",
+      "specCount": 1,
+      "specs": [
+        "neonctl@1.1.0"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-31T09:34:39.879Z"
+    },
+    {
+      "digest": "644c0c5864ddcf5e9046a2b44390b8207c9efdb819eb3aa3c763b9f37d9e1db9",
+      "specCount": 40,
+      "specs": [
+        "@neondatabase/api-client@0.1.0",
+        "ansi-regex@5.0.1",
+        "ansi-styles@4.3.0",
+        "asynckit@0.4.0",
+        "axios@1.4.0",
+        "cli-table@0.3.11",
+        "cliui@8.0.1",
+        "color-convert@2.0.1",
+        "color-name@1.1.4",
+        "colors@1.0.3",
+        "combined-stream@1.0.8",
+        "define-lazy-prop@2.0.0",
+        "delayed-stream@1.0.0",
+        "emoji-regex@8.0.0",
+        "escalade@3.1.1",
+        "follow-redirects@1.15.2",
+        "form-data@4.0.0",
+        "get-caller-file@2.0.5",
+        "is-docker@2.2.1",
+        "is-fullwidth-code-point@3.0.0",
+        "is-wsl@2.2.0",
+        "jose@4.14.4",
+        "lru-cache@6.0.0",
+        "mime-db@1.52.0",
+        "mime-types@2.1.35",
+        "neonctl@1.1.0",
+        "object-hash@2.2.0",
+        "oidc-token-hash@5.0.3",
+        "open@8.4.2",
+        "openid-client@5.4.2",
+        "proxy-from-env@1.1.0",
+        "require-directory@2.1.1",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1",
+        "wrap-ansi@7.0.0",
+        "y18n@5.0.8",
+        "yallist@4.0.0",
+        "yaml@2.3.1",
+        "yargs-parser@21.1.1",
+        "yargs@17.7.2"
+      ],
+      "lockfiles": {
+        "digest": "2401c6e040fd861a03562e96b0b4edc01b218b5257cb07f4f21c4019a14de67e",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "3a23e39dd8d31dd459c598e958d27be273af445045bd4591629501d626a1a697",
+            "bytes": 16375
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-31T09:34:46.271Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-31T09:34:39.365Z",
+    "latestVersion": "4.13.0",
+    "weeklyDownloads": 303602,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/neonctl/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/neonctl"
+    }
+  },
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
   "notes": [],
   "eventLog": null,
   "driverRc": 0,
-  "durationMs": 10605,
+  "durationMs": 10994,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "6660fe56689d8a32b50f4cacfd737f6a215ba0c4",
-    "node": "v22.23.1",
-    "at": "2026-08-07T20:41:16.684Z",
+    "corpusGitSha": null,
+    "harnessEpoch": 45,
+    "harnessSha256": "9455bc48c3ff44403049d40998a72985d52e4321c7197f094f9adf114b04eeef",
+    "harnessInputCount": 300,
+    "invalidationPolicySha256": "5344dce5e66e66dbed84a2686129fd699d71cfc5f83ad9b69e97b43366869476",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/node",
+        "sha256": "18e387c90ab8a8400183e8bdd396376e1e875b91b4c874b894dcade7b35bf572",
+        "bytes": 112937728
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+        "executable": {
+          "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/opt/homebrew/bin/python3",
+          "executable": {
+            "path": "/opt/homebrew/bin/python3",
+            "sha256": "4d4c42c0ebf9bf42e9aa2c0e56843632347a1f1c22d4a9f680b4f87fb241d0e6",
+            "bytes": 34640
+          },
+          "version": "Python 3.14.6"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/local/bin/python",
+          "executable": {
+            "path": "/usr/local/bin/python",
+            "sha256": "b72b3d917750b98178ce547d1d1f8a1ccd5e078fc551c4b3c77d2769e70fd229",
+            "bytes": 28640
+          },
+          "version": "Python 2.7.18"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "GNU Make 3.81"
+        }
+      },
+      "os": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "libc": null,
+        "type": "Darwin",
+        "release": "24.6.0",
+        "version": "Darwin Kernel Version 24.6.0: Tue Apr 21 20:18:00 PDT 2026; root:xnu-11417.140.69.710.16~1/RELEASE_ARM64_VMAPPLE",
+        "machine": "arm64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "macOS",
+        "arch": "ARM64",
+        "environment": "github-hosted",
+        "imageOS": "macos15",
+        "imageVersion": "20260727.0256.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "macOS",
+          "RUNNER_ARCH": "ARM64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "macos15",
+          "ImageVersion": "20260727.0256.1",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "en_US.UTF-8"
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "d6ad537dd9060beee0cfde6a94c67d6077fc276ad9565ab4b941087047aceb5d",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-31T09:34:50.727Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": null,
@@ -37,13 +293,14 @@
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "/tmp/nub/target/release/nub",
-      "sha256": "96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4",
-      "bytes": 94103896,
+      "sha256": "69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30",
+      "bytes": 94535576,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
       }
     },
+    "nodeSelection": null,
     "overrides": null
   }
 }
