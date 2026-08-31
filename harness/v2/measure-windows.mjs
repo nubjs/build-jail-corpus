@@ -902,6 +902,36 @@ if (!armPrep) {
       // See `unjailed-nub.mjs`'s `asIdentity` for the node-sass@9.0.0 measurement behind this.
       { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
     console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
+    // ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT — the long note is at the matching branch
+    // in `measure.sh`. Measured over all 6,880 records, `ARM-FALSIFIABILITY`'s `manifestFiles: null`
+    // (no layout for the subject exists at all) occurs in 51 records, EVERY one of them with a
+    // scaffold and none of the 5,279 without one, and all 51 attributed zero lifecycle pids.
+    //
+    // ⛔ WIN32 HAS EXACTLY ONE SCAFFOLDED RECORD IN THE WHOLE CORPUS AND IT IS CLEAN, so this branch
+    // is written from the other two platforms' evidence rather than from win32's own. That is the
+    // point: the win32 lane has barely run, its 2,265 rows are almost entirely unmeasured, and the
+    // scaffold rate there is not yet knowable. Landing the guard before the lane runs is the whole
+    // saving — the alternative is discovering it in 51 records' worth of win32 non-answers later.
+    //
+    // The invariant, which needs no mechanism: the subject is the thing under measurement, so it is
+    // the LAST thing written into the observe tree. A no-op when nothing was evicted.
+    run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts',
+      ...(eraResolution.before ? [`--before=${eraResolution.before}`] : []), `${PKG}@${VER}`],
+      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
+    // ⛔ `pkgDir`, NOT A HAND-BUILT JOIN — it is what every other read of the installed package in
+    // this driver goes through, and it already handles the layout and short-name resolution a literal
+    // `node_modules/<pkg>` join gets wrong on Windows.
+    if (!pkgDir(OBS, PKG, VER)) {
+      // REFUSE, NEVER MEASURE. An arm on a tree without the subject synthesizes `{}`, which is
+      // byte-identical to a package that genuinely needs nothing, so it lands MINIMUM — an
+      // under-prediction asserted from a run that never happened.
+      console.log(`  ARM-SUBJECT-EVICTED the scaffold install removed ${PKG} from the observe tree and a`);
+      console.log('     re-install did not restore it. There is nothing to measure.');
+      const tail = `${si.stdout ?? ''}${si.stderr ?? ''}`.trimEnd().split('\n').slice(-15);
+      for (const line of tail) console.log(`    | ${line}`);
+      console.log('  => UNKNOWN (the subject is not in the observe tree; no measurement was possible)');
+      process.exit(0);
+    }
   }
 }
 

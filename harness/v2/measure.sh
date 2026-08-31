@@ -562,6 +562,49 @@ else
     # denominator came from different commands.
     PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+    # ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT, AND THE ARM THEN MEASURES AN EMPTY TREE.
+    #
+    # MEASURED across all 6,880 committed records, cross-tabulating `ARM-FALSIFIABILITY`'s
+    # `manifestFiles` against the `ARM-SCAFFOLD` marker beside it. `manifestFiles: null` means
+    # `arm-falsifiability.mjs`'s `pkgDir()` found NONE of its three layouts — i.e. the subject's
+    # directory does not exist — and it occurs in exactly **51 records: 37 linux, 14 darwin, 0 win32**:
+    #
+    #   scaffold = 0  ->  5,279 records,   0 null      scaffold > 0  ->  340 records,  51 null
+    #
+    # **Every one of the 51 has a scaffold; not one of the 5,279 scaffold-free records is null.** And
+    # every one of the 51 attributed ZERO lifecycle pids, because `npm rebuild <pkg>` on a tree
+    # without `<pkg>` runs nothing at all. `bigint-buffer@1.1.5`'s trace is the shape: 2,422
+    # `observe/node_modules` references covering the 137 packages of the scaffold closure, three
+    # execve lines, no shell, and the subject's own directory touched ZERO times.
+    #
+    # The subject was there a moment earlier: `arm-prepare.mjs` derives the scaffold from
+    # `installedManifest()`, and prints `ARM-SCAFFOLD none` when that read fails. All 51 print
+    # `ARM-SCAFFOLD <n> added`. So the eviction happens in the line directly above, silently —
+    # `ARM-SCAFFOLD-INSTALL rc=0` on all 51.
+    #
+    # ⛔ THE MECHANISM IS NOT ESTABLISHED, AND THIS FIX DELIBERATELY DOES NOT DEPEND ON ONE. All 37
+    # linux cases were replayed faithfully — each record's own `--before`, its own scaffold specs,
+    # era npm 6.14.12 — and 36 of 37 kept the subject (the 37th never fetched). So the cause needs
+    # something the replay lacked: era Node 10 under npm 6, the platform, or `$ARM_PATH`.
+    #
+    # THE INVARIANT INSTEAD: the subject is the thing under measurement, so it is the LAST thing
+    # written into the observe tree. The scaffold list is derived from the subject's manifest, so the
+    # subject must go in first — but nothing stops it going in again. This is a no-op when nothing was
+    # evicted, and it is a repair when something was.
+    PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$PKG@$VER" > "$OBS/resubject.log" 2>&1
+    if [ ! -d "$OBS/node_modules/$PKG" ]; then
+      # ⛔ REFUSE, NEVER MEASURE. An arm run against a tree without the subject produces `{}` — which
+      # is byte-identical to the grant of a package that genuinely needs nothing, so it lands as
+      # MINIMUM: an UNDER-PREDICTION asserted from a run that never happened. 15 linux records already
+      # say exactly that. `scaffold.log` is the artifact that would name the mechanism and the corpus
+      # throws it away, so print its tail HERE, on the runner where the eviction actually occurs.
+      echo "  ARM-SUBJECT-EVICTED the scaffold install removed $PKG from the observe tree and a"
+      echo "     re-install did not restore it. There is nothing to measure."
+      sed 's/^/    | /' "$OBS/scaffold.log" 2>/dev/null | tail -15
+      sed 's/^/    r/' "$OBS/resubject.log" 2>/dev/null | tail -8
+      echo "  => UNKNOWN (the subject is not in the observe tree; no measurement was possible)"
+      exit 0
+    fi
   fi
 fi
 PRE_FILES=$(find "$OBS" -type f ! -name '*.log' 2>/dev/null | wc -l | tr -d ' ')

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 45,
+  "currentEpoch": 46,
   "transitions": [
     {
       "fromEpoch": null,
@@ -547,6 +547,65 @@
         ]
       },
       "reason": "Epoch 45 corrects epoch 44: zero attribution has TWO causes and they need OPPOSITE verdicts.\n\nEpoch 44 made linux and win32 refuse every unattributed run, matching what measure-macos.sh had\nalways done. That was half right, and the half it got wrong erases true measurements.\n\nZero attribution means either (a) the package RUNS NOTHING at install -- npm rebuild executes no\nscript, so {} is a real measurement and MINIMUM is the correct verdict -- or (b) the package runs\nsomething the subtree filter missed, where {} is a non-measurement and MINIMUM is an under-prediction.\n\nMEASURED: of the 134 linux attribution failures, 97 are gate-vacuous, and the registry manifests of\nthe spot-checked ones declare only build/test/lint -- scripts npm never runs at install. So blanket\nrefusal converts ~97 correct MINIMUM records into non-answers in order to fix ~37 real ones. Darwin\nhad been paying that cost for its whole life: its 65 UNKNOWN records are the same over-caution, which\nis why UNKNOWN looked like a macOS-only verdict.\n\nAll three drivers now ask the installed manifest instead of guessing. binding.gyp counts as a\ndeclared install-time script, because npm runs node-gyp rebuild without an explicit one and those are\nthe packages whose grants matter most; prepare does not, because the OBSERVE arm is npm rebuild,\nwhich never runs it. An unreadable manifest fails CLOSED.\n\nINVALIDATES UNKNOWN. Every UNKNOWN record is a non-answer produced by the over-cautious rule, so\nre-measuring can only replace it with a real verdict. The linux MINIMUM records epoch 44 reopened are\nalready pending and will now be measured under the corrected rule rather than the blanket one."
+    },
+    {
+      "fromEpoch": 45,
+      "fromHarnessSha256": "9455bc48c3ff44403049d40998a72985d52e4321c7197f094f9adf114b04eeef",
+      "toEpoch": 46,
+      "toHarnessSha256": "0b285c1ebde6b2cec8ad01ec55f7fce70bc4e871e3435f04f704a8a18a4d6a35",
+      "invalidate": {
+        "platforms": [
+          "linux-x64",
+          "darwin-arm64"
+        ],
+        "verdicts": [
+          "UNKNOWN",
+          "BROKEN-WITHOUT-JAIL-TOO",
+          "MINIMUM",
+          "NO-STATE-PASSED"
+        ],
+        "packages": [
+          "@antv+dom-util",
+          "@antv+g-canvas",
+          "@antv+g-math",
+          "@antv+matrix-util",
+          "@rsuite+icons",
+          "clientjs",
+          "jest-stare",
+          "lucia",
+          "paper",
+          "react-media-recorder",
+          "react-native-vision-camera",
+          "real-cancellable-promise",
+          "spectron",
+          "xero-node",
+          "@antv+g-base",
+          "@antv+g-svg",
+          "@open-wc+testing",
+          "@sap+hana-theme-vscode",
+          "@wessberg+ts-evaluator",
+          "aws-crt",
+          "babel-plugin-parameter-decorator",
+          "bigint-buffer",
+          "cross-domain-utils",
+          "final-form",
+          "gatsby",
+          "gatsby-telemetry",
+          "git-win",
+          "hygen",
+          "ico-endec",
+          "matrix-js-sdk",
+          "node-webcrypto-ossl",
+          "p5",
+          "parse-server",
+          "purescript",
+          "react-virtual",
+          "redux-form",
+          "tsparticles",
+          "vis-timeline"
+        ]
+      },
+      "reason": "the scaffold install evicts the subject from the observe tree, so the arm measured a tree without the package under test: 51 records (37 linux, 14 darwin) attributed zero lifecycle pids on a tree whose subject directory does not exist, and every one of them had a scaffold while none of the 5,279 scaffold-free records did. All three drivers now re-install the subject after the scaffold and refuse rather than measure when it is still absent. Scoped by platform+verdict+package because the selector language has no version dimension, so this sweeps 117 correctly-measured siblings alongside the 51"
     }
   ]
 }

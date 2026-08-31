@@ -505,6 +505,28 @@ else
     sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
       npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+    # ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT — the long note is at the matching branch
+    # in `measure.sh`. Measured over all 6,880 records: `ARM-FALSIFIABILITY`'s `manifestFiles: null`
+    # (which means `pkgDir()` found no layout for the subject at all) occurs in 51 records, **every one
+    # of them with a scaffold and none of the 5,279 without one**, and all 51 attributed zero
+    # lifecycle pids. **14 of the 51 are darwin**, so this driver is not a bystander.
+    #
+    # The invariant, which needs no mechanism: the subject is the thing under measurement, so it is
+    # the LAST thing written into the observe tree. A no-op when nothing was evicted.
+    sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
+      npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$PKG@$VER" > "$OBS/resubject.log" 2>&1
+    if [ ! -d "$OBS/node_modules/$PKG" ]; then
+      # ⛔ REFUSE, NEVER MEASURE. An arm on a tree without the subject synthesizes `{}`, which is
+      # byte-identical to a package that genuinely needs nothing, so it lands MINIMUM — an
+      # under-prediction asserted from a run that never happened. `scaffold.log` is the artifact that
+      # would name the mechanism and the corpus does not keep it, so print its tail on the runner.
+      echo "  ARM-SUBJECT-EVICTED the scaffold install removed $PKG from the observe tree and a"
+      echo "     re-install did not restore it. There is nothing to measure."
+      sed 's/^/    | /' "$OBS/scaffold.log" 2>/dev/null | tail -15
+      sed 's/^/    r/' "$OBS/resubject.log" 2>/dev/null | tail -8
+      echo "  => UNKNOWN (the subject is not in the observe tree; no measurement was possible)"
+      exit 0
+    fi
     chown -R "$RUNUSER" "$ROOT" 2>/dev/null
   fi
 fi
