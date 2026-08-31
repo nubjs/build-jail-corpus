@@ -1290,6 +1290,15 @@ if (observed.lifecyclePids === 0) {
     const s = JSON.parse(fs.readFileSync(path.join(own, 'package.json'), 'utf8')).scripts || {};
     const named = ['preinstall', 'install', 'postinstall']
       .some((k) => typeof s[k] === 'string' && s[k].trim());
+    // ⛔⛔ THE INSTALLED MANIFEST, NEVER THE REGISTRY. `npm view <pkg> scripts` IS NOT AN ORACLE FOR
+    // THIS, AND USING IT AS ONE WILL "PROVE" THIS BRANCH WRONG WHEN IT IS RIGHT. The registry's
+    // `versions[v].scripts` comes from the DEVELOPMENT package.json at publish time; the tarball
+    // carries what `npm pack` produced, and pipelines routinely strip an install-time script before
+    // packing (`postinstall: husky` above all). Only the tarball's copy can execute. Measured
+    // 2026-08-31: `@stdlib/math-base-special-erfc@0.1.0` advertises `install: node-gyp rebuild` and
+    // ships neither that script nor a binding.gyp; same for `eslint-plugin-diff@1.0.9` and
+    // `@react-hookz/deep-equal@3.0.2`. An audit trusting `npm view` flagged 16 correct records as
+    // false MINIMUMs on this basis. Read the tree — which `own` already is.
     declares = named || fs.existsSync(path.join(own, 'binding.gyp')) ? 'yes' : 'no';
   } catch { /* fail closed below */ }
 

@@ -954,6 +954,23 @@ GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *
 # are the packages whose grants matter most. `prepare` does not, because the OBSERVE arm is
 # `npm rebuild`, which never runs it.
 if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
+  # ⛔⛔ THE INSTALLED MANIFEST, NEVER THE REGISTRY. `npm view <pkg> scripts` IS NOT AN ORACLE FOR
+  # THIS, AND USING IT AS ONE WILL "PROVE" THIS BRANCH WRONG WHEN IT IS RIGHT.
+  #
+  # The registry's `versions[v].scripts` is captured from the DEVELOPMENT package.json at publish
+  # time; the tarball carries whatever `npm pack` produced, and publishing pipelines routinely strip
+  # an install-time script before packing — a `postinstall: husky` above all. The two disagree
+  # often, and only the tarball's copy can ever execute.
+  #
+  # MEASURED 2026-08-31, installing each with `--ignore-scripts` and reading the manifest npm
+  # actually wrote:
+  #
+  #   @stdlib/math-base-special-erfc@0.1.0  registry `install: node-gyp rebuild`  installed: NONE, no binding.gyp
+  #   eslint-plugin-diff@1.0.9              registry `postinstall`                installed: NONE
+  #   @react-hookz/deep-equal@3.0.2         registry `postinstall`                installed: NONE
+  #
+  # An audit that trusted `npm view` flagged 16 valid darwin records as false MINIMUMs on exactly
+  # this basis. They were correct: those packages really do run nothing. Read the tree.
   DECLARES=$(node -e '
     const fs = require("fs"), path = require("path");
     const root = path.join(process.argv[1], "node_modules", process.argv[2]);
