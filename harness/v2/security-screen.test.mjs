@@ -34,7 +34,12 @@ test('every driver screens direct before fetch and the fetched tree before npm r
     'npm install --no-audit --no-fund --ignore-scripts',
     '"$PKG@$VER"',
     'security_screen_tree "$OBS" npm-observe-resolved',
-    'npm rebuild --no-audit --no-fund "$PKG"',
+    // ⛔ THE FLAGS ONLY — the SPEC is deliberately not pinned here. It went from `"$PKG"` to
+    // `"$REBUILD_SPEC"` when the observe arm started rebuilding by NAME@VERSION (npm 6 silently
+    // matches nothing on a bare scoped name), and this test went red for the SECOND time on a
+    // change that did not touch screening — exactly what the note above was written about. The
+    // argument form is owned by `rebuild-spec-is-versioned.test.mjs`, which executes it.
+    'npm rebuild --no-audit --no-fund',
   ], 'linux');
   inOrder(drivers.macos, [
     'security_screen_direct "$PKG@$VER"',
@@ -44,7 +49,7 @@ test('every driver screens direct before fetch and the fetched tree before npm r
     // The bare name is load-bearing, not cosmetic: `env` sets the era-first PATH immediately before
     // this and execs through it, so an absolute path (which this driver used to hold) runs the
     // HARNESS npm on the ERA Node. See the note at the wrapper in `measure-macos.sh`.
-    'npm rebuild --no-audit --no-fund "$PKG"',
+    'npm rebuild --no-audit --no-fund',
   ], 'macos');
   inOrder(drivers.windows, [
     "securityScreen('direct', ['--spec', `${PKG}@${VER}`])",
@@ -52,7 +57,7 @@ test('every driver screens direct before fetch and the fetched tree before npm r
     // is the fetch that consumes it.
     'run(NODE, [NPM, ...eraResolution.args]',
     "securityScreen('npm-observe-resolved', ['--tree', OBS])",
-    'rebuild --no-audit --no-fund ${PKG}',
+    'rebuild --no-audit --no-fund',
   ], 'windows');
 });
 

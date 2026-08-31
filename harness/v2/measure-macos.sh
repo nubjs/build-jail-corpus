@@ -597,6 +597,20 @@ fi
 #
 # No fallback is needed: when nothing is pinned, `ARM_PATH`/`ERA_PATH` is the ambient PATH and the
 # bare name finds the harness npm, which is the old behaviour.
+# ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6 — rc=0, no output, no script, and
+# the arm then traces a process that did nothing. The full measurement and the three-major control
+# are at the identical block in `measure.sh`; 61 valid darwin records are in the affected set.
+# The installed version is read back from the manifest rather than taken from `$VER`, and an
+# unreadable manifest falls back to the bare name (today's behaviour), never to no argument at all.
+REBUILD_VER=$(node -e '
+  const fs = require("fs"), path = require("path");
+  try {
+    const m = JSON.parse(fs.readFileSync(path.join(process.argv[1], "node_modules", process.argv[2], "package.json"), "utf8"));
+    process.stdout.write(typeof m.version === "string" ? m.version : "");
+  } catch { process.stdout.write(""); }
+' "$OBS" "$PKG" 2>/dev/null)
+if [ -n "$REBUILD_VER" ]; then REBUILD_SPEC="$PKG@$REBUILD_VER"; else REBUILD_SPEC="$PKG"; fi
+echo "  ARM-REBUILD-SPEC $REBUILD_SPEC"
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
 sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
@@ -609,7 +623,7 @@ sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "electron_config_cache=$TOOLS/electron-cache" \
   "npm_config_prefix=$TOOLS/npm-prefix" \
   ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} \
-  npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
+  npm rebuild --no-audit --no-fund "$REBUILD_SPEC" > "$OBS/npm.log" 2>&1
 echo \$? > "$OBS/rc"
 WRAP
 

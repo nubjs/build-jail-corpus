@@ -967,7 +967,26 @@ const WRAP = path.join(ROOT, 'rebuild.cmd');
 // the traced rebuild runs under the capture script's OWN cmd.exe, and this wrapper is the one place
 // guaranteed to be in scope for the lifecycle script itself — the same reason `npm_config_cache` is
 // set here rather than passed to powershell.
-fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\nset "TMP=${OBS_TMP}"\r\nset "TEMP=${OBS_TMP}"\r\nset "TMPDIR=${OBS_TMP}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${PKG}\r\n`, 'ascii');
+// ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6 — rc=0, no output, and the script
+// never runs, so the arm traces a process that did nothing and the empty syscall set is read as a
+// measurement. The measurement and the three-major control are at the identical block in
+// `measure.sh`. No win32 record is in the affected set today (every scoped win32 record ran a
+// newer npm), so this edit is written from the other two platforms' evidence — but the win32 lane
+// is 2,265 rows unmeasured, and era npm 6 is exactly what its 2016-2018 packages will select.
+//
+// ⛔ THE INSTALLED VERSION, NOT `VER`. `pkgDir` is the same resolver the falsifiability gate uses,
+// so a subject it cannot find is one the arm was never going to measure anyway; that case falls
+// back to the bare name, which is today's behaviour and correct for every unscoped package.
+const rebuildDir = pkgDir(OBS, PKG, VER);
+let rebuildSpec = PKG;
+if (rebuildDir) {
+  try {
+    const m = JSON.parse(fs.readFileSync(path.join(rebuildDir, 'package.json'), 'utf8'));
+    if (typeof m.version === 'string' && m.version) rebuildSpec = `${PKG}@${m.version}`;
+  } catch { /* unreadable manifest -> bare name, as before */ }
+}
+console.log(`  ARM-REBUILD-SPEC ${rebuildSpec}`);
+fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\nset "TMP=${OBS_TMP}"\r\nset "TEMP=${OBS_TMP}"\r\nset "TMPDIR=${OBS_TMP}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${rebuildSpec}\r\n`, 'ascii');
 // ⛔ THE ETW SESSION NAME MUST BE UNIQUE PER RUN. windows.ps1 defaults to the fixed name `nubobs`
 // and unconditionally `logman stop`s it before creating it, so a second concurrent driver SILENTLY
 // KILLS the first one's live trace -- the victim reports a short or empty capture with no error.

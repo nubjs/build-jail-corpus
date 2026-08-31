@@ -704,6 +704,42 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # Under the OS temp root, matching `make_private_tmp`'s `tempfile` under `std::env::temp_dir()`, so
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
+# ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6, EXITS 0, AND PRINTS NOTHING.
+#
+# The observe arm then traces a process that ran no script, and the harness reads the resulting
+# empty syscall set as a measurement. MEASURED 2026-08-31 against npm 6.14.12, on the era-dated
+# tree the arm itself builds:
+#
+#   npm rebuild @sitespeed.io/edgedriver            -> rc=0, npm.log 0 bytes, NO script
+#   npm rebuild @sitespeed.io/edgedriver@86.0.622-69 -> rc=1, npm.log 1320 bytes, install.js RAN
+#
+# Reproduced 3/3 on scoped registry packages (`@sitespeed.io/edgedriver`, `@pulumi/tls`,
+# `@rsuite/icons`) and confirmed absent on unscoped ones (`bigint-buffer`, `ico-endec`: bare and
+# versioned are byte-identical). It is npm 6 ONLY — npm 3.10.10 and 8.19.4 both run the script from
+# the bare scoped name, which is why the corpus-wide zero-attribution rate is 13.0% on era npm 6
+# against 3.4% on npm 10 and 0.2% on npm 11. Those numbers were previously read as "modern npm
+# stopped running scripts"; they are this bug, seen from the wrong end.
+#
+# The published trace of `@sitespeed.io/edgedriver@86.0.622-69` is the whole story in three lines:
+# npm execs, node execs, and nothing else ever does — 11 procs, 0 lifecycle shells, and npm's own
+# stdout empty because it had nothing to say.
+#
+# ⛔ THE INSTALLED VERSION, NOT `$VER`. The spec has to match what npm actually put in the tree; if
+# resolution landed on a different version than we asked for, `$PKG@$VER` would match nothing and
+# reintroduce exactly this bug pointing the other way. Read it back from the manifest.
+#
+# ⛔ FALL BACK TO THE BARE NAME, NEVER TO NOTHING. An unreadable manifest keeps today's behaviour
+# (correct for every unscoped package, which is most of the corpus); dropping the argument would
+# rebuild the whole dependency tree and attribute its scripts to the subject.
+REBUILD_VER=$(node -e '
+  const fs = require("fs"), path = require("path");
+  try {
+    const m = JSON.parse(fs.readFileSync(path.join(process.argv[1], "node_modules", process.argv[2], "package.json"), "utf8"));
+    process.stdout.write(typeof m.version === "string" ? m.version : "");
+  } catch { process.stdout.write(""); }
+' "$OBS" "$PKG" 2>/dev/null)
+if [ -n "$REBUILD_VER" ]; then REBUILD_SPEC="$PKG@$REBUILD_VER"; else REBUILD_SPEC="$PKG"; fi
+echo "  ARM-REBUILD-SPEC $REBUILD_SPEC"
 # `-f` is mandatory: the interesting syscall is routinely a grandchild of the postinstall.
 #
 # THE `env` ON THE ERA_PYTHON LINE IS LOAD-BEARING AND MUST NOT BE "TIDIED" AWAY. A variable
@@ -724,7 +760,7 @@ PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE
   env ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
   "$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
-  npm rebuild --no-audit --no-fund "$PKG" > "$OBS/npm.log" 2>&1
+  npm rebuild --no-audit --no-fund "$REBUILD_SPEC" > "$OBS/npm.log" 2>&1
 OBS_RC=$?
 # ⛔ THE OBSERVE ARM RUNS A STRANGER'S INSTALL SCRIPT AND HAD NO BOUND AT ALL. Neither POSIX driver
 # enforced one — no `--arm-timeout`, no `timeout`, no `ulimit`; only `measure-windows.mjs` capped its
