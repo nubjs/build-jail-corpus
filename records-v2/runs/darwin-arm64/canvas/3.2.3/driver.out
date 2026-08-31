@@ -1,4 +1,10 @@
-### canvas@3.2.3   (/Users/runner/v2m-e38Pca)   nub=/tmp/nub/target/release/nub
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2a61751b3f8b29947d081eb4901dd6eda42d1c9d5c5895ca4ad5775cf6a23096","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T23:24:23.786Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-q6Xd20/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 2a61751b3f8b
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### canvas@3.2.3   (/Users/runner/v2m-q6Xd20)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -8,28 +14,37 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2026-04-01T02:08:02.710Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"cefc33021626859b9c75b4ffa1e3c7b28969fad577c34deab431f762d7c99835","specCount":37,"lockfiles":{"digest":"c1f2b4ae71d866becfbb3f559a380a7149e3687f59387ef13275885bc16ac41b","files":[{"path":"package-lock.json","sha256":"956d3cef160d7e95971a238b2b829f74e9a23a49376b2df77ec7ccb7f7fc35d0","bytes":16244}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T23:24:31.779Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-q6Xd20/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 37 exact package-version(s), tree cefc33021626
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC canvas@3.2.3
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-e38Pca/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-e38Pca/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsfaeQiR"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "canvas" > "/Users/runner/v2m-e38Pca/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-e38Pca/Observe/rc"
+     cd "/Users/runner/v2m-q6Xd20/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-q6Xd20/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-q6Xd20/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsh1ge8J"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "canvas@3.2.3" > "/Users/runner/v2m-q6Xd20/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-q6Xd20/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-e38Pca/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-e38Pca/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsfaeQiR NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund canvas
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003140000) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-q6Xd20/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-q6Xd20/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-q6Xd20/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsh1ge8J NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund canvas@3.2.3
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000020d50e0) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=431 (pre=391) trace=13538 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=430 (pre=390) trace=9351 lines
   CLOSURE   37 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-e38Pca/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-e38Pca/Observe/capture.json
-  RAWLOG-BYTES raw=2283308 gz=72457
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-e38Pca/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsfaeQiR","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-q6Xd20/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-q6Xd20/Observe/capture.json
+  RAWLOG-BYTES raw=1687492 gz=65201
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"canvas","packageVersion":"3.2.3","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":"^18.12.0 || >= 20.9.0","publishedAt":"2026-03-31T02:08:02.710Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-q6Xd20/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsh1ge8J","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":88,"filesTheScriptProduced":38,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-e38Pca/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":13539,"parsed":13521,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":542,"danglingPair":0,"failed":5107,"enoent":5066,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5066,"EEXIST":38},"procs":6,"lifecyclePids":1,"distinctEvents":6195,"emitted":6195,"calls":12957,"bytes":1220994,"gzipBytes":41272,"out":"/Users/runner/v2m-e38Pca/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=3524 dropped-events=1
+  EVENTLOG-FILE /Users/runner/v2m-q6Xd20/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9352,"parsed":9334,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":530,"danglingPair":0,"failed":2892,"enoent":2851,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":2851,"EEXIST":38},"procs":6,"lifecyclePids":1,"distinctEvents":5766,"emitted":5766,"calls":8779,"bytes":1197612,"gzipBytes":38799,"out":"/Users/runner/v2m-q6Xd20/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3516 dropped-events=1
     NOTE 16 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
     ⛔ CWD-UNOBSERVED 3 relative path(s) (0 write(s)) came from a lifecycle
@@ -37,52 +52,52 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=54376 read  unproven .
-         pid=54377 read  unproven .
-         pid=54377 read  unproven .
+         pid=82974 read  unproven .
+         pid=82975 read  unproven .
+         pid=82975 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x600003140000
+             1 x  epid=128 action=1 fault=1 addr=0x6000020d50e0
   == ATTRIBUTION == lifecycle pids: 1
-    writes  script 44  /  whole traced subtree 1134
+    writes  script 44  /  whole traced subtree 1110
     sockets script 2  /  whole traced subtree 3
-  == ROOTS (from /Users/runner/v2m-e38Pca/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-e38Pca/Observe
+  == ROOTS (from /Users/runner/v2m-q6Xd20/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-q6Xd20/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-e38Pca/jailhome
+    jailHome      /Users/runner/v2m-q6Xd20/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-e38Pca/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-q6Xd20/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsfaeQiR
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsh1ge8J
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas
+    ownPkg        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
     jailHome      3  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-e38Pca/jailhome/.npm/_prebuilds
-        /Users/runner/v2m-e38Pca/jailhome/.npm/_prebuilds/18b95c-canvas-v3.2.3-napi-v7-darwin-arm64.tar.gz.54377-d2c3367390248.tmp
-        /Users/runner/v2m-e38Pca/jailhome/.npm/_prebuilds/18b95c-canvas-v3.2.3-napi-v7-darwin-arm64.tar.gz
+        /Users/runner/v2m-q6Xd20/jailhome/.npm/_prebuilds
+        /Users/runner/v2m-q6Xd20/jailhome/.npm/_prebuilds/18b95c-canvas-v3.2.3-napi-v7-darwin-arm64.tar.gz.82975-8761d8738fc74.tmp
+        /Users/runner/v2m-q6Xd20/jailhome/.npm/_prebuilds/18b95c-canvas-v3.2.3-napi-v7-darwin-arm64.tar.gz
     ownPkg       40  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/gyp-mac-tool
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/Makefile
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/canvas.target.mk
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/Release
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/config.gypi
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/binding.Makefile
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/Release/libdatrie.1.dylib
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/Release/libpango-1.0.0.dylib
-        /Users/runner/v2m-e38Pca/Observe/node_modules/canvas/build/Release/libpangoft2-1.0.0.dylib
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/gyp-mac-tool
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/Makefile
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/canvas.target.mk
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/Release
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/config.gypi
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/binding.Makefile
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/Release/libdatrie.1.dylib
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/Release/libpango-1.0.0.dylib
+        /Users/runner/v2m-q6Xd20/Observe/node_modules/canvas/build/Release/libpangoft2-1.0.0.dylib
         … and 30 more
   == READS the script performed, by scope ==
     outside       8
     systemfs      9
     userHome      2
-    deps        135
+    deps        134
     ownPkg        1
     jailHome      1
         outside: /
@@ -95,21 +110,40 @@
         outside: /var/db/timezone/zoneinfo/UTC
   == NETWORK ==
     AF_INET connects: 2   distinct peers: 2
-        140.82.116.3:443
-        185.199.109.133:443
+        20.29.134.23:443
+        185.199.108.133:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  EVICT[synth] 35 store entries removed, 2 spared as nub tooling, 906 in store
+  EVICT[synth] 19 store entries removed, 10 spared as nub tooling, 940 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f2c40893cbc04be0d59054672df864e747af56272c6371cad86e31a56de28876","specCount":37,"lockfiles":{"digest":"1685dbd885dd7f4286ce1e6c7df8348f7743e8ed0aa56255f3c6ce6863e4720b","files":[{"path":"nub.lock","sha256":"bcdada5354f98930bbec752e69d621e390b39abd3f047acfa58c44120bd2f3da","bytes":8411}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T23:24:36.939Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-q6Xd20/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 37 exact package-version(s), tree f2c40893cbc0
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=88/88 missing=0 shortfall=none (tree 1361/431) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=88/88 missing=0 shortfall=none (tree 1364/430) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}
-  EVICT[nar-no-network] 36 store entries removed, 2 spared as nub tooling, 907 in store
-  VERIFY[nar-no-network] rc=1 artifacts=51/88 missing=37 shortfall=d8c5c325ef22 (tree 1248/431) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT[nar-no-network] 29 store entries removed, 10 spared as nub tooling, 950 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"f2c40893cbc04be0d59054672df864e747af56272c6371cad86e31a56de28876","specCount":37,"lockfiles":{"digest":"1685dbd885dd7f4286ce1e6c7df8348f7743e8ed0aa56255f3c6ce6863e4720b","files":[{"path":"nub.lock","sha256":"bcdada5354f98930bbec752e69d621e390b39abd3f047acfa58c44120bd2f3da","bytes":8411}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T23:24:36.939Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-q6Xd20/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 37 exact package-version(s), tree f2c40893cbc0 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=51/88 missing=37 shortfall=d8c5c325ef22 (tree 1253/430) OVERRIDDEN=3 REJECTED=0 grant={}
        missing: build/Makefile, build/Release/canvas.node, build/Release/libX11.6.dylib, build/Release/libXau.6.dylib, build/Release/libXdmcp.6.dylib, build/Release/libXext.6.dylib (+31)
+     [nar-no-network/a] prebuild-install warn install getaddrinfo ENOTFOUND github.com
+     [nar-no-network/a] gyp ERR! configure error 
+     [nar-no-network/a] gyp ERR! stack Error: `gyp` failed with exit code: 1
+     [nar-no-network/a] gyp ERR! stack at ChildProcess.<anonymous> (/Users/runner/.cache/nub/pm/store/node-gyp@12.4.0-89ec5a315efd7f51/node_modules/node-gyp/lib/configure.js:317:18)
+     [nar-no-network/a] gyp ERR! stack at ChildProcess.emit (node:events:509:28)
+     [nar-no-network/a] gyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:295:12)
+     [nar-no-network/a] gyp ERR! System Darwin 24.6.0
+     [nar-no-network/a] gyp ERR! command "/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin/node" "/Users/runner/.cache/nub/pm/tools/node-gyp/v12/node_modules/.store/node-gyp@12.4.0/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+     [nar-no-network/a] gyp ERR! cwd /Users/runner/v2m-q6Xd20/verify-nar-no-network/node_modules/.store/canvas@3.2.3/node_modules/canvas
+     [nar-no-network/a] gyp ERR! node -v v24.19.0
+     [nar-no-network/a] gyp ERR! node-gyp -v v12.4.0
+     [nar-no-network/a] gyp ERR! $npm_package_name canvas
      narrowing 'no-network' fails ⇒ that capability IS necessary
   => MINIMAL — every capability in {"network":true} is independently necessary
 ### DONE canvas@3.2.3  synthesized={"network":true} verified=1
