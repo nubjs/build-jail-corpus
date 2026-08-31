@@ -2,13 +2,13 @@
   "pkg": "handsontable",
   "version": "8.0.0-beta.1",
   "harnessVersion": 2,
-  "harnessEpoch": 45,
-  "verdict": "UNKNOWN",
+  "harnessEpoch": 51,
+  "verdict": "MINIMUM",
   "eraDepMismatch": null,
-  "grant": null,
-  "synthesized": null,
-  "verifiedBy": null,
-  "minimality": null,
+  "grant": {},
+  "synthesized": {},
+  "verifiedBy": "synth",
+  "minimality": "MINIMAL",
   "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -24,7 +24,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-31T08:18:29.504Z",
+      "screenedAt": "2026-08-31T14:21:11.580Z",
       "cacheHit": false
     },
     {
@@ -44,7 +44,27 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-31T08:18:44.200Z",
+      "screenedAt": "2026-08-31T14:21:20.262Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "564582abe61d2b783cb3d3ae4c750c0e402215666020bc502ab2ec2c02e9d598",
+      "specCount": 12,
+      "lockfiles": {
+        "digest": "7c3b0239d4b710496c1c6f73adea0019efc111865c82dc833290d00b5a85109a",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8dbfbd4a91dacce6dc57794c98f042fe51d1e1d61050160c7479dcce86fa3ef6",
+            "bytes": 2805
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T14:21:26.123Z",
       "cacheHit": false
     }
   ],
@@ -62,7 +82,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-31T08:18:29.504Z"
+      "screenedAt": "2026-08-31T14:21:11.580Z"
     },
     {
       "digest": "3ed5cbb605d9b362bacb54e5dcdc16928a3a2a2e615457d4d58e985c3f622af1",
@@ -95,12 +115,44 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-31T08:18:44.200Z"
+      "screenedAt": "2026-08-31T14:21:20.262Z"
+    },
+    {
+      "digest": "564582abe61d2b783cb3d3ae4c750c0e402215666020bc502ab2ec2c02e9d598",
+      "specCount": 12,
+      "specs": [
+        "@handsontable/formulajs@2.0.2",
+        "@types/pikaday@1.6.0",
+        "bessel@1.0.2",
+        "bignumber.js@4.1.0",
+        "core-js@3.50.0",
+        "handsontable@8.0.0-beta.1",
+        "hot-formula-parser@3.0.2",
+        "jstat@1.9.6",
+        "moment@2.20.1",
+        "numbro@2.1.1",
+        "pikaday@1.5.1",
+        "tiny-emitter@2.1.0"
+      ],
+      "lockfiles": {
+        "digest": "7c3b0239d4b710496c1c6f73adea0019efc111865c82dc833290d00b5a85109a",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "8dbfbd4a91dacce6dc57794c98f042fe51d1e1d61050160c7479dcce86fa3ef6",
+            "bytes": 2805
+          }
+        ]
+      },
+      "kinds": [
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-31T14:21:26.123Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-31T08:18:28.981Z",
+    "observedAt": "2026-08-31T14:17:22.729Z",
     "latestVersion": "18.0.0",
     "weeklyDownloads": 305859,
     "sources": {
@@ -108,53 +160,54 @@
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/handsontable"
     }
   },
-  "grantSource": null,
-  "grantSourceReason": null,
-  "descendedGrant": null,
+  "grantSource": "synthesized",
+  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "descendedGrant": {},
   "notes": [
     "arms-unfalsifiable",
+    "cwd-unobserved",
     "events-lost"
   ],
   "eventLog": {
-    "lines": 4181,
-    "parsed": 4166,
+    "lines": 9787,
+    "parsed": 9747,
     "unparsed": 0,
     "live": true,
-    "tracerErrors": 1,
-    "tracerErrorTotal": 1,
-    "unresolvedDirfd": 12,
+    "tracerErrors": 23,
+    "tracerErrorTotal": 23,
+    "unresolvedDirfd": 21,
     "unresolvedFd": 0,
     "pairedTwoPath": 1,
     "danglingPair": 0,
-    "failed": 2600,
-    "enoent": 2596,
+    "failed": 7817,
+    "enoent": 7812,
     "refusals": 0,
     "byErrno": {
-      "ENXIO": 2,
-      "ENOENT": 2596,
+      "ENXIO": 3,
+      "ENOENT": 7812,
       "EEXIST": 2
     },
-    "procs": 4,
-    "lifecyclePids": 0,
-    "distinctEvents": 3205,
-    "emitted": 3205,
-    "calls": 4156,
-    "bytes": 567011,
-    "gzipBytes": 24303,
-    "out": "/Users/runner/v2m-7vJe98/Observe/events.ndjson"
+    "procs": 5,
+    "lifecyclePids": 1,
+    "distinctEvents": 4623,
+    "emitted": 4623,
+    "calls": 9732,
+    "bytes": 800331,
+    "gzipBytes": 31886,
+    "out": "/Users/runner/v2m-Q3iuGP/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 19972,
+  "durationMs": 16300,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 45,
-    "harnessSha256": "9455bc48c3ff44403049d40998a72985d52e4321c7197f094f9adf114b04eeef",
-    "harnessInputCount": 300,
-    "invalidationPolicySha256": "5344dce5e66e66dbed84a2686129fd699d71cfc5f83ad9b69e97b43366869476",
+    "harnessEpoch": 51,
+    "harnessSha256": "498b095ad375bdcdfc702360fff981a0e0370189f098eb2b6ac3e726989da73f",
+    "harnessInputCount": 305,
+    "invalidationPolicySha256": "12dc65515fde2a100e7d76a6d166eef74a91794d3fae7ac5054cbcfba0a08087",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -283,10 +336,10 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-31T08:18:49.440Z",
+    "at": "2026-08-31T14:21:27.483Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": null,
+    "storeLayout": "isolated",
     "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
     "interpreterInsideHome": true,
     "jailRoot": null,
@@ -328,8 +381,8 @@
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-7vJe98/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs51TP5i",
+        "HOME": "/Users/runner/v2m-Q3iuGP/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsxQ45lc",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",

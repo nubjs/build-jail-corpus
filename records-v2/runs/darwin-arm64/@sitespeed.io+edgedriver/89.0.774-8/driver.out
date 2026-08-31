@@ -1,9 +1,9 @@
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"86fd1c9a1115ef243c2cf218de1404bf396c69087ddcd71a419f15be64019567","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T07:28:42.936Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-OkOblo/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"86fd1c9a1115ef243c2cf218de1404bf396c69087ddcd71a419f15be64019567","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T14:11:54.596Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-pJGjDK/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 86fd1c9a1115
   ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
   ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 14, whose node-gyp requires python3-legacy
   ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
-### @sitespeed.io/edgedriver@89.0.774-8   (/Users/runner/v2m-OkOblo)   nub=/tmp/nub/target/release/nub
+### @sitespeed.io/edgedriver@89.0.774-8   (/Users/runner/v2m-pJGjDK)   nub=/tmp/nub/target/release/nub
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
@@ -15,75 +15,123 @@ OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"86fd1c9
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
   ERA-RESOLUTION DATED 2021-03-07T20:43:15.390Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9f801902cf76c9b7fcfcdc2e7aca8ac82e20d09fac0f9824f2b8d0b9700c7e1e","specCount":3,"lockfiles":{"digest":"6c854767b78173fcf2476d7fe0ac231c6a0061625e3b583d1223bff25777108e","files":[{"path":"package-lock.json","sha256":"dd636f94a606f18f98ee8bb2d248e13800c2fb4330c5ab9a6cb6210d333a4cac","bytes":1457}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T07:28:51.666Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-OkOblo/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9f801902cf76c9b7fcfcdc2e7aca8ac82e20d09fac0f9824f2b8d0b9700c7e1e","specCount":3,"lockfiles":{"digest":"6c854767b78173fcf2476d7fe0ac231c6a0061625e3b583d1223bff25777108e","files":[{"path":"package-lock.json","sha256":"dd636f94a606f18f98ee8bb2d248e13800c2fb4330c5ab9a6cb6210d333a4cac","bytes":1457}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T14:12:03.312Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-pJGjDK/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 9f801902cf76
   ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
   ARM-AMBIENT-TOOLS none
   ARM-SCAFFOLD none
   ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC @sitespeed.io/edgedriver@89.0.774-8
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-OkOblo/Observe"
-     sudo -u "runner" -H env "PATH=/Users/runner/v2m-OkOblo/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-OkOblo/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsN1IF1E"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "@sitespeed.io/edgedriver" > "/Users/runner/v2m-OkOblo/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-OkOblo/Observe/rc"
+     cd "/Users/runner/v2m-pJGjDK/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-pJGjDK/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-pJGjDK/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs2FreWY"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "@sitespeed.io/edgedriver@89.0.774-8" > "/Users/runner/v2m-pJGjDK/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-pJGjDK/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-OkOblo/Observe
-     + sudo -u runner -H env PATH=/Users/runner/v2m-OkOblo/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-OkOblo/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsN1IF1E NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund @sitespeed.io/edgedriver
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001835170) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-pJGjDK/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-pJGjDK/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-pJGjDK/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs2FreWY NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund @sitespeed.io/edgedriver@89.0.774-8
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001b58000) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000228e420) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=37 (pre=35) trace=4143 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=37 (pre=35) trace=9810 lines
   CLOSURE   3 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-OkOblo/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-OkOblo/Observe/capture.json
-  RAWLOG-BYTES raw=653396 gz=27327
+  RAWLOG-FILE /Users/runner/v2m-pJGjDK/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-pJGjDK/Observe/capture.json
+  RAWLOG-BYTES raw=1438975 gz=61985
   VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
   VENUE-NODE-SELECTION {"pkg":"@sitespeed.io/edgedriver","packageVersion":"89.0.774-8","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":null,"publishedAt":"2021-03-06T20:43:15.390Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-OkOblo/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsN1IF1E","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-pJGjDK/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs2FreWY","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  EVENTLOG-FILE /Users/runner/v2m-OkOblo/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":4144,"parsed":4129,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":12,"unresolvedFd":0,"pairedTwoPath":1,"danglingPair":0,"failed":2619,"enoent":2615,"refusals":0,"byErrno":{"ENXIO":2,"ENOENT":2615,"EEXIST":2},"procs":4,"lifecyclePids":0,"distinctEvents":3226,"emitted":3226,"calls":4119,"bytes":573892,"gzipBytes":24580,"out":"/Users/runner/v2m-OkOblo/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=590 dropped-events=1
-    NOTE 8 relative path(s) under a non-AT_FDCWD dirfd were not
+  EVENTLOG-FILE /Users/runner/v2m-pJGjDK/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":9811,"parsed":9771,"unparsed":0,"live":true,"tracerErrors":23,"tracerErrorTotal":23,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":1,"danglingPair":0,"failed":7853,"enoent":7848,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":7848,"EEXIST":2},"procs":5,"lifecyclePids":1,"distinctEvents":4695,"emitted":4695,"calls":9756,"bytes":810246,"gzipBytes":32403,"out":"/Users/runner/v2m-pJGjDK/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=715 dropped-events=23
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
-    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+    ⛔ CWD-UNOBSERVED 2 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=64930 read  unproven .
+         pid=64930 read  unproven .
+    CWD-RESOLVED 1 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 23 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x600001835170
-  == ATTRIBUTION == lifecycle pids: 0
-    writes  script 0  /  whole traced subtree 7
+            22 x  epid=128 action=1 fault=1 addr=0x60000228e420
+             1 x  epid=128 action=1 fault=1 addr=0x600001b58000
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 1  /  whole traced subtree 8
     sockets script 0  /  whole traced subtree 0
-    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
-       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
-  == ROOTS (from /Users/runner/v2m-OkOblo/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-OkOblo/Observe
+  == ROOTS (from /Users/runner/v2m-pJGjDK/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-pJGjDK/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-OkOblo/jailhome
+    jailHome      /Users/runner/v2m-pJGjDK/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-OkOblo/Observe/node_modules/.store
+    projectStore  /Users/runner/v2m-pJGjDK/Observe/node_modules/.store
     interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsN1IF1E
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs2FreWY
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-OkOblo/Observe/node_modules/@sitespeed.io/edgedriver
+    ownPkg        /Users/runner/v2m-pJGjDK/Observe/node_modules/@sitespeed.io/edgedriver
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-pJGjDK/Observe/node_modules/@sitespeed.io/edgedriver/vendor
   == READS the script performed, by scope ==
+    systemfs     10
+    outside       5
+    userHome      2
+    ownPkg        2
+    deps          4
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /etc/resolv.conf
+        outside: /etc/hosts
   == NETWORK ==
     AF_INET connects: 0   distinct peers: 0
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    UNKNOWN-ATTRIBUTION-FAILED
+    {}
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
     private-home writes observed: 0
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  => UNKNOWN (attribution failed — the package declares an install-time script (yes)
-     but no lifecycle shell was identified, so there is no measurement here. This is NOT a
-     package that needs nothing.)
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 997 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9f801902cf76c9b7fcfcdc2e7aca8ac82e20d09fac0f9824f2b8d0b9700c7e1e","specCount":3,"lockfiles":{"digest":"411fc32ed590f541293b559c1945368f945a4ad5154a2544f846a1f30034a1bf","files":[{"path":"nub.lock","sha256":"bf8bf0d2a8b66cdd041d4d5901f939d41969d9ff41ddd3b6cf512423cbbf60cb","bytes":965}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T14:12:03.312Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-pJGjDK/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 9f801902cf76 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 94/37) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}
+  NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction
+### DONE @sitespeed.io/edgedriver@89.0.774-8  synthesized={} verified=1
