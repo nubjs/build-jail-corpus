@@ -207,10 +207,43 @@ export function detectEraDepMismatch(log) {
   //                dies on `const { enableCompileCache } = require('node:module')`. Nothing to do
   //                with dependency dating; recorded separately rather than folded in, because a
   //                single number covering both would be actionable for neither.
-  const syntaxError = /SyntaxError: Unexpected token/.test(log);
+  // ⛔ TWO SPELLINGS, AND THE SECOND IS THE ONE A MODERN DEPENDENCY PRODUCES. Top-level `await`
+  // under an era Node raises `Unexpected reserved word`, not `Unexpected token`, so the original
+  // single needle missed exactly the shape this classifier exists to find.
+  //
+  // MEASURED 2026-08-31 across all 6,880 driver logs: 3 name `Unexpected reserved word`. 2 of them
+  // also name a store path and are real dependency mismatches (`spectron@11.1.0` and `@12.0.0`,
+  // both `puppeteer@25.9.0/install.mjs`); the third names neither a store nor a harness path and
+  // stays unclassified, which is the conservative answer.
+  //
+  // ⛔ THE HARNESS-SELF-FAILURE HAZARD IS REAL BUT EXTINCT, AND THE PATH TEST IS WHAT SEPARATES
+  // THEM. `measure.sh:104` records that this same string was once produced by the harness's OWN
+  // `arm-cap.mjs` running under an era Node with a rewritten PATH — fixed by resolving
+  // `HARNESS_NODE` absolutely. Of the 3 logs above, **0** name a harness path. The separation does
+  // not rest on that fix holding, though: a dependency is only reported when a STORE path is the
+  // one that failed to load, and a harness self-failure names a harness path.
+  const syntaxError = /SyntaxError: (?:Unexpected token|Unexpected reserved word)/.test(log);
   const loading = syntaxError ? loadPaths(log) : [];
+  // ⛔ `[./]store/`, BECAUSE THERE ARE TWO STORE LAYOUTS AND ONLY ONE WAS MATCHED. The shared cache
+  // is `…/pm/store/<slug>@<ver>-<hash>/…`; the PROJECT-LOCAL layout is
+  // `…/node_modules/.store/<slug>@<ver>/…`, and `/store/` cannot match `/.store/` — the `.` sits
+  // between the slash and the word. `storeLayout` is an observed field precisely because both occur.
+  //
+  // MEASURED 2026-08-31: 7 logs name a `.store` path beside a SyntaxError, and 5 of them name NO
+  // shared-store path at all, so they were classified as having no dependency mismatch when they
+  // plainly do — `@bazel/cypress@2.3.3` and `@3.8.0` and `subrequests@2.9.2` (`Unexpected token`),
+  // `spectron@11.1.0` and `@12.0.0` (`Unexpected reserved word`).
+  //
+  // ⛔ EXCLUDE THE HARNESS'S OWN TOOLS DIR, WHICH THIS WIDENING NEWLY REACHES. nub provisions
+  // node-gyp into `…/pm/tools/node-gyp/v<N>/node_modules/.store/node-gyp@<ver>/…`, which the old
+  // `/store/` needle missed by accident and `[./]store/` would match. That is harness tooling, not
+  // a package's dependency, and folding it in would report a defect against the wrong subject —
+  // the same conflation the comment above says this split exists to prevent. `lzo@0.1.1` is the
+  // observed case; it is unaffected today only because its error is Python's `invalid syntax`.
   const dependency = syntaxError
-    ? loading.find((p) => /\/store\//.test(p) && !/\/node_modules\/npm\//.test(p)) ?? null : null;
+    ? loading.find((p) => /[./]store\//.test(p)
+      && !/\/node_modules\/npm\//.test(p)
+      && !/\/pm\/tools\//.test(p)) ?? null : null;
   const toolchain = syntaxError
     ? loading.find((p) => /hostedtoolcache|\/node_modules\/npm\//.test(p)) ?? null : null;
   if (!warned.length && !dependency && !toolchain) return null;

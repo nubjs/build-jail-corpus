@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 53,
+  "currentEpoch": 54,
   "transitions": [
     {
       "fromEpoch": null,
@@ -721,6 +721,16 @@
         "verdicts": []
       },
       "reason": "Epoch 53 makes the per-package publisher stage its record with --sparse, and refuses to close a row whose record is not on the branch. Under the runner's cone checkout a plain git add on records-v2/runs/<plat>/... staged nothing and said so only on discarded stderr, while the top-level queue staged every time: measured on probe/corpus-v2-lane, 72 of the last 72 per-package publish commits carried queue-v2.ndjson ALONE and 0 carried a record. A drain hid this because the end-of-slice bulk commit uses --sparse and sweeps the tree; a debug probe has no commit step at all, so every row it closed was stranded against whatever record predated it. THIS INVALIDATES NOTHING. No arm, driver, grant or verdict is touched -- only which files a publish commit carries."
+    },
+    {
+      "fromEpoch": 53,
+      "fromHarnessSha256": "2a4122a0a785e6332b393dd91ed144047f85cf8b4fe00c339d4b16dd7ff4d365",
+      "toEpoch": 54,
+      "toHarnessSha256": "e7f6332c4447d5475c4fffa44b3b4b3edffde49db5f69b5382f997690dac6180",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 54 widens the era-dep-mismatch detector on two axes it was measured to miss. LAYOUT: /store/ cannot match node_modules/.store/, so only the shared cache layout was recognised and never the project-local one; storeLayout is an observed field precisely because both occur. SPELLING: top-level await under an era Node raises 'Unexpected reserved word', not 'Unexpected token' -- the likeliest shape for a modern dependency on an old runtime, which is what this detector exists to find. Measured over all 6,880 driver logs, storeSyntaxError goes 61 -> 65 and nothing is lost. The widening newly reaches nub's own provisioned node-gyp under pm/tools/.../.store/, which is harness tooling rather than a package dependency, so that path is excluded -- a control pins it. THIS INVALIDATES NOTHING. eraDepMismatch is a diagnostic field written into the record and never read to compute a grant or a verdict; no arm, driver or measurement is touched."
     }
   ]
 }
