@@ -954,9 +954,15 @@ if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
     GRANT='{}'
   else
     # `unreadable` fails CLOSED here: a manifest we cannot read cannot prove the package runs nothing.
+    # ⛔⛔ PRINT WHAT npm ITSELF SAID — the long note is at the matching branch in `measure.sh`. 139
+    # records reach this condition corpus-wide (44 of them darwin), three hypotheses for the cause
+    # have already been falsified against records that were never instrumented for the question, and
+    # `npm.log` is npm's own account of the traced rebuild. The record tree does not keep it.
     echo "  => UNKNOWN (attribution failed — the package declares an install-time script (${DECLARES})"
     echo "     but no lifecycle shell was identified, so there is no measurement here. This is NOT a"
     echo "     package that needs nothing.)"
+    echo "  ATTRIBUTION-GAP-EVIDENCE npm's own output from the traced rebuild:"
+    tail -10 "$OBS/npm.log" 2>/dev/null | sed 's/^/    | /'
     exit 0
   fi
 fi
@@ -1709,7 +1715,24 @@ if [ "$VERIFIED" -eq 0 ]; then
       # second verdict after either branch would silently overwrite it and the stage would be inert.
       # The module owns both spellings so three drivers cannot drift apart on them.
       if npm_ok "$PKG" "$VER"; then
-        node "$HERE/unjailed-nub.mjs" --phase verdict --npm ok
+        # ⛔⛔ THE DATING AXIS — the full argument is at the `npmUndated` clause in `unjailed-nub.mjs`
+        # and the matching branch in `measure.sh`. The npm reference runs DATED; the nub arm cannot,
+        # because nub has no `--before`. Filing that difference as `BROKEN-UNJAILED-NUB` convicts nub
+        # of a harness asymmetry. Inverted control: ask npm to fail the same way, undated.
+        #
+        # ⛔ ONLY WHEN THERE IS A DATE TO DROP, and FAIL-CLOSED — a screen refusal inside the subshell
+        # reads as "npm failed undated", which yields UNKNOWN rather than a nub conviction.
+        NPM_VERDICT=ok
+        if [ -n "${ERA_BEFORE:-}" ]; then
+          if ( ERA_BEFORE=""; npm_ok "$PKG" "$VER" ); then
+            echo "  NPM-REFERENCE-UNDATED ok — undated resolution installs this too, so the date is not the difference"
+          else
+            echo "  NPM-REFERENCE-UNDATED FAILED — undated resolution alone breaks $PKG@$VER on era"
+            echo "     ${ERA_NODE_VERSION:-none}, which is the condition the nub arm ran under. Not a nub defect."
+            NPM_VERDICT=dating
+          fi
+        fi
+        node "$HERE/unjailed-nub.mjs" --phase verdict --npm "$NPM_VERDICT"
       else
         node "$HERE/unjailed-nub.mjs" --phase verdict --npm fail
       fi

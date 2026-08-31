@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 46,
+  "currentEpoch": 47,
   "transitions": [
     {
       "fromEpoch": null,
@@ -606,6 +606,18 @@
         ]
       },
       "reason": "the scaffold install evicts the subject from the observe tree, so the arm measured a tree without the package under test: 51 records (37 linux, 14 darwin) attributed zero lifecycle pids on a tree whose subject directory does not exist, and every one of them had a scaffold while none of the 5,279 scaffold-free records did. All three drivers now re-install the subject after the scaffold and refuse rather than measure when it is still absent. Scoped by platform+verdict+package because the selector language has no version dimension, so this sweeps 117 correctly-measured siblings alongside the 51"
+    },
+    {
+      "fromEpoch": 46,
+      "fromHarnessSha256": "0b285c1ebde6b2cec8ad01ec55f7fce70bc4e871e3435f04f704a8a18a4d6a35",
+      "toEpoch": 47,
+      "toHarnessSha256": "69fea86fe7b89106572d764897e7208ae956081f3b69a2970d7fcefac3ef54a7",
+      "invalidate": {
+        "verdicts": [
+          "BROKEN-UNJAILED-NUB"
+        ]
+      },
+      "reason": "the jail-off control convicted nub of the harness's own dating asymmetry: the npm reference resolves with --before pinned to the package's publish date and the nub arm cannot, because nub has no such flag, so every BROKEN-UNJAILED-NUB verdict rests on a difference the harness never controlled. All three drivers now run npm a second time with the date dropped and record UNKNOWN rather than naming nub when npm fails there too. Invalidates BROKEN-UNJAILED-NUB, the only verdict this can have produced"
     }
   ]
 }

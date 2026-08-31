@@ -93,6 +93,16 @@ const runRegion = (oracle, {
   // rc become a verdict.
   offSwitchEngaged = true,
   controlTimedOut = false,
+  // ⛔ THE SECOND npm ARM — whether npm still installs the package with the DATE DROPPED. The nub arm
+  // cannot be dated (nub has no `--before`), so npm failing undated means the difference between the
+  // arms is the date rather than nub; see the `npmUndated` clause in `unjailed-nub.mjs`. Default
+  // `true` — the date is not the difference — so every case written before this existed still reaches
+  // the verdict it was written for.
+  npmUndatedOk = true,
+  // Whether there is a date to drop at all. `eraResolution` lives far above the extracted slice, like
+  // `run` and `classify`, so the region sees only what this preamble gives it. With no date the
+  // driver must not ask twice, and this is how that branch is driven.
+  hasEraDate = true,
 } = {}) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'win-inv-'));
   const script = path.join(dir, 'region.mjs');
@@ -133,7 +143,17 @@ const runRegion = (oracle, {
     // while the three cases that never generate a script stayed green. Measured, run 32017576577.
     `const { classify } = await import(${JSON.stringify(pathToFileURL(path.join(HERE, 'unjailed-nub.mjs')).href)});`,
     `const unjailedNubOk = () => ({ ok: ${unjailedNubOk}, engaged: ${offSwitchEngaged}, timedOut: ${controlTimedOut} });`,
-    `const npmOk = () => ${npmOk};`,
+    // ⛔ TAKES THE `{ dated }` OPTION THE REAL ONE TAKES. A zero-arg stub would silently answer the
+    // DATED question for both calls, so the undated branch could never be driven and would read as
+    // covered. `eraResolution` is stubbed alongside it because the region reads `.args` to decide
+    // whether there is a `--before` to drop.
+    `const npmOk = ({ dated = true } = {}) => (dated ? ${npmOk} : ${npmUndatedOk});`,
+    `const eraResolution = { args: ${hasEraDate ? "['install', '--before=2019-01-01T00:00:00.000Z']" : "['install']"} };`,
+    // The spec, named in the undated arm's evidence line. Driver constants like `run` and
+    // `classify`, defined far above the slice — without them the region throws ReferenceError and
+    // every case reads as "no verdict printed", which is what the paragraph above warns about.
+    "const PKG = 'fixture-pkg';",
+    "const VER = '1.0.0';",
     // `emitBinaryProvenance` is also above the slice; the terminal branch calls it before exiting so
     // the published record names the binary. A no-op here keeps the stdout the assertions read clean.
     'const emitBinaryProvenance = () => {};',
@@ -237,6 +257,39 @@ test('⭑ a control that TIMED OUT is HARNESS-TIMEOUT, never a package fact', ()
   const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true, controlTimedOut: true });
   assert.match(out, /=> HARNESS-TIMEOUT/);
   assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/, 'a slow build must not become a nub defect');
+});
+
+test('⭑ npm installing it DATED but not UNDATED is not a nub defect — the date is the difference', () => {
+  // ⛔ THE THIRD INSTANCE OF THE FALSE-ATTRIBUTION CLASS this control has been fixed for twice (epoch
+  // 4: the era toolchain; epoch 13: the era Python). The npm reference resolves with a `--before`
+  // pinned to the package's own publish date; the nub arm cannot, because nub has no such flag. So
+  // the two arms differ in one uncontrolled variable and the driver was filing that difference as a
+  // nub install defect — 27 such records are valid in the corpus today and two are already proven
+  // fabricated. npm failing UNDATED reproduces the exact condition the nub arm ran under.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true, npmUndatedOk: false });
+  assert.match(out, /=> UNKNOWN/, 'the dating asymmetry is still being filed against nub');
+  assert.doesNotMatch(out, /=> BROKEN-UNJAILED-NUB/,
+    'nub was convicted of a difference this harness cannot control');
+  assert.match(out, /NPM-REFERENCE-UNDATED FAILED/, 'the second arm ran but left no evidence');
+});
+
+test('⭑ CONTROL: npm installing it UNDATED too still convicts nub — a real defect is still reported', () => {
+  // The mirror of the case above, and the half that matters: this arm exists to FIND nub bugs, so
+  // blanket-exonerating would be the same mistake in the opposite direction. Epoch 44 shipped that
+  // shape and epoch 45 had to undo it.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true, npmUndatedOk: true });
+  assert.match(out, /=> BROKEN-UNJAILED-NUB/,
+    'npm installs it undated too, so the date is NOT the difference and nub is at fault');
+  assert.match(out, /NPM-REFERENCE-UNDATED ok/);
+});
+
+test('⭑ with no date to drop the driver does not ask twice', () => {
+  // Asking again with no date costs an install and answers nothing — the two runs are the same run.
+  // Driven through the region rather than asserted structurally.
+  const out = runRegion(ALL_FAIL, { unjailedNubOk: false, npmOk: true, npmUndatedOk: false, hasEraDate: false });
+  assert.match(out, /=> BROKEN-UNJAILED-NUB/,
+    'with no era date the undated stub must not be consulted at all');
+  assert.doesNotMatch(out, /NPM-REFERENCE-UNDATED/, 'the driver asked a question with no answer in it');
 });
 
 test('⭑ nub failing unjailed is BROKEN-WITHOUT-JAIL-TOO when npm cannot install it either', () => {

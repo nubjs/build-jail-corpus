@@ -60,6 +60,9 @@ export const VERDICT = {
   /// The control ran out of time. Distinct from failure: a timeout says nothing about whether nub
   /// can install the package, and calling it a failure would file a nub defect for a slow build.
   harnessTimeout: 'HARNESS-TIMEOUT',
+  /// The two arms differ in a variable this harness CANNOT equalise, so the failure is not
+  /// attributable. See the `npmUndated` clause in `classify` — this is the dating axis.
+  unknown: 'UNKNOWN',
 };
 
 /// The decision tree, as a pure function of the two arms' outcomes.
@@ -71,7 +74,7 @@ export const VERDICT = {
 /// ⛔ THE ORDER OF THESE CLAUSES IS THE CONTRACT. Soundness is checked BEFORE any verdict, because
 /// an unsound control's rc is not evidence of anything: a cell whose off-switch never engaged ran
 /// jailed, so its rc describes the jail rather than its absence.
-export function classify({ nub, npm }) {
+export function classify({ nub, npm, npmUndated }) {
   if (nub.timedOut) {
     return { verdict: VERDICT.harnessTimeout, why: 'the jail-off control did not finish in time' };
   }
@@ -91,6 +94,41 @@ export function classify({ nub, npm }) {
   // culprit, or the record asserts a nub defect for a package NOTHING installs and sends the next
   // reader chasing a bug that is not there.
   if (npm?.rc === 0) {
+    // ⛔⛔ THE DATING AXIS — THE THIRD INSTANCE OF THE ERROR CLASS THIS FILE HAS ALREADY BEEN FIXED
+    // FOR TWICE, AND THE ONE THAT CANNOT BE CLOSED BY EQUALISING THE ARMS.
+    //
+    // Epoch 4 gave the npm reference the era toolchain; epoch 13 gave it the era Python; the note
+    // above `asIdentity` gave the plain-spawn path the era Node. Each was the same shape and this
+    // file states the doctrine: "a spurious failure here does not exonerate nub, it CONVICTS it."
+    //
+    // The npm reference resolves DATED (`--before <the package's own publish date + 1d>`,
+    // `measure.sh:487`). The nub arm CANNOT: nub has no `--before`, and `minimumReleaseAge` is a
+    // FLOOR on a package's age, not a ceiling on its publish date, so it cannot stand in. So the two
+    // arms differ in one uncontrolled variable — the nub arm resolves TODAY's dependency tree onto an
+    // ERA Node — and the driver was filing that difference as a NUB INSTALL DEFECT.
+    //
+    // Unlike Python and Node, this one cannot be equalised. So the control is INVERTED: ask npm to
+    // fail the same way. If npm ALSO fails when run UNDATED, then undated resolution alone breaks
+    // this package on this era Node — which is exactly the condition the nub arm ran under — and the
+    // nub failure is not attributable to nub. Refuse rather than convict.
+    //
+    // MEASURED 2026-08-31: 27 records currently VALID in the corpus assert `BROKEN-UNJAILED-NUB`,
+    // and `spectron@11.1.0` / `spectron@12.0.0` are already PROVEN fabricated by this mechanism. The
+    // rest are almost entirely 2016-2018 native (node-gyp) packages — `@stdlib/math-base-*@0.0.x`,
+    // `gc-stats`, `lzo`, `hiredis`, `farmhash`, `nodejieba`, `node-zopfli`, `lzma-native` — which is
+    // the exact profile where today's dependency tree cannot build on the package's own era Node.
+    //
+    // ⛔ `npmUndated` UNDEFINED MEANS "NOT ASKED", NOT "PASSED". A caller that has not been taught to
+    // run the second arm keeps the old behaviour rather than silently gaining an exoneration it never
+    // measured; and when there is no `--before` to drop (a package with no era pin), the two npm runs
+    // are the same run, so the caller passes nothing and nothing changes.
+    if (npmUndated && npmUndated.rc !== 0) {
+      return {
+        verdict: VERDICT.unknown,
+        why: 'npm installs this package DATED but fails UNDATED, and the nub arm can only run undated '
+          + '(nub has no `--before`) — so the failure is not attributable to nub and this is not a nub defect',
+      };
+    }
     return {
       verdict: VERDICT.brokenUnjailedNub,
       why: 'npm installs this package but nub cannot, even with the jail OFF — a nub install defect, not an under-grant',
@@ -314,7 +352,7 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   // nothing to indicate the stage had gone inert.
   if (phase !== 'verdict' && (!pkg || !version || !nub || !dir)) {
     console.error('usage: unjailed-nub.mjs [--phase resolve|run|all] --pkg <name> --version <v> --nub <path> --dir <dir>');
-    console.error('       unjailed-nub.mjs --phase verdict --npm ok|fail');
+    console.error('       unjailed-nub.mjs --phase verdict --npm ok|fail|dating');
     process.exit(2);
   }
   // Appended to the `=>` line after the shared verdict TOKEN. The token is what `record.mjs` matches,
@@ -376,12 +414,19 @@ if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFile
   if (phase === 'verdict') {
     // The caller ran its own npm arm and is reporting the result. The nub arm's state is known from
     // having reached CONSULT_NPM at all: it failed, it did not time out, and its off-switch engaged.
+    // `dating` is "npm installs it DATED but not UNDATED" — see the `npmUndated` clause in
+    // `classify`. Carried as a third value of the SAME flag rather than a second flag, so a driver
+    // that has not been taught about it cannot pass a combination that means nothing.
     const npmVerdict = arg('--npm');
-    if (!['ok', 'fail'].includes(npmVerdict)) {
-      console.error('--phase verdict requires --npm ok|fail');
+    if (!['ok', 'fail', 'dating'].includes(npmVerdict)) {
+      console.error('--phase verdict requires --npm ok|fail|dating');
       process.exit(2);
     }
-    const r = classify({ nub: { rc: 1, engaged: true }, npm: { rc: npmVerdict === 'ok' ? 0 : 1 } });
+    const r = classify({
+      nub: { rc: 1, engaged: true },
+      npm: { rc: npmVerdict === 'fail' ? 1 : 0 },
+      ...(npmVerdict === 'dating' ? { npmUndated: { rc: 1 } } : {}),
+    });
     console.log(`  jail-off control: ${r.why}`);
     console.log(`  => ${r.verdict}${context ? ` ${context}` : ""}`);
     process.exit(1);

@@ -1000,9 +1000,25 @@ if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
   else
     # (b), and `unreadable` lands here too: fail CLOSED, because a manifest we cannot read cannot
     # prove the package runs nothing.
+    # ⛔⛔ PRINT WHAT npm ITSELF SAID, BECAUSE THIS BRANCH IS CURRENTLY A DEAD END FOR DIAGNOSIS.
+    #
+    # MEASURED 2026-08-31: **139 records** reach this condition — the package declares an install-time
+    # script, the subject IS in the tree, and zero lifecycle pids were attributed (67 linux, 44 darwin,
+    # 28 win32). Epoch 45 makes them honest UNKNOWNs instead of false MINIMUMs, and that is all: the
+    # cause is still unknown, and THREE hypotheses have already been falsified against the corpus —
+    # a dtrace probe fault (present in all 1,868 darwin records, not a discriminant), `npm rebuild`
+    # not running scripts on modern npm (npm 10 fails at 3.4% and npm 11 at 0.2%, against era npm 6's
+    # 13.0%), and scoped package names (2x enriched, but 129 of the 236 zeros are unscoped).
+    #
+    # Each of those was chased from records that were never instrumented for the question. `npm.log`
+    # is npm's OWN account of the traced `npm rebuild` — whether it ran a script, skipped one, or
+    # never saw one — it is written at `measure.sh:684` and the record tree does not keep it. Ten
+    # lines of it here turns 139 dead ends into a diagnosis on the next pass, at no measurement cost.
     echo "  => UNKNOWN (attribution failed — the package declares an install-time script (${DECLARES})"
     echo "     but no lifecycle shell was identified, so there is no measurement here. This is NOT a"
     echo "     package that needs nothing.)"
+    echo "  ATTRIBUTION-GAP-EVIDENCE npm's own output from the traced rebuild:"
+    sed 's/^/    | /' "$OBS/npm.log" 2>/dev/null | tail -10
     exit 0
   fi
 fi
@@ -2190,7 +2206,33 @@ if [ "$NSP_RC" -eq 3 ]; then
   # second verdict after either branch would silently overwrite it and the stage would be inert. The
   # module owns both spellings so three drivers cannot drift apart on them.
   if npm_ok "$PKG" "$VER"; then
-    node "$HERE/unjailed-nub.mjs" --phase verdict --npm ok
+    # ⛔⛔ THE DATING AXIS — the full argument is at the `npmUndated` clause in `unjailed-nub.mjs`.
+    # The npm reference above runs DATED; the nub arm cannot, because nub has no `--before`. Filing
+    # that difference as `BROKEN-UNJAILED-NUB` convicts nub of a harness asymmetry, and 27 such
+    # records are currently valid in the corpus with two of them already proven fabricated.
+    #
+    # It cannot be equalised, so the control is INVERTED: run npm again with the date dropped, which
+    # is the condition the nub arm ran under. npm failing there means undated resolution alone breaks
+    # the package on this era Node, so the nub failure is not attributable to nub.
+    #
+    # ⛔ ONLY WHEN THERE IS A DATE TO DROP. With `ERA_BEFORE` empty the two runs are the same run, so
+    # asking twice would cost an install and answer nothing.
+    #
+    # ⛔ FAIL-CLOSED BY CONSTRUCTION. `npm_ok` runs `security_screen_tree`, which `exit`s on a
+    # malicious finding — inside this subshell that exits the SUBSHELL, so the control reads "npm
+    # failed undated" and the record becomes UNKNOWN rather than a nub conviction. That is the safe
+    # direction: refusing to name a culprit, never inventing one.
+    NPM_VERDICT=ok
+    if [ -n "${ERA_BEFORE:-}" ]; then
+      if ( ERA_BEFORE=""; npm_ok "$PKG" "$VER" ); then
+        echo "  NPM-REFERENCE-UNDATED ok — undated resolution installs this too, so the date is not the difference"
+      else
+        echo "  NPM-REFERENCE-UNDATED FAILED — undated resolution alone breaks $PKG@$VER on era"
+        echo "     ${ERA_NODE_VERSION:-none}, which is the condition the nub arm ran under. Not a nub defect."
+        NPM_VERDICT=dating
+      fi
+    fi
+    node "$HERE/unjailed-nub.mjs" --phase verdict --npm "$NPM_VERDICT"
   else
     node "$HERE/unjailed-nub.mjs" --phase verdict --npm fail
   fi

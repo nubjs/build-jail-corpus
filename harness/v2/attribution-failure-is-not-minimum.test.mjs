@@ -153,7 +153,11 @@ test('the windows driver branches on the count classify.mjs actually publishes',
   const win = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
   assert.match(win, /if \(observed\.lifecyclePids === 0\)/,
     'measure-windows.mjs no longer refuses an unattributed run');
-  const branch = win.slice(win.indexOf('if (observed.lifecyclePids === 0) {'), win.length).slice(0, 1600);
+  // ⛔ SLICED TO THE END OF THE BRANCH, NOT TO A FIXED WIDTH. A 1,600-character window broke the
+  // moment a comment was added inside the branch: the assertions below fell off the end and the test
+  // went red for a reason that had nothing to do with behaviour. Bound it by the code instead.
+  const branchStart = win.indexOf('if (observed.lifecyclePids === 0) {');
+  const branch = win.slice(branchStart, win.indexOf('\n}\n', branchStart));
 
   // It must DISCRIMINATE, exactly as the POSIX drivers do: refuse only when the package declares an
   // install-time script, and count `binding.gyp` as one. A branch that refuses unconditionally is the

@@ -476,11 +476,16 @@ const unjailedNubOk = () => {
 // under `obsEnv`. Undated resolution pulls TODAY's dependency versions into a tree pinned to
 // nothing, which is exactly what dated resolution was added to stop. Reusing `eraResolution.args`
 // verbatim is the point — one resolution, so the two arms cannot drift.
-const npmOk = () => {
+// ⛔ `dated: false` DROPS THE `--before`, which is the only variable the nub arm cannot match — the
+// full argument is at the `npmUndated` clause in `unjailed-nub.mjs`. nub has no `--before`, so the
+// nub arm always resolves TODAY's dependency tree onto an ERA Node; asking npm to do the same is the
+// only way to tell a nub defect from that asymmetry.
+const npmOk = ({ dated = true } = {}) => {
   const d = path.join(ROOT, `nsp-npm-${nspSeq++}`);
   fs.mkdirSync(d, { recursive: true });
   fs.writeFileSync(path.join(d, 'package.json'), `${JSON.stringify({ name: 'nspnpm', version: '1.0.0' })}\n`);
-  const fetched = run(NODE, [NPM, ...eraResolution.args], { cwd: d, env: obsEnv });
+  const args = dated ? eraResolution.args : eraResolution.args.filter((a) => !String(a).startsWith('--before'));
+  const fetched = run(NODE, [NPM, ...args], { cwd: d, env: obsEnv });
   if (fetched.status !== 0) {
     // The log survives: the arm that decides nub is innocent must leave evidence in the record.
     console.log(`  NPM-REFERENCE fetch FAILED rc=${fetched.status} for ${PKG}@${VER}`);
@@ -1273,6 +1278,15 @@ if (observed.lifecyclePids === 0) {
     console.log('     and ships no binding.gyp, so `npm rebuild` ran no script. {} is the answer, not a gap.');
   } else {
     // `unreadable` fails CLOSED: a manifest we cannot read cannot prove the package runs nothing.
+    //
+    // ⛔ THE `ATTRIBUTION-GAP-EVIDENCE` DUMP THE TWO POSIX DRIVERS NOW EMIT IS DELIBERATELY ABSENT
+    // HERE, AND THIS NOTE IS THE HONEST VERSION OF THAT. They print the tail of `$OBS/npm.log`, npm's
+    // own account of the traced rebuild, because 139 records reach this branch corpus-wide (28 of them
+    // win32) and three hypotheses for the cause have already been falsified against records that were
+    // never instrumented for the question. This driver traces through an ETW capture script rather
+    // than a redirect, so it has no `npm.log` in scope at this point — and guessing at an artifact is
+    // exactly the failure that produced those three dead hypotheses. Find the capture's own stdout
+    // sink and dump it here; do not substitute a file that looks similar.
     console.log(`  => UNKNOWN (attribution failed — the package declares an install-time script (${declares})`);
     console.log('     but no lifecycle shell was identified, so there is no measurement here. This is NOT a');
     console.log('     package that needs nothing.)');
@@ -2194,7 +2208,20 @@ if (!NUB_ARM.ok) {
   // The module owns both spellings, so three drivers cannot drift on the tokens `record.mjs` matches,
   // and it puts the REASON on its own line — which also keeps the verdict tight against the provenance
   // call the five-line window guard above requires.
-  const { verdict, why } = classify({ nub: { rc: 1, engaged: true }, npm: { rc: npmOk() ? 0 : 1 } });
+  // ⛔ COMPUTED ABOVE THE VERDICT LINE ON PURPOSE. The guard scans FORWARD from the verdict to the
+  // exit in a five-line window, so the second npm arm cannot go between them.
+  const npmDated = npmOk();
+  const hasDate = eraResolution.args.some((a) => String(a).startsWith('--before'));
+  let npmUndated;
+  if (npmDated && hasDate) {
+    // The dating axis — see the `npmUndated` clause in `unjailed-nub.mjs`. Only asked when there is a
+    // date to drop and npm succeeded WITH it; otherwise the two runs are the same run.
+    npmUndated = { rc: npmOk({ dated: false }) ? 0 : 1 };
+    console.log(npmUndated.rc === 0
+      ? '  NPM-REFERENCE-UNDATED ok — undated resolution installs this too, so the date is not the difference'
+      : `  NPM-REFERENCE-UNDATED FAILED — undated resolution alone breaks ${PKG}@${VER} on this era Node, which is the condition the nub arm ran under. Not a nub defect.`);
+  }
+  const { verdict, why } = classify({ nub: { rc: 1, engaged: true }, npm: { rc: npmDated ? 0 : 1 }, npmUndated });
   console.log(`  jail-off control: ${why}`);
   console.log(`  => ${verdict}`);
   emitBinaryProvenance();
