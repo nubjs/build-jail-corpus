@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 52,
+  "currentEpoch": 53,
   "transitions": [
     {
       "fromEpoch": null,
@@ -711,6 +711,16 @@
         "verdicts": []
       },
       "reason": "the ARMS-UNFALSIFIABLE note now names which detector died; gate-vacuous alone leaves the exit code live"
+    },
+    {
+      "fromEpoch": 52,
+      "fromHarnessSha256": "e8070018e245f47e6a5eecaae66050cf7426ab0adcc7ac77c05a6cd4b6cac8d6",
+      "toEpoch": 53,
+      "toHarnessSha256": "2a4122a0a785e6332b393dd91ed144047f85cf8b4fe00c339d4b16dd7ff4d365",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Epoch 53 makes the per-package publisher stage its record with --sparse, and refuses to close a row whose record is not on the branch. Under the runner's cone checkout a plain git add on records-v2/runs/<plat>/... staged nothing and said so only on discarded stderr, while the top-level queue staged every time: measured on probe/corpus-v2-lane, 72 of the last 72 per-package publish commits carried queue-v2.ndjson ALONE and 0 carried a record. A drain hid this because the end-of-slice bulk commit uses --sparse and sweeps the tree; a debug probe has no commit step at all, so every row it closed was stranded against whatever record predated it. THIS INVALIDATES NOTHING. No arm, driver, grant or verdict is touched -- only which files a publish commit carries."
     }
   ]
 }

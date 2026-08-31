@@ -249,11 +249,52 @@ for attempt in 1 2 3; do
   node harness/claim-slice.mjs --reconcile --require-current-instrument \
     --records records-v2 --queue "$QUEUE" >/dev/null 2>&1 || true
 
+  # ⛔⛔ `--sparse` IS MANDATORY, AND WITHOUT IT THIS PUBLISHER CLOSES ROWS AGAINST RECORDS THAT
+  # NEVER LAND. The runner checks out in CONE MODE with the cone set to `harness`, `inputs`,
+  # `.github` (`corpus-v2-runner.yml`) — `records-v2/runs/<plat>/...` is OUTSIDE it, so a plain
+  # `git add` on a record path stages NOTHING and says so only on stderr, which this line discards.
+  # `queue-v2.ndjson` is a TOP-LEVEL file and a cone checkout always includes those, so the queue
+  # staged every time. The result is a commit carrying the row-close and not the measurement.
+  #
+  # MEASURED 2026-08-31 on `probe/corpus-v2-lane`: of the last 72 per-package publish commits,
+  # 72 touched `queue-v2.ndjson` ALONE and 0 carried a record. The rows they closed keep whatever
+  # record was on the branch before — epochs 3, 26, 27 and 30 were still sitting under rows marked
+  # `done` days later, invisible to coverage (which counts records) and unreachable by the
+  # invalidation pass (which only reopens rows it judges stale). The end-of-slice bulk commit hid
+  # this in a DRAIN because it uses `git add --sparse` and sweeps the whole tree; a debug PROBE has
+  # no commit step at all, so its records only ever reach the artifact and every row it closes is
+  # stranded permanently. Three of the five leaked rows are exactly one probe's subjects.
+  #
+  # The workflow's own bulk-commit step already carries this warning at the `git add --sparse` line.
+  # It did not travel to the per-package path, which was added later.
+  STAGE_MISSING=''
   while IFS= read -r rel; do
     [ -n "$rel" ] || continue
-    git add --ignore-removal -- "$rel" 2>/dev/null
+    git add --sparse --ignore-removal -- "$rel" 2>/dev/null
+    # ⛔ VERIFY THE INDEX, DO NOT TRUST THE ADD. The whole defect above was an `add` that failed
+    # silently, so asking git what is actually there is the only check worth having here.
+    #
+    # ⛔ THE QUESTION IS "IS IT ON THE BRANCH", NOT "DID IT STAGE JUST NOW". The manifest is
+    # REPLAYED by every later invocation, so a record an earlier publish already committed stages
+    # nothing this time — a staged-only check calls that a failure and then withholds the queue for
+    # the whole rest of the slice. Epoch 12 fixed the identical misreading in the end-of-slice
+    # commit guard, whose note records the same discriminator.
+    if ! git diff --cached --name-only -- "$rel/results.json" 2>/dev/null | grep -q . \
+       && ! git cat-file -e "HEAD:$rel/results.json" 2>/dev/null; then
+      STAGE_MISSING="$STAGE_MISSING $rel"
+    fi
   done < "$MANIFEST"
-  git add -- "$QUEUE" 2>/dev/null
+
+  # ⛔ A ROW-CLOSE WITHOUT ITS RECORD IS WORSE THAN A DEFERRED ROW-CLOSE. If any record failed to
+  # stage, leave the queue OUT of this commit: `--complete` and the end-of-slice bulk commit still
+  # own the bookkeeping, and a row left open is re-measured, where a row closed over an absent
+  # record is stranded with no signal anywhere. Loud on stderr, and never fatal — this script fails
+  # open by design, and a publisher that started failing the job would cost more than it saves.
+  if [ -n "$STAGE_MISSING" ]; then
+    echo "  ⚠ record(s) did not stage — NOT closing the row in this commit:$STAGE_MISSING" >&2
+  else
+    git add -- "$QUEUE" 2>/dev/null
+  fi
   if git diff --cached --quiet 2>/dev/null; then exit 0; fi
 
   PKG="$(node -e 'try{const r=require(process.argv[1]+"/results.json");console.log(r.pkg+"@"+r.version+" "+r.verdict)}catch{console.log("record")}' "$REC_DIR" 2>/dev/null)"
