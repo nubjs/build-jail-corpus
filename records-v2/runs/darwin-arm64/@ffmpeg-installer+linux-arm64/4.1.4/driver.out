@@ -1,4 +1,10 @@
-### @ffmpeg-installer/linux-arm64@4.1.4   (/Users/runner/v2m-ZLfWoK)   nub=/tmp/nub/target/release/nub
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e1b0066251212b59619bb1422c391a56afb25b10586808dc00ac06d995e541d2","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T08:25:56.763Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-hW16SI/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e1b006625121
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### @ffmpeg-installer/linux-arm64@4.1.4   (/Users/runner/v2m-hW16SI)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -8,4 +14,12 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)
+  ERA-RESOLUTION DATED 2019-09-13T02:55:15.386Z (deps as of the package's own publish date + 1d)
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=1; nothing to measure)
+    | npm error code EBADPLATFORM
+    | npm error notsup Unsupported platform for @ffmpeg-installer/linux-arm64@4.1.4: wanted {"os":"linux","cpu":"arm64"} (current: {"os":"darwin","cpu":"arm64"})
+    | npm error notsup Valid os:   linux
+    | npm error notsup Actual os:  darwin
+    | npm error notsup Valid cpu:  arm64
+    | npm error notsup Actual cpu: arm64
+    | npm error A complete log of this run can be found in: /Users/runner/.npm/_logs/2026-08-31T08_26_04_880Z-debug-0.log
