@@ -131,8 +131,32 @@ console.log(`ARM-FALSIFIABILITY ${JSON.stringify({
   reasons: reasons.map((r) => r.split(':')[0]),
 })}`);
 if (reasons.length) {
-  console.log('⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:');
+  // ⛔⛔ SAY WHICH DETECTOR DIED, BECAUSE THE TWO ARE INDEPENDENT AND THE BLANKET SENTENCE IS FALSE
+  // FOR THE COMMON CASE.
+  //
+  // `gate-vacuous` kills the artifact gate; `rc-vacuous` kills the exit code. A package flagged
+  // `gate-vacuous` ALONE still has rc as a live detector — `publish-guard.mjs` says so in its own
+  // header and acts on it with a three-term rule, justified by a measured pair
+  // (`playwright-chromium@0.17.0`, gate-vacuous with both drop arms rc=1, is real evidence;
+  // `@pulumi/gcp@0.16.9`, gate-vacuous with ZERO drop arms, is not).
+  //
+  // MEASURED 2026-08-31 across the valid corpus: 1,099 records carry this note and 1,030 of them are
+  // `gate-vacuous` ALONE. Telling all 1,099 that a green arm "carries no evidence" is wrong for 94%
+  // of them, and it cost two separate audit passes that each set out to find the defect it implies.
+  // The note is deliberately still emitted for both cases — `record.mjs` keys on the
+  // `ARMS-UNFALSIFIABLE` token to keep the WIDER grant, which is the safe direction for a jail — but
+  // the prose now matches what was actually lost.
+  const rcDead = reasons.some((r) => r.startsWith('rc-vacuous'));
+  console.log(`⛔ ARMS-UNFALSIFIABLE — ${rcDead
+    ? 'a green arm for this package carries no evidence:'
+    : 'the artifact gate carries no signal for this package:'}`);
   for (const r of reasons) console.log(`     ${r}`);
-  console.log('     The grant may still be correct; what is missing is a signal that could have gone');
-  console.log('     red. Do not read this record\'s MINIMAL as a passing measurement.');
+  if (rcDead) {
+    console.log('     The grant may still be correct; what is missing is a signal that could have gone');
+    console.log('     red. Do not read this record\'s MINIMAL as a passing measurement.');
+  } else {
+    console.log('     The EXIT CODE is still a live detector here, so a descent arm that actually');
+    console.log('     FAILED is evidence. What is missing is the gate, not every signal — do not read');
+    console.log('     a green arm as proof on its own, and do not read this note as "no evidence".');
+  }
 }

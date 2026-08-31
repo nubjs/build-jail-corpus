@@ -113,3 +113,34 @@ test('⭑ a driver HARNESS-ERROR is a broken venue, never a failed control', asy
   assert.match(gate, /HARNESS-ERROR/,
     'a harness error must join the timeouts as inconclusive — it says nothing about the grant');
 });
+
+// ⛔⛔ THE TWO DETECTORS ARE INDEPENDENT, AND THE NOTE MUST SAY WHICH ONE DIED.
+//
+// `gate-vacuous` kills the artifact gate; `rc-vacuous` kills the exit code. A package flagged
+// `gate-vacuous` ALONE still has rc as a live detector -- `publish-guard.mjs` relies on exactly that
+// distinction in its three-term rule. Measured 2026-08-31: 1,099 valid records carry the note and
+// 1,030 are gate-vacuous ALONE, so the old blanket "carries no evidence" was wrong for 94% of them
+// and sent two audit passes hunting a defect it implied.
+//
+// Both cases must still EMIT the token, because `record.mjs` keys on `ARMS-UNFALSIFIABLE` to keep the
+// wider grant -- the safe direction for a jail. What differs is the prose.
+
+test('⭑ gate-vacuous ALONE does not claim the record carries no evidence', () => {
+  const out = measure({ pkg: 'shipsprebuilt', shipped: ['addon.node'] });
+  assert.match(out, /ARMS-UNFALSIFIABLE/, 'the token must survive — record.mjs keys on it');
+  assert.match(out, /gate-vacuous/);
+  assert.match(out, /EXIT CODE is still a live detector/,
+    'gate-vacuous alone must say the rc detector survives');
+  assert.doesNotMatch(out, /carries no evidence/,
+    'the blanket claim is false when only the gate died');
+});
+
+test('⭑ CONTROL: rc-vacuous DOES claim it, because then both detectors are gone', () => {
+  // A status-swallowing install script kills the exit code; combined with a vacuous gate there is
+  // genuinely nothing left that could have gone red.
+  const out = measure({ pkg: 'shipsprebuilt', shipped: ['addon.node'], script: 'node-gyp rebuild || true' });
+  assert.match(out, /ARMS-UNFALSIFIABLE/);
+  assert.match(out, /rc-vacuous/);
+  assert.match(out, /carries no evidence/, 'with rc dead too, the strong warning is correct');
+  assert.doesNotMatch(out, /EXIT CODE is still a live detector/);
+});
