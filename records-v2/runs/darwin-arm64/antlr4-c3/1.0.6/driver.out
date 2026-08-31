@@ -1,5 +1,10 @@
-### antlr4-c3@1.0.6   (/Users/runner/v2m-2LZI3y)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"479f4bc410892d26ea2975a3909aa6257f9d24e6aaef2c73d4ab2b42c0418630","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T21:46:33.850Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-ZIemNk/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 479f4bc41089
+  ERA-NODE PINNED 6.17.1 (provisioned) (arms will run: v6.17.1)
+  ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 6, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### antlr4-c3@1.0.6   (/Users/runner/v2m-ZIemNk)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,21 +14,44 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2017-05-12T17:53:19.386Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2ea6e90cbd65f7b1b4222fdc95e164a2e93bf1af22b0b3ea77c0db0b328a23ad","specCount":2,"lockfiles":{"digest":"d35d5bd5ce38cd291071ef931415bb85a38f1b2869d20e83e94b8219e514747e","files":[{"path":"package-lock.json","sha256":"a53e2c85eccc84cc09561fdd2e2c3fc3c9a721b45591373ce162f8cb73e60bd8","bytes":924}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T21:46:41.773Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-ZIemNk/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 2ea6e90cbd65
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD 1 added: typescript@^2.0.3
+  ARM-UNPROVIDABLE none
+  ARM-SCAFFOLD-INSTALL rc=0
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC antlr4-c3@1.0.6
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-2LZI3y/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-2LZI3y/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsxDhT1v"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "antlr4-c3" > "/Users/runner/v2m-2LZI3y/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-2LZI3y/Observe/rc"
+     cd "/Users/runner/v2m-ZIemNk/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-ZIemNk/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-ZIemNk/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsP4oPzd"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/usr/local/bin/python2.7   npm rebuild --no-audit --no-fund "antlr4-c3@1.0.6" > "/Users/runner/v2m-ZIemNk/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-ZIemNk/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-2LZI3y/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-2LZI3y/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsxDhT1v NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund antlr4-c3
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003099050) in action #1 at DIF offset 20
-     + echo 127
-  OBSERVE   rc=127 dtrace_rc=0 files=555 (pre=553) trace=11861 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=127; nothing to measure)
-     npm error code 127
-     npm error path /Users/runner/v2m-2LZI3y/Observe/node_modules/antlr4-c3
-     npm error command failed
-     npm error command sh -c tsc
-     npm error sh: tsc: command not found
-     npm error A complete log of this run can be found in: /Users/runner/v2m-2LZI3y/jailhome/.npm/_logs/2026-08-07T22_55_42_255Z-debug-0.log
+     + cd /Users/runner/v2m-ZIemNk/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-ZIemNk/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-ZIemNk/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsP4oPzd NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/usr/local/bin/python2.7 npm rebuild --no-audit --no-fund antlr4-c3@1.0.6
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001cc90e0) in action #1 at DIF offset 20
+     + echo 1
+  OBSERVE   rc=1 dtrace_rc=0 files=650 (pre=627) trace=15038 lines
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
+     npm ERR! node v6.17.1
+     npm ERR! npm  v3.10.10
+     npm ERR! code ELIFECYCLE
+     npm ERR! antlr4-c3@1.0.6 postinstall: `tsc`
+     npm ERR! Exit status 2
+     npm ERR! 
+     npm ERR! Failed at the antlr4-c3@1.0.6 postinstall script 'tsc'.
+     npm ERR! Make sure you have the latest version of node.js and npm installed.
+     npm ERR! If you do, this is most likely a problem with the antlr4-c3 package,
+     npm ERR! not with npm itself.
+     npm ERR! Tell the author that this fails on your system:
+     npm ERR!     tsc
+     npm ERR! You can get information on how to open an issue for this project with:
+     npm ERR!     npm bugs antlr4-c3
+     npm ERR! Or if that isn't available, you can get their info via:
+     npm ERR!     npm owner ls antlr4-c3
+     npm ERR! There is likely additional logging output above.
+     
+     npm ERR! Please include the following file with any support request:
+     npm ERR!     /Users/runner/v2m-ZIemNk/Observe/npm-debug.log
