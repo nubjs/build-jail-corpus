@@ -1217,10 +1217,37 @@ const GRANT = observed.grant;
 // ⛔ BRANCHES ON `lifecyclePids`, NOT ON A SENTINEL STRING. `classify.mjs:245` already publishes the
 // count in the JSON this driver parses, so the fact is read from structured output rather than by
 // re-deriving it from prose — the POSIX drivers use a token only because they scrape stdout.
+// ⛔⛔ ZERO ATTRIBUTION HAS TWO CAUSES AND THEY NEED OPPOSITE VERDICTS — the long note is at the
+// matching branch in `measure.sh`. Either the package RUNS NOTHING at install (`{}` is then a real
+// measurement and MINIMUM is right), or it runs something the filter missed (`{}` is then a
+// non-measurement and MINIMUM is an under-prediction). Refusing BOTH turns correct MINIMUM records
+// into non-answers; refusing NEITHER is the under-prediction. So ask the installed manifest.
+//
+// `binding.gyp` counts — npm runs `node-gyp rebuild` with no explicit install script, and those are
+// the packages whose grants matter most. `prepare` does not: the OBSERVE arm is `npm rebuild`.
 if (observed.lifecyclePids === 0) {
-  console.log('  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no');
-  console.log('     measurement here. This is NOT a package that needs nothing.)');
-  process.exit(0);
+  // ⛔ `pkgDir`, NOT A HAND-BUILT JOIN. It is what every other read of the installed package in this
+  // driver goes through, and it already handles the layout and short-name resolution that a literal
+  // `node_modules/<pkg>` join gets wrong on Windows.
+  let declares = 'unreadable';
+  try {
+    const own = pkgDir(OBS, PKG, VER);
+    const s = JSON.parse(fs.readFileSync(path.join(own, 'package.json'), 'utf8')).scripts || {};
+    const named = ['preinstall', 'install', 'postinstall']
+      .some((k) => typeof s[k] === 'string' && s[k].trim());
+    declares = named || fs.existsSync(path.join(own, 'binding.gyp')) ? 'yes' : 'no';
+  } catch { /* fail closed below */ }
+
+  if (declares === 'no') {
+    console.log('  ATTRIBUTION EMPTY BY MEASUREMENT — the manifest declares no preinstall/install/postinstall');
+    console.log('     and ships no binding.gyp, so `npm rebuild` ran no script. {} is the answer, not a gap.');
+  } else {
+    // `unreadable` fails CLOSED: a manifest we cannot read cannot prove the package runs nothing.
+    console.log(`  => UNKNOWN (attribution failed — the package declares an install-time script (${declares})`);
+    console.log('     but no lifecycle shell was identified, so there is no measurement here. This is NOT a');
+    console.log('     package that needs nothing.)');
+    process.exit(0);
+  }
 }
 
 // ── 2b. RETAIN the capture, when the batch driver asked for it. ────────────────────────────────

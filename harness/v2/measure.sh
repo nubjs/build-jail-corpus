@@ -914,16 +914,54 @@ node "$HERE/observe.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/observed
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
-# ⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. `observe.mjs` emits this token
-# instead of `{}` when the subtree filter matched nothing, precisely so the two cannot be confused —
-# they are byte-identical otherwise, and running the ladder against the empty one lands MINIMUM
-# ("needs nothing") on a measurement that never happened. MEASURED across the corpus: 100 linux and
-# 26 win32 records assert MINIMUM on exactly this, while darwin — which has had this branch all
-# along — refused 65 of 65. This is the back-port of `measure-macos.sh:906`, not a new rule.
+# ⛔⛔ ZERO ATTRIBUTION HAS TWO CAUSES AND THEY NEED OPPOSITE VERDICTS. `observe.mjs` emits this
+# token rather than `{}` when the subtree filter matched nothing — but "matched nothing" is ambiguous:
+#
+#   (a) the package RUNS NOTHING at install time. `npm rebuild` executes no script, so there is no
+#       lifecycle shell to find. `{}` is then a REAL measurement and MINIMUM is the correct verdict.
+#   (b) the package DOES run something and the filter missed it. `{}` is then a non-measurement, and
+#       recording MINIMUM asserts "needs no permissions" about a script nobody watched — an
+#       UNDER-PREDICTION, the one direction that breaks real installs.
+#
+# ⛔ AN EARLIER VERSION OF THIS BRANCH REFUSED BOTH, AND THAT WAS WRONG. Of 134 linux attribution
+# failures, 97 are `gate-vacuous` — the script changed no file the artifact gate keys on — and
+# spot-checking their manifests on the registry found only `build`/`test`/`lint` scripts, which npm
+# never runs at install. Blanket-refusing turns ~97 CORRECT MINIMUM records into non-answers to fix
+# ~37 real ones. Coverage is not the goal, but neither is caution that erases true measurements.
+#
+# So ASK THE PACKAGE. The installed manifest is right there in the observe tree.
+#
+# ⛔ `binding.gyp` COUNTS AS A DECLARED SCRIPT, AND MISSING IT WOULD BE THE WORST CASE. npm runs
+# `node-gyp rebuild` for a package that ships one even with NO explicit install script — so the
+# native builds, precisely the packages whose grants matter most, would otherwise be classified
+# "runs nothing" and land a false MINIMUM.
+#
+# ⛔ `prepare` IS DELIBERATELY NOT IN THE LIST: the OBSERVE arm is `npm rebuild`, which runs
+# preinstall/install/postinstall and NOT prepare. Listing a script this arm never executes would
+# refuse a measurement the arm was right to call empty.
 if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
-  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
-  echo "     measurement here. This is NOT a package that needs nothing.)"
-  exit 0
+  DECLARES=$(node -e '
+    const fs = require("fs"), path = require("path");
+    const root = path.join(process.argv[1], "node_modules", process.argv[2]);
+    try {
+      const s = (JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).scripts) || {};
+      const named = ["preinstall", "install", "postinstall"].some((k) => typeof s[k] === "string" && s[k].trim());
+      process.stdout.write(named || fs.existsSync(path.join(root, "binding.gyp")) ? "yes" : "no");
+    } catch { process.stdout.write("unreadable"); }
+  ' "$OBS" "$PKG" 2>/dev/null)
+  if [ "$DECLARES" = "no" ]; then
+    # (a) Nothing to attribute because nothing runs. Fall through with the empty grant it really is.
+    echo "  ATTRIBUTION EMPTY BY MEASUREMENT — the manifest declares no preinstall/install/postinstall"
+    echo "     and ships no binding.gyp, so \`npm rebuild\` ran no script. {} is the answer, not a gap."
+    GRANT='{}'
+  else
+    # (b), and `unreadable` lands here too: fail CLOSED, because a manifest we cannot read cannot
+    # prove the package runs nothing.
+    echo "  => UNKNOWN (attribution failed — the package declares an install-time script (${DECLARES})"
+    echo "     but no lifecycle shell was identified, so there is no measurement here. This is NOT a"
+    echo "     package that needs nothing.)"
+    exit 0
+  fi
 fi
 
 # ── 2b. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────

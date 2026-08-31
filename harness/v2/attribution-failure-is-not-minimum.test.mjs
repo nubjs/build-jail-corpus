@@ -71,28 +71,64 @@ test('the linux decoder refuses to emit a grant it never measured', () => {
     'a genuinely empty grant is now reported as an attribution failure — the token is unconditional');
 });
 
+/// Build an observe tree holding one installed package with the given `scripts`, plus an optional
+/// `binding.gyp`. This is the artifact the drivers actually interrogate.
+const observeTree = (scripts, gyp = false) => {
+  const obs = fs.mkdtempSync(path.join(os.tmpdir(), 'obs-tree-'));
+  const own = path.join(obs, 'node_modules', 'p');
+  fs.mkdirSync(own, { recursive: true });
+  fs.writeFileSync(path.join(own, 'package.json'), JSON.stringify({ name: 'p', version: '1.0.0', scripts }));
+  if (gyp) fs.writeFileSync(path.join(own, 'binding.gyp'), '{}');
+  return obs;
+};
+
 /// Run a driver's own attribution branch, extracted from the file rather than paraphrased, with
-/// `GRANT` bound. A paraphrase would drift from the thing it claims to cover, invisibly.
-const runBranch = (driver, grant) => {
+/// `GRANT`, `OBS` and `PKG` bound. A paraphrase would drift from the thing it claims to cover,
+/// invisibly — the reason `claim-cas.test.mjs` lifts its shell out of the workflow too.
+const runBranch = (driver, grant, obs = observeTree({})) => {
   const src = fs.readFileSync(path.join(HERE, driver), 'utf8');
   const start = src.indexOf('if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then');
   assert.notEqual(start, -1, `${driver}: the attribution-failure branch is gone`);
   const end = src.indexOf('\nfi\n', start) + 4;
   const body = src.slice(start, end);
-  return execFileSync('bash', ['-c', `GRANT=${JSON.stringify(grant)}\n${body}\necho REACHED-THE-LADDER`],
-    { encoding: 'utf8' });
+  return execFileSync('bash', ['-c',
+    `GRANT=${JSON.stringify(grant)}\nOBS=${JSON.stringify(obs)}\nPKG=p\n${body}\n`
+    + 'echo "REACHED-THE-LADDER grant=$GRANT"'], { encoding: 'utf8' });
 };
 
 for (const driver of ['measure.sh', 'measure-macos.sh']) {
-  test(`${driver} stops on an attribution failure instead of running the ladder`, () => {
-    const failed = runBranch(driver, 'UNKNOWN-ATTRIBUTION-FAILED');
-    assert.match(failed, /=> UNKNOWN \(attribution failed/,
-      `${driver} did not report UNKNOWN on the token`);
-    assert.doesNotMatch(failed, /REACHED-THE-LADDER/,
-      `${driver} carried on to the ladder after an attribution failure — the exit is missing, so the `
-      + 'empty grant will still be verified and can still land MINIMUM');
+  test(`${driver} refuses only when the package actually declares an install-time script`, () => {
+    // (b) A declared postinstall plus zero attribution is a real gap: refuse, and do not verify.
+    const declared = runBranch(driver, 'UNKNOWN-ATTRIBUTION-FAILED', observeTree({ postinstall: 'node x.js' }));
+    assert.match(declared, /=> UNKNOWN \(attribution failed/, `${driver} did not refuse a missed script`);
+    assert.doesNotMatch(declared, /REACHED-THE-LADDER/,
+      `${driver} carried on to the ladder after a real attribution failure, so the empty grant will `
+      + 'still be verified and can still land MINIMUM');
 
-    // The control: a real grant must fall THROUGH this branch untouched.
+    // ⛔ THE CONTROL THAT THIS TEST EXISTS FOR, AND THE ONE THE FIRST VERSION OF THIS FIX FAILED.
+    // A package declaring only `build`/`test`/`lint` runs NOTHING under `npm rebuild`, so `{}` is a
+    // real measurement. Refusing it converts a correct MINIMUM into a non-answer — measured on the
+    // corpus, 97 of 134 linux attribution failures are that shape.
+    const runsNothing = runBranch(driver, 'UNKNOWN-ATTRIBUTION-FAILED',
+      observeTree({ build: 'tsc', test: 'jest', lint: 'eslint .' }));
+    assert.match(runsNothing, /REACHED-THE-LADDER grant=\{\}/,
+      `${driver} refused a package that runs no install script — that erases a true measurement`);
+    assert.doesNotMatch(runsNothing, /=> UNKNOWN/, `${driver} reported UNKNOWN for a package that runs nothing`);
+
+    // ⛔ `binding.gyp` WITH NO EXPLICIT SCRIPT IS STILL AN INSTALL-TIME SCRIPT — npm runs `node-gyp
+    // rebuild`. Missing this would land a false MINIMUM on exactly the native packages whose grants
+    // matter most, so it is the highest-consequence case in this file.
+    const gyp = runBranch(driver, 'UNKNOWN-ATTRIBUTION-FAILED', observeTree({ build: 'tsc' }, true));
+    assert.match(gyp, /=> UNKNOWN \(attribution failed/,
+      `${driver} treated a binding.gyp package as running nothing — node-gyp rebuild is an install script`);
+
+    // Fail CLOSED: a manifest that cannot be read cannot prove the package runs nothing.
+    const unreadable = runBranch(driver, 'UNKNOWN-ATTRIBUTION-FAILED',
+      fs.mkdtempSync(path.join(os.tmpdir(), 'obs-empty-')));
+    assert.match(unreadable, /=> UNKNOWN \(attribution failed/,
+      `${driver} treated an unreadable manifest as proof the package runs nothing`);
+
+    // And a real grant must fall THROUGH the whole branch untouched.
     const ok = runBranch(driver, '{"network":true}');
     assert.match(ok, /REACHED-THE-LADDER/, `${driver} now blocks a real grant`);
     assert.doesNotMatch(ok, /=> UNKNOWN/, `${driver} reports UNKNOWN for a measured grant`);
@@ -117,8 +153,18 @@ test('the windows driver branches on the count classify.mjs actually publishes',
   const win = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
   assert.match(win, /if \(observed\.lifecyclePids === 0\)/,
     'measure-windows.mjs no longer refuses an unattributed run');
-  const branch = win.slice(win.indexOf('if (observed.lifecyclePids === 0)'));
-  assert.match(branch.slice(0, 400), /=> UNKNOWN \(attribution failed/);
-  assert.match(branch.slice(0, 400), /process\.exit\(0\)/,
+  const branch = win.slice(win.indexOf('if (observed.lifecyclePids === 0) {'), win.length).slice(0, 1600);
+
+  // It must DISCRIMINATE, exactly as the POSIX drivers do: refuse only when the package declares an
+  // install-time script, and count `binding.gyp` as one. A branch that refuses unconditionally is the
+  // over-caution that erased 97 correct MINIMUM records on linux.
+  assert.match(branch, /'preinstall', 'install', 'postinstall'/,
+    'the windows branch no longer asks whether the package declares an install-time script');
+  assert.match(branch, /binding\.gyp/,
+    'the windows branch ignores binding.gyp, so a node-gyp package would be called "runs nothing"');
+  assert.match(branch, /declares === 'no'/,
+    'the windows branch no longer distinguishes "runs nothing" from "we failed to watch it"');
+  assert.match(branch, /=> UNKNOWN \(attribution failed/);
+  assert.match(branch, /process\.exit\(0\)/,
     'the windows branch reports UNKNOWN but does not stop, so the ladder still runs');
 });

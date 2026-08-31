@@ -901,12 +901,42 @@ node "$HERE/observe-macos.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/ob
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
-# ⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. The decoder emits this token
-# instead of `{}` when the subtree filter matched nothing, precisely so the two cannot be confused.
+# ⛔⛔ ZERO ATTRIBUTION HAS TWO CAUSES AND THEY NEED OPPOSITE VERDICTS — the long note is at the
+# matching branch in `measure.sh`. Either the package RUNS NOTHING at install (so `{}` is a real
+# measurement and MINIMUM is right), or it runs something the filter missed (so `{}` is a
+# non-measurement and MINIMUM is an under-prediction).
+#
+# ⛔ THIS DRIVER REFUSED BOTH FOR ITS WHOLE LIFE, AND THAT IS WHY `UNKNOWN` LOOKED macOS-ONLY.
+# Darwin holds 65 attribution failures and recorded 65 UNKNOWN; linux, with the same condition,
+# recorded MINIMUM. The asymmetry read as "darwin refuses correctly, linux is silent" — and that was
+# only half right. Linux WAS silent, and darwin was ALSO over-cautious: of the 134 linux cases 97 are
+# `gate-vacuous`, and spot-checking their registry manifests found only `build`/`test`/`lint`, which
+# npm never runs at install. For those `{}` was the true answer and UNKNOWN erased it.
+#
+# `binding.gyp` counts, because npm runs `node-gyp rebuild` with no explicit install script and those
+# are the packages whose grants matter most. `prepare` does not, because the OBSERVE arm is
+# `npm rebuild`, which never runs it.
 if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
-  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
-  echo "     measurement here. This is NOT a package that needs nothing.)"
-  exit 0
+  DECLARES=$(node -e '
+    const fs = require("fs"), path = require("path");
+    const root = path.join(process.argv[1], "node_modules", process.argv[2]);
+    try {
+      const s = (JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).scripts) || {};
+      const named = ["preinstall", "install", "postinstall"].some((k) => typeof s[k] === "string" && s[k].trim());
+      process.stdout.write(named || fs.existsSync(path.join(root, "binding.gyp")) ? "yes" : "no");
+    } catch { process.stdout.write("unreadable"); }
+  ' "$OBS" "$PKG" 2>/dev/null)
+  if [ "$DECLARES" = "no" ]; then
+    echo "  ATTRIBUTION EMPTY BY MEASUREMENT — the manifest declares no preinstall/install/postinstall"
+    echo "     and ships no binding.gyp, so \`npm rebuild\` ran no script. {} is the answer, not a gap."
+    GRANT='{}'
+  else
+    # `unreadable` fails CLOSED here: a manifest we cannot read cannot prove the package runs nothing.
+    echo "  => UNKNOWN (attribution failed — the package declares an install-time script (${DECLARES})"
+    echo "     but no lifecycle shell was identified, so there is no measurement here. This is NOT a"
+    echo "     package that needs nothing.)"
+    exit 0
+  fi
 fi
 
 if [ -z "$NUB" ] || [ ! -x "$NUB" ]; then
