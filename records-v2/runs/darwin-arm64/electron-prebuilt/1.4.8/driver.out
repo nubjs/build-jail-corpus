@@ -1,5 +1,10 @@
-### electron-prebuilt@1.4.8   (/Users/runner/v2m-i32RKs)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"05c6ce32c6e5f007a0bae716f792514f8418822710d22588b645b64b76da5874","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:39:36.780Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-G4brfQ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 05c6ce32c6e5
+  ERA-NODE PINNED 6.17.1 (provisioned) (arms will run: v6.17.1)
+  ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 6, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### electron-prebuilt@1.4.8   (/Users/runner/v2m-G4brfQ)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,35 +14,200 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2016-11-23T23:46:16.581Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3e1ed334df473ebef1d638a46f42172632b0bfdf091c9b502cab2791fd8ecf2e","specCount":157,"lockfiles":{"digest":"489ac41a12ad8e101e5b341373235e4171c4f1e631d189bb410dc54bff8e7c6d","files":[{"path":"package-lock.json","sha256":"e4341e6d82631d39b951be43c797ed829f018167ef42566823bf40123fe5327b","bytes":63963}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:39:47.226Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-G4brfQ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 157 exact package-version(s), tree 3e1ed334df47
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 1 leaked: rimraf=/Users/runner/v2m-G4brfQ/Observe/node_modules/.bin/rimraf
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC electron-prebuilt@1.4.8
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-i32RKs/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-i32RKs/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFcUuf9"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "electron-prebuilt" > "/Users/runner/v2m-i32RKs/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-i32RKs/Observe/rc"
+     cd "/Users/runner/v2m-G4brfQ/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-G4brfQ/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-G4brfQ/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/usr/local/bin/python2.7   npm rebuild --no-audit --no-fund "electron-prebuilt@1.4.8" > "/Users/runner/v2m-G4brfQ/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-G4brfQ/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-i32RKs/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-i32RKs/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFcUuf9 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund electron-prebuilt
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000051c090) in action #1 at DIF offset 20
-     + echo 1
-  OBSERVE   rc=1 dtrace_rc=0 files=1059 (pre=1057) trace=15809 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     npm error
-     npm error Error: Failed to find Electron v1.4.8 for darwin-arm64 at https://github.com/electron/electron/releases/download/v1.4.8/electron-v1.4.8-darwin-arm64.zip
-     npm error     at Request.<anonymous> (/Users/runner/v2m-i32RKs/Observe/node_modules/nugget/index.js:197:61)
-     npm error     at Request.emit (node:events:519:28)
-     npm error     at Request.onRequestResponse (/Users/runner/v2m-i32RKs/Observe/node_modules/request/request.js:1059:10)
-     npm error     at ClientRequest.emit (node:events:519:28)
-     npm error     at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:780:27)
-     npm error     at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)
-     npm error     at TLSSocket.socketOnData (node:_http_client:615:22)
-     npm error     at TLSSocket.emit (node:events:519:28)
-     npm error     at addChunk (node:internal/streams/readable:561:12)
-     npm error     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-     npm error
-     npm error Node.js v22.23.1
-     npm notice
-     npm notice New major version of npm available! 10.9.8 -> 12.0.2
-     npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
-     npm notice To update run: npm install -g npm@12.0.2
-     npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-i32RKs/jailhome/.npm/_logs/2026-08-07T22_11_56_252Z-debug-0.log
+     + cd /Users/runner/v2m-G4brfQ/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-G4brfQ/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-G4brfQ/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/usr/local/bin/python2.7 npm rebuild --no-audit --no-fund electron-prebuilt@1.4.8
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003c04000) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=1731 (pre=1281) trace=14905 lines
+  CLOSURE   151 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-G4brfQ/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-G4brfQ/Observe/capture.json
+  RAWLOG-BYTES raw=2237436 gz=98656
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"electron-prebuilt","packageVersion":"1.4.8","major":6,"version":"6.17.1","npm":"3.10.10","pinnable":true,"engines":null,"publishedAt":"2016-11-22T23:46:16.581Z","eraMajor":6,"startMajor":6,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-G4brfQ/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":178,"filesTheScriptProduced":166,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-G4brfQ/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14906,"parsed":14887,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":0,"danglingPair":0,"failed":8926,"enoent":8740,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":8740,"EEXIST":183},"procs":5,"lifecyclePids":1,"distinctEvents":8448,"emitted":8448,"calls":14851,"bytes":1489245,"gzipBytes":52065,"out":"/Users/runner/v2m-G4brfQ/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=2689 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 5 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=32067 read  unproven .
+         pid=32067 read  unproven .
+         pid=32067 read  unproven .
+         pid=32067 read  unproven .
+         pid=32067 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600003c04000
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 331  /  whole traced subtree 336
+    sockets script 4  /  whole traced subtree 4
+  == ROOTS (from /Users/runner/v2m-G4brfQ/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-G4brfQ/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-G4brfQ/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-G4brfQ/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    jailHome      3  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-G4brfQ/jailhome/.electron
+        /Users/runner/v2m-G4brfQ/jailhome/.electron/electron-v1.4.8-darwin-x64.zip
+        /Users/runner/v2m-G4brfQ/jailhome/.electron/SHASUMS256.txt-1.4.8
+    jailTmp       3  (base profile already grants this — NOT billed)
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU/electron-tmp-download-32067-1788205198182
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU/electron-tmp-download-32067-1788205198182/electron-v1.4.8-darwin-x64.zip
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsI8f1TU/electron-tmp-download-32067-1788205198182/SHASUMS256.txt
+    ownPkg      325  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/path.txt
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/LICENSE
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/LICENSES.chromium.html
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/version
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/Electron.app
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/Electron.app/Contents
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/Electron.app/Contents/Frameworks
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/Electron.app/Contents/Frameworks/Electron Framework.framework
+        /Users/runner/v2m-G4brfQ/Observe/node_modules/electron-prebuilt/dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Electron Framework
+        … and 315 more
+  == READS the script performed, by scope ==
+    systemfs     10
+    outside       7
+    userHome      2
+    ownPkg        2
+    deps        328
+    jailHome      2
+        outside: /
+        outside: /bin/sh
+        outside: /bin
+        outside: /bin/bash
+        outside: /etc/resolv.conf
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+  == NETWORK ==
+    AF_INET connects: 4   distinct peers: 2
+        140.82.116.4:443
+        185.199.110.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true,"writePaths":[".electron"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3
+        .electron
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 63 store entries removed, 29 spared as nub tooling, 548 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":"341d40a4baf7747ed59fab596c763e590e383c79d6de39e317cb62018d839bb3","files":[{"path":"nub.lock","sha256":"85620c2ff8f83382981c23c400787636963c575e5e596e505e75fd9bfed418f1","bytes":26400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-G4brfQ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 113 exact package-version(s), tree d9ece8620bbc
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=11/177 missing=166 shortfall=01851532b59e (tree 3386/1731) OVERRIDDEN=3 REJECTED=0 grant={"network":true,"writePaths":[".electron"]}
+       missing: dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Electron Framework, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libffmpeg.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libnode.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/MainMenu.nib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/am.lproj/locale.pak (+160)
+     [synth/a] /Users/runner/.cache/nub/pm/store/nugget@2.2.0-d4a3a663d2d5656e/node_modules/nugget/index.js:200
+     [synth/a] SyntaxError: Unexpected token (
+  !! OBSERVE UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+     The bounded ladder below is the repair; the terminal verdict waits on its outcome.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 8810
+     refused paths under the failing grant (count, path):
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT[fb903772438] 35 store entries removed, 82 spared as nub tooling, 597 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb903772438-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":"341d40a4baf7747ed59fab596c763e590e383c79d6de39e317cb62018d839bb3","files":[{"path":"nub.lock","sha256":"85620c2ff8f83382981c23c400787636963c575e5e596e505e75fd9bfed418f1","bytes":26400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-G4brfQ/security/nub-fb903772438-resolved.json"}
+  SECURITY nub-fb903772438-resolved clean: 113 exact package-version(s), tree d9ece8620bbc (cached exact-tree clearance)
+  VERIFY[fb903772438] rc=1 artifacts=11/177 missing=166 shortfall=01851532b59e (tree 3386/1731) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Electron Framework, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libffmpeg.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libnode.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/MainMenu.nib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/am.lproj/locale.pak (+160)
+     [fb903772438/a] /Users/runner/.cache/nub/pm/store/nugget@2.2.0-d4a3a663d2d5656e/node_modules/nugget/index.js:200
+     [fb903772438/a] SyntaxError: Unexpected token (
+  EVICT[fb2128993570] 35 store entries removed, 82 spared as nub tooling, 597 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2128993570-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":"341d40a4baf7747ed59fab596c763e590e383c79d6de39e317cb62018d839bb3","files":[{"path":"nub.lock","sha256":"85620c2ff8f83382981c23c400787636963c575e5e596e505e75fd9bfed418f1","bytes":26400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-G4brfQ/security/nub-fb2128993570-resolved.json"}
+  SECURITY nub-fb2128993570-resolved clean: 113 exact package-version(s), tree d9ece8620bbc (cached exact-tree clearance)
+  VERIFY[fb2128993570] rc=1 artifacts=11/177 missing=166 shortfall=01851532b59e (tree 3386/1731) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Electron Framework, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libffmpeg.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libnode.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/MainMenu.nib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/am.lproj/locale.pak (+160)
+     [fb2128993570/a] /Users/runner/.cache/nub/pm/store/nugget@2.2.0-d4a3a663d2d5656e/node_modules/nugget/index.js:200
+     [fb2128993570/a] SyntaxError: Unexpected token (
+  EVICT[fb1962834996] 35 store entries removed, 82 spared as nub tooling, 597 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1962834996-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":"341d40a4baf7747ed59fab596c763e590e383c79d6de39e317cb62018d839bb3","files":[{"path":"nub.lock","sha256":"85620c2ff8f83382981c23c400787636963c575e5e596e505e75fd9bfed418f1","bytes":26400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-G4brfQ/security/nub-fb1962834996-resolved.json"}
+  SECURITY nub-fb1962834996-resolved clean: 113 exact package-version(s), tree d9ece8620bbc (cached exact-tree clearance)
+  VERIFY[fb1962834996] rc=1 artifacts=11/177 missing=166 shortfall=01851532b59e (tree 3386/1731) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+       missing: dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Electron Framework, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libffmpeg.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries/libnode.dylib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/MainMenu.nib, dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/am.lproj/locale.pak (+160)
+     [fb1962834996/a] /Users/runner/.cache/nub/pm/store/nugget@2.2.0-d4a3a663d2d5656e/node_modules/nugget/index.js:200
+     [fb1962834996/a] SyntaxError: Unexpected token (
+  NOT-GRANT-INDEPENDENT every arm exited non-zero — nothing installed at any grant
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":"341d40a4baf7747ed59fab596c763e590e383c79d6de39e317cb62018d839bb3","files":[{"path":"nub.lock","sha256":"85620c2ff8f83382981c23c400787636963c575e5e596e505e75fd9bfed418f1","bytes":26400}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-G4brfQ/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 113 exact package-version(s), tree d9ece8620bbc (cached exact-tree clearance)
+  jail-off control: nub failed with the jail OFF; asking npm before naming a culprit
+    | WARN defaultTrust: running build scripts for electron-prebuilt@1.4.8
+    | warning: electron-prebuilt build scripts are running without the build sandbox (install.buildJail is false in nub.jsonc)
+    | /Users/runner/.cache/nub/pm/store/nugget@2.2.0-d4a3a663d2d5656e/node_modules/nugget/index.js:200
+    |         write.on('finish', async () => {
+    |                                  ^
+    | SyntaxError: Unexpected token (
+    |     at createScript (vm.js:56:10)
+    |     at Object.runInThisContext (vm.js:97:10)
+    |     at Module._compile (module.js:549:28)
+    |     at Object.Module._extensions..js (module.js:586:10)
+    |     at Module.load (module.js:494:32)
+    |     at tryModuleLoad (module.js:453:12)
+    |     at Function.Module._load (module.js:445:3)
+    |     at Module.require (module.js:504:17)
+    |     at require (internal/module.js:20:19)
+    |     at Object.<anonymous> (/Users/runner/.cache/nub/pm/store/electron-download@3.3.0-cadf550134d0f89e/node_modules/electron-download/build/index.js:13:14)
+    |   × lifecycle script postinstall failed for electron-prebuilt@1.4.8: script
+    |   │ `postinstall` exited with code 1
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-fallback-resolved","status":"clean","digest":"d9ece8620bbc566df179bce064f96ea7baecac59c1f434a24abd5c39dee549eb","specCount":113,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T19:40:08.895Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-G4brfQ/security/npm-fallback-resolved.json"}
+  SECURITY npm-fallback-resolved clean: 113 exact package-version(s), tree d9ece8620bbc (cached exact-tree clearance)
+  NPM-REFERENCE rebuild rc=1 for electron-prebuilt@1.4.8 (era 6.17.1)
+    | npm ERR! node v6.17.1
+    | npm ERR! npm  v3.10.10
+    | npm ERR! code ELIFECYCLE
+    | npm ERR! electron-prebuilt@1.4.8 postinstall: `node install.js`
+    | npm ERR! Exit status 1
+    | npm ERR! 
+    | npm ERR! Failed at the electron-prebuilt@1.4.8 postinstall script 'node install.js'.
+    | npm ERR! Make sure you have the latest version of node.js and npm installed.
+    | npm ERR! If you do, this is most likely a problem with the electron-prebuilt package,
+    | npm ERR! not with npm itself.
+    | npm ERR! Tell the author that this fails on your system:
+    | npm ERR!     node install.js
+    | npm ERR! You can get information on how to open an issue for this project with:
+    | npm ERR!     npm bugs electron-prebuilt
+    | npm ERR! Or if that isn't available, you can get their info via:
+    | npm ERR!     npm owner ls electron-prebuilt
+    | npm ERR! There is likely additional logging output above.
+    | 
+    | npm ERR! Please include the following file with any support request:
+    | npm ERR!     /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nspnpm-Shojja/npm-debug.log
+  jail-off control: neither nub nor npm installs this unjailed; nothing to measure
+  => BROKEN-WITHOUT-JAIL-TOO
