@@ -2,14 +2,23 @@
   "pkg": "dtrace-provider",
   "version": "0.8.8",
   "harnessVersion": 2,
+  "harnessEpoch": 44,
   "verdict": "MINIMUM",
-  "grant": {},
+  "eraDepMismatch": null,
+  "grant": {
+    "writePaths": [
+      "Library/Caches/node-gyp"
+    ]
+  },
   "synthesized": {
     "write": {
       "deps": true,
       "project": true
     },
-    "network": true
+    "network": true,
+    "writePaths": [
+      "Library/Caches/node-gyp"
+    ]
   },
   "verifiedBy": "synth",
   "minimality": "OVER-PREDICTED",
@@ -18,62 +27,411 @@
     "no-write-deps",
     "no-write-project"
   ],
+  "writePaths": [
+    "Library/Caches/node-gyp"
+  ],
+  "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "920c7fe424c8922e5c8c4a1702450115d1a4b749a06764eea09de7e30b75caeb",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:15:55.399Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "223679bc06c010ffe9f54511c8a88d61cefd46279a58eedfb00299def533b970",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "7dccc8b8d7be7fa02a3c14bba7212a92bf7c0b20e63f33fbcdd8786d2a3d0eca",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4b2d0c8c5cc42a7006974ee57469e27e7f73349b755bd0fbf6fd087ee8170458",
+            "bytes": 960
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:16:04.381Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:17:12.607Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-network-resolved",
+      "status": "clean",
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:17:12.607Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:17:12.607Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-project-resolved",
+      "status": "clean",
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:17:12.607Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-08-31T07:17:12.607Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "920c7fe424c8922e5c8c4a1702450115d1a4b749a06764eea09de7e30b75caeb",
+      "specCount": 1,
+      "specs": [
+        "dtrace-provider@0.8.8"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-08-31T07:15:55.399Z"
+    },
+    {
+      "digest": "223679bc06c010ffe9f54511c8a88d61cefd46279a58eedfb00299def533b970",
+      "specCount": 2,
+      "specs": [
+        "dtrace-provider@0.8.8",
+        "nan@2.14.0"
+      ],
+      "lockfiles": {
+        "digest": "7dccc8b8d7be7fa02a3c14bba7212a92bf7c0b20e63f33fbcdd8786d2a3d0eca",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4b2d0c8c5cc42a7006974ee57469e27e7f73349b755bd0fbf6fd087ee8170458",
+            "bytes": 960
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-08-31T07:16:04.381Z"
+    },
+    {
+      "digest": "f895ea4353cbebf763d84773490efa7fb3b06a3c407d90d18dda29361868cb69",
+      "specCount": 2,
+      "specs": [
+        "dtrace-provider@0.8.8",
+        "nan@2.28.0"
+      ],
+      "lockfiles": {
+        "digest": "2ccbfa4f9cd778b82054a5fb7cbd92396b066ddb259bde615d7bb9223c127ab3",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "f916cb2046aaae95a8f0bc8d46b5eb0cd0813104d7b7f8f060e72df8356bfab2",
+            "bytes": 624
+          }
+        ]
+      },
+      "kinds": [
+        "nub-joint-narrow-resolved",
+        "nub-nar-no-network-resolved",
+        "nub-nar-no-write-deps-resolved",
+        "nub-nar-no-write-project-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-08-31T07:17:12.607Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-08-31T07:15:54.636Z",
+    "latestVersion": "0.8.8",
+    "weeklyDownloads": 3620387,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/dtrace-provider/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/dtrace-provider"
+    }
+  },
   "grantSource": "descended",
   "grantSourceReason": "3 capabilities were dropped and the JOINT grant was explicitly verified",
-  "descendedGrant": {},
+  "descendedGrant": {
+    "writePaths": [
+      "Library/Caches/node-gyp"
+    ]
+  },
   "notes": [
     "cwd-unobserved",
     "events-lost"
   ],
   "eventLog": {
-    "lines": 144435,
-    "parsed": 144280,
+    "lines": 590414,
+    "parsed": 590180,
     "unparsed": 0,
     "live": true,
-    "tracerErrors": 96,
-    "tracerErrorTotal": 96,
-    "unresolvedDirfd": 390,
+    "tracerErrors": 137,
+    "tracerErrorTotal": 137,
+    "unresolvedDirfd": 747,
     "unresolvedFd": 0,
-    "pairedTwoPath": 555,
+    "pairedTwoPath": 37,
     "danglingPair": 0,
-    "failed": 45952,
-    "enoent": 24900,
+    "failed": 451722,
+    "enoent": 450642,
     "refusals": 0,
     "byErrno": {
-      "ENXIO": 18,
-      "ENOENT": 24900,
-      "EINVAL": 8,
-      "EEXIST": 20424,
-      "ENOTEMPTY": 602
+      "ENXIO": 55,
+      "ENOENT": 450642,
+      "EEXIST": 1017,
+      "EINVAL": 8
     },
-    "procs": 78,
-    "lifecyclePids": 13,
-    "distinctEvents": 73550,
-    "emitted": 73550,
-    "calls": 143261,
-    "bytes": 14704810,
-    "gzipBytes": 387913,
-    "out": "/Users/runner/v2m-9l5F4o/Observe/events.ndjson"
+    "procs": 147,
+    "lifecyclePids": 50,
+    "distinctEvents": 259987,
+    "emitted": 259987,
+    "calls": 589504,
+    "bytes": 42641216,
+    "gzipBytes": 1149714,
+    "out": "/Users/runner/v2m-36g5lB/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 35701,
+  "durationMs": 218472,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
-    "nubGitSha": null,
-    "nubVersion": "v0.6.0",
-    "corpusGitSha": "067a3d5333dffaa72f30b3fc4c0734e977797c96",
-    "node": "v22.23.1",
-    "at": "2026-08-07T01:50:19.252Z",
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
+    "nubVersion": "v0.7.1",
+    "corpusGitSha": null,
+    "harnessEpoch": 44,
+    "harnessSha256": "f38da5be813b94b7cbba86f07a0152ad088a8c3061f24e9a3161d5d8920f2bdb",
+    "harnessInputCount": 300,
+    "invalidationPolicySha256": "b6ed5161b391369ab94b8a6191ac648146b51bb92cdcdcefea616a716aad171d",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/node",
+        "sha256": "18e387c90ab8a8400183e8bdd396376e1e875b91b4c874b894dcade7b35bf572",
+        "bytes": 112937728
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+        "executable": {
+          "path": "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm",
+          "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+          "bytes": 54
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "/opt/homebrew/bin/python3",
+          "executable": {
+            "path": "/opt/homebrew/bin/python3",
+            "sha256": "4d4c42c0ebf9bf42e9aa2c0e56843632347a1f1c22d4a9f680b4f87fb241d0e6",
+            "bytes": 34640
+          },
+          "version": "Python 3.14.6"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "/usr/local/bin/python",
+          "executable": {
+            "path": "/usr/local/bin/python",
+            "sha256": "b72b3d917750b98178ce547d1d1f8a1ccd5e078fc551c4b3c77d2769e70fd229",
+            "bytes": 28640
+          },
+          "version": "Python 2.7.18"
+        }
+      ],
+      "buildTools": {
+        "cc": {
+          "command": [
+            "cc",
+            "--version"
+          ],
+          "path": "/usr/bin/cc",
+          "executable": {
+            "path": "/usr/bin/cc",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "cxx": {
+          "command": [
+            "c++",
+            "--version"
+          ],
+          "path": "/usr/bin/c++",
+          "executable": {
+            "path": "/usr/bin/c++",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+        },
+        "make": {
+          "command": [
+            "make",
+            "--version"
+          ],
+          "path": "/usr/bin/make",
+          "executable": {
+            "path": "/usr/bin/make",
+            "sha256": "7f30f076d0e9c38f772a76449fca9da8cf97f6a3d43b94c90a00e4f9ce7ad39e",
+            "bytes": 118864
+          },
+          "version": "GNU Make 3.81"
+        }
+      },
+      "os": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "libc": null,
+        "type": "Darwin",
+        "release": "24.6.0",
+        "version": "Darwin Kernel Version 24.6.0: Tue Apr 21 20:18:00 PDT 2026; root:xnu-11417.140.69.710.16~1/RELEASE_ARM64_VMAPPLE",
+        "machine": "arm64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "macOS",
+        "arch": "ARM64",
+        "environment": "github-hosted",
+        "imageOS": "macos15",
+        "imageVersion": "20260727.0256.1"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "macOS",
+          "RUNNER_ARCH": "ARM64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "macos15",
+          "ImageVersion": "20260727.0256.1",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "en_US.UTF-8"
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "d6ad537dd9060beee0cfde6a94c67d6077fc276ad9565ab4b941087047aceb5d",
+        "shell": "/bin/bash"
+      }
+    },
+    "at": "2026-08-31T07:19:33.713Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
-    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.1/arm64",
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
     "interpreterInsideHome": true,
     "jailRoot": null,
     "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
-    "cwdResolved": 11,
+    "cwdResolved": 21,
     "cwdUnplaceableWrites": [
       "./Release",
       "./Release/.deps",
@@ -83,12 +441,42 @@
       "Release/obj.target",
       "Release/obj.target/DTraceProviderBindings"
     ],
-    "nubBinary": null,
+    "nubBinary": {
+      "path": "/tmp/nub/target/release/nub",
+      "sha256": "69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30",
+      "bytes": 94535576,
+      "features": {
+        "buildJailCatalogOverride": true,
+        "pythonDontWriteBytecodeEnv": true
+      }
+    },
+    "nodeSelection": {
+      "pkg": "dtrace-provider",
+      "packageVersion": "0.8.8",
+      "major": 10,
+      "version": "10.24.1",
+      "npm": "6.14.12",
+      "pinnable": true,
+      "engines": ">=0.10",
+      "publishedAt": "2019-08-17T02:01:21.642Z",
+      "eraMajor": 10,
+      "startMajor": 10,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-9l5F4o/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsVMbbSP",
+        "HOME": "/Users/runner/v2m-36g5lB/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsukglHs",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",

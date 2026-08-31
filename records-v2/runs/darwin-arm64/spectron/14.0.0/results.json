@@ -2,8 +2,9 @@
   "pkg": "spectron",
   "version": "14.0.0",
   "harnessVersion": 2,
-  "harnessEpoch": 9,
-  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "harnessEpoch": 44,
+  "verdict": "UNKNOWN",
+  "eraDepMismatch": null,
   "grant": null,
   "synthesized": null,
   "verifiedBy": null,
@@ -23,7 +24,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-28T10:12:31.188Z",
+      "screenedAt": "2026-08-31T05:48:27.074Z",
       "cacheHit": false
     },
     {
@@ -43,7 +44,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-28T10:12:46.826Z",
+      "screenedAt": "2026-08-31T05:48:44.511Z",
       "cacheHit": false
     }
   ],
@@ -61,7 +62,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-28T10:12:31.188Z"
+      "screenedAt": "2026-08-31T05:48:27.074Z"
     },
     {
       "digest": "35dfecdbc67a0f7403c59a8154fb0fb1cdb018c49cef7994a46f5305ba5a0b07",
@@ -297,14 +298,14 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-28T10:12:46.826Z"
+      "screenedAt": "2026-08-31T05:48:44.511Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-28T10:12:30.465Z",
+    "observedAt": "2026-08-31T05:48:26.335Z",
     "latestVersion": "19.0.0",
-    "weeklyDownloads": 17881,
+    "weeklyDownloads": 17743,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/spectron/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/spectron"
@@ -313,20 +314,49 @@
   "grantSource": null,
   "grantSourceReason": null,
   "descendedGrant": null,
-  "notes": [],
-  "eventLog": null,
+  "notes": [
+    "events-lost"
+  ],
+  "eventLog": {
+    "lines": 4333,
+    "parsed": 4318,
+    "unparsed": 0,
+    "live": true,
+    "tracerErrors": 1,
+    "tracerErrorTotal": 1,
+    "unresolvedDirfd": 12,
+    "unresolvedFd": 0,
+    "pairedTwoPath": 1,
+    "danglingPair": 0,
+    "failed": 2665,
+    "enoent": 2661,
+    "refusals": 0,
+    "byErrno": {
+      "ENXIO": 2,
+      "ENOENT": 2661,
+      "EEXIST": 2
+    },
+    "procs": 4,
+    "lifecyclePids": 0,
+    "distinctEvents": 3336,
+    "emitted": 3336,
+    "calls": 4308,
+    "bytes": 587412,
+    "gzipBytes": 25130,
+    "out": "/Users/runner/v2m-fcXNXA/Observe/events.ndjson"
+  },
   "driverRc": 0,
-  "durationMs": 25292,
+  "durationMs": 25396,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 9,
-    "harnessSha256": "186991e98b802ea4025fbcd9de01d0e2cdba26acfa9aca65608e789ff9c110fc",
-    "harnessInputCount": 276,
-    "invalidationPolicySha256": "64eadcb25a2d9e71b844f966aa99d6dd3bbb2bb56fa4db7c348fdc536fbcc0a6",
+    "harnessEpoch": 44,
+    "harnessSha256": "f38da5be813b94b7cbba86f07a0152ad088a8c3061f24e9a3161d5d8920f2bdb",
+    "harnessInputCount": 300,
+    "invalidationPolicySha256": "b6ed5161b391369ab94b8a6191ac648146b51bb92cdcdcefea616a716aad171d",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -455,14 +485,14 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-28T10:12:56.226Z",
+    "at": "2026-08-31T05:48:52.304Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": null,
-    "interpreterPath": null,
-    "interpreterInsideHome": null,
+    "interpreterPath": "/Users/runner/hostedtoolcache/node/22.23.2/arm64",
+    "interpreterInsideHome": true,
     "jailRoot": null,
-    "observeUser": null,
+    "observeUser": "runner uid=501 (R7: ordinary non-root user, asserted)",
     "ciChild": "clean (no CI-detection variable reaches the traced script)",
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
@@ -475,7 +505,50 @@
         "pythonDontWriteBytecodeEnv": true
       }
     },
-    "nodeSelection": null,
-    "overrides": null
+    "nodeSelection": {
+      "pkg": "spectron",
+      "packageVersion": "14.0.0",
+      "major": 14,
+      "version": "14.21.3",
+      "npm": "6.14.18",
+      "pinnable": true,
+      "engines": ">=10.12.0",
+      "publishedAt": "2021-03-10T19:09:06.539Z",
+      "eraMajor": 14,
+      "startMajor": 14,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": false,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "lookupFailure": null,
+      "pinned": true,
+      "pinnedBin": "/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin",
+      "eraNodeRoot": "/Users/runner/.cache/nub"
+    },
+    "overrides": {
+      "set": {
+        "PATH": "inherited-and-forwarded",
+        "HOME": "/Users/runner/v2m-fcXNXA/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsXFldUw",
+        "NODE_COMPAT": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
+        "ELECTRON_CACHE": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "electron_config_cache": "/Users/runner/.cache/nub/pm/tools/electron-cache",
+        "npm_config_prefix": "/Users/runner/.cache/nub/pm/tools/npm-prefix"
+      },
+      "unset": [
+        "(sudo env_reset discards the caller environment; every var above is re-set after it)",
+        "CI",
+        "GITHUB_ACTIONS"
+      ],
+      "passedThrough": {
+        "CI": "true",
+        "GITHUB_ACTIONS": "true",
+        "NODE_ENV": null
+      }
+    }
   }
 }
