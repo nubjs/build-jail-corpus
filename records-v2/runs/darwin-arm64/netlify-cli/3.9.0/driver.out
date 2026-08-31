@@ -1,5 +1,10 @@
-### netlify-cli@3.9.0   (/Users/runner/v2m-U2eycj)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e191152e025d9ad1a7da5b278528ece02c931cf062c65018589acb0d1248aac2","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T18:18:12.311Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-e6dTBB/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e191152e025d
+  ERA-NODE PINNED 14.21.3 (provisioned) (arms will run: v14.21.3)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 14, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### netlify-cli@3.9.0   (/Users/runner/v2m-e6dTBB)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,32 +14,42 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2021-02-26T14:38:30.472Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a315d032fb52874cb15dba6d9cee1153a24267bf4c0371d8f25b1ec488b68666","specCount":1098,"lockfiles":{"digest":"ded7efccfdf4be97de8efa4da5f02996db968d0312a747c0d652522f7819237c","files":[{"path":"package-lock.json","sha256":"3710dd950f7a77fef5d76beec7279ea0c8a276f33afaaa06ca639fa9fe59e362","bytes":597740}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T18:18:52.639Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-e6dTBB/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1098 exact package-version(s), tree a315d032fb52
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 4 leaked: tsc=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin/tsc rimraf=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin/rimraf rollup=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin/rollup yarn=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin/yarn
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC netlify-cli@3.9.0
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-U2eycj/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-U2eycj/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsaiMHyP"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "netlify-cli" > "/Users/runner/v2m-U2eycj/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-U2eycj/Observe/rc"
+     cd "/Users/runner/v2m-e6dTBB/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-e6dTBB/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsInMpGe"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "netlify-cli@3.9.0" > "/Users/runner/v2m-e6dTBB/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-e6dTBB/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-U2eycj/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-U2eycj/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsaiMHyP NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund netlify-cli
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001f90090) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-e6dTBB/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-e6dTBB/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-e6dTBB/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsInMpGe NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund netlify-cli@3.9.0
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000023ed170) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=27930 (pre=27928) trace=15165 lines
-  CLOSURE   1046 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-U2eycj/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-U2eycj/Observe/capture.json
-  RAWLOG-BYTES raw=2537335 gz=95839
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-U2eycj/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsaiMHyP","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  OBSERVE   rc=0 dtrace_rc=0 files=21235 (pre=21233) trace=31209 lines
+  CLOSURE   910 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-e6dTBB/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-e6dTBB/Observe/capture.json
+  RAWLOG-BYTES raw=4091432 gz=205356
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"netlify-cli","packageVersion":"3.9.0","major":14,"version":"14.21.3","npm":"6.14.18","pinnable":true,"engines":">=10.18.0","publishedAt":"2021-02-25T14:38:30.472Z","eraMajor":14,"startMajor":14,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/14.21.3/node-v14.21.3-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-e6dTBB/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsInMpGe","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":241,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (241) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
-  EVENTLOG-FILE /Users/runner/v2m-U2eycj/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":15166,"parsed":15148,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":5959,"enoent":5956,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5956},"procs":5,"lifecyclePids":1,"distinctEvents":8536,"emitted":8536,"calls":14595,"bytes":1628591,"gzipBytes":55256,"out":"/Users/runner/v2m-U2eycj/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=4717 dropped-events=1
+       The EXIT CODE is still a live detector here, so a descent arm that actually
+       FAILED is evidence. What is missing is the gate, not every signal — do not read
+       a green arm as proof on its own, and do not read this note as "no evidence".
+  EVENTLOG-FILE /Users/runner/v2m-e6dTBB/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":31210,"parsed":31192,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":1,"danglingPair":0,"failed":12813,"enoent":12808,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":12808,"EEXIST":2},"procs":5,"lifecyclePids":1,"distinctEvents":16909,"emitted":16909,"calls":31155,"bytes":2826760,"gzipBytes":88673,"out":"/Users/runner/v2m-e6dTBB/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=8595 dropped-events=1
     NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
     ⛔ CWD-UNOBSERVED 2 relative path(s) (0 write(s)) came from a lifecycle
@@ -42,39 +57,38 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=85654 read  unproven .
-         pid=85654 read  unproven .
+         pid=84073 read  unproven .
+         pid=84073 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x600001f90090
+             1 x  epid=128 action=1 fault=1 addr=0x6000023ed170
   == ATTRIBUTION == lifecycle pids: 1
-    writes  script 1  /  whole traced subtree 1091
-    sockets script 0  /  whole traced subtree 1
-  == ROOTS (from /Users/runner/v2m-U2eycj/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-U2eycj/Observe
+    writes  script 0  /  whole traced subtree 8
+    sockets script 0  /  whole traced subtree 0
+  == ROOTS (from /Users/runner/v2m-e6dTBB/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-e6dTBB/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-U2eycj/jailhome
+    jailHome      /Users/runner/v2m-e6dTBB/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-U2eycj/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-e6dTBB/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsaiMHyP
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsInMpGe
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-U2eycj/Observe/node_modules/netlify-cli
+    ownPkg        /Users/runner/v2m-e6dTBB/Observe/node_modules/netlify-cli
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
-    systemfs      1
-        /dev/dtracehelper
   == READS the script performed, by scope ==
-    outside       3
     systemfs      8
+    outside       4
     userHome      2
     ownPkg        2
     deps         17
         outside: /
-        outside: /bin/bash
+        outside: /bin/sh
         outside: /bin
+        outside: /bin/bash
   == NETWORK ==
     AF_INET connects: 0   distinct peers: 0
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
@@ -86,11 +100,12 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  EVICT[synth] 1383 store entries removed, 13 spared as nub tooling, 1961 in store
-     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  EVICT[synth] 972 store entries removed, 110 spared as nub tooling, 1952 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f93f6fd9b78ad779752cf52d68e0c7e18a352c3579ffc888d4e2c90af0610f30","specCount":1280,"lockfiles":{"digest":"3e1d14cc18726e4843f63f925d9abd40e00ef7458b38d7067beee5dc76aba7dc","files":[{"path":"nub.lock","sha256":"d8aba66cc82c14e12b491404fd9f4b5f43f8754877fbc339748b16e29126093f","bytes":375359}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T18:19:21.500Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-e6dTBB/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1280 exact package-version(s), tree f93f6fd9b78a
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=241/241 missing=0 shortfall=none (tree 131103/27930) OVERRIDDEN=2 REJECTED=0 grant={}
+  VERIFY[synth] rc=0 artifacts=241/241 missing=0 shortfall=none (tree 131206/21235) OVERRIDDEN=3 REJECTED=0 grant={}
   => VERIFIED {}
   NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction
 ### DONE netlify-cli@3.9.0  synthesized={} verified=1
