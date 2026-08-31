@@ -914,6 +914,17 @@ node "$HERE/observe.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/observed
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+# ⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. `observe.mjs` emits this token
+# instead of `{}` when the subtree filter matched nothing, precisely so the two cannot be confused —
+# they are byte-identical otherwise, and running the ladder against the empty one lands MINIMUM
+# ("needs nothing") on a measurement that never happened. MEASURED across the corpus: 100 linux and
+# 26 win32 records assert MINIMUM on exactly this, while darwin — which has had this branch all
+# along — refused 65 of 65. This is the back-port of `measure-macos.sh:906`, not a new rule.
+if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
+  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
+  echo "     measurement here. This is NOT a package that needs nothing.)"
+  exit 0
+fi
 
 # ── 2b. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────
 #

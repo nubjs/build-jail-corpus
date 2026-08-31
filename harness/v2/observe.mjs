@@ -423,8 +423,32 @@ const privateHomeRels = (w.jailHome ?? [])
 const wp = deriveWritePaths(privateHomeRels, { version: pkgVersion });
 if (wp.paths.length) g.writePaths = wp.paths;
 
+// ⛔⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT — AND UNTIL NOW THIS DECODER
+// COULD NOT TELL THEM APART. When the subtree filter matches nothing, `g` is `{}`, which is
+// byte-identical to the grant for a package that genuinely needs nothing. `measure.sh` then ran the
+// whole ladder against it, the package passed because it exercises nothing at verify time, and the
+// record landed as MINIMUM — "this package needs no permissions", asserted from a measurement that
+// never happened. That is an UNDER-PREDICTION, the one direction the workflow header calls out as
+// the one that breaks real installs.
+//
+// The warning printed a few lines above says "Treat it as UNKNOWN", and it has always been correct.
+// It was also addressed to a HUMAN READER: nothing consumed it, so it changed no verdict.
+//
+// MEASURED 2026-08-31 across the committed corpus, cross-tabulating the warning against the verdict
+// beside it:
+//
+//   darwin  65 attribution failures -> 65 UNKNOWN          (65/65 correctly refused)
+//   linux  134 attribution failures -> **100 MINIMUM** + 31 BROKEN-WITHOUT-JAIL-TOO + 2 + 1
+//   win32   28 attribution failures -> **26 MINIMUM** + 2 ARTIFACT-GATE-SUSPECT
+//
+// So 126 records assert "needs nothing" on a run where nothing was attributed. The non-MINIMUM ones
+// are unaffected: those verdicts do not rest on the grant being a real measurement, because the
+// package failed for a reason the ladder saw directly.
+//
+// `observe-macos.mjs:669` already emits this exact token and `measure-macos.sh` already branches on
+// it; that is why darwin is 65/65. This is the back-port, not a new design.
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
-console.log('  ' + JSON.stringify(g));
+console.log('  ' + (lifecycle.size === 0 ? 'UNKNOWN-ATTRIBUTION-FAILED' : JSON.stringify(g)));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant`);
 

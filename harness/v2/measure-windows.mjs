@@ -1199,6 +1199,30 @@ console.log(clsOut.trimEnd().split('\n').map((l) => '  ' + l).join('\n'));
 const observed = JSON.parse(fs.readFileSync(path.join(ROOT, 'observed.json'), 'utf8'));
 const GRANT = observed.grant;
 
+// ⛔⛔ AN EMPTY GRANT IS A REAL ANSWER; AN UNATTRIBUTED RUN IS NOT. When `classify.mjs`'s subtree
+// filter matches nothing it still emits `grant: {}`, which is byte-identical to the grant for a
+// package that genuinely needs nothing — so the ladder ran against it, the package passed because it
+// exercises nothing at verify time, and the record landed MINIMUM: "needs no permissions", asserted
+// from a measurement that never happened. That is an UNDER-PREDICTION, the direction that breaks
+// real installs.
+//
+// `classify.mjs:275` prints `NO LIFECYCLE SHELL FOUND ... Treat it as UNKNOWN`, and it has always
+// been right — but it was addressed to a human reader and nothing consumed it.
+//
+// MEASURED 2026-08-31 over the committed corpus, cross-tabulating that warning against the verdict
+// recorded beside it: darwin 65 failures -> 65 UNKNOWN (it has had this branch all along); linux 134
+// -> 100 MINIMUM; **win32 28 -> 26 MINIMUM**. The non-MINIMUM ones are unaffected, because those
+// verdicts do not rest on the grant being a real measurement.
+//
+// ⛔ BRANCHES ON `lifecyclePids`, NOT ON A SENTINEL STRING. `classify.mjs:245` already publishes the
+// count in the JSON this driver parses, so the fact is read from structured output rather than by
+// re-deriving it from prose — the POSIX drivers use a token only because they scrape stdout.
+if (observed.lifecyclePids === 0) {
+  console.log('  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no');
+  console.log('     measurement here. This is NOT a package that needs nothing.)');
+  process.exit(0);
+}
+
 // ── 2b. RETAIN the capture, when the batch driver asked for it. ────────────────────────────────
 //
 // ⛔ THIS IS THE ONLY THING IN THE PIPELINE THAT SURVIVES `$ROOT`. The capture directory lives under
