@@ -597,9 +597,10 @@ fi
 #
 # No fallback is needed: when nothing is pinned, `ARM_PATH`/`ERA_PATH` is the ambient PATH and the
 # bare name finds the harness npm, which is the old behaviour.
-# ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6 — rc=0, no output, no script, and
-# the arm then traces a process that did nothing. The full measurement and the three-major control
-# are at the identical block in `measure.sh`; 61 valid darwin records are in the affected set.
+# ⛔⛔ `npm rebuild <BARE NAME>` MATCHES NOTHING ON npm 6 WHEN THE INSTALLED VERSION IS A
+# PRERELEASE — rc=0, no output, no script, and the arm then traces a process that did nothing. npm 6
+# resolves a bare name to the range `*`, which semver excludes prereleases from. The 2x2 that
+# isolates the version, and the three-major control, are at the identical block in `measure.sh`.
 # The installed version is read back from the manifest rather than taken from `$VER`, and an
 # unreadable manifest falls back to the bare name (today's behaviour), never to no argument at all.
 REBUILD_VER=$(node -e '

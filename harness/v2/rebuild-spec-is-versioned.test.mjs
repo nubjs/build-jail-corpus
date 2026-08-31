@@ -7,11 +7,20 @@
 //   npm rebuild @sitespeed.io/edgedriver             -> rc=0, npm.log 0 bytes, install.js did NOT run
 //   npm rebuild @sitespeed.io/edgedriver@86.0.622-69 -> rc=1, npm.log 1320 bytes, install.js RAN
 //
-// 3/3 on scoped registry packages; absent on unscoped ones (`bigint-buffer`, `ico-endec` — bare and
-// versioned byte-identical); absent on npm 3.10.10 and npm 8.19.4, which both run the script from
-// the bare scoped name. So it is npm 6 only, which is why the corpus zero-attribution rate is 13.0%
-// on era npm 6 against 3.4% on npm 10 and 0.2% on npm 11 — numbers previously read as "modern npm
-// stopped running scripts", which is this bug seen from the wrong end.
+// ⛔ THE TRIGGER IS THE PRERELEASE VERSION, NOT THE SCOPE. All three packages the bug was found on
+// are scoped AND prerelease, and the first reading blamed the scope. A 2x2 with the version as the
+// only variable settles it, and is the `mechanism` test at the bottom of this file:
+//
+//   @x/pre@1.0.0-0  silent    u-pre@1.0.0-0  silent     <- prerelease, scoped and unscoped alike
+//   @x/plain@1.0.0  runs      u-plain@1.0.0  runs       <- plain, scoped and unscoped alike
+//
+// npm 6 resolves a bare name to the range `*`, and semver `*` does not match a prerelease.
+// `@apollo/rover@0.3.0`, `@arkweid/lefthook@0.7.7` and `@bazel/concatjs@3.8.0` are all scoped, all
+// on era npm 6, and all rebuild fine from the bare name. It is npm 6 only — npm 3.10.10 and npm
+// 8.19.4 both run the script from the bare name on the same prerelease tree — which is why the
+// corpus zero-attribution rate is 13.0% on era npm 6 against 3.4% on npm 10 and 0.2% on npm 11;
+// numbers previously read as "modern npm stopped running scripts", which is this bug seen from the
+// wrong end.
 //
 // These tests EXECUTE each driver's own derivation rather than asserting on its text, and they
 // control BOTH directions: a scoped subject must produce a versioned spec, and an unreadable
@@ -131,4 +140,26 @@ test('⭑ measure-windows.mjs: the rebuild.cmd wrapper CONSUMES the derived spec
     'measure-windows.mjs: the wrapper no longer passes the derived spec');
   assert.doesNotMatch(src, /rebuild --no-audit --no-fund \$\{PKG\}/,
     'measure-windows.mjs: the wrapper is back on the bare name');
+});
+
+// ⛔ THE MECHANISM ITSELF, pinned so the next reader does not re-derive the scoped theory from the
+// same confounded sample. It asserts the semver rule the whole finding rests on rather than shelling
+// out to npm 6, which is not available here: a bare name becomes the range `*`, and `*` excludes a
+// prerelease. Scope appears on both sides of both lists precisely because it is NOT the variable.
+test('⭑ the mechanism: a bare name becomes `*`, which excludes a prerelease — scope is irrelevant', () => {
+  const bareNameWouldMatch = (version) => !String(version).includes('-');
+  for (const [name, version] of [
+    ['@x/pre', '1.0.0-0'], ['u-pre', '1.0.0-0'],
+    ['@sitespeed.io/edgedriver', '86.0.622-69'], ['handsontable', '8.0.0-beta.1'],
+  ]) {
+    assert.equal(bareNameWouldMatch(version), false,
+      `${name}@${version}: a bare-name rebuild matches nothing on npm 6, so the script never runs`);
+  }
+  for (const [name, version] of [
+    ['@x/plain', '1.0.0'], ['u-plain', '1.0.0'],
+    ['@apollo/rover', '0.3.0'], ['bigint-buffer', '1.1.5'],
+  ]) {
+    assert.equal(bareNameWouldMatch(version), true,
+      `${name}@${version}: the bare name is fine here, and the versioned spec is byte-identical`);
+  }
 });

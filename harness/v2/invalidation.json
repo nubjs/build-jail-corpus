@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 48,
+  "currentEpoch": 49,
   "transitions": [
     {
       "fromEpoch": null,
@@ -671,6 +671,16 @@
         ]
       },
       "reason": "the observe arm rebuilt by bare name, which npm 6 resolves as the range `*` — and `*` does not match a PRERELEASE version, so the script never ran"
+    },
+    {
+      "fromEpoch": 48,
+      "fromHarnessSha256": "c1c4fa3b392d9b6abbe2465d033a3f01040bc918cec3e43eb17e539fd7774599",
+      "toEpoch": 49,
+      "toHarnessSha256": "f6f3cabada3fe507b59f8b1a1f5777ac40adedc95dfa7880f743b3207b2b750b",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "comment-only correction: the npm 6 rebuild trigger is a prerelease version, not a scoped name; plus a test pinning the mechanism"
     }
   ]
 }

@@ -967,12 +967,13 @@ const WRAP = path.join(ROOT, 'rebuild.cmd');
 // the traced rebuild runs under the capture script's OWN cmd.exe, and this wrapper is the one place
 // guaranteed to be in scope for the lifecycle script itself — the same reason `npm_config_cache` is
 // set here rather than passed to powershell.
-// ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6 — rc=0, no output, and the script
-// never runs, so the arm traces a process that did nothing and the empty syscall set is read as a
-// measurement. The measurement and the three-major control are at the identical block in
-// `measure.sh`. No win32 record is in the affected set today (every scoped win32 record ran a
-// newer npm), so this edit is written from the other two platforms' evidence — but the win32 lane
-// is 2,265 rows unmeasured, and era npm 6 is exactly what its 2016-2018 packages will select.
+// ⛔⛔ `npm rebuild <BARE NAME>` MATCHES NOTHING ON npm 6 WHEN THE INSTALLED VERSION IS A
+// PRERELEASE — rc=0, no output, no script, so the arm traces a process that did nothing and the
+// empty syscall set is read as a measurement. npm 6 resolves a bare name to the range `*`, which
+// semver excludes prereleases from. The 2x2 isolating the version and the three-major control are
+// at the identical block in `measure.sh`. No win32 record is in the affected set today, so this
+// edit is written from the other two platforms' evidence — but the win32 lane is 2,265 rows
+// unmeasured, and era npm 6 is exactly what its 2016-2018 packages will select.
 //
 // ⛔ THE INSTALLED VERSION, NOT `VER`. `pkgDir` is the same resolver the falsifiability gate uses,
 // so a subject it cannot find is one the arm was never going to measure anyway; that case falls

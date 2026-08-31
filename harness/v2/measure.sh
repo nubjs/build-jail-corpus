@@ -704,7 +704,8 @@ INTERPRETER="$(cd "$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 # Under the OS temp root, matching `make_private_tmp`'s `tempfile` under `std::env::temp_dir()`, so
 # the path SHAPE a script sees is the jail's too.
 JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
-# ⛔⛔ `npm rebuild <BARE SCOPED NAME>` MATCHES NOTHING ON npm 6, EXITS 0, AND PRINTS NOTHING.
+# ⛔⛔ `npm rebuild <BARE NAME>` MATCHES NOTHING ON npm 6 WHEN THE INSTALLED VERSION IS A
+# PRERELEASE. It exits 0 and prints nothing.
 #
 # The observe arm then traces a process that ran no script, and the harness reads the resulting
 # empty syscall set as a measurement. MEASURED 2026-08-31 against npm 6.14.12, on the era-dated
@@ -713,12 +714,17 @@ JAIL_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nub-tmp-obsXXXXXX")" || exit 1
 #   npm rebuild @sitespeed.io/edgedriver            -> rc=0, npm.log 0 bytes, NO script
 #   npm rebuild @sitespeed.io/edgedriver@86.0.622-69 -> rc=1, npm.log 1320 bytes, install.js RAN
 #
-# Reproduced 3/3 on scoped registry packages (`@sitespeed.io/edgedriver`, `@pulumi/tls`,
-# `@rsuite/icons`) and confirmed absent on unscoped ones (`bigint-buffer`, `ico-endec`: bare and
-# versioned are byte-identical). It is npm 6 ONLY — npm 3.10.10 and 8.19.4 both run the script from
-# the bare scoped name, which is why the corpus-wide zero-attribution rate is 13.0% on era npm 6
-# against 3.4% on npm 10 and 0.2% on npm 11. Those numbers were previously read as "modern npm
-# stopped running scripts"; they are this bug, seen from the wrong end.
+# ⛔ THE TRIGGER IS THE PRERELEASE, NOT THE SCOPE, AND THE FIRST READING OF THIS GOT IT WRONG.
+# All three packages the bug was found on are scoped AND prerelease, which is a confound. A 2x2
+# with the version as the only variable settles it — `@x/pre@1.0.0-0` and `u-pre@1.0.0-0` both go
+# silent, `@x/plain@1.0.0` and `u-plain@1.0.0` both run. npm 6 resolves a bare name to the range
+# `*`, and semver `*` does not match a prerelease. `@apollo/rover@0.3.0`, `@arkweid/lefthook@0.7.7`
+# and `@bazel/concatjs@3.8.0` are scoped, on era npm 6, and rebuild fine from the bare name.
+#
+# It is npm 6 ONLY — npm 3.10.10 and 8.19.4 both run the script from the bare name on the same
+# prerelease tree. That is why the corpus zero-attribution rate is 13.0% on era npm 6 against 3.4%
+# on npm 10 and 0.2% on npm 11; those numbers were previously read as "modern npm stopped running
+# scripts", which is this bug seen from the wrong end.
 #
 # The published trace of `@sitespeed.io/edgedriver@86.0.622-69` is the whole story in three lines:
 # npm execs, node execs, and nothing else ever does — 11 procs, 0 lifecycle shells, and npm's own
