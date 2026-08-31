@@ -1,9 +1,9 @@
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"abff954625b6acf5986908c688bff641f38a036e6ef27a398e18a315f3889642","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-28T01:31:45.215Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-XoJX8u/security/direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"abff954625b6acf5986908c688bff641f38a036e6ef27a398e18a315f3889642","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T01:15:02.397Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-UuHNFL/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree abff954625b6
   ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
   ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 4, whose node-gyp requires python2
   ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
-### victory-scatter@0.2.0   (/Users/runner/v2m-XoJX8u)   nub=/tmp/nub/target/release/nub
+### victory-scatter@0.2.0   (/Users/runner/v2m-UuHNFL)   nub=/tmp/nub/target/release/nub
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
@@ -15,4 +15,9 @@ OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"abff954
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
   ERA-RESOLUTION DATED 2015-10-14T06:33:07.470Z (deps as of the package's own publish date + 1d)
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=1; nothing to measure)
+    | npm error code ETARGET
+    | npm error notarget No matching version found for left-pad@0.0.3 with a date before 10/14/2015, 6:33:07 AM.
+    | npm error notarget In most cases you or one of your dependencies are requesting
+    | npm error notarget a package version that doesn't exist.
+    | npm error A complete log of this run can be found in: /Users/runner/.npm/_logs/2026-08-31T01_15_11_411Z-debug-0.log
