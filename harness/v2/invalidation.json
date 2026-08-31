@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 49,
+  "currentEpoch": 50,
   "transitions": [
     {
       "fromEpoch": null,
@@ -681,6 +681,16 @@
         "verdicts": []
       },
       "reason": "comment-only correction: the npm 6 rebuild trigger is a prerelease version, not a scoped name; plus a test pinning the mechanism"
+    },
+    {
+      "fromEpoch": 49,
+      "fromHarnessSha256": "f6f3cabada3fe507b59f8b1a1f5777ac40adedc95dfa7880f743b3207b2b750b",
+      "toEpoch": 50,
+      "toHarnessSha256": "b569967cebe3dbac49292ae82edb702d392eb4b09d0aa257668cfdb367445d50",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "pin the reclaim-versus-job-cap invariant and correct the CAS test's stale open-objections note; tests and comments only"
     }
   ]
 }

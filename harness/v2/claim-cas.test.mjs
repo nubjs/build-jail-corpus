@@ -11,11 +11,27 @@
 // PINNING rather than believing, and pinning it is free — this test drives the step's OWN shell,
 // extracted from the workflow, against two clones of a scratch repo. It touches no corpus.
 //
-// ⛔ IT DOES NOT MAKE PARALLEL DRAINING SAFE, AND MUST NOT BE CITED AS THOUGH IT DOES. It covers the
-// CLAIM path only. Two things the header's measurement recorded are still unexplained and are NOT
-// tested here: a publish gap ("50 measured, 43 published"), and `--reclaim-stale 360` returning a
-// LIVE slice's rows to pending — a macos slice measured 221 minutes on 2026-08-28, and a slower one
-// would cross that cutoff underneath itself.
+// ⛔ IT DOES NOT MAKE PARALLEL DRAINING SAFE, AND MUST NOT BE CITED AS THOUGH IT DOES. That warning
+// stands; what has changed is WHICH objections are still open. Both of the two this note originally
+// named are now closed, and the note is corrected rather than deleted so the reasoning survives:
+//
+//   - The publish gap ("50 measured, 43 published") was an ACCOUNTING artifact, not a lost record.
+//     The publisher pushes each record as it is measured and its `--reconcile` closes the row as it
+//     lands — see the `Commit records and queue` step, whose "already up to date" branch exists for
+//     exactly the slice that arrives with everything already on the branch. Counting publishes by
+//     grepping the run log is separately unreliable: MEASURED against run 33338876002,
+//     `grep -c 'published:'` returned 74 against 60 records, because the log embeds the workflow's
+//     own source and the harness suite's fixture output.
+//   - `--reclaim-stale` cannot reach a LIVE slice, because GitHub kills the job at
+//     `timeout-minutes` (300) well before the cutoff (360) and the claim happens after setup. The
+//     221-minute macos slice sits inside that bound. Pinned as an invariant, with negative controls,
+//     in `reclaim-cannot-outrun-the-job-cap.test.mjs`.
+//
+// ⛔ WHAT IS STILL OPEN IS THE ONE THING NO TEST CAN CLOSE: two runners have never actually drained
+// this corpus concurrently. The claim path is exercised here, the commit path is a jittered-backoff
+// CAS whose loud-fail guard was itself fixed from a two-runner interleaved-publish case reproduced
+// in this file, and the reclaim bound is pinned — but the end-to-end has not been run. Treat the
+// first parallel drain as an experiment with a revert plan, not as a settled configuration.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
