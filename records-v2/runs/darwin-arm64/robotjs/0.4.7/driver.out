@@ -1,5 +1,10 @@
-### robotjs@0.4.7   (/Users/runner/v2m-K9Rv23)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f272ebb71f85690d49f72801e292fc7f2ae95fc22b6b92401328ba79c305aff4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:19:51.802Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f272ebb71f85
+  ERA-NODE PINNED 6.17.1 (provisioned) (arms will run: v6.17.1)
+  ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 6, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### robotjs@0.4.7   (/Users/runner/v2m-yYA9AQ)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,61 +14,209 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2017-03-27T21:58:29.730Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c3fa2d309b022a33cf8dd766c240ccb7990253c2aa50e11e988b6ae60adbec1a","specCount":52,"lockfiles":{"digest":"8ee1854db2ab602b694978337312ec3e598c205b089a6d1be622af0bf51f9ede","files":[{"path":"package-lock.json","sha256":"6d878707101853d6c1598199bc8a2645f53df7551da61fb3d73f17cff26ae3df","bytes":19638}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:20:08.655Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 52 exact package-version(s), tree c3fa2d309b02
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-K9Rv23/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-K9Rv23/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsuwLKkx"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "robotjs" > "/Users/runner/v2m-K9Rv23/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-K9Rv23/Observe/rc"
+     cd "/Users/runner/v2m-yYA9AQ/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-yYA9AQ/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-yYA9AQ/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9hTxHS"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/usr/local/bin/python2.7   npm rebuild --no-audit --no-fund "robotjs" > "/Users/runner/v2m-yYA9AQ/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-yYA9AQ/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-K9Rv23/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-K9Rv23/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsuwLKkx NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund robotjs
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000027b4090) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000c6c0e0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 53 (ID 189: syscall::unlink:return): invalid address (0x60000102a310) in action #10 at DIF offset 12
-     dtrace: error on enabled probe ID 53 (ID 189: syscall::unlink:return): invalid address (0x60000102cc60) in action #10 at DIF offset 12
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-  OBSERVE   rc=1 dtrace_rc=0 files=992 (pre=984) trace=103055 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     npm error   251 |         int x = info[0]->Int32Value();
-     npm error       |             ^   ~~~~~~~~~~~~~~~~~~~~~
-     npm error fatal error: too many errors emitted, stopping now [-ferror-limit=]
-     npm error 20 errors generated.
-     npm error make: *** [Release/obj.target/robotjs/src/robotjs.o] Error 1
-     npm error gyp ERR! build error 
-     npm error gyp ERR! stack Error: `make` failed with exit code: 2
-     npm error gyp ERR! stack at ChildProcess.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.1/arm64/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:219:23)
-     npm error gyp ERR! System Darwin 24.6.0
-     npm error gyp ERR! command "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/node" "/Users/runner/hostedtoolcache/node/22.23.1/arm64/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
-     npm error gyp ERR! cwd /Users/runner/v2m-K9Rv23/Observe/node_modules/robotjs
-     npm error gyp ERR! node -v v22.23.1
-     npm error gyp ERR! node-gyp -v v11.5.0
-     npm error gyp ERR! not ok
-     npm notice
-     npm notice New major version of npm available! 10.9.8 -> 12.0.2
-     npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
-     npm notice To update run: npm install -g npm@12.0.2
-     npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-K9Rv23/jailhome/.npm/_logs/2026-08-07T20_59_31_390Z-debug-0.log
+     + cd /Users/runner/v2m-yYA9AQ/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-yYA9AQ/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-yYA9AQ/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9hTxHS NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/usr/local/bin/python2.7 npm rebuild --no-audit --no-fund robotjs
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001800000) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003da9fe0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x3000000000000000) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x7fea72706470) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000f81d80) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 8 (ID 179: syscall::open:return): invalid address (0x7f8a6070e410) in action #9 at DIF offset 12
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000005d80e0) in action #6 at DIF offset 88
+  OBSERVE   rc=0 dtrace_rc=0 files=630 (pre=603) trace=563643 lines
+  CLOSURE   51 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-yYA9AQ/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-yYA9AQ/Observe/capture.json
+  RAWLOG-BYTES raw=78805560 gz=3494702
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"robotjs","packageVersion":"0.4.7","major":6,"version":"6.17.1","npm":"3.10.10","pinnable":true,"engines":null,"publishedAt":"2017-03-26T21:58:29.730Z","eraMajor":6,"startMajor":6,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/6.17.1/node-v6.17.1-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-yYA9AQ/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9hTxHS","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":199,"filesTheScriptProduced":25,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-yYA9AQ/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":563644,"parsed":563560,"unparsed":0,"live":true,"tracerErrors":33,"tracerErrorTotal":33,"unresolvedDirfd":912,"unresolvedFd":0,"pairedTwoPath":11,"danglingPair":0,"failed":523186,"enoent":522891,"refusals":0,"byErrno":{"ENXIO":95,"ENOENT":522891,"EEXIST":197,"EINVAL":3},"procs":192,"lifecyclePids":94,"distinctEvents":246395,"emitted":246395,"calls":562984,"bytes":39842918,"gzipBytes":1005434,"out":"/Users/runner/v2m-yYA9AQ/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=21064 dropped-events=33
+    NOTE 608 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 294 relative path(s) (21 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=29335 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29363 read  unproven .
+         pid=29402 read  unproven .
+         pid=29402 read  unproven .
+         … and 284 more
+    CWD-UNPLACEABLE-WRITES ["./Release/.deps/Release/obj.target/robotjs/src/MMBitmap.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/deadbeef_rand.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/keycode.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/keypress.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/mouse.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/robotjs.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/screen.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/screengrab.o.d.raw","./Release/.deps/Release/obj.target/robotjs/src/snprintf.o.d.raw","Release","Release/obj.target","Release/obj.target/robotjs","Release/obj.target/robotjs/src"]
+    CWD-RESOLVED 51 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 33 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+            22 x  epid=128 action=6 fault=1 addr=0x600003da9fe0
+             1 x  epid=128 action=1 fault=1 addr=0x600001800000
+             1 x  epid=128 action=6 fault=1 addr=0x3000000000000000
+             1 x  epid=128 action=5 fault=1 addr=0x7fea72706470
+             1 x  epid=128 action=5 fault=1 addr=0x600000f81d80
+             1 x  epid=8 action=9 fault=1 addr=0x7f8a6070e410
+             1 x  epid=128 action=6 fault=1 addr=0x6000005d80e0
+             1 x  epid=100 action=8 fault=1 addr=0x3085af320
+             1 x  epid=128 action=6 fault=1 addr=0x6000021a80e0
+             1 x  epid=128 action=6 fault=1 addr=0x6000020700e0
+  == ATTRIBUTION == lifecycle pids: 94
+    writes  script 216  /  whole traced subtree 219
+    sockets script 2  /  whole traced subtree 2
+  == ROOTS (from /Users/runner/v2m-yYA9AQ/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-yYA9AQ/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-yYA9AQ/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-yYA9AQ/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs9hTxHS
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    jailHome    163  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/android-ifaddrs.h
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/ares.h
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/ares_build.h
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/ares_rules.h
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/ares_version.h
+        /Users/runner/v2m-yYA9AQ/jailhome/.node-gyp/6.17.1/include/node/common.gypi
+        … and 153 more
+    ownPkg       49  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/config.gypi
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/Makefile
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/gyp-mac-tool
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/robotjs.target.mk
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/binding.Makefile
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/Release/.deps
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/Release/.deps/Release
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/Release/.deps/Release/obj.target
+        /Users/runner/v2m-yYA9AQ/Observe/node_modules/robotjs/build/Release/.deps/Release/obj.target/robotjs
+        … and 39 more
+    outside       4
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync7361.aTJYZ2
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-JboQwwxM
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
+  == READS the script performed, by scope ==
+    systemfs    765
+    outside    2242
+    userHome    394
+    deps        132
+    ownPkg       14
+    bytecode     86
+    jailHome     15
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /etc/resolv.conf
+        outside: /bin/sh
+        outside: /usr/bin/dirname
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 1
+        104.16.212.131:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"project":true},"network":true,"writePaths":[".node-gyp"]}
+    ⛔ 4 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 163
+        .node-gyp
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 4
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync7361.aTJYZ2
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-JboQwwxM
+        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
+  EVICT[synth] 26 store entries removed, 50 spared as nub tooling, 1696 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f22f44a7d88bb0c394af3b8a207ec15e1148cf33dc0cf1bbe44585ff8fa304ea","specCount":89,"lockfiles":{"digest":"3da58d7f9377f035e404034a9942e394b5bc72e29a87cd2d4dfed249d00e3bed","files":[{"path":"nub.lock","sha256":"c2cef0ff89ba209d3a3c4731be7b156a51451534e9c3f098dee95a9b5206eb31","bytes":21198}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:21:17.460Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 89 exact package-version(s), tree f22f44a7d88b
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=174/198 missing=24 shortfall=5c3a6c653c11 (tree 3463/630) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true,"writePaths":[".node-gyp"]}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/robotjs/src/MMBitmap.o.d, build/Release/.deps/Release/obj.target/robotjs/src/deadbeef_rand.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keycode.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keypress.o.d, build/Release/.deps/Release/obj.target/robotjs/src/mouse.o.d (+18)
+  !! OBSERVE UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+     The bounded ladder below is the repair; the terminal verdict waits on its outcome.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 8129
+     refused paths under the failing grant (count, path):
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT[fb903772438] 20 store entries removed, 50 spared as nub tooling, 1692 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb903772438-resolved","status":"clean","digest":"f22f44a7d88bb0c394af3b8a207ec15e1148cf33dc0cf1bbe44585ff8fa304ea","specCount":89,"lockfiles":{"digest":"3da58d7f9377f035e404034a9942e394b5bc72e29a87cd2d4dfed249d00e3bed","files":[{"path":"nub.lock","sha256":"c2cef0ff89ba209d3a3c4731be7b156a51451534e9c3f098dee95a9b5206eb31","bytes":21198}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:21:17.460Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/nub-fb903772438-resolved.json"}
+  SECURITY nub-fb903772438-resolved clean: 89 exact package-version(s), tree f22f44a7d88b (cached exact-tree clearance)
+  VERIFY[fb903772438] rc=0 artifacts=174/198 missing=24 shortfall=5c3a6c653c11 (tree 3463/630) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/robotjs/src/MMBitmap.o.d, build/Release/.deps/Release/obj.target/robotjs/src/deadbeef_rand.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keycode.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keypress.o.d, build/Release/.deps/Release/obj.target/robotjs/src/mouse.o.d (+18)
+  EVICT[fb2128993570] 20 store entries removed, 50 spared as nub tooling, 1692 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2128993570-resolved","status":"clean","digest":"f22f44a7d88bb0c394af3b8a207ec15e1148cf33dc0cf1bbe44585ff8fa304ea","specCount":89,"lockfiles":{"digest":"3da58d7f9377f035e404034a9942e394b5bc72e29a87cd2d4dfed249d00e3bed","files":[{"path":"nub.lock","sha256":"c2cef0ff89ba209d3a3c4731be7b156a51451534e9c3f098dee95a9b5206eb31","bytes":21198}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:21:17.460Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/nub-fb2128993570-resolved.json"}
+  SECURITY nub-fb2128993570-resolved clean: 89 exact package-version(s), tree f22f44a7d88b (cached exact-tree clearance)
+  VERIFY[fb2128993570] rc=0 artifacts=174/198 missing=24 shortfall=5c3a6c653c11 (tree 3463/630) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/robotjs/src/MMBitmap.o.d, build/Release/.deps/Release/obj.target/robotjs/src/deadbeef_rand.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keycode.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keypress.o.d, build/Release/.deps/Release/obj.target/robotjs/src/mouse.o.d (+18)
+  EVICT[fb1962834996] 20 store entries removed, 50 spared as nub tooling, 1692 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1962834996-resolved","status":"clean","digest":"f22f44a7d88bb0c394af3b8a207ec15e1148cf33dc0cf1bbe44585ff8fa304ea","specCount":89,"lockfiles":{"digest":"3da58d7f9377f035e404034a9942e394b5bc72e29a87cd2d4dfed249d00e3bed","files":[{"path":"nub.lock","sha256":"c2cef0ff89ba209d3a3c4731be7b156a51451534e9c3f098dee95a9b5206eb31","bytes":21198}]},"maliciousAdvisories":[],"screenedAt":"2026-08-31T10:21:17.460Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-yYA9AQ/security/nub-fb1962834996-resolved.json"}
+  SECURITY nub-fb1962834996-resolved clean: 89 exact package-version(s), tree f22f44a7d88b (cached exact-tree clearance)
+  VERIFY[fb1962834996] rc=0 artifacts=174/198 missing=24 shortfall=5c3a6c653c11 (tree 3463/630) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Makefile, build/Release/.deps/Release/obj.target/robotjs/src/MMBitmap.o.d, build/Release/.deps/Release/obj.target/robotjs/src/deadbeef_rand.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keycode.o.d, build/Release/.deps/Release/obj.target/robotjs/src/keypress.o.d, build/Release/.deps/Release/obj.target/robotjs/src/mouse.o.d (+18)
+  => ARTIFACT-GATE-SUSPECT {"write":{"deps":true,"project":true},"network":true,"writePaths":[".node-gyp"]}   (every arm rc=0 and the SAME 24-artifact shortfall at every
+     grant up to write:"disk" — invariant under widening, so it is not a capability gap)
+     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
+### DONE robotjs@0.4.7  synthesized={"write":{"deps":true,"project":true},"network":true,"writePaths":[".node-gyp"]} verified=0
