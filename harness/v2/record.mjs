@@ -557,6 +557,35 @@ export function parseDriverLog(log) {
       out.descentRedArm = true;
       continue;
     }
+    // ⛔ THE WIDE-BUT-CONFINED PROBE'S ONE LINE. `confined-wide.mjs` owns both the spelling and the
+    // payload, and all three drivers print it through that module rather than by hand — three
+    // hand-written `printf`s of one marker is how the `events LOST` note ended up live on one platform
+    // of three.
+    //
+    // ⛔ FAILS CLOSED. An unparsable payload, or a `result` this recorder does not recognise, leaves
+    // the field NULL and adds a note. Null is "not established", so a package stays on whatever the
+    // ladder concluded — never on a fabricated `pass`, which is the only direction that could make an
+    // unconfinable package look confinable.
+    //
+    // ⛔ `interpretation` IS PART OF THE ANSWER, NOT DECORATION. On win32 it is `bounded`: an
+    // unprivileged AppContainer can only be granted an ACE on what the caller owns (MECHANISM-FACTS
+    // §5l), so the probe there grants barely more than the last confined rung, and a `fail` does not
+    // separate a token problem from a path problem. A reader that took the win32 `fail` for the POSIX
+    // one would conclude "no grant can fix this" from an experiment that could not have shown it.
+    const cw = /CONFINED-WIDE\s+(\{.*\})\s*$/.exec(l);
+    if (cw) {
+      try {
+        const p = JSON.parse(cw[1]);
+        if (['pass', 'fail', 'void'].includes(p.result)) {
+          out.confinedWide = {
+            result: p.result,
+            interpretation: typeof p.interpretation === 'string' ? p.interpretation : 'unknown',
+            paths: Array.isArray(p.paths) ? p.paths : [],
+          };
+        } else out.notes.push('confined-wide-marker-unparsable');
+      } catch { out.notes.push('confined-wide-marker-unparsable'); }
+      continue;
+    }
     // ⛔ EACH DRIVER SPELLS EVENT LOSS DIFFERENTLY, AND KEYING ON ONE SPELLING SILENTLY EXEMPTS THE
     // OTHERS. `events LOST` is the WINDOWS wording (`measure-windows.mjs`) and it is live there — so
     // this note was never dead, which is exactly what made the defect hard to see: it fired on the

@@ -29,6 +29,9 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { parseDriverLog } from './record.mjs';
+// The probe's platform-interpretation answer, taken from the module that owns it so this suite cannot
+// assert a value no driver produces.
+import { interpretation } from './confined-wide.mjs';
 
 const HERE = import.meta.dirname;
 const DRIVER = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
@@ -142,6 +145,17 @@ const runRegion = (oracle, {
     // reported `actual: ''` — 13 of 13 `runRegion` cases red on Windows and green everywhere else,
     // while the three cases that never generate a script stayed green. Measured, run 32017576577.
     `const { classify } = await import(${JSON.stringify(pathToFileURL(path.join(HERE, 'unjailed-nub.mjs')).href)});`,
+    // ⛔ THE REAL MODULE AGAIN, FOR THE SAME REASON AND WITH THE SAME `file://` SPELLING. The
+    // wide-but-confined probe lives inside this region and its three symbols are imported at the
+    // driver's top, far above the slice — so without this line the region throws
+    // `ReferenceError: confinedWideBaseline is not defined` before printing anything, and every case
+    // in this file reads as "no verdict printed". Measured while the probe landed: 14 of 19 red, and
+    // the 5 that stayed green were the ones that never generate a script.
+    `const { confinedWideBaseline, interpretation, marker: confinedWideMarker } = await import(${JSON.stringify(pathToFileURL(path.join(HERE, 'confined-wide.mjs')).href)});`,
+    // `armBaseline` is the driver's module-scoped latch, declared beside `armSeq` far above the slice.
+    // The probe sets it, `verify` reads it; a stubbed `verify` ignores it, so a plain `let` is the
+    // whole of what the region needs.
+    'let armBaseline = null;',
     `const unjailedNubOk = () => ({ ok: ${unjailedNubOk}, engaged: ${offSwitchEngaged}, timedOut: ${controlTimedOut} });`,
     // ⛔ TAKES THE `{ dated }` OPTION THE REAL ONE TAKES. A zero-arg stub would silently answer the
     // DATED question for both calls, so the undated branch could never be driven and would read as
@@ -506,4 +520,103 @@ test('⭑ FALSIFICATION: with the stage removed, every finding above disappears'
   assert.doesNotMatch(out, /ARTIFACT-GATE-SUSPECT/, 'the stageless driver still classified');
   assert.equal(parseDriverLog(out).verdict, 'NO-STATE-PASSED',
     'this is the dead-end verdict the port exists to distinguish from a real capability gap');
+});
+
+// ── THE WIDE-BUT-CONFINED PROBE ───────────────────────────────────────────────────────────────────
+//
+// ⛔ THIS IS THE DRIVER WHOSE OWN COMMENT NAMED THE GAP. `measure-windows.mjs` has said since it was
+// written that a package passing only at `write:"disk"` "may be failing for a TOKEN-compatibility
+// reason no path grant can fix -- the ladder cannot tell those apart", and it echoes
+// `!! last rung is write:"disk" = NO CONFINEMENT on Windows` into every win32 record that lands there.
+// The probe is the arm that answers it: the last confined rung's grant plus a catalog `baseline`,
+// which compiles to ordinary ALLOW entries under `default_effect = Deny`, so `fs_confines` stays true
+// and the LowBox token is not declined.
+//
+// ⛔ AND ON THIS PLATFORM THE ANSWER IS BOUNDED — see the module's own note and MECHANISM-FACTS §5l.
+// The token survives a wide grant; what does not survive is the GRANT, because an unprivileged caller
+// can only install an ACE on what it owns. So a PASS proves confinability and a FAIL does not separate
+// the token from the paths, and the marker carries that rather than leaving it to a reader.
+
+const CW_MARKER = /CONFINED-WIDE \{/;
+
+// Every confined rung fails; only `write:"disk"` passes. That is the population — 67 of 67 win32
+// records carrying the NO CONFINEMENT line — whose grant the probe exists to explain.
+const ONLY_DISK_PASSES = (cw) =>
+  `(g, label) => (label === 'cw' ? ${cw} : { ok: g.write === 'disk' })`;
+
+test('⭑ the probe runs BETWEEN the last confined rung and the unconfined one', () => {
+  const out = runRegion(ONLY_DISK_PASSES('{ ok: false }'));
+  const cwAt = out.search(CW_MARKER);
+  assert.ok(cwAt > -1, `the probe never ran:\n${out}`);
+  // ORDER, not merely presence: after the terminal rung it would be answering a settled question, and
+  // would cost an install on every laddered package rather than only the ones in doubt.
+  const diskRung = out.indexOf('=> MINIMUM {"write":"disk"');
+  assert.ok(diskRung > -1, 'the terminal rung did not publish, so the ordering claim is vacuous');
+  assert.ok(cwAt < diskRung, 'the probe ran after the terminal rung rather than before it');
+});
+
+test('⭑ the probe does NOT run when a confined rung already passed', () => {
+  // ⛔⛔ THE POSITIVE CONTROL IS IN THIS TEST. An ABSENCE assertion passes when the feature is deleted;
+  // asserting the marker DOES appear on the laddering oracle, here, is what makes the absence half
+  // mean anything. Measured on the POSIX twins: with the probe call excised this case alone stayed
+  // green until the positive half was added.
+  assert.match(runRegion(ONLY_DISK_PASSES('{ ok: false }')), CW_MARKER,
+    'the probe never fires at all, so the absence below proves nothing');
+  const out = runRegion('(g, label) => ({ ok: true })');
+  assert.doesNotMatch(out, CW_MARKER, 'the probe ran even though a confined rung had already passed');
+  assert.equal(parseDriverLog(out).confinedWide, null);
+});
+
+test('⭑ THE ACCEPTANCE CRITERION: the probe adds a measurement and changes NO verdict', () => {
+  // ⛔ THE FAIL-CLOSED ASSERTION. The probe's widening rides a GLOBAL catalog `baseline`, which the
+  // shipped per-package vocabulary cannot express, so a passing probe must not publish its own grant —
+  // that would ship an entry NARROWER than the package was measured to need. Both polarities driven.
+  const passed = parseDriverLog(runRegion(ONLY_DISK_PASSES('{ ok: true }')));
+  const failed = parseDriverLog(runRegion(ONLY_DISK_PASSES('{ ok: false }')));
+  assert.equal(passed.confinedWide.result, 'pass');
+  assert.equal(failed.confinedWide.result, 'fail');
+  for (const r of [passed, failed]) {
+    assert.deepEqual(r.grant, { write: 'disk', network: true },
+      'the probe moved the published grant — it is a diagnosis, never a licence to narrow');
+    assert.equal(r.verifiedBy, 'ladder');
+  }
+  // The NO CONFINEMENT warning the driver already printed is still printed: the probe explains that
+  // line, it does not replace it.
+  assert.match(runRegion(ONLY_DISK_PASSES('{ ok: false }')), /NO CONFINEMENT on Windows/);
+});
+
+test('⭑ a VOID or TIMED-OUT probe arm is recorded as VOID, never as a failure', () => {
+  // ⛔ NEITHER IS EVIDENCE THAT A WIDE CONFINED GRANT FAILS. A VOID arm measured the COMPILED-IN
+  // catalog; a timeout measured nothing at all. Reading either as `fail` would publish "this package
+  // cannot run confined" off an arm that never ran the experiment — and on win32, where a fail is
+  // already the weaker half of the answer, that is the reading most likely to be over-trusted.
+  for (const arm of ['{ void: true }', "{ timedOut: true, stage: 'install' }"]) {
+    const r = parseDriverLog(runRegion(ONLY_DISK_PASSES(arm)));
+    assert.equal(r.confinedWide.result, 'void', `\`${arm}\` was not recorded as void`);
+    // And it must not abort the run the way a void RUNG does: the probe publishes nothing, so
+    // abandoning over it would discard a record the ladder could still produce.
+    assert.deepEqual(r.grant, { write: 'disk', network: true });
+  }
+});
+
+test('⭑ the win32 marker says BOUNDED, so a reader cannot take it for the POSIX answer', () => {
+  // The `interpretation` field is computed from the RUNNING platform, so this suite reads whatever it
+  // runs on; what is pinned here is that the marker carries the field at all and that it agrees with
+  // the module. A win32 record whose probe FAILED is not evidence that no grant helps — see §5l.
+  const r = parseDriverLog(runRegion(ONLY_DISK_PASSES('{ ok: false }')));
+  assert.equal(r.confinedWide.interpretation, interpretation());
+  assert.ok(r.confinedWide.paths.length > 0, 'the marker named no paths, so the arm is unauditable');
+});
+
+test('⭑ FALSIFICATION: with the probe excised, the confined-wide finding disappears', () => {
+  const PROBELESS = REGION.replace(/\n {2}if \(g\.write === 'disk'\) confinedWideProbe\(\);\n/, '\n');
+  assert.notEqual(PROBELESS, REGION, 'the excision matched nothing, so this control is vacuous');
+  assert.ok(PROBELESS.includes('const confinedWideProbe = () => {'),
+    'the excision removed more than the call');
+  assert.ok(PROBELESS.includes(RUNG2), 'the excision took the terminal rung with it');
+
+  const out = runRegion(ONLY_DISK_PASSES('{ ok: true }'), { source: PROBELESS });
+  assert.doesNotMatch(out, CW_MARKER, 'the probeless driver still emitted a confined-wide marker');
+  assert.equal(parseDriverLog(out).confinedWide, null);
+  assert.deepEqual(parseDriverLog(out).grant, { write: 'disk', network: true });
 });

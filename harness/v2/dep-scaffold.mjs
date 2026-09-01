@@ -30,6 +30,7 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { confinedWideBaseline } from './confined-wide.mjs';
 
 /** What a scaffolded dependency gets. Constant on purpose — see the note above. */
 export const SCAFFOLD = { write: 'disk', network: true };
@@ -82,21 +83,44 @@ export function scriptBearingDeps(observeDir, target) {
  * The sentinel below still exists for the case where nothing at all would be catalogued, keeping
  * the downstream override assertion meaningful.
  */
-export function buildCatalog(target, grant, observeDir) {
+export function buildCatalog(target, grant, observeDir, baseline = null) {
   const packages = {};
   for (const dep of scriptBearingDeps(observeDir, target)) packages[dep] = { default: SCAFFOLD };
   const scaffolded = Object.keys(packages).length;
   packages[target] = { default: grant };
   if (!Object.keys(packages).length) packages.__v2_empty_grant_sentinel__ = { default: { network: true } };
-  return { catalog: { packages }, scaffolded };
+  const catalog = { packages };
+  // ⛔ OMITTED WHEN ABSENT, NEVER WRITTEN AS AN EMPTY ARRAY. `catalog_v2::parse_baseline` treats a
+  // missing key and an empty array identically today, but an arm carrying the key is an arm whose
+  // catalog document differs from every other arm's — and the ladder rests on ONE variable per arm.
+  // Emitting the key only for the arm that asked for it keeps every other arm's document byte-identical
+  // to what it was before this parameter existed.
+  if (baseline && baseline.length) catalog.baseline = baseline;
+  return { catalog, scaffolded };
 }
 
-// CLI entry for the bash drivers: <armDir> <pkg> <grantJson> <observeDir>
+// CLI entry for the bash drivers: <armDir> <pkg> <grantJson> <observeDir> [--confined-wide]
+//
+// ⛔ THE FLAG NAMES A MODULE RATHER THAN TAKING A PATH LIST. The probe's path set is a security-shaped
+// decision — a whole-filesystem spelling in it relaxes the fs axis and turns the probe into the very
+// confound it exists to remove — so it lives in ONE reviewed module with its own guard and test,
+// instead of being passed in as a string three drivers could each get wrong differently.
+//
 // ⛔ `process.argv[1]` compared by REALPATH — on macOS `/tmp` is a symlink to `/private/tmp`, so a
 // plain string compare silently skips the CLI branch when the script is reached through one.
 if (fs.realpathSync(process.argv[1] || '.') === fs.realpathSync(fileURLToPath(import.meta.url))) {
   const [armDir, target, grantJson, observeDir] = process.argv.slice(2);
-  const { catalog, scaffolded } = buildCatalog(target, JSON.parse(grantJson), observeDir);
+  const wide = process.argv.includes('--confined-wide');
+  // ⛔ A REQUESTED BASELINE THAT CAME BACK EMPTY IS A HARD ERROR, NOT A QUIET NO-OP. `confinedWideBaseline`
+  // returns null on a platform with no probe set; writing the catalog anyway would run the arm at the
+  // PLAIN rung while the driver went on to report a probe result for a measurement it never made —
+  // which is a fabricated `pass` in the direction that would let a package look confinable.
+  const baseline = wide ? confinedWideBaseline() : null;
+  if (wide && !baseline) {
+    console.error('confined-wide requested but this platform has no probe path set');
+    process.exit(2);
+  }
+  const { catalog, scaffolded } = buildCatalog(target, JSON.parse(grantJson), observeDir, baseline);
   fs.writeFileSync(path.join(armDir, 'cat.json'), JSON.stringify(catalog));
   if (scaffolded) console.log(`  scaffold: ${scaffolded} dependency package(s) with lifecycle scripts granted a fixed wide grant`);
 }

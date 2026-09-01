@@ -1626,7 +1626,13 @@ verify () {
   #
   # This over-grants the SCAFFOLDING only, and it cannot reach the catalog: `collate.mjs` publishes
   # the grant recorded for the package under test, and every dependency is measured in its own run.
-  node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" || return 1
+  #
+  # ⛔ `$ARM_CONFINED_WIDE` IS SET FOR EXACTLY ONE ARM AND CLEARED IMMEDIATELY AFTER — see the probe
+  # below the ladder. It adds a catalog `baseline`, which is a document-level key, so an arm that
+  # carried it by accident would be running a different experiment from every other arm while
+  # reporting under the same rung. `${x:+…}` is safe under `set -u` (probed) and expands to nothing
+  # for every other arm, leaving their command line byte-identical to what it was.
+  node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" ${ARM_CONFINED_WIDE:+--confined-wide} || return 1
   fi
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique
@@ -2237,11 +2243,54 @@ diagnose
 # trade. Windows took this repair in `0f1aeecf2` and macOS in `89599dd9b`; this was the last driver
 # whose ladder published un-narrowed.
 echo "  synthesized grant did not verify — falling back to a bounded ladder"
+# ── THE WIDE-BUT-CONFINED PROBE — the measurement the ladder was missing. ─────────────────────
+#
+# ⛔⛔ THE TERMINAL RUNG CHANGES TWO VARIABLES AT ONCE, AND EVERY `write:"disk"` RECORD IN THIS CORPUS
+# WAS PRODUCED BY IT. `write:"disk"` is not a wider sandbox — it is NO sandbox. ONE function makes it
+# (`nub-sandbox/src/compiler/preset.rs`, `relax_fs_to_full_disk`) and it flips three things together:
+# `entries.clear()` (which discards the secret/`.env` floor), `default_effect = Allow`, and
+# `tmp = Shared`. `linux_landlock.rs` then emits a single `/` `FullDisk` rule and stands down. So a
+# package that passes ONLY there may need a wide write scope, or may be failing for a
+# sandbox-compatibility reason no path grant can fix — and a pass/fail ladder cannot tell those apart.
+#
+# This arm is the missing state BETWEEN them: the last confined rung's grant, widened by a catalog
+# `baseline` of concrete read-write directories. A baseline entry compiles to an ordinary ALLOW under
+# the build jail's `default_effect = Deny` (`preset.rs`, `build_jail_surface`), so
+# `fs_confines(fs) = default_effect != Allow || !entries.is_empty()` — the SAME predicate in all three
+# backends — stays TRUE and Landlock stays engaged. The path set and the never-a-root-glob guard live
+# in `confined-wide.mjs`.
+#
+# ⛔ IT IS A PROBE AND NOT A RUNG, WHICH IS WHAT MAKES IT FAIL-CLOSED. Its widening comes from a GLOBAL
+# baseline, and the shipped per-package grant vocabulary has no spelling for one — `catalog_v2::Reach`
+# is `None | Scopes | Disk` and nothing else. Publishing a grant this arm passed at would hand the
+# catalog an entry NARROWER than the package was measured to need, which is the under-granting
+# direction. So it records and returns; the ladder then walks the terminal rung exactly as before, and
+# the terminal rung still decides the published grant. Nothing here can narrow a record.
+ARM_CONFINED_WIDE=
+confined_wide_probe () {
+  # The last confined rung's grant, verbatim. Only the baseline differs, so the arm has one variable.
+  local cwg='{"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}'
+  echo "  probing the widest write scope that still CONFINES (baseline paths, default_effect stays Deny)"
+  ARM_CONFINED_WIDE=1
+  verify "$cwg" "cw"; local cwrc=$?
+  ARM_CONFINED_WIDE=
+  # ⛔ VOID IS ITS OWN ANSWER AND MUST NOT COLLAPSE INTO `fail`. A VOID arm measured the COMPILED-IN
+  # catalog, so it says nothing about a wide confined grant; reading it as `fail` would publish
+  # "this package cannot run confined" off an arm that never ran the experiment.
+  case "$cwrc" in
+    0) node "$HERE/confined-wide.mjs" --marker pass ;;
+    2) node "$HERE/confined-wide.mjs" --marker void ;;
+    *) node "$HERE/confined-wide.mjs" --marker fail ;;
+  esac
+}
 for g in \
   '{"write":{"deps":true,"project":true,"userHome":true},"network":true}' \
   '{"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}' \
   '{"write":"disk","network":true}'
 do
+  # Between the last confined rung and the unconfined one — i.e. only once every confined rung has
+  # already failed, so the probe costs an install exactly on the packages whose grant is in question.
+  case "$g" in *'"write":"disk"'*) confined_wide_probe ;; esac
   verify "$g" "fb$(echo "$g" | cksum | cut -d' ' -f1)"; frc=$?
   # A VOID rung is not a failed rung. Collapsing them makes the ladder CLIMB PAST a grant it never
   # tested and publish the next one as the minimum — over-granting on the strength of no measurement.

@@ -416,11 +416,18 @@ test('the synth-verified path is untouched: it descends from GRANT and still say
 //
 // ⛔ THE STUB IS THE PREDICATE, NOT THE ORACLE, WHICH IS WHY BOTH CASES BELOW EXIST. Only the silent
 // one can distinguish the guard from no guard; the printing one proves the refusal is caused by the
-// EMPTY output rather than by the stubbing itself. `$HERE` is used exactly once in the extracted
-// region — this call — so overriding it swaps the predicate and nothing else.
+// EMPTY output rather than by the stubbing itself.
+//
+// ⛔ `$HERE` IS NO LONGER USED ONLY ONCE IN THE REGION, AND THIS COMMENT USED TO SAY IT WAS. The
+// wide-but-confined probe resolves `confined-wide.mjs` through it too, so a bare override would swap
+// the predicate AND break the probe's marker — which `record.mjs` reads as "not established", i.e. it
+// would quietly change what these two cases exercise while they stayed green. The real module is
+// linked in beside the stub so the override still swaps THE PREDICATE AND NOTHING ELSE, which is the
+// property both cases rest on.
 const withPredicate = (body, fn) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'linux-inv-'));
   fs.writeFileSync(path.join(dir, 'shortfall-invariance.mjs'), body);
+  fs.symlinkSync(path.join(HERE, 'confined-wide.mjs'), path.join(dir, 'confined-wide.mjs'));
   try { return fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 };
 
@@ -468,4 +475,134 @@ test('⭑ FALSIFICATION: with the ladder removed, every finding above disappears
   const r = parseDriverLog(out);
   assert.notEqual(r.verifiedBy, 'ladder');
   assert.equal(r.grant, null);
+});
+
+// ── THE WIDE-BUT-CONFINED PROBE ───────────────────────────────────────────────────────────────────
+//
+// ⛔ WHAT THESE CASES PROTECT. The ladder's terminal rung is not a wider sandbox — it is NO sandbox
+// (`relax_fs_to_full_disk` clears `entries`, sets `default_effect = Allow` and puts tmp back to
+// Shared; `linux_landlock.rs` then emits one `/` `FullDisk` rule). So a package that passes only there
+// may need a wide write scope or may be failing for a confinement-compatibility reason no path grant
+// can fix, and every `write:"disk"` record in this corpus came from that rung. The probe is the state
+// BETWEEN the two: the last confined rung's grant, widened by a catalog `baseline` that leaves
+// `default_effect` at `Deny`.
+//
+// ⛔ THE PROBE MUST NEVER CHANGE WHAT IS PUBLISHED, and that is the load-bearing assertion here rather
+// than the marker. Its widening rides a GLOBAL baseline, which the shipped per-package vocabulary
+// cannot express, so publishing a grant it passed at would ship an entry narrower than the package was
+// measured to need — the under-granting direction. `the probe adds a measurement and changes no
+// verdict` is what pins that.
+
+const CW_MARKER = /CONFINED-WIDE \{/;
+
+test('⭑ the probe runs BETWEEN the last confined rung and the unconfined one', () => {
+  // Every confined rung fails; only `write:"disk"` passes. That is the exact population — 75 records
+  // today — whose grant this probe exists to explain.
+  const out = run(`
+    case "$label" in
+      cw) return 1 ;;
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `);
+  const cwAt = out.search(CW_MARKER);
+  assert.ok(cwAt > -1, `the probe never ran:\n${out}`);
+  // ORDER, not merely presence: a probe that ran AFTER the terminal rung would be reporting on a
+  // question the ladder had already answered, and would cost an install on every package instead of
+  // only the ones in doubt.
+  const diskRung = out.indexOf('=> MINIMUM {"write":"disk"');
+  assert.ok(diskRung > -1, 'the terminal rung did not publish, so the ordering claim is vacuous');
+  assert.ok(cwAt < diskRung, 'the probe ran after the terminal rung rather than before it');
+});
+
+test('⭑ the probe does NOT run when a confined rung already passed', () => {
+  // ⛔ THE COST CONTROL. The probe is a full install. Running it when rung 0 already answered the
+  // question would add one to every laddered package for no measurement at all — and would also
+  // record a `confinedWide` on packages whose grant was never in question.
+  //
+  // ⛔⛔ THE POSITIVE CONTROL IS IN THIS TEST, NOT IN A SIBLING, AND THAT IS WHY IT IS HERE. An
+  // ABSENCE assertion passes when the feature is deleted — measured: with the probe call excised from
+  // the driver, the four other cases below go red and this one stayed GREEN, which is exactly the
+  // shape of a test that reads as coverage and is not. Asserting that the marker DOES appear on the
+  // laddering oracle, in the same case, is what makes the absence half mean something.
+  const laddered = run(`
+    case "$label" in
+      cw) return 1 ;;
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `);
+  assert.match(laddered, CW_MARKER, 'the probe never fires at all, so the absence below proves nothing');
+
+  const out = run(RUNG0_PASSES_NETWORK_DROPS);
+  assert.doesNotMatch(out, CW_MARKER, 'the probe ran even though a confined rung had already passed');
+  assert.equal(parseDriverLog(out).confinedWide, null,
+    'a record whose confined rung passed must carry no probe result at all');
+});
+
+test('⭑ THE ACCEPTANCE CRITERION: the probe adds a measurement and changes NO verdict', () => {
+  // ⛔ THIS IS THE FAIL-CLOSED ASSERTION. Whatever the probe answers, the published grant is still
+  // whatever the ladder concluded — here the terminal rung. A future edit that let a passing probe
+  // publish its own grant would ship an entry NARROWER than the package was measured to need, because
+  // the catalog cannot carry the baseline the probe passed under. Both polarities are driven, since a
+  // rule that fired on only one of them would look correct from the other.
+  const oracle = (cw) => `
+    case "$label" in
+      cw) return ${cw} ;;
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `;
+  const passed = parseDriverLog(run(oracle(0)));
+  const failed = parseDriverLog(run(oracle(1)));
+  assert.equal(passed.confinedWide.result, 'pass');
+  assert.equal(failed.confinedWide.result, 'fail');
+  for (const r of [passed, failed]) {
+    assert.equal(r.verdict, 'MINIMUM');
+    assert.deepEqual(r.grant, { write: 'disk', network: true },
+      'the probe moved the published grant — it is a diagnosis, never a licence to narrow');
+    assert.equal(r.verifiedBy, 'ladder');
+  }
+});
+
+test('⭑ a VOID probe arm is recorded as VOID, never as a failure', () => {
+  // ⛔ COLLAPSING VOID INTO `fail` WOULD PUBLISH "THIS PACKAGE CANNOT RUN CONFINED" OFF AN ARM THAT
+  // NEVER RAN THE EXPERIMENT. A VOID arm measured the COMPILED-IN catalog, so it says nothing about a
+  // wide confined grant. Same three-outcome contract the rungs themselves keep.
+  const r = parseDriverLog(run(`
+    case "$label" in
+      cw) return 2 ;;
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `));
+  assert.equal(r.confinedWide.result, 'void');
+  assert.notEqual(r.confinedWide.result, 'fail');
+  // A VOID PROBE MUST NOT STOP THE LADDER. A void RUNG does (the ladder cannot climb past a grant it
+  // never tested), but the probe publishes nothing, so abandoning the run over it would discard a
+  // record the ladder was still able to produce.
+  assert.equal(r.verdict, 'MINIMUM', 'a void probe aborted a run the ladder could still complete');
+});
+
+test('⭑ FALSIFICATION: with the probe excised, the confined-wide finding disappears', () => {
+  // ⛔ WITHOUT THIS EVERY CASE ABOVE IS UNFALSIFIABLE. Excised mechanically from the same region the
+  // other cases run, so it cannot go stale — and asserted to have actually matched, because a
+  // no-op replacement would make this control pass while proving nothing.
+  const PROBELESS = REGION.replace(/\n *case "\$g" in \*'"write":"disk"'\*\) confined_wide_probe ;; esac\n/, '\n');
+  assert.notEqual(PROBELESS, REGION, 'the excision matched nothing, so this control is vacuous');
+  assert.ok(PROBELESS.includes('confined_wide_probe () {'), 'the excision removed more than the call');
+  assert.ok(PROBELESS.includes(RUNG2), 'the excision took the terminal rung with it');
+
+  const out = run(`
+    case "$label" in
+      cw) return 0 ;;
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `, { source: PROBELESS });
+  assert.doesNotMatch(out, CW_MARKER, 'the probeless driver still emitted a confined-wide marker');
+  assert.equal(parseDriverLog(out).confinedWide, null);
+  // The ladder itself is untouched by the excision, which is what makes the control specific to the
+  // probe rather than to a mangled region.
+  assert.deepEqual(parseDriverLog(out).grant, { write: 'disk', network: true });
 });

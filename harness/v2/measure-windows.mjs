@@ -39,6 +39,9 @@ import { shortfallDigest } from './shortfall-invariance.mjs';
 // both POSIX drivers, so three drivers cannot drift apart on what a jail-off control proved.
 import { classify, offSwitchEngaged } from './unjailed-nub.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
+// The wide-but-confined probe: its path set, its never-a-root-glob guard, and the ONE marker spelling
+// `record.mjs` reads. Shared with both POSIX drivers so the three cannot drift on what the probe is.
+import { confinedWideBaseline, interpretation, marker as confinedWideMarker } from './confined-wide.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
 // ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
 // here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
@@ -1749,6 +1752,12 @@ const ARM_LEDGER = [];
 
 let armSeq = 0;
 let storeLayoutReported = false;
+// ⛔ SET FOR EXACTLY ONE ARM AND CLEARED IMMEDIATELY AFTER — the wide-but-confined probe below the
+// ladder. It adds a catalog `baseline`, which is a DOCUMENT-level key, so an arm that carried it by
+// accident would be running a different experiment from every other arm while reporting under the same
+// rung. A module-scoped latch rather than a `verify` parameter, so this driver's shape matches the two
+// shell drivers' `$ARM_CONFINED_WIDE` and every other arm's call site is untouched.
+let armBaseline = null;
 const verify = (grant, label) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
@@ -1807,7 +1816,7 @@ const verify = (grant, label) => {
   // ⛔ SHARED WITH THE OTHER TWO DRIVERS — see `dep-scaffold.mjs`. This driver carried the
   // target-only construction while `measure.sh` had already been fixed, so the dependency-grant
   // confound stayed live here.
-  const { catalog, scaffolded } = buildCatalog(PKG, grant, OBS);
+  const { catalog, scaffolded } = buildCatalog(PKG, grant, OBS, armBaseline);
   fs.writeFileSync(cat, JSON.stringify(catalog));
   if (scaffolded) console.log(`  scaffold: ${scaffolded} dependency package(s) with lifecycle scripts granted a fixed wide grant`);
 
@@ -2237,7 +2246,52 @@ const LADDER = [
   { write: { deps: true, project: true, userHome: true }, read: 'disk', network: true },
   { write: 'disk', network: true },
 ];
+
+// ── THE WIDE-BUT-CONFINED PROBE — the measurement the note above says the ladder cannot make. ──
+//
+// The last confined rung's grant, widened by a catalog `baseline` of concrete read-write directories.
+// A baseline entry compiles to an ordinary ALLOW under the build jail's `default_effect = Deny`
+// (`preset.rs`, `build_jail_surface`), so `fs_confines(fs) = default_effect != Allow ||
+// !entries.is_empty()` -- the SAME predicate in all three backends (`windows.rs`) -- stays TRUE and the
+// LowBox token is NOT declined. Only `write:"disk"` reaches `relax_fs_to_full_disk`, which is what
+// sets `default_effect = Allow` and takes the token, the fs axis and the net axis together.
+//
+// ⛔⛔ THE WINDOWS ANSWER IS BOUNDED, AND THE BOUND IS OWNERSHIP RATHER THAN THE TOKEN. `.frizz/
+// sandbox-MECHANISM-FACTS.md` §5l (2026-08-01, runs 30688900451 / 30689267117 / 30689583039, both
+// images, FAILURES=0) measured an AppContainer holding a BROAD filesystem grant: the token SURVIVES a
+// wide grant, so "a wide grant kills the LowBox token" is false. What bounds the grant is what the
+// unprivileged caller can install an ACE on -- `C:\`, `C:\ProgramData`, `C:\Users` and
+// `C:\Users\Public` all return ERR 5 on the DACL write, and `C:\Program Files` and `C:\Windows` refuse
+// it even ELEVATED because TrustedInstaller owns them. The measured ceiling is `%USERPROFILE%` and
+// below plus anything nub creates, and the last confined rung's `write.userHome` already covers most
+// of it. So on win32 a PASS still proves the package is confinable, while a FAIL does NOT separate a
+// token problem from a path problem -- the paths that would settle it were never grantable. That is
+// carried in the marker as `interpretation: "bounded"` rather than left for a reader to infer.
+//
+// ⛔ A PROBE, NOT A RUNG, WHICH IS WHAT MAKES IT FAIL-CLOSED. Its widening comes from a GLOBAL
+// baseline and the shipped per-package grant vocabulary has no spelling for one (`catalog_v2::Reach`
+// is `None | Scopes | Disk`), so publishing a grant it passed at would hand the catalog an entry
+// NARROWER than the package was measured to need. It records and returns; the terminal rung below
+// still decides the published grant, exactly as it did before this existed.
+const confinedWideProbe = () => {
+  const baseline = confinedWideBaseline();
+  // A platform with no probe set records nothing rather than a fabricated verdict.
+  if (!baseline) return;
+  console.log(`  probing the widest write scope that still CONFINES (${interpretation()} on this platform)`);
+  armBaseline = baseline;
+  let r;
+  try { r = verify(LADDER[1], 'cw'); } finally { armBaseline = null; }
+  // ⛔ VOID IS ITS OWN ANSWER AND MUST NOT COLLAPSE INTO `fail`. A VOID arm measured the COMPILED-IN
+  // catalog, so it says nothing about a wide confined grant; reading it as `fail` would publish "this
+  // package cannot run confined" off an arm that never ran the experiment. A TIMEOUT is the same
+  // shape -- no evidence either way -- and is likewise not a `fail`.
+  console.log(confinedWideMarker(r.void || r.timedOut ? 'void' : r.ok ? 'pass' : 'fail'));
+};
+
 for (const [i, g] of LADDER.entries()) {
+  // Between the last confined rung and the unconfined one -- i.e. only once every confined rung has
+  // already failed, so the probe costs an install exactly on the packages whose grant is in question.
+  if (g.write === 'disk') confinedWideProbe();
   const r = verify(g, `fb${i}`);
   // ⛔ A VOID RUNG IS NOT A FAILED RUNG, AND `continue` IS THE BUG. Collapsing the two makes the
   // ladder CLIMB PAST a grant it never tested and publish the NEXT one as the minimum -- an

@@ -104,6 +104,42 @@ const TMP_LITERAL = /(['"])\/tmp\1/;
 // are: it must contain the bad spelling to prove the matcher sees it.
 const isComment = (line) => /^\s*(\/\/|\*|\/\*)/.test(line);
 
+// ⛔ ONE EXEMPTION, AND IT IS A DIFFERENT CONSTRUCT RATHER THAN A DIFFERENT OPINION. This rule bans a
+// POSIX temp path used as a path BASE — one the harness will `join` onto or open — on the ground that
+// it does not exist on Windows. `confined-wide.mjs`'s `CONFINED_WIDE_PATHS` is not that: it is a
+// per-platform table of SANDBOX GRANT paths handed to nub's catalog `baseline`, and the harness never
+// opens them. The rule's premise fails on it in the most direct way available — that table's own
+// `win32` arm omits `/tmp` entirely, so the banned string is never emitted on the platform the ban
+// exists to protect, and `confined-wide.test.mjs` pins the per-platform sets that make it so.
+//
+// The suite that PINS that table is exempt for the same reason and no other: asserting which paths
+// the linux and darwin arms contain is the only way the win32 omission above stays true, and it
+// cannot make that assertion without naming the string.
+//
+// ⛔ NAMED **AND** SHAPED, SO THE HOLE CANNOT SPREAD IN EITHER DIRECTION. Naming the files alone
+// would exempt a genuine path base added to one of them later — measured: with a file-wide skip, a
+// planted `const SCRATCH = '/tmp';` in `confined-wide.mjs` went UNFLAGGED. So the exemption also
+// requires the SHAPE that carries the argument: the literal must be an array member or an
+// `includes()` argument, i.e. an entry in the grant table or an assertion about one. A `/tmp` being
+// assigned, joined, or opened in these files is still a violation, which is what the CONTROL below
+// pins.
+const TMP_LITERAL_EXEMPT = new Set([
+  'harness/v2/confined-wide.mjs',
+  'harness/v2/confined-wide.test.mjs',
+]);
+
+/**
+ * A `'/tmp'` sitting in an array literal or handed to `includes()` — the grant-table shape.
+ *
+ * ⛔ `includes(` IS SPELLED OUT RATHER THAN COVERED BY A BARE `(`. The first version allowed any
+ * open paren, which made `path.join('/tmp', 'x-')` read as an array member — the exact defect this
+ * whole file exists to ban, exempted by its own exemption. Caught by the control below, which is why
+ * that control lists real spellings from both sides instead of only the ones meant to pass.
+ */
+const TMP_TABLE_MEMBER = /(?:^\s*|[[,]\s*|includes\(\s*)(['"])\/tmp\1(?=\s*[,\])])/g;
+const isExemptTmpLine = (label, line) =>
+  TMP_LITERAL_EXEMPT.has(label) && !TMP_LITERAL.test(line.replace(TMP_TABLE_MEMBER, ''));
+
 test('CONTROL: the source scan flags a bare /tmp base and ignores /tmp inside prose or a longer string', () => {
   assert.ok(TMP_LITERAL.test(`path.join(process.env.RUNNER_TEMP || '/tmp', 'x-')`),
     'the pattern missed the exact defect it exists to catch');
@@ -119,11 +155,41 @@ test('CONTROL: the source scan flags a bare /tmp base and ignores /tmp inside pr
     'real code must NOT be mistaken for a comment, or the guard scans nothing');
 });
 
+test('CONTROL: the exemption covers the grant-table SHAPE only, and still flags a path base', () => {
+  // ⛔ AN EXEMPTION NOBODY CHECKS IS A BAN NOBODY HAS, and a file-wide one is what this control caught:
+  // before the shape test was added, a `const SCRATCH = '/tmp';` planted in the exempt module went
+  // unflagged. Every line below is a real spelling from the two exempt files, or the defect the ban
+  // exists for.
+  const F = 'harness/v2/confined-wide.mjs';
+  for (const ok of [
+    "  linux: ['/tmp', '/var/tmp', '/usr'],",
+    "    '/tmp',",
+    "    CONFINED_WIDE_PATHS.linux = ['/tmp', bad];",
+    "  assert.ok(CONFINED_WIDE_PATHS.darwin.includes('/tmp'));",
+  ]) assert.ok(isExemptTmpLine(F, ok), `a grant-table entry was flagged: ${ok}`);
+
+  for (const bad of [
+    "const SCRATCH = '/tmp';",
+    "  const d = fs.mkdtempSync(path.join('/tmp', 'x-'));",
+    "  fs.writeFileSync(path.join('/tmp', 'out.json'), x);",
+  ]) assert.equal(isExemptTmpLine(F, bad), false, `a real path base was exempted: ${bad}`);
+
+  // The exemption is inert everywhere else, whatever the shape.
+  assert.equal(isExemptTmpLine('harness/v2/record.mjs', "  linux: ['/tmp'],"), false,
+    'the exemption leaked to a file that never argued for it');
+
+  for (const name of TMP_LITERAL_EXEMPT) {
+    assert.ok(jsFiles.some(([label]) => label === name),
+      `${name} is not in the scanned set — the name is stale, so its exemption means nothing`);
+  }
+});
+
 test('⭑ no harness JS uses a bare `/tmp` literal as a path base — use os.tmpdir()', () => {
   const offenders = [];
   for (const [label, file] of jsFiles) {
     fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
-      if (!isComment(line) && TMP_LITERAL.test(line)) offenders.push(`${label}:${i + 1}: ${line.trim()}`);
+      if (isComment(line) || isExemptTmpLine(label, line)) return;
+      if (TMP_LITERAL.test(line)) offenders.push(`${label}:${i + 1}: ${line.trim()}`);
     });
   }
   assert.deepEqual(offenders, [],
