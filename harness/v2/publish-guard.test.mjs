@@ -302,3 +302,60 @@ test('every non-NONE verdict, and an absent field, leave the guard exactly as it
   assert.equal(decide(prior, { ...base, observedEffect: null }).reason, licensed.reason);
   assert.equal(decide(prior, base).reason, licensed.reason);
 });
+
+// ── THE FIRST MEASUREMENT, WHERE `narrows` IS EMPTY FOR THE OPPOSITE REASON ────────────────────
+//
+// ⛔ A PACKAGE WITH NO PRIOR RECORD DROPS NO TOKEN AND STILL LOSES CAPABILITY. nub reads an ABSENT
+// catalog entry as the baseline INCLUDING its write-path promotion, and an EMPTY entry as a grant
+// whose `write_paths` is empty — which returns before the promotion loop runs. So `{}` published
+// where the corpus held nothing is tighter than publishing nothing at all, and every one of these
+// cases used to reach `dropped.length === 0` and publish.
+//
+// `records-v2/runs/darwin-arm64/@pulumi+gcp/6.9.0` is committed in exactly this state: `MINIMUM`,
+// grant `{}`, on the one platform of three whose runner ships no Pulumi CLI, while the linux and
+// win32 records for the same version both measured `{"write":{"userHome":true},"network":true}`.
+const first = (grant, observedEffect) => decide(null, { verdict: 'MINIMUM', grant, observedEffect });
+
+test('⛔ WITHHOLD: a FIRST measurement of `{}` off a no-effect run is vetoed, though it drops nothing', () => {
+  const d = first({}, eff('NONE'));
+  assert.equal(d.publish, false, 'a first empty entry disables promotion and must not publish unmeasured');
+  assert.match(d.reason, /EMPTY entry where the corpus has none/);
+  assert.match(d.reason, /Nothing here measured the PACKAGE/);
+});
+
+test('⛔ RED CONTROL: the SAME first `{}` with real effect observed publishes', () => {
+  // The dangerous direction for this term. A package that genuinely needs nothing — it ran, it did
+  // its work, and the work needed no capability — must still be publishable as `{}`, or the corpus
+  // loses every correct empty measurement it has. Only the observed-effect verdict differs here.
+  for (const v of ['WORK', 'NO-INSTALL-WORK', 'UNKNOWN', 'UNATTRIBUTED']) {
+    const d = first({}, eff(v));
+    assert.equal(d.publish, true, `${v} must not veto a first empty entry; got: ${d.reason}`);
+  }
+  assert.equal(first({}, null).publish, true, 'a record predating the marker publishes as it always did');
+});
+
+test('⛔ RED CONTROL: a first NON-empty entry off a no-effect run still publishes', () => {
+  // The term is scoped to the empty grant because that is the shape that disables promotion. A
+  // no-effect run that nonetheless synthesised a capability is the old flag-never-fail case and is
+  // deliberately untouched — refusing it would be the blanket refusal this guard already reverted.
+  assert.equal(first({ network: true }, eff('NONE')).publish, true);
+  assert.equal(first({ write: { userHome: true } }, eff('NONE')).publish, true);
+});
+
+test('a re-measure CONFIRMING an existing empty entry is left alone — the catalog does not move', () => {
+  // Withholding here would buy nothing (the prior entry is the same `{}`) and would re-queue every
+  // confirming run in the drain. The term asks whether the catalog would CHANGE, not whether the
+  // record is well-founded.
+  const d = decide({ verdict: 'MINIMUM', grant: {} }, { verdict: 'MINIMUM', grant: {}, observedEffect: eff('NONE') });
+  assert.equal(d.publish, true);
+  assert.equal(d.reason, 'does not narrow the existing grant');
+});
+
+test('a prior that is not a MEASUREMENT leaves the catalog empty, so `{}` still introduces an entry', () => {
+  // `collate.mjs` drops every non-MINIMUM verdict, so a prior VOID is, to the catalog, no entry at
+  // all — and publishing `{}` over it disables promotion exactly as a first measurement would.
+  const d = decide({ verdict: 'VOID', grant: null },
+    { verdict: 'MINIMUM', grant: {}, observedEffect: eff('NONE') });
+  assert.equal(d.publish, false);
+  assert.match(d.reason, /EMPTY entry where the corpus has none/);
+});

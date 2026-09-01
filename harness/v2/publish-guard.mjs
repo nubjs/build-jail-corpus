@@ -14,6 +14,12 @@
 //   Widening or confirming on a vacuous arm is fine — it cannot break an install.
 //   Narrowing on one WITHHOLDS, with the flag and the prior grant recorded as the reason.
 //
+// ⛔ "NARROW" IS ABOUT THE EFFECTIVE GRANT, NOT ABOUT THE TOKEN SET. A FIRST measurement of `{}` drops
+// no token — there is no prior grant to drop one from — and still reduces what nub grants, because an
+// ABSENT catalog entry falls back to the baseline WITH its write-path promotion while an EMPTY entry
+// disables promotion outright. `decide`'s `introducesEmptyEntry` term carries that case; the code
+// there quotes the nub source that makes the two differ.
+//
 // ⛔ "VACUOUS" IS NOT THE SAME AS "CARRIES THE arms-unfalsifiable NOTE", AND CONFLATING THE TWO
 // BLOCKS CORRECT RECORDS. `arm-falsifiability.mjs` reports INDEPENDENT reasons: `gate-vacuous` kills
 // the artifact gate, `rc-vacuous` kills the exit code. A package flagged `gate-vacuous` ALONE still
@@ -238,9 +244,35 @@ export const decide = (prior, incoming) => {
     };
   }
 
-  if (dropped.length === 0) {
-    return { publish: true, reason: 'does not narrow the existing grant' };
-  }
+  // ⛔⛔ AN EMPTY ENTRY IS TIGHTER THAN NO ENTRY, WHICH IS WHY THE VETO CANNOT SIT BELOW
+  // `dropped.length === 0`.
+  //
+  // `narrows` is a set difference, so a FIRST measurement — no prior record at all — always yields an
+  // empty `dropped`, for the opposite reason a confirming re-measure does: there was no grant to take
+  // anything away from. Both reached the early return below and published.
+  //
+  // For a re-measure that is right, and the old comment's rationale holds: widening or confirming
+  // cannot break an install. For a first measurement of `{}` it is FALSE, because nub does not treat
+  // an absent catalog entry and an empty one alike (`crates/nub-cli/src/pm_engine/build_jail.rs`):
+  //
+  //     let caps = match catalog_override_v2_grant(name, version) {
+  //         Some(grant) => grant.on(here),
+  //         None => Cow::Owned(baseline_caps()),   // ABSENT -> baseline, WITH its write_paths
+  //     };
+  //     if caps.write_paths.is_empty() { return; } // EMPTY  -> promotion disabled entirely
+  //
+  // So publishing `{}` where the corpus held nothing REMOVES the baseline's promotion, silently,
+  // while every grant still reads correctly. That is a narrowing in effect even though it drops no
+  // token, and `records-v2/runs/darwin-arm64/@pulumi+gcp/6.9.0` is already committed in that state.
+  //
+  // The condition is therefore "would this record REDUCE what the catalog grants" — it narrows a
+  // prior grant, OR it introduces an empty entry where no measured empty entry stands today. A
+  // re-measure that merely CONFIRMS an existing `{}` changes nothing and is left alone, and a
+  // no-effect run that WIDENS still publishes exactly as it did.
+  const introducesEmptyEntry = isMeasurement(incoming)
+    && capsOf(incoming?.grant).size === 0
+    && !(isMeasurement(prior) && capsOf(prior?.grant).size === 0);
+
   // ⛔⛔ THE VETO, AND IT IS TESTED BEFORE `narrowingEvidence` SO THAT NO PRESENT OR FUTURE TERM CAN
   // OUTRANK IT. Every term below answers "could this arm have gone red?". This one answers a prior
   // question — "did the script DO anything in this venue?" — and when the answer is no, none of the
@@ -251,25 +283,33 @@ export const decide = (prior, incoming) => {
   // asymmetry rather than relaxing it, and a record measured before the marker existed scores
   // UNKNOWN and keeps exactly the behaviour it had.
   //
-  // ⛔ AND IT SITS BELOW THE `dropped.length === 0` TEST ON PURPOSE. Widening or confirming on a
-  // no-effect run is still safe — it cannot break an install — so a record that does not narrow
-  // publishes as it always did.
-  //
   // MEASURED on the 2026-09-01 win32-x64 re-measure: ten of the twelve withheld `{}` records are
   // this state, nine of them `@pulumi/*`, whose `install-pulumi-plugin.js` ends in an unconditional
   // `process.exit(0)` after a `spawnSync("pulumi", …)` that ENOENTs on a runner with no Pulumi CLI.
   // A denial witness scored on their VERIFY arm returns CLEAN — correctly, and uselessly, because
   // the script attempted nothing to be refused. That is the fix this term exists to pre-empt.
-  if (vetoesNarrowing(incoming)) {
+  if (vetoesNarrowing(incoming) && (dropped.length > 0 || introducesEmptyEntry)) {
     const e = incoming.observedEffect;
+    const what = dropped.length
+      ? `would drop ${dropped.join(', ')} from ${JSON.stringify(prior?.grant ?? null)} to `
+        + `${JSON.stringify(incoming?.grant ?? null)}`
+      : 'would publish an EMPTY entry where the corpus has none, which disables the baseline\'s '
+        + 'write-path promotion rather than leaving it in place';
     return {
       publish: false,
-      reason: `WITHHELD — would drop ${dropped.join(', ')} from `
-        + `${JSON.stringify(prior?.grant ?? null)} to ${JSON.stringify(incoming?.grant ?? null)}, but `
+      reason: `WITHHELD — ${what}, but `
         + `${e.reason}. Nothing here measured the PACKAGE, so no detector — a red arm, a live gate or `
         + 'a CLEAN denial witness — can speak to this record. Re-measure on a venue that supplies '
         + "whatever the script silently needs, or record it as unmeasurable; do not narrow it.",
     };
+  }
+
+  // Past the veto, a record that takes nothing away publishes as it always did. This return moved
+  // BELOW the veto rather than away: everything under it reasons about DROPPED capabilities, so with
+  // an empty `dropped` it has nothing to judge and `narrowingEvidence` would withhold on a question
+  // this record does not ask.
+  if (dropped.length === 0) {
+    return { publish: true, reason: 'does not narrow the existing grant' };
   }
   // ⛔ `dropped` IS PASSED, AND THAT IS WHAT MAKES THE PROMOTION TERM REACHABLE AT ALL. The term is
   // scoped to the capability the probe actually speaks to, so a caller that does not say WHICH

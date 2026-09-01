@@ -207,10 +207,16 @@ test('⛔ all three classifiers emit the marker through the shared module, never
   // drivers are `observe.mjs` (linux), `observe-macos.mjs` (darwin) and `classify.mjs` (win32).
   for (const f of ['observe.mjs', 'observe-macos.mjs', 'classify.mjs']) {
     const src = fs.readFileSync(path.join(HERE, f), 'utf8');
-    assert.match(src, /import \{ marker as observedEffectMarker \} from '\.\/observed-effect\.mjs'/,
+    assert.match(src, /import \{ marker as observedEffectMarker[^}]*\} from '\.\/observed-effect\.mjs'/,
       `${f} must import the shared marker`);
     assert.match(src, /console\.log\(observedEffectMarker\(\{/, `${f} must emit it`);
     assert.doesNotMatch(src, /'OBSERVED-EFFECT/, `${f} must not hand-roll the marker string`);
+    // ⛔ AND THE WRITE CENSUS COMES FROM THE SHARED HELPER TOO. Three copies of
+    // `Object.values(w).reduce(…)` is how the instrument-owned-write exclusion would come to be live
+    // on one platform of three — the same drift this test already guards for the marker string.
+    assert.match(src, /writes: effectWrites\(w\),/, `${f} must take its write census from effectWrites`);
+    assert.doesNotMatch(src, /writes: Object\.values\(w\)\.reduce/,
+      `${f} must not re-implement the census inline`);
   }
 });
 
@@ -269,4 +275,119 @@ test('⭑ a real classifier run emits the marker, and the counts are the ATTRIBU
     { op: 'write', path: 'C:\\Users\\nub\\.pulumi\\plugins\\x', pid: SHELL_PID, result: 'ok' }]);
   assert.equal(worked.writes, 1);
   assert.equal(observedEffect({ ...worked, declares: true }).verdict, 'WORK');
+});
+
+// ── THE WRITES THE INSTRUMENT ITSELF CAUSES ───────────────────────────────────────────────────
+//
+// ⛔ THIS TERM HAS THE OPPOSITE FAILURE MODE TO EVERYTHING ABOVE. Every other rule in this file can
+// only WITHHOLD; an over-broad exclusion here makes a package that DID work score as no-effect, which
+// withholds a real grant and, on a first measurement, is the only way this module can suppress one.
+// So each exclusion is paired with a near-miss that must still count.
+import { effectWrites, isInstrumentOwnedWrite, INSTRUMENT_OWNED_WRITES } from './observed-effect.mjs';
+
+test('the tracer\'s own device write is not the package doing work', () => {
+  // MEASURED: `/dev/dtracehelper` is the ONLY write in 424 of the 1,912 committed darwin records, so
+  // the plain bucket sum returns 1 and `observedEffect` returns WORK for a script that did nothing.
+  // `records-v2/runs/darwin-arm64/@pulumi+gcp/6.9.0` is one of them, committed as `MINIMUM {}`.
+  const darwinIdle = { systemfs: ['/dev/dtracehelper'] };
+  assert.equal(effectWrites(darwinIdle), 0);
+  assert.equal(observedEffect({ lifecyclePids: 1, writes: effectWrites(darwinIdle), peers: 0, declares: true }).verdict,
+    'NONE', 'the darwin no-effect shape must reach the veto');
+  // The plain sum is what it used to be, and is what this fixes — stated so the test says which
+  // number changed rather than only which verdict.
+  assert.equal(Object.values(darwinIdle).reduce((a, v) => a + v.length, 0), 1);
+});
+
+test('⛔ RED CONTROL: a real write BESIDE the tracer\'s device still counts, and the bucket is not dropped', () => {
+  // The suppression direction. Excluding the whole `systemfs` bucket, or any path near the device,
+  // would score a working package as no-effect and withhold its grant.
+  const worked = { systemfs: ['/dev/dtracehelper', '/dev/null'], userHome: ['/Users/runner/.pulumi/plugins/x'] };
+  assert.equal(effectWrites(worked), 2);
+  assert.equal(observedEffect({ lifecyclePids: 1, writes: effectWrites(worked), peers: 0, declares: true }).verdict, 'WORK');
+});
+
+test('⛔ RED CONTROL: the two near-miss paths are deliberately NOT excluded', () => {
+  // `/dev/null` is the sole write in 42 committed records and is the SCRIPT redirecting output; the
+  // win32 `…:wofcompresseddata` alternate data streams are the sole write in 4 and are the OS
+  // decompressing a system DLL. Neither is caused by tracing, so neither may be waved away.
+  assert.equal(effectWrites({ systemfs: ['/dev/null'] }), 1);
+  assert.equal(effectWrites({ systemfs: ['c:\\windows\\syswow64\\umpdc.dll:wofcompresseddata'] }), 1);
+  assert.equal(isInstrumentOwnedWrite('/dev/null'), false);
+  assert.equal(isInstrumentOwnedWrite('/dev/dtracehelperx'), false, 'the match is exact, never a prefix');
+  assert.equal(isInstrumentOwnedWrite('/private/dev/dtracehelper'), false);
+  assert.deepEqual(INSTRUMENT_OWNED_WRITES, ['/dev/dtracehelper'],
+    'the list is short by policy — each entry needs a corpus count behind it');
+});
+
+test('effectWrites is total: a missing or malformed bucket map is 0, never a throw', () => {
+  for (const bad of [null, undefined, 'x', 42, {}, { a: null }, { a: 'not-an-array' }]) {
+    assert.equal(effectWrites(bad), 0, JSON.stringify(bad));
+  }
+});
+
+// ── END TO END ON LINUX: THE PEER COUNT MUST BE THE SCRIPT'S, NOT THE TRACED TREE'S ───────────
+//
+// ⛔ THE WIN32 RUN ABOVE PROVES ATTRIBUTION FOR ONE CLASSIFIER OF THREE, AND LINUX WAS THE ODD ONE.
+// `observe.mjs` collects peers over the whole traced tree by design — the report has always been
+// unattributed — and the census was wired to that set, while `observe-macos.mjs` and `classify.mjs`
+// both feed it the attributed one. Same field name in the marker, different quantity.
+//
+// MEASURED over the 2,059 committed linux records: 510 show an attributed `AF_INET sockets: 0` beside
+// a non-zero `distinct peers` (systemd-resolved on `127.0.0.53:53`, plus npm's own registry fetch),
+// and in 285 of them the script wrote nothing either — so the veto could not fire on linux at all.
+const OBSERVE = path.join(HERE, 'observe.mjs');
+
+const linuxRoots = (project) => ({
+  project, home: '/home/runner', jailHome: `${project}/jailhome`,
+  globalStore: '/home/runner/.cache/nub/pm/store', projectStore: `${project}/node_modules/.store`,
+  interpreter: '/opt/node', toolsDir: '/home/runner/.cache/nub/pm/tools', temp: '/tmp/nub-tmp-x',
+  npmPrefix: '/home/runner/.cache/nub/pm/tools/npm-prefix', ownPkg: `${project}/node_modules/thing`,
+});
+
+const runObserve = (lines) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-noeffect-obs-'));
+  const project = path.join(dir, 'obs');
+  fs.mkdirSync(project, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'trace.txt'), lines.join('\n') + '\n');
+  fs.writeFileSync(path.join(dir, 'capture.json'), JSON.stringify({ v: 1, roots: linuxRoots(project) }));
+  const r = spawnSync(process.execPath, [OBSERVE, path.join(dir, 'trace.txt'),
+    '--capture', path.join(dir, 'capture.json')], { encoding: 'utf8' });
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.equal(r.status, 0, `observe exited ${r.status}\n${r.stderr}`);
+  const line = r.stdout.split('\n').find((l) => l.includes('OBSERVED-EFFECT'));
+  assert.ok(line, `no OBSERVED-EFFECT line in observe output:\n${r.stdout}`);
+  return { counts: JSON.parse(/OBSERVED-EFFECT\s+(\{.*\})\s*$/.exec(line.trim())[1]), stdout: r.stdout };
+};
+
+// npm resolves and fetches BEFORE the lifecycle shell is exec'd, so its pids land in `toolPids` and
+// its connects are not the script's. This is the shape of every real linux record in the class.
+// The two peers sit on DIFFERENT pids because the decoder's dedup key is (pid, syscall, errno) and
+// excludes the host, so two connects from one pid collapse into one event — documented in
+// `adapters/linux.mjs`, and not the thing under test here.
+const NPM_FETCH = [
+  '100 execve("/opt/node/bin/node", ["node", "/opt/npm/bin/npm-cli.js"], 0x7ffd) = 0',
+  '100 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = 3',
+  '100 connect(3, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.53")}, 16) = 0',
+  '101 connect(4, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr("104.16.7.34")}, 16) = 0',
+];
+const LIFECYCLE_SHELL = '200 execve("/bin/sh", ["sh", "-c", "node install.js"], 0x7ffd) = 0';
+
+test('⭑ linux: a script that touched nothing reads as NONE even though the TREE reached the registry', () => {
+  const { counts, stdout } = runObserve([...NPM_FETCH, LIFECYCLE_SHELL]);
+  assert.ok(counts.lifecyclePids > 0, `a lifecycle shell must be attributed; got ${JSON.stringify(counts)}`);
+  assert.equal(counts.writes, 0);
+  assert.equal(counts.peers, 0, 'the two peers belong to npm, not to the script');
+  assert.equal(observedEffect({ ...counts, declares: true }).verdict, 'NONE');
+  // The report still states what the whole tree did, so the fix hides nothing.
+  assert.match(stdout, /distinct peers: 0 {2}\/ {2}whole traced tree 2/);
+});
+
+test('⛔ RED CONTROL: the script\'s OWN connect raises the count and turns the veto off', () => {
+  // The suppression direction for this half. If attribution were too strict — keyed on the shell pid
+  // alone, say, so a child `node` did not count — a package that plainly fetched over the network
+  // would score as no-effect and lose its `network` grant.
+  const { counts } = runObserve([...NPM_FETCH, LIFECYCLE_SHELL,
+    '200 connect(5, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr("140.82.114.4")}, 16) = 0']);
+  assert.equal(counts.peers, 1, 'the script reached one peer of its own');
+  assert.equal(observedEffect({ ...counts, declares: true }).verdict, 'WORK');
 });
