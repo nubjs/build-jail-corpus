@@ -2,47 +2,51 @@
   ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
   ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 10, whose node-gyp requires python3-legacy
   ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
-### parse-server@3.9.0   (/home/runner/v2-u5mOSw)
+### parse-server@3.9.0   (/home/runner/v2-eEfb4T)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"71b57dc413708110b4bcd616cf32327d237c6d1924581ccecfb454a77377b6ed","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T02:20:49.398Z","cacheHit":false,"clearancePath":"/home/runner/v2-u5mOSw/security/direct.json"}
+  XDG-ENV scrubbed from the traced child: XDG_CONFIG_HOME
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"71b57dc413708110b4bcd616cf32327d237c6d1924581ccecfb454a77377b6ed","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:49:30.448Z","cacheHit":false,"clearancePath":"/home/runner/v2-eEfb4T/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 71b57dc41370
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-NODE-SELECTION {"pkg":"parse-server","packageVersion":"3.9.0","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">= 8","publishedAt":"2019-09-12T22:58:16.110Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
   ERA-RESOLUTION DATED 2019-09-13T22:58:16.110Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6d7b6bb7475549b56f692c5a5d591dd4205d2d2ef5408e313c85f32c33f4256d","specCount":436,"lockfiles":{"digest":"d71297e142070e4ea19e7222c1e8744d49e5ba00f2bedffde47db3464bb74656","files":[{"path":"package-lock.json","sha256":"2c999fbecf474dd6252828345b37f27579db38b1b616acb6049006c49d3aa8e1","bytes":184511}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T02:21:01.171Z","cacheHit":false,"clearancePath":"/home/runner/v2-u5mOSw/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6d7b6bb7475549b56f692c5a5d591dd4205d2d2ef5408e313c85f32c33f4256d","specCount":436,"lockfiles":{"digest":"d71297e142070e4ea19e7222c1e8744d49e5ba00f2bedffde47db3464bb74656","files":[{"path":"package-lock.json","sha256":"2c999fbecf474dd6252828345b37f27579db38b1b616acb6049006c49d3aa8e1","bytes":184511}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:49:44.129Z","cacheHit":false,"clearancePath":"/home/runner/v2-eEfb4T/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 436 exact package-version(s), tree 6d7b6bb74755
   ARM-PATH SANITISED (nothing to drop)
-  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-u5mOSw/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-u5mOSw/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-AMBIENT-TOOLS 9 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-eEfb4T/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna node-pre-gyp=/home/runner/v2-eEfb4T/observe/node_modules/.bin/node-pre-gyp yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
   ARM-SCAFFOLD 1 added: babel-cli
   ARM-UNPROVIDABLE none
   ARM-SCAFFOLD-INSTALL rc=0
-  OBSERVE   rc=0 files=25166 trace=23905 lines
-  CLOSURE   618 packages evicted per arm
+  ARM-REBUILD-SPEC parse-server@3.9.0
+  OBSERVE   rc=0 files=16240 trace=20428 lines
+  CLOSURE   531 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":193,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (193) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/runner/v2-u5mOSw/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/runner/v2-u5mOSw/observe/capture.json
-  RAWLOG-BYTES raw=3728950 gz=126965
+       The EXIT CODE is still a live detector here, so a descent arm that actually
+       FAILED is evidence. What is missing is the gate, not every signal — do not read
+       a green arm as proof on its own, and do not read this note as "no evidence".
+  RAWLOG-FILE /home/runner/v2-eEfb4T/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-eEfb4T/observe/capture.json
+  RAWLOG-BYTES raw=3228128 gz=109236
   VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
   VENUE-NODE-SELECTION {"pkg":"parse-server","packageVersion":"3.9.0","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":">= 8","publishedAt":"2019-09-12T22:58:16.110Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
-  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-u5mOSw/jailhome","TMPDIR":"/tmp/nub-tmp-obsa58d9H","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-u5mOSw/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-eEfb4T/jailhome","TMPDIR":"/tmp/nub-tmp-obstfAsxa","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-eEfb4T/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"unsetForTracedChild":["XDG_CONFIG_HOME"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null,"XDG_CONFIG_HOME":"/home/runner/.config"}}
   == ATTRIBUTION == attributed pids: 13
-    writes  script 0  /  whole traced tree 3
+    writes  script 0  /  whole traced tree 5
     sockets script 0  /  whole traced tree 0
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/runner/v2-u5mOSw/observe
+    project       /home/runner/v2-eEfb4T/observe
     home          /home/runner
-    jailHome      /home/runner/v2-u5mOSw/jailhome
+    jailHome      /home/runner/v2-eEfb4T/jailhome
     globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/runner/v2-u5mOSw/observe/node_modules/.store   [declared, not keyed on]
+    projectStore  /home/runner/v2-eEfb4T/observe/node_modules/.store   [declared, not keyed on]
     interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
-    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsa58d9H
+    toolsDir      /home/runner/.cache/nub/pm/tools
+    temp          /tmp/nub-tmp-obstfAsxa
     npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/runner/v2-u5mOSw/observe/node_modules/parse-server
+    ownPkg        /home/runner/v2-eEfb4T/observe/node_modules/parse-server
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 0
@@ -55,19 +59,63 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    9959 distinct from 17085 calls (23906 lines, 6799 rejoined, 0 unparsed)
+    EVENTS    8590 distinct from 14779 calls (20429 lines, 5628 rejoined, 0 unparsed)
     PROCS     19   lifecycle shells 8
-    ⛔ 869 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    ⛔ 723 paths with an UNRESOLVED dirfd — kept, marked, never guessed
     unsubscribed/unmapped syscalls: exit×14 getcwd×8 recvmsg×5 exit_group×3 wait4×3 getsockname×1
-    wrote /home/runner/v2-u5mOSw/observe/events.ndjson.gz (54015 bytes)
-  EVENTLOG-FILE /home/runner/v2-u5mOSw/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":23906,"parsed":17085,"unparsed":0,"unfinished":6799,"rejoined":6799,"unresolvedDirfd":869,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":9959,"unknownSyscall":{"getcwd":8,"getsockname":1,"recvmsg":5,"exit":14,"exit_group":3,"wait4":3},"out":"/home/runner/v2-u5mOSw/observe/events.ndjson.gz","gzipBytes":54015}
-  EVICT     294 store entries removed, 163 spared as nub tooling
+    wrote /home/runner/v2-eEfb4T/observe/events.ndjson.gz (46879 bytes)
+  EVENTLOG-FILE /home/runner/v2-eEfb4T/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":20429,"parsed":14779,"unparsed":0,"unfinished":5628,"rejoined":5628,"unresolvedDirfd":723,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":8590,"unknownSyscall":{"getcwd":8,"getsockname":1,"recvmsg":5,"exit":14,"exit_group":3,"wait4":3},"out":"/home/runner/v2-eEfb4T/observe/events.ndjson.gz","gzipBytes":46879}
+  EVICT     38 store entries removed, 49 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for parse-server
   scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1c41347d325fa74d46ce489fdb9385e9fde4f42e039bd843c226a7cdff5b938d","specCount":539,"lockfiles":{"digest":"ad567c5a5a87d2e5a9dd3b6722c484dccf28589ff8cacc7e4aba090ec731d090","files":[{"path":"nub.lock","sha256":"459d9f67d48980e3c858c64556cb034ca144ae92d0ea71f76e639003e8c8ed86","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-08-24T02:21:32.338Z","cacheHit":false,"clearancePath":"/home/runner/v2-u5mOSw/security/nub-synth-resolved.json"}
-  SECURITY nub-synth-resolved clean: 539 exact package-version(s), tree 1c41347d325f
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"97916e36dfe703008e70501b22e52a8816af3367ff0a20b6ee32dbbe18cac6e4","specCount":539,"lockfiles":{"digest":"4dc69925169676ae84a0979b1407844f6563906cd3237f66c83de56d10cd18e0","files":[{"path":"nub.lock","sha256":"88fdd5bebcd184359512221c16a6f77970974d80f0593bc1bf867d31ead921a9","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:11.364Z","cacheHit":false,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 539 exact package-version(s), tree 97916e36dfe7
+  ARM-TOOLS staged 33 bin entries (16239 files, 43 symlinks, hardlink) into node_modules/.harness-tools
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=193/193 missing=0 shortfall=none (tree 93462/25166) OVERRIDDEN=2 REJECTED=0 grant={}
-  => VERIFIED {}   (observed, then verified)
-  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+  VERIFY[synth] rc=0 artifacts=193/193 missing=1 shortfall=0667e000d58e (tree 93579/16240) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: package.json (4306B < 5304B)
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     420 store entries removed, 81 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for parse-server
+  scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"5c11394958bc6a6b68c3d2abc0ad9beaee91fdceecb9b58301c66a0f182d4037","specCount":539,"lockfiles":{"digest":"7b9fd3d50cd8a1f902628ec36957d2bde44ef1a7d583f342f0cfd9017545af60","files":[{"path":"nub.lock","sha256":"8a8984bfb3a428dd998858d75dab3217c81c677589724e381887325afb8ab593","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:21.516Z","cacheHit":true,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 539 exact package-version(s), tree 5c11394958bc (cached exact-tree clearance)
+  ARM-TOOLS staged 33 bin entries (16239 files, 43 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[fb2126003217] rc=0 artifacts=193/193 missing=1 shortfall=0667e000d58e (tree 93591/16240) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: package.json (4306B < 5304B)
+  EVICT     420 store entries removed, 81 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for parse-server
+  scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"5c11394958bc6a6b68c3d2abc0ad9beaee91fdceecb9b58301c66a0f182d4037","specCount":539,"lockfiles":{"digest":"7b9fd3d50cd8a1f902628ec36957d2bde44ef1a7d583f342f0cfd9017545af60","files":[{"path":"nub.lock","sha256":"8a8984bfb3a428dd998858d75dab3217c81c677589724e381887325afb8ab593","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:21.516Z","cacheHit":true,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 539 exact package-version(s), tree 5c11394958bc (cached exact-tree clearance)
+  ARM-TOOLS staged 33 bin entries (16239 files, 43 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[fb3938809772] rc=0 artifacts=193/193 missing=1 shortfall=0667e000d58e (tree 93591/16240) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: package.json (4306B < 5304B)
+  probing the widest write scope that still CONFINES (baseline paths, default_effect stays Deny)
+  EVICT     420 store entries removed, 81 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for parse-server
+  scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-cw-resolved","status":"clean","digest":"5c11394958bc6a6b68c3d2abc0ad9beaee91fdceecb9b58301c66a0f182d4037","specCount":539,"lockfiles":{"digest":"7b9fd3d50cd8a1f902628ec36957d2bde44ef1a7d583f342f0cfd9017545af60","files":[{"path":"nub.lock","sha256":"8a8984bfb3a428dd998858d75dab3217c81c677589724e381887325afb8ab593","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:21.516Z","cacheHit":true,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-cw-resolved.json"}
+  SECURITY nub-cw-resolved clean: 539 exact package-version(s), tree 5c11394958bc (cached exact-tree clearance)
+  ARM-TOOLS staged 33 bin entries (16239 files, 43 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[cw] rc=1 artifacts=193/193 missing=1 shortfall=0667e000d58e (tree 93591/16240) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: package.json (4306B < 5304B)
+  CONFINED-WIDE {"result":"fail","platform":"linux","interpretation":"full","paths":["/tmp","/var/tmp","/usr","/usr/local","/opt","/srv","/var","/etc","/run"]}
+  EVICT     420 store entries removed, 81 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for parse-server
+  scaffold: 4 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"5c11394958bc6a6b68c3d2abc0ad9beaee91fdceecb9b58301c66a0f182d4037","specCount":539,"lockfiles":{"digest":"7b9fd3d50cd8a1f902628ec36957d2bde44ef1a7d583f342f0cfd9017545af60","files":[{"path":"nub.lock","sha256":"8a8984bfb3a428dd998858d75dab3217c81c677589724e381887325afb8ab593","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:21.516Z","cacheHit":true,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 539 exact package-version(s), tree 5c11394958bc (cached exact-tree clearance)
+  ARM-TOOLS staged 33 bin entries (16239 files, 43 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[fb2742342390] rc=0 artifacts=193/193 missing=1 shortfall=0667e000d58e (tree 93591/16240) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+       missing: package.json (4306B < 5304B)
+  NOT-GRANT-INDEPENDENT ladder was not fully walked (5 arms, expected 4)
+  jail-off control: resolved as nspjailoffcontrol (rc=0)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"5c11394958bc6a6b68c3d2abc0ad9beaee91fdceecb9b58301c66a0f182d4037","specCount":539,"lockfiles":{"digest":"7b9fd3d50cd8a1f902628ec36957d2bde44ef1a7d583f342f0cfd9017545af60","files":[{"path":"nub.lock","sha256":"8a8984bfb3a428dd998858d75dab3217c81c677589724e381887325afb8ab593","bytes":149856}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:50:21.516Z","cacheHit":true,"clearancePath":"/home/runner/v2-eEfb4T/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 539 exact package-version(s), tree 5c11394958bc (cached exact-tree clearance)
+  jail-off control: nub installs this package unjailed (rc=0), so the jail IS the difference
+  => NO-STATE-PASSED even at write:disk — investigate; do not widen the catalog blindly
