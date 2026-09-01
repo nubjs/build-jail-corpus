@@ -361,6 +361,17 @@ if [ -f "$NUB" ]; then
   ' "$NUB" "$NUB_HAS_OVERRIDE" 2>/dev/null)"
 fi
 
+# ⛔⛔ THE ERA-NODE MARKER, UPSTREAM OF EVERY EARLY `exit 0` — same defect and same fix as
+# `measure.sh`. It was emitted only in the provenance block near the end, which the early exits never
+# reach, so a package that failed the jail-off control produced a record with no `nodeSelection` at
+# all (`record.mjs:398` reads it from this line alone). MEASURED 2026-08-31: of 1,329
+# `BROKEN-WITHOUT-JAIL-TOO` records, 1,206 carry no `nodeSelection` and 598 of those say
+# `ERA-NODE PINNED <v> (provisioned)` in this same log — the pin worked, the provenance was lost.
+# Position is free: the payload is complete by line 280 and the parser scans for this marker anywhere.
+: "${NODE_SELECTION_MARKER:=}"
+[ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker not built"}'
+echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
+
 # ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
 # Shared with `measure.sh`; `measure-windows.mjs` carries the same key list in JS and
 # `ci-env-scrub.test.mjs` asserts all three agree. Full reasoning is in the sourced file. The short
@@ -666,7 +677,17 @@ DT_RC=$?
 # line saying HARNESS-TIMEOUT in words parses to null and lands on HARNESS-ERROR instead.
 if [ "$DT_RC" -eq 124 ]; then
   echo "  => TIMED-OUT (observe arm capped at ${ARM_CAP_SECS:-900}s; no verdict about the package)"
-  tail -20 "$OBS/npm.log" 2>/dev/null | sed 's/^/     /'
+  # ⛔⛔ `    | `, NOT A BARE INDENT — THIS IS PACKAGE-CONTROLLED TEXT AND THE PARSER READS VERDICTS
+  # OUT OF IT. `record.mjs:268` drops `/^\s*\|\s/` lines for exactly this reason; a five-space
+  # indent is not filtered, the verdict patterns are unanchored, and the LAST match wins — so a
+  # package whose npm output contains `=> MINIMUM` overwrites the real verdict printed above it.
+  # DEMONSTRATED 2026-08-31 against `record.mjs`'s own parse: a `BROKEN-WITHOUT-JAIL-TOO` log plus one
+  # echoed `npm error something => MINIMUM` parses as MINIMUM — a silent wrong answer, the one class
+  # this corpus most needs to not produce. MEASURED across all 2,286 darwin logs: 0 are affected
+  # today, so this is latent rather than live; it is fixed because the cost is a prefix.
+  # `$OBS/dtrace.log` (below) carries traced argv and is the same class — left alone only because no
+  # reader was checked; `run.sh`, `eventlog-stats.json` and `$gate` are harness-authored and safe.
+  tail -20 "$OBS/npm.log" 2>/dev/null | sed 's/^/    | /'
   exit 0
 fi
 echo "  --- wrapper (run.sh) ---"; sed 's/^/     /' "$OBS/run.sh"
@@ -684,7 +705,8 @@ if ! grep -q 'DTRACE-LIVE' "$OBS/trace.txt" 2>/dev/null; then
 fi
 if [ "$OBS_RC" -ne 0 ]; then
   echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=$OBS_RC; nothing to measure)"
-  tail -20 "$OBS/npm.log" | sed 's/^/     /'
+  # Same reason as the capped branch above: package-controlled text must carry the filtered prefix.
+  tail -20 "$OBS/npm.log" | sed 's/^/    | /'
   exit 0
 fi
 
