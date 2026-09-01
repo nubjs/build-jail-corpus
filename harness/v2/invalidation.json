@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 62,
+  "currentEpoch": 63,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1246,6 +1246,30 @@
         ]
       },
       "reason": "Epoch 62 lands the gyp sub-target spill repair, which was fabricating the worst verdict this harness can issue for packages that install cleanly at the EMPTY grant.\n\nMECHANISM, established with a real node-gyp fixture in both layouts rather than by reading gyp. node-addon-api hands its consumer path.relative(\".\", __dirname), and Node resolves __dirname THROUGH SYMLINKS, so the string is the dependency realpath: ../node-addon-api under npm flat layout, but ../../../node-addon-api@<ver>-<hash>/node_modules/node-addon-api under nub isolated store. gyp writes the sub-target at <pkgRoot>/<buildDir>/<that path>, and the leading .. eats one level of the build directory, so under nub the four generated makefiles land in a phantom directory TWO LEVELS ABOVE the package root, where the manifest walk never looks. Under npm they land inside the package and are walked. It is realpath-through-symlink rather than a depth difference, and it does not depend on the build directory name -- build/.. and build-tmp-napi-v3/.. collapse identically.\n\nThe repair keys by dependency name, which is the key npm layout already produces, and is ADD-ONLY: an unresolved key stays missing and stays named, so the gate keeps catching a genuine absence in the same family. The load-bearing detail no synthetic fixture caught is that the walk must start from realpathSync(root) rather than the package directory symlink -- the first implementation returned zero keys against a live install while reporting four against every fixture.\n\nCOUNT reconciles with the prior lane exactly: 243 file entries across 161 missing lines, the difference being entries versus lines. All 243 are ABSENCES, zero size differences, which is why this is a manifest-walk repair and NOT an excusal -- excusing an absence would dismantle the safety envelope the gate exists for.\n\nMEASURED on a real kernel, A/B with only the harness varying: node-pty@1.1.0 went from artifacts=289/293 missing=4 at EVERY rung, recorded NO-STATE-PASSED even at write:disk, to artifacts=293/293 missing=0, VERIFIED, and OVER-PREDICTED by no-network. It installs at the empty grant and is not a sandbox break at all -- about 6.4M weekly downloads that were counted against default-on.\n\nScope is node-pty alone, measured cost 0 valid records, because the fix repairs 3 records fully and the other 37 in the spill class carry a SECOND family the fix does not repair: the same root cause displaced inside build/, where a different number of prefix components is eaten per family, so recovering the reference key needs gyp own arithmetic. Their shortfall shrinks but no verdict moves, so invalidating them would buy nothing. That second family needs its own effort and is deliberately NOT excused here.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
+    },
+    {
+      "fromEpoch": 62,
+      "fromHarnessSha256": "70ab7087eea45b2337c6cf6b11325925116e6d97641e9746fd8961afe7b52ee7",
+      "toEpoch": 63,
+      "toHarnessSha256": "82a6c2f881b3f6f1980d50dad2ee915bf71358ede8ad6acf753e0c01c301ed38",
+      "invalidate": {
+        "packages": [
+          "@aws-amplify/cli",
+          "@modelcontextprotocol/ext-apps",
+          "@trufflesuite/bigint-buffer",
+          "ant-design-vue",
+          "backport",
+          "bigint-buffer",
+          "contentlayer",
+          "edgedriver",
+          "geckodriver",
+          "keccak",
+          "realm",
+          "secp256k1",
+          "tiny-secp256k1"
+        ]
+      },
+      "reason": "Epoch 63 lands a no-effect veto and a repair to the rc-liveness detector.\n\nREFUTATION FIRST, because it redirects the work: a denial witness scored on the VERIFY arm cannot rescue the gate-vacuous narrowings, and building a win32 capture for that purpose would have been wasted. Such a witness answers \"did the script attempt a refused access inside the dropped scope?\", and CLEAN means it never asked. The twelve records are precisely the population where the script never asked because it never DID anything, so CLEAN is guaranteed by construction and licensing on it publishes the under-grant. The detector cannot separate \"needs nothing\" from \"did nothing\".\n\nTHE MECHANISM, read out of the real tarballs rather than inferred. Ten of the twelve are the whole @pulumi family plus backport, and their OBSERVE writes block is EMPTY -- zero writes in any bucket. @pulumi/gcp scripts/install-pulumi-plugin.js spawns `pulumi plugin install`, and when the Pulumi CLI is absent the spawn returns ENOENT, the script prints to stderr and then calls process.exit(0) UNCONDITIONALLY. On a runner without that binary the package therefore writes nothing, opens nothing and exits 0, and the harness synthesizes the empty grant. On a machine that HAS the CLI the same script downloads plugins into ~/.pulumi/plugins over the network -- write.userHome plus network, exactly the grant these records would have dropped. The same family, the same script, opposite measurements, decided by an unrelated binary being on PATH.\n\nTHE VETO is a positive detector that only ever REFUSES: NONE requires a lifecycle pid attributed, the installed tree declaring an install script or a binding.gyp, zero writes in every bucket, and zero peers. It is evaluated BEFORE the evidence rules, so no present or future licence can outrank it. Base-covered buckets count as effect, or @azure-devops/mcp scores idle; execs deliberately do not, because an ENOENT spawnSync is an ATTEMPTED exec and counting it scores the whole @pulumi family as having worked. It invalidates nothing on its own -- the existing rule already withholds these twelve; the veto changes the REASON for ten of them, from \"no descent arm went red\", which points at building a red arm that cannot exist, to naming the no-effect state.\n\nTHE SECOND DEFECT, which is what the scope pays for. arm-falsifiability.mjs decided rc-liveness with a SWALLOWS alternation of true|:|exit 0, so a script ending in a trailing `|| echo` was not recognised as swallowing its exit code. backport@12.0.4 ends `|| echo Dist folder missing` and was therefore scored rcLive true for a package whose rc cannot be non-zero. Read the limit honestly: rc-liveness as measured is a claim about the shell wrapper, never about the payload.\n\nSCOPE is exact rather than projected. The archive logs cannot enumerate it -- arm-falsifiability prints a script body only when the OLD regex matched, so grepping all 6,887 driver logs for the new shape returns a false zero. Resolved instead from the registry over every distinct package@version under records-v2/runs: 2,324 of 2,324 resolved, zero unresolved, two known-answer controls green, 34 specs newly flagged across 13 distinct package names. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest, which has already moved: 993 valid at epoch 62, 19 in scope = 1.91%.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
     }
   ]
 }
