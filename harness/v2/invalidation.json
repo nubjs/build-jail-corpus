@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 76,
+  "currentEpoch": 77,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1565,6 +1565,16 @@
         "verdicts": []
       },
       "reason": "Gives electron's override a default band. The dist-tag has moved to 44.x since that override was written in August, so default is now the band a real install resolves to rather than dead space above the measured line, and it carried only a notes string. A notes-only band is not the same as no entry: an absent package falls back to baseline_caps and still promotes the baseline's write paths, while a present entry resolves to a grant with every capability empty and returns before the promotion loop, which is strictly tighter than deleting the entry. The band below records that withdrawing this package's egress makes a cold install fail getaddrinfo ENOTFOUND. Mirrors the measured base without the per-OS overlays, each of which rests on a measurement of a version below the bound. An override changes what the bake produces, never what a record measures, so nothing is invalidated."
+    },
+    {
+      "fromEpoch": 76,
+      "fromHarnessSha256": "9122887e7207913e81941a50b76be9b0aacd3d804f6cbae4e7d82a9a516a33a8",
+      "toEpoch": 77,
+      "toHarnessSha256": "ebe791c7d442d84cc18b58bb57f0c3fb69370490573a820761639a9948ae46f4",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "network census term: a record may not drop no-network when its own log census attributed peers to the lifecycle subtree, or when the census is absent"
     }
   ]
 }
