@@ -2088,7 +2088,18 @@ descend () {
   # it does not recognise — a harness/vocabulary disagreement, not a package property — and the safe
   # answer to that is the wide grant with minimality unclaimed, i.e. exactly the state the terminal
   # rung was already in. Loud in the log, and nothing narrows.
-  if ! CAPS=$(node "$HERE/descent-terms.mjs" --terms "$g0"); then
+  #
+  # ⛔⛔ `--platform linux` IS PASSED RATHER THAN LEFT TO `process.platform`, AND IT IS NOT
+  # DECORATION. The module's terminal-rung answer is per-BACKEND: `no-network` is a real arm on
+  # linux and darwin and an UNSUPPORTED refusal on win32, because `windows.rs`'s
+  # `if policy.build_jail && !confine_fs` branch returns a plain command with `net` on
+  # `Degradation::lost`. The grant this driver hands out will be enforced by the LINUX backend, on
+  # every run, by construction — so the platform is a property of the DRIVER and asking the host
+  # was always an inference standing in for a fact. It read the same on a Linux runner and
+  # differently under `linux-ladder.test.mjs`, which executes this very region on whatever box runs
+  # the suite: on `windows-latest` the region asked the win32 question, refused the descent, and
+  # took three cases red for a state this driver cannot reach in production.
+  if ! CAPS=$(node "$HERE/descent-terms.mjs" --terms "$g0" --platform linux); then
     echo "  !! DESCENT-TERMS REFUSED $g0 — the arm list could not be computed, so NO descent ran;"
     echo "     the wider $kept grant stands and minimality is unclaimed."
     return 0
@@ -2098,7 +2109,7 @@ descend () {
     # construction; a wide grant with no droppable TERM is not, and printing the first sentence for
     # the second is how `{"write":"disk","network":true}` would have published as `minimality: MINIMAL`
     # off a descent that ran zero arms.
-    node "$HERE/descent-terms.mjs" --verdict "$g0"
+    node "$HERE/descent-terms.mjs" --verdict "$g0" --platform linux
   else
     # ⛔⛔ `verify` HAS THREE OUTCOMES AND THIS LOOP MUST NOT COLLAPSE THEM TO TWO. rc 0 = the narrower
     # grant passed, rc 1 = it was genuinely insufficient, rc 2 = the arm was VOID (the override did

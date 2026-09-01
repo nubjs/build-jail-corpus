@@ -1581,7 +1581,17 @@ descend () {
   # produced an empty TSV and the driver then printed "the grant is already empty" — a wide grant
   # published as MINIMAL by construction off a crash. The refusal is now explicit and prints nothing
   # that `record.mjs` reads as minimality.
-  if ! node "$HERE/descent-terms.mjs" --variants "$g0" > "$ROOT/variants.tsv"; then
+  #
+  # ⛔⛔ `--platform darwin` IS PASSED RATHER THAN LEFT TO `process.platform`. The module's
+  # terminal-rung answer is per-BACKEND — `no-network` is a real arm here because `macos.rs`'s
+  # `needs_sandbox = fs_confines(policy) || tmp_confines(policy) || policy.net.enforce` keeps the net
+  # axis when the fs axis is fully relaxed, and `emit_fs` carries a branch named for exactly that
+  # state — while win32 refuses it. The grant this driver hands out is enforced by the DARWIN backend
+  # on every run, so the platform is a property of the DRIVER and asking the host was an inference
+  # standing in for a fact. `macos-ladder.test.mjs` executes this region on whatever box runs the
+  # suite: on `windows-latest` it asked the win32 question, refused the descent, and took three cases
+  # red for a state this driver cannot reach in production.
+  if ! node "$HERE/descent-terms.mjs" --variants "$g0" --platform darwin > "$ROOT/variants.tsv"; then
     echo "  !! DESCENT-TERMS REFUSED $g0 — the arm list could not be computed, so NO descent ran;"
     echo "     the wider $kept grant stands and minimality is unclaimed."
     return 0
@@ -1591,7 +1601,7 @@ descend () {
     # construction; a wide grant with no droppable TERM is not, and this driver printed the first
     # sentence for both — so `{"write":"disk","network":true}` reaching here would publish the widest
     # grant in the corpus as `minimality: MINIMAL` off a descent that ran zero arms.
-    node "$HERE/descent-terms.mjs" --verdict "$g0"
+    node "$HERE/descent-terms.mjs" --verdict "$g0" --platform darwin
   fi
   while IFS=$'\t' read -r nm gg; do
     [ -n "${nm:-}" ] || continue

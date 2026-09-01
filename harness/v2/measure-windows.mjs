@@ -68,6 +68,12 @@ import { provisionEraNode } from './era-provision.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
 import { isProvisioned, nodeBinDir } from './provision-node-matrix.mjs';
 
+// ⛔ THE PLATFORM THIS DRIVER MEASURES, NAMED ONCE AND PASSED EXPLICITLY TO `descent-terms.mjs`.
+// That module defaults to `process.platform`, which is right on a Windows runner and silently wrong
+// anywhere else; the note beside `descentTerms(g0, WIN32)` has the under-grant that costs. All three
+// drivers now name their own rather than asking the host.
+const WIN32 = 'win32';
+
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
 const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].startsWith('--')));
@@ -2193,7 +2199,15 @@ const descend = (g0, provenance) => {
   // `{"write":"disk"}`, and the catalog would then state that a package which used the network freely
   // does not need it — a vacuous pass turned into an under-grant. The module refuses to run it and
   // prints why.
-  const variants = descentTerms(g0).terms.map((t) => [t]);
+  //
+  // ⛔⛔ `'win32'` IS PASSED RATHER THAN LEFT TO `process.platform`, AND OF THE THREE DRIVERS THIS IS
+  // THE ONE WHERE IT MATTERS. The other two, asked the wrong platform, lose an arm and publish a
+  // wider grant — the safe direction. This one asked `darwin` or `linux` would GAIN a `no-network`
+  // arm that cannot go red, pass it vacuously, and narrow the record to `{"write":"disk"}` for a
+  // package that used the network freely: an under-grant, arrived at through the instrument that
+  // exists to prevent one. The grant is enforced by the WINDOWS backend on every run of this driver,
+  // so the platform is a property of the driver rather than of the host executing it.
+  const variants = descentTerms(g0, WIN32).terms.map((t) => [t]);
   // Shadows the imported applier to keep this function's call sites unchanged. `narrowGrant` THROWS
   // on a drop it cannot genuinely apply rather than returning a grant that merely looks narrowed —
   // the old local closure did `delete g.write[k]`, which on a STRING `write` silently changes nothing
@@ -2208,7 +2222,7 @@ const descend = (g0, provenance) => {
     // `{"write":"disk","network":true}` — the widest grant in the corpus, published as PROVEN MINIMAL
     // off a descent that ran zero arms. `verdictLines` picks the right one and carries the per-axis
     // reason in a JSON marker.
-    for (const l of verdictLines(g0)) console.log(l);
+    for (const l of verdictLines(g0, WIN32)) console.log(l);
   } else {
     for (const [name] of variants) {
       const sub = narrow([name]);

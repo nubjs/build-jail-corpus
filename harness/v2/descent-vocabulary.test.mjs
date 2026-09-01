@@ -150,6 +150,43 @@ test('⭑ the module refuses the string reach that the drivers used to refuse WH
   for (const t of terms) assert.doesNotMatch(t, /^no-write-/, 'a write arm was fabricated from a string');
 });
 
+// ⛔⛔ EACH DRIVER NAMES THE PLATFORM IT MEASURES; NONE ASKS THE HOST. `descentTerms` defaults its
+// second argument to `process.platform`, and that default is an INFERENCE standing in for a fact —
+// the grant a driver publishes is enforced by exactly one backend, on every run, by construction.
+// The inference read correctly on each driver's own runner and wrongly everywhere else, and both
+// directions of "elsewhere" are real:
+//
+//   • The suite executes these regions on whatever box runs it. On `windows-latest` the two POSIX
+//     ladders asked the win32 question, got `DESCENT-UNSUPPORTED`, and took six cases red
+//     (`linux-ladder` 233/270/285, `macos-ladder` 227/259/274) for a state neither driver can reach
+//     in production — run 33496813482.
+//   • The dangerous direction is the win32 driver's. Asked `linux` or `darwin` it GAINS a
+//     `no-network` arm that cannot go red at `write:"disk"` — `windows.rs`'s
+//     `if policy.build_jail && !confine_fs` returns a plain command with `net` on
+//     `Degradation::lost` — so the arm passes vacuously and the record narrows to "no network
+//     needed" for a package that used the network freely. An under-grant produced by the one
+//     instrument that exists to prevent under-grants.
+//
+// A source scan is the right instrument here precisely because the correct value is unobservable
+// from the host running the test: on macOS an EXECUTING check cannot tell a driver that named
+// `darwin` from one that inferred it.
+test('⭑ every driver names the platform it measures rather than inferring it from the host', () => {
+  for (const [platform, re] of [
+    ['linux', /descent-terms\.mjs" --terms "\$g0" --platform linux/],
+    ['linux', /descent-terms\.mjs" --verdict "\$g0" --platform linux/],
+    ['macos', /descent-terms\.mjs" --variants "\$g0" --platform darwin/],
+    ['macos', /descent-terms\.mjs" --verdict "\$g0" --platform darwin/],
+    ['windows', /descentTerms\(g0, WIN32\)/],
+    ['windows', /verdictLines\(g0, WIN32\)/],
+  ]) {
+    assert.match(CODE[platform], re,
+      `${DRIVERS[platform]} lets the HOST decide its descent vocabulary: ${re}`);
+  }
+  // The win32 token has to be the real one, not a variable that happens to be in scope.
+  assert.match(CODE.windows, /const WIN32 = 'win32';/,
+    'measure-windows.mjs binds WIN32 to something other than the platform string the module keys on');
+});
+
 test('⭑ no driver still uses the LEGACY bare spelling in its descent', () => {
   // ⛔ THE NEGATIVE HALF, AND IT IS NOT REDUNDANT WITH THE TEST ABOVE. A driver can emit BOTH — the
   // canonical name in one place and the bare one in the summary line that `record.mjs` actually reads
