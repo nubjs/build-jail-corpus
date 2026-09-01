@@ -31,6 +31,7 @@
 // different and are treated differently — `null` is the capture SAYING this platform has no such
 // root, which is an answer; an absent key is the capture failing to say, which is not.
 import fs from 'node:fs';
+import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
 
 const args = process.argv.slice(2);
 const val = (f, d) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
@@ -44,7 +45,7 @@ if (!file || !capturePath) {
 }
 
 // The list lives HERE, not in the driver: this file is what would misclassify without a root, so
-// this is the file that must refuse to run. Ten roots are REQUIRED; three are keyed on below. That
+// this is the file that must refuse to run. Ten roots are REQUIRED; four are keyed on below. That
 // is deliberate and matches the Linux and macOS classifiers — a root re-derived later is a root
 // re-derived from ambient state, and changing which bucket a path lands in is a grant-semantics
 // change that needs its own evidence rather than arriving as a side effect of declaring a root.
@@ -63,6 +64,10 @@ if (undeclared.length) {
 }
 const project = roots.project;
 const home = roots.home;
+// The MEASURED version, used for one thing only: saying whether a derived `writePaths` entry embeds
+// it and therefore stops matching on the next release. Never used to guess a path. Same field, same
+// single purpose, as `observe.mjs` and `observe-macos.mjs`.
+const pkgVersion = capture.version ?? null;
 // The two that ARE keyed on must be real paths, not `null`. A `null` reaching `startsWith` below
 // would match the literal string "null" and silently misclassify — the failure mode the macOS
 // classifier documents and guards the same way.
@@ -122,16 +127,26 @@ const isSystemFs = (p) => WIN
 // temp-shaped would silently under-grant exactly those packages. Only the exact declared root is
 // free, which is the jail's own rule rather than an approximation of it. Same reasoning, same
 // spelling and the same hazard note as `observe.mjs` and `observe-macos.mjs`.
+//
+// ⛔ `jailHome` IS THE SAME CONSTRUCTION AND CARRIES THE SAME HAZARD, ONE SCOPE UP. The jail gives a
+// confined script a private per-package home (`compiler/preset.rs::private_home_dir`) and repoints
+// `HOME`/`USERPROFILE`/`APPDATA` at it, so a write that FOLLOWED one of those variables lands in
+// space the base profile already grants read-write. Keyed on the path `capture.json` declares and
+// never on "looks like a home": a script that spells the REAL home out absolutely is writing
+// somewhere the jail does not grant, so that write still bills `userHome` and still earns the scope.
+// The two buckets then have OPPOSITE answers for `writePaths` — see the derivation below.
 const ROOTS = [
   ...(roots.temp ? [{ name: 'jailTmp', path: norm(roots.temp) }] : []),
+  ...(roots.jailHome ? [{ name: 'jailHome', path: norm(roots.jailHome) }] : []),
   { name: 'deps', path: norm(project + (WIN ? '\\node_modules' : '/node_modules')) },
   { name: 'project', path: norm(project) },
   { name: 'userHome', path: norm(home) },
 ].sort((a, b) => b.path.length - a.path.length);
+const jailHomeRoot = roots.jailHome ? norm(roots.jailHome) : null;
 
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
-const BASE_COVERED = ['jailTmp'];
+const BASE_COVERED = ['jailTmp', 'jailHome'];
 
 const under = (p, root) => p === root || p.startsWith(root + (WIN ? '\\' : '/'));
 
@@ -217,10 +232,10 @@ const w = bucket(writes), r = bucket(reads);
 // `write` implies `read` at its own scope and stating the redundant `read` is a PARSE ERROR, so a
 // read scope is only emitted where the same scope has no write.
 //
-// ⛔ A BASE-COVERED BUCKET CONTRIBUTES NOTHING. `w.jailTmp` is deliberately absent below: the jail
-// grants that directory unconditionally, so there is no catalog scope to widen for it. It is still
-// COUNTED and REPORTED, because "this package wrote 40 files into temp" is a fact a reader wants —
-// it is only excluded from the grant.
+// ⛔ A BASE-COVERED BUCKET CONTRIBUTES NOTHING. `w.jailTmp` and `w.jailHome` are deliberately absent
+// below: the jail grants both directories unconditionally, so there is no catalog scope to widen for
+// them. They are still COUNTED and REPORTED, because "this package wrote 40 files into temp" is a
+// fact a reader wants — they are only excluded from the grant.
 const grant = {};
 const wr = {};
 if (w.deps) wr.deps = true;
@@ -228,6 +243,33 @@ if (w.project) wr.project = true;
 if (w.userHome) wr.userHome = true;
 if (Object.keys(wr).length) grant.write = wr;
 if (peers.size > 0) grant.network = true;
+
+// ── `writePaths`, DERIVED FROM THE PRIVATE HOME AND FROM NOTHING ELSE ──────────────────────────
+//
+// ⛔ THIS IS NOT A NARROWER SPELLING OF `write:{userHome}`, AND READING IT AS ONE SHIPS AN
+// UNDER-GRANT. `build_jail.rs::persist_declared_home_writes` grants nothing: after the lifecycle
+// scripts finish it renames `private_jail_home/<rel>` to `real_home/<rel>` for each declared entry,
+// and its own header says Windows promotes through that same body. So an entry can only ever move
+// something that ALREADY LANDED in the throwaway home — the `jailHome` bucket above, and only it.
+//
+//   jailHome  the write FOLLOWED `%USERPROFILE%`/`%APPDATA%`/`$HOME`. It succeeds in the jail and is
+//             then DISCARDED with the throwaway home, so nothing is refused and no scope is earned —
+//             what is lost is the artefact. Declaring it here is the only thing that keeps it.
+//   userHome  the write named the REAL home by ABSOLUTE path. In the jail it is REFUSED unless
+//             `write:{userHome}` is granted, and promotion cannot help because there is nothing of
+//             its in the private home. ⇒ the scope STAYS, and `refuseUserHome` says so in the log.
+//
+// ⛔ THE ENTRIES THIS EMITS ON WIN32 ARE CASE-FOLDED, BECAUSE RULE 1 FOLDS EVERY PATH BEFORE ANYTHING
+// LOOKS AT IT. `appdata/roaming/foo` rather than `AppData/Roaming/foo`. That is correct for the mover
+// (NTFS is case-insensitive, and `deriveWritePaths` matches `sharedHomeRoots` case-insensitively too)
+// and it is the SAME text a re-decode of the same archive produces, which is what R2 asks for.
+// Un-folding would need a second, unfolded path vocabulary running beside the classified one — two
+// spellings of every path, which is the drift this file is built to prevent.
+const privateHomeRels = (w.jailHome ?? [])
+  .map((p) => relativizeUnder(p, jailHomeRoot))
+  .filter(Boolean);
+const wp = deriveWritePaths(privateHomeRels, { version: pkgVersion });
+if (wp.paths.length) grant.writePaths = wp.paths;
 
 const report = {
   events: n, malformed: bad,
@@ -242,6 +284,12 @@ const report = {
   // reader comparing two records has to be able to tell a package that needed nothing from one whose
   // writes were all free, and the grant alone says `{}` for both.
   baseCovered: BASE_COVERED,
+  // ⛔ THE DERIVATION SHOWS ITS WORK IN THE STRUCTURED OUTPUT TOO, AND THE REFUSAL IS THE PART THAT
+  // MATTERS. `grant.writePaths` alone cannot tell "the question was asked and the answer was none"
+  // from "this decoder does not derive writePaths at all" — which is exactly the state win32 was in.
+  writePathsRefused: wp.refused,
+  writePathsVersionPinned: wp.pinned,
+  privateHomeWrites: privateHomeRels.length,
   lifecyclePids: lifecycle.size,
   attributedWrites: writes.size, allTreeWrites: allWrites.size,
   attributedPeers: peers.size, allTreePeers: allPeers.size,
@@ -294,8 +342,32 @@ if (w.jailTmp) {
   console.log(`  NOTE ${w.jailTmp.length} writes into the DECLARED private temp -- the base profile grants`);
   console.log('       that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.');
 }
+if (w.jailHome) {
+  console.log(`  NOTE ${w.jailHome.length} writes into the DECLARED private home -- the base profile grants`);
+  console.log('       that directory unconditionally (preset.rs `private_home_dir`), so they widen nothing.');
+  console.log('       What they earn instead is a `writePaths` declaration; see the section below.');
+}
 if (w.outside) console.log(`  !! ${w.outside.length} writes OUTSIDE project/home -- no scope covers these; inspect before granting`);
 if (w.systemfs) console.log(`  !! ${w.systemfs.length} writes into system dirs -- an unprivileged user would be refused these`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel/metadata writes -- not a write-grant question (rule 3)`);
+
+// ⛔ THE DERIVATION SHOWS ITS WORK, INCLUDING WHEN IT DECLARES NOTHING. A silent empty is
+// indistinguishable from "this file does not derive writePaths at all", which is the state win32 was
+// in for 2,270 records — and a reader auditing a `write:{userHome}` entry has to be able to see that
+// the question was asked and how it was answered.
+console.log('== writePaths (DERIVED -- promotion out of the package\'s PRIVATE home) ==');
+console.log(`  private-home writes observed: ${privateHomeRels.length}`);
+if (wp.paths.length) {
+  wp.paths.forEach((p) => console.log(`      ${p}`));
+  if (wp.pinned.length) {
+    console.log(`  ⛔ VERSION-PINNED: ${wp.pinned.join(', ')} embed the measured version ${pkgVersion}`);
+    console.log('     -- the directory MOVES on the next release; the collator records a re-measure note.');
+    // The marker `record.mjs` parses off the driver log. One spelling, because there is one reader.
+    console.log(`  WRITEPATHS-VERSION-PINNED ${JSON.stringify(wp.pinned)}`);
+  }
+} else {
+  console.log(`  none declared -- ${wp.refused}`);
+}
+if (w.userHome) console.log(`  ${refuseUserHome(w.userHome.length).refused}`);
 
 if (jsonOut) fs.writeFileSync(jsonOut, JSON.stringify(report, null, 2));
