@@ -9,11 +9,22 @@
 // Windows zip is FLAT, putting `node.exe` at `<root>/node/<version>` with no `bin/`. Neither has a `v`
 // prefix. Assuming one layout for both made every Windows version read MISSING after a successful
 // install, which is the silent-and-total failure the per-platform cases below pin down.
+//
+// ⛔ AND THERE ARE TWO PROVISIONERS, SO THERE ARE TWO LAYOUTS. `era-provision.mjs` unpacks a nodejs.org
+// archive under `<root>/era-node/<version>/<stem>/`, and it — not `nub node install` — is what populates
+// a real runner: 476 of the 484 post-era `BROKEN-WITHOUT-JAIL-TOO` records read
+// `ERA-NODE PINNED <v> (provisioned)`, the suffix that means this module answered MISSING and the
+// per-package fallback ran. Detection therefore spans both, and the resolution has to stay paired with
+// the directory the caller puts on PATH — see the era-layout case below.
+//
+// ⛔ NEVER CALL `provisionMatrix` WITHOUT INJECTING `provision`. The default is the real downloader:
+// an un-injected call fetched 952 MB of tarballs before it was killed.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { eraLayout } from './era-provision.mjs';
 import { eraNodeRoot, isProvisioned, nodeBinDir, provisionMatrix } from './provision-node-matrix.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
 
@@ -71,31 +82,70 @@ test('present vs missing is decided by the executable, on a real tree', () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test('a version provisioned by era-provision.mjs reads PRESENT, at the directory it actually occupies', () => {
+  // ⛔ THE REGRESSION THIS PINS. Detection knew only `<root>/node/<version>/bin` — nub's layout — while
+  // every real runner is populated by era-provision.mjs under `<root>/era-node/…`. So the hoisted step
+  // reported 0 provisioned on a fully provisioned box, and `run-batch-v2.mjs` under
+  // NUB_V2_REQUIRE_ERA_NODE=1 refuses to start on exactly that box.
+  //
+  // ⛔ THE SECOND ASSERTION IS THE ONE THAT MATTERS. `measure-windows.mjs` pairs `nodeBinDir` with
+  // `isProvisioned` to build a PATH entry. Answering PRESENT from the era layout while still returning
+  // nub's path would be a false PRESENT: PATH pointing at nothing, the arm silently on the ambient
+  // Node, and the record claiming a pin. The two must resolve to the SAME directory.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'prov-era-'));
+  const { stem, binSubdir, exe } = eraLayout('10.24.1', { platform: 'linux', arch: 'x64' });
+  const bin = path.resolve(root, 'era-node', '10.24.1', stem, binSubdir);
+  fs.mkdirSync(bin, { recursive: true });
+  fs.writeFileSync(path.join(bin, exe), '#!/bin/sh\n');
+
+  assert.equal(isProvisioned(root, '10.24.1', fs.existsSync, 'linux', 'x64'), true,
+    'an era-provision.mjs tree is a provisioned Node and must not read MISSING');
+  assert.equal(nodeBinDir(root, '10.24.1', 'linux', fs.existsSync, 'x64'), bin,
+    'the resolved bin dir must be the one holding the executable, not nub’s layout');
+
+  // A version NOTHING provisioned still reads MISSING, and still falls back to nub's path — so the
+  // widened detection cannot start answering PRESENT on an empty root.
+  assert.equal(isProvisioned(root, '22.23.2', fs.existsSync, 'linux', 'x64'), false);
+  assert.equal(nodeBinDir(root, '22.23.2', 'linux', fs.existsSync, 'x64'),
+    path.join(root, 'node', '22.23.2', 'bin'));
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test('--check reports every matrix version and installs nothing', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'prov-check-'));
   let installs = 0;
-  const { rows } = provisionMatrix({ root, check: true, run: () => { installs++; return { status: 0 }; } });
+  const { rows } = provisionMatrix({ root, check: true, provision: () => { installs++; return {}; } });
   assert.equal(installs, 0, '--check must never install');
   assert.equal(rows.length, matrix.versions.length, 'every matrix version is reported');
   assert.ok(rows.every((r) => r.present === false), 'nothing is present in an empty root');
   fs.rmSync(root, { recursive: true, force: true });
 });
 
-test('a per-version install failure does not abandon the other versions', () => {
+test('a per-version failure does not abandon the others, and the root is where the fetch lands', () => {
   // A box that cannot fetch Node 19 must still be able to measure everything wanting 18 or 22 —
   // otherwise one bad mirror costs the whole run.
+  //
+  // ⛔ THE ROOT ASSERTION IS A FIX, NOT DECORATION. This used to spawn `nub node install` with
+  // `NUB_CACHE_DIR: root`, which does not redirect nub's Node store at all — that store follows
+  // `XDG_CACHE_HOME`. Under a custom NUB_ERA_NODE_ROOT it installed into `~/.cache/nub`, asked the
+  // custom root, got MISSING, and re-fetched all of them on every invocation, forever.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'prov-fail-'));
   const attempted = [];
+  const roots = new Set();
   const { rows } = provisionMatrix({
     root,
-    run: (_cmd, args) => {
-      const version = args[2];
+    provision: (version, opts) => {
       attempted.push(version);
-      return version.startsWith('19.') ? { status: 1, stderr: 'mirror down' } : { status: 0 };
+      roots.add(opts?.root);
+      return version.startsWith('19.')
+        ? { binDir: null, status: 'NOT-PINNED (download failed rc=7 mirror down)' }
+        : { binDir: path.join(opts.root, version, 'bin'), status: `PINNED ${version}` };
     },
   });
   assert.equal(attempted.length, matrix.versions.length,
     `every version must be attempted even after a failure, got ${attempted.length}`);
+  assert.deepEqual([...roots], [path.join(root, 'era-node')],
+    'every fetch must land under the root the caller asked for');
   const failed = rows.find((r) => r.version.startsWith('19.'));
   assert.equal(failed.present, false);
   assert.match(failed.error, /mirror down/, 'the failure reason must reach the row, not be swallowed');
