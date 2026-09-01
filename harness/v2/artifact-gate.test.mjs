@@ -270,6 +270,117 @@ for (const f of ['build/config.gypi', 'build/lmdb-store.target.mk', 'build/Makef
   });
 }
 
+// ⛔ THE BUILD DIRECTORY IS NOT ALWAYS NAMED `build/`, AND EVERY PATTERN ABOVE ASSUMED IT WAS.
+//
+// This is the same defect as the nested `.target.mk` one directly above — a rule stated correctly and
+// then anchored too tightly — but its cost is higher, because these records did not land on a soft
+// verdict. They landed on `NO-STATE-PASSED`, the harness's strongest possible claim: that no grant it
+// can express installs the package at all.
+//
+// MEASURED, three packages, every one of them rc=0 with 100% of its artifacts PRESENT, failing on a
+// single file whose size GROWS as the grant widens — which is the opposite of a denied write, and is
+// simply the file recording the grant it was given:
+//     @tensorflow/tfjs-node@4.22.0  darwin  611/611   build-tmp-napi-v8/config.gypi
+//                                                       16817 -> 16829 -> 16831 -> 16831  (ref 17149)
+//     @discordjs/opus@0.10.0        linux   750/750   build-tmp-napi-v3/config.gypi
+//                                                       19538 -> 19552 -> 19552 -> 19552  (ref 19897)
+//     wrtc@0.2.1                    darwin  2819/2819 build/CMakeFiles/CMakeConfigureLog.yaml
+//                                                     144639 -> 145749 -> 145934 -> 145934 (ref 149573)
+// The growth is also why they read `NO-STATE-PASSED` rather than `ARTIFACT-GATE-SUSPECT`: a shortfall
+// that CHANGES across arms cannot be called invariant under widening, so the one escape hatch that
+// would have caught a gate artifact was closed by the artifact itself.
+for (const f of ['build-tmp-napi-v8/config.gypi', 'build/CMakeFiles/CMakeConfigureLog.yaml',
+  'build/build.ninja']) {
+  // Same three polarities as the loop above, for the same reason: an exclusion tested only in the
+  // direction that makes things pass is how the gate stops gating.
+  test(`\`${f}\` that is merely SHORTER does not fail — a build dir's name is not the mechanism`, () => {
+    const obs = tree(`obs-nb-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'GENERATED-BY-NPM-INVOCATION' });
+    const r = gate(obs, tree(`arm-nb-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'BY-NUB' }));
+    assert.equal(r.code, 0, `a shorter toolchain record must not be a shortfall:\n${r.out}`);
+    assert.match(r.out, /missing=0 /, `and must not be counted:\n${r.out}`);
+  });
+
+  test(`⛔ \`${f}\` that is ABSENT still FAILS — the excusal is about size only`, () => {
+    const obs = tree(`obs-nbg-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'REAL' });
+    const r = gate(obs, tree(`arm-nbg-${f.replace(/\W/g, '')}`, { 'index.js': 'x' }));
+    assert.equal(r.code, 1, `a generator difference can change contents, never omit the file:\n${r.out}`);
+  });
+
+  test(`⛔ a ZERO-BYTE \`${f}\` still FAILS — emptiness is the download-blocked shape`, () => {
+    const obs = tree(`obs-nbe-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: 'REAL' });
+    const r = gate(obs, tree(`arm-nbe-${f.replace(/\W/g, '')}`, { 'index.js': 'x', [f]: '' }));
+    assert.equal(r.code, 1, `an empty toolchain file against a non-empty reference must fail:\n${r.out}`);
+    assert.match(r.out, /0B < \d+B/, `and report it as a size shortfall:\n${r.out}`);
+  });
+}
+
+test('the measured @tensorflow/tfjs-node shape passes: every artifact present, config.gypi merely shorter', () => {
+  // The acceptance case at its real sizes, including the linked addon it actually produced. Before the
+  // anchor fix this arm was `missing=1` on all four rungs and the package read `NO-STATE-PASSED`.
+  const obs = tree('obs-tfjs', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(17149),
+    'lib/napi-v8/tfjs_binding.node': 'x'.repeat(4096),
+  });
+  const r = gate(obs, tree('arm-tfjs', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(16817),
+    'lib/napi-v8/tfjs_binding.node': 'x'.repeat(4096),
+  }));
+  assert.equal(r.code, 0, `the measured NO-STATE-PASSED case must now pass:\n${r.out}`);
+  assert.match(r.out, /missing=0 /, `and report a clean manifest:\n${r.out}`);
+});
+
+test('⛔ a truncated addon in a NON-`build/` build directory still FAILS', () => {
+  // ⛔ THE CONTROL THAT BOUNDS THE WIDENING. Loosening the directory anchor moves the excusal closer to
+  // every path that is not literally under `build/`, so the linked-output guard is re-asserted INSIDE
+  // a `build-tmp-napi-v<N>` tree rather than assumed to carry over from the `build/` cases.
+  const obs = tree('obs-nbwide', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(17149),
+    'build-tmp-napi-v8/Release/tfjs_binding.node': 'x'.repeat(4096),
+  });
+  const r = gate(obs, tree('arm-nbwide', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(16817),
+    'build-tmp-napi-v8/Release/tfjs_binding.node': 'x'.repeat(64),
+  }));
+  assert.equal(r.code, 1, `the addon shortfall must still gate:\n${r.out}`);
+  assert.match(r.out, /tfjs_binding\.node \(64B < 4096B\)/, `and must name it:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `EXACTLY one — config.gypi must not be counted:\n${r.out}`);
+});
+
+test('⛔ `build/CMakeCache.txt` is NOT excused — it belongs by mechanism and moves NOTHING by measurement', () => {
+  // The `binding.Makefile` control, one class over. CMakeCache.txt is the same kind of configure
+  // record as CMakeConfigureLog.yaml, and it was left out on purpose: its only 3 corpus sightings are
+  // the linux `wrtc` records, whose shortfall lists run to `(+4241)`, `(+1725)` and `(+4315)` genuinely
+  // ABSENT files. Excusing it would change no verdict and widen the gate, which is the direction that
+  // publishes an under-grant.
+  const obs = tree('obs-cmc', { 'index.js': 'x', 'build/CMakeCache.txt': 'REAL-CONTENTS' });
+  const r = gate(obs, tree('arm-cmc', { 'index.js': 'x', 'build/CMakeCache.txt': 'SHORT' }));
+  assert.equal(r.code, 1, `CMakeCache.txt must keep its size comparison:\n${r.out}`);
+  assert.match(r.out, /CMakeCache\.txt/, `and be named in the shortfall:\n${r.out}`);
+});
+
+test('⛔ CONTROL: a genuinely ABSENT artifact beside a newly-excused one still FAILS, and is named', () => {
+  // ⛔ THE ASSERTION THAT KEEPS THIS FIX OFF THE RECORDS IT MUST NOT TOUCH. 84 of the 147
+  // ARTIFACT-GATE-SUSPECT records list at least one genuinely absent file, and the `node-addon-api`
+  // sub-target family — 161 corpus sightings, every one an ABSENCE — is deliberately not excused here.
+  // This is the shape of all of them: the excused file is silent, the absent one still gates.
+  const obs = tree('obs-absbeside', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(17149),
+    'node-addon-api/node_api.Makefile': 'REAL-SUBTARGET',
+  });
+  const r = gate(obs, tree('arm-absbeside', {
+    'index.js': 'x',
+    'build-tmp-napi-v8/config.gypi': 'x'.repeat(16817),
+  }));
+  assert.equal(r.code, 1, `an absent artifact must still gate:\n${r.out}`);
+  assert.match(r.out, /node_api\.Makefile/, `and must be named:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `EXACTLY one — the excused config.gypi must not be counted:\n${r.out}`);
+});
+
 test('⛔ `build/binding.Makefile` is NOT excused — it was measured IDENTICAL, so nothing justifies it', () => {
   // The control that keeps the list honest. `binding.Makefile` sits beside the three files above and
   // looks exactly like them, but it measured 118 B in BOTH arms — so excusing it would be widening
