@@ -94,6 +94,26 @@ export const NET_UNKNOWN = 'UNKNOWN';
  */
 export const networkDropVerdict = ({ log, witness }) => {
   const peers = networkPeers(log);
+  // ⛔⛔ THE WITNESS IS TESTED FIRST, AND THE ORDER IS LOAD-BEARING FOR A FAIL-CLOSED CALLER. A CLEAN
+  // denial witness is a live, jailed, subtree-attributed trace OF THE DROP ARM ITSELF in which the
+  // script never asked to connect. That is strictly stronger evidence than any OBSERVE census — it is
+  // about the very run whose greenness is in question — so an ABSENT census cannot take it away.
+  //
+  // The write census orders these the other way and it never mattered there, because `record.mjs`
+  // lets its `CENSUS_UNKNOWN` through. This axis FAILS CLOSED, so with the old order a record
+  // carrying a perfect CLEAN witness on `no-network` was refused for having no census — which is
+  // exactly the shape `denial-witness-record.test.mjs` pins as the thing the network axis unblocked.
+  if (witness === 'CLEAN') {
+    return {
+      verdict: NET_CLEAR,
+      peers,
+      reason: peers === null
+        ? "the log carries no `== NETWORK` census, but the drop arm's own jailed trace shows the "
+          + 'lifecycle subtree never attempted a connection (DENIAL-WITNESS CLEAN)'
+        : `OBSERVE attributed ${peers} network peer(s) to the subtree, but the drop arm's own `
+          + 'jailed trace shows it never attempted a connection (DENIAL-WITNESS CLEAN)',
+    };
+  }
   if (peers === null) {
     return {
       verdict: NET_UNKNOWN,
@@ -104,14 +124,6 @@ export const networkDropVerdict = ({ log, witness }) => {
   }
   if (peers === 0) {
     return { verdict: NET_CLEAR, peers, reason: 'the census ran and attributed no network peer to the lifecycle subtree' };
-  }
-  if (witness === 'CLEAN') {
-    return {
-      verdict: NET_CLEAR,
-      peers,
-      reason: `OBSERVE attributed ${peers} network peer(s) to the subtree, but the drop arm's own `
-        + 'jailed trace shows it never attempted a connection (DENIAL-WITNESS CLEAN)',
-    };
   }
   return {
     verdict: NET_REFUSE,
