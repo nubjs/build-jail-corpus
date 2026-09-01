@@ -794,12 +794,36 @@ if [ "$OBS_RC" -eq 124 ]; then
   # through unparsed, and lands on HARNESS-ERROR at record.mjs:779 — a different verdict, in a
   # different bucket, for a reason no reader could recover. Checked against the pattern, not recalled.
   echo "  => TIMED-OUT (observe arm capped at ${ARM_CAP_SECS:-900}s; no verdict about the package)"
+  sed 's/^/    | /' "$OBS/npm.log" 2>/dev/null | tail -20
   exit 0
 fi
 if [ "$OBS_RC" -ne 0 ]; then
   # An unjailed failure means the package is broken HERE — a jailed result would be meaningless.
   # v1 calls this BROKEN-WITHOUT-JAIL-TOO and it is a real verdict, not an error.
-  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)"
+  #
+  # ⛔ PRINT WHY, EXACTLY AS THE FETCH BRANCH ABOVE ALREADY DOES. MEASURED 2026-08-31: 258 linux
+  # `BROKEN-WITHOUT-JAIL-TOO` records exit at this line carrying the `OBSERVE rc=` line and the
+  # verdict and NOTHING ELSE. npm's own diagnosis was written to "$OBS/npm.log" one command earlier
+  # and then discarded with the scratch dir — the answer was captured and thrown away, which is the
+  # same defect the fetch branch was fixed for. `elm@0.15.1` and `@sitespeed.io/edgedriver@132.0.2957-115`
+  # are the reference-unreadable records. macOS has echoed this since it was written
+  # (`measure-macos.sh`, the matching `OBS_RC -ne 0` branch), so the class read as darwin-diagnosable
+  # and linux-opaque for no reason but this missing line. The bucket it splits is the one the corpus
+  # exists to split: a dead download URL, a native compile failure, an absent toolchain and a syntax
+  # error under an era Node are four different findings and one identical record.
+  #
+  # ⛔ THE `    | ` PREFIX, NOT macOS's BARE INDENT, AND THE DIFFERENCE IS NOT COSMETIC.
+  # `parseDriverLog` drops `/^\s*\|\s/` lines specifically so a package's own output can never be
+  # read as a verdict (`record.mjs`, ECHOED_LINE) — the verdict patterns are unanchored and the LAST
+  # match wins, so an echoed `=> MINIMUM` would survive the real verdict printed above it. An indent
+  # alone is not filtered. Every other log echo in this driver already uses this prefix; matching the
+  # macOS SHAPE (a bounded tail, not an archive) is the point, not its exact whitespace.
+  #
+  # ⛔ AND THE rc, WHICH IS FREE. `record.mjs` keys the verdict on /=>\s*BROKEN-WITHOUT-JAIL-TOO/, so
+  # trailing text costs nothing, and rc=127 (nothing to run) against rc=1 (it ran and failed) is the
+  # first split a reader makes before reading a line of the echo.
+  echo "  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=$OBS_RC; nothing to measure)"
+  sed 's/^/    | /' "$OBS/npm.log" 2>/dev/null | tail -20
   exit 0
 fi
 
