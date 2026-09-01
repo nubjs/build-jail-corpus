@@ -410,6 +410,24 @@ if [ -f "$NUB" ]; then
   ' "$NUB" "$NUB_HAS_OVERRIDE" "$NUB_HAS_BYTECODE_ENV" 2>/dev/null)"
 fi
 
+# ⛔⛔ EMIT THE ERA-NODE MARKER HERE, UPSTREAM OF EVERY EARLY `exit 0`. It used to be emitted only in
+# the provenance block near the end of the run, which four `exit 0`s never reach — including the
+# `BROKEN-WITHOUT-JAIL-TOO` branch. `record.mjs:398` reads `nodeSelection` from this line ALONE, so a
+# package that failed the jail-off control produced a record with NO `nodeSelection` field at all.
+#
+# MEASURED 2026-08-31 across the 1,329 `BROKEN-WITHOUT-JAIL-TOO` records: 1,206 carry no
+# `nodeSelection` object, and 598 of those SAY `ERA-NODE PINNED <v> (provisioned)` in this very log.
+# The era Node was pinned and the arms ran on it; only the machine-readable marker was lost. Reading
+# `.pinned` off that absent object is what produced a "91% of failures never pinned an era Node"
+# claim — the pin was fine, the provenance was not.
+#
+# Position is free: the payload is complete by line 229, and the parser matches this marker by plain
+# line scan anywhere in the log, taking the last occurrence. `VENUE-NUB-BINARY` directly above
+# already solves the identical problem the same way, which is why it survives on every exit path.
+: "${NODE_SELECTION_MARKER:=}"
+[ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker not built"}'
+echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
+
 # ⛔ R5 IS A SYMMETRY CLAIM, SO THE HALF THIS DRIVER DOES NOT CONTROL IS CHECKED RATHER THAN ASSUMED.
 # The OBSERVE arm gets `PYTHONDONTWRITEBYTECODE=1` from the env block below; the VERIFY arm gets it
 # from NUB, via `BUILD_JAIL_BASELINE_ENV` in `compiler/preset.rs`. A nub predating that commit

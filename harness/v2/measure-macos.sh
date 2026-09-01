@@ -361,6 +361,17 @@ if [ -f "$NUB" ]; then
   ' "$NUB" "$NUB_HAS_OVERRIDE" 2>/dev/null)"
 fi
 
+# ⛔⛔ THE ERA-NODE MARKER, UPSTREAM OF EVERY EARLY `exit 0` — same defect and same fix as
+# `measure.sh`. It was emitted only in the provenance block near the end, which the early exits never
+# reach, so a package that failed the jail-off control produced a record with no `nodeSelection` at
+# all (`record.mjs:398` reads it from this line alone). MEASURED 2026-08-31: of 1,329
+# `BROKEN-WITHOUT-JAIL-TOO` records, 1,206 carry no `nodeSelection` and 598 of those say
+# `ERA-NODE PINNED <v> (provisioned)` in this same log — the pin worked, the provenance was lost.
+# Position is free: the payload is complete by line 280 and the parser scans for this marker anywhere.
+: "${NODE_SELECTION_MARKER:=}"
+[ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker not built"}'
+echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
+
 # ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
 # Shared with `measure.sh`; `measure-windows.mjs` carries the same key list in JS and
 # `ci-env-scrub.test.mjs` asserts all three agree. Full reasoning is in the sourced file. The short
