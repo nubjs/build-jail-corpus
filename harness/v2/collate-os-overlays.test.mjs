@@ -81,10 +81,17 @@ test('a need measured only on win32 narrows the other platforms instead of sprea
   assert.equal(d.write, 'disk', 'the base must remain the cross-platform union');
 
   // …and the two platforms that measured less get their own answer back.
+  //
+  // ⛔ `deps` RIDES ALONG BECAUSE OF THE BASELINE FLOOR, AND ITS ABSENCE WOULD BE THE DEFECT. This
+  // package has no prior entry, so it is floored at `baseline_caps()`, which carries `write:{deps}`.
+  // A v2 ENTRY REPLACES the baseline rather than merging with it, so an overlay resolving to
+  // `{project}` alone would grant this package LESS deps-write than it would have had by not being
+  // catalogued at all. The narrowing under test is untouched: `project` in place of the whole disk.
   for (const key of ['macos', 'linux']) {
     assert.ok(d[key], `expected a ${key} overlay; base-only means the win32 need still spreads`);
-    assert.deepEqual(d[key].write, { project: true },
-      `${key} measured project-only write and must not inherit the win32 whole-disk grant`);
+    assert.deepEqual(d[key].write, { project: true, deps: true },
+      `${key} measured project-only write and must not inherit the win32 whole-disk grant, `
+      + 'nor resolve below the baseline an uncatalogued package would have got');
   }
   // Windows agrees with the base, so restating it would be a REDUNDANT overlay — which the parser
   // rejects outright, taking the whole catalog with it.
@@ -125,7 +132,15 @@ test('a platform that measured NOTHING gets no overlay and keeps the union', () 
 
 test('a platform that measured the version and needed nothing is narrowed to the base profile', () => {
   // The other half of the previous test: MEASURED-and-needed-nothing is real evidence, unlike
-  // silence, so every axis the union carries is removed for that platform with an explicit null.
+  // silence, so the union's extra reach is taken away from that platform.
+  //
+  // ⛔ IT IS NARROWED TO THE BASE PROFILE, AND *NOT* PAST IT — WHICH IS WHAT THIS ASSERTS NOW. The
+  // test previously expected `write: null` and `network: null`, i.e. the axes removed outright. That
+  // resolves macOS to an EMPTY grant, and an empty entry is strictly TIGHTER than absence:
+  // `catalog_v2.rs` — "a present-but-empty entry grants NO egress and NO write, while ABSENCE grants
+  // the baseline". So the old expectation encoded the very under-grant this floor exists to stop, on
+  // a package with no prior entry to justify a deliberate tightening. The name was already right:
+  // the base profile IS `baseline_caps()`, and macOS now lands exactly on it rather than below it.
   const { catalog } = collateRecords([
     record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { write: 'disk', network: true } }),
     record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: {} }),
@@ -133,8 +148,10 @@ test('a platform that measured the version and needed nothing is narrowed to the
   const d = catalog.packages.demo.default;
   assert.equal(d.write, 'disk');
   assert.ok(d.macos, 'a measured-and-needed-nothing platform must still be narrowed');
-  assert.equal(d.macos.write, null, 'the schema removes an axis with an explicit null, not by omission');
-  assert.equal(d.macos.network, null, 'network measured unnecessary on macOS must be removed too');
+  assert.deepEqual(d.macos.write, { deps: true },
+    'macOS gives up the whole-disk write it never needed, and keeps the baseline deps write');
+  assert.equal(d.macos.network, undefined,
+    'the baseline grants egress, so macOS agrees with the base and restating it would be redundant');
 });
 
 test('an overlay never restates the outer value, on any package in a mixed catalog', () => {

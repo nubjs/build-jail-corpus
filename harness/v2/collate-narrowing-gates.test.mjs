@@ -301,3 +301,141 @@ test('an empty --prior is REFUSED, because it would arm both gates and pass ever
   assert.equal(result.status, 2, result.stdout);
   assert.match(result.stderr, /carries no non-empty `packages` object/);
 });
+
+// ── Gate 3: version coverage ──────────────────────────────────────────────────────────────────
+//
+// The hole that made the `--prior` re-bake NON-MONOTONE, and neither gate above could see it: the
+// platform reported, validly and falsifiably, so gates 1 and 2 both stood aside — and the narrowing
+// came from the BAND STRUCTURE moving underneath a per-OS overlay, which neither gate models.
+
+test('GATE 3: a `default` built from a non-latest version cannot narrow the whole line', () => {
+  // `@apollo/rover` in miniature. The shipped entry measured npm's `latest` (2.0.0) as needing
+  // nothing and carried a band granting `write.deps` below it. This corpus no longer has 2.0.0, so
+  // `latest` falls back to 1.0.0, every band collapses into `default`, and `default`'s linux overlay
+  // — computed from 1.0.0 ALONE, which linux measured as needing no write — would apply to the whole
+  // version line. Linux would lose `write.deps` everywhere, on one release's evidence.
+  const prior = {
+    demo: {
+      default: { notes: 'measured 2.0.0, needs nothing' },
+      versions: { '<2.0.0': { write: { deps: true }, network: true, notes: 'shipped band' } },
+    },
+  };
+  const { catalog } = collateRecords([
+    record({ pkg: 'demo', version: '1.0.0', platform: 'linux-x64', grant: { network: true }, latest: '2.0.0' }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: { write: { deps: true }, network: true }, latest: '2.0.0' }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { write: { deps: true }, network: true }, latest: '2.0.0' }),
+  ], prior);
+  const d = catalog.packages.demo.default;
+  assert.deepEqual(effective(d, 'linux').write, { deps: true },
+    'linux never measured npm\'s latest, so it may not narrow the shipped band on the strength of 1.0.0');
+  assert.match(d.notes, /latest 2\.0\.0 was never measured/,
+    'the preservation must be stated in the artefact, not only on stdout');
+});
+
+test('GATE 3 CONTROL: the identical narrowing publishes once latest IS measured', () => {
+  // Exactly one term changes: the records now carry `latest: 1.0.0`, so the version line reaches
+  // npm's real latest and the regeneration speaks for the whole of it. Linux must narrow — a gate
+  // that refuses either way is a freeze wearing a gate's name.
+  const prior = {
+    demo: {
+      default: { notes: 'measured 1.0.0' },
+      versions: { '<1.0.0': { write: { deps: true }, network: true, notes: 'shipped band' } },
+    },
+  };
+  const { catalog } = collateRecords([
+    record({ pkg: 'demo', version: '1.0.0', platform: 'linux-x64', grant: { network: true }, latest: '1.0.0' }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: { write: { deps: true }, network: true }, latest: '1.0.0' }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { write: { deps: true }, network: true }, latest: '1.0.0' }),
+  ], prior);
+  const d = catalog.packages.demo.default;
+  assert.equal(effective(d, 'linux').write, undefined,
+    'linux measured the real latest and needed no write there, so the narrowing is evidenced');
+  assert.doesNotMatch(d.notes ?? '', /was never measured/,
+    'nothing was floored on version grounds, so nothing may claim to have been');
+});
+
+// ── the baseline floor: a FIRST entry may never resolve below `baseline_caps()` ────────────────
+//
+// 165 of the 166 cells the 2026-09-01 re-bake narrowed were first entries, 72 of them dropping
+// egress outright. Both gates above compare against a prior ENTRY, and a new package has none — so
+// neither could see it. The floor for such a package is what nub grants it today: the baseline.
+
+test('BASELINE FLOOR: a package with no prior entry cannot be published below the baseline', () => {
+  // `node-sass`-shaped: the measurement says "needs a project write and nothing else". Published
+  // verbatim that ENTRY REPLACES the baseline, so the package loses egress, the deps write and the
+  // whole promotion list — capabilities it held yesterday by being uncatalogued.
+  const { catalog } = collateRecords([
+    ...['darwin-arm64', 'linux-x64', 'win32-x64'].map((platform) =>
+      record({ pkg: 'fresh', version: '1.0.0', platform, grant: { write: { project: true } } })),
+  ], { other: { default: { write: 'disk', network: true, notes: 'unrelated' } } });
+  for (const plat of ['macos', 'linux', 'win']) {
+    const eff = effective(catalog.packages.fresh.default, plat);
+    assert.equal(eff.network, true, `${plat}: a first entry may not withdraw the baseline's egress`);
+    assert.deepEqual(eff.write, { project: true, deps: true },
+      `${plat}: it keeps the measured project write AND the baseline deps write`);
+    for (const p of ['.cache', '.npm', '.electron', 'AppData/Local', 'Library/Caches']) {
+      assert.ok(eff.writePaths?.includes(p),
+        `${plat}: the baseline promotes ${p}, and an entry that omits it strands whatever landed there`);
+    }
+  }
+});
+
+test('BASELINE FLOOR CONTROL: it raises an entry, and never conjures one', () => {
+  // A package every platform measured as needing nothing must still be ABSENT, because absence
+  // already resolves to exactly this baseline. Flooring it into existence would emit an entry
+  // granting precisely what its absence grants — measured at 301 such entries on the real corpus.
+  const { catalog } = collateRecords(
+    ['darwin-arm64', 'linux-x64', 'win32-x64'].map((platform) =>
+      record({ pkg: 'fresh', version: '1.0.0', platform, grant: {} })),
+    { other: { default: { write: 'disk', network: true, notes: 'unrelated' } } },
+  );
+  assert.equal(catalog.packages.fresh, undefined,
+    'absence IS the baseline, so a "needs nothing" package must not be floored into the catalog');
+});
+
+test('BASELINE FLOOR CONTROL: a package WITH a prior entry may still sit below the baseline', () => {
+  // The deliberate-tightening capability `catalog_v2.rs` documents — "a widely-depended-on package
+  // may deliberately be granted LESS than an unknown one" — must survive. The floor for a
+  // CATALOGUED package is its shipped grant, not the baseline, so a shipped sub-baseline entry that
+  // every platform re-measures as still needing nothing more is preserved rather than widened.
+  const { catalog } = collateRecords(
+    ['darwin-arm64', 'linux-x64', 'win32-x64'].map((platform) =>
+      record({ pkg: 'demo', version: '1.0.0', platform, grant: { network: true } })),
+    { demo: { default: { network: true, notes: 'deliberately no write, no promotion' } } },
+  );
+  for (const plat of ['macos', 'linux', 'win']) {
+    const eff = effective(catalog.packages.demo.default, plat);
+    assert.equal(eff.write, undefined,
+      `${plat}: a catalogued package's floor is its shipped grant — the baseline must not widen it`);
+    assert.equal(eff.writePaths, undefined, `${plat}: nor restore promotion it deliberately declines`);
+  }
+});
+
+// ── Gate 4: every floor this run CLAIMED must hold in the emitted catalog ──────────────────────
+
+// Gate 4 re-resolves every floor the run RECORDED against the FINISHED entry, and refuses the whole
+// bake when one did not survive. It guards the shape `floorFor`'s header records: `@pulumi/gcp` lost
+// `write.userHome` below 0.16.9 on macOS *while its entry carried a note saying macOS was floored*,
+// because the floor went into the base and the band model then dropped it. A note asserting a
+// preservation that did not happen is worse than no note at all.
+//
+// ⛔ THE FIXTURE GIVES THE GATED PLATFORM A RECORD, AND THAT IS WHAT MAKES THE TEST FALSIFIABLE. A
+// platform with NO record is floored only into the shared base, which it then inherits — so it
+// cannot detect a floor that fails to reach a platform's OWN row, and a first draft of this test
+// used exactly that fixture and stayed green under the mutation it was written to catch. win32 here
+// reports, unfalsifiably, so it is gated by Gate 2 while still owning a row.
+//
+// MEASURED: deleting the `byVersionOs` union inside the floor loop makes this bake exit 3 naming
+// `demo windows`, and takes 12 of this file's bakes down with it.
+test('GATE 4: a floor that does not reach the platform\'s own row REFUSES the bake', () => {
+  const { catalog, out } = collateRecords([
+    record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'linux-x64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { network: true } },
+      { notes: ['arms-unfalsifiable'], minimality: 'OVER-PREDICTED' }),
+  ], SHIPPED_WIDE);
+  assert.equal(effective(catalog.packages.demo.default, 'win').write, 'disk',
+    'win32 was floored and owns a row, so its OWN resolved grant must carry the floor');
+  assert.match(out, /gate 4 — every applied floor holds in the output/,
+    'the gate must announce that it RAN — a silent gate is indistinguishable from a removed one');
+});
