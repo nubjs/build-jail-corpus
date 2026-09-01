@@ -32,7 +32,7 @@
 // root, which is an answer; an absent key is the capture failing to say, which is not.
 import fs from 'node:fs';
 import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
-import { marker as observedEffectMarker } from './observed-effect.mjs';
+import { marker as observedEffectMarker, effectWrites } from './observed-effect.mjs';
 
 const args = process.argv.slice(2);
 const val = (f, d) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
@@ -396,14 +396,19 @@ for (const [k, v] of Object.entries(w)) {
 }
 console.log('== READS ==');
 for (const [k, v] of Object.entries(r)) console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);
-// ⛔ THE EFFECT CENSUS, AND IT IS THE SUM OF THE BUCKETS PRINTED ABOVE — BASE-COVERED ONES INCLUDED.
+// ⛔ THE EFFECT CENSUS, OVER THE BUCKETS PRINTED ABOVE — BASE-COVERED ONES INCLUDED.
 // `observed-effect.mjs` decides whether an empty grant measures the PACKAGE or the RUNNER, and a
 // write into a free bucket is still the script doing its work. Counting only billed buckets would
 // score a package whose whole product lands in the redirected private home as having done nothing,
 // and would refuse a correct narrowing.
+//
+// ⛔ IT IS NOT THE PLAIN SUM: `effectWrites` drops the handful of paths the INSTRUMENT opens in every
+// traced process, which are evidence that tracing is on rather than that the package did anything.
+// The list and the measurement behind each entry live in `observed-effect.mjs`; it is shared so the
+// three classifiers cannot come to disagree about what counts as an effect.
 console.log(observedEffectMarker({
   lifecyclePids: lifecycle.size,
-  writes: Object.values(w).reduce((a, v) => a + v.length, 0),
+  writes: effectWrites(w),
   peers: peers.size,
 }));
 console.log('== NETWORK ==');

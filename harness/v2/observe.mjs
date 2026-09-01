@@ -56,7 +56,7 @@
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
 import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
-import { marker as observedEffectMarker } from './observed-effect.mjs';
+import { marker as observedEffectMarker, effectWrites } from './observed-effect.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
@@ -176,11 +176,31 @@ for (const m of text.matchAll(/^(\d+)?\s*socket\(AF_INET/gm)) {
   allSockets++;
   if (lifecycle.has(m[1] ? Number(m[1]) : 0)) sockets++;
 }
-// Peers are REPORT-ONLY and stay unattributed, as they have always been. The shared decoder captures
-// the address and port independently, which is what stops strace's differing sockaddr member order
-// between `sin_port`/`sin6_port` from silently reporting every peer on port 0.
+// ⛔⛔ TWO PEER SETS, BECAUSE ONE NAME WAS CARRYING TWO DIFFERENT QUANTITIES ACROSS THE THREE DRIVERS.
+//
+// The peer REPORT has always been unattributed here, and that is fine for a report: the shared
+// decoder captures the address and port independently, which is what stops strace's differing
+// sockaddr member order between `sin_port`/`sin6_port` from silently reporting every peer on port 0.
+//
+// What is NOT fine is that `observed-effect.mjs`'s census was wired to that unattributed set while
+// `observe-macos.mjs` (which drops a connect with `if (!mine(pid)) continue`) and `classify.mjs`
+// (which prints `peers script … / whole traced tree …`) both feed it the ATTRIBUTED one. Same field
+// name in the marker, different quantity on one platform of three.
+//
+// MEASURED over the 2,059 committed linux records: 510 show an attributed `AF_INET sockets: 0`
+// beside a non-zero `distinct peers`, because the tree also holds systemd-resolved on
+// `127.0.0.53:53` and npm's own registry fetch. In 285 of them the script also wrote nothing, so the
+// census read `peers > 0` and returned WORK for a run in which the lifecycle subtree did not touch
+// the network at all — the veto could not fire on linux for any of them.
+//
+// So: `hosts` keeps the whole traced tree for the report, `lifecycleHosts` is what the census reads,
+// and the report prints BOTH so the difference is legible instead of a number nobody can reproduce.
+const lifecycleHosts = new Set();
 for (const e of decoded.events) {
-  if (e.o === 'connect' && e.h) hosts.add(`${e.h}:${e.pt ?? '?'}`);
+  if (e.o !== 'connect' || !e.h) continue;
+  const peer = `${e.h}:${e.pt ?? '?'}`;
+  hosts.add(peer);
+  if (lifecycle.has(e.p)) lifecycleHosts.add(peer);
 }
 
 // Classify a path against the scopes the CATALOG can express, so the output maps onto a grant
@@ -434,19 +454,28 @@ for (const [k, v] of Object.entries(w)) {
     if (v.length > 10) console.log(`      … and ${v.length - 10} more`);
   }
 }
-// ⛔ THE EFFECT CENSUS, AND IT IS THE SUM OF THE BUCKETS PRINTED ABOVE — BASE-COVERED ONES INCLUDED.
+// ⛔ THE EFFECT CENSUS, OVER THE BUCKETS PRINTED ABOVE — BASE-COVERED ONES INCLUDED.
 // `observed-effect.mjs` decides whether an empty grant measures the PACKAGE or the RUNNER, and a
 // write into a free bucket is still the script doing its work. Counting only billed buckets would
 // score a package whose whole product lands in the redirected private home as having done nothing,
 // and would refuse a correct narrowing.
+//
+// ⛔ IT IS NOT THE PLAIN SUM: `effectWrites` drops the handful of paths the INSTRUMENT opens in every
+// traced process, which are evidence that tracing is on rather than that the package did anything.
+// The list and the measurement behind each entry live in `observed-effect.mjs`; it is shared so the
+// three classifiers cannot come to disagree about what counts as an effect.
 console.log(observedEffectMarker({
   lifecyclePids: lifecycle.size,
-  writes: Object.values(w).reduce((a, v) => a + v.length, 0),
-  peers: hosts.size,
+  writes: effectWrites(w),
+  peers: lifecycleHosts.size,
 }));
 console.log('== NETWORK ==');
-console.log(`  AF_INET sockets: ${sockets}   distinct peers: ${hosts.size}`);
-[...hosts].slice(0, 10).forEach((h) => console.log(`      ${h}`));
+// Both figures, in the shape `== ATTRIBUTION ==` already uses for writes and sockets, because the
+// census reads the first and a reader comparing this record against an older one needs the second.
+console.log(`  AF_INET sockets: ${sockets}   distinct peers: ${lifecycleHosts.size}  /  whole traced tree ${hosts.size}`);
+// The script's own peers first and marked, so a reader can tell which of the listed hosts the census
+// counted without re-deriving the attribution by eye.
+[...hosts].slice(0, 10).forEach((h) => console.log(`      ${h}${lifecycleHosts.has(h) ? '   [script]' : ''}`));
 console.log('== REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==');
 console.log(`  distinct: ${denials.size}`);
 [...denials].slice(0, 15).forEach((d) => console.log(`      ${d}`));

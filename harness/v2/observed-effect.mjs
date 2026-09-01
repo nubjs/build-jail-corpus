@@ -106,6 +106,48 @@ export const declaresInstallWork = (pkgRoot) => {
 //            An exec that produced no write and no packet produced no effect a grant can describe.
 //   reads    NOT COUNTED, for the mirror reason: a read earns no write scope, so a run that only
 //            read has still not exercised anything a `write.*` grant is about.
+
+// ⛔⛔ THE WRITES THE INSTRUMENT ITSELF CAUSES, WHICH ARE NOT THE SCRIPT DOING ANYTHING.
+//
+// "Every bucket, base-covered ones INCLUDED" is right about the JAIL granting a root for free. It is
+// wrong about a path that exists only because tracing is switched on: that write is not evidence the
+// package did work, it is evidence the tracer attached. Counting it means the census answers "was
+// this run traced?", and the answer is always yes.
+//
+// MEASURED over all 6,887 committed records. `/dev/dtracehelper` — the DTrace helper device
+// `libdtrace` opens in every process running under the macOS driver — appears in 1,383 of the 1,912
+// darwin records and in ZERO linux or win32 records. In 424 of them it is the ONLY write in the run,
+// so the census reads 1 and `observedEffect` returns WORK for a script that did nothing at all. Every
+// one of those 424 is a record this term exists to catch and would have waved through, on darwin,
+// silently. `records-v2/runs/darwin-arm64/@pulumi+gcp/6.9.0` is one of them and is COMMITTED as
+// `MINIMUM {}`.
+//
+// ⛔ IT IS A LIST, NOT A REGEX, AND IT STAYS SHORT. Each entry has to be a path the instrument opens
+// in EVERY traced process on its platform — provable by counting it across the corpus — never merely
+// a write that looks uninteresting. Two near misses that are deliberately NOT here, both measured:
+// `/dev/null` is the sole write in 42 records and is the SCRIPT redirecting output, and the win32
+// `…dll:wofcompresseddata` alternate data streams are the sole write in 4 and are the OS
+// decompressing a system DLL for the interpreter. Neither is caused by tracing, so excluding either
+// would start scoring real behaviour as no-effect — the direction that suppresses a true grant.
+export const INSTRUMENT_OWNED_WRITES = [
+  '/dev/dtracehelper',
+];
+
+export const isInstrumentOwnedWrite = (p) => typeof p === 'string' && INSTRUMENT_OWNED_WRITES.includes(p);
+
+// The census the three classifiers feed to `marker()`. Takes the same `{scope: [path, …]}` bucket map
+// each of them already prints, so the number in the marker and the numbers in `== WRITES ==` are
+// derived from one object rather than counted twice in three files.
+export const effectWrites = (buckets) => {
+  if (!buckets || typeof buckets !== 'object') return 0;
+  let n = 0;
+  for (const paths of Object.values(buckets)) {
+    if (!Array.isArray(paths)) continue;
+    for (const p of paths) if (!isInstrumentOwnedWrite(p)) n++;
+  }
+  return n;
+};
+
 export const observedEffect = ({
   lifecyclePids = null, writes = null, peers = null, declares = null,
 } = {}) => {
