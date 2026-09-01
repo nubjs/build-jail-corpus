@@ -208,22 +208,88 @@ test('the ladder climbs: rung 0 and rung 1 fail, and the record reports the rung
   assert.deepEqual(r.grant, { write: 'disk', network: true });
 });
 
-test('⭑ the write:"disk" rung is NOT descended — Object.keys on a string would fabricate arms', () => {
-  // ⛔ `Object.keys("disk")` IS `["0","1","2","3"]`. Handing the top rung to the variant generator
-  // would manufacture four `no-write-<digit>` arms, none of which `record.mjs` can parse — so the
-  // record would carry `descent-name-unparsed` off a measurement of nothing. It is also the absence
-  // of confinement rather than a grant with droppable terms.
+// ── THE TERMINAL RUNG'S DESCENT ───────────────────────────────────────────────────────────────────
+//
+// ⛔⛔ THESE REPLACED A CASE THAT PINNED THE OPPOSITE, exactly as the `read` rung's case did before
+// them. The old case asserted `no droppable terms, so no descent` on the terminal rung. Its reason
+// was sound — `Object.keys("disk")` really is `["0","1","2","3"]` — and its SCOPE was not: the rung
+// is a bundle like every other, and refusing the whole descent discarded its second term with the
+// first. MEASURED on the committed corpus 2026-09-01: all 75 `write:"disk"` records carry
+// `overPredictedBy: []` and `minimality: null`, and all 75 carry `network: true`.
+//
+// ⛔ THE ARM IS LIVE ON darwin, WHICH IS A BACKEND FACT AND NOT A PARITY CHOICE. `relax_fs_to_full_disk`
+// mutates `policy.fs` and nothing else, and `macos.rs`'s `needs_sandbox = fs_confines || tmp_confines
+// || policy.net.enforce` keeps the profile emitted for the net axis alone — `emit_fs` even carries a
+// branch for that state ("Fully relaxed fs — grant every file op (we wrapped only to enforce net)").
+// win32 is where it is false, and `descent-terms.mjs` answers UNSUPPORTED there; its Linux twin is
+// `linux-ladder.test.mjs`, same oracle shape, so no driver can be the odd one out again.
+
+test('⭑ RED-GREEN: the write:"disk" rung IS descended, and narrows to {"write":"disk"}', () => {
+  const out = run(`
+    case "$label" in
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      nar-no-network) return 0 ;;
+      *) return 1 ;;
+    esac
+  `);
+  assert.match(out, /OVER-PREDICTED/, 'no descent arm ran on the terminal rung');
+  const r = parseDriverLog(out);
+  assert.deepEqual(r.overPredictedBy, ['no-network'],
+    'the terminal rung published without any arm trying to drop its network capability');
+  assert.equal(r.grantSource, 'descended');
+  assert.deepEqual(r.grant, { write: 'disk' },
+    'the published grant still carries `network` — the whole-filesystem record did not narrow');
+});
+
+test('⭑ the fabrication the old guard existed to prevent still does not happen', () => {
   const out = run(`
     case "$label" in
       fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
       *) return 0 ;;
     esac
   `);
-  assert.match(out, /no droppable terms, so no descent/);
-  assert.doesNotMatch(out, /no-write-0/, 'the string rung was fed to the variant generator');
+  for (const n of [0, 1, 2, 3]) {
+    assert.doesNotMatch(out, new RegExp(`no-write-${n}`), 'the string rung was fed to Object.keys');
+  }
+  assert.doesNotMatch(out, /no-write-disk/, 'a name that parses and recomputes nothing was emitted');
   const r = parseDriverLog(out);
-  assert.deepEqual(r.overPredictedBy, [], 'a descent ran over write:"disk"');
   assert.ok(!r.notes.includes('descent-name-unparsed'));
+});
+
+test('⭑ CONTROL: a NECESSARY network capability keeps the wide grant and reports MINIMAL', () => {
+  // Without this, a descent that narrowed unconditionally would satisfy the acceptance case above
+  // while under-granting every record it touched.
+  const out = run(`
+    case "$label" in
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      *) return 1 ;;
+    esac
+  `);
+  const r = parseDriverLog(out);
+  assert.equal(r.minimality, 'MINIMAL');
+  assert.deepEqual(r.overPredictedBy, []);
+  assert.deepEqual(r.grant, { write: 'disk', network: true }, 'a failing arm must not narrow anything');
+});
+
+test('⭑ FALSIFICATION: restore the old guard and the terminal-rung finding disappears', () => {
+  // ⛔ THE EXCISION CONTROL FOR THIS CHANGE SPECIFICALLY. Restores the skip the driver used to carry
+  // and re-runs the identical oracle, so the guard is the only variable.
+  const guarded = REGION.replace(/^(\s*)descend "\$g" ladder$/m,
+    '$1case "$g" in *\'"write":"disk"\'*) : ;; *) descend "$g" ladder ;; esac');
+  assert.notEqual(guarded, REGION, 'the excision matched nothing, so this control is vacuous');
+
+  const oracle = `
+    case "$label" in
+      fb*) case "$grant" in *'"write":"disk"'*) return 0 ;; *) return 1 ;; esac ;;
+      nar-no-network) return 0 ;;
+      *) return 1 ;;
+    esac
+  `;
+  const withGuard = parseDriverLog(run(oracle, { source: guarded }));
+  assert.deepEqual(withGuard.overPredictedBy, [],
+    'the restored guard still descended — this control is not measuring the guard');
+  assert.deepEqual(withGuard.grant, { write: 'disk', network: true });
+  assert.deepEqual(parseDriverLog(run(oracle)).grant, { write: 'disk' });
 });
 
 test('⭑ `read` DROPS on the one rung that carries it — the .env axis is questioned, not assumed', () => {
