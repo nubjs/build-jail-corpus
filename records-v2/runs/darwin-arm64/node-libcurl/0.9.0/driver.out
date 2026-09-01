@@ -1,5 +1,10 @@
-### node-libcurl@0.9.0   (/Users/runner/v2m-Y4Gxwg)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e421a135bbc4e5c02932d2e4bfad1845a3e0d12a676d7c7ec7a7263afca31466","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T02:25:24.757Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-7vyQ7J/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e421a135bbc4
+  ERA-NODE PINNED 4.9.1 (provisioned) (arms will run: v4.9.1)
+  ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 4, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### node-libcurl@0.9.0   (/Users/runner/v2m-7vyQ7J)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,61 +14,125 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2016-04-19T17:50:58.730Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"39c03d0a1f6eb69245eb2c1ca297442ac32608b097b07516c77792b54ef8790e","specCount":208,"lockfiles":{"digest":"84b0b655d386aff353d117eb1f22210a2e03e3570cb2c5eb6587fd3fd2fd6ba9","files":[{"path":"package-lock.json","sha256":"68adf8b431fdc11a80b41b3b7b3ae938fc83fb556c7d77d69da2d7aa4e2bd20b","bytes":92872}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T02:25:42.001Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-7vyQ7J/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 208 exact package-version(s), tree 39c03d0a1f6e
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 1 leaked: rimraf=/Users/runner/v2m-7vyQ7J/Observe/node_modules/.bin/rimraf
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC node-libcurl@0.9.0
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-Y4Gxwg/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-Y4Gxwg/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsQdRZwL"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "node-libcurl" > "/Users/runner/v2m-Y4Gxwg/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-Y4Gxwg/Observe/rc"
+     cd "/Users/runner/v2m-7vyQ7J/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-7vyQ7J/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-7vyQ7J/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obstMgTzi"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/usr/local/bin/python2.7   npm rebuild --no-audit --no-fund "node-libcurl@0.9.0" > "/Users/runner/v2m-7vyQ7J/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-7vyQ7J/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-Y4Gxwg/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-Y4Gxwg/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsQdRZwL NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund node-libcurl
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000be4000) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-  OBSERVE   rc=1 dtrace_rc=0 files=3063 (pre=3054) trace=196237 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
-     npm error  1192 |   constexpr reference operator*() const noexcept { return *it_; }
-     npm error       |             ^
-     npm error fatal error: too many errors emitted, stopping now [-ferror-limit=]
-     npm error 25 warnings and 20 errors generated.
-     npm error make: *** [Release/obj.target/node_libcurl/src/node_libcurl.o] Error 1
-     npm error gyp ERR! build error 
-     npm error gyp ERR! stack Error: `make` failed with exit code: 2
-     npm error gyp ERR! stack at ChildProcess.<anonymous> (/Users/runner/hostedtoolcache/node/22.23.1/arm64/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:219:23)
-     npm error gyp ERR! System Darwin 24.6.0
-     npm error gyp ERR! command "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/node" "/Users/runner/hostedtoolcache/node/22.23.1/arm64/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "build" "--fallback-to-build" "--module=/Users/runner/v2m-Y4Gxwg/Observe/node_modules/node-libcurl/lib/binding/node_libcurl.node" "--module_name=node_libcurl" "--module_path=/Users/runner/v2m-Y4Gxwg/Observe/node_modules/node-libcurl/lib/binding"
-     npm error gyp ERR! cwd /Users/runner/v2m-Y4Gxwg/Observe/node_modules/node-libcurl
-     npm error gyp ERR! node -v v22.23.1
-     npm error gyp ERR! node-gyp -v v11.5.0
-     npm error gyp ERR! not ok
-     npm notice
-     npm notice New major version of npm available! 10.9.8 -> 12.0.2
-     npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
-     npm notice To update run: npm install -g npm@12.0.2
-     npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-Y4Gxwg/jailhome/.npm/_logs/2026-08-07T23_32_21_264Z-debug-0.log
+     + cd /Users/runner/v2m-7vyQ7J/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-7vyQ7J/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-7vyQ7J/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obstMgTzi NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/usr/local/bin/python2.7 npm rebuild --no-audit --no-fund node-libcurl@0.9.0
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000001bd050) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=3404 (pre=3401) trace=20360 lines
+  CLOSURE   131 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-7vyQ7J/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-7vyQ7J/Observe/capture.json
+  RAWLOG-BYTES raw=3092124 gz=125219
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"node-libcurl","packageVersion":"0.9.0","major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":">= 0.10.0","publishedAt":"2016-04-18T17:50:58.730Z","eraMajor":4,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-7vyQ7J/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obstMgTzi","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":69,"filesTheScriptProduced":1,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-7vyQ7J/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":20361,"parsed":20340,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":33,"unresolvedFd":0,"pairedTwoPath":0,"danglingPair":0,"failed":12453,"enoent":12440,"refusals":0,"byErrno":{"ENXIO":4,"ENOENT":12440,"EEXIST":9},"procs":8,"lifecyclePids":1,"distinctEvents":9432,"emitted":9432,"calls":20292,"bytes":1750083,"gzipBytes":56750,"out":"/Users/runner/v2m-7vyQ7J/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=2654 dropped-events=1
+    NOTE 22 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 5 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=86956 read  unproven .
+         pid=86956 read  unproven .
+         pid=86956 read  unproven .
+         pid=86956 read  unproven .
+         pid=87014 read  unproven .
+    CWD-RESOLVED 2 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x6000001bd050
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 2  /  whole traced subtree 19
+    sockets script 2  /  whole traced subtree 2
+  == ROOTS (from /Users/runner/v2m-7vyQ7J/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-7vyQ7J/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-7vyQ7J/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-7vyQ7J/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obstMgTzi
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-7vyQ7J/Observe/node_modules/node-libcurl
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-7vyQ7J/Observe/node_modules/node-libcurl/lib/binding
+        /Users/runner/v2m-7vyQ7J/Observe/node_modules/node-libcurl/lib/binding/node_libcurl.node
+  == READS the script performed, by scope ==
+    systemfs     17
+    outside      11
+    userHome      2
+    ownPkg      274
+        outside: /
+        outside: /bin/sh
+        outside: /bin
+        outside: /bin/bash
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /etc/resolv.conf
+  == NETWORK ==
+    AF_INET connects: 2   distinct peers: 2
+        172.182.252.133:443
+        185.199.109.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 27 store entries removed, 119 spared as nub tooling, 1346 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"921388d1fa5237e5c57a11459a1871b99aff8936412c7373b105b3e387af2b41","specCount":209,"lockfiles":{"digest":"7c7e734131e412befb818238a62fcf7e4c98c9bba246ec3e4ca4ce84ad77e50b","files":[{"path":"nub.lock","sha256":"e44bb31359057a792406b9895dceef585ec67a9d51bf21a308c9eec30c531d37","bytes":26441}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T02:26:14.867Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-7vyQ7J/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 209 exact package-version(s), tree 921388d1fa52
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=67/67 missing=0 shortfall=none (tree 10956/3404) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}
+  EVICT[nar-no-network] 23 store entries removed, 119 spared as nub tooling, 1347 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"921388d1fa5237e5c57a11459a1871b99aff8936412c7373b105b3e387af2b41","specCount":209,"lockfiles":{"digest":"7c7e734131e412befb818238a62fcf7e4c98c9bba246ec3e4ca4ce84ad77e50b","files":[{"path":"nub.lock","sha256":"e44bb31359057a792406b9895dceef585ec67a9d51bf21a308c9eec30c531d37","bytes":26441}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T02:26:14.867Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-7vyQ7J/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 209 exact package-version(s), tree 921388d1fa52 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=66/67 missing=1 shortfall=803adda13fd4 (tree 10953/3404) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: lib/binding/node_libcurl.node
+     [nar-no-network/a] node-pre-gyp http getaddrinfo ENOTFOUND github.com github.com:443 (falling back to source compile with node-gyp) 
+     [nar-no-network/a] /Users/runner/.cache/nub/pm/tools/node-gyp/lazy-bin/node-gyp.js:8
+     [nar-no-network/a] SyntaxError: Unexpected token {
+     [nar-no-network/a] node-pre-gyp ERR! build error 
+     [nar-no-network/a] node-pre-gyp ERR! stack Error: Failed to execute '/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin/node /Users/runner/.cache/nub/pm/tools/node-gyp/lazy-bin/node-gyp.js clean' (1)
+     [nar-no-network/a] node-pre-gyp ERR! stack     at ChildProcess.<anonymous> (/Users/runner/v2m-7vyQ7J/verify-nar-no-network/node_modules/.store/node-libcurl@0.9.0/node_modules/node-libcurl/node_modules/node-pre-gyp/lib/util/compile.js:83:29)
+     [nar-no-network/a] node-pre-gyp ERR! stack     at emitTwo (events.js:87:13)
+     [nar-no-network/a] node-pre-gyp ERR! stack     at ChildProcess.emit (events.js:172:7)
+     [nar-no-network/a] node-pre-gyp ERR! stack     at maybeClose (internal/child_process.js:862:16)
+     [nar-no-network/a] node-pre-gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:222:5)
+     [nar-no-network/a] node-pre-gyp ERR! System Darwin 24.6.0
+     [nar-no-network/a] node-pre-gyp ERR! command "/Users/runner/.cache/nub/era-node/4.9.1/node-v4.9.1-darwin-x64/bin/node" "/Users/runner/v2m-7vyQ7J/verify-nar-no-network/node_modules/.store/node-libcurl@0.9.0/node_modules/node-libcurl/node_modules/node-pre-gyp/bin/node-pre-gyp" "install" "--fallback-to-build"
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  => MINIMAL — every capability in {"network":true} is independently necessary
+### DONE node-libcurl@0.9.0  synthesized={"network":true} verified=1
