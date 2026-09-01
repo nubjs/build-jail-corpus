@@ -29,6 +29,7 @@
 //          arm-falsifiability.mjs --obs <dir> --pre <file> --pkg <name> --ver <v>
 import fs from 'node:fs';
 import path from 'node:path';
+import { INSTALL_SCRIPTS } from './observed-effect.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -106,10 +107,22 @@ if (post && pre) {
 // The rc discriminant. Read from the package's own manifest rather than the trace: it is exact, and
 // it is what npm will run.
 let scripts = {};
+// ⛔ THE DECLARES HALF RIDES HERE BECAUSE THIS IS THE ONLY STAGE THAT ALREADY READS THE INSTALLED
+// TREE ON ALL THREE PLATFORMS. `observed-effect.mjs` has to tell "the script did nothing" from "npm
+// ran nothing", and the second is a property of the manifest npm actually wrote — never of
+// `npm view`, whose `scripts` come from the DEVELOPMENT package.json and are routinely stripped
+// before packing. Adding a fourth copy of that probe is how the three drivers' inline copies would
+// come to disagree; adding a field to a payload every driver already emits and `record.mjs` already
+// parses costs one line at each end.
+let declares = null;
 try {
   const root = pkgDir(OBS);
   scripts = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts ?? {};
-} catch { /* no package.json readable */ }
+  const named = INSTALL_SCRIPTS.filter((k) => typeof scripts[k] === 'string' && scripts[k].trim() !== '');
+  // `binding.gyp` counts even with no explicit script: npm runs `node-gyp rebuild` for a package
+  // that ships one, so the native builds would otherwise be scored as "runs nothing".
+  declares = named.length > 0 || fs.existsSync(path.join(root, 'binding.gyp'));
+} catch { /* no package.json readable — `declares` stays null, which scores as UNKNOWN */ }
 // ⛔ ANCHORED AT THE END, because a `|| true` in the MIDDLE of a chain does not swallow the script's
 // final status — only a trailing one does. `cmd || true && other` still reports other's status.
 // The trailing swallow, in every spelling seen in the wild. `(exit 0)` wraps the WHOLE construct in
@@ -129,6 +142,7 @@ console.log(`ARM-FALSIFIABILITY ${JSON.stringify({
   manifestFiles: post ? post.size : null,
   filesTheScriptProduced: producedCount,
   reasons: reasons.map((r) => r.split(':')[0]),
+  declaresInstallWork: declares,
 })}`);
 if (reasons.length) {
   // ⛔⛔ SAY WHICH DETECTOR DIED, BECAUSE THE TWO ARE INDEPENDENT AND THE BLANKET SENTENCE IS FALSE
