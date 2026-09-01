@@ -2,52 +2,56 @@
   ERA-NODE PINNED 16.20.2 (provisioned) (arms will run: v16.20.2)
   ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 16, whose node-gyp requires python3
   ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
-### @apollo/rover@0.4.8   (/home/runner/v2-Z8WuK9)
+### @apollo/rover@0.4.8   (/home/runner/v2-wYn8De)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"39754ceb8d694f4eba99d37e5cbf6b3169904c224cf6a599bd484ee59fcb2e3f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:39:34.510Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z8WuK9/security/direct.json"}
+  XDG-ENV scrubbed from the traced child: XDG_CONFIG_HOME
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"39754ceb8d694f4eba99d37e5cbf6b3169904c224cf6a599bd484ee59fcb2e3f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:30:19.520Z","cacheHit":false,"clearancePath":"/home/runner/v2-wYn8De/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 39754ceb8d69
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-NODE-SELECTION {"pkg":"@apollo/rover","packageVersion":"0.4.8","major":16,"version":"16.20.2","npm":"8.19.4","pinnable":true,"engines":">=14 <=17","publishedAt":"2022-03-15T20:48:42.262Z","eraMajor":16,"startMajor":16,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/16.20.2/node-v16.20.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
   ERA-RESOLUTION DATED 2022-03-16T20:48:42.262Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"de81b78e0aa2dc9632379253972e23e8c352cfef6bd1f2483d8c2a05bd061bc2","specCount":29,"lockfiles":{"digest":"2aab0ee10f979940431edf541952ea48ad423f281573cb69c9a424eb1d8df724","files":[{"path":"package-lock.json","sha256":"0e3187dcab32b327e1eca39cf89146e7d155f71d00e978a511683ce9422082a6","bytes":12519}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:39:35.568Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z8WuK9/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"de81b78e0aa2dc9632379253972e23e8c352cfef6bd1f2483d8c2a05bd061bc2","specCount":29,"lockfiles":{"digest":"2aab0ee10f979940431edf541952ea48ad423f281573cb69c9a424eb1d8df724","files":[{"path":"package-lock.json","sha256":"0e3187dcab32b327e1eca39cf89146e7d155f71d00e978a511683ce9422082a6","bytes":12519}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:30:21.126Z","cacheHit":false,"clearancePath":"/home/runner/v2-wYn8De/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 29 exact package-version(s), tree de81b78e0aa2
   ARM-PATH SANITISED (nothing to drop)
-  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-Z8WuK9/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
+  ARM-AMBIENT-TOOLS 8 leaked: tsc=/usr/local/bin/tsc rimraf=/home/runner/v2-wYn8De/observe/node_modules/.bin/rimraf grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
   ARM-SCAFFOLD none
   ARM-UNPROVIDABLE none
-  OBSERVE   rc=0 files=227 trace=6610 lines
+  ARM-REBUILD-SPEC @apollo/rover@0.4.8
+  OBSERVE   rc=0 files=227 trace=6609 lines
   CLOSURE   29 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (6) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/runner/v2-Z8WuK9/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/runner/v2-Z8WuK9/observe/capture.json
-  RAWLOG-BYTES raw=1544525 gz=49956
+       The EXIT CODE is still a live detector here, so a descent arm that actually
+       FAILED is evidence. What is missing is the gate, not every signal — do not read
+       a green arm as proof on its own, and do not read this note as "no evidence".
+  RAWLOG-FILE /home/runner/v2-wYn8De/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-wYn8De/observe/capture.json
+  RAWLOG-BYTES raw=1544439 gz=49936
   VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
   VENUE-NODE-SELECTION {"pkg":"@apollo/rover","packageVersion":"0.4.8","major":16,"version":"16.20.2","npm":"8.19.4","pinnable":true,"engines":">=14 <=17","publishedAt":"2022-03-15T20:48:42.262Z","eraMajor":16,"startMajor":16,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/16.20.2/node-v16.20.2-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
-  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Z8WuK9/jailhome","TMPDIR":"/tmp/nub-tmp-obs9R31HE","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Z8WuK9/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-wYn8De/jailhome","TMPDIR":"/tmp/nub-tmp-obs4406Il","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-wYn8De/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"unsetForTracedChild":["XDG_CONFIG_HOME"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null,"XDG_CONFIG_HOME":"/home/runner/.config"}}
   == ATTRIBUTION == attributed pids: 18
     writes  script 4  /  whole traced tree 7
     sockets script 5  /  whole traced tree 5
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/runner/v2-Z8WuK9/observe
+    project       /home/runner/v2-wYn8De/observe
     home          /home/runner
-    jailHome      /home/runner/v2-Z8WuK9/jailhome
+    jailHome      /home/runner/v2-wYn8De/jailhome
     globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/runner/v2-Z8WuK9/observe/node_modules/.store   [declared, not keyed on]
+    projectStore  /home/runner/v2-wYn8De/observe/node_modules/.store   [declared, not keyed on]
     interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
-    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs9R31HE
+    toolsDir      /home/runner/.cache/nub/pm/tools
+    temp          /tmp/nub-tmp-obs4406Il
     npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/runner/v2-Z8WuK9/observe/node_modules/@apollo/rover
+    ownPkg        /home/runner/v2-wYn8De/observe/node_modules/@apollo/rover
   == WRITES the script actually performed ==
     deps          4
   == NETWORK ==
     AF_INET sockets: 5   distinct peers: 2
         127.0.0.53:53
-        140.82.113.4:443
+        140.82.114.4:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -57,54 +61,38 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    3240 distinct from 6560 calls (6611 lines, 25 rejoined, 0 unparsed)
+    EVENTS    3255 distinct from 6560 calls (6610 lines, 24 rejoined, 0 unparsed)
     PROCS     23   lifecycle shells 12
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×18 exit×18 recvmsg×14 getsockopt×12 getcwd×4 socketpair×3 exit_group×3 wait4×3
-    wrote /home/runner/v2-Z8WuK9/observe/events.ndjson.gz (20160 bytes)
-  EVENTLOG-FILE /home/runner/v2-Z8WuK9/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":6611,"parsed":6560,"unparsed":0,"unfinished":25,"rejoined":25,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":3240,"unknownSyscall":{"getsockopt":12,"getsockname":18,"getcwd":4,"recvmsg":14,"socketpair":3,"shutdown":2,"getpeername":2,"setsockopt":2,"sendmmsg":2,"exit":18,"exit_group":3,"wait4":3},"out":"/home/runner/v2-Z8WuK9/observe/events.ndjson.gz","gzipBytes":20160}
+    unsubscribed/unmapped syscalls: getsockname×18 exit×18 recvmsg×14 getsockopt×12 getcwd×4 exit_group×3 wait4×3 shutdown×2
+    wrote /home/runner/v2-wYn8De/observe/events.ndjson.gz (20244 bytes)
+  EVENTLOG-FILE /home/runner/v2-wYn8De/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":6610,"parsed":6560,"unparsed":0,"unfinished":24,"rejoined":24,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":3255,"unknownSyscall":{"getsockopt":12,"getsockname":18,"getcwd":4,"recvmsg":14,"shutdown":2,"getpeername":2,"setsockopt":2,"sendmmsg":2,"exit":18,"exit_group":3,"wait4":3},"out":"/home/runner/v2-wYn8De/observe/events.ndjson.gz","gzipBytes":20244}
   EVICT     12 store entries removed, 29 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @apollo/rover
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:39:39.644Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z8WuK9/security/nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:30:25.706Z","cacheHit":false,"clearancePath":"/home/runner/v2-wYn8De/security/nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 30 exact package-version(s), tree 1a2004cedebc
+  ARM-TOOLS staged 3 bin entries (224 files, 3 symlinks, hardlink) into node_modules/.harness-tools
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 724/227) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 724/227) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => VERIFIED {"write":{"deps":true},"network":true}   (observed, then verified)
   EVICT     11 store entries removed, 29 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @apollo/rover
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:39:39.644Z","cacheHit":true,"clearancePath":"/home/runner/v2-Z8WuK9/security/nub-drop-no-network-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:30:25.706Z","cacheHit":true,"clearancePath":"/home/runner/v2-wYn8De/security/nub-drop-no-network-resolved.json"}
   SECURITY nub-drop-no-network-resolved clean: 30 exact package-version(s), tree 1a2004cedebc (cached exact-tree clearance)
-  VERIFY[drop-no-network] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 716/227) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
-     [drop-no-network/i] DEBUG final message final_message=; header 50487:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 39782:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 599:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 50487:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 50487:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 39782:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 39782:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 599:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 599:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 58921:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 58921:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 58921:RESPONSE:RD,RA:NoError:QUERY
+  ARM-TOOLS staged 3 bin entries (224 files, 3 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-network] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 717/227) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true}}
+     DENIAL-WITNESS {"cap":"no-network","scope":"network","verdict":"WITNESSED","refusalsInScope":4,"lifecyclePids":12,"events":2915,"sample":["socket = -1 EPERM"]}
+          WITNESSED — 4 socket-family call(s) inside network were attempted by the lifecycle subtree and REFUSED
+            socket = -1 EPERM
      'no-network' is NECESSARY — dropping it fails to verify
   EVICT     11 store entries removed, 29 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @apollo/rover
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:39:39.644Z","cacheHit":true,"clearancePath":"/home/runner/v2-Z8WuK9/security/nub-drop-no-write-deps-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"1a2004cedebc060fb58a4f5e677b2da4ccfc81897964bcf77fc6663c3d57c21e","specCount":30,"lockfiles":{"digest":"cc4f721dd6a4d5d8ac221f10f5e1ad5828ffa93cff0df59941ec7818d6019351","files":[{"path":"nub.lock","sha256":"ead4614bdfcf32950292c8a5a9b96b0b73965cef07b7fbec244b7e806e6c8cad","bytes":7984}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:30:25.706Z","cacheHit":true,"clearancePath":"/home/runner/v2-wYn8De/security/nub-drop-no-write-deps-resolved.json"}
   SECURITY nub-drop-no-write-deps-resolved clean: 30 exact package-version(s), tree 1a2004cedebc (cached exact-tree clearance)
-  VERIFY[drop-no-write-deps] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 716/227) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-     [drop-no-write-deps/i] DEBUG final message final_message=; header 28029:QUERY:RD:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG final message final_message=; header 15659:QUERY:RD:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG final message final_message=; header 18765:QUERY:RD:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG final message final_message=; header 32538:QUERY:RD:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 15659:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 15659:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 28029:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 28029:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 32538:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 32538:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 18765:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-deps/i] DEBUG response: ; header 18765:RESPONSE:RD,RA:NoError:QUERY
+  ARM-TOOLS staged 3 bin entries (224 files, 3 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-write-deps] rc=1 artifacts=6/6 missing=0 shortfall=none (tree 715/227) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     [drop-no-write-deps/a] Error: EACCES: permission denied, mkdir '/home/runner/.cache/nub/pm/store/binary-install@0.1.1-cb634da28dfef7ed/node_modules/binary-install/bin'
+     [drop-no-write-deps/a]   code: 'EACCES',
      'no-write-deps' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"write":{"deps":true},"network":true} is independently necessary
