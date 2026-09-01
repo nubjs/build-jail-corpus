@@ -196,6 +196,31 @@ const MUTATING = new Set(['create', 'mkdir', 'rmdir', 'unlink', 'rename', 'link'
   'chmod', 'chown', 'utimes', 'truncate', 'mknod', 'xattr-set', 'mount']);
 const WRITE_FLAG = /O_(WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
 
+// ⛔⛔ THE SOCKET FAMILY, AND WHY ITS OUTCOME IS RETAINED RATHER THAN DISCARDED. This set was
+// matched and then thrown away for every member except `connect`, and that single line is what made
+// the NETWORK axis unscoreable: `denial-witness.mjs` could only answer `UNSUPPORTED` for
+// `no-network`, and 153 committed records whose descent dropped `no-network` alongside
+// `no-write-userHome` therefore kept the widest grant this corpus hands out with no way to move.
+//
+// ⛔ THE JAIL REFUSES AT `socket()`, NOT AT `connect()`, SO `connect` ALONE IS THE ONE MEMBER THAT
+// CANNOT SEE THE REFUSAL. Read off nub's own filter rather than inferred:
+// `vendor/aube/crates/aube-scripts/src/linux_jail.rs` attaches its denied-family rules to
+// `SYS_socket` and `SYS_socketpair` ONLY, comparing arg 0 against thirteen address families with
+// `match_action = Errno(EPERM)`. `connect`, `bind` and `sendto` never reach the BPF program at all.
+// The measured signature agrees: a jailed dial at a LIVE loopback listener returns EPERM rather than
+// ECONNREFUSED, which is only possible if the socket was never created.
+//
+// So a refused network attempt emitted NO event whatsoever, and an absence of `connect` refusals was
+// being read as an absence of network need. `socketpair` was not even in the old expression — it is
+// half the filter's rule set, and it was landing in `unknownSyscall`.
+const NET_SYSCALLS = new Set(['socket', 'socketpair', 'connect', 'bind', 'sendto', 'recvfrom']);
+
+// The two the seccomp filter actually guards. `denial-witness.mjs` uses them as its POSITIVE
+// CONTROL: a stream in which the decoder saw not one `socket`/`socketpair` outcome anywhere — not
+// even from the tool processes, which open registry sockets on every arm — did not capture the
+// syscall the jail refuses, so an absence of refusals in it is not evidence and must not read CLEAN.
+export const SOCKET_SYSCALLS = new Set(['socket', 'socketpair']);
+
 export function decode(text, opts = {}) {
   const lines = text.split('\n');
 
@@ -353,12 +378,19 @@ export function decode(text, opts = {}) {
 
     const spec = SYSCALLS[name];
     if (!spec) {
-      if (/^(socket|connect|bind|sendto|recvfrom)$/.test(name)) {
+      if (NET_SYSCALLS.has(name)) {
+        const r = /^-1\s+([A-Z0-9]+)/.exec(resultText)?.[1] ?? 0;
         if (name === 'connect') {
+          // ⛔ CONNECT KEEPS ITS OWN `o` AND ITS ADDRESS GUARD, BYTE FOR BYTE. `observe.mjs` reports
+          // peers off `e.o === 'connect' && e.h`, and `emit`'s dedup key does not include `o` — so a
+          // second, hostless event for the same (pid, syscall, errno) would COLLIDE with the hosted
+          // one and, arriving first, silently replace the peer with nothing. The families below each
+          // carry a distinct `s`, so they key apart and no such collision exists for them.
           const port = line.match(/sin6?_port=htons\((\d+)\)/);
           const addr = line.match(/inet6?_addr\("([^"]+)"/);
-          if (addr) emit({ p: pid, o: 'connect', s: name, h: addr[1], pt: port ? Number(port[1]) : null,
-            r: /^-1\s+([A-Z]+)/.exec(resultText)?.[1] ?? 0 });
+          if (addr) emit({ p: pid, o: 'connect', s: name, h: addr[1], pt: port ? Number(port[1]) : null, r });
+        } else {
+          emit({ p: pid, o: 'net', s: name, r });
         }
         continue;
       }
@@ -471,6 +503,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     // CLEAN for every package on earth, i.e. a blanket licence to narrow produced by pointing the
     // detector at the wrong file. The witness refuses a stream that does not carry `jailed: true`.
     jailed: args.includes('--jailed'),
+    // ⛔ A POSITIVE CAPABILITY DECLARATION, AND IT IS WHAT MAKES THE NETWORK AXIS FAIL CLOSED.
+    // `denial-witness.mjs` may only score `no-network` against a stream whose decoder emits the
+    // OUTCOME of the socket family — otherwise "no refusal seen" means "the refusal could not have
+    // been seen", and reading it as CLEAN would publish an under-grant. Absence is the safe answer,
+    // so the flag is asserted here rather than inferred from `platform`: a stream decoded by the
+    // adapter as it stood before this line existed carries no `netRefusals`, and so does every
+    // `macos-eventlog.mjs` stream — whose dtrace probe has no `socket` clause at all. Both are
+    // UNSUPPORTED, which licenses nothing. A darwin probe that grows one sets its own flag.
+    netRefusals: true,
     // ⛔ THE ROOTS ARE THE WHOLE REASON A RE-PARSE IS POSSIBLE. Every path in the stream is
     // machine-specific (`/home/runner/v2-hNdvB5/...`); without these a future classifier cannot tell
     // a project write from a home write, and the log is a pile of strings.

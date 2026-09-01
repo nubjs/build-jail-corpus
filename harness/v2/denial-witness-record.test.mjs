@@ -100,13 +100,68 @@ test('VOID licenses nothing and blocks nothing — the old rule runs unchanged',
   }
 });
 
+// ── the pair the whole 153 turn on ────────────────────────────────────────────────────────────
+
+// The blocked shape those records are actually in: `no-network` dropped alongside
+// `no-write-userHome`, so `record.mjs`'s `every` quantifier needs a verdict on BOTH.
+const pair = (...witnesses) => [
+  '  ARM-FALSIFIABILITY {"reasons":["gate-vacuous"]}',
+  '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
+  '  VERIFY[synth] rc=0 grant={"write":{"userHome":true},"network":true}',
+  '  => VERIFIED {"write":{"userHome":true},"network":true}',
+  ...witnesses,
+  '  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)',
+];
+const netLine = (verdict) => '  ' + marker({
+  cap: 'no-network', scope: 'network', verdict,
+  refusalsInScope: verdict === 'WITNESSED' ? 4 : 0, lifecyclePids: 4, events: 5120, sample: [] });
+
+test('CLEAN on BOTH dropped capabilities plus the joint arm narrows the pair — this unblocks the 153', () => {
+  // ⛔ THE POINT OF THE WHOLE NETWORK AXIS, AS A RECORD. Before it, `no-network` could only come back
+  // UNSUPPORTED, `every` never held, and a perfect answer on the home arm moved nothing.
+  //
+  // RED ON REVERT: delete `&& !witnessLicenses` from the unfalsifiable branch in `record.mjs`;
+  // the record keeps `{"write":{"userHome":true},"network":true}` and the reason names both CLEAN
+  // capabilities while refusing them. The PRODUCER-side revert — making `axisFor` return null for
+  // `no-network` — does NOT redden this file, because the marker here is built by hand rather than
+  // scored; that half is pinned in `denial-witness.test.mjs` and `denial-witness-decode.test.mjs`.
+  const r = drv([...pair(witnessLine('CLEAN'), netLine('CLEAN')),
+    '  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured']);
+  assert.equal(r.grantSource, 'descended', r.grantSourceReason);
+  assert.deepEqual(r.grant, {});
+});
+
+test('two CLEAN witnesses do NOT substitute for the joint arm — the two restraints are independent', () => {
+  // ⛔ THE WITNESS ANSWERS "DID THE SCRIPT ASK?", NOT "DO THESE DROP TOGETHER?". The descent is
+  // leave-one-out, so N green arms prove each capability drops ON ITS OWN and nothing proves the
+  // joint grant verifies. Reading a full sweep of CLEAN as a licence for the pair would publish an
+  // inference dressed as a measurement, in the under-grant direction. The joint arm is the separate
+  // measurement, and `measure.sh` runs it whenever N >= 2 — so a re-measured record supplies both.
+  const r = drv(pair(witnessLine('CLEAN'), netLine('CLEAN')));
+  assert.equal(r.grantSource, 'synthesized', r.grantSourceReason);
+  assert.deepEqual(r.grant, { write: { userHome: true }, network: true });
+  assert.match(r.grantSourceReason, /JOINT drop was never run/);
+});
+
+test('WITNESSED on the network arm alone keeps the whole grant — the expected majority outcome', () => {
+  // A package that dropped `network` and still passed most likely DID reach for it and swallowed the
+  // refusal, so this branch is the one most of the 153 are expected to land in. That is a success:
+  // it converts "kept wide because nothing could answer" into "kept wide because a refusal was
+  // measured". Note the HOME capability is kept too — the record publishes one grant, and a single
+  // witnessed capability keeps all of it.
+  const r = drv(pair(witnessLine('CLEAN'), netLine('WITNESSED')));
+  assert.equal(r.grantSource, 'synthesized', r.grantSourceReason);
+  assert.deepEqual(r.grant, { write: { userHome: true }, network: true });
+  assert.ok(r.notes.includes('denial-witnessed'));
+  assert.match(r.grantSourceReason, /ATTEMPTED a write inside no-network/);
+});
+
 test('a CLEAN witness on ONE of two dropped capabilities does not license the pair', () => {
-  // ⛔ THE LOAD-BEARING RESTRAINT. 153 of the 213 dropped `no-network` alongside
-  // `no-write-userHome`, and `denial-witness.mjs` reports UNSUPPORTED for the network axis: both
-  // adapters classify `connect` ONLY, so a jail that refuses at `socket()` — which is what Landlock
-  // plus the seccomp family filter does, measured — emits no event at all, and an absence of connect
-  // refusals is therefore not evidence. Licensing the pair off the home arm alone would drop
-  // `network` on the strength of a detector that was never pointed at it.
+  // ⛔ THE LOAD-BEARING RESTRAINT, AND IT SURVIVES THE NETWORK AXIS EXISTING. A marker can still come
+  // back UNSUPPORTED for `no-network` — every darwin stream does, because
+  // `adapters/macos-observe.d` has no `socket` clause, and so does any stream whose decoder predates
+  // socket-family retention. Licensing the pair off the home arm alone would drop `network` on the
+  // strength of a detector that was never pointed at it.
   const r = drv([
     '  ARM-FALSIFIABILITY {"reasons":["gate-vacuous"]}',
     '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',

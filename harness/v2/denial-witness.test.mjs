@@ -18,7 +18,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { witness, scopeMatcher, marker, REFUSAL_ERRNO } from './denial-witness.mjs';
+import { witness, scopeMatcher, marker, axisFor, REFUSAL_ERRNO } from './denial-witness.mjs';
 
 // ⛔ `import.meta.dirname`, never `new URL(...).pathname` — see the note in arm-falsifiability.test.mjs.
 const HERE = import.meta.dirname;
@@ -153,11 +153,119 @@ test('a header with no home root is VOID rather than matching nothing', () => {
   assert.equal(scopeMatcher(CAP, { project: '/p' }), null);
 });
 
-test('any capability other than no-write-userHome is UNSUPPORTED, not CLEAN', () => {
+test('a capability this scorer expresses no axis for is UNSUPPORTED, not CLEAN', () => {
+  // `no-network` is in the list on purpose even though it now HAS an axis: `stream()`'s header
+  // carries no `netRefusals`, which is exactly the shape of a stream decoded before the adapter
+  // retained socket outcomes, and of every darwin stream. The axis must refuse it.
   for (const cap of ['no-network', 'no-write-deps', 'no-write-project', 'no-read']) {
     const r = witness(stream(), { cap });
     assert.equal(r.verdict, 'UNSUPPORTED', `${cap} must not be scored`);
   }
+});
+
+// ── the network axis ──────────────────────────────────────────────────────────────────────────
+//
+// ⛔ WHY THIS AXIS EXISTS AND WHY IT WAS RIGHT TO REFUSE IT UNTIL NOW. `record.mjs` licenses a
+// narrowing only when EVERY dropped capability comes back CLEAN, and MEASURED over the 6887
+// committed records, 153 of the blocked set dropped `no-network` beside `no-write-userHome` — so a
+// perfect answer on the home arm moved none of them. The refusal was not conservatism for its own
+// sake: both POSIX adapters classified `connect` alone, and nub's filter
+// (`vendor/aube/crates/aube-scripts/src/linux_jail.rs`) refuses at `socket`/`socketpair`, so a
+// refused network attempt produced NO EVENT and its absence was not evidence of absence.
+const NET = 'no-network';
+// A header from a decoder that retains socket-family outcomes. Without this flag the axis refuses.
+const netHeader = (over = {}) => ({ netRefusals: true, ...over });
+const sock = (r, pid = 16315, s = 'socket') => ({ k: 'e', p: pid, o: 'net', s, r, n: 1 });
+// The scorer's positive control: an arm runs a real `nub install`, so the tool processes open
+// registry sockets whether or not the script does. A stream with none did not capture the syscall.
+const toolSocket = () => sock(0, 999);
+const netStream = (extra = [], { life = 1 } = {}) =>
+  [header(netHeader()), proc(16315, life), proc(999, 0), ...filler(250), toolSocket(), ...extra];
+
+test('a refused socket() in the lifecycle subtree is WITNESSED — the script asked for the network', () => {
+  const r = witness(netStream([sock('EPERM')]), { cap: NET });
+  assert.equal(r.verdict, 'WITNESSED', r.reason);
+  assert.equal(r.scope, 'network');
+  assert.equal(r.refusalsInScope, 1);
+  assert.match(r.sample[0], /^socket = -1 EPERM$/, 'a path axis names the path; this one has none to name');
+});
+
+test('socketpair, bind, sendto and a refused connect all witness the same axis', () => {
+  for (const e of [sock('EPERM', 16315, 'socketpair'), sock('EPERM', 16315, 'bind'),
+    sock('EPERM', 16315, 'sendto'),
+    { k: 'e', p: 16315, o: 'connect', s: 'connect', h: '104.16.1.34', pt: 443, r: 'EPERM', n: 1 }]) {
+    const r = witness(netStream([e]), { cap: NET });
+    assert.equal(r.verdict, 'WITNESSED', `${e.s} must witness: ${r.reason}`);
+  }
+});
+
+test('a live jailed stream whose script opened no socket is CLEAN — the green arm is evidence', () => {
+  const r = witness(netStream(), { cap: NET });
+  assert.equal(r.verdict, 'CLEAN', r.reason);
+  assert.equal(r.refusalsInScope, 0);
+});
+
+test('a SUCCESSFUL socket() does not witness — r=0 means the jail let it through', () => {
+  const r = witness(netStream([sock(0)]), { cap: NET });
+  assert.equal(r.verdict, 'CLEAN', r.reason);
+});
+
+test('a socket refusal outside the lifecycle subtree does not witness', () => {
+  // nub's own resolver opens registry sockets in the same traced tree and is life:0. Billing one of
+  // its failures against the package is the attribution mistake the adapter exists to prevent.
+  const r = witness(netStream([sock('EPERM', 999)]), { cap: NET });
+  assert.equal(r.verdict, 'CLEAN', r.reason);
+});
+
+test('a filesystem refusal does not witness the network axis, and vice versa', () => {
+  // The two axes must not leak into each other: a home EACCES is not a network need, and a socket
+  // EPERM is not a home write. Both directions, because either leak licenses the wrong thing.
+  assert.equal(witness(netStream([refusedHomeWrite()]), { cap: NET }).verdict, 'CLEAN');
+  const fsStream = [header(netHeader()), proc(16315, 1), ...filler(250), sock('EPERM')];
+  assert.equal(witness(fsStream, { cap: CAP }).verdict, 'CLEAN');
+});
+
+// ⛔⛔ THE DANGEROUS DIRECTION. Every case below is a stream in which a refusal COULD NOT have been
+// recorded. Reading any of them as CLEAN publishes an under-grant on a package that needs the
+// network — the one direction this project forbids — and every "this witnesses" assertion above
+// would still pass while it happened.
+
+test('⛔ a stream whose decoder cannot see socket outcomes is UNSUPPORTED, never CLEAN', () => {
+  // RED ON REVERT: delete the `header?.netRefusals !== true` guard from `axisFor`. Every darwin
+  // stream — whose dtrace probe has no `socket` clause at all — and every stream decoded before the
+  // adapter retained the family then reads CLEAN, because it contains no socket event to refuse.
+  const r = witness(stream(), { cap: NET });
+  assert.equal(r.verdict, 'UNSUPPORTED', r.reason);
+  assert.match(r.reason, /netRefusals/);
+  assert.equal(axisFor(NET, { netRefusals: false }), null, 'and the axis refuses to be built at all');
+});
+
+test('⛔ a stream declaring the flag but holding NO socket outcome at all is VOID, never CLEAN', () => {
+  // RED ON REVERT: delete the network axis's `control`; this stream then reads CLEAN and licenses a
+  // narrowing. That is the case a header flag cannot catch — the decoder declares the capability but
+  // the TRACER never captured a socket call, which is exactly what an `strace -e trace=` filter
+  // omitting the network class produces. An arm runs a real `nub install`, so the absence of even a
+  // TOOL-process socket is proof the instrument was blind rather than proof the script was quiet.
+  const blind = [header(netHeader()), proc(16315, 1), ...filler(250)];
+  const r = witness(blind, { cap: NET });
+  assert.equal(r.verdict, 'VOID', r.reason);
+  assert.match(r.reason, /no socket\(\)\/socketpair\(\) outcome/);
+  // And the same stream WITH the census present is the positive control for this control: it must
+  // reach a real verdict, or the guard would be indistinguishable from one that voids everything.
+  assert.equal(witness([...blind, toolSocket()], { cap: NET }).verdict, 'CLEAN');
+});
+
+test('⛔ an UNJAILED stream is VOID on the network axis too — scoring OBSERVE licenses everything', () => {
+  const r = witness([header({ ...netHeader(), jailed: false }), proc(16315, 1), ...filler(250),
+    toolSocket()], { cap: NET });
+  assert.equal(r.verdict, 'VOID');
+  assert.match(r.reason, /not marked `jailed`/);
+});
+
+test('⛔ a network stream with no attributed lifecycle process is VOID, never CLEAN', () => {
+  const r = witness(netStream([], { life: 0 }), { cap: NET });
+  assert.equal(r.verdict, 'VOID');
+  assert.match(r.reason, /no lifecycle process/);
 });
 
 // ── CLI ───────────────────────────────────────────────────────────────────────────────────────

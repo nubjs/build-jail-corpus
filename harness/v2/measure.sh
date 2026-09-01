@@ -2088,8 +2088,8 @@ descend () {
         console.log(JSON.stringify(g));
       ' "$g0" "$cap")
       DLBL="drop-$(printf '%s' "$cap" | tr -d '.')"
-      # ⛔⛔ THE DENIAL WITNESS — TRACE THE `no-write-userHome` ARM AND ASK WHETHER THE SCRIPT ACTUALLY
-      # WANTED THE HOME. `record.mjs` names this as the machinery it lacks: a green drop arm on a
+      # ⛔⛔ THE DENIAL WITNESS — TRACE THE DROP ARM AND ASK WHETHER THE SCRIPT ACTUALLY WANTED THE
+      # CAPABILITY. `record.mjs` names this as the machinery it lacks: a green drop arm on a
       # package whose artifact gate is vacuous proves nothing, because the gate only inspects files
       # under the PACKAGE'S OWN directory and the home write is by definition outside it. MEASURED on
       # the committed corpus 2026-08-31: 213 records are blocked on exactly that, and 202 of them
@@ -2104,14 +2104,18 @@ descend () {
       # skips `approve-builds` entirely, so tracing a DESCENT arm there would change the arm's own
       # outcome for any deferred-trust package — which is why macOS is deliberately not wired here.
       #
-      # ⛔ ONLY THE `userHome` ARM, AND ONLY BECAUSE THAT IS THE SCOPE THE SCORER EXPRESSES. It is
-      # also the only arm worth the tracer's cost: `write.userHome` is the widest grant this corpus
-      # hands out. A missing `strace` costs nothing — no marker is emitted and `record.mjs` runs the
-      # rule it had.
+      # ⛔ ONLY THE ARMS WHOSE SCOPE THE SCORER EXPRESSES, WHICH IS NOW TWO. `write.userHome` is the
+      # widest grant this corpus hands out, and `network` is the capability that rides ALONGSIDE it
+      # on most of the blocked records — MEASURED over the 6887 committed records, 153 of the blocked
+      # set dropped exactly `no-network` + `no-write-userHome`, and `record.mjs` licenses a narrowing
+      # only when EVERY dropped capability comes back CLEAN. Tracing the home arm alone therefore
+      # answered perfectly and moved none of those 153. A missing `strace` costs nothing — no marker
+      # is emitted and `record.mjs` runs the rule it had.
       WTRACE=""
-      if [ "$cap" = "no-write-userHome" ] && command -v strace > /dev/null 2>&1; then
-        WTRACE="strace -f -o $ROOT/verify-$DLBL/tr"
-      fi
+      case "$cap" in
+        no-write-userHome|no-network)
+          command -v strace > /dev/null 2>&1 && WTRACE="strace -f -o $ROOT/verify-$DLBL/tr" ;;
+      esac
       verify "$SUB" "$DLBL" "$WTRACE"; drc=$?
       [ -n "$WTRACE" ] && denial_witness "$DLBL" "$cap"
       case "$drc" in

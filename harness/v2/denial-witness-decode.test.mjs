@@ -42,7 +42,7 @@ const LIFECYCLE_EXEC = '16301 execve("/home/runner/.cache/nub/era-node/10.24.1/n
   + '"node scripts/install-pulumi-plugin.js resource gcp"], 0xeb64d60 /* 286 vars */) = 0';
 
 // The chain: write a trace, decode it with the shipped adapter, score it, return the marker payload.
-const chain = (traceLines, { jailed = true } = {}) => {
+const chain = (traceLines, { jailed = true, cap = 'no-write-userHome' } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'dwd-'));
   const trace = join(dir, 'tr-i.txt');
   writeFileSync(trace, traceLines.join('\n') + '\n');
@@ -52,14 +52,22 @@ const chain = (traceLines, { jailed = true } = {}) => {
     '--jail-tmp', '/tmp/nub-tmp-x', '--pkg', '@pulumi/gcp', '--version', '0.16.9',
     ...(jailed ? ['--jailed'] : []), '--out', events], { stdio: 'ignore' });
   const out = execFileSync(process.execPath, [join(HERE, 'denial-witness.mjs'),
-    '--cap', 'no-write-userHome', '--events', events, '--exclude', ROOT], { encoding: 'utf8' });
+    '--cap', cap, '--events', events, '--exclude', ROOT], { encoding: 'utf8' });
+  // The CLI prints the marker and then `     <VERDICT> — <reason>`; the reason is NOT in the JSON
+  // payload (`record.mjs` does not read it), so it is lifted here to keep a failure self-debugging.
   return { out, header: JSON.parse(readFileSync(events, 'utf8').split('\n')[0]),
+    why: out.split('\n').find((l) => / — /.test(l))?.trim() ?? out,
     payload: JSON.parse(/DENIAL-WITNESS (\{.*\})/.exec(out)[1]) };
 };
 
 // Enough decoded events to clear the scorer's liveness floor, all outside the home.
 const filler = (n) => Array.from({ length: n }, (_, i) =>
   `16315 openat(AT_FDCWD, "/tmp/nub-tmp-x/f${i}", O_WRONLY|O_CREAT, 0666) = 4`);
+
+// nub's own resolver opens registry sockets UNJAILED in the same traced tree, so every real arm
+// carries one. It is the network axis's positive control: a stream without it did not capture the
+// syscall the jail refuses, and the scorer must refuse to read its silence as evidence.
+const TOOL_SOCKET = '16290 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = 24';
 
 test('a refused home write in a jailed trace reaches the scorer as WITNESSED', () => {
   const { payload, header } = chain([
@@ -103,6 +111,60 @@ test('the adapter without --jailed produces a stream the scorer refuses', () => 
   assert.match(payload.scope ?? 'null', /null/);
 });
 
+// ── the network axis, through the same chain ───────────────────────────────────────────────────
+//
+// ⛔ THE JAIL REFUSES AT `socket()`, WHICH IS WHY THESE FIXTURES ARE SOCKET LINES AND NOT CONNECT
+// LINES. `vendor/aube/crates/aube-scripts/src/linux_jail.rs` attaches its denied-family rules to
+// `SYS_socket` and `SYS_socketpair` with `match_action = Errno(EPERM)`; `connect` never reaches the
+// BPF program. A fixture built out of refused connects would certify this chain against a refusal
+// the jail does not produce.
+
+test('a refused socket() in a jailed trace reaches the scorer as WITNESSED on the network axis', () => {
+  // RED ON REVERT: restore the adapter's connect-only branch. The socket line decodes to nothing,
+  // the census guard then fires, and the verdict is VOID — the arm keeps its wide grant either way,
+  // which is why the pair below (the CLEAN case) is what proves the axis can actually answer.
+  const { payload, header, why } = chain([
+    TOOL_SOCKET, LIFECYCLE_EXEC, ...filler(250),
+    '16315 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = -1 EPERM (Operation not permitted)',
+  ], { cap: 'no-network' });
+  assert.equal(header.netRefusals, true, 'the adapter must declare the axis or the scorer refuses');
+  assert.equal(payload.verdict, 'WITNESSED',
+    `${why} (the adapter attributed ${payload.lifecyclePids} lifecycle pid(s), `
+    + `decoded ${payload.events} events)`);
+  assert.equal(payload.scope, 'network');
+  assert.equal(payload.refusalsInScope, 1);
+});
+
+test('the same trace with the socket SUCCEEDING decodes as CLEAN', () => {
+  // The negative control for the pair above: identical input but `= 24` instead of `= -1 EPERM`. If
+  // this also read WITNESSED the errno would not be reaching the scorer at all — and a CLEAN here is
+  // what actually unblocks a record, so it has to be reachable.
+  const { payload, why } = chain([
+    TOOL_SOCKET, LIFECYCLE_EXEC, ...filler(250),
+    '16315 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = 24',
+  ], { cap: 'no-network' });
+  assert.equal(payload.verdict, 'CLEAN', why);
+});
+
+test('⛔ a jailed trace holding no socket call at all is VOID on the network axis, never CLEAN', () => {
+  // The whole-chain form of the dangerous direction: a tracer whose `-e trace=` filter omitted the
+  // network class produces a perfectly live, jailed, attributed stream with no socket outcome in it.
+  // Read as CLEAN it licenses dropping `network` from a package that needs it.
+  const { payload, why } = chain([LIFECYCLE_EXEC, ...filler(250)], { cap: 'no-network' });
+  assert.equal(payload.verdict, 'VOID', why);
+});
+
+test('a socket refusal outside the lifecycle subtree does not witness — attribution is the adapter\'s', () => {
+  // pid 16290 is seen before the lifecycle shell execs, so the adapter marks it life:0. It is nub's
+  // own resolver; billing its EPERM against the package would witness on every arm.
+  const { payload, why } = chain([
+    '16290 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = -1 EPERM (Operation not permitted)',
+    TOOL_SOCKET, LIFECYCLE_EXEC, ...filler(250),
+  ], { cap: 'no-network' });
+  assert.equal(payload.verdict, 'CLEAN', why);
+  assert.equal(payload.refusalsInScope, 0);
+});
+
 test('the emitted marker is the one record.mjs parses — producer and consumer agree', () => {
   const { out } = chain([
     LIFECYCLE_EXEC, ...filler(250),
@@ -121,7 +183,7 @@ test('the emitted marker is the one record.mjs parses — producer and consumer 
   assert.deepEqual(r.grant, { write: { userHome: true } }, 'the wide grant must survive');
 });
 
-test('the driver wires the witness to the userHome arm and to no other', () => {
+test('the driver wires the witness to the two arms the scorer expresses and to no other', () => {
   // ⛔ THE SHELL SIDE, MATCHED ON EXECUTABLE LINES ONLY. Searching raw source is what made the first
   // `descent-contract.test.mjs` vacuous — the tokens it looked for appeared in the comment that
   // explained the contract, so renaming the real code left every assertion green.
@@ -130,8 +192,13 @@ test('the driver wires the witness to the userHome arm and to no other', () => {
   assert.match(src, /denial_witness \(\)/, 'measure.sh must define the helper');
   assert.match(src, /\[ -n "\$WTRACE" \] && denial_witness "\$DLBL" "\$cap"/,
     'the descent loop must call it for the arm it just ran');
-  assert.match(src, /\[ "\$cap" = "no-write-userHome" \]/,
-    'only the scope the scorer expresses may be traced');
+  // ⛔ TRACING A CAP THE SCORER CANNOT EXPRESS COSTS AN ARM ITS TRACER OVERHEAD FOR AN UNSUPPORTED
+  // MARKER; NOT TRACING ONE IT CAN is what left the 153 `no-network` + `no-write-userHome` records
+  // stuck. So the driver's list and the scorer's list are asserted to be the SAME list.
+  assert.match(src, /no-write-userHome\|no-network\)/,
+    'the descent must trace both arms the scorer expresses');
+  assert.ok(!/\[ "\$cap" = "no-write-userHome" \]/.test(src),
+    'and must no longer gate the tracer on the home arm alone');
   assert.match(src, /--jailed/, 'the arm decode must mark the stream jailed');
   // macOS is deliberately NOT wired: its traced branch runs `nub install` alone and skips
   // `approve-builds`, so tracing a descent arm there would change the arm's own verdict.

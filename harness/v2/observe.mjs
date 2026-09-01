@@ -164,11 +164,13 @@ for (const e of decoded.events) {
 }
 
 // ⛔ THE NETWORK SIGNAL IS COUNTED FROM THE RAW TEXT, NOT FROM THE EVENT STREAM, and deliberately so.
-// The grant's `network` axis keys on `socket(AF_INET…)`, which the shared decoder does not emit —
-// it retains `connect` peers only. Deriving `network` from connects instead would NARROW the signal
-// (a socket opened but never connected, or a connect the decoder failed to rejoin, would stop
-// earning the grant), and narrowing is the direction that breaks installs. So this stays byte-for-
-// byte the predicate it has always been, over the same attributed pid set.
+// The grant's `network` axis keys on the ADDRESS FAMILY — `socket(AF_INET…)` — and the shared
+// decoder retains the socket call's pid, name and errno but not its family, so the event stream
+// cannot express this predicate. (It emits `o:"net"` for the whole family since the denial witness
+// needed the socket-level OUTCOME; that is the refusal signal, not the family signal.) Widening to
+// every family, or deriving `network` from connects instead, would move the grant — the first
+// upward and the second downward — and this predicate has been the same one for the entire measured
+// corpus. So it stays byte-for-byte what it was, over the same attributed pid set.
 for (const m of text.matchAll(/^(\d+)?\s*socket\(AF_INET/gm)) {
   allSockets++;
   if (lifecycle.has(m[1] ? Number(m[1]) : 0)) sockets++;

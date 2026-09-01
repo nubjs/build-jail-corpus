@@ -125,6 +125,56 @@ test('a nested-paren argument does not shred the argument list', () => {
   assert.equal(c.pt, 443);
 });
 
+// ── the socket family ─────────────────────────────────────────────────────────────────────────
+
+// A refused `socket()` is the ONLY event a jailed network denial produces on this platform:
+// `vendor/aube/crates/aube-scripts/src/linux_jail.rs` attaches its denied-family rules to
+// `SYS_socket` and `SYS_socketpair` alone, `match_action = Errno(EPERM)`, so `connect`/`bind`/
+// `sendto` never reach the BPF program. The decoder matched the whole family and then discarded
+// every member but `connect`, which made a refusal invisible and `no-network` unscoreable.
+test('a REFUSED socket() is retained with its errno — the jail refuses here and nowhere else', () => {
+  // RED ON REVERT: put back the `if (name === 'connect')` gate that discarded the other members.
+  // The event disappears entirely and `denial-witness.mjs` reads the arm as having asked for
+  // nothing — a narrowing licensed by a detector that was never pointed at the network.
+  const d = run('100   socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = -1 EPERM (Operation not permitted)\n');
+  const e = d.events.find((x) => x.s === 'socket');
+  assert.ok(e, 'the socket call must survive decoding');
+  assert.equal(e.o, 'net');
+  assert.equal(e.r, 'EPERM');
+  assert.equal(e.p, 100, 'the pid is what carries lifecycle attribution');
+});
+
+test('socketpair is retained too — it is half the filter\'s rule set and used to be unmapped', () => {
+  const d = run('100   socketpair(AF_INET, SOCK_STREAM, IPPROTO_IP, 0x7ffd) = -1 EPERM (Operation not permitted)\n');
+  const e = d.events.find((x) => x.s === 'socketpair');
+  assert.ok(e, 'socketpair must decode');
+  assert.equal(e.r, 'EPERM');
+  assert.ok(!d.stats.unknownSyscall.has('socketpair'), 'and must no longer be counted as unmapped');
+});
+
+test('a SUCCESSFUL socket() is retained as r=0 — the census is the scorer\'s positive control', () => {
+  // `denial-witness.mjs` refuses to score a stream in which the decoder saw no socket outcome at
+  // all, so a successful one has to be retained as well as a refused one or the guard never clears.
+  const d = run('100   socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = 24\n');
+  assert.equal(d.events.find((x) => x.s === 'socket').r, 0);
+});
+
+test('bind and sendto are retained; connect keeps its own op and its peer', () => {
+  // ⛔ THE COLLISION THIS PINS. `emit`'s dedup key is (pid, syscall, path, path2, errno, flags) —
+  // it does NOT include `o`. A second, hostless event for the same connect would therefore key
+  // IDENTICALLY to the hosted one and, arriving first, replace the peer with nothing; `observe.mjs`
+  // reports peers off `o === 'connect' && e.h`. So connect alone keeps its address guard.
+  const d = run(
+    '100   bind(3, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = -1 EPERM (Operation not permitted)\n'
+    + '100   sendto(4, "x", 1, 0, NULL, 0) = -1 EPERM (Operation not permitted)\n'
+    + '100   connect(3, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr("104.16.1.34")}, 16) = -1 EPERM (Operation not permitted)\n');
+  assert.equal(d.events.find((x) => x.s === 'bind').o, 'net');
+  assert.equal(d.events.find((x) => x.s === 'sendto').r, 'EPERM');
+  const c = d.events.find((x) => x.s === 'connect');
+  assert.equal(c.o, 'connect', 'connect keeps the op observe.mjs reports peers off');
+  assert.equal(c.h, '104.16.1.34', 'and keeps its peer');
+});
+
 test('repeats collapse to a count rather than a line each', () => {
   // Dedup is the whole reason retention is affordable: 216,512 calls became 80,329 events on
   // lmdb-store@2.0.0-alpha2. It is lossless for a capability model, and `n` keeps the frequency.
