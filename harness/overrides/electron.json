@@ -1,7 +1,9 @@
 {
   "package": "electron",
   "default": {
-    "notes": "latest measured 43.4.0; unchanged from the generated entry"
+    "write": { "userHome": true, "deps": true, "project": true },
+    "network": true,
+    "notes": "The dist-tag has moved to 44.x since this override was written, so `default` is now the band a real install resolves to rather than dead space above the measured line. It was notes-only, and a notes-only band is NOT the same as no entry: an absent package falls back to baseline_caps() and still promotes the baseline's write_paths, while a present entry resolves to Some(grant) with every capability empty and returns before the promotion loop -- strictly tighter than deleting the entry, for the same postinstall the band below proves needs egress. Mirrors the measured base WITHOUT the per-OS overlays, because each of those rests on a measurement of a version below 43.4.0 and an unmeasured version takes the wider base until someone measures it."
   },
   "versions": {
     "<43.4.0": {

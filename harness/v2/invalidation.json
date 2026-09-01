@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 75,
+  "currentEpoch": 76,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1555,6 +1555,16 @@
         "verdicts": []
       },
       "reason": "Closes the two ways the catalog bake could NARROW a grant, which an under-grant breaks real installs. The band structure is regenerated, so a dist-tag whose version was never measured let default start lower and swallow versions a band used to cover; a new version-coverage gate refuses that. And the prior-catalog floors only existed for packages already in the prior, so a NEW entry got no floor at all -- and since an entry REPLACES baseline_caps() rather than merging with it, an entry naming less than the baseline is a real under-grant. The floor is now the package's own prior entry, else the baseline, scoped to packages absent from the prior; a universal floor would have stripped deliberate egress denial from 174 packages. A collator drives no measurement, so nothing is invalidated."
+    },
+    {
+      "fromEpoch": 75,
+      "fromHarnessSha256": "0a61af683271788ad8dea7a7010b081da5c56e51daec324a12ee91bc49bbfcd8",
+      "toEpoch": 76,
+      "toHarnessSha256": "9122887e7207913e81941a50b76be9b0aacd3d804f6cbae4e7d82a9a516a33a8",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Gives electron's override a default band. The dist-tag has moved to 44.x since that override was written in August, so default is now the band a real install resolves to rather than dead space above the measured line, and it carried only a notes string. A notes-only band is not the same as no entry: an absent package falls back to baseline_caps and still promotes the baseline's write paths, while a present entry resolves to a grant with every capability empty and returns before the promotion loop, which is strictly tighter than deleting the entry. The band below records that withdrawing this package's egress makes a cold install fail getaddrinfo ENOTFOUND. Mirrors the measured base without the per-OS overlays, each of which rests on a measurement of a version below the bound. An override changes what the bake produces, never what a record measures, so nothing is invalidated."
     }
   ]
 }
