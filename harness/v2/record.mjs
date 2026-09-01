@@ -28,6 +28,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { observedEffect } from './observed-effect.mjs';
 import { execFileSync } from 'node:child_process';
 import { computeHarnessIdentity, loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
@@ -283,6 +284,15 @@ export function parseDriverLog(log) {
     // already takes. `descentRedArm` starts false because "no arm was announced red" is exactly what
     // an absent announcement means.
     falsifiabilityReasons: null,
+    // ⛔ SEPARATE FROM `falsifiabilityReasons` EVEN THOUGH BOTH ARRIVE ON THE SAME MARKER, because
+    // they answer different questions and one is `null` far more often than the other. `reasons`
+    // says which detector died; this says whether npm had anything to run at all, which is what
+    // `observed-effect.mjs` needs to tell "the script did nothing" from "there was no script".
+    declaresInstallWork: null,
+    // ⛔ THE COUNTS HALF, FROM THE `OBSERVED-EFFECT` MARKER ALL THREE CLASSIFIERS EMIT. Null means the
+    // record predates the marker, and `observedEffect()` reads that as UNKNOWN — which vetoes
+    // nothing, so every existing record keeps the behaviour it was measured under.
+    observedCounts: null,
     descentRedArm: false,
     // ⛔ cap -> verdict, from the DENIAL-WITNESS markers the descent arms emit. An EMPTY map means no
     // arm was witnessed — which is what every record taken before `denial-witness.mjs` existed looks
@@ -533,6 +543,19 @@ export function parseDriverLog(log) {
     // ⛔ FAILS CLOSED IN BOTH DIRECTIONS. An unparsable payload is recorded as VOID rather than
     // dropped, so it licenses nothing; a verdict this recorder does not recognise is likewise VOID.
     // Only the two words below carry weight, and everything else keeps the rule that ran before.
+    // ⛔ DID THE SCRIPT DO ANYTHING AT ALL? The counts half of `observed-effect.mjs`, emitted by each
+    // of the three classifiers from its own bucket totals. Kept as raw counts rather than as a
+    // verdict because the verdict also needs `declaresInstallWork`, which arrives on a different
+    // marker — scoring here would fix the answer before both halves are in hand.
+    //
+    // ⛔ FAILS CLOSED: an unparsable payload leaves the counts null, which scores UNKNOWN, which
+    // vetoes nothing and licenses nothing.
+    const oe = /OBSERVED-EFFECT\s+(\{.*\})\s*$/.exec(l);
+    if (oe) {
+      try { out.observedCounts = JSON.parse(oe[1]); }
+      catch { out.notes.push('observed-effect-marker-unparsable'); }
+      continue;
+    }
     const dw = /DENIAL-WITNESS\s+(\{.*\})\s*$/.exec(l);
     if (dw) {
       try {
@@ -576,8 +599,13 @@ export function parseDriverLog(log) {
     if (afm) {
       // Fails CLOSED: an unparsable marker leaves this null, and the rule below reads null as "both
       // detectors are dead", which keeps the wider grant.
-      try { out.falsifiabilityReasons = JSON.parse(afm[1]).reasons ?? null; }
-      catch { out.notes.push('arm-falsifiability-marker-unparsable'); }
+      try {
+        const af = JSON.parse(afm[1]);
+        out.falsifiabilityReasons = af.reasons ?? null;
+        // `?? null` rather than a boolean coercion: a marker predating this field is UNKNOWN, and
+        // `false` there would mean "npm runs nothing", exempting the record from the veto.
+        out.declaresInstallWork = typeof af.declaresInstallWork === 'boolean' ? af.declaresInstallWork : null;
+      } catch { out.notes.push('arm-falsifiability-marker-unparsable'); }
       continue;
     }
     // ⛔ THE POSITIVE CONTROL: A DESCENT ARM THAT DEMONSTRABLY WENT RED. The drivers announce it in
@@ -1312,6 +1340,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // Same reason as the two fields above: `publish-guard.mjs` reads records, not logs, and a
     // WITNESSED capability is the strongest reason a re-measure must not be allowed to narrow.
     denialWitness: parsed.denialWitness ?? {},
+    // ⛔⛔ ON THE RECORD FOR THE SAME REASON AS THE THREE FIELDS ABOVE, AND IT IS THE ONE THAT STOPS A
+    // FUTURE LICENCE FROM PUBLISHING AN UNDER-GRANT. `publish-guard.mjs` reads records and never
+    // logs, so the fact that the lifecycle script produced NOTHING in this venue reaches it here or
+    // not at all — and that fact is what tells a `{}` that means "needs nothing" from a `{}` that
+    // means "did nothing". `confinedWide` is the scar this list carries: parsed into a field and
+    // dropped from the emitted object, so the arm ran for nothing on every package that had one.
+    observedEffect: observedEffect({
+      lifecyclePids: parsed.observedCounts?.lifecyclePids ?? null,
+      writes: parsed.observedCounts?.writes ?? null,
+      peers: parsed.observedCounts?.peers ?? null,
+      declares: parsed.declaresInstallWork,
+    }),
     // ⛔ AND IT MUST BE IN THIS LIST, WHICH IS THE HALF `confinedWide` GOT WRONG. The comment above
     // records what that cost: the probe ran, printed its marker, was parsed into a field, and was then
     // dropped from the emitted object — so the arm that adjudicates the write axis of a `write:"disk"`

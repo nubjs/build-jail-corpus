@@ -29,6 +29,7 @@
 //          arm-falsifiability.mjs --obs <dir> --pre <file> --pkg <name> --ver <v>
 import fs from 'node:fs';
 import path from 'node:path';
+import { INSTALL_SCRIPTS } from './observed-effect.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -106,17 +107,41 @@ if (post && pre) {
 // The rc discriminant. Read from the package's own manifest rather than the trace: it is exact, and
 // it is what npm will run.
 let scripts = {};
+// ⛔ THE DECLARES HALF RIDES HERE BECAUSE THIS IS THE ONLY STAGE THAT ALREADY READS THE INSTALLED
+// TREE ON ALL THREE PLATFORMS. `observed-effect.mjs` has to tell "the script did nothing" from "npm
+// ran nothing", and the second is a property of the manifest npm actually wrote — never of
+// `npm view`, whose `scripts` come from the DEVELOPMENT package.json and are routinely stripped
+// before packing. Adding a fourth copy of that probe is how the three drivers' inline copies would
+// come to disagree; adding a field to a payload every driver already emits and `record.mjs` already
+// parses costs one line at each end.
+let declares = null;
 try {
   const root = pkgDir(OBS);
   scripts = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts ?? {};
-} catch { /* no package.json readable */ }
+  const named = INSTALL_SCRIPTS.filter((k) => typeof scripts[k] === 'string' && scripts[k].trim() !== '');
+  // `binding.gyp` counts even with no explicit script: npm runs `node-gyp rebuild` for a package
+  // that ships one, so the native builds would otherwise be scored as "runs nothing".
+  declares = named.length > 0 || fs.existsSync(path.join(root, 'binding.gyp'));
+} catch { /* no package.json readable — `declares` stays null, which scores as UNKNOWN */ }
 // ⛔ ANCHORED AT THE END, because a `|| true` in the MIDDLE of a chain does not swallow the script's
 // final status — only a trailing one does. `cmd || true && other` still reports other's status.
 // The trailing swallow, in every spelling seen in the wild. `(exit 0)` wraps the WHOLE construct in
 // a subshell — `cmd || (exit 0)` — which the first version of this pattern missed because it only
 // allowed a closing paren AFTER `exit 0`. Caught by running the detector against the very package it
 // was written for and seeing one of its two discriminants stay silent.
-const SWALLOWS = /(\|\||;)\s*\(?\s*(true|:|exit\s+0)\s*\)?\s*$/;
+// ⛔⛔ `echo` AND `printf` ARE SWALLOWS TOO, AND MISSING THEM COST A RECORD ITS ONLY HONEST FLAG.
+// MEASURED 2026-09-01: `backport@12.0.4`'s postinstall is
+// `test -f ./dist/src/scripts/run-postinstall.js && node ./dist/… || echo 'Dist folder missing'`.
+// `echo` cannot fail, so the script's exit code is 0 whether the work happened or not — but the
+// alternation was `true|:|exit 0`, so the package was flagged `gate-vacuous` ALONE and `record.mjs`
+// computed `rcLive === true` for a package whose rc cannot be non-zero. Verified against the
+// `ttf2woff2@1.2.3` positive control, which still matches.
+//
+// ⛔ THE LIST IS COMMANDS THAT CANNOT FAIL, NOT "ANYTHING AFTER `||`". `cmd || node fallback.js` is a
+// real fallback whose own status is reported, so treating every trailing `||` as a swallow would flag
+// honest scripts and withhold correct narrowings — the blanket-refusal mistake this harness has
+// already paid for once. Anything added here has to be a command with no failing path.
+const SWALLOWS = /(\|\||;)\s*\(?\s*(true|:|exit\s+0|echo(\s[^|;&]*)?|printf(\s[^|;&]*)?)\s*\)?\s*$/;
 for (const k of ['preinstall', 'install', 'postinstall']) {
   const body = scripts[k];
   if (typeof body === 'string' && SWALLOWS.test(body.trim())) {
@@ -129,6 +154,7 @@ console.log(`ARM-FALSIFIABILITY ${JSON.stringify({
   manifestFiles: post ? post.size : null,
   filesTheScriptProduced: producedCount,
   reasons: reasons.map((r) => r.split(':')[0]),
+  declaresInstallWork: declares,
 })}`);
 if (reasons.length) {
   // ⛔⛔ SAY WHICH DETECTOR DIED, BECAUSE THE TWO ARE INDEPENDENT AND THE BLANKET SENTENCE IS FALSE

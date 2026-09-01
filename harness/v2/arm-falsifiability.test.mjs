@@ -75,9 +75,22 @@ test('a trailing status swallow is flagged in each spelling, and a mid-chain one
     ['node-gyp rebuild || exit 0', true],
     ['node install.js; exit 0', true],
     ['node-gyp rebuild || :', true],
+    // ⛔ `echo` AND `printf` CANNOT FAIL, so a trailing one swallows exactly as `true` does.
+    // MEASURED on the corpus: `backport@12.0.4`, `@aws-amplify/cli@11.1.1`, `ant-design-vue@1.7.8`
+    // and `realm@20.2.0` all end this way and were flagged `gate-vacuous` ALONE, so `record.mjs`
+    // computed `rcLive === true` for a package whose rc cannot be non-zero.
+    ["test -f ./dist/x.js && node ./dist/x.js || echo 'Dist folder missing'", true],
+    ['node ./lib/install.js || echo "failed to install amplify binary"', true],
+    ['node scripts/postinstall || echo', true],
+    ['node build.js || printf nope', true],
     ['prebuild-install --runtime napi || node-gyp rebuild', false],
     ['node postinstall.js', false],
     ['cmd || true && other', false],
+    // ⛔ THE LIST IS COMMANDS THAT CANNOT FAIL, NOT "ANYTHING AFTER `||`". A real fallback reports
+    // its own status, and flagging one would withhold a correct narrowing.
+    ['node build.js || node fallback.js', false],
+    ['a || echo x && node b.js', false],
+    ['echo building && node-gyp rebuild', false],
   ];
   for (const [script, want] of cases) {
     // `produces` keeps the gate discriminant quiet so this asserts only on the rc one.

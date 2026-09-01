@@ -35,6 +35,7 @@
 //   usage: node observe-macos.mjs <dtrace-log> --capture <capture.json>
 import fs from 'node:fs';
 import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
+import { marker as observedEffectMarker } from './observed-effect.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
@@ -623,6 +624,16 @@ for (const [k, v] of Object.entries(w)) {
 console.log('== READS the script performed, by scope ==');
 for (const [k, v] of Object.entries(r)) console.log(`  ${k.padEnd(9)} ${String(v.length).padStart(5)}`);
 if (r.outside) r.outside.slice(0, 10).forEach((p) => console.log(`      outside: ${p}`));
+// ⛔ THE EFFECT CENSUS, AND IT IS THE SUM OF THE BUCKETS PRINTED ABOVE — BASE-COVERED ONES INCLUDED.
+// `observed-effect.mjs` decides whether an empty grant measures the PACKAGE or the RUNNER, and a
+// write into a free bucket is still the script doing its work. Counting only billed buckets would
+// score a package whose whole product lands in the redirected private home as having done nothing,
+// and would refuse a correct narrowing.
+console.log(observedEffectMarker({
+  lifecyclePids: lifecycle.size,
+  writes: Object.values(w).reduce((a, v) => a + v.length, 0),
+  peers: hosts.size,
+}));
 console.log('== NETWORK ==');
 console.log(`  AF_INET connects: ${sockets}   distinct peers: ${hosts.size}`);
 [...hosts].slice(0, 10).forEach((h) => console.log(`      ${h}`));

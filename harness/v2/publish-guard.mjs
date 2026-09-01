@@ -40,6 +40,7 @@
 //          exit 0 = publish, 10 = withhold (any other non-zero = usage/IO error)
 
 import fs from 'node:fs';
+import { vetoesNarrowing } from './observed-effect.mjs';
 
 // A grant's capabilities as flat tokens, so "narrower" is a set question rather than a shape one.
 // `{"write":{"deps":true},"network":true}` -> {"write.deps", "network"}. A false-valued key is not a
@@ -239,6 +240,36 @@ export const decide = (prior, incoming) => {
 
   if (dropped.length === 0) {
     return { publish: true, reason: 'does not narrow the existing grant' };
+  }
+  // ⛔⛔ THE VETO, AND IT IS TESTED BEFORE `narrowingEvidence` SO THAT NO PRESENT OR FUTURE TERM CAN
+  // OUTRANK IT. Every term below answers "could this arm have gone red?". This one answers a prior
+  // question — "did the script DO anything in this venue?" — and when the answer is no, none of the
+  // detectors below are measuring the package at all.
+  //
+  // ⛔ IT IS A REFUSAL, NEVER A LICENCE. `NONE` can only move a record from publish to WITHHELD; no
+  // verdict `observed-effect.mjs` returns can license a narrowing. So this strengthens the
+  // asymmetry rather than relaxing it, and a record measured before the marker existed scores
+  // UNKNOWN and keeps exactly the behaviour it had.
+  //
+  // ⛔ AND IT SITS BELOW THE `dropped.length === 0` TEST ON PURPOSE. Widening or confirming on a
+  // no-effect run is still safe — it cannot break an install — so a record that does not narrow
+  // publishes as it always did.
+  //
+  // MEASURED on the 2026-09-01 win32-x64 re-measure: ten of the twelve withheld `{}` records are
+  // this state, nine of them `@pulumi/*`, whose `install-pulumi-plugin.js` ends in an unconditional
+  // `process.exit(0)` after a `spawnSync("pulumi", …)` that ENOENTs on a runner with no Pulumi CLI.
+  // A denial witness scored on their VERIFY arm returns CLEAN — correctly, and uselessly, because
+  // the script attempted nothing to be refused. That is the fix this term exists to pre-empt.
+  if (vetoesNarrowing(incoming)) {
+    const e = incoming.observedEffect;
+    return {
+      publish: false,
+      reason: `WITHHELD — would drop ${dropped.join(', ')} from `
+        + `${JSON.stringify(prior?.grant ?? null)} to ${JSON.stringify(incoming?.grant ?? null)}, but `
+        + `${e.reason}. Nothing here measured the PACKAGE, so no detector — a red arm, a live gate or `
+        + 'a CLEAN denial witness — can speak to this record. Re-measure on a venue that supplies '
+        + "whatever the script silently needs, or record it as unmeasurable; do not narrow it.",
+    };
   }
   // ⛔ `dropped` IS PASSED, AND THAT IS WHAT MAKES THE PROMOTION TERM REACHABLE AT ALL. The term is
   // scoped to the capability the probe actually speaks to, so a caller that does not say WHICH
