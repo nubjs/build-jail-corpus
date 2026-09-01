@@ -441,6 +441,25 @@ function osOf(r) {
 /** Every platform the gates reason about, in `osOf`'s vocabulary. */
 const GATED_PLATFORMS = ['macos', 'linux', 'windows'];
 
+/** `baseline_caps()` from `crates/nub-sandbox/src/catalog_v2.rs`, in the catalog's own grant
+ *  vocabulary — what a package with NO entry is granted.
+ *
+ *  ⛔ TRANSCRIBED FROM THAT FUNCTION AND ITS `BASELINE_WRITE_PATHS`, AND IT MUST STAY IN STEP WITH
+ *  THEM. `read: Reach::None` is why there is no `read` key; `write: Reach::Scopes([Deps])` is
+ *  `{deps: true}`; `network: true` is the documented concession (90.1% of packages need egress).
+ *
+ *  ⛔ THE WRITE-PATH LIST IS CACHE ROOTS AND DELIBERATELY CARRIES NO CONFIG ROOT. `.config` and
+ *  `Library/Application Support` were REMOVED from it: promotion is nub itself writing into the
+ *  user's real home once the scripts finish, so a promoted `.config/git/config` carrying
+ *  `core.hooksPath` is code that runs on the next `git` command in any repository — persistence
+ *  outliving the jail, which is the one property the jail exists to deny. Do not "complete" this
+ *  list with a config directory. */
+const BASELINE_CAPS = {
+  write: { deps: true },
+  network: true,
+  writePaths: ['.cache', '.npm', '.electron', 'AppData/Local', 'Library/Caches'],
+};
+
 /** What ONE platform is actually granted by a catalog grant: the outer axes with that OS's block
  *  laid over them field by field, `null` REMOVING an axis.
  *
@@ -481,6 +500,10 @@ const missingTag = [];
 const prevented = [];
 /** Packages the regeneration would have DROPPED outright while `--prior` still carries an entry. */
 const carriedForward = [];
+/** Every (package, platform, floor) this run CLAIMS to have floored, recorded as the floor is
+ *  applied so the check at the end reads the claim rather than re-deriving it and agreeing with
+ *  itself. See the gate below the override pass. */
+const flooredClaims = [];
 /** Packages whose absence from the regenerated catalog IS a measurement — every platform reported,
  *  every report falsifiable, and the answer was "needs nothing". These must survive the
  *  carry-forward pass below, or a real narrowing would be undone by the floor. */
@@ -542,7 +565,20 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   const allPlatforms = new Set(rs.map((r) => osOf(r)).filter(Boolean));
   const allVersions = new Set(rs.map((r) => r.version));
 
-  // ── GATE 1 (coverage) + GATE 2 (falsifiability) ──────────────────────────────
+  const ordered = [...allVersions].sort(cmpVer);
+  // LATEST: the probe's recorded dist-tag when present, else the highest measured version. The
+  // mega script always probes `latest` explicitly, so the fallback only serves legacy records --
+  // and if it ever picks wrong, `default` is generated from an older version and FUTURE releases
+  // are under-granted, which is why the dist-tag is preferred rather than merely nice.
+  //
+  // ⛔ HOISTED ABOVE THE GATES BECAUSE GATE 3 READS IT. It used to sit immediately above `dflt`,
+  // which is AFTER the floor has been applied — so the one fact that says "this regeneration has no
+  // evidence at the top of the version line" arrived too late to gate anything with.
+  const distTag = rs.map((r) => r.standing?.latestVersion).find(Boolean) ?? null;
+  const tagged = distTag && ordered.includes(distTag) ? distTag : null;
+  const latest = tagged ?? ordered[ordered.length - 1];
+
+  // ── GATE 1 (coverage) + GATE 2 (falsifiability) + GATE 3 (version coverage) ──
   //
   // Which platforms may be narrowed below the shipped grant at all. Both gates read the RAW
   // records, never the folded ones: folding unions a platform's runs into one grant and drops the
@@ -555,9 +591,37 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   // untrustworthy record is therefore enough to make the cell's narrowness unproven, however many
   // sound records sit beside it.
   const priorEntry = PRIOR?.packages?.[pkg] ?? null;
-  /** os -> why this platform may not sit below the shipped grant. Empty ⇒ every platform reported
-   *  with evidence that could have gone red, so the regeneration speaks for itself. */
+  /** os -> why this platform may not sit below the floor. Empty ⇒ every platform reported with
+   *  evidence that could have gone red, at a version line reaching npm's real `latest`, so the
+   *  regeneration speaks for itself. */
   const gated = new Map();
+  // ⛔ GATE 3 — VERSION COVERAGE, AND IT IS GATE 1 ASKED ALONG THE OTHER AXIS. Gate 1 refuses a
+  // narrowing where a PLATFORM did not report; this refuses one where the top of the VERSION LINE
+  // did not. When npm's real `latest` was never measured, `default` is generated from an older
+  // release and — because `default` is what every current and future version resolves to — the band
+  // structure below it is redrawn around that older release. The regeneration therefore has no
+  // evidence at all about the range the shipped `default` covered, and silence there is not
+  // evidence any more than silence about a platform is.
+  //
+  // ⛔ MEASURED, AND THIS IS THE HOLE THAT MADE THE `--prior` RE-BAKE NON-MONOTONE. `@apollo/rover`
+  // shipped `default` (empty, measured at 0.41.0) plus a `<0.41.0` band granting `write.deps`. With
+  // 0.41.0 no longer measured, `latest` falls back to 0.40.0, every band collapses into `default`,
+  // and `default`'s `linux: {write: null}` overlay — computed from 0.40.0 ALONE — then applies to
+  // the whole version line. Linux lost `write.deps` everywhere below 0.41.0 on the strength of one
+  // release's measurement, with both existing gates passing because linux DID report, falsifiably.
+  //
+  // ⛔ A FLOOR, NOT A REFUSAL, AND THAT IS THE WHOLE POINT OF PUTTING IT HERE. 353 of the corpus's
+  // packages carry a stale default, so refusing on one would mean nobody can ever bake — the
+  // `staleDefaults` list stays a reported gate for `--strict`, while this turns the same fact into
+  // the response the project already uses for absent evidence: keep what shipped.
+  //
+  // ⛔ TESTED LAST OF THE THREE, SO IT CLAIMS ONLY THE PLATFORMS THE OTHER TWO CLEARED. The floor it
+  // applies is identical either way (`floorFor(os)`), so ordering cannot change the emitted catalog
+  // — but it decides which REASON the entry's note and the run's report carry, and "no valid record
+  // on this platform" is the more specific and more actionable finding. Ordered the other way, gate
+  // 1's count fell from 1044 to 575 and gate 2's to zero, which reads as two gates having stopped
+  // working.
+  const staleDefault = Boolean(distTag && !tagged);
   for (const os of (priorEntry ? GATED_PLATFORMS : [])) {
     const valid = rsRaw.filter((r) => osOf(r) === os && r.__valid);
     if (!valid.length) {
@@ -568,6 +632,11 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
     if (blind.length) {
       gated.set(os, `${blind.length} of ${valid.length} valid record(s) could not have failed `
         + `(${[...new Set(blind.map((r) => r.version))].sort(cmpVer).join(', ')})`);
+      continue;
+    }
+    if (staleDefault) {
+      gated.set(os, `latest ${distTag} was never measured, so \`default\` comes from ${latest} `
+        + '— the regeneration has no evidence at the top of the version line');
     }
   }
   /** The floor for one gated platform: the WIDEST grant the shipped catalog gives it anywhere on
@@ -586,9 +655,38 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
    *  So the floor does not draw a version line the evidence cannot support. A gated platform has no
    *  new information at ANY version; giving it the safest thing ever shipped, everywhere, is what
    *  that actually means. It over-grants the gated platform on older versions, which is the
-   *  direction this project accepts. */
-  const floorFor = (os) => [priorEntry.default ?? {}, ...Object.values(priorEntry.versions ?? {})]
-    .reduce((caps, grant) => unionGrant(caps, effectiveFor(grant, os)), {});
+   *  direction this project accepts.
+   *
+   *  ⛔ AND WITH NO PRIOR ENTRY THE FLOOR IS `baseline_caps()`, WHICH IS THE SAME RULE AND NOT A
+   *  SECOND ONE. The floor is always "what nub granted this package BEFORE this bake". For a
+   *  catalogued package that is its shipped entry; for an uncatalogued one it is the baseline, and
+   *  the two are one rule because a v2 ENTRY REPLACES `baseline_caps()` RATHER THAN MERGING WITH IT
+   *  (`crates/nub-cli/src/pm_engine/build_jail.rs`; `catalog_v2.rs` states it as "an entry: ITS OWN
+   *  value / absent: the BASELINE"). So a first-ever entry naming less than the baseline does not
+   *  merely fail to widen — it WITHDRAWS egress, the deps write and the whole promotion list from a
+   *  package that had them yesterday by virtue of being unknown.
+   *
+   *  ⛔ MEASURED on the 2026-09-01 regeneration, which is why this is not defensive coding: 165 of
+   *  the 166 cells the re-bake narrowed were FIRST entries, across 50 packages, and 72 of them
+   *  dropped egress outright — `node-sass`, `zeromq`, `netlify`, `neonctl`, `ffi`, `fibers` among
+   *  them. Both existing gates were structurally unable to see it, because both compare against a
+   *  prior ENTRY and a new package has none.
+   *
+   *  ⛔ IT FLOORS AN ENTRY, IT NEVER CREATES ONE. A package measured as needing nothing is still
+   *  DROPPED (see `meaningful` below), because absence already resolves to exactly this baseline —
+   *  flooring it into existence would add hundreds of entries that grant precisely what their
+   *  absence grants. The floor only ever applies to a package that is getting an entry anyway.
+   *
+   *  ⛔ AND IT STOPS AT THE GENERATOR. Overrides are applied after this loop and are deliberately
+   *  NOT floored: `catalog_v2.rs` documents a sub-baseline entry as a supported, intended shape —
+   *  "a widely-depended-on package may deliberately be granted LESS than an unknown one, because
+   *  the damage if it is compromised is greater" — and a hand-authored override with its mandatory
+   *  `rationale` block is the reviewed seam for that decision. A MEASUREMENT is not that decision:
+   *  "this host did not happen to need egress" is not "this package should be denied egress". */
+  const floorFor = (os) => (priorEntry
+    ? [priorEntry.default ?? {}, ...Object.values(priorEntry.versions ?? {})]
+      .reduce((caps, grant) => unionGrant(caps, effectiveFor(grant, os)), {})
+    : { ...BASELINE_CAPS, writePaths: [...BASELINE_CAPS.writePaths] });
 
   const bands = new Map();
   for (const r of rs) {
@@ -607,7 +705,13 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   // a package leaves the catalog, and it is correct when every platform reported it — but with one
   // platform unmeasured it is exactly the silent removal the floor exists to stop, and an absent
   // entry runs at the BASE PROFILE, which is the widest under-grant this file can commit.
-  if (!meaningful.length && !gated.size) { evidencedDrop.add(pkg); continue; }
+  //
+  // ⛔ AND IT IS SCOPED TO A PACKAGE THAT HAS A SHIPPED ENTRY TO LOSE. The baseline floor below
+  // gates NOTHING here on purpose: absence already resolves to exactly `baseline_caps()`, so
+  // keeping an uncatalogued "needs nothing" package alive would emit hundreds of entries granting
+  // precisely what their absence grants. The floor raises an entry that is being written; it never
+  // conjures one.
+  if (!meaningful.length && !(priorEntry && gated.size)) { evidencedDrop.add(pkg); continue; }
 
   // ── `default` + `<` BANDS ────────────────────────────────────────────────────
   //
@@ -660,13 +764,38 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   // whichever platform happens to be gated later, purely by iteration order. The emitted catalog is
   // unaffected (a union is order-independent); the REPORT is not, and a report naming the wrong
   // gate is how the wrong thing gets re-measured.
+  //
+  // ⛔ WHICH PLATFORMS ARE FLOORED DEPENDS ON WHETHER THERE IS A PRIOR ENTRY, AND THE ASYMMETRY IS
+  // THE POINT. A CATALOGUED package is floored only where a gate fired, because a platform that
+  // reported falsifiably at a version line reaching npm's `latest` has earned the right to narrow
+  // its own shipped grant. An UNCATALOGUED one is floored on EVERY platform unconditionally: the
+  // gates all ask "is this narrowing evidenced?", and for a first entry that is the wrong question.
+  // However good the measurement, publishing an entry below `baseline_caps()` withdraws capabilities
+  // the package held yesterday by being unknown, and no measurement of what a package HAPPENED to
+  // need is a decision to take away what it is ALLOWED to need.
+  //
+  // ⛔ AND FOR AN UNCATALOGUED PACKAGE IT IS CONDITIONED ON THE ENTRY EXISTING WITHOUT IT.
+  // `meaningful` is NOT that test: a v2 record carries `grant: {}` for "needs nothing", and `{}` is
+  // truthy, so a package every version of which needs nothing has a non-empty `meaningful` and is
+  // dropped later, by the empty-entry check at the end of this loop. Flooring before that check
+  // pre-empts it — MEASURED: it emitted 301 entries granting exactly `baseline_caps()`, which is
+  // byte-for-byte what those packages already get by being absent, nearly doubling the catalog to
+  // say nothing. The floor raises an entry that is being written; it never conjures one.
+  const emitsEntry = [...byVersion.values()].some((g) => CAP_AXES.some((k) => g[k] !== undefined));
+  const floors = new Map(priorEntry
+    ? [...gated.keys()].map((os) => [os, floorFor(os)])
+    : (emitsEntry ? GATED_PLATFORMS : []).map((os) => [os, floorFor(os)]));
+  for (const [os, floor] of floors) {
+    if (Object.keys(floor).length) flooredClaims.push({ pkg, os, floor });
+  }
   const ungated = new Map();
-  for (const v of (gated.size ? byVersion.keys() : [])) {
+  for (const v of (floors.size ? byVersion.keys() : [])) {
     ungated.set(v, new Map(GATED_PLATFORMS.map((os) =>
       [os, byVersionOs.get(v)?.get(os) ?? byVersion.get(v) ?? {}])));
   }
-  for (const [os, why] of gated) {
-    const floor = floorFor(os);
+  for (const [os, floor] of floors) {
+    const why = gated.get(os) ?? 'no prior entry — an uncatalogued package is granted '
+      + '`baseline_caps()`, and an entry REPLACES that rather than merging with it';
     if (!Object.keys(floor).length) continue;
     for (const v of [...byVersion.keys()]) {
       const dropped = narrows(floor, ungated.get(v).get(os));
@@ -687,14 +816,6 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
     }
   }
 
-  const ordered = [...allVersions].sort(cmpVer);
-  // LATEST: the probe's recorded dist-tag when present, else the highest measured version. The
-  // mega script always probes `latest` explicitly, so the fallback only serves legacy records --
-  // and if it ever picks wrong, `default` is generated from an older version and FUTURE releases
-  // are under-granted, which is why the dist-tag is preferred rather than merely nice.
-  const distTag = rs.map((r) => r.standing?.latestVersion).find(Boolean) ?? null;
-  const tagged = distTag && ordered.includes(distTag) ? distTag : null;
-  const latest = tagged ?? ordered[ordered.length - 1];
   // ⛔ `default` GENERATED FROM A NON-LATEST VERSION IS AN UNDER-GRANT RISK, so it is a GATE and
   // not a note. If the true latest needs MORE than the highest version we measured, every release
   // from that point on silently falls to a grant that is too narrow — the one direction this
@@ -764,6 +885,9 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
   // for a measurement, and stdout is gone by then.
   if (gated.size) {
     dflt.notes += `; ${[...gated].map(([os, why]) => `${os} floored at the prior catalog (${why})`).join('; ')}`;
+  } else if (!priorEntry && floors.size) {
+    dflt.notes += '; floored at the uncatalogued baseline (first entry — an entry REPLACES '
+      + '`baseline_caps()` rather than merging with it)';
   }
   if (rs.some((r) => r.declaresInstallScript && !r.projectAxisConclusive)) {
     dflt.notes += '; project axis inconclusive (package was not materialized)';
@@ -806,7 +930,7 @@ for (const [pkg, rsRaw] of [...byPackage.entries()].sort()) {
     // Nothing was floored and nothing is granted: every platform reported, with evidence that could
     // have failed, that this package needs nothing. That IS the measurement, so the carry-forward
     // pass below must not put the shipped entry back over it.
-    if (!gated.size) evidencedDrop.add(pkg);
+    if (!(priorEntry && gated.size)) evidencedDrop.add(pkg);
     continue;
   }
   packages[pkg] = entry;
@@ -1023,7 +1147,10 @@ if (staleDefaults.length) {
 if (PRIOR) {
   const cells = (rows) => new Set(rows.map((p) => `${p.pkg} ${p.version} ${p.os}`)).size;
   const coverage = prevented.filter((p) => p.why.startsWith('no valid record'));
-  const falsifiability = prevented.filter((p) => !p.why.startsWith('no valid record'));
+  const staleTop = prevented.filter((p) => p.why.startsWith('latest '));
+  const uncatalogued = prevented.filter((p) => p.why.startsWith('no prior entry'));
+  const falsifiability = prevented.filter((p) => !coverage.includes(p) && !staleTop.includes(p)
+    && !uncatalogued.includes(p));
   console.log(`\nprior floor         ${PRIOR_PATH}  (${Object.keys(PRIOR.packages).length} packages)`);
   console.log(`  gate 1 — coverage       ${String(cells(coverage)).padStart(4)} narrowing(s) refused`
     + ` across ${new Set(coverage.map((p) => p.pkg)).size} package(s),`
@@ -1031,6 +1158,10 @@ if (PRIOR) {
   console.log(`  gate 2 — falsifiability ${String(cells(falsifiability)).padStart(4)} narrowing(s) refused`
     + ` across ${new Set(falsifiability.map((p) => p.pkg)).size} package(s),`
     + ` platforms: ${JSON.stringify(falsifiability.reduce((m, p) => ({ ...m, [p.os]: (m[p.os] ?? 0) + 1 }), {}))}`);
+  console.log(`  gate 3 — version coverage ${String(cells(staleTop)).padStart(3)} narrowing(s) refused`
+    + ` across ${new Set(staleTop.map((p) => p.pkg)).size} package(s) whose \`latest\` was never measured`);
+  console.log(`  baseline floor (first entry) ${String(cells(uncatalogued)).padStart(4)} narrowing(s) refused`
+    + ` across ${new Set(uncatalogued.map((p) => p.pkg)).size} uncatalogued package(s)`);
   console.log(`  packages carried forward whole (no measurement at all)  ${carriedForward.length}`);
   console.log(`  packages dropped on evidence (every platform measured)  ${evidencedDrop.size}`);
   for (const p of prevented.slice(0, 8)) {
@@ -1082,6 +1213,102 @@ if (STRICT && strictFailures.length) {
   for (const failure of strictFailures) console.error(`  - ${failure}`);
   console.error(`  refusing to write ${OUT}`);
   process.exit(1);
+}
+
+// ── GATE 4: EVERY FLOOR THIS RUN CLAIMED MUST ACTUALLY HOLD IN THE EMITTED CATALOG ────────────
+//
+// ⛔⛔ IT CHECKS THE FLOORS, NOT "DID ANYTHING NARROW", AND THE DIFFERENCE IS THE WHOLE DESIGN.
+// An evidenced narrowing is the POINT of gates 1-3: a platform that reported validly, falsifiably,
+// at a version line reaching npm's `latest` is allowed to narrow its own shipped grant, and
+// `collate-narrowing-gates.test.mjs` pins that in both directions because "a floor that freezes
+// everyone is not a gate". A blanket "no cell may narrow" assertion satisfies every one of those
+// preservation tests, freezes the catalog at its current grants forever, and looks correct doing it
+// — it was written that way first and refused NINE of this file's own tests, every one of them a
+// deliberate, evidenced narrowing.
+//
+// So the question this asks is narrower and answerable: WHERE A FLOOR WAS APPLIED, DID IT SURVIVE
+// INTO THE OUTPUT? That is a claim the run makes about itself, and it is exactly the claim that has
+// silently failed before. `floorFor`'s own header documents the shape: `@pulumi/gcp` lost
+// `write.userHome` below 0.16.9 on macOS *while its entry carried a note saying macOS was floored*,
+// because the floor went into the base and the band model then dropped it. A note asserting a
+// preservation that did not happen is worse than no note at all.
+//
+// ⛔ IT READS THE RECORDED CLAIM RATHER THAN RE-DERIVING THE FLOOR. Re-deriving would recompute
+// `floorFor` from the same inputs with the same code, so the check would agree with itself by
+// construction and could only ever catch a transcription slip. `flooredClaims` is appended at the
+// moment a floor is applied, and this resolves the FINISHED entry the way `catalog_v2.rs` does.
+//
+// ⛔ ARMED ALWAYS, NOT BEHIND `--strict`, AND THAT IS THE FIX RATHER THAN AN OMISSION. `--strict`
+// bundles seven unrelated conditions — record provenance, missing dist-tags, unproven minimality,
+// dead-weight overrides, incomplete verdicts — and MEASURED on the 2026-09-01 corpus a `--strict`
+// bake fails FIVE of them, 10,953 record provenance failures among them. It is unpassable on any
+// real corpus, so routing a must-always-hold invariant through it is the same as not having it.
+//
+// ⛔ OVERRIDES ARE EXEMPT, AND THAT IS A CAPABILITY RATHER THAN A LOOPHOLE. An override REPLACES the
+// generated entry outright, so no floor this loop applied survives it by design. `catalog_v2.rs`
+// states a sub-baseline entry is an intended shape — "a widely-depended-on package may deliberately
+// be granted LESS than an unknown one, because the damage if it is compromised is greater" — and an
+// override file, with its mandatory `rationale.{investigator,evidence,date}`, is the reviewed seam
+// for making that call. What this gate forbids is the GENERATOR doing it silently off a measurement.
+{
+  const overridden = new Set(applied.map((a) => a.name));
+  /** `Entry::grant_for` — narrowest applicable `<` bound wins, else `default`. */
+  const resolve = (entry, v) => {
+    const hit = Object.entries(entry.versions ?? {})
+      .map(([range, grant]) => ({ bound: range.replace(/^</, '').trim(), grant }))
+      .filter((b) => cmpVer(v, b.bound) < 0)
+      .sort((a, b) => cmpVer(a.bound, b.bound))[0];
+    return hit ? hit.grant : entry.default;
+  };
+  // ⛔ THE SUBSET QUESTION IS ASKED WITH `unionGrant`, NOT WITH `narrows`, AND THE DIFFERENCE IS NOT
+  // STYLISTIC. `narrows` is a set difference over `capsOf` tokens, in which `write:"disk"` is its own
+  // token rather than a superset of `write.deps` — so a cell WIDENING from `{write:{deps,project,
+  // userHome}}` to `{write:"disk"}` reports three dropped capabilities. MEASURED: the first draft of
+  // this gate refused on exactly five such cells (`gifsicle@7.0.1`, `optipng-bin@9.0.0`,
+  // `redis-memory-server@0.17.1`, `@tensorflow/tfjs-backend-wasm`, `react-native-purchases`), every
+  // one of them a widening. That is the trap `osOverlays` documents on its own invariant check, and
+  // it takes the same way out: union the floor INTO the emitted grant and ask whether the emitted
+  // grant changed. `unionGrant` knows `"disk"` swallows every narrow scope, that a write implies the
+  // read the parser would reject as redundant, and that a `writePaths` prefix covers everything
+  // beneath it, so all three subsumptions come for free and cannot drift from what this file emits.
+  const covers = (grant, floor) => capsKey(unionGrant({ ...grant }, { ...floor })) === capsKey(grant);
+  const lostAxes = (grant, floor) => {
+    const merged = unionGrant({ ...grant }, { ...floor });
+    return CAP_AXES.filter((a) => capsKey(merged[a] ?? null) !== capsKey(grant[a] ?? null))
+      .map((a) => `${a} (${JSON.stringify(grant[a] ?? null)} < ${JSON.stringify(merged[a])})`);
+  };
+  const breaches = [];
+  for (const { pkg, os, floor } of flooredClaims) {
+    if (overridden.has(pkg)) continue;
+    const entry = packages[pkg];
+    // A floored package ABSENT from the output resolves to `baseline_caps()`, which breaches any
+    // claimed floor wider than the baseline — the "package dropped out entirely" under-grant.
+    const points = ['0.0.0-0', ...Object.keys(entry?.versions ?? {})
+      .map((k) => k.replace(/^</, '').trim())].sort(cmpVer);
+    for (const v of points) {
+      const eff = entry ? effectiveFor(resolve(entry, v), os) : BASELINE_CAPS;
+      if (!covers(eff, floor)) breaches.push({ pkg, os, v, floor, eff, lost: lostAxes(eff, floor) });
+    }
+  }
+  if (breaches.length) {
+    console.error(`\nCOLLATE REFUSED: ${breaches.length} cell(s) across `
+      + `${new Set(breaches.map((b) => b.pkg)).size} package(s) resolve BELOW a floor this run applied.`);
+    console.error('  The entry says the platform was floored and the emitted grant does not carry it,');
+    console.error('  so its note claims a preservation that did not happen. Under-granting is the one');
+    console.error('  direction this project forbids: its symptom is a package that fails to install.');
+    console.error('  Fix the generator — do not hand-edit the output, which would un-derive the catalog.');
+    for (const b of breaches.slice(0, 20)) {
+      console.error(`    ${b.pkg}@${b.v} ${b.os}: ${b.lost.join(', ')}`);
+      console.error(`      floor ${JSON.stringify(b.floor)}  ->  emitted ${JSON.stringify(b.eff)}`);
+    }
+    if (breaches.length > 20) console.error(`    … and ${breaches.length - 20} more`);
+    console.error(`  refusing to write ${OUT}`);
+    process.exit(3);
+  }
+  if (flooredClaims.length) {
+    console.log(`  gate 4 — every applied floor holds in the output  (${flooredClaims.length} `
+      + `(package, platform) floor(s) re-resolved against the emitted entry)`);
+  }
 }
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, `${JSON.stringify(catalog, null, 2)}\n`);

@@ -145,8 +145,13 @@ test('⭑ collate SHIPS a truncated record and WARNS about it, and stays silent 
 
   const cat = JSON.parse(fs.readFileSync(path.join(dir, 'cat.json'), 'utf8'));
   assert.ok(cat.packages.mozjpeg, 'the truncated record must still SHIP — excluding it breaks the install');
-  assert.deepEqual(cat.packages.mozjpeg.default.write, { project: true, userHome: true },
-    'and it ships the same grant it measured');
+  // ⛔ `deps` IS THE BASELINE FLOOR, NOT THE TRUNCATION. The descent proved `no-write-deps` verifies,
+  // so the MEASURED grant drops `deps` — but mozjpeg has no prior catalog entry here, and a v2 entry
+  // REPLACES `baseline_caps()` rather than merging with it, so shipping `{project, userHome}` alone
+  // would deny this package the deps write every UNCATALOGUED package already gets. The floor puts
+  // it back. What this test is about is unchanged: the truncated record SHIPS, and is warned about.
+  assert.deepEqual(cat.packages.mozjpeg.default.write, { project: true, userHome: true, deps: true },
+    'and it ships the grant it measured, raised to the baseline no entry may resolve below');
 });
 
 test('the marker is idempotent, so a re-parse cannot stack reasons or notes', () => {
