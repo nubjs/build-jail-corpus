@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 72,
+  "currentEpoch": 73,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1494,6 +1494,47 @@
         "verdicts": []
       },
       "reason": "share the tool-cache leaf list across both POSIX classifiers and the census gate"
+    },
+    {
+      "fromEpoch": 72,
+      "fromHarnessSha256": "d72968cb21e237118d579af2499bab5dd45e290966962c80364671e4e28ed5de",
+      "toEpoch": 73,
+      "toHarnessSha256": "e46a86c326f3dc7cedb1d3d3ad895cd97d963c6a86f379a2665c1fc6fba016be",
+      "invalidate": {
+        "packages": [
+          "@arbitrum/sdk",
+          "@aws-amplify/cli",
+          "@clerk/shared",
+          "@coze/cli",
+          "@depot/cli",
+          "@mui/x-telemetry",
+          "@netlify/esbuild",
+          "@opencode-ai/cli",
+          "@pdftron/pdfnet-node",
+          "apollo-server",
+          "bootstrap-slider",
+          "esbuild",
+          "grapesjs",
+          "keccak",
+          "mbt",
+          "mediaquery-text",
+          "netlify",
+          "netlify-cli",
+          "nodemon",
+          "opencode-ai",
+          "postman-code-generators",
+          "pretender",
+          "purescript",
+          "rc-editor-core",
+          "react-native-purchases",
+          "react-paginate",
+          "subrequests",
+          "subrequests-json-merger",
+          "truffle",
+          "ursa-optional"
+        ]
+      },
+      "reason": "Takes the invalidation that 52c0db758 owed. That commit scrubbed the four per-user XDG base dirs from the traced observe child of both POSIX drivers, because GitHub's ubuntu image exports XDG_CONFIG_HOME as an absolute path into the real home and the jail admits no XDG name at all; every record measured with the leaked variable saw config writes land outside the redirected home and was billed a whole-home write it does not need. The digest moved with that commit and was absorbed at epoch 71, but no record was ever invalidated, so 67 linux records across 30 packages have been silently stale since. Scoped by package name only. Also corrects the Windows carve-out's rationale, whose observeEnv evidence was circular."
     }
   ]
 }
