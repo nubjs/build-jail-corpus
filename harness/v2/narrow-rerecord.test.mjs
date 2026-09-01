@@ -379,28 +379,82 @@ test('G4: the same log DOES narrow once the archive carries the evidence a re-me
 
 // ── G5: the network census, the axis the artifact gate is equally blind to ─────────────────────────
 
+// ── G5: the network census, on the ONE route `record.mjs`'s own term cannot see ────────────────────
+//
+// ⛔⛔ READ THIS BEFORE CHANGING EITHER FIXTURE: G5'S ORIGINAL ROUTE IS NOW COVERED UPSTREAM, AND THESE
+// TWO CASES DELIBERATELY TAKE A DIFFERENT ONE. G5 was built from `electron-chromedriver@33.4.9` —
+// a committed grant whose own descent dropped `network` over a positive census. `record.mjs` now
+// refuses that drop itself, at measurement time, so a fixture in that shape never reaches here: the
+// replayed grant KEEPS network, equals the committed one, and `replay()` returns CURRENT. The old
+// fixtures asserted `STALE` as their control and that control correctly went red when the live term
+// landed. Restoring them by weakening the control would test nothing.
+//
+// ⛔ SO WHY G5 STILL EARNS ITS PLACE, STATED AS THE TWO ROUTES IT AND `record.mjs` EACH COVER. The
+// live term compares the SYNTHESIZED grant against the DESCENDED one WITHIN a single replay. G5
+// compares the COMMITTED grant against the REPLAYED one (`narrows(committed.grant, next.grant)`).
+// Those are different questions, and only the second one sees a committed grant that carries
+// `network` for a reason today's parse does not reproduce at all:
+//
+//   route (b)  the replay's own descent drops network   -> `record.mjs` refuses unless the census is
+//              CLEAR, so by the time G5 sees it the census is CLEAR and G5 cannot refuse. SUBSUMED.
+//   route (a)  the replayed grant lacks network for any OTHER reason — a LADDER-RUNG bundle, an
+//              older synthesis — so no descent ever dropped it and the live term is structurally
+//              silent. G5 is the only guard on this route. NOT SUBSUMED, and it is what these test.
+//
+// ⛔ MEASURED ON THE COMMITTED CORPUS, AND THE HONEST VERSION IS BOTH HALVES. The route-(a) SHAPE is
+// real and common: 108 records carry `network` in the grant while their own `synthesized` does not,
+// every one of them `verifiedBy: "ladder"`, and 70 of those name no `no-network` arm at all. What has
+// ZERO instances today is a member of that class whose replay ALSO drops network — 26 records reach
+// G5's precondition and all 26 are route (b) with a CLEAR (zero-peer) census. So G5 refuses nothing
+// in the corpus as it stands; it guards a reachable route that the archive has not yet produced,
+// across the 37 harness revisions the bake spans. That is a backstop, not dead code — and the
+// fixtures below are what keep it from becoming dead code unnoticed.
+
+/** The route-(a) committed record: a LADDER-RUNG bundle grant carrying `network` that the log's own
+ *  `SYNTHESIZED GRANT` block never had. `synthesized` still matches what today's parser reads, so G1
+ *  sees no parse drift; `descendedGrant` matches too, so the contested-field guard stays out of the
+ *  way and what refuses is G5 alone. */
+const ladderRec = (over = {}) => ({
+  ...committedRec(),
+  grant: { write: { userHome: true }, network: true },
+  synthesized: { write: { userHome: true } },
+  verifiedBy: 'ladder',
+  descendedGrant: {},
+  grantSource: 'synthesized',
+  grantSourceReason: 'the ladder rung verified; the synthesized grant was insufficient',
+  notes: [],
+  ...over,
+});
+
+/** The matching log: synthesis WITHOUT network, one `no-write-userHome` arm, tool-cache home census.
+ *  `record.mjs` narrows this to `{}` and never forms an opinion about network, because no arm dropped
+ *  one — which is exactly what makes G5 the only thing between the archive and a network narrowing. */
+const ladderLog = (o = {}) => lines({
+  synthesized: '{"write":{"userHome":true}}', over: 'no-write-userHome', narrowGrant: '{}', ...o,
+}).join('\n');
+
 test('⭑ G5: `network` is not dropped when the log\'s own census attributed real peers', () => {
-  // ⛔⛔ THE DEFECT THIS GUARD WAS BUILT FROM, AND IT WAS FOUND BY RUNNING THE COLLATOR RATHER THAN BY
-  // READING RECORDS. `artifact-gate.mjs` checks the package's artefacts are present, and a fetch a
-  // WARM CACHE already satisfied leaves that check green — so `network` drops off an arm that proved
-  // nothing. MEASURED: `electron-chromedriver@33.4.9` (darwin) recorded two real HTTPS connections in
-  // OBSERVE and still returned `VERIFY[nar-no-network] rc=0 artifacts=11/11`. Collating the narrowed
-  // corpus turned its macOS overlay into `{"write":null,"network":null}` — and `null` in an overlay
-  // REMOVES — so macOS lost egress entirely. `harness/overrides` already undoes exactly that shape for
-  // the sibling package `electron`, because the cold-cache install exits 1 with ENOTFOUND github.com.
-  const committed = committedRec({
-    grant: { write: { userHome: true }, network: true },
-    synthesized: { write: { userHome: true }, network: true },
-    overPredictedBy: ['no-network'],
-    descendedGrant: { write: { userHome: true } },
-  });
-  const log = lines({
-    peers: 2, over: 'no-network', narrowGrant: '{"write":{"userHome":true}}',
-  }).join('\n');
-  // The control: today's rule really does reach this narrowing, so what refuses it is G5 alone.
+  // ⛔ THE DEFECT THE GUARD WAS BUILT FROM. `artifact-gate.mjs` checks the package's artefacts are
+  // present, and a fetch a WARM CACHE already satisfied leaves that check green — so `network` drops
+  // off an arm that proved nothing. MEASURED: `electron-chromedriver@33.4.9` (darwin) recorded two
+  // real HTTPS connections in OBSERVE and still returned `VERIFY[nar-no-network] rc=0
+  // artifacts=11/11`. Collating the narrowed corpus turned its macOS overlay into
+  // `{"write":null,"network":null}` — and `null` in an overlay REMOVES — so macOS lost egress
+  // entirely. `harness/overrides` already undoes exactly that shape for the sibling package
+  // `electron`, because the cold-cache install exits 1 with ENOTFOUND github.com.
+  const committed = ladderRec();
+  const log = ladderLog({ peers: 2 });
+
+  // ⛔ THE CONTROL, AND IT IS WHAT PINS THE ROUTE. `record.mjs` must NOT have refused this narrowing
+  // itself — no `network-attributed` note — or the case below would be testing the live term rather
+  // than G5. The replay reaches a grant that drops network, and nothing upstream objected.
+  const parsed = parseDriverLog(log);
+  assert.equal(parsed.grant.network, undefined, 'the replayed grant must actually drop network');
+  assert.ok(!parsed.notes.includes('network-attributed'),
+    "record.mjs refused this itself, so it is route (b) and G5 is not what is under test");
   const rep = replay({ committed, log, capture: CAPTURE });
   assert.equal(rep.verdict, STALE, rep.reason);
-  assert.deepEqual(rep.dropped, ['network']);
+  assert.ok(rep.dropped.includes('network'), `dropped was ${JSON.stringify(rep.dropped)}`);
 
   const r = narrowRerecord({ committed, log, capture: CAPTURE });
   assert.equal(r.verdict, REFUSED);
@@ -409,16 +463,24 @@ test('⭑ G5: `network` is not dropped when the log\'s own census attributed rea
 });
 
 test('G5: an ABSENT network census refuses the drop — an archived log cannot be re-run', () => {
-  const committed = committedRec({
-    grant: { write: { userHome: true }, network: true },
-    overPredictedBy: ['no-network'],
-    descendedGrant: { write: { userHome: true } },
-  });
-  const log = lines({ over: 'no-network', narrowGrant: '{"write":{"userHome":true}}' })
+  // ⛔ THE ASYMMETRY THAT MAKES THIS DIFFERENT FROM THE LIVE RULE'S ABSENT-CENSUS CASE. A recorder
+  // running now could in principle go back and measure; a reader of a frozen archive never can, so
+  // "the question was never asked" can only ever refuse here.
+  const committed = ladderRec();
+  const log = ladderLog({ peers: 2 }).split('\n')
     .filter((l) => !/== NETWORK|distinct peers/.test(l)).join('\n');
   const r = narrowRerecord({ committed, log, capture: CAPTURE });
   assert.equal(r.verdict, REFUSED);
   assert.match(r.reason, /network census came back UNKNOWN/);
+});
+
+test('⛔ RED CONTROL: the same route-(a) record narrows once its census comes back ZERO', () => {
+  // Without this, both cases above would pass against a G5 that refused every network drop
+  // unconditionally — a permanent refusal wearing a reason. The census is the only thing that moves.
+  const r = narrowRerecord({ committed: ladderRec(), log: ladderLog({ peers: 0 }), capture: CAPTURE });
+  assert.equal(r.verdict, NARROWED, r.reason);
+  assert.deepEqual(r.narrowed, ['network', 'write.userHome']);
+  assert.deepEqual(r.rewritten.grant, {});
 });
 
 test('G5: a drop that does not take `network` is not gated on the network census', () => {
