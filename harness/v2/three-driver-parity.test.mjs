@@ -195,6 +195,21 @@ const MODULE_REGISTRY = new Map([
   ['v2/classify.mjs', { kind: 'platform', why:
     'The win32 classifier, peer of observe.mjs and observe-macos.mjs. Same one-per-driver rule: the ' +
     'choice of classifier is the platform decision, not a guard one driver happens to have.' }],
+  ['v2/tool-cache-leaves.mjs', { kind: 'open', why:
+    'OPEN DIVERGENCE on win32, and it is the DRIVER that diverges rather than the classifier. This ' +
+    'module names the three read-write leaves nub carves out of its own tool cache; observe.mjs and ' +
+    'observe-macos.mjs subtract them from userHome because measure.sh and measure-macos.sh reproduce ' +
+    'the three redirects that send a package there. classify.mjs deliberately does not, and says so ' +
+    'at length, because measure-windows.mjs sets NONE of them — its OBS_ENV is npm_config_cache, ' +
+    'TMP/TEMP/TMPDIR and the home trio — and it declares npmPrefix null for exactly that reason. No ' +
+    'win32 package can reach those directories without a redirect, so there is nothing to carve out. ' +
+    'WHAT MAKES THIS OPEN RATHER THAN PLATFORM: nub applies all three redirects with no platform ' +
+    'gate, and preset.rs push_rw_paths the leaves in one cfg-free loop whose own comment cites a ' +
+    'MEASURED Windows failure (EPERM on mkdir of the electron-cache leaf). The win32 OBSERVE arm ' +
+    'therefore measures an environment the jailed VERIFY arm does not have, which is the same ' +
+    'OBSERVE/VERIFY parity argument measure.sh makes for reproducing them on Linux. Closing it means ' +
+    'adding the three redirects to measure-windows.mjs, which CHANGES WHAT EVERY WIN32 RECORD ' +
+    'MEASURES and needs an invalidation scope — priced separately, never folded into a recorder fix.' }],
   ['v2/arm-cap.mjs', { kind: 'platform', why:
     'A POSIX process-group wall-clock cap. Its own header records the split: "measure.sh and ' +
     'measure-macos.sh enforce NOTHING ... Only measure-windows.mjs caps its arms", which it does ' +
