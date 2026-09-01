@@ -175,41 +175,71 @@ test('a record the current rule agrees with is CURRENT, not STALE', () => {
   const already = { ...committedFor(log), grant: { write: { project: true }, network: true } };
   const r = replay({ committed: already, log, capture: CAPTURE });
   assert.equal(r.verdict, CURRENT, r.reason);
+  assert.deepEqual(r.widens, [], 'an agreeing record must not read as an under-grant');
 });
 
-test('⭑ G3 refuses to drop write.userHome when OBSERVE saw the script write the real home', () => {
-  // ⛔ THE MEASURED CASE, AND IT IS THE REASON THIS GATE EXISTS. 13 committed records the shipped
-  // rule would narrow are playwright/puppeteer browser downloaders whose entire product is a home
-  // write — `playwright-chromium@1.9.2` performed 1185 real-home writes,
+test('⭑ a committed grant the current rule would WIDEN is named, not reported as agreement', () => {
+  // ⛔ MEASURED at `cf36b27f8` after the home-write term landed: 115 committed records already
+  // dropped `write.userHome` on a package whose own census attributed real-home writes, so the rule
+  // reaches a strictly WIDER grant for each. This module proposes narrowings only, so `dropped` is
+  // empty for all of them — and the flat "the current rule reaches the committed grant" sentence was
+  // then false in the under-grant direction, which is the direction this project forbids.
+  const log = LOG({ writes: ['    userHome    629'] });
+  const under = { ...committedFor(log), grant: { write: { project: true }, network: true } };
+  const r = replay({ committed: under, log, capture: CAPTURE });
+  assert.equal(r.verdict, CURRENT, r.reason);
+  assert.deepEqual(r.widens, ['write.userHome']);
+  assert.match(r.reason, /UNDER-GRANT/);
+});
+
+test('⭑ a positive real-home census stops the drop UPSTREAM, in the rule this module replays', () => {
+  // ⛔ THE MEASURED CASE, AND IT IS THE REASON THE GATE EXISTS. The records the shipped rule would
+  // narrow include playwright/puppeteer browser downloaders whose entire product is a home write —
+  // `playwright-chromium@1.9.2` performed 1185 real-home writes,
   // `@playwright/browser-chromium@1.61.1` 629. A red sibling arm proves the chain fires SOMEWHERE;
   // it cannot prove it fires on the home write, which `artifact-gate.mjs` never looks at.
+  //
+  // ⛔ AND THIS IS THE SINGLE-IMPLEMENTATION PROOF. The refusal is `record.mjs`'s, applied inside
+  // `parseDriverLog`, so `replay()` never sees a narrowing to police — the committed WIDE grant is
+  // simply what today's rule reaches. A second copy of the term here is what would drift.
   const log = LOG({ writes: ['    userHome    629', '    jailTmp       8'] });
+  const parsed = parseDriverLog(log);
+  assert.equal(parsed.grantSource, 'synthesized', parsed.grantSourceReason);
+  assert.ok(parsed.notes.includes('home-write-attributed'), parsed.grantSourceReason);
   const r = replay({ committed: committedFor(log), log, capture: CAPTURE });
-  assert.equal(r.verdict, REFUSED);
-  assert.match(r.reason, /attributed 629 write\(s\) to the REAL home/);
-  // A CLEAN denial witness on the dropped capability is direct evidence and lifts it.
-  const witnessed = { ...committedFor(log), denialWitness: { 'no-write-userHome': 'CLEAN' } };
-  assert.equal(replay({ committed: witnessed, log, capture: CAPTURE }).verdict, STALE);
+  assert.equal(r.verdict, CURRENT, r.reason);
+  // A CLEAN denial witness on the dropped capability is direct evidence and lifts it — read off the
+  // LOG, which is where a real record's witness comes from.
+  const clean = [...lines({ writes: ['    userHome    629'] })];
+  clean.splice(-1, 0, '  DENIAL-WITNESS {"cap":"no-write-userHome","verdict":"CLEAN"}');
+  const cleanLog = clean.join('\n');
+  assert.equal(replay({ committed: committedFor(cleanLog), log: cleanLog, capture: CAPTURE }).verdict, STALE);
 });
 
-test('G3 refuses rather than guesses when the roots cannot be confirmed', () => {
+test('⭑ G3 refuses rather than guesses when the roots cannot be confirmed', () => {
   // ⛔ `roots.jailHome` IS NULL IN EVERY DARWIN EVENT-LOG HEADER, and a lane rooted there billed 32
-  // jail-home writes as real-home writes. A capture that cannot separate the two is refused.
-  const log = LOG({ writes: ['    userHome    629'] });
+  // jail-home writes as real-home writes. The failure this catches is a false CLEAR, not a false
+  // refusal: with the two roots indistinguishable a REAL-home write can be billed to the `jailHome`
+  // bucket, and the census then reads zero on a package that wrote the home. So the fixture is a
+  // record whose census is clear — which is the only kind that now reaches this gate at all.
+  const log = LOG();
   const c = committedFor(log);
   assert.equal(replay({ committed: c, log, capture: null }).verdict, REFUSED);
   assert.equal(replay({ committed: c, log, capture: { roots: { home: '/h', jailHome: '/h' } } }).verdict, REFUSED);
   // A capture with NO jail home at all is fine — that is every win32 record, where OBSERVE runs
   // against the real home directly and `userHome` is unambiguously it.
-  const noJail = replay({ committed: c, log, capture: { roots: { home: '/h', jailHome: null } } });
-  assert.match(noJail.reason, /attributed 629 write/);
+  assert.equal(replay({ committed: c, log, capture: { roots: { home: '/h', jailHome: null } } }).verdict, STALE);
 });
 
 test('⭑ a log with no write census REFUSES a userHome drop rather than assuming zero', () => {
+  // ⛔ THE HALF OF THE HOME-WRITE QUESTION THAT STAYS HERE. `record.mjs` lets an absent census pass,
+  // on the policy its `observedCounts` states, backed by an authoring-time guard that all three
+  // classifiers still print the block. No authoring-time guard reaches a log written months ago.
   const log = LOG().split('\n').filter((l) => !/== WRITES|jailTmp|== READS|    deps/.test(l)).join('\n');
+  assert.equal(parseDriverLog(log).grantSource, 'descended', 'the fixture must reach this module as a narrowing');
   const r = replay({ committed: committedFor(log), log, capture: CAPTURE });
   assert.equal(r.verdict, REFUSED);
-  assert.match(r.reason, /no `== WRITES ==` census/);
+  assert.match(r.reason, /no `== WRITES` census/);
 });
 
 test('⭑ a manufactured red arm cannot convert a record, however clean everything else is', () => {

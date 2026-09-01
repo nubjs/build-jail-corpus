@@ -33,6 +33,11 @@ import { execFileSync } from 'node:child_process';
 import { computeHarnessIdentity, loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 import { digestSpecs } from '../osv-screen.mjs';
+// ⛔ A LEAF, AND IT HAS TO BE ONE. `stale-adjudication.mjs` imports `parseDriverLog` from this file,
+// so putting the write census there and importing it back is a CYCLE — and a cycle here does not
+// throw, it hands the importer `undefined` from the temporal dead zone and the guard silently never
+// fires. `write-census.mjs` imports nothing from the harness for exactly that reason.
+import { CENSUS_REFUSE, homeDropVerdict } from './write-census.mjs';
 
 // A grant is a JSON object with no string values containing braces, so brace-depth scanning is
 // exact. `JSON.parse` on a regex-sliced tail is not: `(observed, then verified)` trails the object
@@ -977,6 +982,21 @@ const applyGrantSourceRule = (out, lines) => {
   const jointVerified = lines.some((l) => /JOINT-NARROW\s+VERIFIED/.test(l));
   out.descendedGrant = descended;
 
+  // ⛔⛔ DOES THIS NARROWING TAKE THE HOME AWAY? Asked of the two GRANTS rather than of
+  // `overPredictedBy`, because the arm name and the effect are different questions: a ladder-rung
+  // record can name `no-write-userHome` over a grant that never carried the home, where deleting it
+  // is a no-op and there is nothing to withhold. `write:"disk"` covers the home and is routed to
+  // `unparsedNames` above before it can reach here, but the string form is handled anyway so that a
+  // future rung cannot make the largest possible drop read as no drop at all.
+  const homeInGrant = (g) => !!g?.write && (typeof g.write === 'string' || !!g.write.userHome);
+  const dropsHome = homeInGrant(out.grant) && !homeInGrant(descended);
+  // `lines` rather than the raw log, so every term in this function reads the same text. Not a
+  // soundness dependency: `^\s*==` cannot get past a `    | ` prefix, so an echoed header opens no
+  // census block in either form.
+  const homeCensus = dropsHome
+    ? homeDropVerdict({ log: lines, witness: witnessOf('no-write-userHome') })
+    : null;
+
   let source, reason;
   if (n === 0) {
     source = 'synthesized'; reason = 'no capability was droppable — synthesized IS the minimum';
@@ -1055,6 +1075,46 @@ const applyGrantSourceRule = (out, lines) => {
         ? 'JOINT drop was measured and did NOT hold — they do not drop together, so the wider grant '
           + 'is the measured answer'
         : 'JOINT drop was never run — narrowing to it would be an inference, not a measurement');
+  }
+  // ⛔⛔ THE HOLE EVERY TERM ABOVE LEAVES OPEN, AND IT IS AN UNDER-GRANT — the one direction this
+  // project forbids. `redArmLicenses` rests on a RED SIBLING arm — on `network`, say — which proves
+  // the jail → denial → non-zero-rc → driver chain fires SOMEWHERE in this run. It cannot prove it
+  // fires on the HOME write, because `artifact-gate.mjs` only ever walks the package's own directory
+  // and a home write is by construction outside it. So a browser downloader whose entire product is
+  // a home write passes its `no-write-userHome` arm with the browser missing, and the grant narrows
+  // off an arm that measured nothing. The comment on `redArmLicenses` above conceded this residual
+  // and said it "did not materialise on any of them. It is still real for the next one." It has:
+  // MEASURED at `cf36b27f8` over the committed corpus, of the 425 records whose descent named
+  // `no-write-userHome`, 348 have a POSITIVE real-home census and NOT ONE has a CLEAN witness —
+  // `ibm_db@2.8.2` (win32) 3337 real-home writes, `playwright-chromium@1.9.2` (linux) 1185.
+  //
+  // ⛔ AN OVERRIDE ON THE DECIDED `source`, NOT A BRANCH IN THE CHAIN, AND THE DIFFERENCE IS
+  // MEASURABLE RATHER THAN STYLISTIC. As a branch it also fired on records the chain was ALREADY
+  // going to keep wide — the N>=2 leave-one-out case above, which reaches `synthesized` for a
+  // completely different and more complete reason — replacing that reason on records whose grant does
+  // not change. Keyed on `source === 'descended'` the term is withhold-ONLY by construction: it can
+  // turn a narrowing into the wider grant and can never do the reverse, and every branch that already
+  // decided to withhold keeps its own better-specified reason. That includes `witnessedCaps`, which
+  // must keep outranking this — a WITNESSED refusal is direct evidence the script ASKED and the jail
+  // REFUSED, strictly stronger than a count of what it wrote unjailed.
+  //
+  // ⛔ BEFORE THE `redArmLicenses` APPEND BELOW, so a withheld record does not also carry a sentence
+  // explaining why a red arm let it through.
+  //
+  // ⛔ AN ABSENT CENSUS (`CENSUS_UNKNOWN`) DELIBERATELY DOES NOT FIRE THIS. The census is an OBSERVE
+  // product, and this file's settled policy for an absent OBSERVE product is the one written on
+  // `observedCounts`: null "vetoes nothing, so every existing record keeps the behaviour it was
+  // measured under". Refusing on absence would re-adjudicate every log that never ran a census on the
+  // strength of a check that was never performed. It costs nothing to scope it to a POSITIVE count:
+  // all three classifiers print the block unconditionally, and MEASURED at `cf36b27f8` zero of the
+  // 425 arm-carrying logs lack one. Nor is the absence case unguarded — `write-census.test.mjs` fails
+  // at authoring time if a classifier stops emitting the header, and `stale-adjudication.mjs`'s G3
+  // REFUSES on an absent census when re-adjudicating an ARCHIVED log, which no authoring-time guard
+  // can reach.
+  if (source === 'descended' && homeCensus?.verdict === CENSUS_REFUSE) {
+    source = 'synthesized';
+    reason = `the descent narrowed, but ${homeCensus.reason}`;
+    out.notes.push('home-write-attributed');
   }
   // ⛔ SAY WHY THE FLAG DID NOT BLOCK, in the record rather than only here. A record carrying
   // `notes: ["arms-unfalsifiable"]` beside `grantSource: "descended"` reads as a contradiction
