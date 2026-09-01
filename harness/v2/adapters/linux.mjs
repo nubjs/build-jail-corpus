@@ -216,11 +216,16 @@ const WRITE_FLAG = /O_(WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
 // half the filter's rule set, and it was landing in `unknownSyscall`.
 const NET_SYSCALLS = new Set(['socket', 'socketpair', 'connect', 'bind', 'sendto', 'recvfrom']);
 
-// The two the seccomp filter actually guards. `denial-witness.mjs` uses them as its POSITIVE
-// CONTROL: a stream in which the decoder saw not one `socket`/`socketpair` outcome anywhere — not
-// even from the tool processes, which open registry sockets on every arm — did not capture the
-// syscall the jail refuses, so an absence of refusals in it is not evidence and must not read CLEAN.
-export const SOCKET_SYSCALLS = new Set(['socket', 'socketpair']);
+// The two the seccomp filter actually guards, used by `denial-witness.mjs` as its POSITIVE CONTROL.
+//
+// ⛔ THE DEFINITION MOVED TO A LEAF AND THIS IS A RE-EXPORT, NOT A SECOND COPY. `denial-witness.mjs`
+// is reached by all three drivers, so importing this constant FROM HERE dragged the whole strace
+// decoder into the win32 driver's closure the moment that driver was wired to the scorer, and staled
+// this file's own platform exemption in `three-driver-parity.test.mjs`. Exactly the move that, in the
+// other direction, pulled `windows-retain.mjs` and its two companions into both POSIX drivers — which
+// is why `windows-status.mjs` exists. The re-export keeps every existing importer working and keeps
+// there being ONE definition of the vocabulary this decoder emits and that scorer reads.
+export { SOCKET_SYSCALLS } from './linux-syscalls.mjs';
 
 export function decode(text, opts = {}) {
   const lines = text.split('\n');

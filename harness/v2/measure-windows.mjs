@@ -79,6 +79,20 @@ import { npmArgv } from './npm-cli.mjs';
 import { provisionEraNode } from './era-provision.mjs';
 import { loadNodeMatrix } from './node-matrix.mjs';
 import { isProvisioned, nodeBinDir } from './provision-node-matrix.mjs';
+// The denial witness's capture half. Everything decidable without Windows lives in that module so a
+// test on any host can break it; what stays here is the spawning and the printing. See the
+// `WITNESS-OFF-WINDOWS` note above `runTracedArm` for the exact list of lines no test can reach.
+import {
+  WITNESS_CAP, WITNESS_MAX_MB, jailScript, armRc, witnessRoots,
+  captureIsScoreable, headerIsScoreable, voidWitness,
+} from './win32-witness.mjs';
+// ⛔ THE 8.3 MODE IS COMPUTED FROM THE SHARED MODULE WITH THE ARGUMENTS THE DECODER IS ABOUT TO BE
+// GIVEN, never guessed from `process.platform` here. Expansion OFF is a correctness failure on the
+// win32 witness axis — a home refusal the kernel spelled `C:\Users\RUNNER~1\…` does not prefix-match
+// the long home root, so it falls out of scope and the stream reads CLEAN — so the driver has to know
+// whether the flag it passed took effect, and asking the same function the adapter asks is the only
+// way to know that cannot drift.
+import { shortNameMode } from './adapters/windows-shortnames.mjs';
 
 // ⛔ THE PLATFORM THIS DRIVER MEASURES, NAMED ONCE AND PASSED EXPLICITLY TO `descent-terms.mjs`.
 // That module defaults to `process.platform`, which is right on a Windows runner and silently wrong
@@ -257,6 +271,19 @@ const ERA_NODE = (() => {
 // walks no ladder and produces no verify arm, so its output is explicitly a hypothesis
 // (`OBSERVE-ONLY`, which `collate.mjs` keeps out of the catalog).
 const OBSERVE_ONLY = argv.includes('--observe-only');
+
+// ⛔ THE DENIAL WITNESS COSTS AN ETW SESSION AND A `tracerpt` CONVERSION ON ONE ARM PER PACKAGE, AND
+// THAT COST LANDS INSIDE A BUDGET THAT IS ALREADY TIGHT ON THIS PLATFORM. `run-batch-v2.mjs` caps the
+// whole driver at 2400 s while `--arm-timeout` defaults to 1800 s, so a slow `no-write-userHome` arm
+// plus a conversion can push a package into HARNESS-TIMEOUT — which yields NO measurement at all,
+// where the un-witnessed arm would at least have produced a record. The witness is on by default
+// because an unwitnessed green drop arm is the whole reason the win32 whole-home grants cannot move;
+// the flag exists so a lane measuring something else can decline the bill.
+//
+// ⛔ DECLINING IT IS SAFE BY CONSTRUCTION AND MUST STAY THAT WAY. With no marker emitted, `record.mjs`
+// falls back to the rule it had before the witness existed — the same state every committed win32
+// record was measured under. The flag can lose a narrowing; it can never license one.
+const NO_WITNESS = argv.includes('--no-witness');
 
 /// Every nub arm's project `.npmrc`. ONE definition because there is ONE file: a second
 /// `writeFileSync` to the same path TRUNCATES the first, which is exactly how the epoch-29
@@ -1821,10 +1848,216 @@ let storeLayoutReported = false;
 // rung. A module-scoped latch rather than a `verify` parameter, so this driver's shape matches the two
 // shell drivers' `$ARM_CONFINED_WIDE` and every other arm's call site is untouched.
 let armBaseline = null;
+// The witness capture directory for an arm, a SIBLING of the arm rather than a child of it.
+//
+// ⛔ NOT UNDER `v`, AND THAT IS DELIBERATE. `countFiles(v, isArmNoise)` is what produces the `tree
+// N/M` figure every arm prints, and `isArmNoise` skips logs and `.xml`/`.etl` but not `run.out`,
+// `capture.json`, `i.rc` or the derived stream. Putting the capture inside the arm would inflate that
+// count for exactly ONE arm per package and make the printed ratios incomparable with every other arm
+// and with every record taken before the witness existed.
+const witnessDir = (label) => path.join(ROOT, `wit-${label}`);
+
+// ── THE TRACED ARM ────────────────────────────────────────────────────────────────────────────
+//
+// ⛔⛔ WITNESS-OFF-WINDOWS — WHAT NO TEST ON A NON-WINDOWS HOST CAN REACH, STATED RATHER THAN LEFT TO
+// BE DISCOVERED. Everything this function DECIDES lives in `win32-witness.mjs` and is unit-tested on
+// any host: the batch text, the rc composition, the declared roots, the capture gate, the header gate
+// and the VOID marker. What is untestable here is the four spawns and the plumbing between them, and
+// each one fails CLOSED:
+//
+//   1. `powershell.exe … windows.ps1` — needs a real elevated Windows token and real ETW providers.
+//      A failure leaves no `meta.json`, which `captureIsScoreable` refuses.
+//   2. the cmd.exe parse of `jail.cmd` — `%ERRORLEVEL%` per-line expansion and the space before each
+//      `>` are cmd semantics, verifiable only by running cmd. A misparse leaves an unreadable rc,
+//      which makes the ARM void rather than passing.
+//   3. `logman stop` after a timeout — an orphaned session is a resource leak on the box, never a
+//      wrong verdict.
+//   4. `windows-retain.mjs --resolve-shortnames` resolving 8.3 components against the live tree —
+//      `shortNameMode` answers `off` on any non-Windows host, which `captureIsScoreable` refuses, so
+//      the whole path is VOID off Windows by construction rather than by accident.
+//
+// ⛔ THE PREMISE NOTHING HERE ASSUMES. Whether an AppContainer DACL refusal surfaces as a Kernel-File
+// event carrying STATUS_ACCESS_DENIED has never been measured. This function does not try to help:
+// it hands the decoded stream to `denial-witness.mjs`, whose win32 axis carries a per-stream positive
+// control for exactly that premise and answers VOID when it cannot confirm it. If the premise is
+// false, every witness this driver produces is VOID and nothing narrows — which is the correct
+// outcome, not a bug to route around.
+const runTracedArm = ({ v, label, env }) => {
+  const wit = witnessDir(label);
+  fs.mkdirSync(wit, { recursive: true });
+  const script = path.join(wit, 'jail.cmd');
+  const iRc = path.join(wit, 'i.rc');
+  const aRc = path.join(wit, 'a.rc');
+  let text;
+  try {
+    text = jailScript({
+      nub: NUB, dir: v, iLog: path.join(v, 'i.log'), aLog: path.join(v, 'a.log'), iRc, aRc,
+    });
+  } catch (e) {
+    // A path carrying a quote or a percent sign. Refusing to write the script is the only safe
+    // answer: a script cmd.exe reparses would run a command nobody chose.
+    return { rc: null, timedOut: false, reason: e.message, dir: wit };
+  }
+  // ASCII with CRLF, exactly as the OBSERVE wrapper is written -- cmd.exe reads a batch file as the
+  // OEM codepage and a lone LF ends a line inconsistently across Windows versions.
+  fs.writeFileSync(script, text, 'ascii');
+  // ⛔ A UNIQUE SESSION NAME, FOR THE REASON THE OBSERVE CAPTURE ALREADY RECORDS: `windows.ps1`
+  // unconditionally `logman stop`s the name it is given before creating it, so a fixed name lets one
+  // driver silently kill another's live trace, and the victim reports a short capture with no error.
+  const session = `nubwit_${process.pid}_${armSeq}_${Date.now().toString(36)}`;
+  // ⛔ THE ARM'S OWN `env` IS PASSED THROUGH, AND IT HAS TO BE. `Start-Process` without
+  // `-UseNewEnvironment` inherits its caller's block, so node -> powershell.exe -> cmd.exe -> nub
+  // carries `NUB_BUILD_JAIL_CATALOG`, `XDG_CACHE_HOME`, `RUST_LOG` and the staged `PATH` unchanged.
+  // An arm traced under a different environment from the arms beside it is a different experiment.
+  //
+  // ⛔ AND THAT REPLACES `PATH`, WHICH IS WHY THIS CAN FAIL TO SPAWN AT ALL ON A HOST WHOSE `ARM_PATH`
+  // lost System32: `powershell.exe`, `logman` and `tracerpt` all resolve through it. `arm-path.mjs`
+  // drops only npm-installed bin directories, so it keeps System32 -- and if that ever stops being
+  // true the capture leaves no meta.json and the witness is VOID, never CLEAN.
+  const cap = run('powershell.exe', [
+    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(HERE, 'adapters', 'windows.ps1'),
+    '-OutDir', wit,
+    '-Command', script,
+    '-WorkDir', v,
+    '-Session', session,
+    '-MaxMB', String(WITNESS_MAX_MB),
+  ], { env, timeout: ARM_TIMEOUT_MS });
+  fs.writeFileSync(path.join(wit, 'capture.log'), (cap.stdout ?? '') + (cap.stderr ?? ''));
+  if (timedOut(cap)) {
+    // ⛔ THE SESSION OUTLIVES THE PROCESS THAT CREATED IT. `spawnSync`'s deadline kills powershell.exe
+    // and nothing else; a system-wide ETW session keeps its buffers and grows its `.etl` until
+    // something stops it by name, and the name is unique so no later run will. Stop it here or the
+    // box carries one leaked session per timed-out witness arm.
+    run('logman', ['stop', session, '-ets'], { env });
+    return { rc: null, timedOut: true, stage: 'traced arm', dir: wit };
+  }
+  const readRc = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return null; } };
+  const { rc, reason } = armRc(readRc(iRc), readRc(aRc));
+  return { rc, timedOut: false, reason, dir: wit };
+};
+
+// ── THE DENIAL WITNESS ────────────────────────────────────────────────────────────────────────
+//
+// ⛔⛔ WHAT IT ANSWERS, AND WHY A GREEN DROP ARM IS NOT AN ANSWER ON ITS OWN. A script can write its
+// essential output into the user's home, have the jail refuse it, swallow the error and exit 0 — so
+// the arm goes green and the record narrows to a grant that breaks a real install. The artifact gate
+// cannot see it either: it walks the PACKAGE'S OWN directory and a home write is by definition
+// outside it. `denial-witness.mjs` reads the arm's own jailed trace and says whether the script ASKED.
+//
+// ⛔ THE DECODE IS THE SHIPPED ADAPTER AND THE SCORE IS THE SHIPPED SCORER — never a grep over the
+// XML. Both POSIX drivers state the same rule at their own call sites, and the reason is that
+// hand-rolled scans of these traces have been wrong three times, each by ignoring either the outcome
+// or the process attribution. `windows-retain.mjs` supplies both: the NTSTATUS verbatim in `st`, and
+// a `k:"p"` row per process carrying the subtree attribution the scorer reads as `life`.
+//
+// ⛔ FAILS OPEN ON THE INSTRUMENT AND CLOSED ON THE VERDICT, the same contract `measure-macos.sh`
+// states. Every path that cannot produce a scoreable stream prints a VOID marker, which licenses
+// nothing and blocks nothing; no path here can cost the arm its verdict.
+//
+// Split in two: `scoreTracedArm` decides and prints, and `denialWitness` beneath it wraps that in the
+// raw-trace sweep, so the multi-gigabyte files go on EVERY path rather than only the one that reached
+// a verdict. `descend` calls the wrapper.
+const scoreTracedArm = (label, cap) => {
+  const emit = (lines) => { for (const l of lines) console.log(l); };
+  const wit = witnessDir(label);
+  const sizeOf = (p) => { try { return fs.statSync(p).size; } catch { return -1; } };
+  let meta = null;
+  try { meta = JSON.parse(fs.readFileSync(path.join(wit, 'meta.json'), 'utf8')); } catch { meta = null; }
+
+  const events = path.join(wit, 'events.ndjson.gz');
+  const captureJson = path.join(wit, 'capture.json');
+  const headerJson = path.join(wit, 'etw-header.json');
+  const retainArgs = [wit, '--out', events, '--capture', captureJson,
+    '--header-out', headerJson, '--pkg', PKG, '--version', VER,
+    // ⛔ THE TWO FLAGS THAT DECIDE WHETHER THIS STREAM IS SCOREABLE AT ALL. `--jailed` is what stamps
+    // the guard the scorer refuses an OBSERVE stream on; `--resolve-shortnames` is what populates the
+    // 8.3 expansion `fx`, without which a short-spelled home refusal is out of scope and the stream
+    // reads CLEAN.
+    '--jailed', '--resolve-shortnames'];
+  // Asked of the SAME module the adapter will ask, with the SAME arguments, so the driver's belief
+  // about the 8.3 mode cannot drift from the adapter's behaviour.
+  const sn = shortNameMode({
+    dir: wit,
+    args: retainArgs,
+    val: (f) => { const i = retainArgs.indexOf(f); return i >= 0 ? retainArgs[i + 1] : null; },
+  });
+  const fit = captureIsScoreable({
+    meta,
+    etlBytes: sizeOf(path.join(wit, 'trace.etl')),
+    xmlBytes: sizeOf(path.join(wit, 'trace.xml')),
+    shortNameMode: sn.mode,
+  });
+  if (!fit.ok) { emit(voidWitness(cap, fit.reason)); return; }
+
+  // ⛔ THE ARM'S OWN ROOTS, NOT OBSERVE's. `capture.json` is the ONE place a path's meaning is
+  // defined, and OBSERVE's block names an `observe` project, a simulated `jailHome` and a private
+  // `temp` that describe a different run. Handing that block to this stream would subtract roots this
+  // arm never had from the `userHome` scope, and a subtraction is the CLEAN direction.
+  //
+  // ⛔ A THROW HERE IS A VOID WITNESS, NOT A DEAD DRIVER. `witnessRoots` refuses to invent a home root
+  // it was not given, and `%USERPROFILE%` unset is exactly the state a non-Windows host is in. An
+  // uncaught throw at this point would abandon the descent mid-way and cost the whole record, which is
+  // strictly worse than losing one narrowing.
+  try {
+    fs.writeFileSync(captureJson, `${JSON.stringify({
+      v: 1, kind: 'capture', platform: `win32-${process.arch}`, pkg: PKG, version: VER, tracer: 'etw',
+      invocation: 'powershell -File adapters/windows.ps1 -Command "<arm>\\jail.cmd"',
+      arm: label, jailed: true,
+      roots: witnessRoots({ project: path.join(ROOT, `verify-${label}`), home: HOME, pkg: PKG }),
+    }, null, 2)}\n`);
+  } catch (e) {
+    emit(voidWitness(cap, `the arm's capture roots could not be declared (${e.message}); a stream whose `
+      + 'roots are unknown has no userHome scope to score against'));
+    return;
+  }
+
+  const rr = run(NODE, [path.join(HERE, 'adapters', 'windows-retain.mjs'), ...retainArgs]);
+  if (rr.status !== 0 || sizeOf(events) <= 0) {
+    emit(voidWitness(cap, `the arm trace could not be decoded (windows-retain.mjs rc=${rr.status}); `
+      + 'an undecodable trace carries no denial evidence'));
+    return;
+  }
+  let header = null;
+  try { header = JSON.parse(fs.readFileSync(headerJson, 'utf8')); } catch { header = null; }
+  const hdr = headerIsScoreable(header);
+  if (!hdr.ok) { emit(voidWitness(cap, hdr.reason)); return; }
+
+  // ⛔ `--exclude ROOT` FOR THE REASON `measure-macos.sh` RECORDS: every arm directory lives under the
+  // driver's run root, and a refusal inside the harness's own scratch tree is not the package reaching
+  // for the user's home. It subtracts nothing here — `--root` defaults to `C:\jail`, outside the home
+  // — and it is passed anyway so the exclusion does not depend on where a lane pointed `--root`.
+  const dw = run(NODE, [path.join(HERE, 'denial-witness.mjs'),
+    '--cap', cap, '--events', events, '--exclude', ROOT]);
+  const out = ((dw.stdout ?? '') + (dw.stderr ?? '')).trimEnd();
+  if (dw.status !== 0 || !/DENIAL-WITNESS\s+\{/.test(out)) {
+    emit(voidWitness(cap, `the scorer produced no marker (rc=${dw.status}); no verdict was reached`));
+    return;
+  }
+  console.log(out.split('\n').map((l) => `     ${l}`).join('\n'));
+};
+
+const denialWitness = (label, cap) => { try { scoreTracedArm(label, cap); } finally {
+  // ⛔ THE RAW GOES ON EVERY PATH, INCLUDING THE REFUSED ONES, AND THAT IS A DISK DECISION RATHER
+  // THAN A TIDY-UP. tracerpt's XML runs to gigabytes — larger than the `.etl` it came from — and this
+  // driver takes one witness capture per package on TOP of the OBSERVE capture it already retains, on
+  // a runner with a fixed disk. `windows-retain.mjs`'s own header records `etlRetained: false`, so
+  // neither file was ever part of the archive; the derived `events.ndjson.gz` and the standalone
+  // `etw-header.json` are what a reader needs to re-check a verdict. A timed-out arm reaches this too,
+  // which is the case that would otherwise leave the largest file behind.
+  for (const f of ['trace.etl', 'trace.xml']) {
+    try { fs.rmSync(path.join(witnessDir(label), f), { force: true }); }
+    catch { /* a sweep failure must never cost a verdict */ }
+  }
+} };
+
 // `realHome` repoints the arm's REAL home — the directory `build_jail.rs::persist_declared_home_writes`
 // promotes a declared `writePaths` entry INTO. Only the promotion probe passes it; every other arm
 // leaves it undefined and inherits the ambient profile exactly as before.
-const verify = (grant, label, { realHome = null } = {}) => {
+//
+// `tracer` is `'etw'` on the ONE arm the denial witness scores and null everywhere else. It replaces
+// the arm's two `spawnSync` calls with the SAME two commands inside an ETW session; nothing else
+// about the arm changes, and the rc it yields is composed by `armRc` to the identical rule.
+const verify = (grant, label, { realHome = null, tracer = null } = {}) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
   // ⛔⛔ THE FOURTH REPLAY PATH, AND THIS DRIVER HAD NO PART OF IT UNTIL 2026-09-01. Per-arm virtual
@@ -2032,30 +2265,64 @@ const verify = (grant, label, { realHome = null } = {}) => {
     env.PATH = stagedArmPath(env.PATH ?? '', OBS, staged.binDir);
     console.log(`  ${staged.marker}`);
   }
-  const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
-  fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
-  // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
-  // stage so the leak is visible rather than showing up later as a mystery CPU hog.
-  if (timedOut(i)) {
-    console.log(`  VERIFY[${label}] TIMED-OUT in \`install\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
-    return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isArmNoise), rc: null };
+  // ⛔⛔ TWO WAYS TO RUN THE ARM AND EXACTLY ONE EXPERIMENT. The traced branch runs the SAME TWO
+  // COMMANDS, in the same order, writing the same two logs, and composes its rc by the same rule --
+  // `measure-macos.sh` shipped a traced branch that ran `install` ALONE and took the arm's rc from it,
+  // which made a traced arm a different experiment from an untraced one for every package whose build
+  // is deferred to `approve-builds`. That is why `denial-witness-decode.test.mjs` named the repair
+  // before darwin was allowed a witness at all, and it is the trap this branch is written against.
+  //
+  // The one thing that does differ is the traced arm's TOKEN: `windows.ps1` removes
+  // SeBackup/SeRestore/SeTakeOwnership before spawning, which the untraced arm keeps. That is the
+  // direction that produces MORE refusals, not fewer, and it is what makes the DACL checks the script
+  // meets the ones a real user meets -- so it can turn a green arm red or a CLEAN into a WITNESSED,
+  // never the reverse.
+  let rc = null;
+  let rcUnreadable = null;
+  if (tracer === 'etw') {
+    const t = runTracedArm({ v, label, env });
+    if (t.timedOut) {
+      console.log(`  VERIFY[${label}] TIMED-OUT in \`${t.stage}\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
+      return { ok: false, void: false, timedOut: true, stage: t.stage, files: countFiles(v, isArmNoise), rc: null };
+    }
+    rc = t.rc;
+    rcUnreadable = t.reason;
+  } else {
+    const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
+    fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
+    // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
+    // stage so the leak is visible rather than showing up later as a mystery CPU hog.
+    if (timedOut(i)) {
+      console.log(`  VERIFY[${label}] TIMED-OUT in \`install\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
+      return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isArmNoise), rc: null };
+    }
+    const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
+    fs.writeFileSync(path.join(v, 'a.log'), (a.stdout ?? '') + (a.stderr ?? ''));
+    if (timedOut(a)) {
+      console.log(`  VERIFY[${label}] TIMED-OUT in \`approve-builds\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
+      return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isArmNoise), rc: null };
+    }
+    rc = i.status === 0 ? (a.status ?? 0) : i.status;
   }
-  const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
-  fs.writeFileSync(path.join(v, 'a.log'), (a.stdout ?? '') + (a.stderr ?? ''));
-  if (timedOut(a)) {
-    console.log(`  VERIFY[${label}] TIMED-OUT in \`approve-builds\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
-    return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isArmNoise), rc: null };
+  // ⛔ AN UNREADABLE rc IS A VOID ARM, NEVER A ZERO. Only the traced branch can reach this: a batch
+  // file that did not finish leaves no `%ERRORLEVEL%` capture, and reading that absence as rc 0 would
+  // report a PASS for an arm whose commands may never have run -- and a PASSING drop arm is exactly
+  // what narrows a grant. VOID keeps the wider grant and says why.
+  if (rc === null) {
+    console.log(`     !! ${rcUnreadable ?? 'the traced arm produced no exit code'} -- arm is VOID (nothing was measured)`);
+    sweepArmCache();
+    return { ok: false, void: true, files: countFiles(v, isArmNoise), rc: null };
   }
 
   // ⛔ A MALFORMED OVERRIDE WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
   // assertion an arm can measure the SHIPPED policy while you believe it measured yours.
-  const logs = ['i.log', 'a.log'].map((f) => fs.readFileSync(path.join(v, f), 'utf8')).join('\n');
+  const logs = ['i.log', 'a.log']
+    .map((f) => { try { return fs.readFileSync(path.join(v, f), 'utf8'); } catch { return ''; } }).join('\n');
   const ovr = (logs.match(/catalog OVERRIDDEN/g) ?? []).length;
   const rej = (logs.match(/REJECTED/g) ?? []).length;
   const files = countFiles(v, isArmNoise);
   const got = pkgManifest(v, PKG, VER);
   const missing = missingArtifacts(OBS_PKG, got);
-  const rc = i.status === 0 ? (a.status ?? 0) : i.status;
   // ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
   // a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
   // script; a replay materializes from cache and never spawns it.
@@ -2275,7 +2542,20 @@ const descend = (g0, provenance) => {
   } else {
     for (const [name] of variants) {
       const sub = narrow([name]);
-      const r = verify(sub, `nar-${name}`);
+      // ⛔ ONE ARM IS TRACED, AND IT IS THE ONE THE SCORER CAN EXPRESS A SCOPE FOR. `denial-witness.mjs`
+      // supports exactly two capabilities and answers UNSUPPORTED for every other, and its `no-network`
+      // axis is refused on win32 outright — `windows-retain.mjs` writes `st: null` on every
+      // Kernel-Network event, so a refused socket leaves no outcome and the absence of one is not
+      // evidence. Tracing an arm whose verdict could only ever be UNSUPPORTED would buy an ETW session
+      // and a tracerpt conversion for nothing, inside a package budget this platform already strains.
+      const traced = !NO_WITNESS && name === WITNESS_CAP;
+      const r = verify(sub, `nar-${name}`, traced ? { tracer: 'etw' } : {});
+      // ⛔ EMITTED WHATEVER THE ARM DID, INCLUDING WHEN IT WENT RED. `record.mjs` consults the witness
+      // only for capabilities the descent actually DROPPED, so a marker on a red arm changes nothing —
+      // and printing it unconditionally is what lets a reader tell "the witness ran and could not
+      // answer" from "the witness never ran". Same shape as `measure-macos.sh`, which calls its
+      // `denial_witness` immediately after `verify` with no test on the result.
+      if (traced) denialWitness(`nar-${name}`, name);
       // ⛔⛔ THREE OUTCOMES, AND COLLAPSING THEM TO TWO IS THE BUG. A VOID arm measured NOTHING — the
       // override did not engage, so nub silently ran the COMPILED-IN catalog — and an
       // `if (ok) … else NECESSARY` reads that as necessity. That manufactures evidence a capability

@@ -87,16 +87,22 @@
 // flag is UNSUPPORTED, which licenses nothing. A darwin probe that grows a `socket` clause sets its
 // own flag and inherits the whole scorer.
 //
-// ⛔⛔ WINDOWS: THE SCORER EXISTS, THE CAPTURE DOES NOT, AND NO WIN32 STREAM IN THE CORPUS CAN BE
-// SCORED. `win32PathAxis` below reads a `windows-retain.mjs` stream, and `record.mjs` needs no change
-// to consume its marker. What is still missing is the half that has to run on Windows:
-// `measure-windows.mjs` has no DIAGNOSE arm and has never taken a jailed trace — its `verify()` takes
-// no tracer parameter, and ETW capture lives in `adapters/windows.ps1`, which wraps ONE command in a
-// system-wide `logman` session. Wiring that is a driver change that must be validated on a real
-// runner; until it lands, a win32 arm emits no marker and `record.mjs` behaves exactly as before.
+// ⛔⛔ WINDOWS: THE SCORER AND THE CAPTURE BOTH EXIST NOW, AND NO WIN32 STREAM IN THE CORPUS CAN
+// STILL BE SCORED. `win32PathAxis` below reads a `windows-retain.mjs` stream and `record.mjs` needs no
+// change to consume its marker. `measure-windows.mjs` supplies the other half: its `verify()` takes a
+// `tracer` argument, and on the `no-write-userHome` drop arm it wraps the arm's two commands in
+// `adapters/windows.ps1`'s `logman` session, decodes the result with `--jailed`, and emits the marker.
+// `win32-witness.mjs` holds the part of that which can be decided without Windows, including the
+// capture-side gates the scorer structurally cannot make — a lossy session, a truncated `.etl`, a
+// traced token that kept SeBackupPrivilege — each of which decodes into a perfectly healthy-looking
+// stream.
 //
-// ⛔ WHAT MAKES IT SAFE TO LAND THE SCORER FIRST, AHEAD OF ANY EVIDENCE. Two independent gates, and
-// EVERY committed win32 stream fails BOTH:
+// ⛔ WHAT STILL HAS NOT BEEN MEASURED IS THE PREMISE IN NOTE 4 BELOW, and no committed stream can
+// settle it: the corpus holds 1,688 win32 streams and every one is an OBSERVE capture. Until a jailed
+// capture is taken on a real runner, this axis answers VOID on that control and nothing narrows.
+//
+// ⛔ WHAT MADE IT SAFE TO LAND THE SCORER AHEAD OF ANY EVIDENCE, AND STILL DOES. Two independent
+// gates, and EVERY committed win32 stream fails BOTH:
 //
 //   jailed        all 1,688 are OBSERVE captures. `windows-retain.mjs` sets the flag only from its
 //                 own `--jailed`, which no caller passes, so all 1,688 carry `jailed: false`.
@@ -120,7 +126,12 @@ import zlib from 'node:zlib';
 // A second copy here is the drift that produced the descent-vocabulary defect: `measure.sh` emitted
 // `network` where `record.mjs` matched `no-network`, both sides had passing tests, and the
 // recomputation silently deleted NOTHING while the record still claimed it had narrowed.
-import { SOCKET_SYSCALLS } from './adapters/linux.mjs';
+// ⛔ FROM THE LEAF, NOT FROM `adapters/linux.mjs`, AND FOR THE SAME REASON THE WIN32 CONSTANT BELOW
+// COMES FROM ONE. This module is reached by all THREE drivers, so importing a constant out of the
+// strace decoder dragged that decoder into the win32 driver's closure the moment win32 was wired to
+// this scorer, and staled its platform exemption. `linux-syscalls.mjs` imports nothing;
+// `adapters/linux.mjs` re-exports it, so there is still exactly one definition.
+import { SOCKET_SYSCALLS } from './adapters/linux-syscalls.mjs';
 // The same rule for the win32 outcome vocabulary. ⛔ IT COMES FROM A LEAF, NOT FROM THE RETAIN
 // ADAPTER, and `three-driver-parity.test.mjs` is what forced that: this module is reached by
 // `measure.sh` and `measure-macos.sh`, so importing `windows-retain.mjs` for a constant dragged that
