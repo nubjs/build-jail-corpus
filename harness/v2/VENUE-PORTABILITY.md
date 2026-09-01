@@ -105,6 +105,8 @@ This also settles a question raised against the Linux tracer: an `EACCES` in an 
 
 An `overrides` object listing every environment variable the harness set, unset or redirected for the run, with its value. Normalisation that is recorded is a covered axis; normalisation that is invisible is a silent bet that it did not matter.
 
+A removal carries a SCOPE, and the record states which one. `unset` means removed from the driver's own environment, so both arms inherit the absence; `unsetForTracedChild` means removed for the traced process alone. The XDG base directories are the second kind — the driver keeps them, because its own `${XDG_CACHE_HOME:-$HOME/.cache}` expansions are what locate nub's store and tool dirs, while the traced child must not see them, because the jail withholds every `XDG_*` from a confined script. Reporting one as the other would tell a reader the driver dropped a variable it is still using.
+
 This is what makes the previous section enforceable rather than aspirational. A reviewer reading a record can see whether `CI` was touched, and a future reader can tell whether a grant was measured under a warm cache or a throwaway home.
 
 ## The acceptance test

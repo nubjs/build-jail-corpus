@@ -147,8 +147,12 @@ const RETENTION_BLOCK = slice(
   'retention + venue provenance',
 );
 
-/** Replay the retention region with a fixture OBSERVE dir. `traceBody: null` => no trace at all. */
-const replayRetention = ({ traceBody = 'line\n', captureBody = '{"v":1}' }) => {
+/**
+ * Replay the retention region with a fixture OBSERVE dir. `traceBody: null` => no trace at all.
+ * `scrub` overrides what the two earlier scrubs left behind, so a case can replay a RUNNER rather
+ * than only a developer machine.
+ */
+const replayRetention = ({ traceBody = 'line\n', captureBody = '{"v":1}', scrub = {} }) => {
   const obs = tmp('ret');
   if (traceBody !== null) fs.writeFileSync(path.join(obs, 'trace.txt'), traceBody);
   const capture = path.join(obs, 'capture.json');
@@ -163,8 +167,12 @@ const replayRetention = ({ traceBody = 'line\n', captureBody = '{"v":1}' }) => {
     `JAIL_TOOLS='${obs}/tools'`,
     `NUB_CACHE_DIR='${obs}/nubcache'`,
     // Set by the CI-detection scrub, which runs earlier in the driver than this region.
-    "CI_SCRUBBED=''",
-    "CI_INHERITED=''",
+    `CI_SCRUBBED='${scrub.CI_SCRUBBED ?? ''}'`,
+    `CI_INHERITED='${scrub.CI_INHERITED ?? ''}'`,
+    // Same, for the XDG base-directory scrub (`xdg-scrub.sh`, sourced at 0b). Empty is the
+    // developer-machine shape: nothing was set, so nothing is reported as removed.
+    `XDG_SCRUBBED='${scrub.XDG_SCRUBBED ?? ''}'`,
+    `XDG_INHERITED='${scrub.XDG_INHERITED ?? ''}'`,
     RETENTION_BLOCK,
   ].join('\n');
   return sh(script);
@@ -210,4 +218,25 @@ shellTest('the emitted overrides are parseable JSON naming the variables the dri
   assert.ok(o.set.TMPDIR, 'the redirected TMPDIR must be recorded');
   assert.equal(o.set.NODE_COMPAT, '1');
   assert.ok('CI' in o.passedThrough, '`CI` must be recorded as passed through, not omitted');
+});
+
+shellTest('⛔ a runner that exports XDG_CONFIG_HOME is NAMED in the record, not silently normalised', () => {
+  // R6: a variable the driver removes is declared, or a reader cannot tell a trace taken before the
+  // XDG scrub from one taken after — and that is the difference between a `userHome` write that is
+  // the PACKAGE and one that is the VENUE. The value below is the real one from the ubuntu runner
+  // images (actions/runner-images#2954).
+  const out = replayRetention({
+    traceBody: null,
+    scrub: { XDG_SCRUBBED: ' XDG_CONFIG_HOME', XDG_INHERITED: 'XDG_CONFIG_HOME=/home/runner/.config' },
+  });
+  const o = JSON.parse(/VENUE-OVERRIDES (\{.*)/.exec(out)[1]);
+  assert.deepEqual(o.unsetForTracedChild, ['XDG_CONFIG_HOME'],
+    `the child-scoped removal must be declared under its own key:\n${out}`);
+  assert.equal(o.passedThrough.XDG_CONFIG_HOME, '/home/runner/.config',
+    `the venue value must survive the scrub that removed it, or the record cannot name the image:\n${out}`);
+  // ⛔ AND IT MUST NOT LAND IN `unset`, which means "removed from the driver shell, so BOTH arms see
+  // the absence". The XDG removal is the traced child only; conflating them would tell a reader the
+  // driver dropped a variable it is still using to locate nub's store.
+  assert.ok(!o.unset.includes('XDG_CONFIG_HOME'),
+    `the child-only removal must not be reported as a driver-shell unset:\n${out}`);
 });

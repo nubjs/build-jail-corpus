@@ -320,6 +320,7 @@ export function parseDriverLog(log) {
     jailRoot: null,
     observeUser: null,
     ciChild: null,
+    xdgChild: null,
     cwdUnplaceableWrites: null,
     cwdResolved: null,
     nubBinary: null,
@@ -385,6 +386,20 @@ export function parseDriverLog(log) {
       out.ciChild = cc[1].trim();
       if (/^LEAKED/.test(out.ciChild)) out.notes.push('ci-env-leaked-to-child');
       if (/SELF-CHECK FAILED/.test(l)) out.notes.push('ci-scrub-unverified');
+      continue;
+    }
+    // ⛔ WHETHER THE XDG BASE-DIRECTORY SCRUB REACHED THE TRACED CHILD. Same platform shape as the CI
+    // check above and a sharper consequence: the removal is an `env -u` on the far side of `sudo`, so
+    // survival is a property of sudo's env_keep as much as of the flag. A leak means the script
+    // resolved its config dir from the venue rather than from `$HOME`, which is what bills a write
+    // against the REAL home and synthesizes `write:{userHome}` — the whole home directory — for a
+    // variable the jail never passes on. Recorded rather than left in the log for the same reason
+    // `ciChild` is: `overrides.unsetForTracedChild` claims the removal, and this is the evidence.
+    const xc = /VENUE-XDG-CHILD\s+(.+)$/.exec(l);
+    if (xc) {
+      out.xdgChild = xc[1].trim();
+      if (/^LEAKED/.test(out.xdgChild)) out.notes.push('xdg-env-leaked-to-child');
+      if (/SELF-CHECK FAILED/.test(l)) out.notes.push('xdg-scrub-unverified');
       continue;
     }
     // The binary's content hash and detected features. Same two-stdout-line contract as the markers
@@ -978,6 +993,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       // Whether the CI scrub reached the traced CHILD. Null means the driver never checked, which is
       // distinct from "clean" and must not be read as one.
       ciChild: p.ciChild ?? null,
+      // Whether the XDG scrub reached the traced CHILD. Null means the driver never checked — which
+      // is what every record measured before the scrub existed says, and it must not read as clean.
+      xdgChild: p.xdgChild ?? null,
       // The cwd guard's own accounting: how many relative paths were PLACED against the package dir
       // and confirmed by an artifact, and which writes remain unplaceable. Null means the driver did
       // not report — distinct from zero, and must not be read as "none".

@@ -93,10 +93,20 @@ test('⛔ the POSIX drivers pass PYTHON through `env`, never as an expanded assi
   // expansion is treated as a COMMAND NAME. `${ERA_PYTHON:+PYTHON="$ERA_PYTHON"}` therefore tries to
   // EXECUTE `PYTHON=/usr/bin/python3`. MEASURED on three platforms: every observe arm returned in
   // 2-5s with installRc=null and the batch refused to start.
+  //
+  // ⛔ THE ANCHOR ALLOWS OPTION WORDS BETWEEN `env` AND THE ASSIGNMENT, and it did not when it was
+  // written. `env` grew `$XDG_UNSET` — an option list POSIX requires to PRECEDE the operands — and
+  // this case went red on a driver that was still correct. What the rule forbids is the assignment
+  // sitting where the SHELL parses it, i.e. before `env`; anything after `env` reaches the child as
+  // an argument, which is the whole invariant.
   const linux = fs.readFileSync(path.join(import.meta.dirname, 'measure.sh'), 'utf8');
-  assert.match(linux, /env \$\{ERA_PYTHON:\+PYTHON="\$ERA_PYTHON"\}/,
+  assert.match(linux, /\benv(?: \S+)* \$\{ERA_PYTHON:\+PYTHON="\$ERA_PYTHON"\}/,
     'measure.sh must hand PYTHON to `env`, not use it as an assignment prefix');
+  // The RED half of the same rule, so widening the anchor above cannot make this case vacuous: the
+  // broken spelling is the expansion as a bare word on a continued line with no `env` in front of it.
+  assert.doesNotMatch(linux, /^\s*\$\{ERA_PYTHON:\+PYTHON="\$ERA_PYTHON"\}\s*\\?$/m,
+    'measure.sh uses the expanded assignment as a PREFIX; the shell will try to execute it');
   // macOS is correct by construction: its assignment is already an ARGUMENT to `sudo ... env ...`.
   const mac = fs.readFileSync(path.join(import.meta.dirname, 'measure-macos.sh'), 'utf8');
-  assert.match(mac, /env "PATH=/, 'the macOS arm must keep its sudo/env chain');
+  assert.match(mac, /\benv(?: \S+)* "PATH=/, 'the macOS arm must keep its sudo/env chain');
 });

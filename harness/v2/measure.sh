@@ -235,6 +235,16 @@ echo "### $PKG@$VER   ($ROOT)"
 # `ci-env-scrub.test.mjs` asserts all three agree. The full reasoning lives in the sourced file.
 # shellcheck source=harness/v2/ci-env-scrub.sh
 . "$HERE/ci-env-scrub.sh"
+
+# ── 0b. THE XDG BASE-DIRECTORY SCRUB ───────────────────────────────────────────────────────────
+# A SEPARATE file from the CI scrub above, and the separation is load-bearing rather than tidiness:
+# that one `unset`s in THIS shell, while this one only builds an `env -u` list for the traced child,
+# because the driver's own `${XDG_CACHE_HOME:-$HOME/.cache}` expansions below are what locate nub's
+# store and tool dirs and must survive untouched. The measurement, the scrub-vs-redirect argument and
+# the Windows carve-out all live in the sourced file.
+# shellcheck source=harness/v2/xdg-scrub.sh
+. "$HERE/xdg-scrub.sh"
+
 # shellcheck source=harness/v2/security-screen.sh
 . "$HERE/security-screen.sh"
 
@@ -781,12 +791,21 @@ echo "  ARM-REBUILD-SPEC $REBUILD_SPEC"
 # looked like the packages and was entirely this line. `env` takes VAR=VALUE as ARGUMENTS, so an
 # expansion is fine there. The macOS driver was never affected: its assignment already sits in a
 # `sudo -u ... env ...` chain, where it is an argument rather than a prefix.
+#
+# ⛔ `$XDG_UNSET` IS UNQUOTED ON PURPOSE — it is a list of `-u <name>` PAIRS and has to word-split
+# into separate arguments. Quoting it hands `env` one argument spelled `-u XDG_CONFIG_HOME -u …`,
+# which is not an option, so `env` treats it as the command name and the arm dies before npm runs.
+# It sits immediately after `env` because POSIX requires options to precede the `VAR=VALUE` operands,
+# which is where `${ERA_PYTHON:+…}` lands. `xdg-scrub.sh` is what builds it, and its header carries
+# why these names are REMOVED from the child rather than redirected, and why they are not `unset` in
+# this shell.
+# shellcheck disable=SC2086
 PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" HOME="$JAIL_HOME" TMPDIR="$JAIL_TMP" NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH="$JAIL_TOOLS/ms-playwright" \
   electron_config_cache="$JAIL_TOOLS/electron-cache" \
   ELECTRON_CACHE="$JAIL_TOOLS/electron-cache" \
   npm_config_prefix="$JAIL_TOOLS/npm-prefix" \
-  env ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
+  env $XDG_UNSET ${ERA_PYTHON:+PYTHON="$ERA_PYTHON"} \
   "$HARNESS_NODE" "$HERE/arm-cap.mjs" "${ARM_CAP_SECS:-900}" \
   strace -f -e trace=file,network,process -o "$OBS/trace.txt" \
   npm rebuild --no-audit --no-fund "$REBUILD_SPEC" > "$OBS/npm.log" 2>&1
@@ -904,7 +923,7 @@ CAPTURE="$OBS/capture.json"
 node -e '
   const fs = require("fs"), crypto = require("crypto");
   const [trace, obs, home, jailHome, jailTmp, tools, pkg, ver, straceV, kern, distro, here,
-         globalStore, interpreter] = process.argv.slice(1);
+         globalStore, interpreter, xdgUnset] = process.argv.slice(1);
   const sha = (p) => { try { const b = fs.readFileSync(p); return { path: "harness/v2/" + p.slice(here.length + 1), sha256: crypto.createHash("sha256").update(b).digest("hex"), bytes: b.length }; } catch { return null; } };
   const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
   const lines = () => { try { return fs.readFileSync(trace, "utf8").split("\n").length - 1; } catch { return null; } };
@@ -950,6 +969,12 @@ node -e '
                   ELECTRON_CACHE: `${tools}/electron-cache`,
                   electron_config_cache: `${tools}/electron-cache`,
                   npm_config_prefix: `${tools}/npm-prefix` },
+    // ⛔ THE OTHER HALF OF THE SAME CONTRACT: what the child does NOT have. A REMOVAL changes which
+    // path a script writes exactly as a redirect does, so a capture that records only the rewrites
+    // cannot say whether a trace was taken before or after the XDG scrub — and the answer decides
+    // whether a `userHome` write in that trace is the package or the venue. Recorded as its own key
+    // rather than folded into `observeEnv`, whose shape a re-parser already relies on.
+    observeEnvUnset: xdgUnset ? xdgUnset.trim().split(/\s+/).filter((t) => t !== "-u") : [],
     // ⛔ `rawLines` COUNTS NEWLINE-TERMINATED LINES while the decoder `stats.lines` counts the
     // split, so the two differ by exactly 1 on a well-formed trace. Both are correct under their
     // own names; noted here so the difference is not chased as a loss.
@@ -960,7 +985,7 @@ node -e '
 ' "$OBS/trace.txt" "$OBS" "$HOME" "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$PKG" "$VER" \
   "$(strace -V 2>/dev/null | head -1)" "$(uname -a 2>/dev/null)" \
   "$( (. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME") || echo unknown)" "$HERE" \
-  "$GLOBAL_STORE" "$INTERPRETER" \
+  "$GLOBAL_STORE" "$INTERPRETER" "$XDG_UNSET" \
   > "$CAPTURE" 2>/dev/null
 gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
 if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
@@ -1027,15 +1052,25 @@ echo "  VENUE-OVERRIDES $(node -e '
     // recorded is a covered axis; normalisation that is invisible is a silent bet it did not matter
     // — and this one changes which code a package runs, so it matters by construction.
     unset: process.argv[5] ? process.argv[5].trim().split(/\s+/) : [],
+    // ⛔ A SEPARATE KEY FROM `unset`, BECAUSE THE SCOPE IS DIFFERENT AND CONFLATING THEM WOULD LIE.
+    // `unset` above is removed from THIS SHELL, so both arms inherit the absence. The XDG names are
+    // removed from the TRACED CHILD ONLY (`env -u`): the driver keeps them because its own
+    // `${XDG_CACHE_HOME:-$HOME/.cache}` expansions locate nub store and tools, and the VERIFY arm
+    // does not need them removed because the default-deny env allowlist inside nub itself already
+    // withholds every `XDG_*` from the confined child. Reported as what it is, so a reader is not
+    // told the driver unset something it still holds.
+    unsetForTracedChild: process.argv[7] ? process.argv[7].trim().split(/\s+/) : [],
     // ⛔ WHAT THE VENUE ACTUALLY HAD, captured BEFORE the scrub. Reading `process.env` here would
     // report what this driver left behind and a real CI run would file `CI: null`, which is exactly
     // backwards: the record would claim the venue was not CI precisely because we removed the proof.
+    // The XDG half is here for the same reason and answers a specific question: whether THIS venue
+    // was one of the runner images that export `XDG_CONFIG_HOME` into the real home.
     passedThrough: Object.fromEntries([["CI", null], ["GITHUB_ACTIONS", null], ["NODE_ENV", e.NODE_ENV ?? null],
-      ...process.argv[6].split("\n").filter(Boolean).map((kv) => {
+      ...[process.argv[6], process.argv[8]].join("\n").split("\n").filter(Boolean).map((kv) => {
         const i = kv.indexOf("="); return [kv.slice(0, i), kv.slice(i + 1)];
       })]),
   }));
-' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" "$CI_SCRUBBED" "$CI_INHERITED" 2>/dev/null)"
+' "$JAIL_HOME" "$JAIL_TMP" "$JAIL_TOOLS" "$NUB_CACHE_DIR" "$CI_SCRUBBED" "$CI_INHERITED" "$XDG_SCRUBBED" "$XDG_INHERITED" 2>/dev/null)"
 
 # ── 2. SYNTHESIZE ──────────────────────────────────────────────────────────────────────────────
 # ⛔ ROOTS ARE NOT PASSED AS ARGUMENTS ANY MORE — the classifier takes them from `capture.json` and

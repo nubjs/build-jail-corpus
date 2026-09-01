@@ -381,6 +381,16 @@ echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
 # shellcheck source=harness/v2/ci-env-scrub.sh
 . "$HERE/ci-env-scrub.sh"
 
+# ── 0a2. THE XDG BASE-DIRECTORY SCRUB ──────────────────────────────────────────────────────────
+# Shared with `measure.sh`, and a SEPARATE file from the CI scrub because the two have different
+# scope: that one `unset`s in this shell, this one only builds an `env -u` list for the traced child.
+# The defect it closes is linux-only TODAY — the ubuntu runner images export `XDG_CONFIG_HOME` into
+# the real home and the macOS images set nothing — and it is applied here anyway, because a parity
+# contract that holds only on the platform where the defect was found is not a contract. Full
+# reasoning, the measurement and the Windows carve-out are in the sourced file.
+# shellcheck source=harness/v2/xdg-scrub.sh
+. "$HERE/xdg-scrub.sh"
+
 # ── 0b. fbt PREFLIGHT — a timeboxed probe, folded in rather than given its own runner. ─────────
 #
 # The open question it answers: can an `fbt` probe observe the cwd change that posix_spawn's
@@ -561,8 +571,13 @@ fi
 # Dumping the child's real environment under the IDENTICAL sudo/env chain is the only thing that
 # distinguishes them. Runs before the traced command, outside the trace, so it costs the measurement
 # nothing.
+#
+# ⛔ THE DUMP CHAIN CARRIES `$XDG_UNSET` BECAUSE THE TRACED CHAIN BELOW DOES. This block's whole
+# value is that it reproduces the child's environment EXACTLY; a rewrite present in one chain and
+# not the other turns the dump from evidence into decoration, and the XDG assertion below would then
+# be checking a chain nobody runs.
 cat > "$OBS/childenv.sh" <<WRAP
-sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+sudo -u "$RUNUSER" -H env $XDG_UNSET "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "HOME=$JAIL_HOME" "TMPDIR=$JAIL_TMP" "NODE_COMPAT=1" \
   "PLAYWRIGHT_BROWSERS_PATH=$TOOLS/ms-playwright" \
   "ELECTRON_CACHE=$TOOLS/electron-cache" \
@@ -594,6 +609,32 @@ else
   echo "  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)"
 fi
 
+# ⛔ THE SAME ASSERTION FOR THE XDG BASE DIRS, ON THE SAME DUMP, AND FOR A SHARPER REASON. `env -u`
+# runs on the far side of `sudo`, so whether a name survives is a property of sudo's `env_keep` as
+# much as of the flag — precisely the ambiguity the dump exists to remove. A leak here is not
+# cosmetic: `XDG_CONFIG_HOME` pointing into the real home is what billed 45 linux records the WHOLE
+# home directory for a write that, in the jail, lands in the private home (`xdg-scrub.sh`).
+#
+# ⛔ SELF-CHECKED FIRST, for the reason the CI guard above records: a broken alternation prints
+# nothing, which is indistinguishable from a clean child. The negative half matters as much as the
+# positive one — `XDG_DATA_DIRS` and `XDG_RUNTIME_DIR` are deliberately NOT scrubbed, so a pattern
+# that matched them would report a leak for two names the driver never touches.
+XDG_PAT="$(printf '%s\n' $XDG_KEYS | paste -sd'|' -)"
+if ! printf 'XDG_CONFIG_HOME=/x\n' | grep -qE "^($XDG_PAT)=" 2>/dev/null; then
+  echo "  ⛔ VENUE-XDG-CHILD SELF-CHECK FAILED — the leak pattern does not match a known-positive"
+  echo "     line, so a 'clean' result below would prove nothing. Treat XDG scrubbing as UNVERIFIED."
+elif printf 'XDG_DATA_DIRS=/x\nXDG_RUNTIME_DIR=/x\nMY_XDG_CONFIG_HOME=/x\n' | grep -qE "^($XDG_PAT)=" 2>/dev/null; then
+  echo "  ⛔ VENUE-XDG-CHILD SELF-CHECK FAILED — the pattern matches a name outside the scrubbed set,"
+  echo "     so a leak report below would be noise. Treat XDG scrubbing as UNVERIFIED."
+fi
+XDG_IN_CHILD="$(grep -oE "^($XDG_PAT)=" "$OBS/child-env.txt" 2>/dev/null | tr -d '=' | tr '\n' ' ' || true)"
+if [ -n "${XDG_IN_CHILD// /}" ]; then
+  echo "  ⛔ VENUE-XDG-CHILD LEAKED:$XDG_IN_CHILD — the traced script resolves its base dirs from the"
+  echo "     venue rather than from \$HOME, so a config write will be billed against the REAL home"
+else
+  echo "  VENUE-XDG-CHILD clean (no XDG base-directory variable reaches the traced script)"
+fi
+
 # ⛔⛔ A BARE `npm`, RESOLVED BY THE ARM'S OWN PATH — NEVER AN ABSOLUTE ONE. `env` sets the era-first
 # PATH just below and then execs through it, so a bare name gets the era npm; an absolute path does
 # not, and this driver used to hold one (`NPM_BIN="$(command -v npm)"`, captured at driver start,
@@ -623,9 +664,13 @@ REBUILD_VER=$(node -e '
 ' "$OBS" "$PKG" 2>/dev/null)
 if [ -n "$REBUILD_VER" ]; then REBUILD_SPEC="$PKG@$REBUILD_VER"; else REBUILD_SPEC="$PKG"; fi
 echo "  ARM-REBUILD-SPEC $REBUILD_SPEC"
+# ⛔ `$XDG_UNSET` GOES IMMEDIATELY AFTER `env` AND BEFORE THE `VAR=VALUE` OPERANDS, because POSIX
+# requires options to precede operands; `env "PATH=…" -u XDG_CONFIG_HOME` would treat the flag as the
+# COMMAND NAME. It expands here at heredoc-write time into a plain word list, which the generated
+# script then word-splits — the same reason `measure.sh` leaves its copy unquoted.
 cat > "$OBS/run.sh" <<WRAP
 cd "$OBS"
-sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+sudo -u "$RUNUSER" -H env $XDG_UNSET "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
   "HOME=$JAIL_HOME" \
   "TMPDIR=$JAIL_TMP" \
   "NODE_COMPAT=1" \
@@ -752,7 +797,7 @@ CAPTURE="$OBS/capture.json"
 node -e '
   const fs = require("fs"), crypto = require("crypto");
   const [dscript, trace, obs, home, pkg, ver, sw, kern, argvline, globalStore, toolsDir,
-         interpreter, jailHome, jailTmp] = process.argv.slice(1);
+         interpreter, jailHome, jailTmp, xdgUnset] = process.argv.slice(1);
   const src = fs.readFileSync(dscript);
   const st = (p) => { try { return fs.statSync(p).size; } catch { return null; } };
   console.log(JSON.stringify({
@@ -806,6 +851,13 @@ node -e '
                   ELECTRON_CACHE: `${toolsDir}/electron-cache`,
                   electron_config_cache: `${toolsDir}/electron-cache`,
                   npm_config_prefix: `${toolsDir}/npm-prefix` },
+    // ⛔ THE OTHER HALF OF THE SAME CONTRACT: what the child does NOT have. A REMOVAL steers a write
+    // exactly as a redirect does, so a capture recording only the rewrites cannot say whether a trace
+    // predates the XDG scrub — and that answer is what decides whether a `userHome` write in it is
+    // the package or the venue. Its own key, not folded into `observeEnv`, whose shape re-parsers
+    // already read. Empty on the macOS images in use today, which set no `XDG_*`; recorded anyway,
+    // because a key that appears only when non-empty cannot distinguish clean from not-asked.
+    observeEnvUnset: xdgUnset ? xdgUnset.trim().split(/\s+/).filter((t) => t !== "-u") : [],
     // ⛔ THE PACKAGE DIRECTORY AS IT EXISTS AFTER OBSERVE, EMBEDDED SO THE ARCHIVE STAYS
     // SELF-SUFFICIENT. The cwd guard resolves a relative write against the package dir and then
     // CONFIRMS the resolution against this list — a write to `buildcheck.gypi` is placed only if
@@ -827,7 +879,7 @@ node -e '
 ' "$HERE/adapters/macos-observe.d" "$OBS/trace.txt" "$OBS" "$USER_HOME" "$PKG" "$VER" \
   "$(sw_vers -productVersion 2>/dev/null)" "$(uname -a 2>/dev/null)" \
   "dtrace -q -s adapters/macos-observe.d -o trace.txt -c '/bin/bash -x run.sh'" \
-  "$GLOBAL_STORE" "$TOOLS" "$INTERPRETER" "$JAIL_HOME" "$JAIL_TMP" \
+  "$GLOBAL_STORE" "$TOOLS" "$INTERPRETER" "$JAIL_HOME" "$JAIL_TMP" "$XDG_UNSET" \
   > "$CAPTURE" 2>/dev/null
 gzip -9 -c "$OBS/trace.txt" > "$OBS/trace.txt.gz" 2>/dev/null
 if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
@@ -877,16 +929,24 @@ if [ -s "$OBS/trace.txt.gz" ] && [ -s "$CAPTURE" ]; then
       // package runs, so it matters by construction.
       unset: ["(sudo env_reset discards the caller environment; every var above is re-set after it)"]
         .concat(process.argv[4] ? process.argv[4].trim().split(/\s+/) : []),
+      // ⛔ A SEPARATE KEY FROM `unset`, BECAUSE THE SCOPE IS DIFFERENT. The XDG base dirs are removed
+      // from the TRACED CHILD ONLY, by an `env -u` on the far side of `sudo`; this driver keeps them,
+      // and the VERIFY arms need no removal because the default-deny env allowlist inside nub itself
+      // withholds every `XDG_*` from the confined child. `VENUE-XDG-CHILD` above is the assertion that the
+      // removal actually reached the child, which on this driver is a property of sudo as much as of
+      // the flag.
+      unsetForTracedChild: process.argv[6] ? process.argv[6].trim().split(/\s+/) : [],
       // ⛔ WHAT THE VENUE HAD, captured BEFORE the scrub. Reading `process.env` here would report
       // what the driver left behind, so a real CI run would file `CI: null` — claiming the venue was
-      // not CI precisely because we removed the proof.
+      // not CI precisely because we removed the proof. The XDG half answers the same question for
+      // the base dirs: whether THIS image was one of the ones that point them into the real home.
       passedThrough: Object.fromEntries([["CI", null], ["GITHUB_ACTIONS", null],
         ["NODE_ENV", e.NODE_ENV ?? null],
-        ...process.argv[5].split("\n").filter(Boolean).map((kv) => {
+        ...[process.argv[5], process.argv[7]].join("\n").split("\n").filter(Boolean).map((kv) => {
           const i = kv.indexOf("="); return [kv.slice(0, i), kv.slice(i + 1)];
         })]),
     }));
-  ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" "$CI_SCRUBBED" "$CI_INHERITED" 2>/dev/null)"
+  ' "$JAIL_HOME" "$JAIL_TMP" "$TOOLS" "$CI_SCRUBBED" "$CI_INHERITED" "$XDG_SCRUBBED" "$XDG_INHERITED" 2>/dev/null)"
   echo "  VENUE-OBSERVE-USER $RUNUSER uid=$RUNUID (R7: ordinary non-root user, asserted)"
   # ⛔ FLAG, NEVER FAIL — the package is still measurable; what a flag says is that a GREEN ARM
   # CARRIES NO EVIDENCE for it. `|| true` is deliberate: a detector fault must never cost a record.
