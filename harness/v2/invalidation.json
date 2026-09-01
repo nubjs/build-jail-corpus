@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 64,
+  "currentEpoch": 65,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1324,6 +1324,34 @@
         ]
       },
       "reason": "Epoch 64 makes the no-effect veto actually fire, and closes a first-measurement hole that had already reached the shipped catalog.\n\nTHE VETO WAS 44 PERCENT BLIND, two per-platform defects, both measurable on committed records. On darwin the only write in 415 records is /dev/dtracehelper -- the DTrace helper device the TRACER ITSELF opens -- and observed-effect.mjs summed every write bucket including systemfs, so writes=1 scored WORK. On linux, observe.mjs keeps peers REPORT-ONLY and UNATTRIBUTED by its own comment, and the marker was fed that unattributed count, so systemd-resolved at 127.0.0.53:53 and the npm registry scored as effect in 285 records. The deeper defect is that the SAME FIELD NAME carried an attributed count on classify.mjs and observe-macos.mjs and an unattributed one on observe.mjs; the fix is a shared effectWrites helper all three classifiers call, with a test asserting none of them re-implements the sum inline.\n\nTHE FIRST-MEASUREMENT HOLE. publish-guard.mjs early-returned PUBLISH on dropped.length === 0 and the veto sat below it. That ordering is sound for a record with a prior grant -- widening or confirming cannot break an install -- and false for a FIRST measurement, where narrows(undefined, {}) is empty for the opposite reason. Verified in nub source: an ABSENT catalog entry falls back to baseline_caps() and still promotes the baseline write_paths, while an EMPTY entry resolves to Some(grant) with empty write_paths and returns before the promotion loop. So publishing the empty grant for an unmeasured package is STRICTLY TIGHTER than leaving it uncatalogued, and it silently disables the baseline compatibility benefit.\n\nSCALE, and it is larger than the twelve records this started from. 2,156 of 5,104 measured MINIMUM records -- 42.2 percent, over 971 unique package versions -- publish an empty grant. It splits three ways and the split matters more than the total: 1,509 records where the script produced no attributed effect, 505 where the script DID work and every descent drop arm passed anyway, and 142 with no lifecycle pid attributed. observedEffect returns WORK for all 505, so no no-effect verdict can reach the electron-shaped breakage already proven against a real install.\n\nScope is the 43 package names whose catalog cell narrows on zero-effect evidence alone, plus those whose empty record is contradicted by another platform non-empty measurement of the same version. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest: 974 valid at epoch 63, 46 in scope = 4.72 percent.\n\nNOT DONE HERE, deliberately, and sequenced next: collate.mjs should refuse to emit a per-OS overlay that narrows a platform cell when that platform only evidence is a NONE record -- the same asymmetry publish-guard already applies to unfalsifiable arms. Zero committed records carry the marker today, so that gate would be inert until re-measures land, and landing an inert gate inside the thing that ships the catalog, mid-drain, is exactly the hard-to-undo change to avoid.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
+    },
+    {
+      "fromEpoch": 64,
+      "fromHarnessSha256": "678e88c43ed46ae9af64c4b2463d275986a8b10d640c94fa1e4a5e8319734aa5",
+      "toEpoch": 65,
+      "toHarnessSha256": "702712ed9caa949c05b937cc30e37b99debc468ed0b0ce56a80afb77314533cb",
+      "invalidate": {
+        "packages": [
+          "@appsignal/nodejs",
+          "@vscode/spdlog",
+          "@vscode/sqlite3",
+          "@vscode/windows-process-tree",
+          "cmark-gfm",
+          "drivelist",
+          "ffi-napi",
+          "mongodb-crypt-library-version",
+          "node-liblzma",
+          "node-mac-contacts",
+          "node-pty",
+          "node-zopfli-es",
+          "os-dns-native",
+          "qlobber",
+          "ref-napi",
+          "tree-sitter",
+          "weak-napi"
+        ]
+      },
+      "reason": "Epoch 65 repairs the second gyp sub-target spill family -- the one displaced INSIDE build/ rather than escaping the package root.\n\nTHE ARITHMETIC IS ONE NUMBER, NOT A PER-FAMILY RULE, which is the finding. Derived from real node-gyp rebuild output on drivelist@12.0.2 plus node-addon-api@8.9.2, in a real npm tree and a real nub store tree, on darwin AND linux. Every generated path is <fixed prefix decided by the output kind>/<relDep>/<tail>, and the only layout-dependent quantity is k, the leading dot-dot count in relDep: 1 flat, 3 isolated store, the same for every family. Delta-k is therefore 2 for all four output kinds -- sub-target makefiles, objects, dep records, static libraries. What varies is the PREFIX depth, which decides how much survives being eaten, and comparing npm-key depth against nub-path depth folds that prefix depth into the answer, which is what made it look like a per-family count.\n\nRecovery must be REFERENCE-DIRECTED: the eaten components are gone from the arm path and survive only in the reference key. That makes this pass asymmetric where the shipped walk is symmetric, which is why both coexist rather than one replacing the other. It reproduces all four output kinds, a negative case (the macOS static library, which has no dot-dot and so does not spill), and the first family as a special case.\n\nMEASURED on a real Landlock kernel, same box and binary for both arms: tree-sitter@0.25.0 went from 114/116 missing=2 at every rung to 116/116 missing=0, verified, then over-predicted down to the EMPTY grant; drivelist@12.0.2 from 50/54 missing=4 to 54/54 missing=0, likewise empty. The before arm reproduced the sibling lane shortfall digests exactly on a different box and kernel.\n\nADD-ONLY, and the controls prove it: an absent sub-target in a populated spill directory still FAILS and is still NAMED, and a zero-byte one still fails on size. This is a manifest-walk repair, never an excusal.\n\nScope is 17 package names whose shortfall is entirely spill. node-zopfli and sse4_crc32 are deliberately EXCLUDED -- they carry the spill but also genuine non-spill shortfall, so their verdicts do not move and invalidating them buys nothing. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest: 928 valid at epoch 64, 25 in scope.\n\nCARRIED CAVEAT: will-move is a text classification of archived records, confirmed by re-measurement for only 2 of the 17 packages. And the archived verdict for those two is ARTIFACT-GATE-SUSPECT rather than the NO-STATE-PASSED the fresh before-arm produced -- the same fabricated shortfall under a different label at a different instrument.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
     }
   ]
 }
