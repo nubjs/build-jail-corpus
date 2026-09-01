@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 65,
+  "currentEpoch": 66,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1352,6 +1352,26 @@
         ]
       },
       "reason": "Epoch 65 repairs the second gyp sub-target spill family -- the one displaced INSIDE build/ rather than escaping the package root.\n\nTHE ARITHMETIC IS ONE NUMBER, NOT A PER-FAMILY RULE, which is the finding. Derived from real node-gyp rebuild output on drivelist@12.0.2 plus node-addon-api@8.9.2, in a real npm tree and a real nub store tree, on darwin AND linux. Every generated path is <fixed prefix decided by the output kind>/<relDep>/<tail>, and the only layout-dependent quantity is k, the leading dot-dot count in relDep: 1 flat, 3 isolated store, the same for every family. Delta-k is therefore 2 for all four output kinds -- sub-target makefiles, objects, dep records, static libraries. What varies is the PREFIX depth, which decides how much survives being eaten, and comparing npm-key depth against nub-path depth folds that prefix depth into the answer, which is what made it look like a per-family count.\n\nRecovery must be REFERENCE-DIRECTED: the eaten components are gone from the arm path and survive only in the reference key. That makes this pass asymmetric where the shipped walk is symmetric, which is why both coexist rather than one replacing the other. It reproduces all four output kinds, a negative case (the macOS static library, which has no dot-dot and so does not spill), and the first family as a special case.\n\nMEASURED on a real Landlock kernel, same box and binary for both arms: tree-sitter@0.25.0 went from 114/116 missing=2 at every rung to 116/116 missing=0, verified, then over-predicted down to the EMPTY grant; drivelist@12.0.2 from 50/54 missing=4 to 54/54 missing=0, likewise empty. The before arm reproduced the sibling lane shortfall digests exactly on a different box and kernel.\n\nADD-ONLY, and the controls prove it: an absent sub-target in a populated spill directory still FAILS and is still NAMED, and a zero-byte one still fails on size. This is a manifest-walk repair, never an excusal.\n\nScope is 17 package names whose shortfall is entirely spill. node-zopfli and sse4_crc32 are deliberately EXCLUDED -- they carry the spill but also genuine non-spill shortfall, so their verdicts do not move and invalidating them buys nothing. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest: 928 valid at epoch 64, 25 in scope.\n\nCARRIED CAVEAT: will-move is a text classification of archived records, confirmed by re-measurement for only 2 of the 17 packages. And the archived verdict for those two is ARTIFACT-GATE-SUSPECT rather than the NO-STATE-PASSED the fresh before-arm produced -- the same fabricated shortfall under a different label at a different instrument.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
+    },
+    {
+      "fromEpoch": 65,
+      "fromHarnessSha256": "702712ed9caa949c05b937cc30e37b99debc468ed0b0ce56a80afb77314533cb",
+      "toEpoch": 66,
+      "toHarnessSha256": "e3b884eae566b1e174451d3e51a4268c39c5bb6f474cd5eda086f918926b4680",
+      "invalidate": {
+        "packages": [
+          "electron",
+          "electron-chromedriver",
+          "electron-builder",
+          "electron-rebuild",
+          "playwright",
+          "playwright-chromium",
+          "@playwright/browser-chromium",
+          "puppeteer",
+          "node-gyp"
+        ]
+      },
+      "reason": "Epoch 66 purges the machine-global artefact caches between descent arms on ALL THREE drivers. It was a guard that existed in one driver of three -- the fourth recurrence of that pattern in v2.\n\nMY FRAMING WAS WRONG AND THE LANE CORRECTED IT. The 505 all-arms-green records are not one population: 288 of them ran NO drop arm at all, because the synthesized grant was already empty, so \"every drop arm passed\" is vacuous for them. Only 217 were emptied by an actual descent. Of those 217, 44 are UNSOUND -- electron x6 and electron-chromedriver x38, and all 44 are darwin -- while the other 173 are sound on every package that could be run faithfully.\n\nTHE MECHANISM. measure.sh already purges the roots the store eviction cannot reach: nub redirect targets under cache/nub/pm/tools, namely electron-cache and ms-playwright, which are MACHINE-GLOBAL, plus the private home and the side-effects entry. Its own heading calls this THE FOURTH REPLAY PATH. measure-macos.sh REFERENCES those paths but never purges them, and measure-windows.mjs mentions neither. The darwin-only shape of the 44 was derived from the records BEFORE the guard was found in the source, which is the right order.\n\nReproduced on the pinned binary with one variable held, grant empty throughout: cold gives rc=1 and getaddrinfo ENOTFOUND github.com; warm gives rc=0; warm plus the purge gives rc=1 again. So the drop arm passed because the artefact was already on the machine, not because the capability was unneeded.\n\nTHE GUARD DOES NOT STOP ANY OF IT, and that is the durable lesson. publish-guard.decide() over all 217 returns 217 PUBLISH and 0 WITHHOLD, every one on \"narrows on falsifiable arms\". arm-falsifiability asks whether an arm COULD have gone red; it never asks whether this arm DID THE WORK. A warm arm is perfectly falsifiable and still proves nothing.\n\nTWO CORRECTIONS THE LANE MADE TO ITS OWN READING, both worth keeping: the private jail home is NOT shared between arms -- its slug hashes the arm project-local store path, and two arms produced two slugs -- and the sound majority is explained by a VENUE difference rather than a cache, because nub sets npm_config_nodedir so node-gyp never fetches headers inside the jail while the plain-npm observe arm did.\n\nSHIPPED EXPOSURE: 63 cells over 45 names resolve empty where a class record descent emptied them. The overrides note counted 41 overlays and was right on 2026-08-17; today the full-withdrawal shape is 31 overlays over 16 names. Only the electron share is PROVEN unsound; the rest needs re-measurement, not withdrawal.\n\nThe change also fixes a pre-existing OVER-eviction the lane own test caught: the shell glob basename-PKG-star swept electron-chromedriver home while measuring electron.\n\nScope is nine package names, 2 valid records, because almost every record in the class is already invalid at this epoch. UNRESOLVED and carried: 20 ownPkg-only no-network records could not be adjudicated -- the harness era-pins Node per package and the probe did not, so two of them were a different experiment; they need a real harness run.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
     }
   ]
 }
