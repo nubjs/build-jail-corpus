@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 69,
+  "currentEpoch": 70,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1464,6 +1464,16 @@
         "verdicts": []
       },
       "reason": "Adds an offline re-adjudication module. A committed record is frozen at whatever grant-source rule ran at measurement time, and the epoch-58 three-term rule never re-runs, so records measured before it keep a one-term answer. The module replays a record's own archived driver log through the current rule and scores the result with publish-guard, refusing on parse drift, on an unsound red arm, and on a home-write the artifact gate could not have tested. It reads records and rewrites nothing, so no measurement behaviour changes and no record is invalidated."
+    },
+    {
+      "fromEpoch": 69,
+      "fromHarnessSha256": "267525003d9c080abf1435572a106e54bb62616c22f8cd3a5c6362c8dd0628d1",
+      "toEpoch": 70,
+      "toHarnessSha256": "005c7a9260f0b298dcbe11e4162d8cdae22d38b83952f31c95487d77e8e9fe25",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Refuses to narrow away a whole-home write grant when the driver's own attributed census recorded writes in the real home and no denial witness came back CLEAN. The artifact gate only walks the package's own directory, so a home write is invisible to it and a passing drop arm is as consistent with a swallowed refusal as with the capability being unnecessary. A red sibling arm does not settle it either, because it proves the refusal chain fires somewhere in the run rather than on the home write. The census reader moves to its own leaf module so the recorder and the offline re-adjudicator share one implementation. No invalidation: nothing about the measurement changed, only how the recorder reads a log that is already committed beside every record, so the affected records are repaired by re-recording them offline rather than by re-running them."
     }
   ]
 }
