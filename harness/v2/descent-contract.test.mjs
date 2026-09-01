@@ -122,10 +122,17 @@ const MINIMUM = '  => MINIMUM {"write":{"deps":true},"network":true}   (observed
 // The falsifiability line must be present for a descended grant to be trusted at all — absence of it
 // is read as "the check never ran", not as "the arms were falsifiable".
 const FALSIFIABLE = '  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}';
+// ⛔ THE OBSERVE NETWORK CENSUS, WHICH EVERY REAL LOG CARRIES. All three classifiers print
+// `== NETWORK` unconditionally, and `record.mjs`'s network term FAILS CLOSED on its absence — so a
+// fixture that omits it refuses every `no-network` drop for a reason that has nothing to do with the
+// descent this file is about. ZERO peers is the shape that keeps the descent's own behaviour the
+// subject of every case below.
+const NO_PEERS = ['  == NETWORK ==', '    distinct peers: 0',
+  '  == REFUSALS ==', '    distinct: 0'].join('\n');
 
 test('one dropped capability descends, and the recomputed grant is actually narrower', () => {
   const r = parseDriverLog([
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-network' was not needed`,
   ].join('\n'));
   assert.equal(r.minimality, 'OVER-PREDICTED');
@@ -140,7 +147,7 @@ test('one dropped capability descends, and the recomputed grant is actually narr
 
 test('a write scope drops by name, and the write object collapses when it empties', () => {
   const r = parseDriverLog([
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed`,
   ].join('\n'));
   assert.deepEqual(r.overPredictedBy, ['no-write-deps']);
@@ -152,7 +159,7 @@ test('⭑ TWO dropped capabilities keep the WIDE grant unless the joint arm ran'
   // proves they drop TOGETHER; the joint grant is strictly narrower than any arm that ran. Publishing
   // it off the individual results would be an inference dressed as a measurement.
   const both = [
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-network' was not needed`,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed`,
   ];
@@ -167,7 +174,7 @@ test('⭑ TWO dropped capabilities keep the WIDE grant unless the joint arm ran'
 
 test('a FAILED or INCONCLUSIVE joint arm does NOT narrow', () => {
   const base = [
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-network' was not needed`,
     `     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed`,
   ];
@@ -183,7 +190,7 @@ test('a FAILED or INCONCLUSIVE joint arm does NOT narrow', () => {
 
 test('every capability necessary records MINIMAL rather than a null minimality', () => {
   const r = parseDriverLog([
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     "     'no-network' is NECESSARY — dropping it fails to verify",
     '  => MINIMAL — every capability in {"write":{"deps":true},"network":true} is independently necessary',
   ].join('\n'));
@@ -204,7 +211,7 @@ test('a VOID arm is INCONCLUSIVE, never evidence that the capability was necessa
   // ⛔ THE OUTCOME THAT MUST NOT COLLAPSE INTO "NECESSARY". A VOID arm measured nothing, so reading
   // it as necessity manufactures evidence in the direction that HIDES over-prediction.
   const r = parseDriverLog([
-    FALSIFIABLE, MINIMUM,
+    FALSIFIABLE, NO_PEERS, MINIMUM,
     "     ⛔ INCONCLUSIVE for 'no-network' — the arm was VOID, so nothing was measured; NOT evidence of necessity",
     '  => DESCENT INCOMPLETE — no capability dropped, but no-network was never measured; MINIMALITY IS UNPROVEN',
   ].join('\n'));

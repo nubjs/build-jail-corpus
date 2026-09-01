@@ -349,6 +349,12 @@ test('two dropped capabilities DO narrow once a JOINT-NARROW arm verifies them t
   // guard is just a permanent refusal wearing a reason.
   const r = drv([
     '  ARM-FALSIFIABILITY {"reasons":[]}',
+    // ⛔ THE OBSERVE NETWORK CENSUS, WITHOUT WHICH THIS CASE CANNOT BE EARNED AT ALL. `record.mjs`'s
+    // network term FAILS CLOSED on an absent `== NETWORK` block, so a fixture that omits it withholds
+    // for a reason that has nothing to do with the joint arm this test is about. ZERO peers is what a
+    // real log carries for a script that never reached the network.
+    '  == NETWORK ==', '    distinct peers: 0',
+    '  == REFUSALS ==', '    distinct: 0',
     '  => VERIFIED {"write":{"project":true},"network":true}',
     "     ⛔ OVER-PREDICTED — the strictly narrower x also verifies; 'no-network' was not needed",
     "     ⛔ OVER-PREDICTED — the strictly narrower y also verifies; 'no-write-project' was not needed",

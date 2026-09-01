@@ -38,6 +38,9 @@ import { digestSpecs } from '../osv-screen.mjs';
 // throw, it hands the importer `undefined` from the temporal dead zone and the guard silently never
 // fires. `write-census.mjs` imports nothing from the harness for exactly that reason.
 import { CENSUS_REFUSE, homeDropVerdict } from './write-census.mjs';
+// The same leaf discipline for the same reason, on the axis the artifact gate is blindest to. See
+// the long note on the network override at the foot of `applyGrantSourceRule`.
+import { NET_CLEAR, NET_UNKNOWN, networkDropVerdict } from './network-census.mjs';
 
 // A grant is a JSON object with no string values containing braces, so brace-depth scanning is
 // exact. `JSON.parse` on a regex-sliced tail is not: `(observed, then verified)` trails the object
@@ -996,6 +999,18 @@ const applyGrantSourceRule = (out, lines) => {
   const homeCensus = dropsHome
     ? homeDropVerdict({ log: lines, witness: witnessOf('no-write-userHome') })
     : null;
+  // ⛔ THE SAME QUESTION ON THE NETWORK AXIS, ASKED OF THE TWO GRANTS FOR THE SAME REASON. A record
+  // can name `no-network` over a grant that never carried it — 559 records name the arm and only 212
+  // lose the capability — and deleting what was never there withholds nothing.
+  //
+  // Truthy rather than `=== true` so a future non-boolean reach (`write` is already the string
+  // `"disk"` on the terminal ladder rung) cannot make the drop read as no drop. MEASURED over the
+  // 6,887 committed records, `grant.network` is only ever `true` (2,767) or absent (4,120).
+  const netInGrant = (g) => !!g?.network;
+  const dropsNetwork = netInGrant(out.grant) && !netInGrant(descended);
+  const netCensus = dropsNetwork
+    ? networkDropVerdict({ log: lines, witness: witnessOf('no-network') })
+    : null;
 
   let source, reason;
   if (n === 0) {
@@ -1115,6 +1130,62 @@ const applyGrantSourceRule = (out, lines) => {
     source = 'synthesized';
     reason = `the descent narrowed, but ${homeCensus.reason}`;
     out.notes.push('home-write-attributed');
+  }
+  // ⛔⛔ THE SAME HOLE ON THE NETWORK AXIS, AND IT IS THE ONE WITH A REPRODUCED BROKEN INSTALL.
+  // `artifact-gate.mjs` walks the package's own directory and counts what is there; it cannot tell a
+  // fetch that NEVER HAPPENED from one a WARM CACHE made unnecessary. Both leave every artefact
+  // present and `rc=0`, and the recorder reads the second as proof the capability was never needed.
+  //
+  // ⛔ THE STORE EVICTION DOES NOT CLOSE THIS, AND BELIEVING IT DID IS WHY THE TERM WAS MISSING. The
+  // per-arm `EVICT` clears `pm/store` only. nub redirects a confined script's downloads at
+  // `pm/tools/{electron-cache,ms-playwright}` (`redirect_electron_cache`,
+  // `redirect_playwright_browsers`) and `push_rw_path`s those leaves UNCONDITIONALLY, so they are
+  // outside everything the eviction walks and outlive every arm.
+  //
+  // MEASURED on `electron-chromedriver@33.4.9` (darwin-arm64), whose committed log carries both
+  // halves: OBSERVE reached `185.199.108.133:443` and `172.182.252.133:443` and wrote
+  // `chromedriver-v33.4.9-darwin-arm64.zip` into `.cache/nub/pm/tools/electron-cache/<sha>/`, then
+  // `EVICT[nar-no-network] 61 store entries removed … 2382 in store` left that zip untouched and
+  // `VERIFY[nar-no-network] rc=0 artifacts=11/11` narrowed the grant to `{}` via a verified JOINT
+  // arm. `harness/overrides/electron.json` records that same empty grant failing a real cold install
+  // twice with `getaddrinfo ENOTFOUND github.com`. `arm-artifact-cache.mjs` purges those two leaves
+  // for FUTURE arms; it cannot reach the 6,887 records already committed, and it can only ever cover
+  // replay roots somebody has enumerated — `measure-macos.sh` names `~/.npm/_prebuilds` as another
+  // that cost `kerberos@7.0.0` the same false pass. A recorder term is the backstop that does not
+  // depend on that list being complete.
+  //
+  // ⛔ FAILS CLOSED, WHICH IS WHERE THIS DEPARTS FROM THE HOME TERM ABOVE. That one fires only on a
+  // POSITIVE count and lets `CENSUS_UNKNOWN` through, on the settled `observedCounts` policy that an
+  // absent OBSERVE product vetoes nothing. Here an absent census is refused: 1,228 committed records
+  // carry no `== NETWORK` block at all, and reading "the question was never asked" as "the answer was
+  // no" is precisely the under-grant this term exists to stop. It costs nothing to say so — MEASURED
+  // over the committed corpus, ALL 212 records that actually drop `network` carry a census, so the
+  // `NET_UNKNOWN` arm refuses zero of them today and is here for the log that stops printing one.
+  //
+  // ⛔ THE ARCHIVE'S LINUX PEER COUNT IS NOT SUBTREE-SCOPED, AND THE RULE IS SOUND ANYWAY — BOTH
+  // HALVES MEASURED. In the committed era `observe.mjs` billed `distinct peers` from the whole traced
+  // tree while `observe-macos.mjs` dropped an unattributed connect: 510 of the 2,059 linux logs print
+  // `sockets script 0` beside a positive peer count, against 0 of 1,912 darwin. (`observe.mjs` now
+  // prints `distinct peers: <attributed>  /  whole traced tree <all>`, which no committed log yet
+  // carries — so this over-count is an ARCHIVE property that ages out, not a standing one.)
+  //
+  // An over-count is harmless in both arms. A whole-tree ZERO implies a subtree zero, so `CLEAR`
+  // cannot over-clear; an over-counted POSITIVE can only withhold. And it cannot make this term fire
+  // on npm's own traffic, because reaching here at all presupposes the synthesizer predicted
+  // `network`, and the synthesizer keys on the ATTRIBUTED `sockets script` row — MEASURED, those two
+  // agree on all 5,633 records carrying both, with zero disagreements either way, and all 211 records
+  // this term refuses on the committed corpus have an attributed script socket AND a genuinely remote
+  // peer, none refusing on a loopback resolver alone. A separate attribution guard here could
+  // therefore never fire on any record that reaches it, so there is not one.
+  //
+  // ⛔ AFTER THE HOME TERM, AND THE ORDER IS CHOSEN RATHER THAN INCIDENTAL. Both are withhold-only
+  // overrides on `source === 'descended'`, so which runs first cannot change a single grant — only
+  // the REASON a withheld record carries. Going second means this term rewrites no existing record's
+  // `grantSourceReason`, so every reason that changes is one this term newly withheld.
+  if (source === 'descended' && netCensus && netCensus.verdict !== NET_CLEAR) {
+    source = 'synthesized';
+    reason = `the descent narrowed, but ${netCensus.reason}`;
+    out.notes.push(netCensus.verdict === NET_UNKNOWN ? 'network-census-absent' : 'network-attributed');
   }
   // ⛔ SAY WHY THE FLAG DID NOT BLOCK, in the record rather than only here. A record carrying
   // `notes: ["arms-unfalsifiable"]` beside `grantSource: "descended"` reads as a contradiction

@@ -177,7 +177,13 @@ test('a grant WITH terms prints no verdict line — the arms speak instead', () 
 // ── 6. THROUGH THE REAL RECORDER ──────────────────────────────────────────────────────────────────
 
 const drv = (lines) => parseDriverLog(lines.join('\n'));
-const FALSIFIABLE = '  ARM-FALSIFIABILITY {"reasons":[]}';
+// ⛔ BOTH OBSERVE PRODUCTS `record.mjs` GATES ON, because a fixture missing either tests a branch it
+// did not mean to. The falsifiability line's absence reads as "the check never ran"; the `== NETWORK`
+// census's absence makes the network term FAIL CLOSED and refuse every `no-network` drop. All three
+// classifiers print the census unconditionally, so a real log always carries it — and ZERO peers is
+// the shape that leaves the descent vocabulary, which is this file's subject, the only variable.
+const FALSIFIABLE = ['  ARM-FALSIFIABILITY {"reasons":[]}',
+  '  == NETWORK ==', '    distinct peers: 0', '  == REFUSALS ==', '    distinct: 0'].join('\n');
 
 test('⭑ RED-GREEN: a Linux terminal-rung record NARROWS to {"write":"disk"}', () => {
   // The whole point of the change, asserted on the published VALUE. Before it, this record could not
