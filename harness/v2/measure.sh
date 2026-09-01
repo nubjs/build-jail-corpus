@@ -1952,6 +1952,38 @@ if [ "$SRC" -eq 2 ]; then
   echo "     Not a result. Do NOT record it, and do NOT read the absence of a verdict as a wide grant."
   exit 3
 fi
+# ── 3a-pre. THE DENIAL WITNESS — decode a traced descent arm and score its refusals. ──────────
+#
+# ⛔ THE DECODE IS THE SHIPPED ADAPTER, NOT A GREP. `adapters/linux.mjs` already carries the errno
+# (`r: "EACCES"`) and, decisively, the LIFECYCLE SUBTREE attribution (`life: 1` on its `k:"p"` rows) —
+# the same filter `observe.mjs` uses to decide which writes earn a grant. Three hand-rolled scans of
+# these traces have been wrong on this effort, every one of them by ignoring either the error status
+# or process attribution, so this path re-uses the decoder rather than reading the raw text.
+#
+# ⛔ FAILS OPEN ON THE INSTRUMENT AND CLOSED ON THE VERDICT. A missing trace, a failed decode or a
+# stream the scorer cannot read all produce a VOID marker, which licenses nothing and blocks nothing;
+# `|| true` keeps a detector fault from costing the record, exactly as `arm-falsifiability.mjs` does.
+denial_witness () {
+  local lbl="$1" cap="$2" v="$ROOT/verify-$1" ev=() t
+  for t in "$v"/tr-i.txt "$v"/tr-a.txt; do
+    [ -s "$t" ] || continue
+    # `--jailed` is the guard that stops an OBSERVE stream from ever being scored as a drop arm.
+    node "$HERE/adapters/linux.mjs" "$t" --project "$v" --home "$HOME" \
+      --jail-home "$JAIL_HOME" --jail-tmp "$JAIL_TMP" --pkg "$PKG" --version "$VER" --jailed \
+      --out "$t.events.ndjson" > /dev/null 2>&1 || continue
+    [ -s "$t.events.ndjson" ] && ev+=(--events "$t.events.ndjson")
+  done
+  if [ ${#ev[@]} -eq 0 ]; then
+    echo "     DENIAL-WITNESS {\"cap\":\"$cap\",\"scope\":null,\"verdict\":\"VOID\",\"refusalsInScope\":0,\"lifecyclePids\":0,\"events\":0,\"sample\":[]}"
+    echo "     VOID — the arm produced no decodable trace, so its green carries no denial evidence"
+    return 0
+  fi
+  # `$ROOT` is excluded because every arm directory lives under it and, on this venue, under $HOME —
+  # a refusal inside the harness's own scratch tree is not the package reaching for the user's home.
+  node "$HERE/denial-witness.mjs" --cap "$cap" "${ev[@]}" --exclude "$ROOT" 2>/dev/null \
+    | sed 's/^/     /' || true
+}
+
 # ── 3a. DESCEND — is a verified grant actually MINIMAL, or did OBSERVE over-predict? ──────────
 #
 # ⛔⛔ A FUNCTION, AND CALLED FROM THE LADDER PATH TOO — THAT IS WHY IT IS ONE. This block used to sit
@@ -2049,7 +2081,33 @@ descend () {
                if (!Object.keys(g.write).length) delete g.write; }
         console.log(JSON.stringify(g));
       ' "$g0" "$cap")
-      verify "$SUB" "drop-$(printf '%s' "$cap" | tr -d '.')"; drc=$?
+      DLBL="drop-$(printf '%s' "$cap" | tr -d '.')"
+      # ⛔⛔ THE DENIAL WITNESS — TRACE THE `no-write-userHome` ARM AND ASK WHETHER THE SCRIPT ACTUALLY
+      # WANTED THE HOME. `record.mjs` names this as the machinery it lacks: a green drop arm on a
+      # package whose artifact gate is vacuous proves nothing, because the gate only inspects files
+      # under the PACKAGE'S OWN directory and the home write is by definition outside it. MEASURED on
+      # the committed corpus 2026-08-31: 213 records are blocked on exactly that, and 202 of them
+      # carry `userHome` as the only write scope, so no widening of the artifact gate can reach them.
+      # An arm run under the tracer answers it directly — a refused write inside the dropped scope
+      # says the arm passed by SWALLOWING the denial.
+      #
+      # ⛔ THE TRACER IS PASSED TO `verify`, WHICH IS ARM-EQUIVALENT ON THIS DRIVER AND ONLY ON THIS
+      # DRIVER. Both `${tracer:+…}` expansions sit on the two commands that compose the arm's rc
+      # (`install` and `approve-builds`), so a traced arm runs the same work and reports the same
+      # verdict as an untraced one. `measure-macos.sh`'s traced branch runs `nub install` ALONE and
+      # skips `approve-builds` entirely, so tracing a DESCENT arm there would change the arm's own
+      # outcome for any deferred-trust package — which is why macOS is deliberately not wired here.
+      #
+      # ⛔ ONLY THE `userHome` ARM, AND ONLY BECAUSE THAT IS THE SCOPE THE SCORER EXPRESSES. It is
+      # also the only arm worth the tracer's cost: `write.userHome` is the widest grant this corpus
+      # hands out. A missing `strace` costs nothing — no marker is emitted and `record.mjs` runs the
+      # rule it had.
+      WTRACE=""
+      if [ "$cap" = "no-write-userHome" ] && command -v strace > /dev/null 2>&1; then
+        WTRACE="strace -f -o $ROOT/verify-$DLBL/tr"
+      fi
+      verify "$SUB" "$DLBL" "$WTRACE"; drc=$?
+      [ -n "$WTRACE" ] && denial_witness "$DLBL" "$cap"
       case "$drc" in
         0) echo "     ⛔ OVER-PREDICTED: dropping '$cap' STILL VERIFIES — $SUB is sufficient"
            NARROWER="$NARROWER $cap" ;;

@@ -465,6 +465,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     platform: `linux-${process.arch}`,
     pkg: val('--pkg'), version: val('--version'),
     tracer: 'strace -f -e trace=file,network,process',
+    // ⛔ WAS THIS TRACE TAKEN INSIDE THE JAIL? Mirrors `macos-eventlog.mjs`'s flag of the same name,
+    // and it is a GUARD rather than a label: `denial-witness.mjs` scores a drop arm's refusals and an
+    // OBSERVE stream — which is unjailed and therefore contains no jail refusal at all — would read
+    // CLEAN for every package on earth, i.e. a blanket licence to narrow produced by pointing the
+    // detector at the wrong file. The witness refuses a stream that does not carry `jailed: true`.
+    jailed: args.includes('--jailed'),
     // ⛔ THE ROOTS ARE THE WHOLE REASON A RE-PARSE IS POSSIBLE. Every path in the stream is
     // machine-specific (`/home/runner/v2-hNdvB5/...`); without these a future classifier cannot tell
     // a project write from a home write, and the log is a pile of strings.

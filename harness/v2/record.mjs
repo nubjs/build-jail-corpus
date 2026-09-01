@@ -284,6 +284,12 @@ export function parseDriverLog(log) {
     // an absent announcement means.
     falsifiabilityReasons: null,
     descentRedArm: false,
+    // ⛔ cap -> verdict, from the DENIAL-WITNESS markers the descent arms emit. An EMPTY map means no
+    // arm was witnessed — which is what every record taken before `denial-witness.mjs` existed looks
+    // like, and what every win32 record will look like until that platform grows a jailed trace — so
+    // an empty map must license nothing and block nothing. Same absent-is-not-empty direction as
+    // `falsifiabilityReasons` above.
+    denialWitness: {},
     notes: [],
     rawLogPath: null,
     capturePath: null,
@@ -303,6 +309,24 @@ export function parseDriverLog(log) {
     // null: the classifier always answers this question now, so "no pinned entries" is a measured
     // answer rather than an absence.
     writePathsVersionPinned: [],
+    // ⛔⛔ DID A WIDE GRANT WORK WHILE THE SANDBOX WAS STILL ENGAGED? This is the field that separates
+    // "this package needs a wide write scope" from "this package cannot run confined at all" — a
+    // distinction the ladder could not draw, because its terminal rung `write:"disk"` is not a wider
+    // sandbox but NO sandbox (`relax_fs_to_full_disk` clears `entries`, sets `default_effect = Allow`
+    // and puts tmp back to Shared, and each backend then stands down). Every `write:"disk"` record in
+    // this corpus was produced by that rung, so every one of them is currently ambiguous.
+    //
+    // ⛔ NULL IS "NOT ESTABLISHED" AND MUST LICENSE NOTHING. A record predating the probe carries no
+    // marker; a record whose confined rungs PASSED never needed one, because the ladder stopped before
+    // the probe. Both are null, and null must never be read as `fail` — that would publish "cannot run
+    // confined" off an arm that was never run. Same absent-is-not-empty direction as
+    // `falsifiabilityReasons` and `denialWitness`.
+    //
+    // ⛔ THE PROBE NEVER NARROWS A GRANT, BY CONSTRUCTION. Its widening is delivered through the
+    // catalog's GLOBAL `baseline`, and the shipped per-package vocabulary (`catalog_v2::Reach` is
+    // `None | Scopes | Disk`) has no spelling for one — so a grant it passed at is not publishable, and
+    // the terminal rung still decides what the record ships. This field is diagnosis, never a licence.
+    confinedWide: null,
     // Every completed direct/resolved-tree OSV screen prints one compact marker. The exact spec set
     // stays in the clearance artifact during the run; the record persists the digest/count and every
     // advisory that caused a terminal refusal.
@@ -482,6 +506,23 @@ export function parseDriverLog(log) {
     if (up) { try { out.cwdUnplaceableWrites = JSON.parse(up[1]); } catch { out.notes.push('cwd-unplaceable-unparsable'); } continue; }
     const cr = /CWD-RESOLVED\s+(\d+)/.exec(l);
     if (cr) { out.cwdResolved = Number(cr[1]); continue; }
+    // ⛔ DID THE DROP ARM'S SCRIPT ASK FOR THE CAPABILITY THE ARM REMOVED? `denial-witness.mjs` scores
+    // the arm's own JAILED trace and answers WITNESSED (the write was attempted and refused), CLEAN
+    // (the lifecycle subtree never touched the dropped scope), VOID (the trace could not be read) or
+    // UNSUPPORTED (this scorer expresses no scope for that capability). Keyed by capability, because
+    // the answer is per-arm: a witnessed `no-write-userHome` says nothing about `no-network`.
+    //
+    // ⛔ FAILS CLOSED IN BOTH DIRECTIONS. An unparsable payload is recorded as VOID rather than
+    // dropped, so it licenses nothing; a verdict this recorder does not recognise is likewise VOID.
+    // Only the two words below carry weight, and everything else keeps the rule that ran before.
+    const dw = /DENIAL-WITNESS\s+(\{.*\})\s*$/.exec(l);
+    if (dw) {
+      try {
+        const p = JSON.parse(dw[1]);
+        if (typeof p.cap === 'string') out.denialWitness[p.cap] = String(p.verdict ?? 'VOID');
+      } catch { out.notes.push('denial-witness-unparsable'); }
+      continue;
+    }
     // ⛔ THE ARMS FOR THIS PACKAGE COULD NOT HAVE FAILED, so a green one is not evidence. Either the
     // package ships its build output prebuilt — making the artifact gate's manifest the tarball's own
     // file set, present in every arm before any script runs — or its script ends in a status swallow
@@ -727,15 +768,43 @@ const applyGrantSourceRule = (out, lines) => {
   // positive control, proving the jail -> denial -> non-zero-rc -> driver chain is live for THIS
   // package in THIS venue rather than merely un-swallowed in the package.json.
   //
-  // ⛔ WHAT THIS DOES NOT PROVE, STATED BECAUSE THE GAP IS REAL. A red arm on capability X shows the
+  // ⛔ WHAT THE RED ARM DOES NOT PROVE, AND WHAT NOW CLOSES IT. A red arm on capability X shows the
   // chain fires; it does not show it would fire for capability Y specifically, so a script that
   // writes its essential output into the home and swallows the EACCES in a try/catch — a swallow no
-  // shell-level `SWALLOWS` regex can see — would still narrow wrongly. Closing that needs an arm
-  // that traces the DENIED write and asserts it was attempted-and-refused, which is machinery this
-  // harness does not have. This is the strongest signal the existing arms produce, not a proof.
+  // shell-level `SWALLOWS` regex can see — would still narrow wrongly. `denial-witness.mjs` is the
+  // arm that closes it: it scores the DROP ARM'S OWN jailed trace and says whether the write was
+  // attempted-and-refused. The red arm stays as the fallback for a record with no witness.
+  //
+  // MEASURED 2026-08-31 on the committed corpus, before the witness existed: all 80 records this
+  // red-arm rule moved off `write.userHome` were LADDER-RUNG records — 55 of them have ZERO real-home
+  // writes attributed by OBSERVE, the `userHome` in their grant coming from rung 0's
+  // `{deps,project,userHome}` bundle rather than from anything the script did — so the residual risk
+  // named above did not materialise on any of them. It is still real for the next one.
   const reasons = Array.isArray(out.falsifiabilityReasons) ? out.falsifiabilityReasons : null;
   const rcLive = reasons !== null && !reasons.includes('rc-vacuous');
   const redArmLicenses = rcLive && out.descentRedArm === true;
+  // ⛔⛔ THE WITNESS IS PER-CAPABILITY AND IT OUTRANKS EVERY OTHER TERM IN BOTH DIRECTIONS.
+  //
+  //   WITNESSED on a dropped capability   the script ASKED for it and the jail REFUSED, so the arm's
+  //                                       green means the refusal was swallowed rather than that the
+  //                                       capability was unnecessary. Nothing licenses that drop —
+  //                                       not a red sibling arm, not a live artifact gate. This is
+  //                                       the only term here that can WIDEN a record relative to the
+  //                                       rule that ran before it, and it is why the file exists.
+  //   CLEAN on EVERY dropped capability   a live, jailed, subtree-attributed trace in which the
+  //                                       script never touched any dropped scope. That is direct
+  //                                       evidence, so it licenses the narrowing on its own — no red
+  //                                       sibling arm required. This is what unblocks a record whose
+  //                                       every arm was green.
+  //
+  // VOID / UNSUPPORTED / absent all mean "not established" and change nothing: the rule below then
+  // runs exactly as it did before this term existed, which is what keeps every pre-witness record and
+  // every win32 record — where no jailed trace is taken at all — on the behaviour they were measured
+  // under.
+  const witnessOf = (cap) => out.denialWitness?.[cap];
+  const witnessedCaps = out.overPredictedBy.filter((c) => witnessOf(c) === 'WITNESSED');
+  const witnessLicenses = out.overPredictedBy.length > 0
+    && out.overPredictedBy.every((c) => witnessOf(c) === 'CLEAN');
   // The synthesized grant minus every capability an arm proved droppable. Keyed on the driver's own
   // variant names, so this cannot drift from what was actually run.
   //
@@ -790,7 +859,20 @@ const applyGrantSourceRule = (out, lines) => {
       + `this recorder cannot parse (${unparsedNames.join(', ')}) — the descended grant could not be `
       + 'recomputed, so the wider synthesized value is kept rather than a narrowing that was never applied';
     out.notes.push('descent-name-unparsed');
-  } else if (unfalsifiable && !redArmLicenses) {
+  } else if (witnessedCaps.length) {
+    // ⛔ BEFORE THE FALSIFIABILITY BRANCH, AND UNCONDITIONALLY — NOT ONLY FOR AN UNFALSIFIABLE RECORD.
+    // A witnessed refusal is direct evidence the script wanted the capability, and that is true
+    // whatever the artifact gate could or could not have seen. The gate only ever inspects files
+    // under the package's OWN directory, so a package that writes its real product into the home —
+    // `@pulumi/gcp@0.16.9` downloads `~/.pulumi/plugins/resource-gcp-v0.16.9/pulumi-resource-gcp`,
+    // measured — can pass a perfectly live gate in an arm that lost the plugin entirely. Restricting
+    // this to the unfalsifiable case would let exactly that record narrow.
+    source = 'synthesized';
+    reason = `the descent narrowed, but the drop arm's own jailed trace shows the script ATTEMPTED a `
+      + `write inside ${witnessedCaps.join(', ')} and the jail REFUSED it — the arm passed by `
+      + 'swallowing the refusal, not by not needing the capability, so the wider grant is kept';
+    out.notes.push('denial-witnessed');
+  } else if (unfalsifiable && !redArmLicenses && !witnessLicenses) {
     // Tested BEFORE `!checked`: the flag is itself positive evidence the check ran, so a log
     // carrying the flag must never be mistaken for one that predates the detector.
     source = 'synthesized';
@@ -806,8 +888,11 @@ const applyGrantSourceRule = (out, lines) => {
           + `${reasons.join(', ')}) — the exit code is swallowed and the artifact gate is vacuous, so a `
           + 'passing narrow arm is not evidence — keeping the wider grant'
         : 'the descent narrowed and the exit code was a live detector (arms-unfalsifiable: '
-          + `${reasons.join(', ')}), but NO descent arm went red, so nothing demonstrated the detector `
-          + 'would have fired — a passing narrow arm on its own is not evidence — keeping the wider grant';
+          + `${reasons.join(', ')}), but NO descent arm went red and no DENIAL-WITNESS came back CLEAN `
+          + `for every dropped capability (${out.overPredictedBy
+            .map((c) => `${c}=${witnessOf(c) ?? 'none'}`).join(', ')}), so nothing demonstrated the `
+          + 'detector would have fired — a passing narrow arm on its own is not evidence — keeping the '
+          + 'wider grant';
   } else if (!checked) {
     source = 'synthesized';
     reason = 'the descent narrowed, but this record predates the falsifiability check — no '
@@ -815,7 +900,12 @@ const applyGrantSourceRule = (out, lines) => {
   } else if (n === 1) {
     source = 'descended';
     reason = `one capability (${out.overPredictedBy[0]}) was dropped and the resulting grant was `
-      + 'verified in the real jail by a single arm';
+      + 'verified in the real jail by a single arm'
+      // ⛔ SAY WHICH EVIDENCE CARRIED IT. Without this line a witness-licensed narrowing and an
+      // ordinary one are indistinguishable in the record, and the first question anyone auditing a
+      // dropped `write.userHome` asks is what made the passing arm count.
+      + (witnessLicenses ? ', whose own jailed trace shows the lifecycle subtree never attempted a '
+        + 'write inside the dropped scope (DENIAL-WITNESS CLEAN)' : '');
   } else if (jointVerified) {
     source = 'descended';
     reason = `${n} capabilities were dropped and the JOINT grant was explicitly verified`;
@@ -1104,6 +1194,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // exists above: `arms-unfalsifiable` alone cannot say which detector died.
     falsifiabilityReasons: parsed.falsifiabilityReasons ?? null,
     descentRedArm: parsed.descentRedArm === true,
+    // Same reason as the two fields above: `publish-guard.mjs` reads records, not logs, and a
+    // WITNESSED capability is the strongest reason a re-measure must not be allowed to narrow.
+    denialWitness: parsed.denialWitness ?? {},
     notes: [...new Set(parsed.notes)],
     // The event log's own census, inlined so `results.json` states how much evidence sits beside
     // it — event count, dropped-event count, the errno histogram — without opening the log.
