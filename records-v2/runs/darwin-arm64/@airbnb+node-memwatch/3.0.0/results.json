@@ -3,7 +3,13 @@
   "version": "3.0.0",
   "harnessVersion": 2,
   "verdict": "MINIMUM",
-  "grant": {},
+  "grant": {
+    "write": {
+      "deps": true,
+      "project": true
+    },
+    "network": true
+  },
   "synthesized": {
     "write": {
       "deps": true,
@@ -18,12 +24,13 @@
     "no-write-deps",
     "no-write-project"
   ],
-  "grantSource": "descended",
-  "grantSourceReason": "3 capabilities were dropped and the JOINT grant was explicitly verified",
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but OBSERVE attributed 1 network peer(s) to the lifecycle subtree and no denial witness came back CLEAN, so the passing drop arm is as consistent with a WARM CACHE having satisfied the fetch as with the capability being unnecessary — the artifact gate cannot tell a fetch that did not happen from one that did not need to",
   "descendedGrant": {},
   "notes": [
     "cwd-unobserved",
-    "events-lost"
+    "events-lost",
+    "network-attributed"
   ],
   "eventLog": {
     "lines": 139840,
