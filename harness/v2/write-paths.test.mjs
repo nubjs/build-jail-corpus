@@ -225,7 +225,10 @@ const classifyWin = (paths, version = '1.0.0') => {
     roots: {
       project: WIN_PROJ, home: WIN_HOME, jailHome: WIN_JAIL, temp: 'C:\\jail\\m-x\\tmp',
       globalStore: null, projectStore: null, interpreter: null, toolsDir: null,
-      npmPrefix: null, ownPkg: null, cwd: null,
+      // `null`: this fixture declares no npm-cache redirect, which is an ANSWER and leaves the
+      // bucket out. What `writePaths` is derived from is the private home and nothing else, so a
+      // cache root would add a bucket these cases never reach.
+      npmPrefix: null, npmCache: null, ownPkg: null, cwd: null,
     },
   }));
   const out = execFileSync('node', [path.join(HERE, 'classify.mjs'), path.join(dir, 'e.ndjson'),

@@ -45,12 +45,19 @@ if (!file || !capturePath) {
 }
 
 // The list lives HERE, not in the driver: this file is what would misclassify without a root, so
-// this is the file that must refuse to run. Ten roots are REQUIRED; four are keyed on below. That
-// is deliberate and matches the Linux and macOS classifiers — a root re-derived later is a root
-// re-derived from ambient state, and changing which bucket a path lands in is a grant-semantics
+// this is the file that must refuse to run. Eleven roots are REQUIRED; five are keyed on below.
+// That is deliberate and matches the Linux and macOS classifiers — a root re-derived later is a
+// root re-derived from ambient state, and changing which bucket a path lands in is a grant-semantics
 // change that needs its own evidence rather than arriving as a side effect of declaring a root.
+//
+// ⛔ `npmCache` JOINED THIS LIST BECAUSE THE DRIVER WAS ALREADY REDIRECTING THERE. A directory the
+// driver POINTS THE MEASURED INSTALL AT and does not DECLARE is the one shape this file cannot
+// recover from: the redirect target matches no root, so the classifier bills its own apparatus as a
+// write it cannot account for. `measure-windows.mjs` has set `npm_config_cache` to `<run-root>\
+// npm-cache` since the arm was given a cold cache, and that path is a SIBLING of `observe`, `tmp`
+// and `jailhome` — so every write npm made under it could only ever land in `outside`.
 const REQUIRED_ROOTS = ['project', 'home', 'jailHome', 'globalStore', 'projectStore',
-                        'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'ownPkg'];
+                        'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'npmCache', 'ownPkg'];
 let capture;
 try { capture = JSON.parse(fs.readFileSync(capturePath, 'utf8')); }
 catch (e) { console.error(`⛔ cannot read capture.json at ${capturePath}: ${e.message}`); process.exit(3); }
@@ -135,9 +142,20 @@ const isSystemFs = (p) => WIN
 // never on "looks like a home": a script that spells the REAL home out absolutely is writing
 // somewhere the jail does not grant, so that write still bills `userHome` and still earns the scope.
 // The two buckets then have OPPOSITE answers for `writePaths` — see the derivation below.
+//
+// ⛔ `npmCache` IS THE THIRD OF THE SAME CONSTRUCTION, AND IT WAS THE ONE THE DRIVER REDIRECTED
+// WITHOUT DECLARING. `measure-windows.mjs` sets `npm_config_cache` to a per-run directory so the
+// OBSERVE arm gets the COLD npm cache a real user has — without it a lifecycle script that fetches
+// its payload finds it already staged, the trace records no `connect`, and the grant omits
+// `network`, which is the under-grant direction. That redirect target is a sibling of `observe`,
+// `tmp` and `jailhome`, so with no root declared for it EVERY write npm made under it fell through
+// to `outside` — the classifier billing its own apparatus. Keyed on the declared path and never on
+// "looks like a cache": a script that hardcodes some other cache directory is writing somewhere the
+// jail does not grant, and must keep billing what it really costs.
 const ROOTS = [
   ...(roots.temp ? [{ name: 'jailTmp', path: norm(roots.temp) }] : []),
   ...(roots.jailHome ? [{ name: 'jailHome', path: norm(roots.jailHome) }] : []),
+  ...(roots.npmCache ? [{ name: 'npmCache', path: norm(roots.npmCache) }] : []),
   { name: 'deps', path: norm(project + (WIN ? '\\node_modules' : '/node_modules')) },
   { name: 'project', path: norm(project) },
   { name: 'userHome', path: norm(home) },
@@ -161,7 +179,39 @@ const jailHomeRoot = roots.jailHome ? norm(roots.jailHome) : null;
 // WRITES row, against 7 on POSIX. Restore this bucket if and when the Windows driver starts
 // reproducing the redirects — at which point `toolsDir`, already declared and unkeyed, is the root
 // to derive the leaves from, exactly as `observe.mjs` does.
-const BASE_COVERED = ['jailTmp', 'jailHome'];
+//
+// ⛔ `npmCache` IS IN THIS LIST, AND THE GROUND IS NUB'S SOURCE RATHER THAN THE SHAPE OF THE PATH.
+// The question a `BASE_COVERED` entry answers is not "did the harness redirect it" — that only says
+// where the OBSERVE arm wrote — but "does the jail hand a confined script the corresponding
+// directory for free". For npm's cache the answer is yes, in three steps, none of them inferred:
+//
+//   1. nub sets no `npm_config_cache`, ever. `build_jail.rs` redirects `npm_config_prefix` and sets
+//      `npm_config_nodedir` / `npm_config_python`; the cache key appears in neither
+//      `compiler/preset.rs` nor `build_jail.rs`. So a confined script resolves its cache the way
+//      npm resolves it by default.
+//   2. npm's default resolves INTO the private jail home. `preset.rs` repoints `HOME`,
+//      `USERPROFILE` **and** `APPDATA` at `private_home_dir()`, `APPDATA` at the `AppData\Roaming`
+//      leaf — and its own comment gives npm's cache as the whole reason for the third: "npm on
+//      Windows resolves its cache to `%APPDATA%\npm-cache`, not to `$HOME/.npm` as on POSIX …
+//      every lifecycle script shelling out to npm or prebuild-install takes `EPERM: mkdir
+//      …\AppData\Roaming\npm-cache`. That was 14 of 63 Windows corpus breaks."
+//   3. That destination is READ-WRITE at the base profile: `preset.rs` does
+//      `if let Some(dir) = private_home { fs.insert(dir, "rw") }`, and `AppData\Roaming` sits
+//      inside it, so it rides that grant rather than emitting a rule of its own.
+//
+// ⇒ the write npm makes here costs no catalog scope in the jail, exactly as `jailTmp` and
+// `jailHome` do, and the harness's `npm_config_cache` redirect is apparatus standing in front of a
+// directory the jail already grants.
+//
+// ⛔ AND THE PERMISSIVE DIRECTION CANNOT COST ANYTHING HERE, WHICH IS WHY THIS ENTRY IS SAFE TO MAKE
+// RATHER THAN MERELY DEFENSIBLE. The synthesized grant below is built from `w.deps`, `w.project`
+// and `w.userHome` and from nothing else, so `outside` — where every one of these writes lands
+// today — already contributes zero. Moving them into a bucket cannot make any grant NARROWER in
+// either direction of this decision; what the list membership changes is what the REPORT claims,
+// and claiming the jail covers a path it did not would be the lie worth avoiding. The measurement
+// backing that: re-classifying every archived win32 record that carries an `outside` write row,
+// before and after, moves no grant at all.
+const BASE_COVERED = ['jailTmp', 'jailHome', 'npmCache'];
 
 const under = (p, root) => p === root || p.startsWith(root + (WIN ? '\\' : '/'));
 
@@ -361,6 +411,12 @@ if (w.jailHome) {
   console.log(`  NOTE ${w.jailHome.length} writes into the DECLARED private home -- the base profile grants`);
   console.log('       that directory unconditionally (preset.rs `private_home_dir`), so they widen nothing.');
   console.log('       What they earn instead is a `writePaths` declaration; see the section below.');
+}
+if (w.npmCache) {
+  console.log(`  NOTE ${w.npmCache.length} writes into the DECLARED per-run npm cache -- this driver sets`);
+  console.log('       `npm_config_cache` there for a cold arm, and the jail resolves the same cache into');
+  console.log('       the RW private home (preset.rs redirects APPDATA at it), so they widen nothing.');
+  console.log('       No `writePaths` either: this is a CACHE, and the jail re-fills its own.');
 }
 if (w.outside) console.log(`  !! ${w.outside.length} writes OUTSIDE project/home -- no scope covers these; inspect before granting`);
 if (w.systemfs) console.log(`  !! ${w.systemfs.length} writes into system dirs -- an unprivileged user would be refused these`);

@@ -1193,7 +1193,8 @@ console.log(`  CLOSURE ${CLOSURE.length} packages evicted per arm`);
 // this platform genuinely has no such root and a key is NEVER omitted. `classify.mjs` treats an
 // absent key as fatal and an explicit `null` as an answer.
 //
-// ⛔ ROOTS ARE DECLARED WHETHER OR NOT THEY ARE KEYED ON — ten are declared, three are keyed on.
+// ⛔ ROOTS ARE DECLARED WHETHER OR NOT THEY ARE KEYED ON — twelve are declared, five are keyed on
+// (`project`, `home`, `jailHome`, `temp`, `npmCache`; `project` answers both `deps` and `project`).
 // That is deliberate, and matches the Linux and macOS lanes. A root re-derived later is a root
 // re-derived from ambient state, which is the exact failure this file exists to prevent; changing
 // WHICH bucket a path lands in is a grant-semantics change and needs its own evidence.
@@ -1291,6 +1292,25 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
     // Null because this driver sets no `npm_config_prefix`, so there is no separate npm prefix root
     // for a path to land in. An inapplicable root, which is an ANSWER — distinct from an absent key.
     npmPrefix: null,
+    // ⛔ THE PER-RUN npm CACHE THIS DRIVER CREATED AND EXPORTED — and the root that was MISSING while
+    // the redirect it describes was live. `OBS_ENV` has set `npm_config_cache` at `NPM_CACHE` since
+    // the OBSERVE arm was given a cold cache (see the long note there: a warm host cache makes a
+    // fetching script record no `connect` at all, and the grant then omits `network`). `NPM_CACHE`
+    // is a SIBLING of `observe`, `tmp` and `jailhome`, so it sits under no other declared root and
+    // every write npm made there could only fall through to `outside`. MEASURED on the committed
+    // corpus: 135 win32 records carry an `outside` WRITES row, and 728 of the 805 outside paths
+    // those records print are under this directory — so the bucket that exists to surface a
+    // genuinely unaccounted write was ~90% this driver's own apparatus, and a real one could not be
+    // seen in it. Redirecting somewhere and not declaring it is the one shape `classify.mjs` cannot
+    // recover from: it bills the harness as if it were the package.
+    //
+    // ⛔ IT IS BASE-COVERED THERE, ON NUB'S BEHAVIOUR RATHER THAN ON BEING A REDIRECT. nub sets no
+    // `npm_config_cache` at all, and `preset.rs` repoints `APPDATA` at the `AppData\Roaming` leaf of
+    // the read-write private jail home FOR THIS EXACT REASON — its own comment names
+    // `%APPDATA%\npm-cache` and the `EPERM` it used to cause. So the confined script's npm cache
+    // lands in granted space and costs no scope; the full argument is at `classify.mjs`'s
+    // `BASE_COVERED`.
+    npmCache: NPM_CACHE,
     ownPkg: path.join(OBS, 'node_modules', ...PKG.split('/')),
     // ⛔ NULL, AND THE NULL IS THE POINT. No path in this stream is ever resolved against a working
     // directory, so there is no cwd to declare and inventing one would be the macOS defect in

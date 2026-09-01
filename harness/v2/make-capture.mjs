@@ -16,7 +16,7 @@
 //   usage: node make-capture.mjs --out capture.json --project D --home D
 //                                [--pkg N] [--version V] [--temp D] [--interpreter P]
 //                                [--global-store D] [--project-store D] [--tools-dir D]
-//                                [--jail-home D] [--npm-prefix D] [--own-pkg D]
+//                                [--jail-home D] [--npm-prefix D] [--npm-cache D] [--own-pkg D]
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -53,6 +53,12 @@ const capture = {
     toolsDir: val('--tools-dir'),
     temp: val('--temp'),
     npmPrefix: val('--npm-prefix'),
+    // ⛔ SUPPLY THIS WHENEVER THE CALLER EXPORTS `npm_config_cache` TO THE THING IT TRACES, and
+    // leave it `null` otherwise. A probe that redirects npm's cache and does not declare where has
+    // no bucket for those writes, so they land in `outside` — the same defect the measurement
+    // driver carried while it redirected there undeclared. `null` is the answer "this probe did not
+    // redirect it", not a way to skip the question.
+    npmCache: val('--npm-cache'),
     ownPkg: val('--own-pkg') ?? (pkg ? path.join(project, 'node_modules', ...pkg.split('/')) : null),
     cwd: null,
   },

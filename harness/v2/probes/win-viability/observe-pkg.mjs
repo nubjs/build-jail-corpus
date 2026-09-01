@@ -55,6 +55,14 @@ const OBS = path.join(ROOT, 'observe');
 fs.mkdirSync(OBS, { recursive: true });
 fs.writeFileSync(path.join(OBS, 'package.json'), JSON.stringify({ name: 'o', version: '1.0.0' }) + '\n');
 
+// ⛔ THIS PROBE REDIRECTS npm's CACHE AND ITS CAPTURE DOES NOT YET DECLARE IT, so every write npm
+// makes under `NPM_CACHE` classifies as `outside`. `win-viability.yml` builds this probe's
+// `capture.json` with `make-capture.mjs` and passes `--project/--home/--temp/--interpreter` only,
+// so `npmCache` comes out `null` — a FALSE answer here, since this file does redirect. The fix is
+// one flag at that call site: emit `npmCache` in `probe.json` beside `temp`, and pass
+// `--npm-cache $j.npmCache`. `make-capture.mjs` already accepts it. Left undone because the call
+// site is in the workflow; the measurement driver's own version of this defect is fixed, and the
+// argument for why the bucket is base-covered is at `classify.mjs`'s `BASE_COVERED`.
 const NPM_CACHE = path.join(ROOT, 'npm-cache');
 const obsEnv = { ...process.env, npm_config_cache: NPM_CACHE };
 const fetched = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts', `${PKG}@${VER}`],

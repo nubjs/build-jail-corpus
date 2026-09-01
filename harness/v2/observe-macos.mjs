@@ -505,6 +505,23 @@ const scope = (p) => {
   return 'outside';
 };
 // Named once so the report and the synthesized grant cannot disagree about which writes are free.
+//
+// ⛔ NO `npmCache` BUCKET HERE, AND THE ABSENCE IS MEASURED RATHER THAN ASSUMED. This is a SEPARATE
+// implementation from `observe.mjs`, so the identical note next door proves nothing here — and the
+// last defect of this exact shape lived in both files at once. The win32 driver sets
+// `npm_config_cache` to a per-run directory that is a sibling of every root it declares, so it needs
+// a declared `npmCache` root or npm's cache writes bill as `outside`. THIS DRIVER SETS NO SUCH
+// VARIABLE: `measure-macos.sh`'s `observeEnv` is `HOME`, `TMPDIR`, `NODE_COMPAT`,
+// `PYTHONDONTWRITEBYTECODE`, `PLAYWRIGHT_BROWSERS_PATH`, `ELECTRON_CACHE`/`electron_config_cache`
+// and `npm_config_prefix` — no cache key in any spelling. npm on POSIX resolves its cache to
+// `$HOME/.npm`, and `HOME` IS redirected at the jail home, so those writes land under the DECLARED
+// `jailHome` root and the existing bucket already carries them.
+//
+// CHECKED against the committed corpus: of the 612 `outside` write paths the 171 darwin-arm64
+// records with an `outside` row print, ZERO are npm-cache-shaped — they are `xcrun_db` and Xcode's
+// `com.apple.DeveloperTools` caches under `$TMPDIR`'s real parent. Give this driver an
+// `npm_config_cache` redirect and the root must be declared in the same commit;
+// `measure-windows.mjs`'s `npmCache` is the shape to copy.
 const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'toolsRw'];
 // ⛔ `bytecode` IS NOT IN `BASE_COVERED`, AND THE DISTINCTION IS THE POINT. A base-covered write is
 // one the jail GRANTS; a bytecode write is one the jail REFUSES and the build survives without.

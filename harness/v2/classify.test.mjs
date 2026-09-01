@@ -21,7 +21,7 @@ import { spawnSync } from 'node:child_process';
 
 const CLASSIFY = path.join(import.meta.dirname, 'classify.mjs');
 const REQUIRED = ['project', 'home', 'jailHome', 'globalStore', 'projectStore',
-                  'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'ownPkg'];
+                  'interpreter', 'toolsDir', 'temp', 'npmPrefix', 'npmCache', 'ownPkg'];
 const ROOT_PID = 100, SHELL_PID = 200;
 
 // The minimum event stream that produces a non-empty grant: a cmd.exe that is not the root PID is a
@@ -62,6 +62,9 @@ const fullRoots = (project = 'C:\\obs', home = 'C:\\Users\\nub') => ({
   toolsDir: `${home}\\AppData\\Local\\nub\\pm\\tools`,
   temp: `${home}\\AppData\\Local\\Temp`,
   npmPrefix: null,
+  // `null` by default so every case below keeps exercising the shape a capture has when it did not
+  // redirect npm's cache; the section at the foot of this file supplies a real one.
+  npmCache: null,
   ownPkg: `${project}\\node_modules\\thing`,
   cwd: null,
 });
@@ -172,11 +175,12 @@ test('a write into the DECLARED private temp is not billed', () => {
   assert.deepEqual(r.report.grant, {},
     'a write the jail grants unconditionally must not widen the grant');
   assert.equal(r.report.writes.jailTmp, 1, 'the write must still be COUNTED and reported, not lost');
-  // Both base-covered buckets are named whether or not this stream reached them: the field tells a
-  // reader which writes were FREE, and a list that shrank to what one run happened to touch would
-  // make an empty grant unreadable. `jailHome` is the second one — the private home the jail also
-  // grants unconditionally; the writePaths half of that rule is pinned in `write-paths.test.mjs`.
-  assert.deepEqual(r.report.baseCovered, ['jailTmp', 'jailHome']);
+  // All THREE base-covered buckets are named whether or not this stream reached them: the field
+  // tells a reader which writes were FREE, and a list that shrank to what one run happened to touch
+  // would make an empty grant unreadable. `jailHome` is the private home the jail also grants
+  // unconditionally (its writePaths half is pinned in `write-paths.test.mjs`); `npmCache` is the
+  // per-run npm cache this driver redirects, which the jail resolves into that same private home.
+  assert.deepEqual(r.report.baseCovered, ['jailTmp', 'jailHome', 'npmCache']);
 });
 
 test('⭑ POSITIVE CONTROL: the USER\'S OWN %TEMP%, once it is no longer the declared root, STILL BILLS', () => {
@@ -244,4 +248,88 @@ test('a relative path is never anchored to a working directory', () => {
   assert.deepEqual(r.report.outsideWrites, ['build\\release\\thing.node']);
   assert.doesNotMatch(r.report.outsideWrites[0], /^[a-z]:\\/,
     'a relative path acquired a drive letter, so something resolved it against a base');
+});
+
+// ── The declared per-run npm cache (`npmCache`) ─────────────────────────────────────────────────
+//
+// ⛔ THE DEFECT THESE GUARD IS A REDIRECT WITHOUT A DECLARATION, which is the one shape this
+// classifier cannot recover from. `measure-windows.mjs` sets `npm_config_cache` at
+// `<run-root>\npm-cache` so the OBSERVE arm gets the cold cache a real user has — and for a long
+// time declared no root for it. That directory is a SIBLING of `observe`, `tmp` and `jailhome`, so
+// every write npm made under it fell through to `outside`: the classifier billing its own
+// apparatus as a write it could not account for. MEASURED on the committed corpus before the fix:
+// of the 805 `outside` write paths the 135 win32 records with an `outside` row print, 728 were
+// under this directory, and in the `write:"disk"` population 2,896 of 2,906 `outside` writes came
+// from records whose entire printed list was npm-cache. The bucket that exists to surface a
+// genuinely surprising write was ~90% noise, so a real one could not be seen in it.
+const RUN_ROOT = 'D:\\jail\\m-thing-abc';
+const NPM_CACHE = `${RUN_ROOT}\\npm-cache`;
+const cacheRoots = (over = {}) => ({ ...fullRoots(), npmCache: NPM_CACHE, ...over });
+
+test('⭑ the DECLARED per-run npm cache is its own bucket, and it bills nothing', () => {
+  // RED ON REVERT: drop the `npmCache` entry from the `ROOTS` list in `classify.mjs` — the state
+  // this file was in — and `writes.npmCache` is `undefined` while `writes.outside` is 1, because
+  // the redirect target matches no other root. The grant is `{}` either way, which is exactly why
+  // this went unnoticed: `outside` never reaches the grant, so the damage is entirely to the
+  // REPORT, and the report is the only place a human audits what a package touched.
+  const r = classify(stream(`${NPM_CACHE}\\_cacache\\index-v5\\8a\\a3\\1235b`, 'C:\\obs'), cacheRoots());
+  assert.equal(r.report.writes.npmCache, 1, `the declared npm cache was not recognised:\n${r.stdout}`);
+  assert.equal(r.report.writes.outside, undefined,
+    'an npm-cache write was still billed as an unaccounted write');
+  assert.deepEqual(r.report.outsideWrites, []);
+  assert.ok(r.report.keyedOn.includes('npmCache'), 'a declared npmCache must become a keyed root');
+});
+
+test('⭑ npm-cache writes are BASE-COVERED, and the report says so in words', () => {
+  // The other half of the claim, and it is a claim about NUB rather than about the harness: nub
+  // sets no `npm_config_cache` at all, and `preset.rs` repoints `APPDATA` at the `AppData\Roaming`
+  // leaf of the READ-WRITE private jail home precisely so npm's cache lands in granted space (its
+  // own comment names `%APPDATA%\npm-cache` and the `EPERM` it used to cause). So the corresponding
+  // write costs no catalog scope in the real jail.
+  //
+  // RED ON REVERT, and the two assertions below are guarded by DIFFERENT reverts, which is why both
+  // are here. Removing `'npmCache'` from `BASE_COVERED` reddens the first: the report then carries a
+  // bucket with no statement of whether the jail covers it, the ambiguity that field exists to
+  // remove. It does NOT redden the second — the NOTE print is gated on the bucket being non-empty,
+  // not on the list — so the stdout assertion is guarded instead by dropping `npmCache` from the
+  // `ROOTS` list, where the write reverts to `outside` and the NOTE is never reached. Verified both
+  // ways rather than assumed; the first draft of this comment claimed one revert reddened both.
+  const r = classify(stream(`${NPM_CACHE}\\_logs\\2026-08-08t04_28_27_703z-debug-0.log`, 'C:\\obs'),
+    cacheRoots());
+  assert.ok(r.report.baseCovered.includes('npmCache'),
+    `baseCovered does not name npmCache: ${JSON.stringify(r.report.baseCovered)}`);
+  assert.match(r.stdout, /NOTE 1 writes into the DECLARED per-run npm cache/,
+    `the report does not say the jail already covers this:\n${r.stdout}`);
+  assert.deepEqual(r.report.grant, {}, 'a base-covered write must earn no scope');
+});
+
+test('⭑ only the EXACT declared cache is free — the real user\'s npm cache still bills', () => {
+  // ⛔ THE SECURITY CONTROL, and without it the two cases above are satisfied by a classifier that
+  // frees anything cache-shaped. nub redirects `APPDATA` AWAY from the user's profile, so a script
+  // that spells `%USERPROFILE%\AppData\Roaming\npm-cache` out absolutely is writing somewhere the
+  // jail does NOT grant: that write is genuinely refused and genuinely needs `userHome`. Keying on
+  // "looks like an npm cache" instead of on the declared path would silently under-grant it.
+  const home = 'C:\\Users\\nub';
+  const real = classify(stream(`${home}\\AppData\\Roaming\\npm-cache\\_cacache\\x`, 'C:\\obs'),
+    cacheRoots({ ...fullRoots('C:\\obs', home), npmCache: NPM_CACHE }));
+  assert.deepEqual(real.report.grant, { write: { userHome: true } },
+    'the REAL user npm cache was absorbed into the free bucket');
+  assert.equal(real.report.writes.npmCache, undefined);
+
+  // RED ON REVERT: loosen `under()` to a bare `startsWith(root)` and this sibling is swallowed,
+  // because its name merely STARTS WITH the declared root's. It is a different directory.
+  const sibling = classify(stream(`${RUN_ROOT}\\npm-cache-old\\stray.bin`, 'C:\\obs'), cacheRoots());
+  assert.equal(sibling.report.writes.npmCache, undefined,
+    'a sibling sharing the cache root\'s NAME PREFIX was absorbed into it');
+  assert.equal(sibling.report.writes.outside, 1);
+});
+
+test('a null npmCache leaves the bucket out entirely rather than matching the string "null"', () => {
+  // The POSIX shape, which both `measure.sh` and `measure-macos.sh` have: no `npm_config_cache` is
+  // set, npm resolves its cache to `$HOME/.npm`, and `HOME` is already redirected at the jail home
+  // — so there is no separate root and the existing bucket carries those writes. A `null` must
+  // yield no root at all; reaching `startsWith` it would become the literal text "null".
+  const r = classify(stream('C:\\obs\\out.txt', 'C:\\obs'), { ...fullRoots(), npmCache: null });
+  assert.deepEqual(r.report.grant, { write: { project: true } });
+  assert.ok(!r.report.keyedOn.includes('npmCache'), 'a null npmCache must not become a keyed root');
 });
