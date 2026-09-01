@@ -1,78 +1,165 @@
-### electron-chromedriver@8.0.0   (C:\jail\m-electronchromedriver-msj06gdw)
-  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=836 exit=0 events=113246 lost=0
-  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 11 files  (C:\jail\m-electronchromedriver-msj06gdw\observe\node_modules\electron-chromedriver)
-  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":5,"reasons":[]}
-  CLOSURE 94 packages evicted per arm
-  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+### electron-chromedriver@8.0.0   (D:\jail\m-electronchromedriver-mtiyi066)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2657d9691f742a5f5cde0141d25eae134f9da5839a5f0e8800b6533713c1d936","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:43:56.306Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 2657d9691f74
+  ERA-PYTHON C:\hostedtoolcache\windows\Python\3.9.13\x64\python.exe (Python 3.9.13) for era Node 12, whose node-gyp requires python3-legacy
+  ARM-MAKE C:\Strawberry\c\bin\gmake.exe (GNU Make 4.4.1) — the system make; a build needing GNU Make 4 WILL fail here
+  ERA-RESOLUTION DATED 2020-02-05T16:19:53.239Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"0e7597da284a3f4d1c516990db823a8cb9f3a5eac2d2c670695d3d89303111a5","specCount":139,"lockfiles":{"digest":"603345b937b731dbcb70444f98651b82d1b7f3e1ccd6c8d7460b0d0d5dda4364","files":[{"path":"package-lock.json","sha256":"7f5eb07ab3e7af8c844a01b9895877bf93476bce710bced5778668f3f7930061","bytes":54580}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:02.232Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 139 exact package-version(s), tree 0e7597da284a
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 5 leaked: grunt=C:\npm\prefix\grunt.cmd gulp=C:\npm\prefix\gulp.cmd lerna=C:\npm\prefix\lerna.cmd yarn=C:\npm\prefix\yarn.cmd pulumi=C:\ProgramData\chocolatey\lib\pulumi\tools\Pulumi\bin\pulumi.exe
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  ARM-REBUILD-SPEC electron-chromedriver@8.0.0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1884 exit=0 events=34682 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 11 files  (D:\jail\m-electronchromedriver-mtiyi066\observe\node_modules\electron-chromedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":5,"reasons":[],"declaresInstallWork":true}
+  CLOSURE 132 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-electronchromedriver-msj06gdw\observe   [keyed on]
-    home          C:\Users\nub   [keyed on]
-    jailHome      (null — declared inapplicable)
-    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-electronchromedriver-msj06gdw\observe\node_modules\.store
-    interpreter   C:\Program Files\nodejs\node.exe
-    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-electronchromedriver-msj06gdw\tmp   [keyed on]
+    project       D:\jail\m-electronchromedriver-mtiyi066\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      D:\jail\m-electronchromedriver-mtiyi066\jailhome   [keyed on]
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-electronchromedriver-mtiyi066\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-electronchromedriver-mtiyi066\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-electronchromedriver-msj06gdw\observe\node_modules\electron-chromedriver
-  == ATTRIBUTION == lifecycle pids: 2 (root 836)
-    writes  script 10  /  whole traced tree 21
+    npmCache      D:\jail\m-electronchromedriver-mtiyi066\npm-cache   [keyed on]
+    ownPkg        D:\jail\m-electronchromedriver-mtiyi066\observe\node_modules\electron-chromedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 1884)
+    writes  script 12  /  whole traced tree 23
     peers   script 2  /  whole traced tree 2
   == WRITES ==
-    userHome      4
+    userHome      6
     deps          6
   == READS ==
-    deps        530
-    outside       4
+    deps        366
+    outside       6
     project       1
-    systemfs     35
-    kernelfs      1
-    userHome      9
+    systemfs     28
+    userHome      7
+  OBSERVED-EFFECT {"lifecyclePids":2,"writes":12,"peers":2}
   == NETWORK ==
     distinct peers: 2
-        140.82.114.3:443
-        185.199.108.133:443
+        140.82.114.4:443
+        185.199.111.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true,"userHome":true},"network":true}
-  RAW       etw-raw.xml.gz  144913479 B xml -> 2324679 B gz (62.3x)  sha256 9b923b69701e7e99…
-  HEADER    etw-header.json (5054 bytes)
-  DERIVED   12580 distinct from 34547 kept ops (113246 xml events, 9515 out of subtree)
+  == writePaths (DERIVED -- promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared -- the script wrote nothing into its private home — there is nothing to promote
+    6 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  RAW       etw-raw.xml.gz  44616200 B xml -> 652932 B gz (68.3x)  sha256 19e87ef06d4988db…
+  HEADER    etw-header.json (5277 bytes)
+  DERIVED   6969 distinct from 12424 kept ops (34682 xml events, 1671 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 10 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
   ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
-  wrote events.ndjson.gz (174067 bytes)
-  RAWLOG-CAPTURE C:\jail\m-electronchromedriver-msj06gdw\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
-  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-electronchromedriver-msj06gdw
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-electronchromedriver-msj06gdw\\npm-cache","TMP":"C:\\jail\\m-electronchromedriver-msj06gdw\\tmp","TEMP":"C:\\jail\\m-electronchromedriver-msj06gdw\\tmp","TMPDIR":"C:\\jail\\m-electronchromedriver-msj06gdw\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7130/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (86379 bytes)
+  RAWLOG-CAPTURE D:\jail\m-electronchromedriver-mtiyi066\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09","bytes":69241856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-NODE-SELECTION {"pkg":"electron-chromedriver","packageVersion":"8.0.0","lookupFailure":null,"major":12,"version":"12.22.12","npm":"6.14.16","pinnable":true,"engines":null,"publishedAt":"2020-02-04T16:19:53.239Z","eraMajor":12,"startMajor":12,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"pinned":true,"pinnedBin":"C:\\Users\\runneradmin\\.cache\\nub\\era-node\\12.22.12\\node-v12.22.12-win-x64","eraNodeRoot":"C:\\Users\\runneradmin\\.cache\\nub"}
+  VENUE-JAIL-ROOT D:\jail\m-electronchromedriver-mtiyi066
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronchromedriver-mtiyi066\\npm-cache","TMP":"D:\\jail\\m-electronchromedriver-mtiyi066\\tmp","TEMP":"D:\\jail\\m-electronchromedriver-mtiyi066\\tmp","TMPDIR":"D:\\jail\\m-electronchromedriver-mtiyi066\\tmp","HOME":"D:\\jail\\m-electronchromedriver-mtiyi066\\jailhome","USERPROFILE":"D:\\jail\\m-electronchromedriver-mtiyi066\\jailhome","APPDATA":"D:\\jail\\m-electronchromedriver-mtiyi066\\jailhome\\AppData\\Roaming"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"LOCALAPPDATA":"C:\\Users\\runneradmin\\AppData\\Local","why":"LOCALAPPDATA is left alone deliberately, matching `compiler/preset.rs`: the Windows LowBox launch resolves its AppContainer profile directory from it, so repointing it breaks process creation rather than a cache path. HOME, USERPROFILE and APPDATA ARE redirected, to the `jailHome` root capture.json declares, exactly as compile_build_jail redirects them for a confined child."},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  EVICT-REPLAY[synth] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 101 exact package-version(s), tree ba5d13b8becd
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[synth] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7023/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     [synth/a.log] DEBUG final message final_message=; header 17648:QUERY:RD:NoError:QUERY
+     [synth/a.log] DEBUG final message final_message=; header 27959:QUERY:RD:NoError:QUERY
+     [synth/a.log] DEBUG final message final_message=; header 25957:QUERY:RD:NoError:QUERY
+     [synth/a.log] DEBUG final message final_message=; header 9750:QUERY:RD:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 17648:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 25957:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 17648:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 25957:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 25957:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 17648:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 9750:RESPONSE:RD,RA:NoError:QUERY
+     [synth/a.log] DEBUG response: ; header 9750:RESPONSE:RD,RA:NoError:QUERY
      missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-fb0\.cache
-  VERIFY[fb0] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7140/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  EVICT-REPLAY[fb0] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[fb0] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7030/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
   => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
   !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true},"network":true} and this is what the trace missed
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7130/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+  EVICT-REPLAY[nar-no-network] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-network] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7023/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     [nar-no-network/a.log] DEBUG final message final_message=; header 9797:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 39468:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 64817:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 42322:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 64817:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 64817:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 9797:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 9797:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 64817:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 9797:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 39468:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 39468:RESPONSE:RD,RA:NoError:QUERY
      missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7140/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+  EVICT-REPLAY[nar-no-write-deps] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-write-deps] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7030/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-nar-no-write-project\.cache
-  VERIFY[nar-no-write-project] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7130/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  EVICT-REPLAY[nar-no-write-project] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-nar-no-write-project\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-nar-no-write-project-resolved.json"}
+  SECURITY nub-nar-no-write-project-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-write-project] rc=1 artifacts=6/11 missing=5 shortfall=3463b5af5e85 (tree 7023/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     [nar-no-write-project/a.log] DEBUG final message final_message=; header 13753:QUERY:RD:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG final message final_message=; header 4400:QUERY:RD:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG final message final_message=; header 13224:QUERY:RD:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG final message final_message=; header 6524:QUERY:RD:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 13224:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 4400:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 13224:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 4400:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 4400:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 13224:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 13753:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-write-project/a.log] DEBUG response: ; header 13753:RESPONSE:RD,RA:NoError:QUERY
      missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
      'no-write-project' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7140/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+  EVICT-REPLAY[nar-no-write-userHome] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7030/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
-  STORE   isolated virtual store at C:\jail\m-electronchromedriver-msj06gdw\verify-joint-narrow\.cache
-  VERIFY[joint-narrow] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7140/1066) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+  EVICT-REPLAY[joint-narrow] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtiyi066\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd","specCount":101,"lockfiles":{"digest":"a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b","files":[{"path":"nub.lock","sha256":"f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69","bytes":23131}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:44:13.178Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtiyi066\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 101 exact package-version(s), tree ba5d13b8becd (cached exact-tree clearance)
+  ARM-TOOLS staged 39 bin entries (1400 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[joint-narrow] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 7030/1393) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
   => JOINT-NARROW VERIFIED {"write":{"project":true},"network":true} — all 2 capabilities drop TOGETHER, measured
+  => PROMOTION PROBE UNSUPPORTED — the grant declares no `writePaths`, so there is nothing to promote
+  PROMOTION-PROBE {"platform":"win32","verdict":"UNSUPPORTED","reason":"no-declaration","entries":[],"skipped":[]}
+  ERA-NODE PINNED 12.22.12 (arms will run: v12.22.12)
+  ⛔ ERA-NODE 12.22.12 PREDATES THE JAIL'S SHIMS (needs 20.6+ for `--import`). nub delivers NEITHER the child_process stdio shim NOR the net gate to this interpreter. A lifecycle script that PIPES a spawn (node-gyp configure does) will HANG forever under the jail, and no --arm-timeout value can rescue it — a TIMED-OUT arm below this line is structural, not a slow venue. A script that does not pipe is unaffected.

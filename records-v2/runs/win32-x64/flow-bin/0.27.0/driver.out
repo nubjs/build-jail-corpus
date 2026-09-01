@@ -1,56 +1,83 @@
-### flow-bin@0.27.0   (C:\jail\m-flowbin-msj00e1l)
-  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=2616 exit=0 events=124714 lost=0
-  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 7 files  (C:\jail\m-flowbin-msj00e1l\observe\node_modules\flow-bin)
-  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+### flow-bin@0.27.0   (D:\jail\m-flowbin-mtiydtau)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8e24f1b401a62dba8627b9b41ef5f61cd8f40a774d719918f1cb65fdd79bfcff","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:40:40.716Z","cacheHit":false,"clearancePath":"D:\\jail\\m-flowbin-mtiydtau\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8e24f1b401a6
+  ERA-PYTHON C:\Python27\python.exe (Python 2.7.18) for era Node 4, whose node-gyp requires python2
+  ARM-MAKE C:\Strawberry\c\bin\gmake.exe (GNU Make 4.4.1) — the system make; a build needing GNU Make 4 WILL fail here
+  ERA-RESOLUTION DATED 2016-06-12T00:48:13.691Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9fe3db4fb5b123fc90bb4749d8fbed88397f0fe83ec8f5d3eb734c4763eb094b","specCount":258,"lockfiles":{"digest":"d4772f41473118e9fee7145221bde59ffb20652e16676bb5830633548eab6793","files":[{"path":"package-lock.json","sha256":"4f42591ed72ad3fdf4193a0280d8224cde691726868268286f67cf73a0258666","bytes":113005}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:40:49.155Z","cacheHit":false,"clearancePath":"D:\\jail\\m-flowbin-mtiydtau\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 258 exact package-version(s), tree 9fe3db4fb5b1
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 5 leaked: grunt=C:\npm\prefix\grunt.cmd gulp=C:\npm\prefix\gulp.cmd lerna=C:\npm\prefix\lerna.cmd yarn=C:\npm\prefix\yarn.cmd pulumi=C:\ProgramData\chocolatey\lib\pulumi\tools\Pulumi\bin\pulumi.exe
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  ARM-REBUILD-SPEC flow-bin@0.27.0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8928 exit=0 events=28758 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 7 files  (D:\jail\m-flowbin-mtiydtau\observe\node_modules\flow-bin)
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":0,"reasons":["gate-vacuous"],"declaresInstallWork":true}
+  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (7) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
-  CLOSURE 281 packages evicted per arm
-  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+       The EXIT CODE is still a live detector here, so a descent arm that actually
+       FAILED is evidence. What is missing is the gate, not every signal — do not read
+       a green arm as proof on its own, and do not read this note as "no evidence".
+  CLOSURE 243 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-flowbin-msj00e1l\observe   [keyed on]
-    home          C:\Users\nub   [keyed on]
-    jailHome      (null — declared inapplicable)
-    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-flowbin-msj00e1l\observe\node_modules\.store
-    interpreter   C:\Program Files\nodejs\node.exe
-    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-flowbin-msj00e1l\tmp   [keyed on]
+    project       D:\jail\m-flowbin-mtiydtau\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      D:\jail\m-flowbin-mtiydtau\jailhome   [keyed on]
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-flowbin-mtiydtau\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-flowbin-mtiydtau\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-flowbin-msj00e1l\observe\node_modules\flow-bin
-  == ATTRIBUTION == lifecycle pids: 2 (root 2616)
+    npmCache      D:\jail\m-flowbin-mtiydtau\npm-cache   [keyed on]
+    ownPkg        D:\jail\m-flowbin-mtiydtau\observe\node_modules\flow-bin
+  == ATTRIBUTION == lifecycle pids: 2 (root 8928)
     writes  script 0  /  whole traced tree 11
     peers   script 0  /  whole traced tree 0
   == WRITES ==
   == READS ==
-    deps        959
-    outside       3
+    deps        565
+    outside       6
     project       1
-    systemfs     30
-    kernelfs      1
+    systemfs     23
+  OBSERVED-EFFECT {"lifecyclePids":2,"writes":0,"peers":0}
   == NETWORK ==
     distinct peers: 0
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
-  RAW       etw-raw.xml.gz  158885158 B xml -> 2478785 B gz (64.1x)  sha256 d0d85a279f111827…
-  HEADER    etw-header.json (4905 bytes)
-  DERIVED   15965 distinct from 37022 kept ops (124714 xml events, 9676 out of subtree)
+  == writePaths (DERIVED -- promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared -- the script wrote nothing into its private home — there is nothing to promote
+  RAW       etw-raw.xml.gz  36732440 B xml -> 531258 B gz (69.1x)  sha256 66e990f1d7a3c7d8…
+  HEADER    etw-header.json (5147 bytes)
+  DERIVED   7937 distinct from 9198 kept ops (28758 xml events, 1644 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
   ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
-  wrote events.ndjson.gz (214332 bytes)
-  RAWLOG-CAPTURE C:\jail\m-flowbin-msj00e1l\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
-  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-flowbin-msj00e1l
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-flowbin-msj00e1l\\npm-cache","TMP":"C:\\jail\\m-flowbin-msj00e1l\\tmp","TEMP":"C:\\jail\\m-flowbin-msj00e1l\\tmp","TMPDIR":"C:\\jail\\m-flowbin-msj00e1l\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-flowbin-msj00e1l\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 9090/2001) OVERRIDDEN=2 REJECTED=0 grant={}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (95422 bytes)
+  RAWLOG-CAPTURE D:\jail\m-flowbin-mtiydtau\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09","bytes":69241856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-NODE-SELECTION {"pkg":"flow-bin","packageVersion":"0.27.0","lookupFailure":null,"major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":">=0.10.0","publishedAt":"2016-06-11T00:48:13.691Z","eraMajor":4,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"pinned":true,"pinnedBin":"C:\\Users\\runneradmin\\.cache\\nub\\era-node\\4.9.1\\node-v4.9.1-win-x64","eraNodeRoot":"C:\\Users\\runneradmin\\.cache\\nub"}
+  VENUE-JAIL-ROOT D:\jail\m-flowbin-mtiydtau
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-flowbin-mtiydtau\\npm-cache","TMP":"D:\\jail\\m-flowbin-mtiydtau\\tmp","TEMP":"D:\\jail\\m-flowbin-mtiydtau\\tmp","TMPDIR":"D:\\jail\\m-flowbin-mtiydtau\\tmp","HOME":"D:\\jail\\m-flowbin-mtiydtau\\jailhome","USERPROFILE":"D:\\jail\\m-flowbin-mtiydtau\\jailhome","APPDATA":"D:\\jail\\m-flowbin-mtiydtau\\jailhome\\AppData\\Roaming"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"LOCALAPPDATA":"C:\\Users\\runneradmin\\AppData\\Local","why":"LOCALAPPDATA is left alone deliberately, matching `compiler/preset.rs`: the Windows LowBox launch resolves its AppContainer profile directory from it, so repointing it breaks process creation rather than a cache path. HOME, USERPROFILE and APPDATA ARE redirected, to the `jailHome` root capture.json declares, exactly as compile_build_jail redirects them for a confined child."},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  EVICT-REPLAY[synth] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-flowbin-mtiydtau\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7bf059d6d35fe89a7af304f5dfa1396c8893e57f97ddd68230c1d8af5191f829","specCount":304,"lockfiles":{"digest":"4f80566d89169ab578524ec3c9ba7855a18659ed6d5139d056042b727862190f","files":[{"path":"nub.lock","sha256":"7953f5a6d86eca42bb591361fdbcc3196880c63515fe69d302f8f0b176a3a1fd","bytes":74078}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T17:41:01.854Z","cacheHit":false,"clearancePath":"D:\\jail\\m-flowbin-mtiydtau\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 304 exact package-version(s), tree 7bf059d6d35f
+  ARM-TOOLS staged 42 bin entries (1669 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 8183/1661) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+  => PROMOTION PROBE UNSUPPORTED — the grant declares no `writePaths`, so there is nothing to promote
+  PROMOTION-PROBE {"platform":"win32","verdict":"UNSUPPORTED","reason":"no-declaration","entries":[],"skipped":[]}
+  ERA-NODE PINNED 4.9.1 (arms will run: v4.9.1)
+  ⛔ ERA-NODE 4.9.1 PREDATES THE JAIL'S SHIMS (needs 20.6+ for `--import`). nub delivers NEITHER the child_process stdio shim NOR the net gate to this interpreter. A lifecycle script that PIPES a spawn (node-gyp configure does) will HANG forever under the jail, and no --arm-timeout value can rescue it — a TIMED-OUT arm below this line is structural, not a slow venue. A script that does not pipe is unaffected.
