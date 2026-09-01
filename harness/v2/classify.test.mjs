@@ -172,7 +172,11 @@ test('a write into the DECLARED private temp is not billed', () => {
   assert.deepEqual(r.report.grant, {},
     'a write the jail grants unconditionally must not widen the grant');
   assert.equal(r.report.writes.jailTmp, 1, 'the write must still be COUNTED and reported, not lost');
-  assert.deepEqual(r.report.baseCovered, ['jailTmp']);
+  // Both base-covered buckets are named whether or not this stream reached them: the field tells a
+  // reader which writes were FREE, and a list that shrank to what one run happened to touch would
+  // make an empty grant unreadable. `jailHome` is the second one — the private home the jail also
+  // grants unconditionally; the writePaths half of that rule is pinned in `write-paths.test.mjs`.
+  assert.deepEqual(r.report.baseCovered, ['jailTmp', 'jailHome']);
 });
 
 test('⭑ POSITIVE CONTROL: the USER\'S OWN %TEMP%, once it is no longer the declared root, STILL BILLS', () => {

@@ -729,6 +729,67 @@ const NPM_CACHE = path.join(ROOT, 'npm-cache');
 const OBS_TMP = path.join(ROOT, 'tmp');
 fs.mkdirSync(OBS_TMP, { recursive: true });
 
+// ⛔ THE PRIVATE HOME, WHICH IS WHAT MAKES `writePaths` DERIVABLE ON THIS PLATFORM AT ALL. Same
+// construction as the private temp above and for the same reason: the jail gives a confined script a
+// per-package private home (`compiler/preset.rs::private_home_dir`, exported as `jail_private_home`
+// and RW-granted by the base profile) and repoints the home variables at it, so OBSERVE has to
+// reproduce that or it traces an environment no confined script ever sees.
+//
+// ⛔ WHAT ITS ABSENCE COST, AND IT WAS NOT ONLY THE TOLERABLE DIRECTION. Without the redirect every
+// home write bucketed `userHome`, which over-grants (safe) — but it also made the PROMOTABLE bucket
+// unreachable, so this lane derived NO `writePaths` at all: 0 of 2,270 win32 records against 284 on
+// POSIX. Deriving one from the `userHome` bucket instead is an UNDER-GRANT and `write-paths.mjs::
+// refuseUserHome` refuses it by name — the two buckets have opposite answers, so the only honest fix
+// is to produce the split by measurement, which is what this does.
+//
+// ⛔ `APPDATA` GOES TO `AppData\Roaming` UNDER THE PRIVATE HOME, NOT TO THE HOME ROOT. That is what
+// `preset.rs` does (`home.join("AppData").join("Roaming")`, materialized there for the same reason it
+// is materialized here — a redirect onto a path that does not exist trades one failure for another),
+// and it has to move at all because npm on Windows resolves its cache to `%APPDATA%\npm-cache` rather
+// than to `$HOME/.npm`. It sits INSIDE the private home, so the single `jailHome` root covers both.
+//
+// ⛔ `LOCALAPPDATA` IS DELIBERATELY NOT REDIRECTED, matching `preset.rs`: the Windows LowBox launch
+// resolves its AppContainer profile directory from it, so repointing it breaks process creation
+// rather than a cache path. It is also what this driver reads to locate nub's own cache below, and
+// that read is the DRIVER's, never the child's.
+const OBS_HOME = path.join(ROOT, 'jailhome');
+const OBS_APPDATA = path.join(OBS_HOME, 'AppData', 'Roaming');
+fs.mkdirSync(OBS_APPDATA, { recursive: true });
+
+// ⛔ PRESENCE-GATED, AND MATCHED ON THE SPELLING THE AMBIENT ACTUALLY CARRIES. `preset.rs` only
+// REPLACES a home variable the environment already had — it never introduces one — and it compares
+// case-insensitively on Windows because the ambient may spell it `Userprofile`. Both properties are
+// reproduced here: introducing a variable the jailed child would not have is a SECOND divergence
+// where the contract allows exactly one (enforcement), and spreading `HOME:` onto an object that
+// already carries `Home:` would hand the child BOTH.
+const OBS_HOME_ENV = Object.fromEntries(
+  Object.entries({ HOME: OBS_HOME, USERPROFILE: OBS_HOME, APPDATA: OBS_APPDATA })
+    .map(([name, value]) => [Object.keys(process.env)
+      .find((k) => k.toLowerCase() === name.toLowerCase()), value])
+    .filter(([key]) => key),
+);
+
+// ⛔⛔ ONE DEFINITION, FOUR CONSUMERS, AND THAT IS THE POINT RATHER THAN TIDINESS. The apparatus and
+// parity rewrites this driver applies to the OBSERVE side reach the measured install through FOUR
+// separate vectors — the untraced fetch and the npm reference arm (`obsEnv`), the two scaffold
+// installs, and the `rebuild.cmd` wrapper that is the only thing in scope for the TRACED rebuild —
+// and every one of them has to carry every rewrite. A redirect present in three of the four is not a
+// partial fix: `capture.json` would declare a `jailHome` root the traced run never wrote to, and an
+// empty bucket reads as a measured zero rather than as a gap. `dep-scaffold.mjs` records what
+// happened the last time this harness grew a second spelling of one rule.
+//
+// The two PROVENANCE emissions — `capture.json`'s `observeEnv` and the `VENUE-OVERRIDES` marker (R6)
+// — are derived from this same object for the same reason. Hand-maintained, `observeEnv` had already
+// stopped being true: it named `npm_config_cache` alone while the driver was also redirecting all
+// three temp variables.
+const OBS_ENV = {
+  npm_config_cache: NPM_CACHE,
+  // All three, because the jail sets all three: Windows tools read `TMP`/`TEMP`, cross-platform ones
+  // read `TMPDIR`, and a script reading the one we skipped lands somewhere neither of us declared.
+  TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
+  ...OBS_HOME_ENV,
+};
+
 // ⛔ `PYTHONDONTWRITEBYTECODE` IS DELIBERATELY *NOT* SET HERE YET, AND THE ABSENCE IS A MEASUREMENT
 // RATHER THAN AN OVERSIGHT. `measure.sh` sets it in 8 places and `measure-macos.sh` in 4, because on
 // macOS 39 of 39 `userHome` writes on a native build were `__pycache__`/`.pyc` beside node-gyp's
@@ -843,8 +904,7 @@ const obsEnv = {
   // run until this fetch has landed the tree. Referencing ARM_PATH here is not merely early, it is a
   // temporal dead zone on its `let` below — a ReferenceError that would fail every win32 record.
   PATH: ERA_NODE.armPath,
-  npm_config_cache: NPM_CACHE,
-  TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
+  ...OBS_ENV,
 };
 // ⛔ Dated resolution — see the long note in `measure.sh`. This driver imports the module directly
 // because it is already JS; the shell drivers shell out to the same file's CLI, so there is one
@@ -913,7 +973,7 @@ if (!armPrep) {
       // ⛔ THE ERA PYTHON, like `obsEnv` above. Every arm that can run node-gyp must hold the
       // SAME interpreter or a Python failure in one is read as a defect in what the other blames.
       // See `unjailed-nub.mjs`'s `asIdentity` for the node-sass@9.0.0 measurement behind this.
-      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
+      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), ...OBS_ENV } });
     console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
     // ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT — the long note is at the matching branch
     // in `measure.sh`. Measured over all 6,880 records, `ARM-FALSIFIABILITY`'s `manifestFiles: null`
@@ -930,7 +990,7 @@ if (!armPrep) {
     // the LAST thing written into the observe tree. A no-op when nothing was evicted.
     run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts',
       ...(eraResolution.before ? [`--before=${eraResolution.before}`] : []), `${PKG}@${VER}`],
-      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), npm_config_cache: NPM_CACHE, TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP } });
+      { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), ...OBS_ENV } });
     // ⛔ `pkgDir`, NOT A HAND-BUILT JOIN — it is what every other read of the installed package in
     // this driver goes through, and it already handles the layout and short-name resolution a literal
     // `node_modules/<pkg>` join gets wrong on Windows.
@@ -971,10 +1031,14 @@ const WRAP = path.join(ROOT, 'rebuild.cmd');
 // `set` inside the wrapper rather than an env option on the powershell call: the capture script
 // spawns the command through its own cmd.exe, so this is the one place guaranteed to be in scope
 // for the lifecycle script itself.
-// ⛔ THE TEMP REDIRECT IS REPEATED HERE, NOT ONLY IN `obsEnv`. `obsEnv` reaches the untraced FETCH;
-// the traced rebuild runs under the capture script's OWN cmd.exe, and this wrapper is the one place
-// guaranteed to be in scope for the lifecycle script itself — the same reason `npm_config_cache` is
-// set here rather than passed to powershell.
+// ⛔ THE REWRITES ARE REPEATED HERE, NOT ONLY IN `obsEnv`, AND THEY ARE GENERATED FROM `OBS_ENV`
+// RATHER THAN RETYPED. `obsEnv` reaches the untraced FETCH; the traced rebuild runs under the capture
+// script's OWN cmd.exe, and this wrapper is the one place guaranteed to be in scope for the lifecycle
+// script itself. This is therefore the ONE vector whose contents `capture.json`'s declared roots
+// describe — a rewrite that reached the other three and missed this one would declare a `jailHome`
+// root nothing ever wrote to, and the empty bucket would read as a measured zero. `cmd`'s `set` is
+// case-insensitive, so the ambient spelling `OBS_HOME_ENV` preserved costs nothing here and matters
+// on the JS side.
 // ⛔⛔ `npm rebuild <BARE NAME>` MATCHES NOTHING ON npm 6 WHEN THE INSTALLED VERSION IS A
 // PRERELEASE — rc=0, no output, no script, so the arm traces a process that did nothing and the
 // empty syscall set is read as a measurement. npm 6 resolves a bare name to the range `*`, which
@@ -995,7 +1059,8 @@ if (rebuildDir) {
   } catch { /* unreadable manifest -> bare name, as before */ }
 }
 console.log(`  ARM-REBUILD-SPEC ${rebuildSpec}`);
-fs.writeFileSync(WRAP, `@echo off\r\nset "npm_config_cache=${NPM_CACHE}"\r\nset "TMP=${OBS_TMP}"\r\nset "TEMP=${OBS_TMP}"\r\nset "TMPDIR=${OBS_TMP}"\r\n"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${rebuildSpec}\r\n`, 'ascii');
+const WRAP_SETS = Object.entries(OBS_ENV).map(([k, v]) => `set "${k}=${v}"\r\n`).join('');
+fs.writeFileSync(WRAP, `@echo off\r\n${WRAP_SETS}"${NODE}" "${NPM}" rebuild --no-audit --no-fund ${rebuildSpec}\r\n`, 'ascii');
 // ⛔ THE ETW SESSION NAME MUST BE UNIQUE PER RUN. windows.ps1 defaults to the fixed name `nubobs`
 // and unconditionally `logman stop`s it before creating it, so a second concurrent driver SILENTLY
 // KILLS the first one's live trace -- the victim reports a short or empty capture with no error.
@@ -1181,37 +1246,30 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
   roots: {
     project: OBS,
     home: HOME,
-    // ⛔ NULL BECAUSE THIS DRIVER DOES NOT REDIRECT THE HOME — A MEASUREMENT GAP, NOT A PROPERTY OF
-    // THE JAIL. This comment previously read "the jail does not make one … there is no private jail
-    // home on any platform", grounded in `build_jail.rs::sandbox_homes()`. That grounding was a
-    // misreading and it is worth naming, because it is what made the gap below invisible:
-    // `sandbox_homes()` builds nub's OWN path vocabulary from ambient env — the roots `$home`/
-    // `$cache` resolve against — and says nothing about the environment the confined CHILD gets.
-    //
-    // What nub actually does: `compiler/preset.rs::private_home_dir()` (exported as
-    // `jail_private_home`) creates a persistent PER-PACKAGE private home, and `compile_build_jail`
-    // redirects `HOME`, `USERPROFILE` **and** `APPDATA` at it for the jailed child — `APPDATA`
-    // specifically because npm on Windows caches to `%APPDATA%\npm-cache` rather than `$HOME/.npm`.
+    // ⛔ THE PRIVATE HOME THIS DRIVER CREATED AND EXPORTED — not the user's `%USERPROFILE%`. What
+    // nub does: `compiler/preset.rs::private_home_dir()` (exported as `jail_private_home`) creates a
+    // persistent PER-PACKAGE private home, and `compile_build_jail` redirects `HOME`, `USERPROFILE`
+    // **and** `APPDATA` at it for the jailed child — `APPDATA` to the `AppData\Roaming` leaf inside
+    // it, because npm on Windows caches to `%APPDATA%\npm-cache` rather than `$HOME/.npm`.
     // `build_jail.rs::persist_declared_home_writes` then promotes the declared `writePaths` out of
-    // it, and states in its own header that "WINDOWS PROMOTES THROUGH THIS SAME BODY".
+    // it, and states in its own header that "WINDOWS PROMOTES THROUGH THIS SAME BODY". `OBS_ENV`
+    // reproduces all three rewrites; see the long note at its definition.
     //
-    // ⛔ THE CONSEQUENCE, AND IT IS WHY THIS IS WORTH MORE THAN A COMMENT FIX. `measure.sh:761` and
-    // `measure-macos.sh:555` both run OBSERVE under `HOME="$JAIL_HOME"`; this driver does not, so
-    // `classify.mjs` has no `jailHome` root to key on and EVERY home write buckets `userHome`.
-    // Two effects, in opposite directions:
+    // ⛔ THIS DECLARATION IS WHAT MAKES THE `jailHome` BUCKET SAFE, exactly as the `temp` root below
+    // makes `jailTmp` safe. `classify.mjs` drops a write from the grant only when it is under THIS
+    // EXACT PATH, never because a path looks home-shaped. A script that hardcodes
+    // `C:\Users\<user>\.pulumi` is writing somewhere the jail does NOT grant, so that write still
+    // bills `userHome` and still earns the scope.
     //
-    //   OVER-GRANT (tolerable)  a write that merely FOLLOWED `%USERPROFILE%` — npm's own cache, the
-    //                           puppeteer download — is billed `write.userHome` although the jail
-    //                           would have handed it to the script free. Wider than the truth, which
-    //                           is the direction this project tolerates.
-    //   NO `writePaths` (not)   the promotable bucket is unreachable, so this lane derives NO
-    //                           `writePaths` at all — 0 of 2,270 win32 records carry one against 284
-    //                           on POSIX. Deriving one from the `userHome` bucket instead would be
-    //                           an UNDER-GRANT and is refused by name in `write-paths.mjs::
-    //                           refuseUserHome`; the honest fix is to redirect the home here (plus
-    //                           `APPDATA`, per above), declare the root, and give `classify.mjs` a
-    //                           `jailHome` bucket. Until then this stays `null` and says why.
-    jailHome: null,
+    // ⛔ AND THE TWO HOME BUCKETS HAVE OPPOSITE ANSWERS FOR `writePaths`. `jailHome` is the promotable
+    // one — the write succeeded and was then discarded with the throwaway home, so what is lost is
+    // the artefact and a declaration is what keeps it. `userHome` is not: promotion moves things OUT
+    // of the private home and nothing of that write's is in it, so substituting a `writePaths` entry
+    // for the scope is an UNDER-GRANT, refused by name in `write-paths.mjs::refuseUserHome`. This
+    // root is what lets the classifier tell them apart by MEASUREMENT rather than by guessing
+    // provenance. Until it was declared this lane derived NO `writePaths` at all — 0 of 2,270 win32
+    // records against 284 on POSIX — because the promotable bucket did not exist.
+    jailHome: OBS_HOME,
     globalStore: STORE,
     projectStore: path.join(OBS, 'node_modules', '.store'),
     interpreter: NODE,
@@ -1227,8 +1285,8 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
     // that write is a real capability need and still bills. Keying on the declared root rather than
     // on a heuristic is the difference between dropping noise and manufacturing an under-grant.
     temp: OBS_TMP,
-    // Null for the same reason as `jailHome`: this driver sets no `npm_config_prefix`, so there is
-    // no separate npm prefix root for a path to land in.
+    // Null because this driver sets no `npm_config_prefix`, so there is no separate npm prefix root
+    // for a path to land in. An inapplicable root, which is an ANSWER — distinct from an absent key.
     npmPrefix: null,
     ownPkg: path.join(OBS, 'node_modules', ...PKG.split('/')),
     // ⛔ NULL, AND THE NULL IS THE POINT. No path in this stream is ever resolved against a working
@@ -1244,7 +1302,11 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
   // reader can check. The harness normalises its own APPARATUS and never the environment under
   // test: `CI`, `GITHUB_ACTIONS` and `NODE_ENV` pass through verbatim, because an install script
   // reads them and changes what it downloads or whether it builds from source.
-  observeEnv: { set: { npm_config_cache: NPM_CACHE }, unset: [] },
+  // ⛔ DERIVED FROM `OBS_ENV`, NEVER RETYPED. Hand-maintained, this named `npm_config_cache` alone
+  // while the driver was already redirecting all three temp variables — so the archive's own account
+  // of what it changed had stopped being true, silently, which is the one failure R6 exists to
+  // prevent.
+  observeEnv: { set: OBS_ENV, unset: [] },
   rawBytes: (() => { try { return fs.statSync(path.join(CAP, 'trace.xml')).size; } catch { return null; } })(),
   at: new Date().toISOString(),
 }, null, 2)}\n`);
@@ -1563,33 +1625,29 @@ console.log(`  VENUE-JAIL-ROOT ${ROOT}`);
 // downloads or whether it builds from source; flattening them would produce a catalog that
 // under-grants every CI user.
 //
-// ⛔ `TMP`/`TEMP` ARE LISTED AS *NOT* REDIRECTED, WHICH IS A DIVERGENCE FROM THE JAIL AND IS
-// RECORDED RATHER THAN LEFT TO BE REDISCOVERED. See the `temp` root in `capture.json` for the
-// grounding and the direction of the error.
+// ⛔ `set` IS THE `OBS_ENV` OBJECT ITSELF, NOT A LIST RETYPED BESIDE IT. Every value is recorded so a
+// reader can check that the paths OBSERVE exported are the same ones `capture.json` declares as the
+// `temp` and `jailHome` roots — if a pair ever disagrees, that bucket silently stops matching and its
+// writes fall to `outside` or `userHome`, which is an under-grant in the first case and a lost
+// `writePaths` derivation in the second. Retyping is how they come to disagree, and both hand-kept
+// accounts had already drifted: `capture.json`'s `observeEnv` named `npm_config_cache` alone, and the
+// paragraph that stood here said `TMP`/`TEMP` were NOT redirected while the object below set them.
+//
+// ⛔ `LOCALAPPDATA` IS THE ONE HOME-ADJACENT VARIABLE STILL NOT REDIRECTED, AND THAT MATCHES THE
+// JAIL rather than diverging from it: `preset.rs` leaves it alone because the Windows LowBox launch
+// resolves its AppContainer profile directory from it. Recorded with its inherited value so the
+// choice is auditable rather than assumed.
 console.log(`  VENUE-OVERRIDES ${JSON.stringify({
-  set: {
-    npm_config_cache: NPM_CACHE,
-    // All three, because the jail sets all three. Recorded with their values so a reader can check
-    // that the path OBSERVE exported is the same one `capture.json` declares as the `temp` root —
-    // if those two ever disagree, the `jailTmp` bucket silently stops matching and every temp write
-    // falls to `outside`, which is an under-grant.
-    TMP: OBS_TMP, TEMP: OBS_TMP, TMPDIR: OBS_TMP,
-  },
+  set: OBS_ENV,
   // The CI-detection scrub is a NORMALISATION and is declared (R6).
   unset: CI_SCRUBBED,
   notRedirected: {
-    USERPROFILE: process.env.USERPROFILE ?? null,
-    // ⛔ THIS FIELD ASSERTED THE OPPOSITE OF WHAT NUB DOES, and a record carrying a false `why` is
-    // worse than one carrying none — see the `jailHome` root in `capture.json` for the full
-    // correction and the two consequences. Stated as the KNOWN DIVERGENCE it is, so a reader
-    // comparing this lane against the POSIX lanes is not told the difference does not exist.
-    why: 'KNOWN DIVERGENCE from measure.sh and measure-macos.sh, which both run OBSERVE under'
-      + ' HOME=$JAIL_HOME. nub DOES give the confined child a private per-package home'
-      + ' (`compiler/preset.rs` private_home_dir) and redirects HOME, USERPROFILE and APPDATA at it;'
-      + ' this driver reproduces none of the three, so every home write buckets `userHome` rather'
-      + ' than splitting into the free `jailHome` bucket. Effect: home writes are over-billed'
-      + ' (tolerable) and `writePaths` cannot be derived on win32 at all (a real gap). See the'
-      + ' `jailHome` root in capture.json.',
+    LOCALAPPDATA: process.env.LOCALAPPDATA ?? null,
+    why: 'LOCALAPPDATA is left alone deliberately, matching `compiler/preset.rs`: the Windows LowBox'
+      + ' launch resolves its AppContainer profile directory from it, so repointing it breaks process'
+      + ' creation rather than a cache path. HOME, USERPROFILE and APPDATA ARE redirected, to the'
+      + ' `jailHome` root capture.json declares, exactly as compile_build_jail redirects them for a'
+      + ' confined child.',
   },
   // Captured BEFORE the scrub; see CI_INHERITED.
   passedThrough: {

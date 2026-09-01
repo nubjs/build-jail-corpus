@@ -195,6 +195,84 @@ test('observe: a version-pinned entry prints the marker record.mjs parses', () =
   assert.match(out, /WRITEPATHS-VERSION-PINNED \["\.cache\/tool-4\.5\.6"\]/);
 });
 
+// ── the same two-bucket rule on win32, through `classify.mjs` ─────────────────────────────────
+//
+// ⛔ A SECOND CLASSIFIER IS A SECOND CHANCE TO WIRE THIS TO THE WRONG BUCKET, so the rule is pinned
+// on both. Not a duplicate of the cases above: `classify.mjs` is a different file reading a different
+// event contract, and until its driver declared a `jailHome` root it derived NO writePaths at all —
+// 0 of 2,270 win32 records against 284 on POSIX. These guard against returning to that state, and
+// against "fixing" it by reading the `userHome` bucket, which looks right and ships a no-op in place
+// of a needed grant.
+const WIN_JAIL = 'C:\\jail\\m-x\\jailhome';
+const WIN_HOME = 'C:\\Users\\nub';
+const WIN_PROJ = 'C:\\jail\\m-x\\observe';
+const WIN_ROOT_PID = 100;
+
+/** Drive the real `classify.mjs` over a synthetic win32 event stream, returning its stdout and the
+ *  structured report. Each write is attributed to a `cmd.exe` that is NOT the traced root, which is
+ *  how this classifier identifies a lifecycle shell — without one the subtree filter matches nothing
+ *  and every grant is vacuously empty. */
+const classifyWin = (paths, version = '1.0.0') => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wp-win-'));
+  const events = [
+    { op: 'exec', path: 'C:\\Windows\\System32\\cmd.exe', pid: WIN_ROOT_PID, ppid: 1 },
+    { op: 'exec', path: 'C:\\Windows\\System32\\cmd.exe', pid: 200, ppid: WIN_ROOT_PID },
+    ...paths.map((p) => ({ op: 'write', path: p, pid: 200, result: 'ok' })),
+  ];
+  fs.writeFileSync(path.join(dir, 'e.ndjson'), events.map((e) => JSON.stringify(e)).join('\n') + '\n');
+  fs.writeFileSync(path.join(dir, 'cap.json'), JSON.stringify({
+    v: 1, kind: 'capture', pkg: 'p', version,
+    roots: {
+      project: WIN_PROJ, home: WIN_HOME, jailHome: WIN_JAIL, temp: 'C:\\jail\\m-x\\tmp',
+      globalStore: null, projectStore: null, interpreter: null, toolsDir: null,
+      npmPrefix: null, ownPkg: null, cwd: null,
+    },
+  }));
+  const out = execFileSync('node', [path.join(HERE, 'classify.mjs'), path.join(dir, 'e.ndjson'),
+    '--capture', path.join(dir, 'cap.json'), '--platform', 'win32',
+    '--root-pid', String(WIN_ROOT_PID), '--json', path.join(dir, 'observed.json')], { encoding: 'utf8' });
+  return { out, report: JSON.parse(fs.readFileSync(path.join(dir, 'observed.json'), 'utf8')) };
+};
+
+test('classify: a write into the PRIVATE home earns a writePaths entry and no write scope', () => {
+  // The write followed `%USERPROFILE%`, so it lands where the base profile already grants read-write:
+  // nothing is refused and no scope is earned. What an entry keeps is the ARTEFACT, which is
+  // otherwise discarded with the throwaway home.
+  const { out, report } = classifyWin([
+    `${WIN_JAIL}\\.cache\\vendor\\chrome\\bin`,
+    `${WIN_JAIL}\\.cache\\vendor\\chrome\\lib.dll`,
+  ]);
+  assert.deepEqual(report.grant.writePaths, ['.cache/vendor']);
+  assert.equal(report.grant.write, undefined, 'a private-home write must not earn a write scope');
+  assert.equal(report.writes.jailHome, 2, 'the writes must still be COUNTED, not lost');
+  assert.ok(report.keyedOn.includes('jailHome'), 'the declared private home must be a keyed root');
+  assert.ok(report.baseCovered.includes('jailHome'),
+    'a reader must be able to tell "needed nothing" from "every write was already free"');
+  assert.match(out, /writePaths \(DERIVED/);
+});
+
+test('⭑ classify: a REAL-home write keeps write.userHome and adds NO writePaths', () => {
+  // ⛔ THE UNDER-GRANT GUARD, AND THE HALF THAT MATTERS MORE. Sourcing the derivation from the
+  // `userHome` bucket produces a perfectly well-formed `['.pulumi']` here — and it would be a no-op,
+  // because nub's mover only moves OUT of the private home and nothing of this package's is in it.
+  // The install is then refused at the write it needs. Both halves are asserted: the scope must
+  // SURVIVE and the field must be ABSENT.
+  const { out, report } = classifyWin([
+    `${WIN_HOME}\\.pulumi\\plugins\\resource-gcp\\pulumi-resource-gcp.exe`,
+    `${WIN_HOME}\\.pulumi\\logs\\x.log`,
+  ]);
+  assert.deepEqual(report.grant.write, { userHome: true }, 'a real-home write still earns the scope');
+  assert.equal(report.grant.writePaths, undefined, 'and must NOT be promoted — promotion cannot reach it');
+  assert.match(out, /UNDER-GRANT/, 'the report must state why the scope was kept');
+});
+
+test('classify: a version-pinned entry prints the marker record.mjs parses', () => {
+  // The collator turns this into a re-measure note and the marker is the only way it travels. Same
+  // spelling as the two POSIX classifiers, because there is one reader.
+  const { out } = classifyWin([`${WIN_JAIL}\\.cache\\tool-4.5.6\\bin\\x.exe`], '4.5.6');
+  assert.match(out, /WRITEPATHS-VERSION-PINNED \["\.cache\/tool-4\.5\.6"\]/);
+});
+
 // ── the record hop ────────────────────────────────────────────────────────────────────────────
 
 test('record: a grant carrying writePaths reaches the record, and the pinned marker with it', () => {
