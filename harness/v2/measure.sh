@@ -2049,22 +2049,36 @@ descend () {
   # cannot diverge. What it buys is not symmetry: `read:"disk"` is the grant under which a project's
   # `.env` files are readable, and before this every rung-1 record kept it granted and unquestioned.
   #
-  # ⛔ `write:"disk"` IS STILL NOT DESCENDED, AND IT IS NOT THE SAME CASE. `write` reaches this
-  # generator as a MAP of scopes, so `Object.keys` over the string form would fabricate four
-  # `no-write-<digit>` arms the recorder cannot parse; the ladder refuses the top rung outright for
-  # that reason ("no droppable terms, so no descent", below). `read` is a SCOPE rather than a map of
-  # scopes, so the whole key drops under ONE name — there is deliberately no `no-read-<scope>` spelling
-  # mirroring `no-write-<scope>`, because a second vocabulary is what the recorder's unparsed-name
-  # guard exists to prevent.
-  CAPS=$(node -e '
-    const g = JSON.parse(process.argv[1]); const out = [];
-    if (g.network) out.push("no-network");
-    for (const k of Object.keys(g.write ?? {})) out.push("no-write-" + k);
-    if (g.read) out.push("no-read");
-    console.log(out.join(" "));
-  ' "$g0")
+  # ⛔⛔ THE ARM LIST COMES FROM `descent-terms.mjs` AND NO LONGER FROM THREE INLINE COPIES. This was a
+  # `node -e` snippet here, a second one in `measure-macos.sh`, and a third shape in
+  # `measure-windows.mjs` — which is exactly how Linux came to emit the bare `network` / `write.deps`
+  # names for the whole life of its descent while the other two spelled them `no-*`. One module, three
+  # callers, one vocabulary; `descent-vocabulary.test.mjs` pins the delegation on all three.
+  #
+  # ⛔ AND IT IS WHAT MADE `write:"disk"` DESCENDABLE. `write` arrives on the terminal rung as the
+  # STRING `"disk"`, where `Object.keys` yields `["0","1","2","3"]` — four `no-write-<digit>` arms the
+  # recorder cannot parse. The module answers that shape with NO write term plus a recorded skip
+  # reason, rather than with a refusal of the whole descent, so the rung's OTHER term (`no-network`)
+  # is measured instead of being discarded along with it. `read` is a SCOPE rather than a map of
+  # scopes, so the whole key still drops under ONE name — there is deliberately no `no-read-<scope>`
+  # spelling mirroring `no-write-<scope>`, because a second vocabulary is what the recorder's
+  # unparsed-name guard exists to prevent.
+  #
+  # ⛔ A REFUSAL FROM THE MODULE MEANS NO DESCENT, NEVER A GUESSED ONE. It throws only on a grant shape
+  # it does not recognise — a harness/vocabulary disagreement, not a package property — and the safe
+  # answer to that is the wide grant with minimality unclaimed, i.e. exactly the state the terminal
+  # rung was already in. Loud in the log, and nothing narrows.
+  if ! CAPS=$(node "$HERE/descent-terms.mjs" --terms "$g0"); then
+    echo "  !! DESCENT-TERMS REFUSED $g0 — the arm list could not be computed, so NO descent ran;"
+    echo "     the wider $kept grant stands and minimality is unclaimed."
+    return 0
+  fi
   if [ -z "$CAPS" ]; then
-    echo "  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction."
+    # ⛔ TWO EMPTY CASES, TWO SENTENCES, AND THE MODULE OWNS BOTH. An empty GRANT is minimal by
+    # construction; a wide grant with no droppable TERM is not, and printing the first sentence for
+    # the second is how `{"write":"disk","network":true}` would have published as `minimality: MINIMAL`
+    # off a descent that ran zero arms.
+    node "$HERE/descent-terms.mjs" --verdict "$g0"
   else
     # ⛔⛔ `verify` HAS THREE OUTCOMES AND THIS LOOP MUST NOT COLLAPSE THEM TO TWO. rc 0 = the narrower
     # grant passed, rc 1 = it was genuinely insufficient, rc 2 = the arm was VOID (the override did
@@ -2079,14 +2093,16 @@ descend () {
     # are still valid, so the run yields a partial answer instead of none.
     NARROWER=""; INCONCLUSIVE=""
     for cap in $CAPS; do
-      SUB=$(node -e '
-        const [g0, cap] = process.argv.slice(1); const g = JSON.parse(g0);
-        if (cap === "no-network") delete g.network;
-        else if (cap === "no-read") delete g.read;
-        else { const k = /^no-write-(.+)$/.exec(cap)[1]; delete g.write[k];
-               if (!Object.keys(g.write).length) delete g.write; }
-        console.log(JSON.stringify(g));
-      ' "$g0" "$cap")
+      # ⛔ THE APPLIER IS SHARED WITH THE NAME GENERATOR, AND IT THROWS RATHER THAN NO-OPPING. The
+      # inline version here did `delete g.write[k]`, which on a STRING `write` silently changes
+      # nothing — so an arm built from a name the generator should never have produced would have run
+      # the UNNARROWED grant, passed trivially, and been recorded as proof the capability was
+      # droppable. `descent-terms.mjs`'s `narrow()` refuses a drop it cannot genuinely apply.
+      if ! SUB=$(node "$HERE/descent-terms.mjs" --narrow "$g0" --drop "$cap"); then
+        echo "     !! DESCENT-TERMS could not narrow $g0 by '$cap' — arm SKIPPED, not scored"
+        INCONCLUSIVE="$INCONCLUSIVE $cap"
+        continue
+      fi
       DLBL="drop-$(printf '%s' "$cap" | tr -d '.')"
       # ⛔⛔ THE DENIAL WITNESS — TRACE THE DROP ARM AND ASK WHETHER THE SCRIPT ACTUALLY WANTED THE
       # CAPABILITY. `record.mjs` names this as the machinery it lacks: a green drop arm on a
@@ -2150,16 +2166,13 @@ descend () {
     # Windows distinguishes VOID from TIMED-OUT in its own equivalent. All three branch three ways.
     DROPPED_N=$(printf '%s\n' $NARROWER | grep -c . || true)
     if [ "${DROPPED_N:-0}" -ge 2 ]; then
-      JOINT=$(node -e '
-        const g = JSON.parse(process.argv[1]);
-        for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
-          if (n === "no-network") { delete g.network; continue; }
-          if (n === "no-read") { delete g.read; continue; }
-          const w = /^no-write-(.+)$/.exec(n);
-          if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
-        }
-        console.log(JSON.stringify(g));
-      ' "$g0" "$NARROWER")
+      # Same shared applier as the per-arm drops above — a joint grant computed by a second copy of
+      # the delete logic is a second chance for the two to disagree about what a name means.
+      if ! JOINT=$(node "$HERE/descent-terms.mjs" --narrow "$g0" --drop "$NARROWER"); then
+        echo "  => JOINT-NARROW INCONCLUSIVE — the joint grant could not be computed from$NARROWER;"
+        echo "     the record keeps the wider $kept grant, which is the honest answer"
+        return 0
+      fi
       verify "$JOINT" "joint-narrow"; jrc=$?
       case "$jrc" in
         0) echo "  => JOINT-NARROW VERIFIED $JOINT — all $DROPPED_N capabilities drop TOGETHER, measured" ;;
@@ -2302,17 +2315,23 @@ do
   if [ "$frc" -eq 0 ]; then
     echo "  => MINIMUM $g   (ladder fallback; synthesized grant was insufficient)"
     echo "  ⛔ OBSERVE UNDER-PREDICTED — the gap between $GRANT and $g is worth reading"
-    # ⛔ NOT DESCENDED FROM `write:"disk"`, AND THE GUARD IS THE RUNG'S SHAPE, NOT ITS POSITION.
-    # `write` is a STRING on that rung, and the variant generator above does `Object.keys(g.write)` —
-    # which on `"disk"` yields `["0","1","2","3"]` and would manufacture four `no-write-<digit>` arms.
-    # `record.mjs` can parse none of them, so they land in `unparsedNames` and the record carries
-    # `descent-name-unparsed` off a measurement of four states that mean nothing. It is also the
-    # ABSENCE of confinement rather than a path grant with droppable terms, so a leave-one-out over it
-    # has nothing to leave out.
-    case "$g" in
-      *'"write":"disk"'*) echo "  !! top rung is write:\"disk\" — no droppable terms, so no descent" ;;
-      *) descend "$g" ladder ;;
-    esac
+    # ⛔⛔ EVERY RUNG IS DESCENDED NOW, `write:"disk"` INCLUDED — THIS `case` USED TO EXEMPT IT. The
+    # exemption's reason was sound and its scope was not: `Object.keys("disk")` is `["0","1","2","3"]`,
+    # so the old inline generator would have fabricated four unparseable `no-write-<digit>` arms. But
+    # the rung is a BUNDLE like every other, and skipping the descent threw away its SECOND term along
+    # with the first. MEASURED on the committed corpus 2026-09-01: all 75 `write:"disk"` records carry
+    # `overPredictedBy: []` and `minimality: null`, and all 75 also carry `network: true` — a
+    # capability no arm has ever tried to drop, on the records where the filesystem axis is already
+    # gone. `descent-terms.mjs` emits no write term for the string reach and `no-network` for the rest,
+    # so the term that CAN be measured is, and the one that cannot says why.
+    #
+    # ⛔ THE WRITE AXIS IS NOT SILENTLY DROPPED, IT IS DELEGATED. Every write reach narrower than
+    # `Reach::Disk` that the catalog can spell is a `Scopes` value — i.e. rungs 0 and 1, which this
+    # very loop already ran and which already FAILED on this package. So a `no-write-disk` arm would
+    # re-run a refuted hypothesis under a new name. What is still open — needs-the-whole-filesystem
+    # versus fails-under-confinement-for-another-reason — is `confined_wide_probe`'s question, and it
+    # ran a few lines above on this same rung.
+    descend "$g" ladder
     exit 0
   fi
 done

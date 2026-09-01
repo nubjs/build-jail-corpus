@@ -26,6 +26,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseDriverLog } from './record.mjs';
+// The module that now OWNS the descent vocabulary. Asserted by value, not only by source scan.
+import { descentTerms } from './descent-terms.mjs';
 
 const HERE = import.meta.dirname;
 const read = (f) => fs.readFileSync(path.join(HERE, f), 'utf8');
@@ -60,6 +62,9 @@ const code = (src) => src.split('\n').filter((l) => {
 }).join('\n');
 
 const CODE = Object.fromEntries(Object.entries(DRIVERS).map(([k, f]) => [k, code(read(f))]));
+// The shared generator's executable lines. The three tokens used to be pinned once per driver; they
+// are pinned once here, and each driver is pinned to REACH here.
+const MODULE = code(read('descent-terms.mjs'));
 const RECORD = read('record.mjs');
 
 // ── INSTRUMENT CHECKS — everything below is worthless without these ────────────────────────────────
@@ -98,20 +103,51 @@ test('INSTRUMENT: the rule body was located and contains its literal matches', (
 });
 
 test('⭑ every driver emits the variant vocabulary record.mjs matches', () => {
-  // ⛔ THE ASSERTION THE WHOLE FILE EXISTS FOR. Checked in executable code, per driver, by name.
+  // ⛔ THE ASSERTION THE WHOLE FILE EXISTS FOR, NOW MADE ONE LEVEL DOWN — AND IT IS STRICTLY STRONGER
+  // THERE. It used to check that each driver's executable code CONTAINED the three tokens, which was
+  // the best available check while all three carried their own copy of the generator. That
+  // arrangement is the defect: three copies is how Linux came to emit the bare `network` /
+  // `write.deps` names for the whole life of its descent while the other two spelled them `no-*`.
   //
-  // ⛔ `no-read` IS IN THIS LIST BECAUSE A ONE-DRIVER EDIT IS THE FAILURE MODE, NOT A MISSING FEATURE.
-  // Windows enumerated it while both POSIX drivers skipped it, and nothing here noticed — the same
-  // shape as macOS silently lacking a ladder the other two had. Now a driver taught the name alone
-  // takes this test down with it.
+  // `descent-terms.mjs` owns the vocabulary now, so the property to check is DELEGATION — a driver
+  // that reaches the module cannot be spelling the names right by accident, and one that stops
+  // reaching it fails here rather than passing on a token that happens to appear. `no-read` stays in
+  // the checked set for the reason it was added: a one-driver edit is the failure mode, and Windows
+  // once enumerated it while both POSIX drivers skipped it with nothing noticing.
   const missing = [];
   for (const [platform, c] of Object.entries(CODE)) {
-    for (const token of ['no-network', 'no-write-', 'no-read']) {
-      if (!c.includes(token)) missing.push(`${DRIVERS[platform]} never produces \`${token}\``);
+    if (!c.includes('descent-terms.mjs')) {
+      missing.push(`${DRIVERS[platform]} does not reach the module that owns the vocabulary`);
     }
+    // The re-armed hazard, per driver: a locally rebuilt write-arm list. On the terminal rung's
+    // STRING reach `Object.keys` yields `["0","1","2","3"]`, which is where the four fabricated
+    // `no-write-<digit>` arms come from.
+    if (/Object\.keys\(g0?\.write/.test(c)) {
+      missing.push(`${DRIVERS[platform]} builds write arm names itself again`);
+    }
+  }
+  for (const token of ['no-network', 'no-write-', 'no-read']) {
+    if (!MODULE.includes(token)) missing.push(`descent-terms.mjs never produces \`${token}\``);
   }
   assert.deepEqual(missing, [], 'a driver names its descent variants something record.mjs cannot parse, '
     + 'so its `descendedGrant` silently equals the synthesized grant:\n  ' + missing.join('\n  '));
+
+  // ⛔ AND THE VALUE-LEVEL HALF, because a source scan cannot tell a module that names the tokens from
+  // one that produces them. This is the assertion the whole vocabulary contract is about.
+  assert.deepEqual(descentTerms({ write: { deps: true }, read: 'disk', network: true }, 'linux').terms,
+    ['no-network', 'no-write-deps', 'no-read']);
+});
+
+test('⭑ the module refuses the string reach that the drivers used to refuse WHOLESALE', () => {
+  // ⛔ THE REPLACEMENT FOR THE LADDERS' OLD `write:"disk"` EXEMPTION, ASSERTED WHERE IT NOW LIVES.
+  // Every driver used to skip the descent entirely on that rung, which was safe and cost the corpus
+  // everything the descent produces — MEASURED 2026-09-01, all 75 `write:"disk"` records carry
+  // `overPredictedBy: []`. The narrow refusal is the fix: no WRITE term (every narrower reach the
+  // catalog can spell was already refuted by a failed rung), and the rung's other terms still run.
+  const { terms, skipped } = descentTerms({ write: 'disk', network: true }, 'linux');
+  assert.deepEqual(terms, ['no-network'], 'the terminal rung lost the one term it can be asked');
+  assert.deepEqual(skipped.map((s) => s.axis), ['write']);
+  for (const t of terms) assert.doesNotMatch(t, /^no-write-/, 'a write arm was fabricated from a string');
 });
 
 test('⭑ no driver still uses the LEGACY bare spelling in its descent', () => {
@@ -209,9 +245,12 @@ test('⭑ DRIFT GUARD: measure.sh emits the sentences and names these cases assu
   // passing while the real descent went unparsed — the same failure, one level up.
   const c = CODE.linux;
   for (const re of [
-    /out\.push\("no-network"\)/,
-    /out\.push\("no-write-" \+ k\)/,
-    /out\.push\("no-read"\)/,
+    // ⛔ THE THREE `out.push(...)` PINS MOVED TO `descent-terms.mjs` AND ARE ASSERTED ON ITS VALUES
+    // ABOVE, not deleted. They pinned an inline generator this driver no longer has; what replaces
+    // them is the delegation check plus a real call to `descentTerms`, which a source scan cannot
+    // fake. The two lines below are what the driver still owns on this path.
+    /descent-terms\.mjs" --terms/,
+    /descent-terms\.mjs" --narrow/,
     /=> OVER-PREDICTED by:\$NARROWER/,
     /=> JOINT-NARROW VERIFIED \$JOINT/,
     /=> JOINT-NARROW FAILED \$JOINT/,

@@ -42,6 +42,11 @@ import { buildCatalog } from './dep-scaffold.mjs';
 // The wide-but-confined probe: its path set, its never-a-root-glob guard, and the ONE marker spelling
 // `record.mjs` reads. Shared with both POSIX drivers so the three cannot drift on what the probe is.
 import { confinedWideBaseline, interpretation, marker as confinedWideMarker } from './confined-wide.mjs';
+// The descent's variant vocabulary and its per-platform support rule, shared with both POSIX drivers.
+// It is what decides that `write:"disk"` yields no write term (every narrower reach the catalog can
+// spell was already refuted by a failed rung) and that win32 yields no NETWORK term either, because
+// this platform drops the net axis together with the AppContainer token at that rung.
+import { descentTerms, narrow as narrowGrant, verdictLines } from './descent-terms.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
 // ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
 // here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
@@ -2154,29 +2159,37 @@ const descend = (g0, provenance) => {
   // label. `record.mjs`'s `applyGrantSourceRule` recomputes the descended grant by matching exactly
   // these names against `overPredictedBy`; a name it cannot parse yields a "descended" grant
   // identical to the synthesized one, so the record would claim it narrowed while publishing the wide
-  // value. Same spelling as `measure-macos.sh`.
-  const variants = [];
-  if (g0.network) variants.push(['no-network', (g) => { delete g.network; }]);
-  for (const k of Object.keys(g0.write ?? {})) {
-    variants.push([`no-write-${k}`, (g) => {
-      delete g.write[k];
-      if (!Object.keys(g.write).length) delete g.write;
-    }]);
-  }
-  if (g0.read) variants.push(['no-read', (g) => { delete g.read; }]);
-
-  const narrow = (drop) => {
-    const g = JSON.parse(JSON.stringify(g0));
-    for (const name of drop) variants.find(([n]) => n === name)[1](g);
-    return g;
-  };
+  // value.
+  //
+  // ⛔⛔ AND THE LIST IS NO LONGER BUILT HERE. `descent-terms.mjs` owns the vocabulary for all three
+  // drivers — three inline copies of this generator is how `measure.sh` came to emit the bare
+  // `network` / `write.deps` names for the life of its descent while this file spelled them `no-*`.
+  //
+  // ⛔ IT IS ALSO WHERE win32's TERMINAL-RUNG ANSWER LIVES, AND THAT ANSWER IS `UNSUPPORTED`. At
+  // `write:"disk"` this platform takes `windows.rs`'s `if policy.build_jail && !confine_fs` branch:
+  // no LowBox token, `Degradation::full()`, and `net` pushed onto `lost` — "egress is an AppContainer
+  // CAPABILITY here (`internetClient`), so declining the token declines the net axis with it". So a
+  // `no-network` arm here could not go RED for a network reason: the child holds unrestricted egress
+  // whether the grant admits it or not. It would go green, the record would narrow to
+  // `{"write":"disk"}`, and the catalog would then state that a package which used the network freely
+  // does not need it — a vacuous pass turned into an under-grant. The module refuses to run it and
+  // prints why.
+  const variants = descentTerms(g0).terms.map((t) => [t]);
+  // Shadows the imported applier to keep this function's call sites unchanged. `narrowGrant` THROWS
+  // on a drop it cannot genuinely apply rather than returning a grant that merely looks narrowed —
+  // the old local closure did `delete g.write[k]`, which on a STRING `write` silently changes nothing
+  // and would have run the UNNARROWED grant as the arm.
+  const narrow = (drop) => narrowGrant(g0, drop);
 
   const dropped = [];
   const inconclusive = [];
   if (!variants.length) {
-    // `record.mjs` reads this phrase as MINIMAL, which is the honest verdict: an empty grant has
-    // nothing to narrow, so it is minimal by construction rather than by measurement.
-    console.log('  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.');
+    // ⛔ TWO EMPTY CASES, TWO SENTENCES. `record.mjs` reads "grant is already empty" as
+    // `minimality: MINIMAL`, which is honest for a grant with no capabilities and a fabrication for
+    // `{"write":"disk","network":true}` — the widest grant in the corpus, published as PROVEN MINIMAL
+    // off a descent that ran zero arms. `verdictLines` picks the right one and carries the per-axis
+    // reason in a JSON marker.
+    for (const l of verdictLines(g0)) console.log(l);
   } else {
     for (const [name] of variants) {
       const sub = narrow([name]);
@@ -2334,11 +2347,15 @@ for (const [i, g] of LADDER.entries()) {
     // the persistence capability; without a descent the record hands out all three because ONE arm
     // passed. The descent is what says which of them the package actually needs.
     //
-    // ⛔ NOT DESCENDED FROM `write:"disk"`. That rung declines the AppContainer token altogether, so
-    // it is not a path grant with droppable terms — it is the absence of confinement, and a
-    // leave-one-out over it would be measuring nothing. A record that only passes there already
-    // carries the `NO CONFINEMENT` warning above.
-    if (g.write !== 'disk') descend(g, 'ladder');
+    // ⛔⛔ `write:"disk"` IS DESCENDED TOO NOW — this call used to be guarded by `g.write !== 'disk'`.
+    // The guard hid a real distinction behind an unconditional skip: on POSIX that rung still has one
+    // droppable term (`no-network`, which `linux.rs` and `macos.rs` both keep enforcing once the fs
+    // axis is relaxed), while on win32 it has none, because declining the AppContainer token drops
+    // the net axis with it. Two different answers, and the old guard printed neither. `descend` now
+    // runs on every rung and `descent-terms.mjs` decides what it can ask, so win32 emits an explicit
+    // `DESCENT-UNSUPPORTED` marker naming the backend reason instead of a silent nothing. A reader of
+    // a win32 record can now tell "not measured because untestable here" from "not measured".
+    descend(g, 'ladder');
     process.exit(0);
   }
 }

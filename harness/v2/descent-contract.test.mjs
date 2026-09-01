@@ -24,6 +24,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseDriverLog } from './record.mjs';
+// The vocabulary itself, so the contract is checked against the module that produces the names rather
+// than against a copy of them written into this file.
+import { descentTerms, verdictLines } from './descent-terms.mjs';
 
 const DRIVER = fs.readFileSync(path.join(import.meta.dirname, 'measure-windows.mjs'), 'utf8');
 
@@ -72,12 +75,40 @@ test('⭑ the VARIANT NAMES are the ones record.mjs can parse, checked in the CO
   // ⛔ THIS IS THE CONTRACT, NOT A LABEL. `applyGrantSourceRule` matches the literal `no-network` and
   // `no-write-<scope>` out of `overPredictedBy` to recompute the descended grant. Any other spelling
   // — `network`, `write.deps` — parses to nothing, so `descendedGrant` comes back equal to the
-  // synthesized grant and the record claims it narrowed while publishing the wide value. Asserted
-  // against the `variants.push` sites specifically, because the names also appear in prose.
-  assert.match(CODE, /variants\.push\(\['no-network'/,
-    'the network variant is no longer named `no-network`, which record.mjs cannot parse');
-  assert.match(CODE, /variants\.push\(\[`no-write-\$\{k\}`/,
-    'the write variants are no longer named `no-write-<scope>`, which record.mjs cannot parse');
+  // synthesized grant and the record claims it narrowed while publishing the wide value.
+  //
+  // ⛔ THE ASSERTION MOVED WITH THE CODE, AND GOT STRONGER RATHER THAN WEAKER. It used to pin the
+  // `variants.push(['no-network'` site inside this driver, which only worked while each of the three
+  // drivers carried its own copy of the generator — the arrangement that let Linux emit the bare
+  // `network` / `write.deps` names for the whole life of its descent. `descent-terms.mjs` owns the
+  // vocabulary now, so the two halves to check are that the MODULE produces the parseable names and
+  // that this driver DELEGATES rather than rebuilding them. A driver that stopped calling the module
+  // could not be spelling the names right by accident.
+  assert.match(CODE, /from '\.\/descent-terms\.mjs'/,
+    'measure-windows.mjs no longer reaches the module that owns the descent vocabulary');
+  assert.match(CODE, /descentTerms\(g0\)/,
+    'measure-windows.mjs no longer asks the module for its arm list');
+  assert.doesNotMatch(CODE, /Object\.keys\(g0\.write/,
+    'measure-windows.mjs builds write arm names itself again — on a string reach that fabricates '
+    + 'four `no-write-<digit>` arms record.mjs cannot parse');
+  assert.deepEqual(descentTerms({ write: { deps: true }, read: 'disk', network: true }, 'win32').terms,
+    ['no-network', 'no-write-deps', 'no-read'],
+    'the shared vocabulary no longer produces the names applyGrantSourceRule matches');
+});
+
+test('⭑ the win32 TERMINAL RUNG yields no arm, and the driver says so rather than descending', () => {
+  // ⛔ THE PLATFORM SPLIT, PINNED ON THIS SIDE OF IT. At `write:"disk"` this driver takes
+  // `windows.rs`'s `if policy.build_jail && !confine_fs` branch: no LowBox token, `Degradation::full()`
+  // and `net` pushed onto `lost` — "egress is an AppContainer CAPABILITY here (`internetClient`), so
+  // declining the token declines the net axis with it". A `no-network` arm here could not go red for
+  // a network reason, so its green would narrow the catalog to "no network needed" for a package that
+  // used the network freely. The module refuses to run it; the driver must print the refusal rather
+  // than the nothing the old `g.write !== 'disk'` guard printed.
+  assert.deepEqual(descentTerms({ write: 'disk', network: true }, 'win32').terms, []);
+  assert.match(CODE, /verdictLines\(g0\)/,
+    'the win32 driver no longer prints the UNSUPPORTED verdict when it has no arm to run');
+  assert.doesNotMatch(CODE, /if \(g\.write !== 'disk'\) descend/,
+    'the ladder guard is back, so the terminal rung emits no marker at all');
 });
 
 const MINIMUM = '  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)';
@@ -187,9 +218,22 @@ test('⭑ DRIFT GUARD: the driver emits the exact sentences these cases pin', ()
     /=> DESCENT INCOMPLETE — no capability dropped, but \$\{inconclusive\.join\(' '\)\} was never measured/,
     /=> JOINT-NARROW VERIFIED \$\{JSON\.stringify\(joint\)\}/,
     /INCONCLUSIVE for '\$\{name\}' — the arm was VOID/,
-    /grant is already empty — nothing to narrow; MINIMAL by construction\./,
   ];
   for (const re of emits) {
     assert.match(DRIVER, re, `measure-windows.mjs no longer emits the wording these tests pin: ${re}`);
   }
+  // ⛔ THE EMPTY-GRANT SENTENCE MOVED INTO `descent-terms.mjs` AND IS PINNED THERE, not dropped. It
+  // left this driver because it had TWO callers with different meanings: an empty GRANT is minimal by
+  // construction, while a wide grant with no droppable TERM is not — and `record.mjs` reads the
+  // sentence as `minimality: MINIMAL` either way. Printing it for `{"write":"disk","network":true}`
+  // would publish the widest grant in the corpus as a proven minimum off zero arms. The driver now
+  // calls `verdictLines`, which picks the right one of the two.
+  assert.match(DRIVER, /verdictLines\(g0\)/,
+    'measure-windows.mjs no longer prints either empty-descent verdict');
+  assert.match(verdictLines({}, 'win32').join('\n'),
+    /grant is already empty — nothing to narrow; MINIMAL by construction\./,
+    'the empty-grant sentence record.mjs reads as MINIMAL no longer has a producer anywhere');
+  assert.doesNotMatch(verdictLines({ write: 'disk', network: true }, 'win32').join('\n'),
+    /grant is already empty/,
+    'a wide grant with no droppable term prints the sentence that means "proven minimal"');
 });
