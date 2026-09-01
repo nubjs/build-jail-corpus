@@ -44,15 +44,34 @@
 //           `rcLive && descentRedArm`, a sentence about the EXIT CODE, so a gate-driven row cannot
 //           carry it. None of the 288 currently rest on one; the next record can.
 //
-//   G3  HOME-WRITE REALITY. A red arm proves the jail → denial → rc chain fires SOMEWHERE in this
-//       run. It cannot prove it fires on the HOME write, because `artifact-gate.mjs` only ever walks
-//       the package's own directory and a home write is by construction outside it. So a narrowing
-//       that drops `write.userHome` is refused whenever OBSERVE attributed writes to the REAL-home
-//       bucket and no denial witness came back CLEAN for that capability.
+//   G3  HOME-WRITE REALITY, MINUS THE HALF THAT IS NO LONGER THIS MODULE'S. A red arm proves the
+//       jail → denial → rc chain fires SOMEWHERE in this run. It cannot prove it fires on the HOME
+//       write, because `artifact-gate.mjs` only ever walks the package's own directory and a home
+//       write is by construction outside it.
 //
-//       ⛔ THIS IS NOT HYPOTHETICAL AND IT IS THE REASON THE GATE IS HERE. 13 of the 70 records the
-//       shipped rule would narrow are playwright/puppeteer browser downloaders whose ENTIRE product
-//       is a home write: `playwright-chromium@1.9.2` (linux) performed 1185 real-home writes,
+//       ⛔⛔ THE POSITIVE-CENSUS REFUSAL NOW LIVES IN `record.mjs` AND REACHES THIS MODULE THROUGH
+//       `parseDriverLog`, WHICH IS WHY IT IS NOT REPEATED HERE. That refusal was correct for an
+//       archived record and equally correct for a freshly-measured one, and a guard living in one
+//       place and not the other is the defect class `three-driver-parity.test.mjs` exists for — five
+//       recurrences. Because `replay()` gets its grant from `parseDriverLog`, a log with a positive
+//       real-home census and no CLEAN witness never narrows in the first place, so it arrives here
+//       as CURRENT rather than as a narrowing to refuse. There is exactly ONE implementation of that
+//       term, in `write-census.mjs`, applied at exactly ONE place.
+//
+//       ⛔ WHAT STAYS HERE IS WHAT `record.mjs` CANNOT SEE, and both terms are live rather than
+//       belt-and-braces. (a) THE ROOTS. The census bills `userHome` and `jailHome` to separate
+//       buckets from `capture.json`; when a capture cannot confirm the two are DISTINCT, a
+//       real-home write can be billed to `jailHome` and the count reads ZERO — a false clear, in the
+//       under-grant direction. `record.mjs` holds only the log at rule time and has no capture to
+//       check, and a lane already billed 32 jail-home writes as real-home writes. (b) THE ABSENT
+//       CENSUS. `record.mjs` deliberately treats an absent census as vetoing nothing, on the same
+//       policy its `observedCounts` states, backed by the authoring-time guard in
+//       `write-census.test.mjs` that all three classifiers still print the header. No such guard
+//       reaches an ARCHIVED log, so a record whose log never ran the census is refused here.
+//
+//       ⛔ THIS IS NOT HYPOTHETICAL AND IT IS THE REASON THE GATE EXISTS. The records the shipped
+//       rule would narrow include playwright/puppeteer browser downloaders whose ENTIRE product is a
+//       home write: `playwright-chromium@1.9.2` (linux) performed 1185 real-home writes,
 //       `@playwright/browser-chromium@1.61.1` (win32) 629. Both have red sibling arms on `network`
 //       and `write.project`, both would drop `write.userHome`, and the drop arm passes because the
 //       browser download is not something the artifact gate can see. On win32 nothing else catches
@@ -72,40 +91,17 @@ import { pathToFileURL } from 'node:url';
 import { parseDriverLog, isTruncatedRc } from './record.mjs';
 import { decide, narrows } from './publish-guard.mjs';
 import { observedEffect } from './observed-effect.mjs';
+import { CENSUS_UNKNOWN, homeDropVerdict, homeWrites } from './write-census.mjs';
 
 export const STALE = 'STALE';
 export const CURRENT = 'CURRENT';
 export const REFUSED = 'REFUSED';
 
-// ── the driver's own attributed write census ──────────────────────────────────────────────────────
-//
-// ⛔ THREE SPELLINGS, ONE BLOCK, AND THE HEADER IS THE ONLY THING IN COMMON. linux prints
-// `== WRITES the script actually performed ==`, darwin the same, win32 the bare `== WRITES ==`.
-// Anchoring on `== WRITES` covers all three; anchoring on the long form silently returned "no block"
-// for every win32 record, which reads as "unknown" and would have fenced 107 records off the answer.
-const WRITES_HEADER = /^\s*==\s*WRITES\b/;
-const SECTION = /^\s*==\s/;
-// A bucket row is `<scope> <count>` with the paths indented deeper beneath it. darwin appends
-// `(base profile already grants this — NOT billed)` to some rows, so the count is not end-anchored.
-const BUCKET = /^\s{2,6}([A-Za-z][A-Za-z0-9]*)\s+(\d+)\b/;
-
-// The REAL-home write count the driver attributed to the lifecycle subtree, or null when the log
-// carries no census at all. ⛔ AN ABSENT `userHome` ROW INSIDE A PRESENT BLOCK IS ZERO, NOT UNKNOWN —
-// the drivers omit a bucket with no members, so reading absence as unknown fences off exactly the
-// records whose home write never happened, which are the safe ones.
-export const homeWrites = (log) => {
-  const lines = String(log).split(/\r?\n/);
-  let inBlock = false;
-  let count = null;
-  for (const l of lines) {
-    if (WRITES_HEADER.test(l)) { inBlock = true; count = 0; continue; }
-    if (!inBlock) continue;
-    if (SECTION.test(l)) { inBlock = false; continue; }
-    const m = BUCKET.exec(l);
-    if (m && m[1] === 'userHome') count = Number(m[2]);
-  }
-  return count;
-};
+// ⛔ RE-EXPORTED RATHER THAN REDEFINED. The census moved down into `write-census.mjs` so that
+// `record.mjs` — which this file imports `parseDriverLog` FROM — can apply the same rule without a
+// cycle. Copying it into both is what the move exists to prevent; re-exporting keeps this module's
+// surface and its tests exactly where they were.
+export { homeWrites };
 
 // ── the red-arm audit ─────────────────────────────────────────────────────────────────────────────
 //
@@ -202,7 +198,26 @@ export const replay = ({ committed, log, capture }) => {
 
   const dropped = narrows(committed?.grant, parsed.grant);
   if (!dropped.length) {
-    return { verdict: CURRENT, reason: 'the current rule reaches the committed grant', grant: parsed.grant };
+    // ⛔ "NO NARROWING" IS NOT THE SAME AS "AGREES", AND SAYING SO IS WHAT MAKES A LIVE UNDER-GRANT
+    // VISIBLE. This module proposes narrowings only, so a committed grant that today's rule would
+    // WIDEN produces an empty `dropped` and used to report the flat sentence "the current rule
+    // reaches the committed grant" — false, and false in the under-grant direction. MEASURED at
+    // `cf36b27f8` after the home-write term landed: 115 committed records already dropped
+    // `write.userHome` on a package whose own census attributed real-home writes, so the rule now
+    // reaches a grant strictly WIDER than what is in the corpus for every one of them. Republishing
+    // a widening is out of this module's scope — a re-record or a re-measure is what fixes them — so
+    // the verdict stays CURRENT and the caps are named instead of being silently swallowed.
+    const widens = narrows(parsed.grant, committed?.grant);
+    return {
+      verdict: CURRENT,
+      reason: widens.length
+        ? `the current rule proposes no narrowing, but it reaches a WIDER grant than the committed `
+          + `one (${widens.join(', ')}) — the committed record is an UNDER-GRANT that this module `
+          + 'cannot republish; re-record it from this log, or re-measure it'
+        : 'the current rule reaches the committed grant',
+      grant: parsed.grant,
+      widens,
+    };
   }
 
   // G2. Audited whenever the red arm is present at all: the audit can only WITHHOLD, so auditing a
@@ -218,8 +233,15 @@ export const replay = ({ committed, log, capture }) => {
     }
   }
 
-  // G3.
+  // G3. Reached only when the rule in `record.mjs` ALREADY let the home drop through — that is,
+  // when this log's census was clear or absent. What remains are the two questions that rule cannot
+  // ask of a live log, and both are about trusting an ARCHIVE.
   if (dropped.includes('write.userHome')) {
+    // ⛔ THE ROOTS COME FROM `capture.json`, NEVER FROM A LOG HEADER, and the failure this catches is
+    // a false CLEAR rather than a false refusal: if the real home and the jail home cannot be
+    // confirmed distinct, a real-home write can be billed to the `jailHome` bucket and the census
+    // reads ZERO. `roots.jailHome` is null in every darwin EVENT-LOG header, and a lane rooted there
+    // billed 32 jail-home writes as real-home writes.
     const roots = capture?.roots;
     if (!roots || typeof roots.home !== 'string' || !roots.home
       || (roots.jailHome != null && roots.jailHome === roots.home)) {
@@ -230,19 +252,13 @@ export const replay = ({ committed, log, capture }) => {
           + 'jail-home writes as real-home writes',
       };
     }
-    const hw = homeWrites(log);
-    if (hw === null) {
-      return { verdict: REFUSED, reason: 'the log carries no `== WRITES ==` census, so whether the script wrote the real home is unknown' };
-    }
-    if (hw > 0 && committed?.denialWitness?.['no-write-userHome'] !== 'CLEAN'
-      && parsed?.denialWitness?.['no-write-userHome'] !== 'CLEAN') {
-      return {
-        verdict: REFUSED,
-        reason: `OBSERVE attributed ${hw} write(s) to the REAL home and no denial witness came back `
-          + 'CLEAN, so the passing drop arm is as consistent with a swallowed refusal as with the '
-          + 'capability being unnecessary — the artifact gate cannot see a home write',
-        homeWrites: hw,
-      };
+    // ⛔ THE SAME CLASSIFIER `record.mjs` USES, WITH A DIFFERENT POLICY ON `UNKNOWN`, AND THE
+    // DIFFERENCE IS DELIBERATE. There it vetoes nothing, because all three classifiers print the
+    // census unconditionally and `write-census.test.mjs` fails at authoring time if one stops. No
+    // authoring-time guard reaches a log written months ago, so here an absent census is refused.
+    const census = homeDropVerdict({ log, witness: parsed?.denialWitness?.['no-write-userHome'] });
+    if (census.verdict === CENSUS_UNKNOWN) {
+      return { verdict: REFUSED, reason: `${census.reason} — an archived log cannot be re-run to find out`, homeWrites: null };
     }
   }
 
@@ -316,7 +332,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.error('usage: stale-adjudication.mjs --record <dir> | --scan <records-v2> [--only-stale]');
     process.exit(2);
   }
-  const tally = { STALE: 0, CURRENT: 0, REFUSED: 0 };
+  // `underGranted` is a COUNT of CURRENT rows, not a fourth verdict: the record needs no
+  // re-adjudication decision from this module, it needs re-recording or re-measuring. Counted
+  // separately because a scan that folded them into CURRENT reported the corpus as agreeing with the
+  // rule while holding grants strictly narrower than it.
+  const tally = {
+    STALE: 0, CURRENT: 0, REFUSED: 0, underGranted: 0,
+  };
   const runs = path.join(root, 'runs');
   // ⛔ WALK, NEVER CONSTRUCT. A scoped name is `+`-encoded on disk (`@pulumi+gcp`), and a lane that
   // read `@x` as a scope DIRECTORY fabricated 224 of 300 specs before anyone noticed.
@@ -331,8 +353,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         if (!fs.existsSync(path.join(dir, 'results.json'))) continue;
         const r = replayRecordDir(dir);
         tally[r.verdict] += 1;
-        if (r.verdict === STALE || (r.verdict === REFUSED && !argv.includes('--only-stale'))) {
-          console.log(`${r.verdict.padEnd(8)} ${plat.padEnd(13)} ${r.committed?.pkg}@${r.committed?.version}  ${r.reason}`);
+        if (r.widens?.length) tally.underGranted += 1;
+        const notable = r.verdict === STALE
+          || ((r.verdict === REFUSED || r.widens?.length) && !argv.includes('--only-stale'));
+        if (notable) {
+          const label = r.widens?.length && r.verdict === CURRENT ? 'UNDER' : r.verdict;
+          console.log(`${label.padEnd(8)} ${plat.padEnd(13)} ${r.committed?.pkg}@${r.committed?.version}  ${r.reason}`);
         }
       }
     }
