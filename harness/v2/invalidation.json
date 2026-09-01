@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 71,
+  "currentEpoch": 72,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1484,6 +1484,16 @@
         "verdicts": []
       },
       "reason": "Adds an offline re-record path and applies it to the 115 records whose committed grant dropped a whole-home write the artifact gate could never have tested. It replays each record's own archived driver log through the current recorder and may only ever WIDEN, since a re-record that narrows is the harm being repaired. Only grant, grantSource, grantSourceReason and notes change; the full record is diffed to prove nothing else moves. No measurement was re-run and no record is invalidated."
+    },
+    {
+      "fromEpoch": 71,
+      "fromHarnessSha256": "3ca0732d96443cca2d02432bbb6e7ca58bf22a75453ed61c1fe5825bb556fa58",
+      "toEpoch": 72,
+      "toHarnessSha256": "d72968cb21e237118d579af2499bab5dd45e290966962c80364671e4e28ed5de",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "share the tool-cache leaf list across both POSIX classifiers and the census gate"
     }
   ]
 }
