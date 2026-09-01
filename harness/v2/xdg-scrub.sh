@@ -62,13 +62,38 @@
 # The knob would only ever re-open the defect. The scrub's falsifiability is covered instead by
 # `xdg-scrub.test.mjs`, which runs the driver's own extracted arm with and without the list.
 #
-# ⛔ NOT MIRRORED IN `measure-windows.mjs`, AND THAT IS A MEASURED DECISION RATHER THAN A GAP.
-# Windows applications use `%APPDATA%`/`%LOCALAPPDATA%`, and `windows-latest` sets no `XDG_*` at all:
-# across the 1,688 committed win32 captures, ZERO carry an `XDG` name in `observeEnv`, and every
-# win32 real-home write is `USERPROFILE`-derived (`C:\Users\runneradmin\.pulumi\…`). The Windows
-# driver also SETS `XDG_CACHE_HOME` itself, per arm, to relocate nub's store — so a blanket scrub of
-# that name there would be actively wrong. `xdg-scrub.test.mjs` pins that decision so the asymmetry
-# is not "harmonised" away by someone reading only this file.
+# ⛔ NOT MIRRORED IN `measure-windows.mjs`. The decision stands, but TWO OF THE THREE REASONS THIS
+# BLOCK ONCE GAVE FOR IT WERE WRONG, and they are recorded rather than deleted because both read as
+# measurements and would have been re-derived the same way by the next reader.
+#
+# ⛔ THE OLD EVIDENCE WAS CIRCULAR. It said "across the 1,688 committed win32 captures, ZERO carry an
+# `XDG` name in `observeEnv`". `measure-windows.mjs:1375` emits `observeEnv: {set: OBS_ENV, unset: []}`
+# — the variables the driver SETS. An INHERITED name can never appear there, on any platform, under
+# any venue, so the zero was a tautology about the emitter and not a fact about the runner.
+#
+# ⛔ AND "WINDOWS APPLICATIONS USE `%APPDATA%`" IS FALSE FOR THE LIBRARY THAT MATTERS. `xdg-basedir`
+# 2/3/4 carry no platform branch at all — `exports.config = env.XDG_CONFIG_HOME || join(home,
+# '.config')` runs identically on win32 — and `configstore` 3.1.2/5.0.1 depend on it. (`env-paths`
+# does branch on `process.platform`, so it alone is immune.) A Windows leak would therefore
+# manufacture the same over-grant this file exists to remove on linux.
+#
+# THE NON-CIRCULAR EVIDENCE, AND IT SETTLES `XDG_CACHE_HOME` ONLY. `measure-windows.mjs:1244` resolves
+# `CACHE = XDG_CACHE_HOME || LOCALAPPDATA` from the DRIVER'S OWN inherited environment, before any
+# per-arm value exists, and `roots.globalStore` is `CACHE/store` (`:1320`). All 1,688 of 1,688
+# committed win32 captures resolve `globalStore` under `%LOCALAPPDATA%` — the branch taken ONLY when
+# the venue left `XDG_CACHE_HOME` unset. That is a property of the runner rather than of the emitter,
+# which is exactly what the old evidence was not.
+#
+# ⛔ `XDG_CONFIG_HOME` ON WIN32 REMAINS UNVERIFIED, and the honest reason is that nothing committed can
+# answer it: the config-home split is visible only through the home redirect, and only 15 win32
+# records carry one. The decision is very likely still right — both runner-image issues cited above
+# are Linux-only — but it rests on that, not on a measurement. What would settle it is emitting the
+# INHERITED `XDG_*` names into win32 `capture.json`, the way `XDG_INHERITED` does here.
+#
+# The one original reason that DOES hold: the Windows driver SETS `XDG_CACHE_HOME` itself, per arm
+# (`:1967`), to relocate nub's store, so a blanket scrub of that name there would be actively wrong.
+# `xdg-scrub.test.mjs` pins the asymmetry so it is not "harmonised" away by someone reading only this
+# file.
 
 # The per-user base dirs, in the order the spec lists them. A name added here is removed from the
 # traced child on BOTH POSIX drivers, because both source this file.
