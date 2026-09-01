@@ -229,12 +229,16 @@ const MODULE_REGISTRY = new Map([
     'shim. That shim reaches a confined Node only as a NODE_OPTIONS --import term, so an era Node ' +
     'below 20.6 cannot print it. The POSIX jails deny at the kernel layer and assert no such text.' }],
   ['v2/denial-witness.mjs', { kind: 'open', why:
-    'OPEN DIVERGENCE, not an exemption. Only measure.sh runs the denial witness, so record.mjs\'s ' +
-    'denialWitness map is empty on every darwin and win32 record and its widening can never fire ' +
-    'there. The module\'s own header says the discriminant works "on both POSIX platforms" and cites ' +
-    '223 committed darwin diagnose traces as the evidence, so darwin is a wired-up-nowhere gap ' +
-    'rather than a platform limit. Parked here to keep the suite green; a driver fix needs its own ' +
-    'invalidation scope.' }],
+    'OPEN DIVERGENCE on win32 ONLY — darwin was wired at epoch 68, so this is now a two-of-three ' +
+    'entry rather than one-of-three. The win32 half is BLOCKED, not merely unwired: measured over ' +
+    'six committed win32 streams, zero rows carry an `r` or a `w`, and write INTENT is structurally ' +
+    'absent because Create (event 12) carries no DesiredAccess while AppContainer denies AT Create, ' +
+    'so event 16 never arrives to evidence the write. Capturing it needs a schema change, not a ' +
+    'driver line. ⛔ THE DANGEROUS FIX IS STAMPING `jailed` WITHOUT MAPPING st->r: that makes every ' +
+    'win32 stream score CLEAN, which is a blanket licence to narrow. VOID today is fail-closed and ' +
+    'correct. (An earlier version of this note cited "223 committed darwin diagnose traces" as ' +
+    'evidence; DIAGNOSE greps its trace into driver.out and DISCARDS it, so every committed darwin ' +
+    'trace is an OBSERVE trace whose header reads jailed:false.)' }],
 ]);
 
 // ── MARKERS ───────────────────────────────────────────────────────────────────────────────────────
@@ -308,10 +312,9 @@ const MARKER_REGISTRY = new Map([
     'and the ONE relative case — a rename destination leaf under a RootDirectory handle — is anchored ' +
     'to the source directory or dropped outright by adapters/windows.mjs destPathOf().' }],
   ['DENIAL-WITNESS', { kind: 'open', why:
-    'OPEN DIVERGENCE, not an exemption — the marker half of the denial-witness.mjs entry in ' +
-    'MODULE_REGISTRY. Only measure.sh emits it, so record.mjs\'s denialWitness map is empty on every ' +
-    'darwin and win32 record and the widening it licenses can never fire there. Parked to keep the ' +
-    'suite green; the fix is a driver change and needs its own invalidation scope.' }],
+    'OPEN DIVERGENCE on win32 ONLY — the marker half of the denial-witness.mjs entry in ' +
+    'MODULE_REGISTRY, which carries the measurement showing why win32 needs an event-schema change ' +
+    'rather than a driver line. measure.sh and measure-macos.sh both emit this marker as of epoch 68.' }],
   ['CWD-RESOLVED', { kind: 'open', why:
     'OPEN DIVERGENCE on LINUX; platform-justified on win32. Only observe-macos.mjs emits it, so ' +
     'record.mjs\'s cwdResolved count is absent on every linux record even though observe.mjs ' +
