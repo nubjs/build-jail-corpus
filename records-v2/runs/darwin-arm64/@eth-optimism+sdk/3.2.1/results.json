@@ -2,14 +2,10 @@
   "pkg": "@eth-optimism/sdk",
   "version": "3.2.1",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
+  "harnessEpoch": 58,
   "verdict": "MINIMUM",
+  "eraDepMismatch": null,
   "grant": {
-    "write": {
-      "deps": true,
-      "project": true,
-      "userHome": true
-    },
     "network": true
   },
   "synthesized": {},
@@ -34,7 +30,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:04:48.127Z",
+      "screenedAt": "2026-09-01T06:20:02.562Z",
       "cacheHit": false
     },
     {
@@ -54,7 +50,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:04:59.866Z",
+      "screenedAt": "2026-09-01T06:20:13.531Z",
       "cacheHit": false
     },
     {
@@ -74,7 +70,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": false
     },
     {
@@ -94,7 +90,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     },
     {
@@ -114,7 +110,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     },
     {
@@ -134,7 +130,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     },
     {
@@ -154,7 +150,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     },
     {
@@ -174,7 +170,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     },
     {
@@ -194,7 +190,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T11:05:08.283Z",
+      "screenedAt": "2026-09-01T06:20:20.678Z",
       "cacheHit": true
     }
   ],
@@ -212,7 +208,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-24T11:04:48.127Z"
+      "screenedAt": "2026-09-01T06:20:02.562Z"
     },
     {
       "digest": "337070223d37c26f3675d1055adb36deac98bdf853a4bd0873be94c462bb39bd",
@@ -324,7 +320,7 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-24T11:04:59.866Z"
+      "screenedAt": "2026-09-01T06:20:13.531Z"
     },
     {
       "digest": "a8b9bfb54de3139129a8d8dd41e585c8f74435120125116edc18f01c8cdf6af9",
@@ -441,24 +437,28 @@
         "nub-nar-no-write-userHome-resolved",
         "nub-synth-resolved"
       ],
-      "screenedAt": "2026-08-24T11:05:08.283Z"
+      "screenedAt": "2026-09-01T06:20:20.678Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-24T11:04:47.611Z",
+    "observedAt": "2026-09-01T06:20:01.927Z",
     "latestVersion": "3.3.3",
-    "weeklyDownloads": 98543,
+    "weeklyDownloads": 119360,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/%40eth-optimism%2Fsdk/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/%40eth-optimism%2Fsdk"
     }
   },
-  "grantSource": "synthesized",
-  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "grantSource": "descended",
+  "grantSourceReason": "3 capabilities were dropped and the JOINT grant was explicitly verified — the gate-vacuous flag did not block it because a descent arm went RED, so the exit-code detector demonstrably fired for this package in this venue",
   "descendedGrant": {
     "network": true
   },
+  "falsifiabilityReasons": [
+    "gate-vacuous"
+  ],
+  "descentRedArm": true,
   "notes": [
     "arms-unfalsifiable",
     "cwd-unobserved",
@@ -466,8 +466,8 @@
     "under-predicted"
   ],
   "eventLog": {
-    "lines": 11877,
-    "parsed": 11859,
+    "lines": 11819,
+    "parsed": 11801,
     "unparsed": 0,
     "live": true,
     "tracerErrors": 1,
@@ -476,35 +476,35 @@
     "unresolvedFd": 0,
     "pairedTwoPath": 0,
     "danglingPair": 0,
-    "failed": 4401,
-    "enoent": 4393,
+    "failed": 4251,
+    "enoent": 4243,
     "refusals": 0,
     "byErrno": {
       "ENXIO": 4,
-      "ENOENT": 4393,
+      "ENOENT": 4243,
       "EEXIST": 4
     },
     "procs": 6,
     "lifecyclePids": 2,
-    "distinctEvents": 7222,
-    "emitted": 7222,
-    "calls": 11807,
-    "bytes": 1349663,
-    "gzipBytes": 40019,
-    "out": "/Users/runner/v2m-2hAK45/Observe/events.ndjson"
+    "distinctEvents": 7325,
+    "emitted": 7325,
+    "calls": 11748,
+    "bytes": 1416709,
+    "gzipBytes": 37399,
+    "out": "/Users/runner/v2m-WCtqGe/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 185044,
+  "durationMs": 176837,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 58,
+    "harnessSha256": "7faf1465b4b2f3b1ffd51512118fc0ffd4ef0b4f522e11a1307b77684cca292f",
+    "harnessInputCount": 311,
+    "invalidationPolicySha256": "2ced822c1d4cafccefdcb4846201f28852108c96aefcec300970fd94eae8b80a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -633,7 +633,7 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-24T11:07:53.198Z",
+    "at": "2026-09-01T06:22:59.204Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -678,8 +678,8 @@
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-2hAK45/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsWqEZxb",
+        "HOME": "/Users/runner/v2m-WCtqGe/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4YGgwS",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
