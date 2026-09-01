@@ -137,9 +137,57 @@ const isMeasurement = (rec) => rec?.verdict === 'MINIMUM';
 // `playwright-chromium@0.17.0`, a correct narrowing proven by two red arms, because a rule that
 // blocks everything looks right and is not.
 //
+// ⛔⛔ THE THIRD TERM — THE PROMOTION PROBE — AND WHY IT IS NOT A WAIVER FOR `writePaths`.
+//
+// A `{"writePaths":[…]}` grant flattens to the EMPTY token set, so `hasRedArm`'s second clause
+// (`minimality === 'MINIMAL' && capsOf(grant).size > 0`) is false by construction and no drop arm
+// exists for the descent to announce red. Every narrowing to such a grant therefore reached the last
+// branch below, and MEASURED on the committed corpus that is not a theoretical set:
+// `records-v2/runs/darwin-arm64/@clerk+shared/2.9.2/results.json` is `grant:
+// {"writePaths":["Library/Preferences/clerk"]}`, `minimality: "MINIMAL"`, `arms-unfalsifiable`,
+// beside a win32 record for the same version still carrying `{"write":{"userHome":true}}`.
+//
+// The fix is NOT to exempt the shape. `promotion-probe.mjs` runs a real arm that removes the
+// declaration and re-installs, scored by a detector the other three cannot supply — the declared
+// entry's presence in the arm's OWN fresh real home — and a PROVEN pair means the control arm
+// produced the entry and the drop arm did not. That is a detector that demonstrably fired, in this
+// venue, on this package.
+//
+// ⛔ AND IT LICENSES ONE TOKEN, NOT A NARROWING. `licensedByPromotion` returns the capability set the
+// pair actually speaks to, and `narrowingEvidence` requires EVERY dropped token to be in it — the same
+// `every`-over-dropped-capabilities shape `record.mjs` uses for the denial witness. A pair that proves
+// the home artefact travelled through the promotion says nothing about `network` or `read`, so a
+// narrowing that also drops one of those still withholds.
+//
+// ⛔ THE PAYLOAD IS RE-CHECKED, NOT TRUSTED BY ITS VERDICT WORD. A record is a file this guard did not
+// write, and `verdict: "PROVEN"` beside entries that say `drop: true` is exactly the shape a
+// half-updated driver would emit. Re-deriving the verdict from the rows costs four lines and removes
+// the word from the trust boundary.
+const licensedByPromotion = (rec) => {
+  const p = rec?.promotionProbe;
+  if (!p || p.verdict !== 'PROVEN') return new Set();
+  const rows = Array.isArray(p.entries) ? p.entries : [];
+  if (!rows.length) return new Set();
+  if (!rows.every((r) => r?.control === true && r?.drop === false)) return new Set();
+  // ⛔ THE CONTROL ARM MUST NOT HAVE HELD A LIVE HANDLE ON THE REAL HOME, or its PRESENT is
+  // unattributable — the script could have written the real home directly and the promotion moved
+  // nothing. `probePlan` already declines that case, so this is the guard's own re-derivation of the
+  // precondition rather than a second policy: a record whose grant carries `write.userHome` or
+  // `write:"disk"` beside a PROVEN probe is an instrument disagreement, and the safe reading is that
+  // the probe proves nothing.
+  const caps = capsOf(rec?.grant);
+  if (caps.has('write.userHome') || caps.has('write:disk')) return new Set();
+  return new Set(['write.userHome']);
+};
+
 // The `why` is returned rather than a bare boolean so a caller can say WHICH term carried it; the
-// three branches of `decide` below are now just this predicate plus their own prose.
-export const narrowingEvidence = (rec) => {
+// branches of `decide` below are now just this predicate plus their own prose.
+//
+// ⛔ `dropped` IS OPTIONAL AND ITS ABSENCE IS STRICTLY MORE CONSERVATIVE. `collate.mjs` calls this to
+// gate a whole PLATFORM and has no per-cell drop set to hand over, so it cannot ask the scoped
+// question the promotion term answers — and not being able to ask it means no licence, which keeps
+// that consumer exactly as strict as it was before this term existed.
+export const narrowingEvidence = (rec, dropped = null) => {
   if (!notesOf(rec).includes('arms-unfalsifiable')) {
     return { evidence: true, why: 'falsifiable arms' };
   }
@@ -150,9 +198,24 @@ export const narrowingEvidence = (rec) => {
         + 'so a live detector fired',
     };
   }
+  const licensed = licensedByPromotion(rec);
+  if (Array.isArray(dropped) && dropped.length && dropped.every((c) => licensed.has(c))) {
+    return {
+      evidence: true,
+      why: 'a PROMOTION PROBE that went red — the same grant with `writePaths` removed did NOT '
+        + `deliver ${rec.promotionProbe.entries.map((r) => r.entry).join(', ')} into the arm's real `
+        + 'home, while the grant with it did, so the declaration is what carries the artefact and the '
+        + 'home write it replaces was never needed',
+    };
+  }
   return {
     evidence: false,
-    why: `arms that could not have failed (${notesOf(rec).join(', ')}), and no descent arm went red`,
+    why: `arms that could not have failed (${notesOf(rec).join(', ')}), and no descent arm went red`
+      + (licensed.size
+        ? `; the promotion probe is PROVEN but licenses only ${[...licensed].join(', ')}`
+        : rec?.promotionProbe
+          ? `; the promotion probe came back ${rec.promotionProbe.verdict}`
+          : ''),
   };
 };
 
@@ -177,7 +240,10 @@ export const decide = (prior, incoming) => {
   if (dropped.length === 0) {
     return { publish: true, reason: 'does not narrow the existing grant' };
   }
-  const { evidence, why } = narrowingEvidence(incoming);
+  // ⛔ `dropped` IS PASSED, AND THAT IS WHAT MAKES THE PROMOTION TERM REACHABLE AT ALL. The term is
+  // scoped to the capability the probe actually speaks to, so a caller that does not say WHICH
+  // capabilities are being dropped cannot get it — see `narrowingEvidence`'s own note.
+  const { evidence, why } = narrowingEvidence(incoming, dropped);
   if (evidence) {
     return { publish: true, reason: `narrows (${dropped.join(', ')}) on ${why}` };
   }

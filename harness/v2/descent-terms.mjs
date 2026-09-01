@@ -97,6 +97,31 @@ export const NET_ENFORCED_AT_FULL_DISK = new Set(['linux', 'darwin']);
 /** The marker the drivers print when nothing is droppable but the grant is not empty. */
 export const DESCENT_UNSUPPORTED_MARKER = 'DESCENT-UNSUPPORTED';
 
+/**
+ * The drop name for the `writePaths` axis — part of this vocabulary, DELIBERATELY NOT part of
+ * `terms`.
+ *
+ * ⛔⛔ IT IS A DROPPABLE TERM AND IT IS NOT A LEAVE-ONE-OUT TERM, AND THOSE ARE DIFFERENT JOBS.
+ * A name in `terms` is one whose GREEN arm NARROWS the grant: the driver puts it in `$NARROWER`, the
+ * recorder puts it in `overPredictedBy`, and `applyGrantSourceRule` deletes the axis. That is exactly
+ * wrong here. Dropping an entry denies no write — `catalog_v2.rs` says `write_paths` "cannot decide
+ * whether a write SUCCEEDS, only whether the result is KEPT" — so the install still exits 0 and the
+ * artefact is lost one install LATER, which is why `observe.mjs` records that "a `no-writePaths` arm
+ * would report 'droppable' for every package on earth". Put it in `terms` and every `writePaths`
+ * record narrows to nothing on a vacuous green.
+ *
+ * So the axis gets an arm whose only readable outcome is RED, scored by a detector the other three
+ * cannot supply: `promotion-probe.mjs`'s promotion gate, which looks for the declared entry in the
+ * arm's OWN real home. `narrow()` below applies the name, so the arm's grant is spelled here and
+ * nowhere else; nothing in this module ever emits the name into `terms`.
+ *
+ * ⛔ IT ALSO DOES NOT MATCH `/^no-write-(.+)$/` — there is no hyphen after `write` — so a future
+ * driver that DID route it into `overPredictedBy` lands in `record.mjs`'s `unparsedNames`, which
+ * keeps the WIDE grant and says the recomputation failed. Fail-closed by an accident of spelling,
+ * pinned by a test so it stops being an accident.
+ */
+export const PROMOTION_TERM = 'no-writePaths';
+
 /** Why an axis produced no term. Machine-readable; the prose in `verdictLines` mirrors these. */
 export const SKIP_REASONS = {
   'reach-atomic':
@@ -182,6 +207,21 @@ export function narrow(grant, names) {
   for (const n of names) {
     if (n === 'no-network') { delete g.network; continue; }
     if (n === 'no-read') { delete g.read; continue; }
+    // ⛔ THE SAME FAIL-CLOSED RULE AS THE WRITE SCOPES, AND IT MATTERS MORE HERE. A `no-writePaths`
+    // arm on a grant that declares none would be the UNNARROWED grant run under a new label, and the
+    // promotion probe that scores it would then compare an arm against itself and report the entry
+    // present in both — an `UNPROVEN-DROP`, which is the safe verdict, but reached by measuring
+    // nothing. A throw says so instead.
+    if (n === PROMOTION_TERM) {
+      if (!Array.isArray(g.writePaths) || !g.writePaths.length) {
+        throw new Error(
+          `descent-terms: \`${n}\` cannot be applied to \`writePaths: ${JSON.stringify(g.writePaths)}\` — `
+            + 'the drop would be a no-op and the arm would run the UNNARROWED grant',
+        );
+      }
+      delete g.writePaths;
+      continue;
+    }
     const w = /^no-write-(.+)$/.exec(n);
     if (!w) throw new Error(`descent-terms: \`${n}\` is not a drop name this vocabulary defines`);
     if (typeof g.write !== 'object' || g.write === null || !(w[1] in g.write)) {
