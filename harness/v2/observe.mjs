@@ -56,6 +56,7 @@
 import fs from 'node:fs';
 import { decode } from './adapters/linux.mjs';
 import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
+import { toolCacheRw } from './tool-cache-leaves.mjs';
 import { marker as observedEffectMarker, effectWrites } from './observed-effect.mjs';
 
 const argv = process.argv.slice(2);
@@ -321,14 +322,23 @@ const under = (p, root) => p === root || p.startsWith(`${root}/`);
 // over-grant this whole change exists to stop. Keeping both cannot widen past what the jail
 // grants: every member is a path `push_rw_path` covers.
 //
-// ⛔ NULL-SAFE ON BOTH ROOTS. Several captures declare `toolsDir: null` (the Windows driver sets no
-// redirect at all) and several declare `npmPrefix: null`; `null` is the capture ANSWERING that this
-// venue has no such root, so the correct response is an empty contribution, never a throw and never
-// a path built from the string "null".
-const TOOLS_RW = [
-  ...(toolsDir ? ['npm-prefix', 'ms-playwright', 'electron-cache'].map((l) => `${toolsDir}/${l}`) : []),
-  ...(jailNpmPrefix ? [jailNpmPrefix] : []),
-];
+// ⛔ NULL-SAFE ON BOTH ROOTS, because `null` is a capture ANSWERING that this venue has no such root
+// rather than a capture failing to say. An empty contribution is the correct response — never a
+// throw, never a path built from the string "null". MEASURED over all 5,742 committed captures on
+// all three platforms: ZERO declare `toolsDir: null` and zero omit the key, so this branch has never
+// once been taken by any record in the archive. (An earlier version of this note offered the Windows
+// driver as the case that takes it; `measure-windows.mjs` declares `toolsDir: TOOLS`, a real path,
+// and answers `null` for `npmPrefix` alone.) It is kept because losing a carve-out silently is the
+// expensive direction — not because anything has ever needed it.
+//
+// ⛔ THE LEAF NAMES LIVE IN `tool-cache-leaves.mjs` NOW, AND THE MOVE IS THE ONLY THING HERE THAT IS
+// NOT A NO-OP. The list and `observe-macos.mjs`'s were two array literals that had to grow together.
+// They did grow together, in one commit — but only on 2026-08-31, and for the whole era before it
+// the carve-out was `npm-prefix` alone, so 72 committed records billed a free `electron-cache` write
+// as authority over the entire user home. An archived `driver.out` is frozen at the classifier that
+// wrote it, so no forward fix reaches them; `write-census.mjs` reads the same shared list to subtract
+// those writes when it re-adjudicates one. One copy of the names cannot drift from itself.
+const TOOLS_RW = toolCacheRw({ toolsDir, npmPrefix: jailNpmPrefix });
 
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {

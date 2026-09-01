@@ -13,10 +13,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  CENSUS_CLEAR, CENSUS_REFUSE, CENSUS_UNKNOWN, homeDropVerdict, homeWrites,
+  CENSUS_CLEAR, CENSUS_REFUSE, CENSUS_UNKNOWN, homeDropVerdict, homeWriteCensus, homeWrites,
 } from './write-census.mjs';
 import { homeWrites as reExported } from './stale-adjudication.mjs';
 import { parseDriverLog } from './record.mjs';
+import { TOOL_CACHE_LEAVES, toolCacheRw } from './tool-cache-leaves.mjs';
 
 const HERE = import.meta.dirname;
 
@@ -233,4 +234,228 @@ test('⭑ all three classifiers emit a census header this module matches', () =>
     assert.equal(homeWrites(`${header}\n    userHome    7\n  == READS ==`), 7,
                  `${f} prints a header this module's reader does not recognise: ${header}`);
   }
+});
+
+// ── the FREE-DIRECTORY subtraction ────────────────────────────────────────────────────────────────
+//
+// ⛔ THE DEFECT THESE COVER, AND IT IS AN OVER-REFUSAL RATHER THAN THE UNDER-GRANT ABOVE. The
+// three-leaf tool-cache carve-out landed in the POSIX classifiers on 2026-08-31 (`0492dce58`);
+// before it they carved out `npm-prefix` alone, so an `electron-cache` write — into a directory nub
+// creates, redirects the package at, and `push_rw_path`s read-write — was billed to `userHome`. An
+// archived `driver.out` is frozen at the classifier that wrote it, so no forward fix reaches those
+// records and the gate must read the paths rather than the count.
+//
+// MEASURED over the committed archive, split on that commit: 72 pre-era records (28 darwin, 44
+// linux) carry a positive `userHome` census whose EVERY listed path is a tool-cache leaf, against 0
+// post-era; and 20 post-era records carry a `toolsRw` bucket against 0 pre-era. A clean cut in both
+// directions, which is what makes this an era effect rather than a live classifier bug.
+
+/** A POSIX driver log with a ROOTS echo, a `userHome` census and the feasibility listing behind it.
+ *  Indentation is the drivers' real indentation — the feasibility block is closed by INDENT, not by
+ *  the next `==` header, because what follows it in a real log is `EVICT[…]` at the outer level. */
+const POSIX_LOG = ({
+  home = '/Users/runner',
+  toolsDir = '/Users/runner/.cache/nub/pm/tools',
+  userHome = 3,
+  outside = 0,
+  paths = [
+    '.cache/nub/pm/tools/electron-cache',
+    '.cache/nub/pm/tools/electron-cache/4b092cc6/electron-v33.4.11-darwin-arm64.zip',
+    '.cache/nub/pm/tools/electron-cache/4b092cc6',
+  ],
+  count = null,
+  more = 0,
+  feasibility = true,
+} = {}) => [
+  '  == ROOTS (from capture.json — R2: no ambient reads) ==',
+  `    project       ${home}/v2m-xARqly/Observe`,
+  `    home          ${home}`,
+  `    jailHome      ${home}/v2m-xARqly/jailhome`,
+  `    globalStore   ${home}/.cache/nub/pm/store   [declared, not keyed on]`,
+  `    toolsDir      ${toolsDir === null ? '(null)' : toolsDir}`,
+  `    npmPrefix     ${toolsDir === null ? '(null)' : `${toolsDir}/npm-prefix`}`,
+  '  == WRITES the script actually performed ==',
+  '    jailTmp       4  (base profile already grants this — NOT billed)',
+  `    userHome  ${String(userHome).padStart(5)}`,
+  ...(outside ? [`    outside   ${String(outside).padStart(5)}`] : []),
+  '  == READS ==',
+  '    deps          1',
+  ...(feasibility ? [
+    '  == writePaths FEASIBILITY (distinct writes outside project/deps) ==',
+    `    count: ${count ?? paths.length + more}`,
+    ...paths.map((p) => `        ${p}`),
+    ...(more ? [`      … and ${more} more`] : []),
+  ] : []),
+  '  EVICT[synth] 52 store entries removed, 3 spared as nub tooling, 301 in store',
+].join('\n');
+
+test('⭑ CONTROL: the two archived shapes whose answers were checked by hand first', () => {
+  // ⛔ BOTH READ OFF THE COMMITTED CORPUS BEFORE THIS CODE EXISTED, which is what makes them a
+  // control rather than a restatement of the implementation. `electron@33.4.11` (darwin) attributed
+  // 3 real-home writes and its feasibility block lists exactly three `electron-cache` paths;
+  // `@mui+x-telemetry@9.10.0` (linux) attributed 2 and lists `.config/mui-x{,/config.json}`.
+  const free = homeWriteCensus(POSIX_LOG());
+  assert.deepEqual({ total: free.total, free: free.free, billable: free.billable, basis: free.basis },
+                   { total: 3, free: 3, billable: 0, basis: 'paths' });
+
+  const real = homeWriteCensus(POSIX_LOG({
+    home: '/home/runner',
+    toolsDir: '/home/runner/.cache/nub/pm/tools',
+    userHome: 2,
+    paths: ['.config/mui-x', '.config/mui-x/config.json'],
+  }));
+  assert.deepEqual({ total: real.total, free: real.free, billable: real.billable, basis: real.basis },
+                   { total: 2, free: 0, billable: 2, basis: 'paths' });
+});
+
+test('⭑ a census whose every path is a tool-cache leaf CLEARS the drop, and says which leaves', () => {
+  const v = homeDropVerdict({ log: POSIX_LOG(), witness: null });
+  assert.equal(v.verdict, CENSUS_CLEAR, v.reason);
+  assert.equal(v.homeWrites, 3, 'the RAW row stays raw — a reader must find the same number in driver.out');
+  assert.equal(v.billableHomeWrites, 0);
+  assert.match(v.reason, /places all 3 of them inside nub's tool-cache read-write leaves/);
+  // ⛔ A DISTINCT SENTENCE FROM "attributed no write to the REAL home". Collapsing the two would hide
+  // the only fact a reviewer needs to re-check the subtraction.
+  assert.doesNotMatch(v.reason, /attributed no write/);
+});
+
+test('⛔ RED CONTROL: one non-tool path among the free ones is enough to REFUSE', () => {
+  // Without this the clear above could be produced by a rule that subtracts every listed path.
+  const v = homeDropVerdict({
+    log: POSIX_LOG({
+      userHome: 4,
+      paths: [
+        '.cache/nub/pm/tools/electron-cache',
+        '.cache/nub/pm/tools/electron-cache/zip',
+        '.cache/nub/pm/tools/ms-playwright',
+        '.ssh/authorized_keys',
+      ],
+    }),
+    witness: null,
+  });
+  assert.equal(v.verdict, CENSUS_REFUSE, v.reason);
+  assert.equal(v.billableHomeWrites, 1);
+  assert.match(v.reason, /3 of them inside nub's tool-cache leaves and 1 not/);
+});
+
+test('⛔ RED CONTROL: `tools` ITSELF is not a leaf, and neither is a sibling under it', () => {
+  // ⛔ SECURITY BOUNDARY, NOT TIDINESS. `tools` also holds the node-gyp bootstraps nub executes on
+  // every later install, so a subtraction spanning the directory would clear a package that
+  // overwrote one — persistence, dressed as a build need.
+  for (const p of ['.cache/nub/pm/tools', '.cache/nub/pm/tools/node-gyp/bin/node-gyp.js',
+                   '.cache/nub/pm/tools/electron-cache-evil']) {
+    const c = homeWriteCensus(POSIX_LOG({ userHome: 1, paths: [p] }));
+    assert.equal(c.billable, 1, `${p} was subtracted as if it were a granted leaf`);
+  }
+  // CONTROL: the leaf itself and a file inside it DO subtract, or the loop above proves nothing.
+  for (const p of ['.cache/nub/pm/tools/electron-cache', '.cache/nub/pm/tools/npm-prefix/bin/x']) {
+    assert.equal(homeWriteCensus(POSIX_LOG({ userHome: 1, paths: [p] })).billable, 0, p);
+  }
+});
+
+test('⭑ every condition on the subtraction fails CLOSED, back to the raw count', () => {
+  // ⛔ EACH CASE IS A WAY THE SUBTRACTION COULD BE WRONG, and the safe answer to every one of them is
+  // the number the gate used before this code existed. Subtracting a write the package needed is an
+  // UNDER-GRANT; failing to subtract a free one costs a narrowing and nothing else.
+  //
+  // ⛔ EACH CASE ALSO PINS THE REASON, NOT ONLY THE VERDICT, AND THAT IS NOT DECORATION — a mutation
+  // test is what put it there. The conditions overlap: on an honest log a truncated listing also
+  // fails the relative/absolute split, so DELETING the truncation check leaves the verdict correct
+  // and only the reason wrong. Asserting the verdict alone let that mutation live.
+  const cases = {
+    'no feasibility block at all (every win32 record)': [POSIX_LOG({ feasibility: false }), /lists no `writePaths FEASIBILITY`/],
+    'the listing is truncated past the printer\'s 40-entry cap': [POSIX_LOG({ userHome: 303, more: 300 }), /TRUNCATED \(3 shown of 303\)/],
+    'the listing does not reconcile with the userHome row': [POSIX_LOG({ userHome: 9 }), /3 home-relative, 0 absolute.*userHome 9 \+ outside 0/],
+    'an `outside` row the listing does not account for': [POSIX_LOG({ outside: 2 }), /3 home-relative, 0 absolute.*userHome 3 \+ outside 2/],
+    'the tool cache is not under the declared home': [POSIX_LOG({ toolsDir: '/opt/nub/pm/tools' }), /does not sit under the declared home/],
+    'no toolsDir root is echoed at all': [POSIX_LOG({ toolsDir: null }), /echoes no `home`\/`toolsDir` root pair/],
+  };
+  for (const [why, [log, reason]] of Object.entries(cases)) {
+    const c = homeWriteCensus(log);
+    assert.equal(c.basis, 'count-only', `${why}: the subtraction ran anyway`);
+    assert.equal(c.billable, c.total, `${why}: a write was subtracted on evidence that does not hold`);
+    assert.equal(homeDropVerdict({ log, witness: null }).verdict, CENSUS_REFUSE, why);
+    assert.match(c.why ?? '', reason, `${why}: the recorded reason names a different condition`);
+  }
+});
+
+test('⛔ a win32-shaped absolute path in the listing FAILS the split rather than reading as relative', () => {
+  // The printer relativizes an entry exactly when it is under `home`, so the non-absolute entries
+  // must number `userHome` and the absolute ones `outside`. `classify.mjs` prints no listing today;
+  // this is what stops one appearing later and being read one bucket wrong.
+  const c = homeWriteCensus(POSIX_LOG({ userHome: 2, outside: 1, paths: ['.config/x', '/tmp/y', 'C:\\Users\\r\\z'] }));
+  assert.equal(c.basis, 'count-only');
+  assert.equal(c.billable, 2);
+});
+
+test('⛔ an `outside` write that DOES reconcile is not mistaken for a free home write', () => {
+  // outside 1 + userHome 1, listing of 2 with one absolute: the split reconciles, so the subtraction
+  // runs — and it must consider only the home-relative entry.
+  const c = homeWriteCensus(POSIX_LOG({
+    userHome: 1, outside: 1, paths: ['.cache/nub/pm/tools/electron-cache/z', '/tmp/hsperfdata_runner'],
+  }));
+  assert.deepEqual({ basis: c.basis, total: c.total, free: c.free, billable: c.billable },
+                   { basis: 'paths', total: 1, free: 1, billable: 0 });
+});
+
+test('⭑ END TO END: the record narrows on a tool-cache-only census and is withheld on a real one', () => {
+  // ⛔ THROUGH `parseDriverLog`, not through the classifier alone: the term lives in
+  // `applyGrantSourceRule`, and a subtraction that never reaches it changes no record.
+  const descent = LOG({ writes: ['    userHome      3'] });
+  const roots = POSIX_LOG().split('\n').slice(0, 7).join('\n');
+  const feas = POSIX_LOG().split('\n').slice(-6, -1).join('\n');   // the header, `count:` and 3 paths
+
+  const freeRec = parseDriverLog([roots, descent, feas].join('\n'));
+  assert.equal(freeRec.grantSource, 'descended', freeRec.grantSourceReason);
+  assert.equal(home(freeRec.grant), false, 'a home the script never needed was kept anyway');
+  assert.ok(!freeRec.notes.includes('home-write-attributed'));
+
+  const realFeas = feas.replace(/\.cache\/nub\/pm\/tools\/electron-cache/g, '.config/mui-x');
+  const realRec = parseDriverLog([roots, descent, realFeas].join('\n'));
+  assert.equal(realRec.grantSource, 'synthesized', realRec.grantSourceReason);
+  assert.equal(home(realRec.grant), true, 'the grant lost the home the script demonstrably wrote to');
+  assert.ok(realRec.notes.includes('home-write-attributed'));
+});
+
+// ── ONE list of leaves, three readers ─────────────────────────────────────────────────────────────
+
+test('⭑ the leaf list is shared, and neither classifier carries a literal copy of it', () => {
+  // ⛔ THE DEFECT CLASS, IN ITS ORIGINAL FORM. The list grew from one leaf to three on 2026-08-31 and
+  // both copies had to be edited together. They were — but a third reader arrived later, and two
+  // array literals plus a third would have been the fifth recurrence of the guard-in-one-driver bug
+  // `three-driver-parity.test.mjs` exists for.
+  const code = (f) => fs.readFileSync(path.join(HERE, f), 'utf8').split('\n')
+    .filter((l) => !/^(\/\/|\*|\/\*)/.test(l.trimStart())).join('\n');
+  const LITERAL = /\[\s*'npm-prefix'\s*,/;
+  assert.match(code('tool-cache-leaves.mjs'), /'npm-prefix', 'ms-playwright', 'electron-cache'/,
+               'CONTROL: the scan cannot see the list it is looking for');
+  for (const f of ['observe.mjs', 'observe-macos.mjs', 'write-census.mjs']) {
+    assert.doesNotMatch(code(f), LITERAL, `${f} carries its own copy of the tool-cache leaf list`);
+  }
+});
+
+test('⭑ the hoist is a NO-OP: `toolCacheRw` reproduces the expression both classifiers carried', () => {
+  // ⛔ THIS IS WHAT SAYS THE CHANGE DOES NOT MOVE A MEASUREMENT. The old expression is copied here
+  // verbatim; over every root pair the committed captures actually declare, the two agree. Run
+  // against all 5,742 committed `capture.json` files at authoring time: 0 differences, and
+  // `toolsDir` is null in 0 of them while `npmPrefix` is null in 1,688 (every win32 capture).
+  const OLD = (toolsDir, npmPrefix) => [
+    ...(toolsDir ? ['npm-prefix', 'ms-playwright', 'electron-cache'].map((l) => `${toolsDir}/${l}`) : []),
+    ...(npmPrefix ? [npmPrefix] : []),
+  ];
+  const venues = [
+    ['/Users/runner/.cache/nub/pm/tools', '/Users/runner/.cache/nub/pm/tools/npm-prefix'],  // darwin
+    ['/home/runner/.cache/nub/pm/tools', '/home/runner/.cache/nub/pm/tools/npm-prefix'],    // linux
+    ['C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools', null],                       // win32
+    [null, null], [null, '/x/npm-prefix'],                                                  // the latent branches
+  ];
+  for (const [toolsDir, npmPrefix] of venues) {
+    assert.deepEqual(toolCacheRw({ toolsDir, npmPrefix }), OLD(toolsDir, npmPrefix), `${toolsDir} / ${npmPrefix}`);
+  }
+  // CONTROL: the comparison can fail, or the loop above is vacuous.
+  assert.notDeepEqual(toolCacheRw({ toolsDir: '/x' }), OLD('/y', null));
+});
+
+test('⭑ the leaves are exactly the three `preset.rs` push_rw_paths, in one place', () => {
+  assert.deepEqual(TOOL_CACHE_LEAVES, ['npm-prefix', 'ms-playwright', 'electron-cache']);
 });

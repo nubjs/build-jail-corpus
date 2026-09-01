@@ -36,6 +36,7 @@
 import fs from 'node:fs';
 import { deriveWritePaths, refuseUserHome, relativizeUnder } from './write-paths.mjs';
 import { marker as observedEffectMarker, effectWrites } from './observed-effect.mjs';
+import { toolCacheRw } from './tool-cache-leaves.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : null; };
@@ -483,14 +484,15 @@ const isBytecode = (p) => /(^|\/)__pycache__(\/|$)/.test(p) || /\.py[co]$/.test(
 const under = (p, root) => p === root || p.startsWith(`${root}/`);
 
 // Derived from the DECLARED `toolsDir`, never from a hardcoded `~/.cache/nub` pattern (R2): the leaf
-// NAMES are nub's constants, the parent is whatever this venue's capture declares. `npmPrefix` is
-// unioned in rather than replaced so a capture declaring it while leaving `toolsDir` null keeps the
-// carve-out it already had; both roots are null-safe, because `null` is the capture ANSWERING that
-// this venue has no such root. Same construction and same reasoning as `observe.mjs`.
-const TOOLS_RW = [
-  ...(toolsDir ? ['npm-prefix', 'ms-playwright', 'electron-cache'].map((l) => `${toolsDir}/${l}`) : []),
-  ...(npmPrefix ? [npmPrefix] : []),
-];
+// NAMES are nub's constants, the parent is whatever this venue's capture declares. Both roots are
+// null-safe, because `null` is the capture ANSWERING that this venue has no such root.
+//
+// ⛔ THE LEAF LIST IS NO LONGER A LITERAL HERE, AND THAT IS THE ONLY CHANGE — `toolCacheRw` returns
+// the identical array. It and `observe.mjs`'s were two copies that had to grow together; they only
+// did on 2026-08-31, and the era before that cost 72 committed records a `write.userHome` they did
+// not need. `tool-cache-leaves.mjs` holds the one copy and carries the argument; a leaf added there
+// reaches both classifiers AND the census gate that re-reads a frozen archived log.
+const TOOLS_RW = toolCacheRw({ toolsDir, npmPrefix });
 
 const scope = (p) => {
   if (isBytecode(p)) return 'bytecode';
