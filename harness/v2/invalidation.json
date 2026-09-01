@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 74,
+  "currentEpoch": 75,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1545,6 +1545,16 @@
         "verdicts": []
       },
       "reason": "Adds the narrowing counterpart to the offline re-record path and applies it to 6 records whose committed grant holds a whole-home write the current rule no longer reaches. It replays each record's own archived driver log through the current recorder and narrows only where every gate already passes, so it introduces no new licence. Also adds a network census term: the artifact gate cannot distinguish a fetch that never happened from one a warm cache made unnecessary, which is the same hole the home-write census closes, on the axis nothing had applied it to. Only grant, grantSource, grantSourceReason and notes change. No measurement was re-run and no record is invalidated."
+    },
+    {
+      "fromEpoch": 74,
+      "fromHarnessSha256": "9d81baf1587f9fa02df96ef7e9a4a78cb0e950654dc38784f5e2833f37d8b5b4",
+      "toEpoch": 75,
+      "toHarnessSha256": "0a61af683271788ad8dea7a7010b081da5c56e51daec324a12ee91bc49bbfcd8",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Closes the two ways the catalog bake could NARROW a grant, which an under-grant breaks real installs. The band structure is regenerated, so a dist-tag whose version was never measured let default start lower and swallow versions a band used to cover; a new version-coverage gate refuses that. And the prior-catalog floors only existed for packages already in the prior, so a NEW entry got no floor at all -- and since an entry REPLACES baseline_caps() rather than merging with it, an entry naming less than the baseline is a real under-grant. The floor is now the package's own prior entry, else the baseline, scoped to packages absent from the prior; a universal floor would have stripped deliberate egress denial from 174 packages. A collator drives no measurement, so nothing is invalidated."
     }
   ]
 }
