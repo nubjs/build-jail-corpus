@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 66,
+  "currentEpoch": 67,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1372,6 +1372,16 @@
         ]
       },
       "reason": "Epoch 66 purges the machine-global artefact caches between descent arms on ALL THREE drivers. It was a guard that existed in one driver of three -- the fourth recurrence of that pattern in v2.\n\nMY FRAMING WAS WRONG AND THE LANE CORRECTED IT. The 505 all-arms-green records are not one population: 288 of them ran NO drop arm at all, because the synthesized grant was already empty, so \"every drop arm passed\" is vacuous for them. Only 217 were emptied by an actual descent. Of those 217, 44 are UNSOUND -- electron x6 and electron-chromedriver x38, and all 44 are darwin -- while the other 173 are sound on every package that could be run faithfully.\n\nTHE MECHANISM. measure.sh already purges the roots the store eviction cannot reach: nub redirect targets under cache/nub/pm/tools, namely electron-cache and ms-playwright, which are MACHINE-GLOBAL, plus the private home and the side-effects entry. Its own heading calls this THE FOURTH REPLAY PATH. measure-macos.sh REFERENCES those paths but never purges them, and measure-windows.mjs mentions neither. The darwin-only shape of the 44 was derived from the records BEFORE the guard was found in the source, which is the right order.\n\nReproduced on the pinned binary with one variable held, grant empty throughout: cold gives rc=1 and getaddrinfo ENOTFOUND github.com; warm gives rc=0; warm plus the purge gives rc=1 again. So the drop arm passed because the artefact was already on the machine, not because the capability was unneeded.\n\nTHE GUARD DOES NOT STOP ANY OF IT, and that is the durable lesson. publish-guard.decide() over all 217 returns 217 PUBLISH and 0 WITHHOLD, every one on \"narrows on falsifiable arms\". arm-falsifiability asks whether an arm COULD have gone red; it never asks whether this arm DID THE WORK. A warm arm is perfectly falsifiable and still proves nothing.\n\nTWO CORRECTIONS THE LANE MADE TO ITS OWN READING, both worth keeping: the private jail home is NOT shared between arms -- its slug hashes the arm project-local store path, and two arms produced two slugs -- and the sound majority is explained by a VENUE difference rather than a cache, because nub sets npm_config_nodedir so node-gyp never fetches headers inside the jail while the plain-npm observe arm did.\n\nSHIPPED EXPOSURE: 63 cells over 45 names resolve empty where a class record descent emptied them. The overrides note counted 41 overlays and was right on 2026-08-17; today the full-withdrawal shape is 31 overlays over 16 names. Only the electron share is PROVEN unsound; the rest needs re-measurement, not withdrawal.\n\nThe change also fixes a pre-existing OVER-eviction the lane own test caught: the shell glob basename-PKG-star swept electron-chromedriver home while measuring electron.\n\nScope is nine package names, 2 valid records, because almost every record in the class is already invalid at this epoch. UNRESOLVED and carried: 20 ownPkg-only no-network records could not be adjudicated -- the harness era-pins Node per package and the probe did not, so two of them were a different experiment; they need a real harness run.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
+    },
+    {
+      "fromEpoch": 66,
+      "fromHarnessSha256": "e3b884eae566b1e174451d3e51a4268c39c5bb6f474cd5eda086f918926b4680",
+      "toEpoch": 67,
+      "toHarnessSha256": "0f1d3e77e6f1ef4b4b59fb9522a9826f8a957a0fc0710fe2ed579a4c5fcc3e75",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Adds a cross-driver parity test. The three platform drivers each reach a set of shared modules that encode measurement-soundness decisions, and four separate defects have been a module wired into one or two drivers rather than all three. The test derives the rule from the drivers' own reference graph and fails when a shared module, a record marker, or an explicit --platform argument is present in some drivers and absent from others, with an exemption registry for the genuinely platform-specific cases. No measurement behaviour changes, so no record is invalidated."
     }
   ]
 }
