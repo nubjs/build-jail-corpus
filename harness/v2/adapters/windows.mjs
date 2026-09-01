@@ -22,6 +22,7 @@ import readline from 'node:readline';
 import {
   SHORT_COMPONENT, SHORT_NAMES_FILE, UNMAPPED, componentResolver, shortNameMode, writeShortNames,
 } from './windows-shortnames.mjs';
+import { REFUSAL_NTSTATUS } from './windows-status.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : null; };
@@ -205,12 +206,14 @@ function destPathOf(data, sourceName) {
 // a file that is not there returns STATUS_OBJECT_NAME_NOT_FOUND, which means the operation did not
 // happen, not that it was forbidden; those are OMITTED, mirroring the Linux extractor skipping
 // `= -1`. Only these four say "you were not allowed".
-const REFUSAL_STATUS = new Map([
-  [0xc0000022, 'STATUS_ACCESS_DENIED'],
-  [0xc0000061, 'STATUS_PRIVILEGE_NOT_HELD'],
-  [0xc00000a2, 'STATUS_MEDIA_WRITE_PROTECTED'],
-  [0xc0000121, 'STATUS_CANNOT_DELETE'],
-]);
+// ⛔ THE FOUR CODES MOVED TO `windows-status.mjs` AND ARE NO LONGER WRITTEN HERE. This was a local
+// Map whose four NAMES were never read — only `.has(status)` — and the same four are now what
+// `denial-witness.mjs`'s win32 axis scores refusals against. Two copies of a refusal vocabulary is
+// precisely the drift that produced the descent-name defect, where `measure.sh` emitted `network`
+// against a `record.mjs` matching `no-network` and both sides' tests passed. Here it would be worse
+// than a wrong name: a scorer holding a stale list stops matching a status and quietly answers CLEAN
+// more often, which publishes an under-grant.
+const REFUSAL_STATUS = REFUSAL_NTSTATUS;
 const ntSuccess = (s) => (s & 0x80000000) === 0;        // severity 0 or 1; matches NT_SUCCESS()
 
 // Kernel-Network. Only OUTBOUND initiations are connects; data-sent/received on an established
