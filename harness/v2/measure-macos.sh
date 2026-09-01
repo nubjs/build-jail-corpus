@@ -1563,25 +1563,35 @@ descend () {
   # change so they cannot diverge. Ladder rung 1 carries `read:"disk"`, the grant under which a
   # project's `.env` files are readable, and before this that rung granted it unquestioned.
   #
-  # ⛔ `write:"disk"` IS STILL NOT DESCENDED, AND IT IS NOT THE SAME CASE. `write` arrives here as a MAP
-  # of scopes, so `Object.keys` over the string form would fabricate four `no-write-<digit>` arms the
-  # recorder cannot parse; the ladder refuses the top rung outright for that reason. `read` is a SCOPE
-  # rather than a map of scopes, so the whole key drops under ONE name — there is deliberately no
-  # `no-read-<scope>` spelling mirroring `no-write-<scope>`, because a second vocabulary is exactly
-  # what the recorder's unparsed-name guard exists to prevent.
-  node -e '
-    const g = JSON.parse(process.argv[1]); const out = [];
-    if (g.network) { const c = JSON.parse(JSON.stringify(g)); delete c.network; out.push(["no-network", c]); }
-    for (const k of Object.keys(g.write ?? {})) {
-      const c = JSON.parse(JSON.stringify(g)); delete c.write[k];
-      if (!Object.keys(c.write).length) delete c.write;
-      out.push(["no-write-" + k, c]);
-    }
-    if (g.read) { const c = JSON.parse(JSON.stringify(g)); delete c.read; out.push(["no-read", c]); }
-    for (const [n, c] of out) console.log(n + "\t" + JSON.stringify(c));
-  ' "$g0" > "$ROOT/variants.tsv" 2>/dev/null
+  # ⛔⛔ THE ARM LIST AND ITS GRANTS COME FROM `descent-terms.mjs`, NOT FROM A `node -e` LOCAL TO THIS
+  # DRIVER. There used to be three inline copies of this generator, one per driver, which is exactly
+  # how `measure.sh` came to emit the bare `network` / `write.deps` names for the life of its descent
+  # while this file spelled them `no-*`. One module, three callers, one vocabulary.
+  #
+  # ⛔ AND IT IS WHAT MADE `write:"disk"` DESCENDABLE. `write` arrives on the terminal rung as the
+  # STRING `"disk"`, where `Object.keys` yields `["0","1","2","3"]` — four `no-write-<digit>` arms the
+  # recorder cannot parse, which is why the ladder used to refuse the whole rung. The module answers
+  # that shape with NO write term plus a recorded skip reason, so the rung's OTHER term is measured
+  # rather than discarded with it. `read` is a SCOPE rather than a map of scopes, so the whole key
+  # still drops under ONE name — there is deliberately no `no-read-<scope>` spelling mirroring
+  # `no-write-<scope>`, because a second vocabulary is exactly what the recorder's unparsed-name guard
+  # exists to prevent.
+  #
+  # ⛔ STDERR IS NOT SWALLOWED ANY MORE. The old form ended `2>/dev/null`, so a generator that threw
+  # produced an empty TSV and the driver then printed "the grant is already empty" — a wide grant
+  # published as MINIMAL by construction off a crash. The refusal is now explicit and prints nothing
+  # that `record.mjs` reads as minimality.
+  if ! node "$HERE/descent-terms.mjs" --variants "$g0" > "$ROOT/variants.tsv"; then
+    echo "  !! DESCENT-TERMS REFUSED $g0 — the arm list could not be computed, so NO descent ran;"
+    echo "     the wider $kept grant stands and minimality is unclaimed."
+    return 0
+  fi
   if [ ! -s "$ROOT/variants.tsv" ]; then
-    echo "  NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction"
+    # ⛔ TWO EMPTY CASES, TWO SENTENCES, AND THE MODULE OWNS BOTH. An empty GRANT is minimal by
+    # construction; a wide grant with no droppable TERM is not, and this driver printed the first
+    # sentence for both — so `{"write":"disk","network":true}` reaching here would publish the widest
+    # grant in the corpus as `minimality: MINIMAL` off a descent that ran zero arms.
+    node "$HERE/descent-terms.mjs" --verdict "$g0"
   fi
   while IFS=$'\t' read -r nm gg; do
     [ -n "${nm:-}" ] || continue
@@ -1632,16 +1642,12 @@ descend () {
   # leave-one-out arm IS the joint case.
   DROPPED=$(grep -c . "$ROOT/dropped.txt" 2>/dev/null || echo 0)
   if [ "$DROPPED" -ge 2 ]; then
-    JOINT=$(node -e '
-      const g = JSON.parse(process.argv[1]);
-      for (const n of process.argv[2].split(/\s+/).filter(Boolean)) {
-        if (n === "no-network") delete g.network;
-        if (n === "no-read") delete g.read;
-        const w = /^no-write-(.+)$/.exec(n);
-        if (w && g.write) { delete g.write[w[1]]; if (!Object.keys(g.write).length) delete g.write; }
-      }
-      console.log(JSON.stringify(g));
-    ' "$g0" "$(tr '\n' ' ' < "$ROOT/dropped.txt")" 2>/dev/null)
+    # Same shared applier as the per-arm drops — a joint grant computed by a second copy of the delete
+    # logic is a second chance for the two to disagree about what a name means. `narrow()` throws
+    # rather than returning a grant that merely LOOKS narrowed, so `$JOINT` is empty on refusal and
+    # the guard below keeps the wide grant.
+    JOINT=$(node "$HERE/descent-terms.mjs" --narrow "$g0" \
+      --drop "$(tr '\n' ' ' < "$ROOT/dropped.txt")" 2>/dev/null)
     if [ -n "${JOINT:-}" ]; then
       # ⛔ THREE OUTCOMES HERE TOO. `if verify …; then … else …; fi` reads a VOID arm (rc 2 — the
       # override did not engage, so NOTHING was measured) as a genuine joint failure. That direction
@@ -1764,14 +1770,28 @@ if [ "$VERIFIED" -eq 0 ]; then
       # all three because ONE arm passed. The descent can only ever narrow to something that still
       # verifies in the real jail, so it cannot under-grant.
       #
-      # ⛔ NOT DESCENDED FROM `write:"disk"`. That is a STRING, not an object, and the variant
-      # generator does `Object.keys(g.write)` — which on `"disk"` yields `["0","1","2","3"]` and would
-      # manufacture four nonsense `no-write-<digit>` arms. It is also the absence of confinement
-      # rather than a path grant with droppable terms, so a leave-one-out over it measures nothing.
-      case "$g" in
-        *'"write":"disk"'*) echo "  !! top rung is write:\"disk\" — no droppable terms, so no descent" ;;
-        *) descend "$g" ladder ;;
-      esac
+      # ⛔⛔ EVERY RUNG IS DESCENDED NOW, `write:"disk"` INCLUDED — THIS `case` USED TO EXEMPT IT. The
+      # exemption's reason was sound and its scope was not: `Object.keys("disk")` is `["0","1","2","3"]`,
+      # so the old inline generator would have fabricated four unparseable `no-write-<digit>` arms. But
+      # the rung is a BUNDLE like every other, and skipping the descent threw away its SECOND term
+      # along with the first. MEASURED on the committed corpus 2026-09-01: all 75 `write:"disk"`
+      # records carry `overPredictedBy: []` and `minimality: null`, and all 75 also carry
+      # `network: true` — a capability no arm has ever tried to drop, on exactly the records where the
+      # filesystem axis is already gone. `descent-terms.mjs` emits no write term for the string reach
+      # and `no-network` for the rest, so the term that CAN be measured is.
+      #
+      # ⛔ THE NETWORK ARM IS LIVE ON darwin AND `descent-terms.mjs` IS WHERE THAT IS DECIDED.
+      # `relax_fs_to_full_disk` mutates `policy.fs` and nothing else, and `macos.rs`'s
+      # `needs_sandbox = fs_confines || tmp_confines || policy.net.enforce` keeps the profile emitted
+      # for the net axis alone — `emit_fs` even carries a branch for it ("we wrapped only to enforce
+      # net"). win32 is the platform where that is false, and the module answers UNSUPPORTED there
+      # rather than running an arm that could not have failed.
+      #
+      # ⛔ THE WRITE AXIS IS NOT SILENTLY DROPPED, IT IS DELEGATED. Every narrower write reach the
+      # catalog can spell is a `Scopes` value — i.e. rungs 0 and 1, which this loop already ran and
+      # which already FAILED here. What is still open is `confined_wide_probe`'s question, and it ran
+      # a few lines above on this same rung.
+      descend "$g" ladder
       exit 0
     fi
   done

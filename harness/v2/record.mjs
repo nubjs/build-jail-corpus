@@ -327,6 +327,11 @@ export function parseDriverLog(log) {
     // `None | Scopes | Disk`) has no spelling for one — so a grant it passed at is not publishable, and
     // the terminal rung still decides what the record ships. This field is diagnosis, never a licence.
     confinedWide: null,
+    // ⛔ WHY THE DESCENT ASKED NOTHING, when it asked nothing. Null on every record whose descent had
+    // terms to run and on every record taken before the marker existed — absent is "not established",
+    // never "supported". Set only from the driver's own `DESCENT-UNSUPPORTED` payload, so a reader can
+    // separate a venue that CANNOT test an axis from a run that merely did not.
+    descentUnsupported: null,
     // Every completed direct/resolved-tree OSV screen prints one compact marker. The exact spec set
     // stays in the clearance artifact during the run; the record persists the digest/count and every
     // advisory that caused a terminal refusal.
@@ -638,6 +643,32 @@ export function parseDriverLog(log) {
     }
     if (/=>\s*MINIMAL\b/.test(l) || /grant is already empty/.test(l)) { out.minimality = 'MINIMAL'; continue; }
     if (/=>\s*DESCENT INCOMPLETE/.test(l)) { out.minimality = 'UNPROVEN'; continue; }
+    // ⛔⛔ A GRANT WITH NO DROPPABLE TERM IS NOT AN EMPTY GRANT, AND UNTIL `descent-terms.mjs` THE
+    // DRIVERS PRINTED THE SAME SENTENCE FOR BOTH. The clause above reads "grant is already empty" as
+    // MINIMAL, which is honest when the grant holds nothing — there is nothing to narrow. Reaching it
+    // with `{"write":"disk","network":true}` in hand would publish the WIDEST grant this corpus hands
+    // out as PROVEN MINIMAL off a descent that ran zero arms. `UNPROVEN` is the value a VOID arm
+    // already yields and it means the same thing here: the question was never put.
+    if (/=>\s*DESCENT UNSUPPORTED/.test(l)) { out.minimality = 'UNPROVEN'; continue; }
+    // ⛔ THE PER-AXIS REASON, ON THE RECORD RATHER THAN ONLY IN THE LOG. `minimality: 'UNPROVEN'`
+    // alone cannot distinguish "an arm came back VOID" from "this venue cannot test this axis at
+    // all", and the second is a permanent property of the platform rather than a re-runnable
+    // failure — a re-measurement returns the identical answer, so a reader has to be able to tell
+    // them apart without fetching a log. FAILS CLOSED like `confinedWide`: an unparsable payload
+    // leaves the field null and notes it, so no reason is ever fabricated.
+    const du = /DESCENT-UNSUPPORTED\s+(\{.*\})\s*$/.exec(l);
+    if (du) {
+      try {
+        const p = JSON.parse(du[1]);
+        if (Array.isArray(p.skipped) && p.skipped.length) {
+          out.descentUnsupported = {
+            platform: typeof p.platform === 'string' ? p.platform : 'unknown',
+            skipped: p.skipped.map((s) => ({ axis: String(s.axis), reason: String(s.reason) })),
+          };
+        } else out.notes.push('descent-unsupported-marker-unparsable');
+      } catch { out.notes.push('descent-unsupported-marker-unparsable'); }
+      continue;
+    }
     if (out.verdict === 'MINIMUM') continue;
     // ⛔ A SUSPECT GRANT IS RETAINED BUT IS NOT A MEASUREMENT, AND THE RECORD HAS TO SAY BOTH.
     // The driver reaches this when every ladder arm exited 0 and fell short by the SAME files at every
@@ -862,6 +893,20 @@ const applyGrantSourceRule = (out, lines) => {
     if (name === 'no-read') { delete descended.read; continue; }
     const w = /^no-write-(.+)$/.exec(name);
     if (w) {
+      // ⛔⛔ A `no-write-*` NAME AGAINST A STRING `write` IS A FAILED RECOMPUTATION DRESSED AS A
+      // SUCCESSFUL ONE, AND IT IS THE ONE HOLE THE `no-*` VOCABULARY LEFT OPEN. `write` is the STRING
+      // `"disk"` on the terminal ladder rung (`catalog_v2::Reach::Disk`), and `descended.write` is
+      // truthy there — so the old body evaluated `delete "disk"["disk"]`, which JavaScript resolves
+      // to `true` while changing nothing, and `Object.keys("disk").length` is 4, so the collapse
+      // never fired either. The result: `descendedGrant` identical to the wide grant, published under
+      // `grantSource: "descended"`. Exactly the defect `unparsedNames` exists to catch, reachable
+      // through a name that HAPPENS to match the regex.
+      //
+      // `descent-terms.mjs` never emits such a name — the string reach yields no write term at all —
+      // so this is the backstop for a fourth driver, not a live path. It routes to `unparsedNames`
+      // because that branch already does the right thing: keep the wide grant and SAY the
+      // recomputation failed, rather than dress a no-op as a measurement.
+      if (typeof descended.write === 'string') { unparsedNames.push(name); continue; }
       if (descended.write) {
         delete descended.write[w[1]];
         if (!Object.keys(descended.write).length) delete descended.write;
@@ -1216,6 +1261,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     grantSource: parsed.grantSource ?? null,
     grantSourceReason: parsed.grantSourceReason ?? null,
     descendedGrant: parsed.descendedGrant ?? null,
+    // ⛔⛔ BOTH OF THESE WERE PARSED AND NEITHER REACHED THE RECORD. `rec` is an explicit whitelist, so
+    // a field added to the parser and not to this list is computed on every run and then thrown away
+    // — the same half-wired shape `marker-contract.test.mjs` exists to catch one level up, except
+    // that guard only covers the VENUE/RAWLOG/EVENTLOG families and cannot see these two.
+    // `confinedWide` shipped in that state: the wide-but-confined probe ran, printed its marker, was
+    // parsed into a field, and vanished — so the one arm that adjudicates the WRITE axis of a
+    // `write:"disk"` record left no trace in the corpus at all. `descentUnsupported` is its sibling
+    // for the axes a descent could not test. Both are diagnosis and neither can narrow a grant.
+    confinedWide: parsed.confinedWide ?? null,
+    descentUnsupported: parsed.descentUnsupported ?? null,
     // ⛔ ON THE RECORD BECAUSE `publish-guard.mjs` HAS NO LOG. It decides whether a re-measure may
     // REPLACE a committed record, and it sees two `results.json` and nothing else — so the evidence
     // that licensed a narrowing has to travel IN the record or the guard withholds exactly the
