@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 57,
+  "currentEpoch": 58,
   "transitions": [
     {
       "fromEpoch": null,
@@ -775,6 +775,62 @@
         ]
       },
       "reason": "Epoch 57 corrects a classifier defect that manufactured whole-home write grants. nub's build jail grants READ-WRITE to three leaves inside its own tool cache -- $cache/nub/pm/tools/{npm-prefix,ms-playwright,electron-cache} -- in one push_rw_path loop (preset.rs:498-500 at the pinned nub 30757a70), matching the three unconditional redirects (npm_config_prefix, PLAYWRIGHT_BROWSERS_PATH, ELECTRON_CACHE/electron_config_cache) that both POSIX drivers reproduce. observe.mjs and observe-macos.mjs carved out npm-prefix ALONE. toolsDir sits under $HOME on both drivers, so a write into either of the other two leaves fell through to userHome and synthesized write.userHome -- authority over the entire user home, ~/.ssh and every shell profile included -- to reach a directory nub itself created for the package and pointed it at through an env var nub sets. The bucket is renamed npmPrefix -> toolsRw, the leaves are DERIVED from the declared toolsDir root rather than a hardcoded cache pattern (R2), and the scope stays the exact leaves: tools also holds the node-gyp bootstraps nub executes on every later install, so a grant spanning the parent would be a persistence primitive rather than a build need. MEASURED by re-running the pre-fix and post-fix classifiers over all 4053 archived POSIX traces: 110 records (58 linux-x64, 52 darwin-arm64; 58 distinct package-versions across 9 package names) lose write.userHome entirely, and nothing else in any grant moves -- 103 of them keep network:true and no record gains a scope. Those 9 names are this transition's scope. NO record merely narrows: the 154 userHome records whose only tool-cache contact is npm-prefix -- dominated by the @pulumi/* family and netlify-cli -- were already covered by the old carve-out and cannot move, so an earlier estimate of ~95 narrowing records does not survive measurement. winchan was proposed for this scope and is EXCLUDED: neither of its two records carries a userHome synthesized grant at all. playwright-chromium (10 records) does, and had been missed -- observe.mjs's own header already named it the canonical case at 650 of 651 writes, and this re-run measures 649 leaf writes for playwright-chromium@0.17.0. classify.mjs (win32) is deliberately unchanged: measure-windows.mjs reproduces none of the three redirects, so no observed path can land in a leaf, and 0 win32 records carry a tool-cache writes row against 7 on POSIX."
+    },
+    {
+      "fromEpoch": 57,
+      "fromHarnessSha256": "1c4b73d1cd166ff5f6c8185bd8cb41d1decf4b7987fcb66974fef5da0fd8c08f",
+      "toEpoch": 58,
+      "toHarnessSha256": "7faf1465b4b2f3b1ffd51512118fc0ffd4ef0b4f522e11a1307b77684cca292f",
+      "invalidate": {
+        "packages": [
+          "@copilotkit/aimock",
+          "@esm-bundle/chai",
+          "@eth-optimism/core-utils",
+          "@eth-optimism/sdk",
+          "@hubspot/local-dev-lib",
+          "@hyperjump/json-schema",
+          "@hyperjump/json-schema-core",
+          "@icons-pack/react-simple-icons",
+          "@lottiefiles/lottie-player",
+          "@markdoc/markdoc",
+          "@metamask/key-tree",
+          "@module-federation/vite",
+          "@oclif/plugin-version",
+          "@paypal/paypal-js",
+          "@privy-io/server-auth",
+          "@team-plain/typescript-sdk",
+          "@wojtekmaj/enzyme-adapter-utils",
+          "axios-cache-interceptor",
+          "ccstatusline",
+          "chaingate",
+          "chess.js",
+          "es-check",
+          "eth-gas-reporter",
+          "impit",
+          "ip-num",
+          "json-schema-library",
+          "mp4box",
+          "n8n-nodes-evolution-api",
+          "neonctl",
+          "powerbi-models",
+          "prettier-plugin-ember-template-tag",
+          "prisma-json-types-generator",
+          "react-jsx-parser",
+          "react-native-tree-multi-select",
+          "react-signature-pad-wrapper",
+          "remix-auth",
+          "scrollmirror",
+          "split.js",
+          "storybook-addon-remix-react-router",
+          "stylelint-no-unsupported-browser-features",
+          "typia",
+          "use-is-mounted-ref",
+          "vanilla-cookieconsent",
+          "winchan",
+          "zod-schema-faker"
+        ]
+      },
+      "reason": "Epoch 58 gives record.mjs the three-term falsifiability rule publish-guard.mjs already had. arm-falsifiability.mjs reports two INDEPENDENT reasons -- gate-vacuous kills the artifact gate, rc-vacuous kills the exit code -- but record.mjs collapsed both into the single note arms-unfalsifiable and blocked every narrowing on it, while publish-guard.mjs has distinguished them since it was written. A gate-vacuous-ONLY package still has rc live, and a descent arm the driver announced RED is that detector demonstrably firing end to end for the package in that venue, which is arm-falsifiability.mjs's own closing sentence: do not read a green arm as proof ON ITS OWN. rc-vacuous still blocks unconditionally, and an unreadable ARM-FALSIFIABILITY marker fails closed. The announcement is emitted only from the default arm of each driver's three-way descent case, never from a VOID arm, and macOS printed no such line at all until c95f47d2e, the same commit that gave it that case -- so it has never existed in the unsound two-way form the publish-guard darwin carve-out was written for. MEASURED across all 6887 committed driver.out files: 2311 carry the announcement and ZERO of those contain a VOID descent arm. The record now also carries descentRedArm and falsifiabilityReasons, because publish-guard.mjs sees only two results.json and would otherwise withhold exactly what this narrows: its hasRedArm keys on minimality MINIMAL, which requires EVERY arm red and so can never fire on an OVER-PREDICTED record. MEASURED by replaying the new recorder over every committed driver.out: 164 records change grant, 80 lose write.userHome entirely (592 -> 512; darwin 26, linux 34, win32 20; 33 package names), and NO record widens on any axis. 78 of the changed records are valid at epoch 57, 36 of those losing write.userHome; the 45 package names of those 78 are this transition's scope, costing 85 valid records of 2968 (darwin 48, linux 37). The leave-one-out reason additionally stops asserting that the JOINT drop was never run when the log shows JOINT-NARROW FAILED or INCONCLUSIVE -- pact-node@10.18.0 is the one committed record where it did, and its joint arm ran and failed."
     }
   ]
 }

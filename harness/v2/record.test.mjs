@@ -358,16 +358,128 @@ test('two dropped capabilities DO narrow once a JOINT-NARROW arm verifies them t
   assert.deepEqual(r.grant, {});
 });
 
-test('an unfalsifiable package never narrows, however many arms passed', () => {
-  // A passing narrow arm for a package whose arms could not have failed is not evidence.
+// ── the falsifiability gate: green arms alone never narrow, a red sibling arm licenses it ──────────
+//
+// ⛔ THE FOUR TESTS BELOW ARE ONE RULE AND MUST BE READ TOGETHER. `arm-falsifiability.mjs` reports two
+// INDEPENDENT reasons; the rule turns on WHICH died and on whether the run demonstrated the survivor
+// firing. Deleting any one of them leaves a rule that looks guarded and is not — the middle two are
+// each other's positive and negative control.
+
+test('gate-vacuous with every arm green does NOT narrow — nothing demonstrated a detector would fire', () => {
+  // A passing narrow arm, on its own, for a package whose artifact gate cannot go red, is not
+  // evidence. This is `arm-falsifiability.mjs`'s own "do not read a green arm as proof ON ITS OWN".
   const r = drv([
-    '  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:',
+    '  ARM-FALSIFIABILITY {"manifestFiles":306,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}',
+    '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
     '  => VERIFIED {"write":{"deps":true}}',
     "     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed",
   ]);
   assert.equal(r.grantSource, 'synthesized');
   assert.deepEqual(r.grant, { write: { deps: true } }, 'the wide grant survives');
-  assert.match(r.grantSourceReason, /could not have failed/);
+  assert.equal(r.descentRedArm, false, 'no arm was announced red');
+  assert.match(r.grantSourceReason, /NO descent arm went red/);
+});
+
+test('gate-vacuous DOES narrow once a descent arm went red — the exit code demonstrably fired', () => {
+  // The positive control for the test above, and the whole point of the three-term rule: a gate that
+  // refuses every gate-vacuous package looks correct and is a permanent refusal wearing a reason.
+  // `no-network` going red proves the jail -> denial -> non-zero-rc -> driver chain is live for this
+  // package, so its green sibling is no longer a green arm on its own.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}',
+    '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     'no-network' is NECESSARY — dropping it fails to verify",
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.descentRedArm, true, 'the driver announced a red descent arm');
+  assert.equal(r.grantSource, 'descended');
+  assert.deepEqual(r.grant, { network: true }, 'whole-home write is dropped');
+  assert.ok(r.notes.includes('arms-unfalsifiable'), 'the flag is still recorded — it did not block, it is not absent');
+  assert.match(r.grantSourceReason, /did not block it because a descent arm went RED/);
+});
+
+test('rc-vacuous still blocks even with a red arm — the swallowed exit code is not revived by one', () => {
+  // ⛔ THE ASYMMETRY IS THE POINT. A `|| (exit 0)` script reports 0 whatever it did, so an arm that
+  // went red went red for some OTHER reason (npm could not fetch, say) and proves nothing about
+  // whether THIS script's failure would ever surface. Both detectors dead means no narrowing, and a
+  // red arm elsewhere in the run does not change that.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"manifestFiles":122,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}',
+    '  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     'no-network' is NECESSARY — dropping it fails to verify",
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.descentRedArm, true, 'the red arm is still recorded — it is the RULE that ignores it');
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { write: { userHome: true }, network: true }, 'the wide grant survives');
+  assert.match(r.grantSourceReason, /exit code is swallowed/);
+});
+
+test('an unreadable ARM-FALSIFIABILITY marker fails CLOSED — a red arm licenses nothing', () => {
+  // Which detector survived is unknown, so the rule cannot know a green arm means anything. Absent
+  // and unparsable are both "not established", never "fine".
+  const r = drv([
+    '  ARM-FALSIFIABILITY {this is not json}',
+    '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     'no-network' is NECESSARY — dropping it fails to verify",
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { write: { userHome: true }, network: true });
+  assert.match(r.grantSourceReason, /marker could not be read/);
+  assert.ok(r.notes.includes('arm-falsifiability-marker-unparsable'));
+});
+
+test('⭑ a VOID arm is NOT a red arm — the announcement the drivers reserve for rc=1', () => {
+  // ⛔ THE CONFUSION THAT WOULD MANUFACTURE EVIDENCE, and it has already been made twice in this
+  // harness — `measure.sh`'s own comment records `wordpos@2.1.0` printing "'write.deps' is NECESSARY"
+  // off a VOID arm under the old two-way branch. A VOID arm measured NOTHING. If `INCONCLUSIVE for`
+  // read as red, every un-engaged override would license a narrowing.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":["gate-vacuous"]}',
+    '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     ⛔ INCONCLUSIVE for 'no-network' — the arm was VOID, so nothing was measured; NOT evidence of necessity",
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.descentRedArm, false, 'a VOID arm must never read as a red arm');
+  assert.equal(r.grantSource, 'synthesized', 'so the wide grant survives');
+});
+
+test('the macOS spelling of the red-arm announcement is recognised too', () => {
+  // ⛔ THE THREE DRIVERS SPELL IT TWO WAYS, and keying on one silently exempts a whole platform —
+  // this harness's single most repeated defect. macOS says it in its own words.
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":["gate-vacuous"]}',
+    '  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:',
+    '  => VERIFIED {"write":{"userHome":true},"network":true}',
+    "     narrowing 'no-network' fails ⇒ that capability IS necessary",
+    "     ⛔ OVER-PREDICTED — the strictly narrower {\"network\":true} also verifies; 'no-write-userHome' was not needed",
+  ]);
+  assert.equal(r.descentRedArm, true);
+  assert.equal(r.grantSource, 'descended');
+  assert.deepEqual(r.grant, { network: true });
+});
+
+test('a joint arm that RAN and FAILED is not reported as never run', () => {
+  // ⛔ THE WIDE GRANT IS RIGHT IN BOTH CASES; THE REASON IS NOT. "never run" points the next reader at
+  // a free win — run the joint arm — that has already been run and lost. MEASURED: exactly that
+  // sentence sits on `@pact-foundation/pact-node@10.18.0`, whose log carries `JOINT-NARROW FAILED`.
+  const ran = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"project":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower x also verifies; 'no-network' was not needed",
+    "     ⛔ OVER-PREDICTED — the strictly narrower y also verifies; 'no-write-project' was not needed",
+    '  => JOINT-NARROW FAILED {} — each capability drops alone but not together;',
+  ]);
+  assert.equal(ran.grantSource, 'synthesized', 'the wider grant is still the answer');
+  assert.deepEqual(ran.grant, { write: { project: true }, network: true });
+  assert.match(ran.grantSourceReason, /measured and did NOT hold/);
+  assert.doesNotMatch(ran.grantSourceReason, /never run/,
+    'the joint arm ran — saying otherwise sends the next reader after a win that does not exist');
 });
 
 test('a MINIMAL record is unaffected — there is nothing to narrow', () => {

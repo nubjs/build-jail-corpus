@@ -286,3 +286,49 @@ test('⭑ DRIFT GUARD: measure-macos.sh emits the three-way vocabulary this pins
   assert.doesNotMatch(src, /if verify "\$gg" "nar-\$nm"; then/,
     'the two-way branch is what collapsed VOID into "necessary" — it must not come back');
 });
+
+// ── the red-arm announcement: two spellings, three drivers, one consumer ───────────────────────
+//
+// ⛔ `record.mjs` NOW DOES A LITERAL MATCH ON THIS SENTENCE AND NARROWS A GRANT WHEN IT FIRES, which
+// is exactly the class this file exists for. A driver that reworded its `*)` arm would silently stop
+// licensing narrowings — the failure would look like "the corpus got more conservative", which
+// nobody investigates. Both halves are pinned: every driver emits a spelling, and every spelling
+// emitted is one the consumer matches.
+
+const RED_ARM_SPELLING = {
+  // The `*)` default of each driver's three-way descent `case`, i.e. verify returned 1.
+  linux: "'$cap' is NECESSARY — dropping it fails to verify",
+  windows: "' is NECESSARY — dropping it fails to verify",
+  macos: "narrowing '$nm' fails ⇒ that capability IS necessary",
+};
+
+test('⭑ every driver emits a red-arm announcement record.mjs recognises', () => {
+  const missing = [];
+  for (const [platform, spelling] of Object.entries(RED_ARM_SPELLING)) {
+    if (!CODE[platform].includes(spelling)) {
+      missing.push(`${DRIVERS[platform]} no longer emits \`${spelling}\``);
+    }
+  }
+  assert.deepEqual(missing, [], 'a driver reworded its red-arm announcement, so record.mjs will never '
+    + 'set `descentRedArm` for that platform and every gate-vacuous narrowing there goes back to '
+    + `keeping the whole-home grant:\n  ${missing.join('\n  ')}`);
+});
+
+test('⭑ the consumer half: each emitted spelling really sets descentRedArm', () => {
+  // ⛔ THE PRODUCER TEST ABOVE IS SATISFIED BY A STRING THE CONSUMER CANNOT PARSE. That is the exact
+  // defect this file was created for, one level up: marker present on both sides, payload disagreeing.
+  for (const [platform, sentence] of [
+    ['linux/windows', "     'no-network' is NECESSARY — dropping it fails to verify"],
+    ['macos', "     narrowing 'no-network' fails ⇒ that capability IS necessary"],
+  ]) {
+    const r = parseDriverLog(['  ARM-FALSIFIABILITY {"reasons":[]}', sentence].join('\n'));
+    assert.equal(r.descentRedArm, true, `${platform}: record.mjs does not recognise its own driver's sentence`);
+  }
+  // And the NEGATIVE control, because a regex loose enough to match anything would pass the loop
+  // above while making every VOID arm look red.
+  const voidArm = parseDriverLog([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    "     ⛔ INCONCLUSIVE for 'no-network' — the arm was VOID, so nothing was measured; NOT evidence of necessity",
+  ].join('\n'));
+  assert.equal(voidArm.descentRedArm, false, 'a VOID arm must never read as red');
+});

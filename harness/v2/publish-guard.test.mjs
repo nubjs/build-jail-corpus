@@ -109,6 +109,57 @@ test('a package with NO prior record always publishes', () => {
   assert.equal(decide(null, rec({}, ['arms-unfalsifiable'], 'MINIMAL')).publish, true);
 });
 
+// ── the second red-arm term: the driver's own per-arm announcement ─────────────────────────────
+//
+// ⛔ WITHOUT THIS TERM THE GUARD WITHHOLDS EXACTLY WHAT `record.mjs` NOW NARROWS, and the two files
+// would disagree again in the opposite direction. `minimality: "MINIMAL"` requires EVERY arm red, so
+// an OVER-PREDICTED record — some arms red, some green — can never satisfy the first term however
+// plainly its descent went red. That is the shape of all 80 records the new rule narrows.
+
+test('hasRedArm also accepts the driver-announced red descent arm', () => {
+  // OVER-PREDICTED, so the MINIMAL term is false by construction; the announcement carries it.
+  assert.equal(hasRedArm({ grant: { network: true }, minimality: 'OVER-PREDICTED' }), false);
+  assert.equal(hasRedArm({ grant: { network: true }, minimality: 'OVER-PREDICTED', descentRedArm: true }), true);
+  // ⛔ AND ON DARWIN, where the MINIMAL term is carved out entirely. The announcement has no such
+  // carve-out and must not inherit one: it never existed in the two-way form that motivated it.
+  assert.equal(hasRedArm({
+    grant: { network: true }, minimality: 'MINIMAL', provenance: { platform: 'darwin-arm64' },
+  }), false, 'the MINIMAL inference stays carved out on darwin');
+  assert.equal(hasRedArm({
+    grant: { network: true }, minimality: 'MINIMAL', provenance: { platform: 'darwin-arm64' },
+    descentRedArm: true,
+  }), true, 'but a directly announced red arm is sound there');
+  // Absent and false are both "not established".
+  assert.equal(hasRedArm({ grant: { network: true }, minimality: 'OVER-PREDICTED', descentRedArm: false }), false);
+});
+
+test('PUBLISH: an OVER-PREDICTED gate-vacuous narrowing publishes on its announced red arm', () => {
+  // `@copilotkit/aimock@1.14.8`'s measured shape: ladder rung {write:{deps,project,userHome},network},
+  // `no-network` red, the three writes each green, JOINT-NARROW VERIFIED {network:true}.
+  const prior = rec({ write: { deps: true, project: true, userHome: true }, network: true }, [], null);
+  const incoming = {
+    ...rec({ network: true }, ['arms-unfalsifiable'], 'OVER-PREDICTED'),
+    descentRedArm: true, falsifiabilityReasons: ['gate-vacuous'],
+  };
+  const d = decide(prior, incoming);
+  assert.equal(d.publish, true, 'the guard must not withhold what record.mjs narrowed on the same evidence');
+  assert.match(d.reason, /live detector fired/);
+});
+
+test('RED-GREEN on the announced red arm: the same narrowing is WITHHELD without it', () => {
+  const prior = rec({ write: { deps: true, project: true, userHome: true }, network: true }, [], null);
+  const withRed = {
+    ...rec({ network: true }, ['arms-unfalsifiable'], 'OVER-PREDICTED'),
+    descentRedArm: true, falsifiabilityReasons: ['gate-vacuous'],
+  };
+  assert.equal(decide(prior, withRed).publish, true);
+  // Exactly one field changed.
+  const noRed = { ...withRed, descentRedArm: false };
+  const d = decide(prior, noRed);
+  assert.equal(d.publish, false, 'with no red arm the identical narrowing must be withheld');
+  assert.match(d.reason, /no descent arm went red/);
+});
+
 // ── the shapes review found, each of which published silently ────────────────────────────────
 
 test('⛔ P2: `write:"disk"` is a capability — narrowing it away is not a no-op', () => {

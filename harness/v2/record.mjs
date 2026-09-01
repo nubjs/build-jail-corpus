@@ -277,6 +277,13 @@ export function parseDriverLog(log) {
     verifiedBy: null,
     minimality: null,
     overPredictedBy: [],
+    // ⛔ NULL AND FALSE ARE BOTH "NOT ESTABLISHED", AND THE RULE BELOW TREATS THEM THAT WAY. A log
+    // predating `arm-falsifiability.mjs` carries no marker, so `falsifiabilityReasons` stays null and
+    // no narrowing is licensed off it — the same absent-is-not-empty direction the `checked` flag
+    // already takes. `descentRedArm` starts false because "no arm was announced red" is exactly what
+    // an absent announcement means.
+    falsifiabilityReasons: null,
+    descentRedArm: false,
     notes: [],
     rawLogPath: null,
     capturePath: null,
@@ -467,6 +474,33 @@ export function parseDriverLog(log) {
     // is absent is a signal that could have gone red. Recorded because an unfalsifiable arm filed as a
     // clean MINIMAL is the shape that erodes trust in a whole corpus. See `arm-falsifiability.mjs`.
     if (/ARMS-UNFALSIFIABLE/.test(l)) out.notes.push('arms-unfalsifiable');
+    // ⛔ WHICH DETECTOR DIED, NOT MERELY THAT ONE DID. `arm-falsifiability.mjs` reports two
+    // INDEPENDENT reasons and the note above collapses them: `gate-vacuous` kills the artifact gate,
+    // `rc-vacuous` kills the exit code. `publish-guard.mjs` has acted on that distinction since it
+    // was written; `applyGrantSourceRule` below could not, because the distinction never reached the
+    // record. Read off the marker's JSON payload rather than the prose beneath it — that prose is
+    // written for a human and has already been rewritten once.
+    const afm = /ARM-FALSIFIABILITY\s+(\{.*\})\s*$/.exec(l);
+    if (afm) {
+      // Fails CLOSED: an unparsable marker leaves this null, and the rule below reads null as "both
+      // detectors are dead", which keeps the wider grant.
+      try { out.falsifiabilityReasons = JSON.parse(afm[1]).reasons ?? null; }
+      catch { out.notes.push('arm-falsifiability-marker-unparsable'); }
+      continue;
+    }
+    // ⛔ THE POSITIVE CONTROL: A DESCENT ARM THAT DEMONSTRABLY WENT RED. The drivers announce it in
+    // two spellings and BOTH are the `*)` default of a three-way `case`, i.e. `verify` returned 1 —
+    // genuinely insufficient. Never 2, which is VOID and is announced as `INCONCLUSIVE for` on all
+    // three platforms. That is what makes this signal sound where `minimality: MINIMAL` is not: an
+    // `if verify …; else NECESSARY` two-way branch reads VOID as necessity, and `publish-guard.mjs`
+    // carries a darwin carve-out for exactly that. The carve-out does not apply here — macOS printed
+    // no such line AT ALL until c95f47d2e, the same commit that gave it the three-way `case`, so the
+    // announcement has never existed in the unsound form. MEASURED across all 6887 committed
+    // `driver.out` files: 2311 carry the announcement and ZERO of those contain a VOID descent arm.
+    if (/(?:'[^']+' is NECESSARY — dropping it fails to verify|narrowing '[^']+' fails ⇒ that capability IS necessary)/.test(l)) {
+      out.descentRedArm = true;
+      continue;
+    }
     // ⛔ EACH DRIVER SPELLS EVENT LOSS DIFFERENTLY, AND KEYING ON ONE SPELLING SILENTLY EXEMPTS THE
     // OTHERS. `events LOST` is the WINDOWS wording (`measure-windows.mjs`) and it is live there — so
     // this note was never dead, which is exactly what made the defect hard to see: it fired on the
@@ -664,6 +698,29 @@ const applyGrantSourceRule = (out, lines) => {
   // that line — not the absence of the flag — is what says the question was asked.
   const checked = lines.some((l) => /ARM-FALSIFIABILITY\s/.test(l));
   const unfalsifiable = out.notes.includes('arms-unfalsifiable');
+  // ⛔⛔ THE THREE-TERM RULE, AND IT IS `publish-guard.mjs`'s, NOT A NEW ONE. That file has judged
+  // this exact question since it was written — "may a record with `arms-unfalsifiable` narrow a
+  // grant?" — and answers it with three terms rather than two, because a two-term rule refuses a
+  // correct narrowing proven by red arms. This file answered it with ONE term and blocked
+  // everything. The two disagreed, and this file is the coarse one.
+  //
+  // `gate-vacuous` kills the artifact gate. `rc-vacuous` kills the exit code. Both dead, nothing
+  // could have gone red and no narrowing is licensed. `gate-vacuous` ALONE leaves rc live — which is
+  // `arm-falsifiability.mjs`'s own closing sentence: "the EXIT CODE is still a live detector here,
+  // so a descent arm that actually FAILED is evidence … do not read a green arm as proof ON ITS
+  // OWN". A red descent arm in the same run is what makes a green sibling not on its own: it is the
+  // positive control, proving the jail -> denial -> non-zero-rc -> driver chain is live for THIS
+  // package in THIS venue rather than merely un-swallowed in the package.json.
+  //
+  // ⛔ WHAT THIS DOES NOT PROVE, STATED BECAUSE THE GAP IS REAL. A red arm on capability X shows the
+  // chain fires; it does not show it would fire for capability Y specifically, so a script that
+  // writes its essential output into the home and swallows the EACCES in a try/catch — a swallow no
+  // shell-level `SWALLOWS` regex can see — would still narrow wrongly. Closing that needs an arm
+  // that traces the DENIED write and asserts it was attempted-and-refused, which is machinery this
+  // harness does not have. This is the strongest signal the existing arms produce, not a proof.
+  const reasons = Array.isArray(out.falsifiabilityReasons) ? out.falsifiabilityReasons : null;
+  const rcLive = reasons !== null && !reasons.includes('rc-vacuous');
+  const redArmLicenses = rcLive && out.descentRedArm === true;
   // The synthesized grant minus every capability an arm proved droppable. Keyed on the driver's own
   // variant names, so this cannot drift from what was actually run.
   //
@@ -718,12 +775,24 @@ const applyGrantSourceRule = (out, lines) => {
       + `this recorder cannot parse (${unparsedNames.join(', ')}) — the descended grant could not be `
       + 'recomputed, so the wider synthesized value is kept rather than a narrowing that was never applied';
     out.notes.push('descent-name-unparsed');
-  } else if (unfalsifiable) {
+  } else if (unfalsifiable && !redArmLicenses) {
     // Tested BEFORE `!checked`: the flag is itself positive evidence the check ran, so a log
     // carrying the flag must never be mistaken for one that predates the detector.
     source = 'synthesized';
-    reason = 'the descent narrowed, but this package\'s arms could not have failed '
-      + '(arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant';
+    // ⛔ NAME THE DETECTOR THAT DIED, for the same reason `arm-falsifiability.mjs` stopped printing
+    // the blanket sentence: "could not have failed" is FALSE for the common case, and two audit
+    // passes were spent hunting the defect that phrasing implies. The three ways to reach this
+    // branch are genuinely different findings and a reader has to be able to tell them apart.
+    reason = reasons === null
+      ? 'the descent narrowed, but the ARM-FALSIFIABILITY marker could not be read, so which '
+        + 'detector survived is unknown — keeping the wider grant'
+      : !rcLive
+        ? 'the descent narrowed, but this package\'s arms could not have failed (arms-unfalsifiable: '
+          + `${reasons.join(', ')}) — the exit code is swallowed and the artifact gate is vacuous, so a `
+          + 'passing narrow arm is not evidence — keeping the wider grant'
+        : 'the descent narrowed and the exit code was a live detector (arms-unfalsifiable: '
+          + `${reasons.join(', ')}), but NO descent arm went red, so nothing demonstrated the detector `
+          + 'would have fired — a passing narrow arm on its own is not evidence — keeping the wider grant';
   } else if (!checked) {
     source = 'synthesized';
     reason = 'the descent narrowed, but this record predates the falsifiability check — no '
@@ -737,8 +806,28 @@ const applyGrantSourceRule = (out, lines) => {
     reason = `${n} capabilities were dropped and the JOINT grant was explicitly verified`;
   } else {
     source = 'synthesized';
+    // ⛔ "NEVER RUN" IS A CLAIM ABOUT THE RUN AND IT WAS ASSERTED WITHOUT LOOKING. The joint arm has
+    // three outcomes and only one of them is absence; a record whose joint arm RAN and FAILED said
+    // "never run" anyway, which points the next reader at a free win that does not exist —
+    // `@pact-foundation/pact-node@10.18.0` is exactly that record, and it cost this investigation a
+    // detour. The wider grant is right in all three cases; the REASON has to say which one.
+    const jointRan = lines.some((l) => /JOINT-NARROW\s+(FAILED|INCONCLUSIVE)/.test(l));
     reason = `${n} capabilities each drop on their own, but the descent is leave-one-out and the `
-      + 'JOINT drop was never run — narrowing to it would be an inference, not a measurement';
+      + (jointRan
+        ? 'JOINT drop was measured and did NOT hold — they do not drop together, so the wider grant '
+          + 'is the measured answer'
+        : 'JOINT drop was never run — narrowing to it would be an inference, not a measurement');
+  }
+  // ⛔ SAY WHY THE FLAG DID NOT BLOCK, in the record rather than only here. A record carrying
+  // `notes: ["arms-unfalsifiable"]` beside `grantSource: "descended"` reads as a contradiction
+  // otherwise, and the whole point of the grant-source fields is that a narrowing never arrives
+  // without the basis for it attached.
+  //
+  // Keyed on `redArmLicenses`, not on `unfalsifiable`: that is what the sentence actually claims, and
+  // it is also what makes `reasons` non-null here, since `rcLive` is one of its terms.
+  if (source === 'descended' && redArmLicenses) {
+    reason += ` — the ${reasons.join(', ')} flag did not block it because a descent arm went RED, `
+      + 'so the exit-code detector demonstrably fired for this package in this venue';
   }
   out.grantSource = source;
   out.grantSourceReason = reason;
@@ -990,6 +1079,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     grantSource: parsed.grantSource ?? null,
     grantSourceReason: parsed.grantSourceReason ?? null,
     descendedGrant: parsed.descendedGrant ?? null,
+    // ⛔ ON THE RECORD BECAUSE `publish-guard.mjs` HAS NO LOG. It decides whether a re-measure may
+    // REPLACE a committed record, and it sees two `results.json` and nothing else — so the evidence
+    // that licensed a narrowing has to travel IN the record or the guard withholds exactly the
+    // records this rule just narrowed. `falsifiabilityReasons` rides along for the same reason it
+    // exists above: `arms-unfalsifiable` alone cannot say which detector died.
+    falsifiabilityReasons: parsed.falsifiabilityReasons ?? null,
+    descentRedArm: parsed.descentRedArm === true,
     notes: [...new Set(parsed.notes)],
     // The event log's own census, inlined so `results.json` states how much evidence sits beside
     // it — event count, dropped-event count, the errno histogram — without opening the log.

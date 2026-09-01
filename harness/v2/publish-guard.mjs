@@ -95,14 +95,30 @@ const notesOf = (rec) => (Array.isArray(rec?.notes) ? rec.notes : []);
 // empty — nothing to narrow; MINIMAL by construction" and ran NO arms at all. Same word, opposite
 // evidentiary weight, and reading it as one is how `@pulumi/gcp@0.16.9` would have published `{}`.
 //
-// ⛔ AND IT IS UNSOUND ON DARWIN, WHICH IS WHY THE PLATFORM IS READ. `measure-macos.sh`'s descent is
-// `if verify …; then OVER-PREDICTED; else "IS necessary"` — a two-way branch, so a VOID arm (rc 2,
-// the override not engaging) and an early `return 1` both collapse into "necessary". `ANY_OVER`
-// stays empty and the driver prints `=> MINIMAL` having proven nothing. `measure.sh` and
-// `measure-windows.mjs` both keep three outcomes and are sound. So on darwin `MINIMAL` cannot be
-// read as "a detector fired", and this returns false — which withholds MORE on darwin, the safe
-// direction, until the macOS descent distinguishes VOID from a real failure.
+// ⛔ AND THE `MINIMAL` INFERENCE IS UNSOUND ON DARWIN, WHICH IS WHY THE PLATFORM IS READ.
+// `measure-macos.sh`'s descent USED TO BE `if verify …; then OVER-PREDICTED; else "IS necessary"` —
+// a two-way branch, so a VOID arm (rc 2, the override not engaging) and an early `return 1` both
+// collapsed into "necessary". `ANY_OVER` stayed empty and the driver printed `=> MINIMAL` having
+// proven nothing. It has branched three ways since c95f47d2e (2026-08-28), so a FRESH darwin record
+// is sound — but `minimality` does not say which driver produced it, and the corpus still holds
+// darwin records measured under the two-way form. The carve-out therefore stays: on darwin `MINIMAL`
+// alone cannot be read as "a detector fired", which withholds MORE there, the safe direction.
+//
+// ⛔⛔ THE SECOND TERM IS DIRECT AND NEEDS NO SUCH CARVE-OUT. `minimality: MINIMAL` is an INFERENCE
+// about arms — "no capability dropped, so every arm must have failed" — and that inference is what
+// the darwin branch above breaks. `descentRedArm` is the driver's own per-arm announcement of an
+// rc=1 outcome, emitted only from the `*)` default of a three-way `case`; a VOID arm is announced as
+// `INCONCLUSIVE for` instead and can never produce it. On darwin the announcement did not exist AT
+// ALL before the three-way `case` landed, in the same commit, so it has never had an unsound form.
+// MEASURED across all 6887 committed `driver.out` files: 2311 carry the announcement and ZERO of
+// those contain a VOID descent arm.
+//
+// It also answers a case `MINIMAL` structurally cannot. `MINIMAL` requires EVERY arm red, so an
+// OVER-PREDICTED record — some arms red, some green — has no red-arm evidence under the first term
+// even when the descent plainly went red. Those are precisely the records `record.mjs` now narrows,
+// and without this term the guard would withhold every one of them.
 export const hasRedArm = (rec) => {
+  if (rec?.descentRedArm === true) return true;
   if (String(rec?.provenance?.platform ?? '').startsWith('darwin')) return false;
   return rec?.minimality === 'MINIMAL' && capsOf(rec?.grant).size > 0;
 };
