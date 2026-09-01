@@ -386,7 +386,9 @@ test('⛔ `build/CMakeCache.txt` is NOT excused — it belongs by mechanism and 
 test('⛔ CONTROL: a genuinely ABSENT artifact beside a newly-excused one still FAILS, and is named', () => {
   // ⛔ THE ASSERTION THAT KEEPS THIS FIX OFF THE RECORDS IT MUST NOT TOUCH. 84 of the 147
   // ARTIFACT-GATE-SUSPECT records list at least one genuinely absent file, and the `node-addon-api`
-  // sub-target family — 161 corpus sightings, every one an ABSENCE — is deliberately not excused here.
+  // sub-target family — 243 corpus entries across 161 gate-failure lines, every one an ABSENCE — is
+  // deliberately not excused here; it is repaired as a PATH question in `gyp-subtarget-spill.mjs`
+  // instead, and this arm installs no `node-addon-api`, so nothing can resolve the key either way.
   // This is the shape of all of them: the excused file is silent, the absent one still gates.
   const obs = tree('obs-absbeside', {
     'index.js': 'x',
@@ -550,4 +552,96 @@ test('CONTROL: a shorter NON-lockfile JSON still fails, so the excusal did not w
   const obs = tree('obs-lock-ctl', { 'package.json': 'x'.repeat(315), 'index.js': 'x' });
   const r = gate(obs, tree('arm-lock-ctl', { 'package.json': 'x'.repeat(84), 'index.js': 'x' }));
   assert.notEqual(r.code, 0, `only lockfiles are excused, not JSON generally:\n${r.out}`);
+});
+
+// ── THE gyp SUB-TARGET PHANTOM ────────────────────────────────────────────────────────────────
+//
+// ⛔ THE DEFECT THESE PIN FABRICATED `NO-STATE-PASSED` FOR `node-pty@1.1.0` (6.39M weekly downloads),
+// which installed at rc=0 with 289 of 293 artifacts at EVERY rung of the ladder. The four it "missed"
+// were `node-addon-api/node_addon_api*.{Makefile,target.mk}` — written by the build, present on disk,
+// two levels above the directory the walk starts in. 243 such entries across 161 gate-failure lines
+// in the archived corpus, and not one of them is a size difference.
+//
+// The fixtures below are the MEASURED layouts (`gyp-subtarget-spill.mjs` carries the derivation), so
+// the reference arm keys `node-addon-api/<file>` from inside the package while the jailed arm holds
+// the same files under a store slug the reference has never heard of.
+
+/** nub's isolated store: `<base>/node_modules/.store/<pkg>@<ver>/node_modules/<pkg>`, dep symlinked out. */
+const storeTree = (label, files, { dep = 'node-addon-api', depVer = '7.1.1-213592cd5b5ab75e', spill = {} } = {}) => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), `agate-${label}-`));
+  const own = path.join(base, 'node_modules', '.store', `${PKG}@${VER}`, 'node_modules');
+  const put = (p, body) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, body); };
+  for (const [rel, body] of Object.entries(files)) put(path.join(own, PKG, rel), body);
+  const depReal = path.join(base, 'node_modules', '.store', `${dep}@${depVer}`, 'node_modules', dep);
+  put(path.join(depReal, 'index.js'), 'x');
+  fs.symlinkSync(path.relative(own, depReal), path.join(own, dep));
+  // Where gyp actually writes the sub-targets: one level shallower than the dependency itself.
+  const phantom = path.join(base, 'node_modules', '.store', `${PKG}@${VER}`, `${dep}@${depVer}`, 'node_modules', dep);
+  for (const [rel, body] of Object.entries(spill)) put(path.join(phantom, rel), body);
+  return base;
+};
+
+test('the measured node-pty shape PASSES: the sub-target phantom is found where the store puts it', () => {
+  const subtargets = {
+    'node-addon-api/node_addon_api.Makefile': 'x'.repeat(159),
+    'node-addon-api/node_addon_api.target.mk': 'x'.repeat(3216),
+    'node-addon-api/node_addon_api_except.target.mk': 'x'.repeat(3355),
+    'node-addon-api/node_addon_api_maybe.target.mk': 'x'.repeat(3270),
+  };
+  const obs = tree('obs-spill', { 'index.js': 'x', 'build/Release/pty.node': 'ADDON', ...subtargets });
+  // The jailed arm's copies are LARGER — measured 3583B vs 3355B — because they embed longer paths.
+  const arm = storeTree('arm-spill', { 'index.js': 'x', 'build/Release/pty.node': 'ADDON' }, {
+    spill: {
+      'node_addon_api.Makefile': 'x'.repeat(244),
+      'node_addon_api.target.mk': 'x'.repeat(3444),
+      'node_addon_api_except.target.mk': 'x'.repeat(3583),
+      'node_addon_api_maybe.target.mk': 'x'.repeat(3498),
+    },
+  });
+  const r = gate(obs, arm);
+  assert.equal(r.code, 0, `the sub-target phantom must be found, not billed as shortfall:\n${r.out}`);
+  assert.match(r.out, /missing=0 /, `and nothing may remain missing:\n${r.out}`);
+});
+
+test('⛔ CONTROL: one sub-target genuinely ABSENT from the phantom still FAILS, and is NAMED', () => {
+  // Without this the fix is indistinguishable from switching the gate off for the whole family.
+  const obs = tree('obs-spill-abs', {
+    'index.js': 'x',
+    'node-addon-api/node_addon_api.target.mk': 'x'.repeat(3216),
+    'node-addon-api/node_addon_api_maybe.target.mk': 'x'.repeat(3270),
+  });
+  const arm = storeTree('arm-spill-abs', { 'index.js': 'x' }, {
+    spill: { 'node_addon_api.target.mk': 'x'.repeat(3444) },
+  });
+  const r = gate(obs, arm);
+  assert.equal(r.code, 1, `an absent sub-target must still gate:\n${r.out}`);
+  assert.match(r.out, /node_addon_api_maybe\.target\.mk/, `and must be NAMED:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `EXACTLY one — the found sub-target must not be counted:\n${r.out}`);
+});
+
+test('⛔ a ZERO-BYTE sub-target in the phantom still FAILS — the envelope is untouched', () => {
+  // The fix is a PATH repair, not an excusal: finding the file does not stop the size check running
+  // on it, and `node-addon-api/*` is deliberately absent from `TOOLCHAIN_GENERATED`.
+  const obs = tree('obs-spill-zero', { 'index.js': 'x', 'node-addon-api/node_addon_api.target.mk': 'x'.repeat(3216) });
+  const arm = storeTree('arm-spill-zero', { 'index.js': 'x' }, { spill: { 'node_addon_api.target.mk': '' } });
+  const r = gate(obs, arm);
+  assert.equal(r.code, 1, `a zero-byte sub-target must not pass:\n${r.out}`);
+  assert.match(r.out, /0B < 3216B/, `and must report the size shortfall:\n${r.out}`);
+});
+
+test('⛔ the phantom is not a wildcard: a file the reference DOES have under the package still gates', () => {
+  // The arm's phantom is populated, so the fix fires — and an ordinary missing artifact beside it is
+  // still caught. This is what proves the added keys are scoped to the dependency, not global.
+  const obs = tree('obs-spill-scope', {
+    'index.js': 'x',
+    'bin/tool': 'BINARY',
+    'node-addon-api/node_addon_api.target.mk': 'x'.repeat(3216),
+  });
+  const arm = storeTree('arm-spill-scope', { 'index.js': 'x' }, {
+    spill: { 'node_addon_api.target.mk': 'x'.repeat(3444) },
+  });
+  const r = gate(obs, arm);
+  assert.equal(r.code, 1, `an ordinary missing artifact must still gate:\n${r.out}`);
+  assert.match(r.out, /bin\/tool/, `and must be named:\n${r.out}`);
+  assert.match(r.out, /missing=1 /, `EXACTLY one:\n${r.out}`);
 });

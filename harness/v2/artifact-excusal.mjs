@@ -93,12 +93,15 @@ export const TOOLCHAIN_GENERATED = [
 //     produced nothing. Excusing it would widen the gate on resemblance and change no verdict, which
 //     is the direction that under-grants.
 //   * `node-addon-api/*.Makefile` and `node-addon-api/*.target.mk` — reported alongside the two
-//     classes above, and they are NOT the same class. All 161 corpus sightings are ABSENT entries,
-//     never size differences: gyp computes a sub-target's path from where the included `.gyp` lives,
-//     so npm's hoisted tree and nub's isolated store put the file at different depths and one of them
-//     lands outside the measured package's own directory. That is a real instrument defect with a
-//     different mechanism, and its fix is a PATH question for the manifest walk, not an excusal —
-//     excusing an absence would dismantle the envelope in `excusesSizeDifference`.
+//     classes above, and they are NOT the same class. All 243 corpus entries, across 161 gate-failure
+//     lines, are ABSENT entries and not one is a size difference: gyp computes a sub-target's path
+//     from where the included `.gyp` REALLY lives, so npm's hoisted tree and nub's isolated store put
+//     the file at different depths and one of them lands outside the measured package's own
+//     directory. That is a real instrument defect with a different mechanism, and its fix was a PATH
+//     question for the manifest walk rather than an excusal — excusing an absence would dismantle the
+//     envelope in `excusesSizeDifference`. FIXED in `gyp-subtarget-spill.mjs`, which computes the
+//     phantom's location in each layout and lets the walk find the file where it actually is; this
+//     list is deliberately still silent about the class.
 //   * `vue-demi`'s `lib/index.{cjs,mjs,d.ts}` — `vue-demi-switch` rewrites them per installed Vue
 //     major, so two arms resolving different Vue majors legitimately produce different bytes. A
 //     package-owned source file, not a toolchain record; out of scope for this list by construction.
