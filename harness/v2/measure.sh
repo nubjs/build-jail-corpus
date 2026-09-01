@@ -1743,8 +1743,31 @@ verify () {
     # and the resulting cold arm would fail in a way that reads exactly like a denial. Set for the
     # probe's two arms and for nothing else: `$ARM_PROMOTION_HOME` is empty in every other arm, and it
     # is exported inside this subshell so it cannot leak into the driver's own bookkeeping.
+    #
+    # ⛔⛔ AND `XDG_DATA_HOME` WITH IT — PINNING THE CACHE ALONE MADE THIS PROBE STRUCTURALLY
+    # INCAPABLE OF PROVING ANYTHING. The paragraph above reasoned about `sandbox_homes`, which
+    # resolves the CACHE. nub's CAS STORE is resolved separately, by
+    # `pm_engine::nub_data_dir_from`: it prefers `$XDG_DATA_HOME/nub` and otherwise falls back to
+    # `$HOME/.local/share/nub`. So moving HOME with only the cache pinned aimed the store at an
+    # EMPTY directory under the throwaway home, and both arms died in the linker rather than in the
+    # package — `× failed to link node_modules / internal: missing package index for
+    # @octokit/auth-token@6.0.0`.
+    #
+    # ⛔ AND THE FAILURE WAS SYMMETRIC, WHICH IS THE TRAP: both arms die identically, so the pair
+    # agrees, so the probe lands on its SAFE verdict `UNPROVEN-CONTROL` and reads as a careful
+    # refusal instead of an instrument that measured nothing. Re-measuring on it would have burned
+    # 180 records and returned that verdict for every one.
+    #
+    # MEASURED on a real kernel, one variable: with this line `backport@12.0.4` and
+    # `@netlify/esbuild@0.13.6` both reach `PROMOTION PROVEN`, the control home holding the declared
+    # entries and the drop home empty; without it, `control=ABSENT drop=ABSENT` for every entry
+    # while the package's own synth arm was rc=0.
+    #
+    # Windows needs no mirror of this: `nub_data_dir_from` prefers `%LOCALAPPDATA%` there, which no
+    # `HOME`/`USERPROFILE` move relocates.
     if [ -n "${ARM_PROMOTION_HOME:-}" ]; then
       export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+      export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
       export HOME="$ARM_PROMOTION_HOME"
     fi
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1

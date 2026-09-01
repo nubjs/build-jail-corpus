@@ -1350,8 +1350,20 @@ JW
     # alone would carry the persistent private jail home along with it and the arm would run cold — a
     # failure indistinguishable from a denial. `NUB_CACHE_DIR` does not cover this: that is the
     # ENGINE's store, a different root from the one the jail derives its private home from.
+    # ⛔⛔ AND `XDG_DATA_HOME` IS PINNED IN THE SAME BREATH, FOR A DIFFERENT ROOT. The paragraph above
+    # reasoned about `sandbox_homes`, which resolves the CACHE; nub's CAS STORE is resolved separately
+    # by `pm_engine::nub_data_dir_from`, which prefers `$XDG_DATA_HOME/nub` and otherwise falls back to
+    # `$HOME/.local/share/nub` — darwin included, since only the Windows arm of that function prefers
+    # `%LOCALAPPDATA%`. Pinning the cache alone therefore aimed the store at an empty directory under
+    # the throwaway home, and both arms died in the linker rather than in the package.
+    #
+    # ⛔ SYMMETRICALLY, which is the trap: the pair then agrees, so the probe returns its SAFE verdict
+    # `UNPROVEN-CONTROL` and reads as a careful refusal instead of an instrument that measured nothing.
+    # Found and measured on Linux, where the mechanism is identical; darwin carries 59 of the 75
+    # records this probe exists to unblock, so the omission mattered more here than on the platform it
+    # was caught on.
     sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH_V" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" \
-      ${ARM_PROMOTION_HOME:+"HOME=$ARM_PROMOTION_HOME" "XDG_CACHE_HOME=${XDG_CACHE_HOME:-$USER_HOME/.cache}"} \
+      ${ARM_PROMOTION_HOME:+"HOME=$ARM_PROMOTION_HOME" "XDG_CACHE_HOME=${XDG_CACHE_HOME:-$USER_HOME/.cache}" "XDG_DATA_HOME=${XDG_DATA_HOME:-$USER_HOME/.local/share}"} \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?
