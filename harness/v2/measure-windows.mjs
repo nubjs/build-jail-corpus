@@ -863,6 +863,14 @@ fs.writeFileSync(path.join(OBS, 'fetch.log'), (fetch.stdout ?? '') + (fetch.stde
 // ⛔ THE TAIL GOES AFTER emitBinaryProvenance() AND STAYS ON ONE LINE. `venue-provenance-on-exit
 // .test.mjs` scans only five lines past the verdict announcement for that call, so a multi-line
 // block here pushes it out of the window and the guard goes red — measured, not guessed.
+//
+// ⛔ THIS TAIL STAYS INLINE AND IS NOT ROUTED THROUGH `emitFailureTail`, DESPITE THE REBUILD EXIT
+// BELOW USING IT. `fetch-diagnosis.test.mjs` scopes every assertion to THIS BLOCK and requires the
+// `slice(-20)` bound to be visible inside it, because a file-wide search for the idiom also matches
+// `npm_ok`'s long-standing tail and so passes with the fix deleted. Hoisting this into the helper
+// moves the bound out of the guarded block and makes that guard green-either-way — the exact
+// failure its header records. The rebuild exit needs the helper for a different reason: it reads two
+// files that may be absent. Two spellings, one output shape, both guarded in their own block.
 if (fetch.status !== 0) {
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=${fetch.status}; nothing to measure)`);
   emitBinaryProvenance();
@@ -1053,8 +1061,12 @@ console.log(`  VENUE-OBSERVE-USER ${OBSERVE_USER} elevated=${meta.elevated} priv
 
 if (meta.eventsLost > 0) console.log(`  !! ${meta.eventsLost} events LOST -- exact-set claims are not supported by this trace`);
 if (meta.exitCode !== 0) {
+  // ⛔ THE TAIL GOES AFTER emitBinaryProvenance() AND STAYS ON ONE LINE, for the reason the fetch
+  // exit above records: `venue-provenance-on-exit.test.mjs` scans only five lines past the verdict
+  // for that call, so a multi-line block here pushes it out of the window and the guard goes red.
   console.log(`  => BROKEN-WITHOUT-JAIL-TOO (unjailed rebuild rc=${meta.exitCode})`);
   emitBinaryProvenance();
+  emitFailureTail(readTracedLog(path.join(CAP, 'run.out')) + readTracedLog(path.join(CAP, 'run.err')));
   process.exit(0);
 }
 
@@ -1169,10 +1181,36 @@ fs.writeFileSync(CAPTURE, `${JSON.stringify({
   roots: {
     project: OBS,
     home: HOME,
-    // ⛔ NULL BECAUSE THE JAIL DOES NOT MAKE ONE, NOT BECAUSE THE DRIVER FORGOT. Grounded in nub:
-    // `build_jail.rs` `sandbox_homes()` takes `home` from the ambient `HOME`/`USERPROFILE`, and
-    // `compiler/defaults.rs` `BASELINE_ENV_EXACT` passes `HOME` through. There is no private jail
-    // home on any platform, so the confined script sees the real one and so does OBSERVE.
+    // ⛔ NULL BECAUSE THIS DRIVER DOES NOT REDIRECT THE HOME — A MEASUREMENT GAP, NOT A PROPERTY OF
+    // THE JAIL. This comment previously read "the jail does not make one … there is no private jail
+    // home on any platform", grounded in `build_jail.rs::sandbox_homes()`. That grounding was a
+    // misreading and it is worth naming, because it is what made the gap below invisible:
+    // `sandbox_homes()` builds nub's OWN path vocabulary from ambient env — the roots `$home`/
+    // `$cache` resolve against — and says nothing about the environment the confined CHILD gets.
+    //
+    // What nub actually does: `compiler/preset.rs::private_home_dir()` (exported as
+    // `jail_private_home`) creates a persistent PER-PACKAGE private home, and `compile_build_jail`
+    // redirects `HOME`, `USERPROFILE` **and** `APPDATA` at it for the jailed child — `APPDATA`
+    // specifically because npm on Windows caches to `%APPDATA%\npm-cache` rather than `$HOME/.npm`.
+    // `build_jail.rs::persist_declared_home_writes` then promotes the declared `writePaths` out of
+    // it, and states in its own header that "WINDOWS PROMOTES THROUGH THIS SAME BODY".
+    //
+    // ⛔ THE CONSEQUENCE, AND IT IS WHY THIS IS WORTH MORE THAN A COMMENT FIX. `measure.sh:761` and
+    // `measure-macos.sh:555` both run OBSERVE under `HOME="$JAIL_HOME"`; this driver does not, so
+    // `classify.mjs` has no `jailHome` root to key on and EVERY home write buckets `userHome`.
+    // Two effects, in opposite directions:
+    //
+    //   OVER-GRANT (tolerable)  a write that merely FOLLOWED `%USERPROFILE%` — npm's own cache, the
+    //                           puppeteer download — is billed `write.userHome` although the jail
+    //                           would have handed it to the script free. Wider than the truth, which
+    //                           is the direction this project tolerates.
+    //   NO `writePaths` (not)   the promotable bucket is unreachable, so this lane derives NO
+    //                           `writePaths` at all — 0 of 2,270 win32 records carry one against 284
+    //                           on POSIX. Deriving one from the `userHome` bucket instead would be
+    //                           an UNDER-GRANT and is refused by name in `write-paths.mjs::
+    //                           refuseUserHome`; the honest fix is to redirect the home here (plus
+    //                           `APPDATA`, per above), declare the root, and give `classify.mjs` a
+    //                           `jailHome` bucket. Until then this stays `null` and says why.
     jailHome: null,
     globalStore: STORE,
     projectStore: path.join(OBS, 'node_modules', '.store'),
@@ -1386,6 +1424,51 @@ console.log(`  RAWLOG-CAPTURE ${CAPTURE}`);
 //
 // The bytecode env name IS a real string constant (`BUILD_JAIL_BASELINE_ENV` in `preset.rs`), so a
 // content search answers that one honestly.
+
+// ⛔ THE TRACED CHILD'S OWN WORDS, WHICH THIS DRIVER ALREADY CAPTURED AND THEN THREW AWAY.
+// `windows.ps1` spawns the traced process with `-RedirectStandardOutput (Join-Path $OutDir
+// 'run.out')` and `-RedirectStandardError ... 'run.err'`, and this driver passes `-OutDir CAP`. So
+// npm's own diagnosis is on disk for every run — and the rebuild-failure exit below never read it.
+//
+// MEASURED corpus-wide: 562 win32 `BROKEN-WITHOUT-JAIL-TOO` records carry a driver.out under 1200
+// bytes with NO error output at all, just `rc=1`. "node-gyp cannot find MSVC", "the tarball 404s"
+// and "the postinstall crashed" are exactly the distinctions this corpus exists to draw, and all
+// 562 are unclassifiable without those words. darwin has never had the hole because
+// `measure-macos.sh:687` tails `npm.log` on the same failure; this is the back-port, not a new idea.
+//
+// ⛔ HOISTED `function` DECLARATIONS, AND THE BOUNDS ARE INLINE LITERALS RATHER THAN `const`s BESIDE
+// THEM — for the reason spelt out at `emitBinaryProvenance` below. The only call site is the
+// rebuild exit ~360 lines ABOVE this point; a `const` here is in the temporal dead zone until this
+// line executes, so naming the bounds would throw `ReferenceError` on precisely the early-exit path
+// these functions exist to serve, and never on the normal path.
+function readTracedLog(p) {
+  // A capture that died before spawning leaves no `run.*` at all. Throwing here would convert a
+  // clean BROKEN-WITHOUT-JAIL-TOO into a HARNESS-ERROR — trading a classifiable record for an
+  // unclassifiable one, which is the exact direction this change exists to reverse.
+  try { return fs.readFileSync(p, 'utf8'); } catch { return ''; }
+}
+
+// ⛔ A FUNCTION HERE, AND AN INLINE LOOP AT THE FETCH EXIT — THE ASYMMETRY IS DELIBERATE, so do not
+// "unify" them. `fetch-diagnosis.test.mjs` scopes its assertions to the fetch block and requires the
+// `slice(-20)` bound to appear INSIDE it, because a file-wide search for that idiom also matches
+// `npm_ok`'s long-standing tail and would pass with the fix deleted. This exit cannot be inline: it
+// reads two files that may not exist, so it needs the guarded read below, and the whole call must
+// still fit on ONE line for `venue-provenance-on-exit.test.mjs`. Same prefix (`    | `) and same
+// depth as that site, and as `measure-macos.sh`'s two tails, so the output shape is identical.
+//
+// ⛔ CALLERS APPEND STDERR LAST, AND THAT ORDERING IS LOAD-BEARING rather than an accident of
+// concatenation: npm puts progress on stdout and its diagnosis on stderr, so a 20-line tail lands on
+// the CAUSE instead of on twenty `npm http fetch GET 200` lines.
+function emitFailureTail(text) {
+  for (const l of String(text ?? '').trimEnd().split('\n').slice(-20)) {
+    // ⛔ BOUNDED ON BOTH AXES. Twenty lines is not a bounded excerpt when one of them is a megabyte,
+    // and on THIS platform that is the ordinary case rather than the pathological one — a node-gyp
+    // failure prints the entire MSBuild invocation as a single line. The cap is what keeps the
+    // reason legible in driver.out, which is the artifact the corpus actually retains.
+    if (l.trim()) console.log(`    | ${l.length > 500 ? `${l.slice(0, 500)}…` : l}`);
+  }
+}
+
 // ⛔ A HOISTED, IDEMPOTENT FUNCTION, BECAUSE THE EARLY EXITS NEED THIS TOO. This was an inline block
 // here — which is AFTER both `BROKEN-WITHOUT-JAIL-TOO` exits — so every record taking one of those
 // paths named NO binary at all. MEASURED on win32 shakeout round 1: `react-signature-pad-wrapper@1.3.1`
@@ -1496,10 +1579,17 @@ console.log(`  VENUE-OVERRIDES ${JSON.stringify({
   unset: CI_SCRUBBED,
   notRedirected: {
     USERPROFILE: process.env.USERPROFILE ?? null,
-    why: 'the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient'
-      + ' value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no'
-      + ' private jail home to reproduce and redirecting one would measure an environment no'
-      + ' confined script sees',
+    // ⛔ THIS FIELD ASSERTED THE OPPOSITE OF WHAT NUB DOES, and a record carrying a false `why` is
+    // worse than one carrying none — see the `jailHome` root in `capture.json` for the full
+    // correction and the two consequences. Stated as the KNOWN DIVERGENCE it is, so a reader
+    // comparing this lane against the POSIX lanes is not told the difference does not exist.
+    why: 'KNOWN DIVERGENCE from measure.sh and measure-macos.sh, which both run OBSERVE under'
+      + ' HOME=$JAIL_HOME. nub DOES give the confined child a private per-package home'
+      + ' (`compiler/preset.rs` private_home_dir) and redirects HOME, USERPROFILE and APPDATA at it;'
+      + ' this driver reproduces none of the three, so every home write buckets `userHome` rather'
+      + ' than splitting into the free `jailHome` bucket. Effect: home writes are over-billed'
+      + ' (tolerable) and `writePaths` cannot be derived on win32 at all (a real gap). See the'
+      + ' `jailHome` root in capture.json.',
   },
   // Captured BEFORE the scrub; see CI_INHERITED.
   passedThrough: {
