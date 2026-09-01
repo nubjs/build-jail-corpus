@@ -39,6 +39,9 @@ import { shortfallDigest } from './shortfall-invariance.mjs';
 // both POSIX drivers, so three drivers cannot drift apart on what a jail-off control proved.
 import { classify, offSwitchEngaged } from './unjailed-nub.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
+// The arm PATH's tool bin lives in the OBSERVE tree, which a jailed arm's project does not contain.
+// Shared with both POSIX drivers so the three cannot drift on where a scaffolded tool has to sit.
+import { stageArmTools, stagedArmPath } from './stage-arm-tools.mjs';
 // The wide-but-confined probe: its path set, its never-a-root-glob guard, and the ONE marker spelling
 // `record.mjs` reads. Shared with both POSIX drivers so the three cannot drift on what the probe is.
 import { confinedWideBaseline, interpretation, marker as confinedWideMarker } from './confined-wide.mjs';
@@ -1139,6 +1142,11 @@ if (meta.exitCode !== 0) {
 }
 
 const isLog = (p) => /\.(log|xml|etl|txt)$|meta\.json$|cat\.json$/i.test(p);
+// `.harness-tools` is the instrument, not the install — see the staging block in `verify`. Counting
+// it would inflate `files/OBS_FILES` by roughly the whole observe tree and make the printed ratio
+// incomparable with every record taken before staging existed. `countFiles` skips a directory whole,
+// so matching the directory itself prunes the subtree rather than filtering it entry by entry.
+const isArmNoise = (p) => isLog(p) || /[\\/]\.harness-tools([\\/]|$)/.test(p);
 const OBS_FILES = countFiles(OBS, isLog);
 const OBS_PKG = pkgManifest(OBS, PKG, VER);
 if (!OBS_PKG || OBS_PKG.size === 0) {
@@ -1953,19 +1961,30 @@ const verify = (grant, label) => {
     storeLayoutReported = true;
   }
   securityScreen(`nub-${label}-resolved`, ['--tree', v]);
+  // ⛔ THE ARM PATH'S TOOL BIN LIVES IN THE OBSERVE TREE, WHICH THIS ARM'S JAIL DOES NOT GRANT.
+  // `OBS` is a SIBLING of `v`, and the jail grants `<project>\node_modules` — so a scaffolded tool
+  // on `ARM_PATH` is refused at exec and the ladder repairs it with whichever rung happens to cover
+  // the tree's location, not with the capability the package needs. Staged AFTER the tree exists and
+  // BEFORE the measured install, which is the window measured to survive nub's prune.
+  // `stage-arm-tools.mjs` carries the measurement and the two fixes that do NOT work.
+  const staged = stageArmTools({ observeDir: OBS, armDir: v });
+  if (staged.binDir) {
+    env.PATH = stagedArmPath(env.PATH ?? '', OBS, staged.binDir);
+    console.log(`  ${staged.marker}`);
+  }
   const i = run(NUB, ['install'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'i.log'), (i.stdout ?? '') + (i.stderr ?? ''));
   // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
   // stage so the leak is visible rather than showing up later as a mystery CPU hog.
   if (timedOut(i)) {
     console.log(`  VERIFY[${label}] TIMED-OUT in \`install\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
-    return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isLog), rc: null };
+    return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isArmNoise), rc: null };
   }
   const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'a.log'), (a.stdout ?? '') + (a.stderr ?? ''));
   if (timedOut(a)) {
     console.log(`  VERIFY[${label}] TIMED-OUT in \`approve-builds\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
-    return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isLog), rc: null };
+    return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isArmNoise), rc: null };
   }
 
   // ⛔ A MALFORMED OVERRIDE WARNS AND FALLS BACK to the compiled-in catalog SILENTLY. Without this
@@ -1973,7 +1992,7 @@ const verify = (grant, label) => {
   const logs = ['i.log', 'a.log'].map((f) => fs.readFileSync(path.join(v, f), 'utf8')).join('\n');
   const ovr = (logs.match(/catalog OVERRIDDEN/g) ?? []).length;
   const rej = (logs.match(/REJECTED/g) ?? []).length;
-  const files = countFiles(v, isLog);
+  const files = countFiles(v, isArmNoise);
   const got = pkgManifest(v, PKG, VER);
   const missing = missingArtifacts(OBS_PKG, got);
   const rc = i.status === 0 ? (a.status ?? 0) : i.status;

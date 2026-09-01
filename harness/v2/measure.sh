@@ -1709,9 +1709,26 @@ verify () {
     exit 1
   }
   security_screen_tree "$v" "nub-$label-resolved"
+  # ⛔ THE ARM PATH'S TOOL BIN LIVES IN THE OBSERVE TREE, WHICH THIS ARM'S JAIL DOES NOT GRANT.
+  # `$OBS` is a SIBLING of `$v`, and the jail grants `<project>/node_modules` — so a scaffolded
+  # `bower`/`grunt`/`tsc` on `$ARM_PATH` is refused at `execve` with `EACCES`, which `dash` reports
+  # as `Permission denied` and exit 126. That is indistinguishable from the package needing a wider
+  # grant, and the rung that "repairs" it is whichever one happens to cover `$HOME` — the accident
+  # that `$ROOT` sits under the home directory. Staged here, AFTER the tree exists and the screen has
+  # run, and BEFORE the measured install, which is the window measured to survive nub's prune.
+  # `stage-arm-tools.mjs` carries the full measurement and the two fixes that do NOT work.
+  local STAGE_JSON ARM_PATH_V ARM_TOOLS_MARK
+  ARM_PATH_V="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+  STAGE_JSON="$(node "$HERE/stage-arm-tools.mjs" --observe "$OBS" --arm "$v" --arm-path "$ARM_PATH_V" 2>/dev/null)"
+  if [ -n "$STAGE_JSON" ]; then
+    ARM_TOOLS_MARK="$(printf '%s' "$STAGE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).marker||"")}catch{}})')"
+    ARM_PATH_V="$(printf '%s' "$STAGE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).armPath||"")}catch{}})')"
+    [ -n "$ARM_PATH_V" ] || ARM_PATH_V="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+    [ -z "$ARM_TOOLS_MARK" ] || echo "  $ARM_TOOLS_MARK"
+  fi
   ( cd "$v"
     # The era pin applies to the MEASURED install only — see the ERA-NODE PIN block above.
-    PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+    PATH="$ARM_PATH_V"
     # ⛔ AND THE ERA PYTHON WITH IT. This arm builds native addons through node-gyp, and until epoch 13
     # it was the only family of arms that did NOT hold the era interpreter: OBSERVE gets it at line 673
     # and the npm reference arm got it in epoch 4. node-gyp therefore fell back to the runner's ambient
@@ -1799,7 +1816,10 @@ verify () {
   # control counted 456 — and the `files >= OBS_FILES` gate below then fails an arm that installed
   # perfectly. MEASURED on @nuxt/components@2.1.0: the write:"disk" arm exited 0 with a complete
   # install and was reported as "NO-STATE-PASSED". Following the links counts the real artifacts.
-  files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
+  # `.harness-tools` is the instrument, not the install — see the staging block above. Counting it
+  # would inflate `files/OBS_FILES` by roughly the whole observe tree and make the printed ratio
+  # incomparable with every record taken before staging existed.
+  files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -path '*/nubcache/*' ! -path '*/.harness-tools/*' 2>/dev/null | wc -l | tr -d ' ')
   # ⛔ THE STORE LAYOUT IS OBSERVED FROM THE ARM TREE, NEVER INFERRED FROM `CI` (PORTABILITY R3).
   # Deriving it from the env var would encode the very rule this field exists to let us CHECK, and it
   # would then agree with itself forever. MEASURED, and this is why it matters: a `CI`-unset install

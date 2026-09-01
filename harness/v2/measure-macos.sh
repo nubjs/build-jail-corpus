@@ -1305,11 +1305,28 @@ verify () {
       exit 1
     }
   security_screen_tree "$v" "nub-$label-resolved"
+  # ⛔ THE ARM PATH'S TOOL BIN LIVES IN THE OBSERVE TREE, WHICH THIS ARM'S JAIL DOES NOT GRANT.
+  # `$OBS` is a SIBLING of `$v`, and the jail grants `<project>/node_modules` — so a scaffolded tool
+  # on `$ARM_PATH` is refused at exec and the ladder repairs it with whichever rung happens to cover
+  # the tree's location, not with the capability the package needs. Shared with the two other
+  # drivers; `stage-arm-tools.mjs` carries the measurement and the two fixes that do NOT work.
+  # Staged AFTER the tree exists and BEFORE the measured install, then re-chowned so the arm user
+  # owns what this root-privileged driver just created.
+  local STAGE_JSON ARM_PATH_V ARM_TOOLS_MARK
+  ARM_PATH_V="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+  STAGE_JSON="$(node "$HERE/stage-arm-tools.mjs" --observe "$OBS" --arm "$v" --arm-path "$ARM_PATH_V" 2>/dev/null)"
+  if [ -n "$STAGE_JSON" ]; then
+    ARM_TOOLS_MARK="$(printf '%s' "$STAGE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).marker||"")}catch{}})')"
+    ARM_PATH_V="$(printf '%s' "$STAGE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).armPath||"")}catch{}})')"
+    [ -n "$ARM_PATH_V" ] || ARM_PATH_V="${ARM_PATH:-${ERA_PATH:-$PATH}}"
+    [ -z "$ARM_TOOLS_MARK" ] || echo "  $ARM_TOOLS_MARK"
+    chown -R "$RUNUSER" "$v" 2>/dev/null
+  fi
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
-sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
+sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH_V" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
   "$NUB" install > "$v/i.log" 2>&1
 echo \$? > "$v/rc"
 JW
@@ -1322,7 +1339,7 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" \
+    sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH_V" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" \
       NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?
@@ -1340,7 +1357,10 @@ JW
   # ⛔ `-L` IS LOAD-BEARING. nub's global virtual store makes every node_modules entry a SYMLINK,
   # so a bare `find -type f` counts ~30 files where the npm control counted 456, and the artifact
   # gate below then fails an arm that installed perfectly.
-  files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -name 'trace.txt' ! -path '*/nubcache/*' 2>/dev/null | wc -l | tr -d ' ')
+  # `.harness-tools` is the instrument, not the install — see the staging block above. Counting it
+  # would inflate `files/OBS_FILES` by roughly the whole observe tree and make the printed ratio
+  # incomparable with every record taken before staging existed.
+  files=$(find -L "$v" -type f ! -name '*.log' ! -name 'cat.json' ! -name 'trace.txt' ! -path '*/nubcache/*' ! -path '*/.harness-tools/*' 2>/dev/null | wc -l | tr -d ' ')
   # ⛔⛔ `files >= OBS_FILES` WAS THE GATE HERE AND IT IS NOT A SUCCESS GATE. `find -L` follows the
   # isolated layout's symlinks into the machine-global store, so the number is dominated by the
   # dependency closure and is nearly insensitive to whether THIS package's script produced anything
