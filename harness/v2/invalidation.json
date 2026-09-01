@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 63,
+  "currentEpoch": 64,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1270,6 +1270,60 @@
         ]
       },
       "reason": "Epoch 63 lands a no-effect veto and a repair to the rc-liveness detector.\n\nREFUTATION FIRST, because it redirects the work: a denial witness scored on the VERIFY arm cannot rescue the gate-vacuous narrowings, and building a win32 capture for that purpose would have been wasted. Such a witness answers \"did the script attempt a refused access inside the dropped scope?\", and CLEAN means it never asked. The twelve records are precisely the population where the script never asked because it never DID anything, so CLEAN is guaranteed by construction and licensing on it publishes the under-grant. The detector cannot separate \"needs nothing\" from \"did nothing\".\n\nTHE MECHANISM, read out of the real tarballs rather than inferred. Ten of the twelve are the whole @pulumi family plus backport, and their OBSERVE writes block is EMPTY -- zero writes in any bucket. @pulumi/gcp scripts/install-pulumi-plugin.js spawns `pulumi plugin install`, and when the Pulumi CLI is absent the spawn returns ENOENT, the script prints to stderr and then calls process.exit(0) UNCONDITIONALLY. On a runner without that binary the package therefore writes nothing, opens nothing and exits 0, and the harness synthesizes the empty grant. On a machine that HAS the CLI the same script downloads plugins into ~/.pulumi/plugins over the network -- write.userHome plus network, exactly the grant these records would have dropped. The same family, the same script, opposite measurements, decided by an unrelated binary being on PATH.\n\nTHE VETO is a positive detector that only ever REFUSES: NONE requires a lifecycle pid attributed, the installed tree declaring an install script or a binding.gyp, zero writes in every bucket, and zero peers. It is evaluated BEFORE the evidence rules, so no present or future licence can outrank it. Base-covered buckets count as effect, or @azure-devops/mcp scores idle; execs deliberately do not, because an ENOENT spawnSync is an ATTEMPTED exec and counting it scores the whole @pulumi family as having worked. It invalidates nothing on its own -- the existing rule already withholds these twelve; the veto changes the REASON for ten of them, from \"no descent arm went red\", which points at building a red arm that cannot exist, to naming the no-effect state.\n\nTHE SECOND DEFECT, which is what the scope pays for. arm-falsifiability.mjs decided rc-liveness with a SWALLOWS alternation of true|:|exit 0, so a script ending in a trailing `|| echo` was not recognised as swallowing its exit code. backport@12.0.4 ends `|| echo Dist folder missing` and was therefore scored rcLive true for a package whose rc cannot be non-zero. Read the limit honestly: rc-liveness as measured is a claim about the shell wrapper, never about the payload.\n\nSCOPE is exact rather than projected. The archive logs cannot enumerate it -- arm-falsifiability prints a script body only when the OLD regex matched, so grepping all 6,887 driver logs for the new shape returns a false zero. Resolved instead from the registry over every distinct package@version under records-v2/runs: 2,324 of 2,324 resolved, zero unresolved, two known-answer controls green, 34 specs newly flagged across 13 distinct package names. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest, which has already moved: 993 valid at epoch 62, 19 in scope = 1.91%.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
+    },
+    {
+      "fromEpoch": 63,
+      "fromHarnessSha256": "82a6c2f881b3f6f1980d50dad2ee915bf71358ede8ad6acf753e0c01c301ed38",
+      "toEpoch": 64,
+      "toHarnessSha256": "678e88c43ed46ae9af64c4b2463d275986a8b10d640c94fa1e4a5e8319734aa5",
+      "invalidate": {
+        "packages": [
+          "@appsignal/nodejs",
+          "@bufbuild/buf",
+          "@markdoc/markdoc",
+          "@privy-io/server-auth",
+          "@progress/kendo-licensing",
+          "@pulumi/aws-native",
+          "@pulumi/awsx",
+          "@pulumi/azuread",
+          "@pulumi/cloudflare",
+          "@pulumi/command",
+          "@pulumi/datadog",
+          "@pulumi/docker",
+          "@pulumi/docker-build",
+          "@pulumi/gcp",
+          "@pulumi/kubernetes",
+          "@pulumi/postgresql",
+          "@pulumi/tls",
+          "@tloncorp/tlon-skill",
+          "@trufflesuite/bigint-buffer",
+          "blake-hash",
+          "ctrlc-windows",
+          "fast-folder-size",
+          "flow-bin",
+          "geckodriver",
+          "handbrake-js",
+          "jest-preview",
+          "keccak",
+          "leveldown",
+          "mediaquery-text",
+          "node-liblzma",
+          "onnxruntime-node",
+          "pizzip",
+          "playwright-chromium",
+          "react-native-purchases",
+          "react-native-tree-multi-select",
+          "ref-napi",
+          "samlify",
+          "sharp",
+          "sockopt",
+          "tree-sitter-cpp",
+          "tree-sitter-ruby",
+          "zeromq",
+          "zod-schema-faker"
+        ]
+      },
+      "reason": "Epoch 64 makes the no-effect veto actually fire, and closes a first-measurement hole that had already reached the shipped catalog.\n\nTHE VETO WAS 44 PERCENT BLIND, two per-platform defects, both measurable on committed records. On darwin the only write in 415 records is /dev/dtracehelper -- the DTrace helper device the TRACER ITSELF opens -- and observed-effect.mjs summed every write bucket including systemfs, so writes=1 scored WORK. On linux, observe.mjs keeps peers REPORT-ONLY and UNATTRIBUTED by its own comment, and the marker was fed that unattributed count, so systemd-resolved at 127.0.0.53:53 and the npm registry scored as effect in 285 records. The deeper defect is that the SAME FIELD NAME carried an attributed count on classify.mjs and observe-macos.mjs and an unattributed one on observe.mjs; the fix is a shared effectWrites helper all three classifiers call, with a test asserting none of them re-implements the sum inline.\n\nTHE FIRST-MEASUREMENT HOLE. publish-guard.mjs early-returned PUBLISH on dropped.length === 0 and the veto sat below it. That ordering is sound for a record with a prior grant -- widening or confirming cannot break an install -- and false for a FIRST measurement, where narrows(undefined, {}) is empty for the opposite reason. Verified in nub source: an ABSENT catalog entry falls back to baseline_caps() and still promotes the baseline write_paths, while an EMPTY entry resolves to Some(grant) with empty write_paths and returns before the promotion loop. So publishing the empty grant for an unmeasured package is STRICTLY TIGHTER than leaving it uncatalogued, and it silently disables the baseline compatibility benefit.\n\nSCALE, and it is larger than the twelve records this started from. 2,156 of 5,104 measured MINIMUM records -- 42.2 percent, over 971 unique package versions -- publish an empty grant. It splits three ways and the split matters more than the total: 1,509 records where the script produced no attributed effect, 505 where the script DID work and every descent drop arm passed anyway, and 142 with no lifecycle pid attributed. observedEffect returns WORK for all 505, so no no-effect verdict can reach the electron-shaped breakage already proven against a real install.\n\nScope is the 43 package names whose catalog cell narrows on zero-effect evidence alone, plus those whose empty record is contradicted by another platform non-empty measurement of the same version. Measured with record-validity.mjs at the identity the policy pins rather than the on-disk digest: 974 valid at epoch 63, 46 in scope = 4.72 percent.\n\nNOT DONE HERE, deliberately, and sequenced next: collate.mjs should refuse to emit a per-OS overlay that narrows a platform cell when that platform only evidence is a NONE record -- the same asymmetry publish-guard already applies to unfalsifiable arms. Zero committed records carry the marker today, so that gate would be inert until re-measures land, and landing an inert gate inside the thing that ships the catalog, mid-drain, is exactly the hard-to-undo change to avoid.\n\nPackage names only, never a platforms or verdicts selector: either form invalidates the frozen epoch-3 chain that 1,769 records depend on, and the drain restarts from zero."
     }
   ]
 }
