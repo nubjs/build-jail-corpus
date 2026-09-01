@@ -148,3 +148,150 @@ export const gypSubtargetSpill = (root, pkg) => {
   }
   return m;
 };
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// THE SECOND, LARGER FAMILY: the same arithmetic, displaced INSIDE `build/` instead of escaping it.
+//
+// The walk above finds the files that leave the package root. It does NOT find the ones that stay
+// inside `build/` at a DIFFERENT path, and those are the bigger half of the corpus's shortfall —
+// 37 of the 41 archived records that name a `node-addon-api` spill carry this shape.
+//
+// MEASURED with a real `node-gyp@11 rebuild` on `drivelist@12.0.2` + `node-addon-api@8.9.2`,
+// darwin-arm64, in a real `npm install` tree and a real `nub install` store tree. The generated
+// `nothing.target.mk` is IDENTICAL in shape in both arms; only one substring differs:
+//
+//     OBJS := $(obj).target/$(TARGET)/../node-addon-api/nothing.o                         (npm)
+//     OBJS := $(obj).target/$(TARGET)/../../../node-addon-api@8.9.2-c7cd…/node_modules/…  (nub)
+//
+// and `make` echoed exactly that, un-normalised, as it compiled:
+//
+//     CC(target) Release/obj.target/nothing/../node-addon-api/nothing.o                         (npm)
+//     CC(target) Release/obj.target/nothing/../../../node-addon-api@8.9.2-c7cd…/…/nothing.o     (nub)
+//
+// ⛔ SO THE COMPONENT COUNT DOES NOT ACTUALLY VARY PER FAMILY, AND BELIEVING IT DOES IS WHAT MAKES
+// THIS LOOK LIKE IT NEEDS GYP'S ARITHMETIC RE-DERIVED PER OUTPUT KIND. Every one of these paths has
+// the one shape
+//
+//     <fixed prefix, decided by the output kind> / <relDep> / <tail>
+//
+// where `<relDep>` is the string `node-addon-api/index.js` handed over — `path.relative('.',
+// __dirname)`, resolved through symlinks — and the ONLY layout-dependent quantity is `k`, its count
+// of leading `..`: 1 under npm's flat hoist, 3 under nub's isolated store. `k` is a property of the
+// LAYOUT and is the same for every family. What varies is the fixed prefix's DEPTH, which decides
+// how much of it survives being eaten and therefore where the file comes to rest — measured, all
+// four kinds, one package, one build:
+//
+//   kind            fixed prefix under `build/`                      npm (k=1)                                    nub (k=3)
+//   makefiles       (none — `--generator-output build` is the root)  ../node-addon-api           => pkgRoot        2 levels ABOVE pkgRoot
+//   object          Release/obj.target/$(TARGET)          depth 3    Release/obj.target/…        => inside build/  build/  (prefix exactly consumed)
+//   dep record      Release/.deps/Release/obj.target/$(TARGET) d. 5  Release/.deps/Release/…     => inside build/  build/Release/.deps/
+//   static lib      $(builddir) on mac, $(obj).target on linux       no `..` on mac              => no spill at all
+//
+// ⛔ THE CONSEQUENCE IS THE WHOLE REPAIR: the reference key and the arm path differ by ONE number,
+// `Δk = k_arm − k_ref`, and that number is a property of the (package, dependency) PAIR rather than
+// of the output kind. Δk was 2 for all three spilling kinds above. So the arm's location is
+// recoverable from the reference key without knowing the fixed prefix at all — take the reference
+// key, find the dependency's own path components in it, drop Δk components from what precedes them
+// (walking above the package root when there are not enough), and splice the ARM's components back
+// in. Verified against all four kinds, including the static library, which this predicts is NOT a
+// spill on mac and which is indeed byte-present in both arms.
+//
+// ⛔ AND IT IS RECOVERABLE ONLY FROM THE REFERENCE SIDE, WHICH IS WHY THIS IS A SECOND FUNCTION AND
+// NOT A WIDER WALK. The eaten components are GONE from the arm path — `build/node-addon-api@…/…`
+// carries no trace of the `Release/obj.target/nothing` it consumed — so no amount of walking the arm
+// reconstructs the key. The reference manifest is the only place that prefix still exists. That
+// makes this pass ASYMMETRIC (it probes the arm using the reference's keys) where the walk above is
+// symmetric, and it is why the two coexist rather than one replacing the other.
+//
+// ⛔ IT ADDS NOTHING THE REFERENCE DID NOT ALREADY DEMAND. Every key it can produce is a key already
+// in the reference manifest and already MISSING from the arm, and it produces one only when a real
+// file is at the computed path. A key it cannot resolve stays missing and stays NAMED, and the size
+// comparison downstream is untouched — a zero-byte relocated file still fails exactly as before.
+
+/** The leading `..` run and the descent that follows it, for a path relative to the package root. */
+const split = (rel) => {
+  const parts = rel.split(path.sep);
+  let k = 0;
+  while (k < parts.length && parts[k] === '..') k++;
+  return { k, descent: parts.slice(k) };
+};
+
+/** Where each installed sibling really lives, relative to the package root, in one tree. */
+const depRels = (root, pkg) => {
+  const out = new Map();
+  let rootReal;
+  try { rootReal = fs.realpathSync(root); } catch { return out; }
+  const nm = depsDir(rootReal, pkg);
+  if (!nm) return out;
+  for (const dep of siblingNames(nm, pkg)) {
+    let depReal;
+    try { depReal = fs.realpathSync(path.join(nm, ...dep.split('/'))); } catch { continue; }
+    out.set(dep, { ...split(path.relative(rootReal, depReal)), depReal, rootReal });
+  }
+  return out;
+};
+
+/** Does `parts` contain `run` as a contiguous slice? Returns its start index, or -1. */
+const indexOfRun = (parts, run) => {
+  outer: for (let i = 0; i + run.length <= parts.length; i++) {
+    for (let j = 0; j < run.length; j++) if (parts[i + j] !== run[j]) continue outer;
+    return i;
+  }
+  return -1;
+};
+
+/**
+ * Reference keys the arm DID produce, at the place this layout's gyp arithmetic put them.
+ *
+ * @param obs the reference manifest, carrying `.root` (the OBSERVE package directory)
+ * @param arm the arm manifest, carrying `.root`
+ * @param pkg the measured package's name
+ * @returns Map of reference manifest key -> the size found in the arm, empty when nothing relocated
+ */
+export const gypSubtargetRelocations = (obs, arm, pkg) => {
+  const found = new Map();
+  if (!obs || !arm || !obs.root || !arm.root) return found;
+  const refs = depRels(obs.root, pkg);
+  const arms = depRels(arm.root, pkg);
+  if (refs.size === 0 || arms.size === 0) return found;
+
+  // Only the keys the arm is actually short of — a key it already has needs no relocation, and
+  // probing one could only ever overwrite a real measurement with a coincidence.
+  const wanted = [];
+  for (const k of obs.keys()) if (!arm.has(k)) wanted.push(k);
+  if (wanted.length === 0) return found;
+
+  for (const [dep, r] of refs) {
+    const a = arms.get(dep);
+    if (!a) continue;
+    const delta = a.k - r.k;
+    // Δk ≤ 0: the arm ate no more than the reference did. Either the paths already agree, or the
+    // arm kept components the reference lost — which is not recoverable from either side, so the
+    // key stays missing rather than being guessed at.
+    if (delta <= 0) continue;
+
+    for (const key of wanted) {
+      if (found.has(key)) continue;
+      const parts = key.split('/');
+      const at = indexOfRun(parts, r.descent);
+      if (at < 0) continue;
+      const base = parts.slice(0, at);
+      const tail = parts.slice(at + r.descent.length);
+      const up = delta - base.length;
+      const kept = up > 0 ? [] : base.slice(0, base.length - delta);
+      const abs = path.resolve(a.rootReal, ...(up > 0 ? Array(up).fill('..') : []), ...kept, ...a.descent, ...tail);
+      // ⛔ NEVER INDEX THE DEPENDENCY'S OWN REAL DIRECTORY, WHERE A FILE THAT SHIPS IN THE TARBALL
+      // WOULD SILENTLY SATISFY A KEY THE BUILD NEVER WROTE. It is reachable: when the reference
+      // tree resolves the dependency to a path INSIDE the measured package — an npm `file:` or
+      // workspace link, where the sibling entry in `node_modules` points back into the package —
+      // the reference ate no components at all, and the arm's Δk then lands this computation
+      // squarely on the dependency itself. Pinned by its own case in the test file.
+      if (abs === a.depReal || abs.startsWith(a.depReal + path.sep)) continue;
+      let st;
+      try { st = fs.statSync(abs); } catch { continue; }
+      if (!st.isFile()) continue;
+      found.set(key, st.size);
+    }
+  }
+  return found;
+};

@@ -61,7 +61,7 @@ import { excusesSizeDifference } from './artifact-excusal.mjs';
 // MSBuild emits `.vcxproj`, not `.target.mk`, and all 243 archived sightings are darwin/linux -- so
 // this import buys the win32 driver nothing it can measure. It is here because the copy that DID NOT
 // import `artifact-excusal.mjs` is the reason that module exists.
-import { gypSubtargetSpill } from './gyp-subtarget-spill.mjs';
+import { gypSubtargetSpill, gypSubtargetRelocations } from './gyp-subtarget-spill.mjs';
 // ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
 // here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
 import { supportsImport } from './stamp-waiver.mjs';
@@ -640,6 +640,13 @@ const pkgManifest = (base, pkg, ver) => {
 // `lib/iedriver64/IEDriverServer.exe` rather than a bare number.
 const missingArtifacts = (obs, got) => {
   if (!got) return ['<package absent>'];
+  // ⛔ THE OTHER HALF OF THE SUB-TARGET SPILL, AND IT LIVES HERE RATHER THAN IN `pkgManifest`
+  // BECAUSE IT NEEDS BOTH TREES. `gypSubtargetSpill` walks the arm alone and finds the sub-targets
+  // that escaped the package; the ones that merely MOVED inside `build/` cannot be keyed from the
+  // arm at all, because the path components gyp ate survive only in the reference key. See
+  // `gyp-subtarget-spill.mjs` for the measurement. `artifact-gate.mjs` does the same thing at the
+  // same point, and the two must not drift.
+  for (const [k, v] of gypSubtargetRelocations(obs, got, PKG)) if (!got.has(k)) got.set(k, v);
   const out = [];
   for (const [f, size] of obs) {
     // ⛔ ABSENCE IS CHECKED FIRST AND FOR EVERY FILE, TOOLCHAIN-GENERATED INCLUDED. A generator
