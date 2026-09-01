@@ -1,5 +1,10 @@
-### @napi-rs/simple-git-linux-x64-gnu@0.1.8   (/Users/runner/v2m-3r2Uq3)   nub=/tmp/nubsrc/target/fast/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nubsrc/target/fast/nub","sha256":"1e6c983b3ac82a708d581c3993eefc10d3bc0b34ec241c29e88f2a2beb8bc2fb","bytes":94104376,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"953bac61a39f7e568b839cd5930819b6942ea7c79776e1cf244f602d70481cf3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T01:19:09.708Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-dDHKP9/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 953bac61a39f
+  ERA-NODE PINNED 16.20.2 (provisioned) (arms will run: v16.20.2)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 16, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### @napi-rs/simple-git-linux-x64-gnu@0.1.8   (/Users/runner/v2m-dDHKP9)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,4 +14,14 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed; nothing to measure)
+  ERA-RESOLUTION DATED 2022-05-09T08:05:47.360Z (deps as of the package's own publish date + 1d)
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed fetch failed rc=1; nothing to measure)
+    | npm error code EBADPLATFORM
+    | npm error notsup Unsupported platform for @napi-rs/simple-git-linux-x64-gnu@0.1.8: wanted {"os":"linux","cpu":"x64","libc":"glibc"} (current: {"os":"darwin","cpu":"arm64"})
+    | npm error notsup Valid os:    linux
+    | npm error notsup Actual os:   darwin
+    | npm error notsup Valid cpu:   x64
+    | npm error notsup Actual cpu:  arm64
+    | npm error notsup Valid libc:  glibc
+    | npm error notsup Actual libc: undefined
+    | npm error A complete log of this run can be found in: /Users/runner/.npm/_logs/2026-09-01T01_19_17_934Z-debug-0.log

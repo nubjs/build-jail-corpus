@@ -1,5 +1,10 @@
-### node-libcurl@0.5.1   (/Users/runner/v2m-CsnuOk)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c2199687bd501eaa4dc51c321eb53981a9de96e84bcc4eac0b24d7bac9b32146","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T01:23:00.291Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-rzflE9/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c2199687bd50
+  ERA-NODE NOT-PINNED (no era version resolved for this package) (arms will run: v22.23.2)
+  ERA-PYTHON /usr/local/bin/python2.7 (Python 2.7.18) for era Node 0, whose node-gyp requires python2
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### node-libcurl@0.5.1   (/Users/runner/v2m-rzflE9)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,21 +14,35 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2015-08-17T03:47:36.239Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5d5bbae5f09601bb750ee2a995cab0075d27ec030b40801ff6c5912e8c093f3c","specCount":68,"lockfiles":{"digest":"54c025e47049670434efe7d4e6554a27f6351a5c08384cc003df9ecd198679c3","files":[{"path":"package-lock.json","sha256":"5faa9b5951a90e69a827a35541df701236b1344813db5271e4823dd23c6b224c","bytes":27774}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T01:23:10.703Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-rzflE9/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 68 exact package-version(s), tree 5d5bbae5f096
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 1 leaked: rimraf=/Users/runner/v2m-rzflE9/Observe/node_modules/.bin/rimraf
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC node-libcurl@0.5.1
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-CsnuOk/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-CsnuOk/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSFGn4P"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "node-libcurl" > "/Users/runner/v2m-CsnuOk/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-CsnuOk/Observe/rc"
+     cd "/Users/runner/v2m-rzflE9/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-rzflE9/Observe/node_modules/.bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-rzflE9/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslXDEGz"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/usr/local/bin/python2.7   npm rebuild --no-audit --no-fund "node-libcurl@0.5.1" > "/Users/runner/v2m-rzflE9/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-rzflE9/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-CsnuOk/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-CsnuOk/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSFGn4P NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund node-libcurl
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000016a50e0) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-rzflE9/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-rzflE9/Observe/node_modules/.bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-rzflE9/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslXDEGz NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/usr/local/bin/python2.7 npm rebuild --no-audit --no-fund node-libcurl@0.5.1
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000239c060) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003bac000) in action #1 at DIF offset 20
      + echo 1
-  OBSERVE   rc=1 dtrace_rc=0 files=955 (pre=953) trace=12098 lines
+  OBSERVE   rc=1 dtrace_rc=0 files=860 (pre=858) trace=12083 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
      npm error code 1
-     npm error path /Users/runner/v2m-CsnuOk/Observe/node_modules/node-libcurl
+     npm error path /Users/runner/v2m-rzflE9/Observe/node_modules/node-libcurl
      npm error command failed
      npm error command sh -c node tools/retrieve-win-deps && node tools/generate-stubs && pangyp rebuild
      npm error Cannot find curl's header file.
-     npm error A complete log of this run can be found in: /Users/runner/v2m-CsnuOk/jailhome/.npm/_logs/2026-08-08T00_36_27_600Z-debug-0.log
+     npm notice
+     npm notice New major version of npm available! 10.9.8 -> 12.0.2
+     npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+     npm notice To update run: npm install -g npm@12.0.2
+     npm notice
+     npm error A complete log of this run can be found in: /Users/runner/v2m-rzflE9/jailhome/.npm/_logs/2026-09-01T01_23_13_210Z-debug-0.log
