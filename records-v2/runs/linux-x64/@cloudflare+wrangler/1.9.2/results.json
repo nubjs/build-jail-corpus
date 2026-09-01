@@ -2,8 +2,9 @@
   "pkg": "@cloudflare/wrangler",
   "version": "1.9.2",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
+  "harnessEpoch": 60,
   "verdict": "MINIMUM",
+  "eraDepMismatch": null,
   "grant": {
     "network": true,
     "writePaths": [
@@ -37,7 +38,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T02:16:09.571Z",
+      "screenedAt": "2026-09-01T10:42:45.543Z",
       "cacheHit": false
     },
     {
@@ -57,7 +58,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T02:16:11.197Z",
+      "screenedAt": "2026-09-01T10:42:47.160Z",
       "cacheHit": false
     },
     {
@@ -77,7 +78,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T02:16:14.199Z",
+      "screenedAt": "2026-09-01T10:42:50.178Z",
       "cacheHit": false
     },
     {
@@ -97,7 +98,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T02:16:14.199Z",
+      "screenedAt": "2026-09-01T10:42:50.178Z",
       "cacheHit": true
     }
   ],
@@ -115,7 +116,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-24T02:16:09.571Z"
+      "screenedAt": "2026-09-01T10:42:45.543Z"
     },
     {
       "digest": "6bf78af78c1dad6c0e3a283852b48bd1f0c402303e80cdfa69a5731433f802e8",
@@ -169,7 +170,7 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-24T02:16:11.197Z"
+      "screenedAt": "2026-09-01T10:42:47.160Z"
     },
     {
       "digest": "ad97b10ca81b0c10d81b8a8a859644255767f17d6e574894318fcd756cdbd307",
@@ -224,40 +225,50 @@
         "nub-drop-no-network-resolved",
         "nub-synth-resolved"
       ],
-      "screenedAt": "2026-08-24T02:16:14.199Z"
+      "screenedAt": "2026-09-01T10:42:50.178Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-24T02:16:07.413Z",
+    "observedAt": "2026-09-01T10:42:43.337Z",
     "latestVersion": "1.21.0",
-    "weeklyDownloads": 1968,
+    "weeklyDownloads": 1861,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/%40cloudflare%2Fwrangler/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/%40cloudflare%2Fwrangler"
     }
   },
   "grantSource": "synthesized",
-  "grantSourceReason": "the descent narrowed, but this package's arms could not have failed (arms-unfalsifiable), so a passing narrow arm is not evidence — keeping the wider grant",
+  "grantSourceReason": "the descent narrowed, but the drop arm's own jailed trace shows the script ATTEMPTED a write inside no-network and the jail REFUSED it — the arm passed by swallowing the refusal, not by not needing the capability, so the wider grant is kept",
   "descendedGrant": {
     "writePaths": [
       ".wrangler"
     ]
   },
+  "confinedWide": null,
+  "descentUnsupported": null,
+  "falsifiabilityReasons": [
+    "gate-vacuous"
+  ],
+  "descentRedArm": false,
+  "denialWitness": {
+    "no-network": "WITNESSED"
+  },
   "notes": [
-    "arms-unfalsifiable"
+    "arms-unfalsifiable",
+    "denial-witnessed"
   ],
   "eventLog": {
-    "lines": 4946,
-    "parsed": 4685,
+    "lines": 4992,
+    "parsed": 4688,
     "unparsed": 0,
-    "unfinished": 235,
-    "rejoined": 235,
-    "unresolvedDirfd": 39,
+    "unfinished": 278,
+    "rejoined": 278,
+    "unresolvedDirfd": 47,
     "truncatedArg": 0,
     "procs": 23,
     "lifecyclePids": 12,
-    "distinctEvents": 2807,
+    "distinctEvents": 2800,
     "unknownSyscall": {
       "getsockopt": 5,
       "getsockname": 12,
@@ -269,21 +280,21 @@
       "exit_group": 3,
       "wait4": 3
     },
-    "out": "/home/runner/v2-zO2tWu/observe/events.ndjson.gz",
-    "gzipBytes": 17345
+    "out": "/home/runner/v2-Hr3cyd/observe/events.ndjson.gz",
+    "gzipBytes": 17397
   },
   "driverRc": 0,
-  "durationMs": 8568,
+  "durationMs": 9830,
   "provenance": {
     "platform": "linux-x64",
     "harness": "measure.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 60,
+    "harnessSha256": "b6eb813e1c81fe51c6495744a175593edd0c8d0aa8df84d57ba4677ecf459090",
+    "harnessInputCount": 325,
+    "invalidationPolicySha256": "e465d57286b7326352b43e5ed16723d94cbdcd9e866bbb44d97e0b4b0fee82fe",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -392,7 +403,7 @@
         "arch": "X64",
         "environment": "github-hosted",
         "imageOS": "ubuntu24",
-        "imageVersion": "20260816.277.1"
+        "imageVersion": "20260823.283.1"
       },
       "environment": {
         "values": {
@@ -404,7 +415,7 @@
           "RUNNER_ARCH": "X64",
           "RUNNER_ENVIRONMENT": "github-hosted",
           "ImageOS": "ubuntu24",
-          "ImageVersion": "20260816.277.1",
+          "ImageVersion": "20260823.283.1",
           "LANG": "C.UTF-8",
           "LC_ALL": null
         },
@@ -415,7 +426,7 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-24T02:16:16.573Z",
+    "at": "2026-09-01T10:42:53.637Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -424,6 +435,7 @@
     "jailRoot": null,
     "observeUser": "{\"uid\":1001,\"user\":\"runner\",\"umask\":\"0022\",\"capBnd\":\"000001ffffffffff\",\"noNewPrivs\":\"0\"}",
     "ciChild": null,
+    "xdgChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
@@ -459,24 +471,28 @@
     },
     "overrides": {
       "set": {
-        "HOME": "/home/runner/v2-zO2tWu/jailhome",
-        "TMPDIR": "/tmp/nub-tmp-obsHebU3X",
+        "HOME": "/home/runner/v2-Hr3cyd/jailhome",
+        "TMPDIR": "/tmp/nub-tmp-obswDeHzd",
         "NODE_COMPAT": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/home/runner/.cache/nub/pm/tools/ms-playwright",
         "ELECTRON_CACHE": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "electron_config_cache": "/home/runner/.cache/nub/pm/tools/electron-cache",
         "npm_config_prefix": "/home/runner/.cache/nub/pm/tools/npm-prefix",
         "PYTHONDONTWRITEBYTECODE": "1",
-        "NUB_CACHE_DIR": "/home/runner/v2-zO2tWu/nubcache"
+        "NUB_CACHE_DIR": "/home/runner/v2-Hr3cyd/nubcache"
       },
       "unset": [
         "CI",
         "GITHUB_ACTIONS"
       ],
+      "unsetForTracedChild": [
+        "XDG_CONFIG_HOME"
+      ],
       "passedThrough": {
         "CI": "true",
         "GITHUB_ACTIONS": "true",
-        "NODE_ENV": null
+        "NODE_ENV": null,
+        "XDG_CONFIG_HOME": "/home/runner/.config"
       }
     }
   }
