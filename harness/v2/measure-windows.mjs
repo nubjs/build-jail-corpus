@@ -51,6 +51,12 @@ import { confinedWideBaseline, interpretation, marker as confinedWideMarker } fr
 // this platform drops the net axis together with the AppContainer token at that rung.
 import { descentTerms, narrow as narrowGrant, verdictLines } from './descent-terms.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
+// ⛔ SAME REASON, SAME SHAPE: the gyp sub-target phantom is arithmetic on paths, and a driver that
+// re-derives it is a driver that will one day disagree. Windows has no sighting of this class today --
+// MSBuild emits `.vcxproj`, not `.target.mk`, and all 243 archived sightings are darwin/linux -- so
+// this import buys the win32 driver nothing it can measure. It is here because the copy that DID NOT
+// import `artifact-excusal.mjs` is the reason that module exists.
+import { gypSubtargetSpill } from './gyp-subtarget-spill.mjs';
 // ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
 // here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
 import { supportsImport } from './stamp-waiver.mjs';
@@ -609,6 +615,11 @@ const pkgManifest = (base, pkg, ver) => {
     }
   };
   walk(root);
+  // ⛔ THE WALK ONLY DESCENDS, AND SOME OF THE BUILD'S OUTPUT IS ABOVE THE ROOT. See
+  // `gyp-subtarget-spill.mjs`: gyp resolves an included `.gyp` file through symlinks, so the
+  // sub-target makefiles land inside the package under a hoisted tree and two levels above it under
+  // an isolated store. Adds keys, never removes one.
+  for (const [k, v] of gypSubtargetSpill(root, pkg)) if (!m.has(k)) m.set(k, v);
   m.root = root;
   return m;
 };

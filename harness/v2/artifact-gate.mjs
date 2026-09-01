@@ -45,6 +45,7 @@ import path from 'node:path';
 // compares it against its own, and under this import that path is THIS file.
 import { shortfallDigest } from './shortfall-invariance.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
+import { gypSubtargetSpill } from './gyp-subtarget-spill.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -137,6 +138,13 @@ const manifest = (base) => {
     }
   };
   walk(root);
+  // ⛔ AND THE WALK ALONE CANNOT SEE EVERY FILE THE BUILD WROTE FOR THIS PACKAGE. gyp puts an
+  // included `.gyp` file's sub-target makefiles at a path computed from where that `.gyp` REALLY
+  // lives, so npm's hoisted tree lands them inside the package and nub's isolated store lands them
+  // two levels above it. `gyp-subtarget-spill.mjs` computes the same arithmetic and keys the result
+  // by dependency name, which is the key npm's layout already produces — see that file for the
+  // measurement. It only ever ADDS, and it never overwrites a key the walk itself found.
+  for (const [k, v] of gypSubtargetSpill(root, PKG)) if (!m.has(k)) m.set(k, v);
   m.root = root;
   return m;
 };
