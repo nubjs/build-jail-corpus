@@ -1,60 +1,101 @@
-### skia-canvas@3.0.8   (C:\jail\m-skiacanvas-msj2hzhf)
-  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=5292 exit=0 events=78408 lost=0
-  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 20 files  (C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\skia-canvas)
-  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":1,"reasons":[]}
+### skia-canvas@3.0.8   (D:\jail\m-skiacanvas-mtj386pt)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e802cde72737726bf641b51a9cba5f623321c58a58ad9bf0ce50461e2408e3cc","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T19:56:16.421Z","cacheHit":false,"clearancePath":"D:\\jail\\m-skiacanvas-mtj386pt\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e802cde72737
+  ERA-PYTHON C:\hostedtoolcache\windows\Python\3.9.13\x64\python.exe (Python 3.9.13) for era Node 22, whose node-gyp requires python3
+  ARM-MAKE C:\Strawberry\c\bin\gmake.exe (GNU Make 4.4.1) — the system make; a build needing GNU Make 4 WILL fail here
+  ERA-RESOLUTION DATED 2025-09-26T20:42:20.589Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c7b40394e93b21b330f8377dc1e2cccb7f68a81ebd3cdac296cf582221f36c64","specCount":9,"lockfiles":{"digest":"15faea214a8e0fe3204420e9ae487a624bb6987b0f45413c6987165e0122bfac","files":[{"path":"package-lock.json","sha256":"21f8ef7e0fbc9e1b903f10948362d090fde4d4e343301dbcb231b1eeef2d2f68","bytes":3888}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T19:56:18.995Z","cacheHit":false,"clearancePath":"D:\\jail\\m-skiacanvas-mtj386pt\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 9 exact package-version(s), tree c7b40394e93b
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 5 leaked: grunt=C:\npm\prefix\grunt.cmd gulp=C:\npm\prefix\gulp.cmd lerna=C:\npm\prefix\lerna.cmd yarn=C:\npm\prefix\yarn.cmd pulumi=C:\ProgramData\chocolatey\lib\pulumi\tools\Pulumi\bin\pulumi.exe
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  ARM-REBUILD-SPEC skia-canvas@3.0.8
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1352 exit=0 events=26989 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 20 files  (D:\jail\m-skiacanvas-mtj386pt\observe\node_modules\skia-canvas)
+  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":1,"reasons":[],"declaresInstallWork":true}
   CLOSURE 9 packages evicted per arm
-  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-skiacanvas-msj2hzhf\observe   [keyed on]
-    home          C:\Users\nub   [keyed on]
-    jailHome      (null — declared inapplicable)
-    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\.store
-    interpreter   C:\Program Files\nodejs\node.exe
-    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-skiacanvas-msj2hzhf\tmp   [keyed on]
+    project       D:\jail\m-skiacanvas-mtj386pt\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      D:\jail\m-skiacanvas-mtj386pt\jailhome   [keyed on]
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-skiacanvas-mtj386pt\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-skiacanvas-mtj386pt\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-skiacanvas-msj2hzhf\observe\node_modules\skia-canvas
-  == ATTRIBUTION == lifecycle pids: 2 (root 5292)
+    npmCache      D:\jail\m-skiacanvas-mtj386pt\npm-cache   [keyed on]
+    ownPkg        D:\jail\m-skiacanvas-mtj386pt\observe\node_modules\skia-canvas
+  == ATTRIBUTION == lifecycle pids: 2 (root 1352)
     writes  script 1  /  whole traced tree 8
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     deps          1
   == READS ==
-    deps         36
-    outside       3
+    deps         25
+    outside       6
     project       1
-    systemfs     35
-    kernelfs      1
+    systemfs     28
+  OBSERVED-EFFECT {"lifecyclePids":2,"writes":1,"peers":2}
   == NETWORK ==
     distinct peers: 2
-        140.82.114.3:443
-        185.199.108.133:443
+        140.82.112.3:443
+        185.199.110.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  100283968 B xml -> 1548374 B gz (64.8x)  sha256 0a52e7f9e1d76c93…
-  HEADER    etw-header.json (4970 bytes)
-  DERIVED   9095 distinct from 25070 kept ops (78408 xml events, 5375 out of subtree)
+  == writePaths (DERIVED -- promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared -- the script wrote nothing into its private home — there is nothing to promote
+  RAW       etw-raw.xml.gz  34627206 B xml -> 547715 B gz (63.2x)  sha256 af11adeb6255c2df…
+  HEADER    etw-header.json (5176 bytes)
+  DERIVED   5331 distinct from 9003 kept ops (26989 xml events, 1764 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
-  wrote events.ndjson.gz (126865 bytes)
-  RAWLOG-CAPTURE C:\jail\m-skiacanvas-msj2hzhf\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
-  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-skiacanvas-msj2hzhf
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-skiacanvas-msj2hzhf\\npm-cache","TMP":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp","TEMP":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp","TMPDIR":"C:\\jail\\m-skiacanvas-msj2hzhf\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5838/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (67607 bytes)
+  RAWLOG-CAPTURE D:\jail\m-skiacanvas-mtj386pt\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09","bytes":69241856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-NODE-SELECTION {"pkg":"skia-canvas","packageVersion":"3.0.8","lookupFailure":null,"major":22,"version":"22.23.2","npm":"10.9.8","pinnable":true,"engines":null,"publishedAt":"2025-09-25T20:42:20.589Z","eraMajor":22,"startMajor":22,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"pinned":true,"pinnedBin":"C:\\Users\\runneradmin\\.cache\\nub\\era-node\\22.23.2\\node-v22.23.2-win-x64","eraNodeRoot":"C:\\Users\\runneradmin\\.cache\\nub"}
+  VENUE-JAIL-ROOT D:\jail\m-skiacanvas-mtj386pt
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-skiacanvas-mtj386pt\\npm-cache","TMP":"D:\\jail\\m-skiacanvas-mtj386pt\\tmp","TEMP":"D:\\jail\\m-skiacanvas-mtj386pt\\tmp","TMPDIR":"D:\\jail\\m-skiacanvas-mtj386pt\\tmp","HOME":"D:\\jail\\m-skiacanvas-mtj386pt\\jailhome","USERPROFILE":"D:\\jail\\m-skiacanvas-mtj386pt\\jailhome","APPDATA":"D:\\jail\\m-skiacanvas-mtj386pt\\jailhome\\AppData\\Roaming"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"LOCALAPPDATA":"C:\\Users\\runneradmin\\AppData\\Local","why":"LOCALAPPDATA is left alone deliberately, matching `compiler/preset.rs`: the Windows LowBox launch resolves its AppContainer profile directory from it, so repointing it breaks process creation rather than a cache path. HOME, USERPROFILE and APPDATA ARE redirected, to the `jailHome` root capture.json declares, exactly as compile_build_jail redirects them for a confined child."},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  EVICT-REPLAY[synth] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-skiacanvas-mtj386pt\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a9b49ce7a88b1f85be76068d33f2d7bab789b250560d50ce81217aaa364a185c","specCount":9,"lockfiles":{"digest":"7356fee03450439b0eadfb8a54170da0a673a04e33d6d3ff36a22c825f355a22","files":[{"path":"nub.lock","sha256":"1504cd05a095eb43c8e84ef64195b10e82dc4c67d8cb875f6196ec6f88b730ef","bytes":2514}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T19:56:28.108Z","cacheHit":false,"clearancePath":"D:\\jail\\m-skiacanvas-mtj386pt\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 9 exact package-version(s), tree a9b49ce7a88b
+  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5780/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=19/20 missing=1 shortfall=a5f1cd37808a (tree 5837/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  EVICT-REPLAY[nar-no-network] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-skiacanvas-mtj386pt\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"a9b49ce7a88b1f85be76068d33f2d7bab789b250560d50ce81217aaa364a185c","specCount":9,"lockfiles":{"digest":"7356fee03450439b0eadfb8a54170da0a673a04e33d6d3ff36a22c825f355a22","files":[{"path":"nub.lock","sha256":"1504cd05a095eb43c8e84ef64195b10e82dc4c67d8cb875f6196ec6f88b730ef","bytes":2514}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T19:56:28.108Z","cacheHit":true,"clearancePath":"D:\\jail\\m-skiacanvas-mtj386pt\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 9 exact package-version(s), tree a9b49ce7a88b (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=19/20 missing=1 shortfall=a5f1cd37808a (tree 5779/83) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     [nar-no-network/a.log] DEBUG final message final_message=; header 9328:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 51152:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 57353:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 42051:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 57353:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 51152:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 57353:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 51152:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 51152:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 57353:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 9328:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 9328:RESPONSE:RD,RA:NoError:QUERY
      missing artifacts: lib/skia.node
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-skiacanvas-msj2hzhf\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5838/83) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  EVICT-REPLAY[nar-no-write-deps] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-skiacanvas-mtj386pt\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"a9b49ce7a88b1f85be76068d33f2d7bab789b250560d50ce81217aaa364a185c","specCount":9,"lockfiles":{"digest":"7356fee03450439b0eadfb8a54170da0a673a04e33d6d3ff36a22c825f355a22","files":[{"path":"nub.lock","sha256":"1504cd05a095eb43c8e84ef64195b10e82dc4c67d8cb875f6196ec6f88b730ef","bytes":2514}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T19:56:28.108Z","cacheHit":true,"clearancePath":"D:\\jail\\m-skiacanvas-mtj386pt\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 9 exact package-version(s), tree a9b49ce7a88b (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5780/83) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
+  => PROMOTION PROBE UNSUPPORTED — the grant declares no `writePaths`, so there is nothing to promote
+  PROMOTION-PROBE {"platform":"win32","verdict":"UNSUPPORTED","reason":"no-declaration","entries":[],"skipped":[]}
+  ERA-NODE PINNED 22.23.2 (arms will run: v22.23.2)
