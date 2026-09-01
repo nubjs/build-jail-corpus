@@ -1,0 +1,43 @@
+# The complete harness test suite on the two hosts the corpus lanes actually run on, with no
+# measurement and no queue write — the gate alone.
+#
+# ⛔ WHY THIS EXISTS. Every corpus slice opens by running `harness/run-tests.mjs`, so a suite that is
+# red on one OS aborts that OS's measurement before it reaches a package. The Windows lane sat in
+# exactly that state, and nothing cheaper than a full corpus run reported it: `corpus-v2-runner.yml`
+# is `workflow_dispatch` plus a `[drain]`-gated push, and the suite runs INSIDE the slice job. This
+# runs the identical step (`shell: bash`, `node harness/run-tests.mjs`, `setup-node` pinned to the
+# same exact version) on `windows-latest` and `macos-15`, on a branch of its own, in about a minute.
+#
+# ⛔ SCOPED TO ITS OWN BRANCH ON PURPOSE. It must never fire on the lane branch: a push there starts a
+# drain, and a probe running beside a live drain has killed the measurement chain before.
+name: winsuite-probe
+
+on:
+  push:
+    branches: [probe/winsuite]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+          - os: macos-15
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # The EXACT version corpus-v2-runner.yml pins. `'22'` resolves to whatever the image happens to
+      # carry, which is how two runs of "the same" suite end up on two Node minors.
+      - uses: actions/setup-node@v7
+        with: { node-version: '22.23.2' }
+      - name: Run the complete harness test suite
+        shell: bash
+        run: |
+          set -eu
+          node harness/run-tests.mjs
