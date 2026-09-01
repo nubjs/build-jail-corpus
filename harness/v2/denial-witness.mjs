@@ -87,12 +87,30 @@
 // flag is UNSUPPORTED, which licenses nothing. A darwin probe that grows a `socket` clause sets its
 // own flag and inherits the whole scorer.
 //
-// ⛔ WINDOWS IS NOT WIRED, AND THAT IS A MACHINERY GAP RATHER THAN AN OVERSIGHT. `measure-windows.mjs`
-// has no DIAGNOSE arm and has never taken a jailed trace: its `verify()` takes no tracer parameter,
-// and ETW capture lives in `adapters/windows.ps1`, which starts a system-wide `logman` session around
-// ONE command and needs an elevated token. The decode half is already there — `adapters/windows.mjs`
-// maps NTSTATUS `0xc0000022` to a `denied` result — so what is missing is the capture, not the
-// classification. Until that exists a win32 arm emits no marker and `record.mjs` behaves as before.
+// ⛔⛔ WINDOWS: THE SCORER EXISTS, THE CAPTURE DOES NOT, AND NO WIN32 STREAM IN THE CORPUS CAN BE
+// SCORED. `win32PathAxis` below reads a `windows-retain.mjs` stream, and `record.mjs` needs no change
+// to consume its marker. What is still missing is the half that has to run on Windows:
+// `measure-windows.mjs` has no DIAGNOSE arm and has never taken a jailed trace — its `verify()` takes
+// no tracer parameter, and ETW capture lives in `adapters/windows.ps1`, which wraps ONE command in a
+// system-wide `logman` session. Wiring that is a driver change that must be validated on a real
+// runner; until it lands, a win32 arm emits no marker and `record.mjs` behaves exactly as before.
+//
+// ⛔ WHAT MAKES IT SAFE TO LAND THE SCORER FIRST, AHEAD OF ANY EVIDENCE. Two independent gates, and
+// EVERY committed win32 stream fails BOTH:
+//
+//   jailed        all 1,688 are OBSERVE captures. `windows-retain.mjs` sets the flag only from its
+//                 own `--jailed`, which no caller passes, so all 1,688 carry `jailed: false`.
+//   the control   the axis requires a Create refused with STATUS_ACCESS_DENIED somewhere in the
+//                 stream before it will read an absence of in-scope refusals as evidence. ZERO of
+//                 the 1,688 carry one. So even a stream force-stamped `jailed` scores VOID, never
+//                 CLEAN — which is the exact catastrophe this axis is built to be unable to cause,
+//                 and `denial-witness-win32.test.mjs` runs that mutation as a test.
+//
+// ⛔ THE `no-network` AXIS STAYS UNSUPPORTED ON WIN32, DELIBERATELY. `windows-retain.mjs` writes
+// `st: null` on every Kernel-Network event unconditionally, so a refused socket leaves no outcome in
+// the stream and the absence of one is not evidence. The stream sets no `netRefusals`, so the network
+// branch returns UNSUPPORTED before this axis is reached. A win32 record whose descent dropped
+// `no-network` alongside `no-write-userHome` therefore still cannot move.
 //
 //   usage: node denial-witness.mjs --cap no-write-userHome|no-network --events A.ndjson[.gz]
 //                                  [--events B…] [--exclude DIR]… [--min-events N]
@@ -103,6 +121,12 @@ import zlib from 'node:zlib';
 // `network` where `record.mjs` matched `no-network`, both sides had passing tests, and the
 // recomputation silently deleted NOTHING while the record still claimed it had narrowed.
 import { SOCKET_SYSCALLS } from './adapters/linux.mjs';
+// The same rule for the win32 outcome vocabulary. ⛔ IT COMES FROM A LEAF, NOT FROM THE RETAIN
+// ADAPTER, and `three-driver-parity.test.mjs` is what forced that: this module is reached by
+// `measure.sh` and `measure-macos.sh`, so importing `windows-retain.mjs` for a constant dragged that
+// adapter, `windows-shortnames.mjs` and `windows.ps1` into both POSIX drivers' closure and staled
+// three platform exemptions in one move. `windows-status.mjs` imports nothing.
+import { CREATE_EVENTS, REFUSAL_ACCESS_DENIED, REFUSAL_STATUS } from './adapters/windows-status.mjs';
 
 // The errno symbols a confinement refusal produces. Deliberately NOT `ENOENT`: a jail that hides a
 // path reports it missing, and so does an ordinary probe for a file that was never there, so counting
@@ -118,6 +142,28 @@ export const MIN_EVENTS = 200;
 const under = (p, root) => typeof p === 'string' && typeof root === 'string' && root !== ''
   && (p === root || p.startsWith(root.endsWith('/') ? root : `${root}/`));
 
+// ⛔⛔ THE WINDOWS COMPARATOR IS A SEPARATE FUNCTION AND IT IS THE SINGLE MOST DANGEROUS LINE IN THIS
+// FILE. `under` above is POSIX: it appends `/`. Run against `C:\Users\runneradmin` it asks whether the
+// path starts with `C:\Users\runneradmin/`, which NOTHING on Windows does — so every win32 path would
+// fall OUT of scope, every stream would find zero refusals, and every one would score CLEAN. That is
+// precisely the blanket licence to narrow this whole axis exists to prevent, and it would arrive
+// through a helper that looks platform-neutral and is not. `denial-witness-win32.test.mjs` breaks the
+// separator, the case fold and the drive letter one at a time and requires each mutation to go red.
+//
+// Two things it must do that the POSIX one need not:
+//   * accept BOTH separators. ETW hands back `\`, but a `capture.json` root is whatever the driver
+//     wrote and node's own `path.join` on win32 emits `\` while a hand-built literal may not.
+//   * fold case. NTFS is case-insensitive, the kernel reports whichever spelling the caller used, and
+//     `C:\Users\RUNNERADMIN\x` is the same file as `C:\Users\runneradmin\x`. Comparing case-sensitively
+//     would drop a real refusal, which is the CLEAN direction — the forbidden one.
+const winKey = (s) => s.replace(/\//g, '\\').replace(/\\+$/, '').toLowerCase();
+const underWin = (p, root) => {
+  if (typeof p !== 'string' || typeof root !== 'string' || root === '') return false;
+  const a = winKey(p);
+  const b = winKey(root);
+  return b !== '' && (a === b || a.startsWith(`${b}\\`));
+};
+
 // ⛔ THE READER TOLERATES A GZIPPED STREAM BECAUSE THE ADAPTERS WRITE ONE WHENEVER `--out` ENDS IN
 // `.gz`, AND A DRIVER THAT FORGOT WOULD OTHERWISE SCORE BINARY AS ZERO EVENTS AND REPORT CLEAN.
 export const readEvents = (file) => {
@@ -129,10 +175,32 @@ export const readEvents = (file) => {
 
 // The scope a dropped capability names, as a predicate over an absolute path. `null` means this file
 // cannot express the capability — the caller turns that into UNSUPPORTED rather than guessing.
-export function scopeMatcher(cap, roots, extraExcludes = []) {
+// ⛔⛔ A COMPARATOR ONLY WORKS INSIDE ITS OWN PATH NAMESPACE, AND SAYING SO IS NOT PEDANTRY — IT IS
+// THE FIX FOR A LIVE FALSE-`CLEAN` THIS FILE SHIPPED WITH. `under` appends `/`. Handed the win32 home
+// root `C:\Users\runneradmin` it asks whether a path starts with `C:\Users\runneradmin/`, which
+// nothing on Windows does — so the scope is EMPTY, every stream finds zero refusals, and the POSIX
+// path axis (whose `control` is `() => null`, correct for a namespace it can actually read) reports
+// CLEAN. MEASURED before this guard existed: stamping `jailed: true` onto the committed
+// `victory-voronoi@0.0.5` win32 stream and scoring it returned `CLEAN, 12525 events, 0 refusals` —
+// a blanket licence to narrow, produced with no mapping error anywhere and nothing in the output
+// hinting that the matcher had matched nothing.
+//
+// So expressibility is now asserted POSITIVELY rather than assumed from the caller's good manners: a
+// matcher is built only when the home root is in the namespace `cmp` understands, and a root that is
+// not returns `null`, which the caller turns into UNSUPPORTED. That licenses nothing, and it holds
+// whether or not a future stream carries the right flags.
+//
+// It moves no committed verdict. MEASURED over all 4,048 committed POSIX streams: every linux home is
+// `/home/runner` or `/home/nub` and every darwin home is `/Users/runner`, so zero fail the check.
+const POSIX_ABS = (p) => p.startsWith('/');
+const WIN_ABS = (p) => /^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\');
+
+// ⛔ `cmp`/`ns` DEFAULT TO THE POSIX PAIR SO EVERY EXISTING CALLER IS BYTE-IDENTICAL. The win32 axis
+// passes the Windows pair; nothing else does, so no linux or darwin verdict can move because of it.
+export function scopeMatcher(cap, roots, extraExcludes = [], cmp = under, ns = POSIX_ABS) {
   if (cap !== 'no-write-userHome') return null;
   const home = roots?.home;
-  if (typeof home !== 'string' || home === '') return null;
+  if (typeof home !== 'string' || home === '' || !ns(home)) return null;
   // Every OTHER declared root, plus whatever the driver excluded. `home` itself is obviously not a
   // subtraction, and a null root (this platform has no such thing) contributes nothing.
   const subtract = [
@@ -141,7 +209,8 @@ export function scopeMatcher(cap, roots, extraExcludes = []) {
   ].filter((v) => typeof v === 'string' && v !== '');
   return {
     scope: 'userHome',
-    inScope: (p) => under(p, home) && !subtract.some((s) => under(p, s)),
+    subtract,
+    inScope: (p) => cmp(p, home) && !subtract.some((s) => cmp(p, s)),
   };
 }
 
@@ -165,6 +234,92 @@ const NET_OPS = new Set(['net', 'connect']);
 //              score. The path axes need none — a refused `openat` is the same event as a successful
 //              one and the decoder has retained it since it existed.
 //
+// ⛔⛔⛔ THE WIN32 PATH AXIS. Read the four notes before changing a character of it; each one is the
+// difference between this file keeping a grant and this file handing out a blanket licence to narrow
+// 131 whole-home grants on no evidence, which is the worst outcome available in this whole effort.
+//
+// ⛔ 1. WHY THERE IS A SECOND AXIS AT ALL, RATHER THAN AN `st -> r` TRANSLATION IN THE ADAPTER. The
+// POSIX hit predicate is `e.w === 1 && REFUSAL_ERRNO.has(e.r) && inScope(e.f)`, and win32 diverges on
+// all three terms, not on `r` alone:
+//
+//   r   `windows-retain.mjs` writes the raw NTSTATUS into `st` ("0xc0000022"), never an errno symbol.
+//       Translating it is mechanical and the map is imported from that adapter, not copied.
+//   w   THERE IS NO SOURCE FOR IT, and this is the term the registry entry correctly called
+//       structural. The header says so in its own `limits`: "Create (12) carries no DesiredAccess;
+//       `d` is the CreateDisposition, not the requested access", so `open-r` means disposition
+//       FILE_OPEN and is NOT proof of read-only intent — a FILE_OPEN handle can be written through.
+//       Event 16 (Write) would evidence a write, and under an allowlist jail it never arrives,
+//       because the refusal happens AT Create and no handle is ever returned. An adapter that
+//       synthesized a `w` would be writing a fabricated fact into an archive whose whole design
+//       refuses that; so the archive keeps `st` and the GENEROSITY lives here, in the scorer, where
+//       the safety argument for it can be stated.
+//   f   the path needs the Windows comparator, and there are two spellings of it (see note 3).
+//
+// ⛔ 2. THE HIT PREDICATE DROPS THE WRITE-INTENT TERM ENTIRELY, AND THAT IS SAFE BY DIRECTION. Any
+// refusal inside the scope counts, read or write. This file's own scope-matching note already makes
+// the argument: being WIDER can only ever turn a CLEAN into a WITNESSED — keep a grant that might
+// have been droppable — while being narrower turns a WITNESSED into a CLEAN and publishes an
+// under-grant. Dropping `w` is the widest possible reading, so it is the safest. It is also close to
+// exact here: nub's win32 backend is an ALLOWLIST (`crates/nub-sandbox/src/backend/windows.rs` — "a
+// LowBox token can reach an object ONLY where the object's ACL grants its AppContainer SID … every
+// other path fails closed with no per-file deny-ACE"), so in a `no-write-userHome` drop arm the real
+// home carries no ACE for the run's SID at all and EVERY home access is refused. A refusal there is
+// evidence the script reached for the home; whether it wanted to read or write it, keeping the wide
+// grant is the answer this file is allowed to give.
+//
+// The cost is precision, and it is real and measured: 19 of the 1,688 committed streams carry a
+// refused Create on `…\AppData\Roaming\Microsoft\Windows\Recent\CustomDestinations\…` that is
+// Explorer's jump-list, refused because `windows.ps1` strips SeBackup — in scope, not the script's,
+// and it would read WITNESSED. That keeps a wide grant on harness noise. Wrong in the harmless
+// direction, and the alternative is wrong in the forbidden one.
+//
+// ⛔ 3. BOTH PATH SPELLINGS, AND THE DESTINATION END TOO. `f` is the kernel's spelling and `fx` the
+// 8.3 expansion; the archive keeps both because the expansion is perishable. On a GitHub runner
+// `%TEMP%` is literally `C:\Users\RUNNER~1\…`, so a package that resolves through the environment
+// produces short-spelled paths — and a short spelling does not prefix-match the long `home` root.
+// Checking only one spelling would silently drop those refusals, i.e. read CLEAN. `g`/`gx` are the
+// rename/hardlink DESTINATION: a rename INTO the home is a write to the home, and the source end
+// alone would miss it.
+//
+// ⛔ 4. THE POSITIVE CONTROL, WHICH IS THE ONLY REASON THIS AXIS MAY EXIST BEFORE ANYONE HAS SEEN A
+// JAILED WIN32 TRACE. One empirical premise carries the whole axis: that a Create refused by the
+// AppContainer DACL check surfaces as a Kernel-File event carrying STATUS_ACCESS_DENIED. It has never
+// been measured — no jailed ETW capture has ever been taken on this platform — so instead of
+// ASSUMING it, the axis CHECKS it per stream and refuses the stream when it cannot. If the premise is
+// false, no stream ever satisfies the control, every win32 verdict is VOID, and nothing narrows.
+//
+// It must be ACCESS_DENIED specifically, and it must be on a CREATE. Both halves were paid for:
+// keying on "any refusal" or on "a refused Create of any status" would have passed on the 19 streams
+// in note 2, whose refusals come from the PRIVILEGE check rather than the DACL check and therefore
+// say nothing about whether a LowBox denial is visible. ZERO of the 1,688 committed streams carry
+// `0xc0000022` on a Create, so this control is a real discriminant. See `windows-retain.mjs`, which
+// owns the split.
+function win32PathAxis(cap, header, extraExcludes) {
+  const m = scopeMatcher(cap, header?.roots ?? {}, extraExcludes, underWin, WIN_ABS);
+  if (!m) return null;
+  // ⛔ A SUBTRACTION THAT SWALLOWS THE SCOPE MAKES EVERY STREAM CLEAN, SILENTLY. `scopeMatcher`
+  // subtracts every other declared root from the home, so a `capture.json` that declared
+  // `jailHome === home` — or any root at or above it — would leave an EMPTY scope in which no refusal
+  // can ever be found, and the axis would answer CLEAN for every package while looking healthy.
+  // win32 has no jail home today (`provenance.overrides.notRedirected.USERPROFILE` records that
+  // `build_jail.rs` passes the ambient value through), so this cannot fire now; it is here because a
+  // driver that ever introduced one would otherwise turn this axis into the blanket licence.
+  // Deliberately NOT added to the POSIX path, where it would change committed verdicts.
+  if (m.subtract.some((s) => underWin(header.roots.home, s))) return null;
+  return {
+    scope: m.scope,
+    hit: (e) => REFUSAL_STATUS.has(e.st)
+      && (m.inScope(e.f) || m.inScope(e.fx) || m.inScope(e.g) || m.inScope(e.gx)),
+    control: (events) => (events.some((e) => CREATE_EVENTS.has(e.s) && e.st === REFUSAL_ACCESS_DENIED)
+      ? null
+      : 'the decoder recorded no Create refused with STATUS_ACCESS_DENIED anywhere in this stream — '
+        + 'that is the event an AppContainer DACL refusal produces, and under an allowlist jail a '
+        + 'real arm denies hundreds of them outside the grant, so this trace either was not taken '
+        + 'inside the jail or cannot see the refusal at all, and an absence of refusals is not '
+        + 'evidence'),
+  };
+}
+
 // `null` from this function means the capability is not expressible against THIS stream, which the
 // caller turns into UNSUPPORTED rather than guessing.
 export function axisFor(cap, header, extraExcludes = []) {
@@ -189,6 +344,10 @@ export function axisFor(cap, header, extraExcludes = []) {
           + 'jail refuses was never captured and an absence of refusals is not evidence'),
     };
   }
+  // ⛔ THE FLAG, NOT THE PLATFORM NAME — same rule as the network axis one branch up, and for the same
+  // reason. Every one of the 1,688 win32 streams committed before this line existed carries
+  // `platform: "win32-x64"` and no `winRefusals`, and keying on the platform would score them.
+  if (header?.winRefusals === true) return win32PathAxis(cap, header, extraExcludes);
   const m = scopeMatcher(cap, header?.roots ?? {}, extraExcludes);
   if (!m) return null;
   return {
@@ -242,10 +401,18 @@ export function witness(rows, { cap, exclude = [], minEvents = MIN_EVENTS } = {}
   // A path axis names the path; the network axis has none, so it names the peer when the decoder
   // captured one and the bare syscall otherwise. `undefined` in a sample line is what a human reads
   // as a broken detector.
+  // A win32 stream carries the raw NTSTATUS in `st` and no `r` at all; rendering `= -1 undefined`
+  // for it is precisely what a human reads as a broken detector, which is the thing this line's
+  // original note warns about.
   out.sample = [...new Set(hits.map((e) => `${e.s ?? e.o}`
     + (e.f ? ` ${e.f}` : e.h ? ` ${e.h}:${e.pt ?? '?'}` : '')
-    + ` = -1 ${e.r}`))].slice(0, 6);
-  const what = cap === NET_CAP ? 'socket-family call' : 'write';
+    + (e.st ? ` = ${e.st}` : ` = -1 ${e.r}`)))].slice(0, 6);
+  // ⛔ "access" ON THE WIN32 PATH AXIS, NOT "write", BECAUSE THAT AXIS DOES NOT ESTABLISH WRITE
+  // INTENT — it counts any refusal in scope. Saying "write" there would state in the record a fact
+  // the evidence does not carry, and the first question anyone auditing a kept whole-home grant asks
+  // is what the trace actually showed.
+  const what = cap === NET_CAP ? 'socket-family call'
+    : header.winRefusals === true ? 'access' : 'write';
   return hits.length
     ? { ...out, verdict: 'WITNESSED', reason: `${out.refusalsInScope} ${what}(s) inside ${ax.scope} were attempted by the lifecycle subtree and REFUSED` }
     : { ...out, verdict: 'CLEAN', reason: `the lifecycle subtree attempted no ${what} inside ${ax.scope} that the jail refused` };

@@ -86,6 +86,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import {
   SHORT_COMPONENT, UNMAPPED, componentResolver, shortNameMode,
 } from './windows-shortnames.mjs';
+import { statusHex } from './windows-status.mjs';
 
 export const RETAIN_SCHEMA = 1;
 
@@ -279,7 +280,11 @@ export async function decodeLines(lines, opts = {}) {
     if (!dos || dos === '\\FI_UNKNOWN') { stats.unresolvedHandle++; return; }
     const e = {
       k: 'e', p: o.pid, o: o.op, s: o.ev, f: dos,
-      st: o.status === null || o.status === undefined ? null : `0x${o.status.toString(16).padStart(8, '0')}`,
+      // ⛔ THE SPELLING COMES FROM `windows-status.mjs`, NOT FROM A TEMPLATE LITERAL HERE. This value
+      // is the ONLY outcome a win32 stream carries, and `denial-witness.mjs` compares it as a STRING;
+      // an emitter and a scorer that formatted the same status two ways would match nothing and read
+      // CLEAN, which is the direction that publishes an under-grant.
+      st: o.status === null || o.status === undefined ? null : statusHex(o.status),
     };
     if (o.status === undefined) { e.st = null; e.uns = 1; stats.unsettled++; }
     const fx = expand(dos);
@@ -546,6 +551,28 @@ export function buildHeader({ meta, capDir, opts, rawFile, rawBytes, rawGzBytes,
       session: meta.session ?? null,
       providers,
     },
+    // ⛔ WAS THIS CAPTURE TAKEN INSIDE THE JAIL? Mirrors `linux.mjs` and `macos-eventlog.mjs`'s flag
+    // of the same name, and it is a GUARD rather than a label: `denial-witness.mjs` scores a drop
+    // arm's refusals, and an OBSERVE capture — which is UNJAILED and therefore contains no jail
+    // refusal at all — would read CLEAN for every package on earth, i.e. a blanket licence to narrow
+    // produced by pointing the detector at the wrong file. Every one of the 1,688 committed win32
+    // streams is an OBSERVE capture, so every one of them must land on `false` here.
+    //
+    // ⛔ IT IS ASSERTED BY THE DRIVER, NEVER INFERRED. Nothing in a capture directory distinguishes a
+    // jailed arm from an unjailed one, so an inference here would be a guess dressed as a fact.
+    jailed: opts.jailed === true,
+    // ⛔⛔ A POSITIVE CAPABILITY DECLARATION, AND IT IS WHAT MAKES THE WIN32 PATH AXIS FAIL CLOSED ON
+    // AN OLDER STREAM. It states one thing about THIS decoder: it settles every file operation
+    // against its `OperationEnd` and retains the resulting NTSTATUS verbatim in `st`, refusals
+    // included — see "EVERY STATUS IS KEPT, NOT JUST THE FOUR REFUSALS" below. Without that, an
+    // absence of refusals would mean "a refusal could not have been recorded", and reading it as
+    // CLEAN would publish an under-grant.
+    //
+    // Asserted here rather than inferred from `platform` for the same reason `linux.mjs` asserts
+    // `netRefusals`: a stream decoded by an adapter that predates this line carries no flag at all,
+    // and the scorer must answer UNSUPPORTED for it rather than score it. `windows.mjs`, the
+    // synthesis decoder, keeps only four statuses and drops the rest, so it could never set this.
+    winRefusals: true,
     os: { version: meta.os ?? null, host: meta.host ?? null, arch: process.arch },
     identity: {
       whoami: meta.whoami ?? null, sid: meta.sid ?? null,
@@ -677,7 +704,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const dir = args.find((a, i) => !a.startsWith('--') && !(i > 0 && flags.has(args[i - 1])));
   if (!dir) {
     console.error('usage: windows-retain.mjs <capture-dir> --raw-out F.gz --out F.ndjson.gz'
-      + ' [--header-out F.json] [--capture capture.json] [--pkg N] [--version V]'
+      + ' [--header-out F.json] [--capture capture.json] [--pkg N] [--version V] [--jailed]'
       + ' [--project D] [--home D] [--jail-home D]   (the last three only for an archive'
       + ' that predates capture.json)');
     process.exit(2);
@@ -738,6 +765,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     shortNameSource: shortNames.reason,
     project: val('--project'), home: val('--home'), jailHome: val('--jail-home'),
     pkg: val('--pkg'), version: val('--version'),
+    // ⛔ OPT-IN, AND THE DEFAULT IS THE SAFE ONE. A driver that does not pass `--jailed` produces a
+    // stream the scorer refuses, which is exactly what every existing caller should get: today the
+    // only win32 caller is `measure-windows.mjs`'s OBSERVE retention, and an observe capture must
+    // never be scoreable.
+    jailed: args.includes('--jailed'),
   };
   const rl = readline.createInterface({ input: fs.createReadStream(xmlPath), crlfDelay: Infinity });
   const decoded = await decodeLines(rl, opts);

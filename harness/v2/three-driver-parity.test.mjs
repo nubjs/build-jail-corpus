@@ -244,16 +244,25 @@ const MODULE_REGISTRY = new Map([
     'shim. That shim reaches a confined Node only as a NODE_OPTIONS --import term, so an era Node ' +
     'below 20.6 cannot print it. The POSIX jails deny at the kernel layer and assert no such text.' }],
   ['v2/denial-witness.mjs', { kind: 'open', why:
-    'OPEN DIVERGENCE on win32 ONLY — darwin was wired at epoch 68, so this is now a two-of-three ' +
-    'entry rather than one-of-three. The win32 half is BLOCKED, not merely unwired: measured over ' +
-    'six committed win32 streams, zero rows carry an `r` or a `w`, and write INTENT is structurally ' +
-    'absent because Create (event 12) carries no DesiredAccess while AppContainer denies AT Create, ' +
-    'so event 16 never arrives to evidence the write. Capturing it needs a schema change, not a ' +
-    'driver line. ⛔ THE DANGEROUS FIX IS STAMPING `jailed` WITHOUT MAPPING st->r: that makes every ' +
-    'win32 stream score CLEAN, which is a blanket licence to narrow. VOID today is fail-closed and ' +
-    'correct. (An earlier version of this note cited "223 committed darwin diagnose traces" as ' +
-    'evidence; DIAGNOSE greps its trace into driver.out and DISCARDS it, so every committed darwin ' +
-    'trace is an OBSERVE trace whose header reads jailed:false.)' }],
+    'OPEN DIVERGENCE on win32 ONLY — darwin was wired at epoch 68. The SCORER now reaches win32: ' +
+    '`win32PathAxis` reads a windows-retain.mjs stream and record.mjs needs no change to consume its ' +
+    'marker. What is still missing is the CAPTURE, and it is a driver line rather than a schema ' +
+    'change: measure-windows.mjs has no DIAGNOSE arm, its verify() takes no tracer parameter, and ' +
+    'wiring windows.ps1 around a drop arm has to be validated on a real runner. ⛔ THE CORRECTION ' +
+    'THIS ENTRY USED TO CARRY: it said the dangerous fix was stamping `jailed` without mapping ' +
+    'st->r. The direction was right and the MECHANISM was wrong, which was measured while closing ' +
+    'it — stamping `jailed` alone sent the stream down the POSIX axis, whose `under` appends `/`, so ' +
+    'against `C:\\Users\\runneradmin` the scope was EMPTY and victory-voronoi@0.0.5 scored `CLEAN, ' +
+    '12525 events, 0 refusals` with no mapping running at all. scopeMatcher now asserts its ' +
+    'namespace positively, so that stream is UNSUPPORTED. ⛔ AND WRITE INTENT IS STILL STRUCTURALLY ' +
+    'ABSENT — Create (12) carries no DesiredAccess while AppContainer denies AT Create, so event 16 ' +
+    'never arrives — which is why the win32 axis drops the `w` term and counts any in-scope refusal. ' +
+    'That is WIDER, so it can only keep a grant, never narrow one. The axis is gated on a per-stream ' +
+    'positive control (a Create refused with STATUS_ACCESS_DENIED, carried by 0 of 1,688 committed ' +
+    'streams), so every existing win32 stream is VOID. (An earlier version of this note cited "223 ' +
+    'committed darwin diagnose traces" as evidence; DIAGNOSE greps its trace into driver.out and ' +
+    'DISCARDS it, so every committed darwin trace is an OBSERVE trace whose header reads ' +
+    'jailed:false.)' }],
 ]);
 
 // ── MARKERS ───────────────────────────────────────────────────────────────────────────────────────
@@ -328,8 +337,10 @@ const MARKER_REGISTRY = new Map([
     'to the source directory or dropped outright by adapters/windows.mjs destPathOf().' }],
   ['DENIAL-WITNESS', { kind: 'open', why:
     'OPEN DIVERGENCE on win32 ONLY — the marker half of the denial-witness.mjs entry in ' +
-    'MODULE_REGISTRY, which carries the measurement showing why win32 needs an event-schema change ' +
-    'rather than a driver line. measure.sh and measure-macos.sh both emit this marker as of epoch 68.' }],
+    'MODULE_REGISTRY, which carries the measurement. The remaining gap is the CAPTURE: ' +
+    'measure-windows.mjs takes no jailed trace, so it has nothing to score and emits no marker. The ' +
+    'scorer half is wired and its win32 axis is fail-closed on every stream the corpus holds. ' +
+    'measure.sh and measure-macos.sh both emit this marker as of epoch 68.' }],
   ['CWD-RESOLVED', { kind: 'open', why:
     'OPEN DIVERGENCE on LINUX; platform-justified on win32. Only observe-macos.mjs emits it, so ' +
     'record.mjs\'s cwdResolved count is absent on every linux record even though observe.mjs ' +
