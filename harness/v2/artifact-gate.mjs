@@ -45,7 +45,7 @@ import path from 'node:path';
 // compares it against its own, and under this import that path is THIS file.
 import { shortfallDigest } from './shortfall-invariance.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
-import { gypSubtargetSpill } from './gyp-subtarget-spill.mjs';
+import { gypSubtargetSpill, gypSubtargetRelocations } from './gyp-subtarget-spill.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -155,6 +155,14 @@ if (!obs || obs.size === 0) {
   process.exit(3);
 }
 const got = manifest(ARM);
+// ⛔ AND THE ARM'S COPY OF A SUB-TARGET IS NOT ALWAYS ABOVE THE PACKAGE — MORE OFTEN IT IS INSIDE
+// `build/` AT A DIFFERENT PATH, which the walk above cannot key because the components gyp ate are
+// absent from the arm path and present only in the reference key. `gypSubtargetRelocations` runs
+// the same arithmetic backwards, from the reference key, and is therefore the one pass here that is
+// asymmetric between the two trees. It only ever resolves a key the reference already demands and
+// the arm is already short of, and it hands back the size it found so the comparison below is
+// unchanged — a relocated file that is short or empty still fails on size.
+if (got) for (const [k, v] of gypSubtargetRelocations(obs, got, PKG)) if (!got.has(k)) got.set(k, v);
 const missing = [];
 if (!got) missing.push('<package absent>');
 // ⛔ A TOOLCHAIN-INVOCATION RECORD IS NOT BUILD OUTPUT, AND COMPARING ITS SIZE ACROSS TWO PACKAGE
