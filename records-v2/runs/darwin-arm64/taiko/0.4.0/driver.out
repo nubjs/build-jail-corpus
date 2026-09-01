@@ -1,0 +1,133 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e50f69aa6ae0c130e8f170afb94c8f82f23d82fbb4edc473ccb975dbb685dad0","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:43:25.389Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-XVvsBT/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e50f69aa6ae0
+  ERA-NODE PINNED 10.24.1 (provisioned) (arms will run: v10.24.1)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 10, whose node-gyp requires python3-legacy
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### taiko@0.4.0   (/Users/runner/v2m-XVvsBT)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93577
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2018-12-14T10:19:36.620Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"0cbdb8f8be8e41d878bee07fccbf63ff0a3430074dfc0dde62b691542542a336","specCount":55,"lockfiles":{"digest":"8ed1544f84e530ec5e3d267dc1b88dd40fb111ed05f3bc04475f62c55ca84cbc","files":[{"path":"package-lock.json","sha256":"73df2aefe343d7785a12e20976ff9db2e8954bafc7f6d608f79245bc12624074","bytes":21241}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:43:32.919Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-XVvsBT/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 55 exact package-version(s), tree 0cbdb8f8be8e
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS 1 leaked: rimraf=/Users/runner/v2m-XVvsBT/Observe/node_modules/.bin/rimraf
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC taiko@0.4.0
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-XVvsBT/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-XVvsBT/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-XVvsBT/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRbQJiX"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "taiko@0.4.0" > "/Users/runner/v2m-XVvsBT/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-XVvsBT/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-XVvsBT/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-XVvsBT/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-XVvsBT/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRbQJiX NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund taiko@0.4.0
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000017e0090) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=2304 (pre=2004) trace=17039 lines
+  CLOSURE   54 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-XVvsBT/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-XVvsBT/Observe/capture.json
+  RAWLOG-BYTES raw=2529538 gz=86059
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"taiko","packageVersion":"0.4.0","major":10,"version":"10.24.1","npm":"6.14.12","pinnable":true,"engines":null,"publishedAt":"2018-12-13T10:19:36.620Z","eraMajor":10,"startMajor":10,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/10.24.1/node-v10.24.1-darwin-x64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-XVvsBT/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRbQJiX","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":161,"filesTheScriptProduced":143,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-XVvsBT/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":17040,"parsed":17022,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":1,"danglingPair":0,"failed":8817,"enoent":8379,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":8379,"EEXIST":435},"procs":5,"lifecyclePids":1,"distinctEvents":6151,"emitted":6151,"calls":16985,"bytes":1076712,"gzipBytes":40362,"out":"/Users/runner/v2m-XVvsBT/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=1782 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 5 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=59947 read  unproven .
+         pid=59947 read  unproven .
+         pid=59947 read  unproven .
+         pid=59947 read  unproven .
+         pid=59947 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x6000017e0090
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 287  /  whole traced subtree 295
+    sockets script 1  /  whole traced subtree 1
+  == ROOTS (from /Users/runner/v2m-XVvsBT/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-XVvsBT/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-XVvsBT/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-XVvsBT/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRbQJiX
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    ownPkg      287  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/download-mac-606647.zip
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app/Contents
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/Info.plist
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/MacOS
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+        /Users/runner/v2m-XVvsBT/Observe/node_modules/taiko/.local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/PkgInfo
+        … and 277 more
+  == READS the script performed, by scope ==
+    systemfs     11
+    outside       7
+    userHome      2
+    ownPkg        6
+    deps         84
+        outside: /
+        outside: /bin/sh
+        outside: /bin
+        outside: /bin/bash
+        outside: /etc/resolv.conf
+        outside: /var/db/timezone/zoneinfo/UTC
+        outside: /var/db/timezone/zoneinfo/posixrules
+  == NETWORK ==
+    AF_INET connects: 1   distinct peers: 1
+        34.3.1.27:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  EVICT[synth] 28 store entries removed, 39 spared as nub tooling, 1935 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"540730196eb0972b721c3165df1e586ce9b5f40c8d6f54e5d386b55f9f8528f4","specCount":57,"lockfiles":{"digest":"773b1244cabe4a367dd6f36eb20de9979f8dd104419fd965b5790f8e25ca280a","files":[{"path":"nub.lock","sha256":"41e7d9cf366c815770dadd2674d1189599f8a1effc6984c668eeb931703f7ad8","bytes":13830}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:43:48.350Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-XVvsBT/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 57 exact package-version(s), tree 540730196eb0
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=161/161 missing=0 shortfall=none (tree 6864/2304) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}
+  EVICT[nar-no-network] 33 store entries removed, 39 spared as nub tooling, 1940 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"540730196eb0972b721c3165df1e586ce9b5f40c8d6f54e5d386b55f9f8528f4","specCount":57,"lockfiles":{"digest":"773b1244cabe4a367dd6f36eb20de9979f8dd104419fd965b5790f8e25ca280a","files":[{"path":"nub.lock","sha256":"41e7d9cf366c815770dadd2674d1189599f8a1effc6984c668eeb931703f7ad8","bytes":13830}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:43:48.350Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-XVvsBT/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 57 exact package-version(s), tree 540730196eb0 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=18/161 missing=143 shortfall=2fa25b5a654e (tree 5970/2304) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/Info.plist, .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/MacOS/Chromium, .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/PkgInfo, .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/Resources/am.lproj/InfoPlist.strings, .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/Resources/app.icns, .local-chromium/mac-606647/chrome-mac/Chromium.app/Contents/Resources/ar.lproj/InfoPlist.strings (+137)
+     [nar-no-network/a] { Error: getaddrinfo ENOTFOUND storage.googleapis.com storage.googleapis.com:443
+     [nar-no-network/a]   errno: 'ENOTFOUND',
+     [nar-no-network/a]   code: 'ENOTFOUND',
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  => MINIMAL — every capability in {"network":true} is independently necessary
+### DONE taiko@0.4.0  synthesized={"network":true} verified=1
