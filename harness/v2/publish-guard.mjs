@@ -129,6 +129,33 @@ export const hasRedArm = (rec) => {
 // like housekeeping in a diff.
 const isMeasurement = (rec) => rec?.verdict === 'MINIMUM';
 
+// ⛔ THE THREE-TERM RULE, EXPORTED, BECAUSE A SECOND CONSUMER NOW ASKS THE IDENTICAL QUESTION.
+// `collate.mjs` decides whether a catalog CELL may sit narrower than the shipped one, and the
+// question "could the evidence behind this narrowing have gone red?" does not change with the unit
+// it is asked about. Reimplementing it there is how the two would drift, and the naive two-term
+// form — refuse anything carrying the note — is the exact drift to expect: it withholds
+// `playwright-chromium@0.17.0`, a correct narrowing proven by two red arms, because a rule that
+// blocks everything looks right and is not.
+//
+// The `why` is returned rather than a bare boolean so a caller can say WHICH term carried it; the
+// three branches of `decide` below are now just this predicate plus their own prose.
+export const narrowingEvidence = (rec) => {
+  if (!notesOf(rec).includes('arms-unfalsifiable')) {
+    return { evidence: true, why: 'falsifiable arms' };
+  }
+  if (hasRedArm(rec)) {
+    return {
+      evidence: true,
+      why: 'arms that went red — the descent proved every remaining capability necessary, '
+        + 'so a live detector fired',
+    };
+  }
+  return {
+    evidence: false,
+    why: `arms that could not have failed (${notesOf(rec).join(', ')}), and no descent arm went red`,
+  };
+};
+
 export const decide = (prior, incoming) => {
   const dropped = narrows(prior?.grant, incoming?.grant);
 
@@ -150,22 +177,14 @@ export const decide = (prior, incoming) => {
   if (dropped.length === 0) {
     return { publish: true, reason: 'does not narrow the existing grant' };
   }
-  const unfalsifiable = notesOf(incoming).includes('arms-unfalsifiable');
-  if (!unfalsifiable) {
-    return { publish: true, reason: `narrows (${dropped.join(', ')}) on falsifiable arms` };
-  }
-  if (hasRedArm(incoming)) {
-    return {
-      publish: true,
-      reason: `narrows (${dropped.join(', ')}) but the descent proved every remaining capability `
-        + 'necessary with arms that went red, so a live detector fired',
-    };
+  const { evidence, why } = narrowingEvidence(incoming);
+  if (evidence) {
+    return { publish: true, reason: `narrows (${dropped.join(', ')}) on ${why}` };
   }
   return {
     publish: false,
     reason: `WITHHELD — would drop ${dropped.join(', ')} from ${JSON.stringify(prior?.grant ?? null)} `
-      + `to ${JSON.stringify(incoming?.grant ?? null)} on arms that could not have failed `
-      + `(${notesOf(incoming).join(', ')}), and no descent arm went red. A narrower grant with no `
+      + `to ${JSON.stringify(incoming?.grant ?? null)} on ${why}. A narrower grant with no `
       + 'falsifiable evidence behind it is an under-grant.',
   };
 };
