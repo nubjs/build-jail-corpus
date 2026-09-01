@@ -1342,12 +1342,24 @@ verify () {
     [ -z "$ARM_TOOLS_MARK" ] || echo "  $ARM_TOOLS_MARK"
     chown -R "$RUNUSER" "$v" 2>/dev/null
   fi
+  # ⛔⛔ THE TRACED BRANCH RUNS THE SAME TWO COMMANDS AS THE UNTRACED ONE, AND UNTIL 2026-09-01 IT DID
+  # NOT: it ran `nub install` ALONE and took the arm's rc from it. A traced arm and an untraced arm
+  # were therefore different experiments for any package whose build is deferred to `approve-builds`,
+  # which is exactly why the denial witness was wired on linux and withheld here —
+  # `denial-witness-decode.test.mjs` asserted the absence and named the repair in as many words: "if
+  # macOS gains this, its traced branch must first run approve-builds like the untraced one".
+  #
+  # ⛔ TWO CONSEQUENCES BEYOND THE rc, AND BOTH ALREADY BIT THE DIAGNOSE ARM. `a.log` did not exist,
+  # so the `catalog OVERRIDDEN` / `REJECTED` assertions below read ONE log where the untraced arm
+  # reads two; and the deferred build never ran, so the artifact gate scored a tree the untraced arm
+  # would have populated. ONE `sh -c`, the same two redirections, the same `$?` — so the arm's rc is
+  # `approve-builds`', identically to the `else` branch.
   if [ -n "$tracer" ]; then
     ( cd "$v" && export NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json"
       cat > "$v/jail.sh" <<JW
 cd "$v"
 sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH_V" ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} NUB_CACHE_DIR="$cache" NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
-  "$NUB" install > "$v/i.log" 2>&1
+  sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; '$NUB' approve-builds --all > '$v/a.log' 2>&1"
 echo \$? > "$v/rc"
 JW
       dtrace -q -s "$HERE/adapters/macos-observe.d" -o "$v/trace.txt" \
@@ -1570,6 +1582,54 @@ else
   echo "     The bounded ladder below is the repair; the terminal verdict waits on its outcome."
 fi
 
+# ── 3a-pre. THE DENIAL WITNESS — decode a traced descent arm and score its refusals. ──────────
+#
+# ⛔⛔ WHAT IT ANSWERS, AND WHY A GREEN DROP ARM IS NOT AN ANSWER ON ITS OWN. A script can write its
+# essential output into the home, have the jail refuse it, swallow the EACCES in a try/catch and exit
+# 0 — so the arm goes green and the record narrows to a grant that breaks a real install. The artifact
+# gate cannot see it either: it walks the PACKAGE'S OWN directory and the home write is by definition
+# outside it. `denial-witness.mjs` reads the arm's own trace and says whether the script ASKED.
+#
+# ⛔ THE DECODE IS THE SHIPPED ADAPTER, NOT A GREP — the same rule `measure.sh` states at its own call
+# site. `macos-eventlog.mjs` already carries the errno (`r: "EACCES"`), the write-intent flag (`w: 1`)
+# and, decisively, the LIFECYCLE SUBTREE attribution (`life: 1` on its `k:"p"` rows) — the same filter
+# `observe.mjs` uses to decide which writes earn a grant. Hand-rolled scans of these traces have been
+# wrong three times, every one of them by ignoring either the error status or the attribution.
+#
+# ⛔ ONE TRACE FILE, NOT TWO — THE ONE PLACE THIS DIVERGES FROM `measure.sh` BY NECESSITY. strace is
+# attached per command there, so the linux arm yields `tr-i.txt` + `tr-a.txt` and the scorer is handed
+# both. dtrace attaches to `-c "/bin/bash -x jail.sh"` and follows `progenyof($target)`, so ONE
+# `trace.txt` already spans both `install` and `approve-builds`.
+#
+# ⛔ FAILS OPEN ON THE INSTRUMENT AND CLOSED ON THE VERDICT. A missing trace, a failed decode or a
+# stream the scorer cannot read all produce a VOID marker, which licenses nothing and blocks nothing;
+# `|| true` keeps a detector fault from costing the record.
+denial_witness () {
+  local lbl="$1" cap="$2" v="$ROOT/verify-$1" ev=""
+  if [ -s "$v/trace.txt" ]; then
+    # `--jailed` is the guard that stops an OBSERVE stream from ever being scored as a drop arm, and
+    # `--home "$USER_HOME"` is the arm user's real home rather than this root-privileged driver's —
+    # the same root the OBSERVE decode above declares, for the same reason.
+    if node "$HERE/adapters/macos-eventlog.mjs" "$v/trace.txt" \
+         --project "$v" --home "$USER_HOME" --jail-home "$JAIL_HOME" \
+         --pkg "$PKG" --version "$VER" --jailed --out "$v/trace.events.ndjson" > /dev/null 2>&1; then
+      [ -s "$v/trace.events.ndjson" ] && ev="$v/trace.events.ndjson"
+    fi
+  fi
+  if [ -z "$ev" ]; then
+    echo "     DENIAL-WITNESS {\"cap\":\"$cap\",\"scope\":null,\"verdict\":\"VOID\",\"refusalsInScope\":0,\"lifecyclePids\":0,\"events\":0,\"sample\":[]}"
+    echo "     VOID — the arm produced no decodable trace, so its green carries no denial evidence"
+    return 0
+  fi
+  # `$ROOT` is excluded because every arm directory lives under it and, on this venue, under the real
+  # home — a refusal inside the harness's own scratch tree is not the package reaching for the user's
+  # home. MEASURED on the committed darwin corpus: `phantomjs@2.1.7` and `pngout-bin@0.1.6` each carry
+  # a real `w:1` refusal on a path under `/Users/runner` that is inside their arm root, and both score
+  # CLEAN only because of this exclusion.
+  node "$HERE/denial-witness.mjs" --cap "$cap" --events "$ev" --exclude "$ROOT" 2>/dev/null \
+    | sed 's/^/     /' || true
+}
+
 # ── 3b. NARROW — the direct over-prediction measure. ───────────────────────────────────────────
 #
 # Only meaningful once a grant has verified: dropping a capability from a grant that already fails
@@ -1590,7 +1650,7 @@ fi
 # using to audit a `write.userHome` entry would misdescribe where that grant came from.
 descend () {
   local g0="$1" provenance="$2"
-  local kept ANY_OVER INCONCLUSIVE nm gg nrc DROPPED JOINT jrc
+  local kept ANY_OVER INCONCLUSIVE nm gg nrc DROPPED JOINT jrc WTRACE
   case "$provenance" in ladder) kept="ladder-rung" ;; *) kept="synthesized" ;; esac
   ANY_OVER=""; INCONCLUSIVE=""
   # Per-call, because a second `descend` in one run must not inherit the first's droppable set.
@@ -1663,7 +1723,29 @@ descend () {
     # `record.mjs` ALREADY consumes both spellings — `INCONCLUSIVE for` becomes the
     # `descent-inconclusive` note, `=> DESCENT INCOMPLETE` becomes `minimality: UNPROVEN`. A consumer
     # with no producer, which is this session's recurring defect running backwards.
-    verify "$gg" "nar-$nm"; nrc=$?
+    # ⛔⛔ TRACE THE ARM AND ASK WHETHER THE SCRIPT ACTUALLY WANTED THE CAPABILITY. `record.mjs` names
+    # this as machinery the harness lacked; it has existed since 2026-08-31 and ran on `measure.sh`
+    # alone, so every darwin record carried an EMPTY `denialWitness` map and the keep-the-grant branch
+    # could not fire on this platform at all. MEASURED on the committed corpus: 410 darwin records
+    # narrowed, 61 of them by dropping `no-write-userHome`, and not one of them was witnessed.
+    #
+    # ⛔ ONE CAP, AND THE ASYMMETRY WITH `measure.sh` IS A PROPERTY OF THE PROBE RATHER THAN A CHOICE.
+    # `measure.sh` traces `no-write-userHome|no-network` because `adapters/linux.mjs` retains the
+    # outcome of the whole socket family and declares `netRefusals: true`. `adapters/macos-observe.d`
+    # has `connect` clauses and NO `socket` clause, so `macos-eventlog.mjs` declares no such flag and
+    # `denial-witness.mjs` answers `no-network` with UNSUPPORTED — which `record.mjs` treats exactly
+    # like an absent marker. Tracing it here would pay a dtraced arm for a marker that licenses
+    # nothing. A darwin probe that grows a `socket` clause sets the flag and this list gains the name.
+    #
+    # ⛔ THE TRACED ARM IS ARM-EQUIVALENT ONLY BECAUSE `verify`'s traced branch NOW RUNS
+    # `approve-builds` — see the comment on that branch. Reverting it silently turns every traced
+    # descent arm into a different experiment from its untraced siblings.
+    WTRACE=""
+    case "$nm" in
+      no-write-userHome) WTRACE="dtrace" ;;
+    esac
+    verify "$gg" "nar-$nm" "$WTRACE"; nrc=$?
+    [ -n "$WTRACE" ] && denial_witness "nar-$nm" "$nm"
     case "$nrc" in
       0) echo "     ⛔ OVER-PREDICTED — the strictly narrower $gg also verifies; '$nm' was not needed"
          ANY_OVER=1

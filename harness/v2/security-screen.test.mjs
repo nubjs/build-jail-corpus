@@ -78,10 +78,18 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
     '"$NUB" install > "$v/i.log"',
     '"$NUB" approve-builds --all > "$v/a.log"',
   ], 'linux verify');
+  // ⛔ THE LIFECYCLE PAIR IS PINNED TWICE BECAUSE THIS DRIVER HAS TWO ARM BRANCHES AND THEY MUST RUN
+  // THE SAME COMMANDS. The traced branch (dtrace, first in the file) ran `install` ALONE until
+  // 2026-09-01, so a traced arm and an untraced arm were different experiments for any package whose
+  // build is deferred to `approve-builds` — and this ordered list passed anyway, because it matched
+  // `install` in one branch and `approve-builds` in the other. Listing the pair twice is what makes
+  // it read both.
   inOrder(drivers.macos, [
     "'$NUB' install --ignore-scripts > '$v/security-resolve.log'",
     'security_screen_tree "$v" "nub-$label-resolved"',
-    '"$NUB" install > "$v/i.log"',
+    "'$NUB' install > '$v/i.log'",
+    "'$NUB' approve-builds --all > '$v/a.log'",
+    "'$NUB' install > '$v/i.log'",
     "'$NUB' approve-builds --all > '$v/a.log'",
   ], 'macos verify');
   inOrder(drivers.windows, [
