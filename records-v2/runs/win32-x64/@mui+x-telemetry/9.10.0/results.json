@@ -3,7 +3,12 @@
   "version": "9.10.0",
   "harnessVersion": 2,
   "verdict": "MINIMUM",
-  "grant": {},
+  "grant": {
+    "write": {
+      "deps": true,
+      "userHome": true
+    }
+  },
   "synthesized": {
     "write": {
       "deps": true,
@@ -18,10 +23,12 @@
   ],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": "descended",
-  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but OBSERVE attributed 3 write(s) to the REAL home and no denial witness came back CLEAN, so the passing drop arm is as consistent with a swallowed refusal as with the capability being unnecessary — the artifact gate cannot see a home write",
   "descendedGrant": {},
-  "notes": [],
+  "notes": [
+    "home-write-attributed"
+  ],
   "eventLog": null,
   "driverRc": 0,
   "durationMs": 155755,

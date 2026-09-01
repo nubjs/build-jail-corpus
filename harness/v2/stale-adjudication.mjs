@@ -183,6 +183,35 @@ export const parseDrift = (committed, parsed) => DRIFT_FIELDS.filter((f) => {
   return norm(was) !== norm(now);
 });
 
+// ⛔ THE RECORD THE RECORDER WOULD WRITE TODAY, BUILT ONCE AND HANDED TO EVERY CALLER THAT NEEDS IT.
+// `observedEffect` is recomputed here for the same reason `record.mjs`'s CLI computes it: the veto is
+// a REFUSAL, and carrying the committed record's absent one forward would make this path laxer than
+// the pipeline it is standing in for.
+//
+// ⛔ HOISTED OUT OF THE NARROWING BRANCH AND EXPORTED BECAUSE `rerecord.mjs` NEEDS THE SAME OBJECT.
+// That module repairs an UNDER-GRANT by replaying this record's own archived log, so it needs the
+// grant AND the two fields that explain it — and building its own copy from a second
+// `parseDriverLog` call is how the two would come to disagree about what today's recorder emits.
+// One construction, one parse, both consumers.
+export const rerecorded = (committed, parsed) => ({
+  ...committed,
+  grant: parsed.grant,
+  grantSource: parsed.grantSource,
+  grantSourceReason: parsed.grantSourceReason,
+  descendedGrant: parsed.descendedGrant ?? null,
+  notes: parsed.notes,
+  falsifiabilityReasons: parsed.falsifiabilityReasons ?? null,
+  descentRedArm: parsed.descentRedArm === true,
+  denialWitness: parsed.denialWitness ?? {},
+  writePaths: parsed.grant?.writePaths ?? [],
+  observedEffect: observedEffect({
+    lifecyclePids: parsed.observedCounts?.lifecyclePids ?? null,
+    writes: parsed.observedCounts?.writes ?? null,
+    peers: parsed.observedCounts?.peers ?? null,
+    declares: parsed.declaresInstallWork,
+  }),
+});
+
 // ── the replay ────────────────────────────────────────────────────────────────────────────────────
 export const replay = ({ committed, log, capture }) => {
   const parsed = parseDriverLog(log);
@@ -195,6 +224,10 @@ export const replay = ({ committed, log, capture }) => {
         + 'recorder that wrote the record did, so the difference in grant is not attributable to the rule',
     };
   }
+
+  // ⛔ BUILT ABOVE THE BRANCH, NOT INSIDE THE NARROWING ONE, so the WIDENING branch below can hand a
+  // caller the same object rather than reconstructing it from a second parse of the same log.
+  const incoming = rerecorded(committed, parsed);
 
   const dropped = narrows(committed?.grant, parsed.grant);
   if (!dropped.length) {
@@ -217,6 +250,10 @@ export const replay = ({ committed, log, capture }) => {
         : 'the current rule reaches the committed grant',
       grant: parsed.grant,
       widens,
+      // ⛔ CARRIED SO `rerecord.mjs` NEED NOT RE-PARSE. Republishing a widening is still not this
+      // module's job — it names the caps and stops — but the repair that IS allowed to write must
+      // work from the object this module already built, or the two readings can diverge.
+      incoming,
     };
   }
 
@@ -261,29 +298,6 @@ export const replay = ({ committed, log, capture }) => {
       return { verdict: REFUSED, reason: `${census.reason} — an archived log cannot be re-run to find out`, homeWrites: null };
     }
   }
-
-  // ⛔ THE RECORD HANDED TO `decide` IS THE COMMITTED ONE WITH EXACTLY THE FIELDS THE RECORDER WOULD
-  // HAVE REWRITTEN, and `observedEffect` is recomputed here for the same reason `record.mjs`'s CLI
-  // computes it: the veto is a REFUSAL, and carrying the committed record's absent one forward would
-  // make this path laxer than the pipeline it is standing in for.
-  const incoming = {
-    ...committed,
-    grant: parsed.grant,
-    grantSource: parsed.grantSource,
-    grantSourceReason: parsed.grantSourceReason,
-    descendedGrant: parsed.descendedGrant ?? null,
-    notes: parsed.notes,
-    falsifiabilityReasons: parsed.falsifiabilityReasons ?? null,
-    descentRedArm: parsed.descentRedArm === true,
-    denialWitness: parsed.denialWitness ?? {},
-    writePaths: parsed.grant?.writePaths ?? [],
-    observedEffect: observedEffect({
-      lifecyclePids: parsed.observedCounts?.lifecyclePids ?? null,
-      writes: parsed.observedCounts?.writes ?? null,
-      peers: parsed.observedCounts?.peers ?? null,
-      declares: parsed.declaresInstallWork,
-    }),
-  };
 
   // ⛔ THE PROJECT'S SCORER, IMPORTED. Re-deriving "may this narrowing publish?" here is how the two
   // would drift, and the naive re-derivation — refuse anything carrying `arms-unfalsifiable` — is the

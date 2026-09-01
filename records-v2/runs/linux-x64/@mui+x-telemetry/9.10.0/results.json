@@ -5,7 +5,13 @@
   "harnessEpoch": 32,
   "verdict": "MINIMUM",
   "grant": {
-    "read": "disk"
+    "write": {
+      "deps": true,
+      "project": true,
+      "userHome": true
+    },
+    "read": "disk",
+    "network": true
   },
   "synthesized": {
     "write": {
@@ -327,13 +333,14 @@
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/%40mui%2Fx-telemetry"
     }
   },
-  "grantSource": "descended",
-  "grantSourceReason": "4 capabilities were dropped and the JOINT grant was explicitly verified",
+  "grantSource": "synthesized",
+  "grantSourceReason": "the descent narrowed, but OBSERVE attributed 2 write(s) to the REAL home and no denial witness came back CLEAN, so the passing drop arm is as consistent with a swallowed refusal as with the capability being unnecessary — the artifact gate cannot see a home write",
   "descendedGrant": {
     "read": "disk"
   },
   "notes": [
-    "under-predicted"
+    "under-predicted",
+    "home-write-attributed"
   ],
   "eventLog": {
     "lines": 7623,
