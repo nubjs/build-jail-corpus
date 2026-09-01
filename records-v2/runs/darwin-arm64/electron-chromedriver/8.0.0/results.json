@@ -2,20 +2,17 @@
   "pkg": "electron-chromedriver",
   "version": "8.0.0",
   "harnessVersion": 2,
-  "harnessEpoch": 4,
+  "harnessEpoch": 58,
   "verdict": "MINIMUM",
+  "eraDepMismatch": null,
   "grant": {},
   "synthesized": {
-    "write": {
-      "userHome": true
-    },
     "network": true
   },
   "verifiedBy": "synth",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "no-network",
-    "no-write-userHome"
+    "no-network"
   ],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -31,7 +28,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:20.877Z",
+      "screenedAt": "2026-09-01T06:25:28.306Z",
       "cacheHit": false
     },
     {
@@ -51,7 +48,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:31.585Z",
+      "screenedAt": "2026-09-01T06:25:35.563Z",
       "cacheHit": false
     },
     {
@@ -71,7 +68,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:39.938Z",
+      "screenedAt": "2026-09-01T06:25:42.704Z",
       "cacheHit": false
     },
     {
@@ -91,47 +88,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:39.938Z",
-      "cacheHit": true
-    },
-    {
-      "schemaVersion": 1,
-      "kind": "nub-nar-no-write-userHome-resolved",
-      "status": "clean",
-      "digest": "ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd",
-      "specCount": 101,
-      "lockfiles": {
-        "digest": "a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b",
-        "files": [
-          {
-            "path": "nub.lock",
-            "sha256": "f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69",
-            "bytes": 23131
-          }
-        ]
-      },
-      "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:39.938Z",
-      "cacheHit": true
-    },
-    {
-      "schemaVersion": 1,
-      "kind": "nub-joint-narrow-resolved",
-      "status": "clean",
-      "digest": "ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd",
-      "specCount": 101,
-      "lockfiles": {
-        "digest": "a57793e2044fc70b8335651c52ec5c05218fa31c44c11617d845d962eed2112b",
-        "files": [
-          {
-            "path": "nub.lock",
-            "sha256": "f537c90f398ee2b2d476ed474bd145d0c4ea966633856a134578bcfe11a9ff69",
-            "bytes": 23131
-          }
-        ]
-      },
-      "maliciousAdvisories": [],
-      "screenedAt": "2026-08-27T07:31:39.938Z",
+      "screenedAt": "2026-09-01T06:25:42.704Z",
       "cacheHit": true
     }
   ],
@@ -149,7 +106,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-27T07:31:20.877Z"
+      "screenedAt": "2026-09-01T06:25:28.306Z"
     },
     {
       "digest": "0e7597da284a3f4d1c516990db823a8cb9f3a5eac2d2c670695d3d89303111a5",
@@ -308,7 +265,7 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-27T07:31:31.585Z"
+      "screenedAt": "2026-09-01T06:25:35.563Z"
     },
     {
       "digest": "ba5d13b8becdbbb42694866382aadb1fb69cbf1612747b5965ffa725110b43cd",
@@ -427,27 +384,27 @@
         ]
       },
       "kinds": [
-        "nub-joint-narrow-resolved",
         "nub-nar-no-network-resolved",
-        "nub-nar-no-write-userHome-resolved",
         "nub-synth-resolved"
       ],
-      "screenedAt": "2026-08-27T07:31:39.938Z"
+      "screenedAt": "2026-09-01T06:25:42.704Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-27T06:58:13.217Z",
-    "latestVersion": "42.10.1",
-    "weeklyDownloads": 31770,
+    "observedAt": "2026-09-01T06:05:34.581Z",
+    "latestVersion": "44.1.0",
+    "weeklyDownloads": 30084,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/electron-chromedriver/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/electron-chromedriver"
     }
   },
   "grantSource": "descended",
-  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
   "descendedGrant": {},
+  "falsifiabilityReasons": [],
+  "descentRedArm": false,
   "notes": [
     "cwd-unobserved",
     "events-lost"
@@ -476,22 +433,22 @@
     "distinctEvents": 7660,
     "emitted": 7660,
     "calls": 13625,
-    "bytes": 1240875,
-    "gzipBytes": 46593,
-    "out": "/Users/runner/v2m-RaEx2e/Observe/events.ndjson"
+    "bytes": 1240872,
+    "gzipBytes": 46569,
+    "out": "/Users/runner/v2m-QXjO9d/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 40150,
+  "durationMs": 18923,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 4,
-    "harnessSha256": "1a2ded380bed3a9100946e546440b66713362268793f4df36fcd86ab80ded1a1",
-    "harnessInputCount": 274,
-    "invalidationPolicySha256": "11dcba52baae4050a0c7d17374f0a851b9d29d73251709439cf38af2e935f11a",
+    "harnessEpoch": 58,
+    "harnessSha256": "7faf1465b4b2f3b1ffd51512118fc0ffd4ef0b4f522e11a1307b77684cca292f",
+    "harnessInputCount": 311,
+    "invalidationPolicySha256": "2ced822c1d4cafccefdcb4846201f28852108c96aefcec300970fd94eae8b80a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -620,7 +577,7 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-27T07:32:01.023Z",
+    "at": "2026-09-01T06:25:47.072Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -665,8 +622,8 @@
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-RaEx2e/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsSCS9pu",
+        "HOME": "/Users/runner/v2m-QXjO9d/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsFDIMDp",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
