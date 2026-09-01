@@ -239,6 +239,25 @@ test('the licence is ONE capability, so a narrowing that also drops another stil
   assert.equal(decide(prior, rec(proven)).publish, false, 'network was dropped too, unproven');
 });
 
+test('the licence covers the read the home write IMPLIES, and no independently-authored one', () => {
+  // ⛔ WHY THE LICENCE NAMES TWO TOKENS FOR ONE CAPABILITY. `write` implies read at its own scope and
+  // the parser REJECTS a grant that spells the implied half out, so `capsOf` materialises
+  // `read.userHome` rather than reading it off the text — and every promotion narrowing therefore
+  // drops BOTH. A licence naming only the authored half would fail `every` on a token no author ever
+  // wrote, and would withhold every record this term exists to publish.
+  const implied = { verdict: 'MINIMUM', grant: { write: { userHome: true } }, notes: [] };
+  assert.equal(decide(implied, rec(proven)).publish, true);
+  // ⛔ AND IT IS STILL ONE CAPABILITY, WHICH IS THE HALF THAT COULD HAVE GONE WRONG. `read.project` is
+  // AUTHORED — `write.userHome` does not imply it — so a narrowing that also gives it up is asking
+  // the probe about a scope it never touched, and gets no licence.
+  const authored = {
+    verdict: 'MINIMUM',
+    grant: { write: { userHome: true }, read: { project: true } },
+    notes: [],
+  };
+  assert.equal(decide(authored, rec(proven)).publish, false, 'an authored read is not implied');
+});
+
 test('a PROVEN probe on a record that ALREADY holds the home write licenses nothing', () => {
   // The precondition `probePlan` enforces, re-derived at the guard: a record whose grant carries
   // `write.userHome` beside a PROVEN probe is an instrument disagreement, and the safe reading is

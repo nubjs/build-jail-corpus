@@ -73,7 +73,10 @@ test('⭑ a committed UNDER-GRANT is repaired from its own archived log', () => 
   // gate cannot see a home write, so the grant narrowed off an arm that proved nothing.
   const r = rerecord({ committed: committedRec(), log: WIDEN_LOG, capture: CAPTURE });
   assert.equal(r.verdict, WIDENED, r.reason);
-  assert.deepEqual(r.widened, ['write.userHome']);
+  // ⛔ ONE CAPABILITY, TWO TOKENS. `write` implies read at its own scope, and the parser REJECTS a
+  // grant that spells the implied half out, so `capsOf` materialises `read.userHome` rather than
+  // reading it off the text. Taking the home write adds both; it is not a second capability.
+  assert.deepEqual(r.widened, ['write.userHome', 'read.userHome']);
   assert.deepEqual(r.rewritten.grant, { write: { project: true, userHome: true }, network: true });
   // The grant never travels without the recorder's own account of why it is what it is.
   assert.equal(r.rewritten.grantSource, 'synthesized');

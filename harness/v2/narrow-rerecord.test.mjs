@@ -110,7 +110,11 @@ test('⭑ a committed OVER-GRANT loses the user home from its own archived log',
   // reach a directory the jail had already handed the script for free.
   const r = narrowRerecord({ committed: committedRec(), log: NARROW_LOG, capture: CAPTURE });
   assert.equal(r.verdict, NARROWED, r.reason);
-  assert.deepEqual(r.narrowed, ['write.userHome']);
+  // ⛔ ONE CAPABILITY, TWO TOKENS. No grant ever authored `read.userHome` — `write` implies read at
+  // its own scope and `check_write_implies_read` REJECTS the pair being spelled out — so `capsOf`
+  // materialises the implied token, and giving up the home write gives up both. The list is longer
+  // than it was; the drop it describes is the same one.
+  assert.deepEqual(r.narrowed, ['write.userHome', 'read.userHome']);
   assert.deepEqual(r.rewritten.grant, { network: true });
   // The grant never travels without the recorder's own account of why it is what it is.
   assert.equal(r.rewritten.grantSource, 'descended');
@@ -479,7 +483,7 @@ test('⛔ RED CONTROL: the same route-(a) record narrows once its census comes b
   // unconditionally — a permanent refusal wearing a reason. The census is the only thing that moves.
   const r = narrowRerecord({ committed: ladderRec(), log: ladderLog({ peers: 0 }), capture: CAPTURE });
   assert.equal(r.verdict, NARROWED, r.reason);
-  assert.deepEqual(r.narrowed, ['network', 'write.userHome']);
+  assert.deepEqual(r.narrowed, ['network', 'write.userHome', 'read.userHome']);
   assert.deepEqual(r.rewritten.grant, {});
 });
 
@@ -488,7 +492,7 @@ test('G5: a drop that does not take `network` is not gated on the network census
   // only, on logs whose network census is positive and stays that way.
   const r = narrowRerecord({ committed: committedRec(), log: lines({ peers: 2 }).join('\n'), capture: CAPTURE });
   assert.equal(r.verdict, NARROWED, r.reason);
-  assert.deepEqual(r.narrowed, ['write.userHome']);
+  assert.deepEqual(r.narrowed, ['write.userHome', 'read.userHome']);
   assert.deepEqual(r.rewritten.grant, { network: true });
 });
 

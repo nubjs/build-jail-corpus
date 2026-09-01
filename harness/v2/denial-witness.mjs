@@ -312,9 +312,17 @@ function win32PathAxis(cap, header, extraExcludes) {
   // subtracts every other declared root from the home, so a `capture.json` that declared
   // `jailHome === home` — or any root at or above it — would leave an EMPTY scope in which no refusal
   // can ever be found, and the axis would answer CLEAN for every package while looking healthy.
-  // win32 has no jail home today (`provenance.overrides.notRedirected.USERPROFILE` records that
-  // `build_jail.rs` passes the ambient value through), so this cannot fire now; it is here because a
-  // driver that ever introduced one would otherwise turn this axis into the blanket licence.
+  // ⛔ WIN32 HAS A JAIL HOME, AND WHAT KEEPS THIS FROM FIRING IS THE ROOT LAYOUT RATHER THAN ITS
+  // ABSENCE. `compiler/preset.rs` builds a per-package private home — `private_home_dir` carries no
+  // `#[cfg]`, so the platform gets one — and repoints `HOME`, `USERPROFILE` and `APPDATA` at it.
+  // `LOCALAPPDATA` is the ONE variable left alone, because the LowBox launch resolves its
+  // AppContainer profile directory from it, and it is the only key `provenance.overrides
+  // .notRedirected` carries; `measure-windows.mjs` declares the corresponding `jailHome` root.
+  // What actually empties the scope is a subtracted root AT OR ABOVE `roots.home`, and the driver's
+  // `--root` defaults to `C:\jail` — deliberately outside `C:\Users\<user>`, which fails the
+  // AppContainer ACL check — so the declared `jailHome` is a SIBLING of the real home, not an
+  // ancestor. A driver that ever rooted the jail home at or above the real one would turn this axis
+  // into the blanket licence, which is what the check is for.
   // Deliberately NOT added to the POSIX path, where it would change committed verdicts.
   if (m.subtract.some((s) => underWin(header.roots.home, s))) return null;
   return {
