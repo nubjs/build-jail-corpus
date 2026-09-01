@@ -243,26 +243,21 @@ const MODULE_REGISTRY = new Map([
     'Scoped to falsify\'s win32 network case, which asserts a refusal TEXT emitted by nub\'s net-gate ' +
     'shim. That shim reaches a confined Node only as a NODE_OPTIONS --import term, so an era Node ' +
     'below 20.6 cannot print it. The POSIX jails deny at the kernel layer and assert no such text.' }],
-  ['v2/denial-witness.mjs', { kind: 'open', why:
-    'OPEN DIVERGENCE on win32 ONLY — darwin was wired at epoch 68. The SCORER now reaches win32: ' +
-    '`win32PathAxis` reads a windows-retain.mjs stream and record.mjs needs no change to consume its ' +
-    'marker. What is still missing is the CAPTURE, and it is a driver line rather than a schema ' +
-    'change: measure-windows.mjs has no DIAGNOSE arm, its verify() takes no tracer parameter, and ' +
-    'wiring windows.ps1 around a drop arm has to be validated on a real runner. ⛔ THE CORRECTION ' +
-    'THIS ENTRY USED TO CARRY: it said the dangerous fix was stamping `jailed` without mapping ' +
-    'st->r. The direction was right and the MECHANISM was wrong, which was measured while closing ' +
-    'it — stamping `jailed` alone sent the stream down the POSIX axis, whose `under` appends `/`, so ' +
-    'against `C:\\Users\\runneradmin` the scope was EMPTY and victory-voronoi@0.0.5 scored `CLEAN, ' +
-    '12525 events, 0 refusals` with no mapping running at all. scopeMatcher now asserts its ' +
-    'namespace positively, so that stream is UNSUPPORTED. ⛔ AND WRITE INTENT IS STILL STRUCTURALLY ' +
-    'ABSENT — Create (12) carries no DesiredAccess while AppContainer denies AT Create, so event 16 ' +
-    'never arrives — which is why the win32 axis drops the `w` term and counts any in-scope refusal. ' +
-    'That is WIDER, so it can only keep a grant, never narrow one. The axis is gated on a per-stream ' +
-    'positive control (a Create refused with STATUS_ACCESS_DENIED, carried by 0 of 1,688 committed ' +
-    'streams), so every existing win32 stream is VOID. (An earlier version of this note cited "223 ' +
-    'committed darwin diagnose traces" as evidence; DIAGNOSE greps its trace into driver.out and ' +
-    'DISCARDS it, so every committed darwin trace is an OBSERVE trace whose header reads ' +
-    'jailed:false.)' }],
+  // ⛔ `v2/denial-witness.mjs` HAD AN ENTRY HERE AND IT IS GONE BECAUSE THE DIVERGENCE CLOSED, not
+  // because the entry was inconvenient. It read "what is still missing is the CAPTURE … its verify()
+  // takes no tracer parameter"; measure-windows.mjs now takes a jailed ETW capture on its
+  // `no-write-userHome` drop arm and emits the marker, so all three drivers reach the scorer and the
+  // rule below deletes the entry rather than letting a fixed gap sit here looking unfixed.
+  ['v2/win32-witness.mjs', { kind: 'platform', why:
+    'The win32 denial witness\'s capture half: the cmd.exe batch the ETW session wraps, the rc it is ' +
+    'composed from, the roots that arm declares, and the gate deciding whether an ETW capture is fit ' +
+    'to score at all. Every fact in it is a property of ETW, cmd.exe or the Windows privilege model — ' +
+    'the lossy-session check, the sequential-mode truncation cap, the SeBackupPrivilege DACL bypass ' +
+    'that would make a denial unobservable, the 8.3 short-name spelling. The POSIX drivers trace with ' +
+    'strace and DTrace, whose equivalents are a plain output file and an errno, so there is nothing ' +
+    'here for them to share. It is a module rather than driver lines precisely so a test on any host ' +
+    'can break the DECIDING half; measure-windows.mjs keeps only the spawns and names each one it ' +
+    'cannot test in its WITNESS-OFF-WINDOWS note.' }],
 ]);
 
 // ── MARKERS ───────────────────────────────────────────────────────────────────────────────────────
@@ -335,12 +330,11 @@ const MARKER_REGISTRY = new Map([
     'resolve it against a cwd they may not have observed; ETW file events carry the resolved NT path, ' +
     'and the ONE relative case — a rename destination leaf under a RootDirectory handle — is anchored ' +
     'to the source directory or dropped outright by adapters/windows.mjs destPathOf().' }],
-  ['DENIAL-WITNESS', { kind: 'open', why:
-    'OPEN DIVERGENCE on win32 ONLY — the marker half of the denial-witness.mjs entry in ' +
-    'MODULE_REGISTRY, which carries the measurement. The remaining gap is the CAPTURE: ' +
-    'measure-windows.mjs takes no jailed trace, so it has nothing to score and emits no marker. The ' +
-    'scorer half is wired and its win32 axis is fail-closed on every stream the corpus holds. ' +
-    'measure.sh and measure-macos.sh both emit this marker as of epoch 68.' }],
+  // ⛔ `DENIAL-WITNESS` HAD AN ENTRY HERE AND IT IS GONE FOR THE SAME REASON ITS MODULE ENTRY IS: the
+  // divergence closed. It read "measure-windows.mjs takes no jailed trace, so it has nothing to score
+  // and emits no marker"; that driver now wraps its `no-write-userHome` drop arm in an ETW session,
+  // decodes it with `--jailed`, and prints the marker on every path including the ones that refuse to
+  // score. All three drivers emit it, so the rule below deletes the entry.
   ['CWD-RESOLVED', { kind: 'open', why:
     'OPEN DIVERGENCE on LINUX; platform-justified on win32. Only observe-macos.mjs emits it, so ' +
     'record.mjs\'s cwdResolved count is absent on every linux record even though observe.mjs ' +

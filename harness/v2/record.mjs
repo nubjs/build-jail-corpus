@@ -925,9 +925,15 @@ const applyGrantSourceRule = (out, lines) => {
   //                                       every arm was green.
   //
   // VOID / UNSUPPORTED / absent all mean "not established" and change nothing: the rule below then
-  // runs exactly as it did before this term existed, which is what keeps every pre-witness record and
-  // every win32 record — where no jailed trace is taken at all — on the behaviour they were measured
-  // under.
+  // runs exactly as it did before this term existed, which is what keeps every pre-witness record on
+  // the behaviour it was measured under.
+  //
+  // ⛔ THAT SENTENCE USED TO NAME win32 AS A PLACE "WHERE NO JAILED TRACE IS TAKEN AT ALL", AND THAT
+  // IS NO LONGER TRUE — `measure-windows.mjs` now wraps its `no-write-userHome` drop arm in an ETW
+  // session and emits this marker. Every win32 record ALREADY COMMITTED still carries no marker and is
+  // therefore unaffected, which is the property that sentence was really protecting; what changed is
+  // that a FUTURE win32 record can carry one. The recorder needs no platform term either way — it
+  // keys on `cap` and `verdict`, and the win32 axis is gated inside the scorer.
   const witnessOf = (cap) => out.denialWitness?.[cap];
   const witnessedCaps = out.overPredictedBy.filter((c) => witnessOf(c) === 'WITNESSED');
   const witnessLicenses = out.overPredictedBy.length > 0
