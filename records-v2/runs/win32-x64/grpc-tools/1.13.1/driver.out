@@ -1,60 +1,103 @@
-### grpc-tools@1.13.1   (C:\jail\m-grpctools-msijf5t2)
+### grpc-tools@1.13.1   (D:\jail\m-grpctools-mtiujx7w)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervmhisb5\runneradmin elevated=True rootPid=2504 exit=0 events=31107 lost=0
-  VENUE-OBSERVE-USER runnervmhisb5\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 20 files  (C:\jail\m-grpctools-msijf5t2\observe\node_modules\grpc-tools)
-  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":2,"reasons":[]}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"97f31640f5069aec9bc0a544fcb4f34dec7712a874bc29b6bc2e1f550f75cad6","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T15:53:27.389Z","cacheHit":false,"clearancePath":"D:\\jail\\m-grpctools-mtiujx7w\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 97f31640f506
+  ERA-PYTHON C:\hostedtoolcache\windows\Python\3.9.13\x64\python.exe (Python 3.9.13) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE C:\Strawberry\c\bin\gmake.exe (GNU Make 4.4.1) — the system make; a build needing GNU Make 4 WILL fail here
+  ERA-RESOLUTION DATED 2025-12-02T16:44:52.015Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"cfbd7f0b731f05d6b05810b3d592290582a10a2b8ac0244804f8cc189ba786b2","specCount":21,"lockfiles":{"digest":"495a7cee20933ccc4678ea63d79c499b804075a39f5943a0bb22099d155dbf7a","files":[{"path":"package-lock.json","sha256":"87ee9c28884514665d12c04cf0f0bf3626e3bb5bdf1e774d902c7a659211367e","bytes":9039}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T15:53:31.308Z","cacheHit":false,"clearancePath":"D:\\jail\\m-grpctools-mtiujx7w\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 21 exact package-version(s), tree cfbd7f0b731f
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 6 leaked: grunt=C:\npm\prefix\grunt.cmd gulp=C:\npm\prefix\gulp.cmd lerna=C:\npm\prefix\lerna.cmd node-pre-gyp=D:\jail\m-grpctools-mtiujx7w\observe\node_modules\.bin\node-pre-gyp.cmd yarn=C:\npm\prefix\yarn.cmd pulumi=C:\ProgramData\chocolatey\lib\pulumi\tools\Pulumi\bin\pulumi.exe
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  ARM-REBUILD-SPEC grpc-tools@1.13.1
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6648 exit=0 events=27692 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 20 files  (D:\jail\m-grpctools-mtiujx7w\observe\node_modules\grpc-tools)
+  ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":2,"reasons":[],"declaresInstallWork":true}
   CLOSURE 21 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervmhisb5, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-grpctools-msijf5t2\observe   [keyed on]
+    project       D:\jail\m-grpctools-mtiujx7w\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
-    jailHome      (null — declared inapplicable)
+    jailHome      D:\jail\m-grpctools-mtiujx7w\jailhome   [keyed on]
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-grpctools-msijf5t2\observe\node_modules\.store
-    interpreter   C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
+    projectStore  D:\jail\m-grpctools-mtiujx7w\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-grpctools-msijf5t2\tmp   [keyed on]
+    temp          D:\jail\m-grpctools-mtiujx7w\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-grpctools-msijf5t2\observe\node_modules\grpc-tools
-  == ATTRIBUTION == lifecycle pids: 2 (root 2504)
+    npmCache      D:\jail\m-grpctools-mtiujx7w\npm-cache   [keyed on]
+    ownPkg        D:\jail\m-grpctools-mtiujx7w\observe\node_modules\grpc-tools
+  == ATTRIBUTION == lifecycle pids: 2 (root 6648)
     writes  script 3  /  whole traced tree 18
     peers   script 1  /  whole traced tree 1
   == WRITES ==
     deps          3
   == READS ==
-    deps         95
+    deps        138
     outside       6
     project       1
     systemfs     31
+  OBSERVED-EFFECT {"lifecyclePids":2,"writes":3,"peers":1}
   == NETWORK ==
     distinct peers: 1
-        172.64.80.1:443
+        172.67.132.164:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  39405180 B xml -> 570261 B gz (69.1x)  sha256 83f4b1cdd348aecb…
-  HEADER    etw-header.json (5068 bytes)
-  DERIVED   5754 distinct from 8479 kept ops (31107 xml events, 1304 out of subtree)
+  == writePaths (DERIVED -- promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared -- the script wrote nothing into its private home — there is nothing to promote
+  RAW       etw-raw.xml.gz  35438539 B xml -> 521582 B gz (67.9x)  sha256 1dbc0a99ee59fb6a…
+  HEADER    etw-header.json (5167 bytes)
+  DERIVED   5902 distinct from 8645 kept ops (27692 xml events, 2076 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmhisb5)]
-  wrote events.ndjson.gz (72850 bytes)
-  RAWLOG-CAPTURE C:\jail\m-grpctools-msijf5t2\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nubsrc/target/fast/nub.exe","sha256":"1d973ced3f55975d0961021bee7927459830e4e9d372431ea2acb1b4852d836f","bytes":68893696,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.1\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-grpctools-msijf5t2
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-grpctools-msijf5t2\\npm-cache","TMP":"C:\\jail\\m-grpctools-msijf5t2\\tmp","TEMP":"C:\\jail\\m-grpctools-msijf5t2\\tmp","TMPDIR":"C:\\jail\\m-grpctools-msijf5t2\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-grpctools-msijf5t2\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5924/570) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (74428 bytes)
+  RAWLOG-CAPTURE D:\jail\m-grpctools-mtiujx7w\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09","bytes":69241856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-NODE-SELECTION {"pkg":"grpc-tools","packageVersion":"1.13.1","lookupFailure":null,"major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":null,"publishedAt":"2025-12-01T16:44:52.015Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"pinned":true,"pinnedBin":"C:\\Users\\runneradmin\\.cache\\nub\\era-node\\24.19.0\\node-v24.19.0-win-x64","eraNodeRoot":"C:\\Users\\runneradmin\\.cache\\nub"}
+  VENUE-JAIL-ROOT D:\jail\m-grpctools-mtiujx7w
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-grpctools-mtiujx7w\\npm-cache","TMP":"D:\\jail\\m-grpctools-mtiujx7w\\tmp","TEMP":"D:\\jail\\m-grpctools-mtiujx7w\\tmp","TMPDIR":"D:\\jail\\m-grpctools-mtiujx7w\\tmp","HOME":"D:\\jail\\m-grpctools-mtiujx7w\\jailhome","USERPROFILE":"D:\\jail\\m-grpctools-mtiujx7w\\jailhome","APPDATA":"D:\\jail\\m-grpctools-mtiujx7w\\jailhome\\AppData\\Roaming"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"LOCALAPPDATA":"C:\\Users\\runneradmin\\AppData\\Local","why":"LOCALAPPDATA is left alone deliberately, matching `compiler/preset.rs`: the Windows LowBox launch resolves its AppContainer profile directory from it, so repointing it breaks process creation rather than a cache path. HOME, USERPROFILE and APPDATA ARE redirected, to the `jailHome` root capture.json declares, exactly as compile_build_jail redirects them for a confined child."},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  EVICT-REPLAY[synth] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-grpctools-mtiujx7w\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"2cafc82f04f096c10013c5fd1cab9ab7985e680feaec0fa2699fa4ffdeb83ca2","specCount":21,"lockfiles":{"digest":"4e20698fccea86f489b01f3cbc524f8d75e1db977d1311579d0be94fddf600e7","files":[{"path":"nub.lock","sha256":"f69a58385cc727c9b3db3b16e491970af8ad72f0ac64fe89c06885c0eecd3742","bytes":5440}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T15:53:41.584Z","cacheHit":false,"clearancePath":"D:\\jail\\m-grpctools-mtiujx7w\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 21 exact package-version(s), tree 2cafc82f04f0
+  ARM-TOOLS staged 15 bin entries (555 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5899/557) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-grpctools-msijf5t2\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=18/20 missing=2 shortfall=d24c09c3c738 (tree 5919/570) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  EVICT-REPLAY[nar-no-network] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-grpctools-mtiujx7w\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"2cafc82f04f096c10013c5fd1cab9ab7985e680feaec0fa2699fa4ffdeb83ca2","specCount":21,"lockfiles":{"digest":"4e20698fccea86f489b01f3cbc524f8d75e1db977d1311579d0be94fddf600e7","files":[{"path":"nub.lock","sha256":"f69a58385cc727c9b3db3b16e491970af8ad72f0ac64fe89c06885c0eecd3742","bytes":5440}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T15:53:41.584Z","cacheHit":true,"clearancePath":"D:\\jail\\m-grpctools-mtiujx7w\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 21 exact package-version(s), tree 2cafc82f04f0 (cached exact-tree clearance)
+  ARM-TOOLS staged 15 bin entries (555 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-network] rc=1 artifacts=18/20 missing=2 shortfall=d24c09c3c738 (tree 5897/557) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     [nar-no-network/a.log] DEBUG final message final_message=; header 10186:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 44979:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 58879:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG final message final_message=; header 3092:QUERY:RD:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 44979:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 44979:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 58879:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 58879:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 44979:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 58879:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 3092:RESPONSE:RD,RA:NoError:QUERY
+     [nar-no-network/a.log] DEBUG response: ; header 3092:RESPONSE:RD,RA:NoError:QUERY
      missing artifacts: bin/grpc_node_plugin.exe, bin/protoc.exe
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-grpctools-msijf5t2\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5924/570) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  EVICT-REPLAY[nar-no-write-deps] no tools dir yet (first arm on this box)
+  STORE   isolated virtual store at D:\jail\m-grpctools-mtiujx7w\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"2cafc82f04f096c10013c5fd1cab9ab7985e680feaec0fa2699fa4ffdeb83ca2","specCount":21,"lockfiles":{"digest":"4e20698fccea86f489b01f3cbc524f8d75e1db977d1311579d0be94fddf600e7","files":[{"path":"nub.lock","sha256":"f69a58385cc727c9b3db3b16e491970af8ad72f0ac64fe89c06885c0eecd3742","bytes":5440}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T15:53:41.584Z","cacheHit":true,"clearancePath":"D:\\jail\\m-grpctools-mtiujx7w\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 21 exact package-version(s), tree 2cafc82f04f0 (cached exact-tree clearance)
+  ARM-TOOLS staged 15 bin entries (555 files, 0 symlinks, hardlink) into node_modules\.harness-tools
+  VERIFY[nar-no-write-deps] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 5899/557) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
+  => PROMOTION PROBE UNSUPPORTED — the grant declares no `writePaths`, so there is nothing to promote
+  PROMOTION-PROBE {"platform":"win32","verdict":"UNSUPPORTED","reason":"no-declaration","entries":[],"skipped":[]}
+  ERA-NODE PINNED 24.19.0 (arms will run: v24.19.0)
