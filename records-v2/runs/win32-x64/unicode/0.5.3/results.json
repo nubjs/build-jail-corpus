@@ -2,76 +2,305 @@
   "pkg": "unicode",
   "version": "0.5.3",
   "harnessVersion": 2,
-  "verdict": "MINIMUM",
-  "grant": {
-    "network": true
-  },
-  "synthesized": {
-    "write": {
-      "deps": true
-    },
-    "network": true
-  },
-  "verifiedBy": "synth",
-  "minimality": "OVER-PREDICTED",
-  "overPredictedBy": [
-    "no-write-deps"
-  ],
+  "harnessEpoch": 77,
+  "verdict": "BROKEN-WITHOUT-JAIL-TOO",
+  "eraDepMismatch": null,
+  "grant": null,
+  "synthesized": null,
+  "verifiedBy": null,
+  "minimality": null,
+  "overPredictedBy": [],
   "writePaths": [],
   "writePathsVersionPinned": [],
-  "grantSource": "descended",
-  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
-  "descendedGrant": {
-    "network": true
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "59b184ab591eef53f3225afacbda23719548e5234707e562545a5ec71319d198",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-01T21:30:21.676Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "6cc1f69616851307076ec3b22e49b306b6f2271b8d6d412009aa9c354705b325",
+      "specCount": 4,
+      "lockfiles": {
+        "digest": "e1d039b8754cf7d1794d8ee6f60972f3ad9cb1f0f9449680c75a08443177fa79",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4430fc5afa3786eb5342ad673eca695c58e4b80a2156d9e5c9bc55f7cc49fa98",
+            "bytes": 1817
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-01T21:30:24.308Z",
+      "cacheHit": false
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "59b184ab591eef53f3225afacbda23719548e5234707e562545a5ec71319d198",
+      "specCount": 1,
+      "specs": [
+        "unicode@0.5.3"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-09-01T21:30:21.676Z"
+    },
+    {
+      "digest": "6cc1f69616851307076ec3b22e49b306b6f2271b8d6d412009aa9c354705b325",
+      "specCount": 4,
+      "specs": [
+        "bufferjs@2.0.0",
+        "bufferstream@0.6.2",
+        "buffertools@2.0.1",
+        "unicode@0.5.3"
+      ],
+      "lockfiles": {
+        "digest": "e1d039b8754cf7d1794d8ee6f60972f3ad9cb1f0f9449680c75a08443177fa79",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "4430fc5afa3786eb5342ad673eca695c58e4b80a2156d9e5c9bc55f7cc49fa98",
+            "bytes": 1817
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-09-01T21:30:24.308Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-09-01T21:28:52.240Z",
+    "latestVersion": "14.0.0",
+    "weeklyDownloads": 98631,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/unicode/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/unicode"
+    }
   },
+  "grantSource": null,
+  "grantSourceReason": null,
+  "descendedGrant": null,
+  "confinedWide": null,
+  "descentUnsupported": null,
+  "falsifiabilityReasons": null,
+  "descentRedArm": false,
+  "denialWitness": {},
+  "observedEffect": {
+    "verdict": "UNKNOWN",
+    "writes": null,
+    "peers": null,
+    "declares": null,
+    "reason": "the classifier emitted no effect counts, so whether the script did anything is unknown"
+  },
+  "promotionProbe": null,
   "notes": [],
   "eventLog": null,
   "driverRc": 0,
-  "durationMs": 136263,
+  "durationMs": 96838,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
-    "nubGitSha": null,
+    "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "d38ffd3634a2e448aeaea21562b3cee37df1c4b0",
-    "node": "v22.15.0",
-    "at": "2026-08-07T15:02:32.900Z",
-    "venue": "vm ",
-    "ciEnvSet": false,
-    "storeLayout": "hoisted",
-    "interpreterPath": "C:\\Program Files\\nodejs\\node.exe",
+    "corpusGitSha": "9985b33726c2f36083ad472777668ae115a93701",
+    "harnessEpoch": 77,
+    "harnessSha256": "ebe791c7d442d84cc18b58bb57f0c3fb69370490573a820761639a9948ae46f4",
+    "harnessInputCount": 347,
+    "invalidationPolicySha256": "cd452205f1be40afb57476f65065108e3c39147df5edfc367c184e6f0bb2579b",
+    "node": "v22.23.2",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+        "sha256": "0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4",
+        "bytes": 86997320
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+        "executable": {
+          "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+          "sha256": "21b46c69ad6e2f231f02a9e120f4ba6c8e75fef5a45637103002eab99f888ab8",
+          "bytes": 538
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "py",
+            "-3",
+            "--version"
+          ],
+          "path": "C:\\Windows\\py.exe",
+          "executable": {
+            "path": "C:\\Windows\\py.exe",
+            "sha256": "a6b32b0ddcc53fa2e1a92905321ecfae80c2fb77abf2e313efc6238daad0f1ca",
+            "bytes": 783072
+          },
+          "version": "Python 3.14.7"
+        }
+      ],
+      "buildTools": {
+        "cl": {
+          "command": [
+            "cl",
+            "/?"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "e6d57100c82ae0310c18b16abfe52bc0df8fbb272ca6c5fb287d485807cfce91",
+            "bytes": 893328
+          },
+          "version": "C/C++ COMPILER OPTIONS"
+        },
+        "msbuild": {
+          "command": [
+            "msbuild",
+            "-version"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+            "sha256": "70838f9b80e04f79f2699e34f1ca8966e42c9a39a0383678c75bef459ec5a098",
+            "bytes": 378152
+          },
+          "version": "MSBuild version 18.9.1+a81b43525 for .NET Framework"
+        }
+      },
+      "os": {
+        "platform": "win32",
+        "arch": "x64",
+        "libc": null,
+        "type": "Windows_NT",
+        "release": "10.0.26100",
+        "version": "Windows Server 2025 Datacenter",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Windows",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "win25-vs2026",
+        "imageVersion": "20260824.214.3"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Windows",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "win25-vs2026",
+          "ImageVersion": "20260824.214.3",
+          "LANG": null,
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "a586774bbd9e539e35b454d10de7a3a3747b688eb2d34acca14a6e780554b928",
+        "shell": "C:\\Windows\\system32\\cmd.exe"
+      }
+    },
+    "at": "2026-09-01T21:30:29.740Z",
+    "venue": "ci",
+    "ciEnvSet": true,
+    "storeLayout": null,
+    "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-unicode-msj2n8ue",
-    "observeUser": "NUB-WIN3\\nub elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "jailRoot": null,
+    "observeUser": "runnervmeef0v\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
+    "xdgChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
-      "path": "C:\\nub-ci.exe",
-      "sha256": "3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c",
-      "bytes": 43440128,
+      "path": "C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe",
+      "sha256": "1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09",
+      "bytes": 69241856,
       "features": {
         "buildJailCatalogOverride": true,
-        "pythonDontWriteBytecodeEnv": false
+        "pythonDontWriteBytecodeEnv": true
       }
     },
-    "overrides": {
-      "set": {
-        "npm_config_cache": "C:\\jail\\m-unicode-msj2n8ue\\npm-cache",
-        "TMP": "C:\\jail\\m-unicode-msj2n8ue\\tmp",
-        "TEMP": "C:\\jail\\m-unicode-msj2n8ue\\tmp",
-        "TMPDIR": "C:\\jail\\m-unicode-msj2n8ue\\tmp"
-      },
-      "unset": [],
-      "notRedirected": {
-        "USERPROFILE": "C:\\Users\\nub",
-        "why": "the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"
-      },
-      "passedThrough": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
-        "NODE_ENV": null
-      }
-    }
+    "nodeSelection": {
+      "pkg": "unicode",
+      "packageVersion": "0.5.3",
+      "lookupFailure": null,
+      "major": 4,
+      "version": "4.9.1",
+      "npm": "2.15.11",
+      "pinnable": true,
+      "engines": ">= 0.8.x",
+      "publishedAt": "2014-02-19T23:24:06.728Z",
+      "eraMajor": 0,
+      "startMajor": 4,
+      "raisedByEngines": false,
+      "enginesUnsatisfiable": false,
+      "clampedToFloor": true,
+      "clampedToCeiling": false,
+      "matrixFloor": 4,
+      "matrixCeiling": 26,
+      "pinned": true,
+      "pinnedBin": "C:\\Users\\runneradmin\\.cache\\nub\\era-node\\4.9.1\\node-v4.9.1-win-x64",
+      "eraNodeRoot": "C:\\Users\\runneradmin\\.cache\\nub"
+    },
+    "overrides": null
   }
 }

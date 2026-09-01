@@ -1,60 +1,42 @@
-### unicode@0.5.3   (C:\jail\m-unicode-msj2n8ue)
-  CAPTURE user=NUB-WIN3\nub elevated=True rootPid=4708 exit=0 events=157743 lost=0
-  VENUE-OBSERVE-USER NUB-WIN3\nub elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 37 files  (C:\jail\m-unicode-msj2n8ue\observe\node_modules\unicode)
-  ARM-FALSIFIABILITY {"manifestFiles":37,"filesTheScriptProduced":29,"reasons":[]}
-  CLOSURE 4 packages evicted per arm
-  8.3 MAP 0 components resolved on NUB-WIN3, folded into capture.json
-  == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-unicode-msj2n8ue\observe   [keyed on]
-    home          C:\Users\nub   [keyed on]
-    jailHome      (null — declared inapplicable)
-    globalStore   C:\Users\nub\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-unicode-msj2n8ue\observe\node_modules\.store
-    interpreter   C:\Program Files\nodejs\node.exe
-    toolsDir      C:\Users\nub\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-unicode-msj2n8ue\tmp   [keyed on]
-    npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-unicode-msj2n8ue\observe\node_modules\unicode
-  == ATTRIBUTION == lifecycle pids: 2 (root 4708)
-    writes  script 29  /  whole traced tree 36
-    peers   script 1  /  whole traced tree 1
-  == WRITES ==
-    deps         29
-  == READS ==
-    deps         16
-    outside       3
-    project       1
-    systemfs     35
-    kernelfs      1
-  == NETWORK ==
-    distinct peers: 1
-        172.67.74.23:80
-  == REFUSALS (adapter-classified) ==
-    distinct: 0
-  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  204336884 B xml -> 2790979 B gz (73.2x)  sha256 4df9cade1f8a418b…
-  HEADER    etw-header.json (4948 bytes)
-  DERIVED   9132 distinct from 63551 kept ops (157743 xml events, 5988 out of subtree)
-  PROCS     4   thread-reattributed 0
-  ⛔ 28 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on NUB-WIN3)]
-  wrote events.ndjson.gz (127758 bytes)
-  RAWLOG-CAPTURE C:\jail\m-unicode-msj2n8ue\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:\\nub-ci.exe","sha256":"3035337081e3765e6be634067aed00e03ad8427185a1379a1d703edbcab25f7c","bytes":43440128,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":false}}
-  VENUE-INTERPRETER C:\Program Files\nodejs\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-unicode-msj2n8ue
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-unicode-msj2n8ue\\npm-cache","TMP":"C:\\jail\\m-unicode-msj2n8ue\\tmp","TEMP":"C:\\jail\\m-unicode-msj2n8ue\\tmp","TMPDIR":"C:\\jail\\m-unicode-msj2n8ue\\tmp"},"unset":[],"notRedirected":{"USERPROFILE":"C:\\Users\\nub","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 5793/72) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
-  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=8/37 missing=29 shortfall=848aa0d103de (tree 5764/72) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
-     missing artifacts: category/Cc.js, category/Cf.js, category/Co.js, category/Cs.js, category/Ll.js, category/Lm.js (+23)
-     'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-unicode-msj2n8ue\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 5793/72) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
+### unicode@0.5.3   (D:\jail\m-unicode-mtj6l6p2)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"59b184ab591eef53f3225afacbda23719548e5234707e562545a5ec71319d198","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T21:30:21.676Z","cacheHit":false,"clearancePath":"D:\\jail\\m-unicode-mtj6l6p2\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 59b184ab591e
+  ERA-PYTHON C:\Python27\python.exe (Python 2.7.18) for era Node 0, whose node-gyp requires python2
+  ARM-MAKE C:\Strawberry\c\bin\gmake.exe (GNU Make 4.4.1) — the system make; a build needing GNU Make 4 WILL fail here
+  ERA-RESOLUTION DATED 2014-02-20T23:24:06.728Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6cc1f69616851307076ec3b22e49b306b6f2271b8d6d412009aa9c354705b325","specCount":4,"lockfiles":{"digest":"e1d039b8754cf7d1794d8ee6f60972f3ad9cb1f0f9449680c75a08443177fa79","files":[{"path":"package-lock.json","sha256":"4430fc5afa3786eb5342ad673eca695c58e4b80a2156d9e5c9bc55f7cc49fa98","bytes":1817}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T21:30:24.308Z","cacheHit":false,"clearancePath":"D:\\jail\\m-unicode-mtj6l6p2\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 4 exact package-version(s), tree 6cc1f6961685
+  ARM-PATH SANITISED (nothing to drop)
+  ARM-AMBIENT-TOOLS 5 leaked: grunt=C:\npm\prefix\grunt.cmd gulp=C:\npm\prefix\gulp.cmd lerna=C:\npm\prefix\lerna.cmd yarn=C:\npm\prefix\yarn.cmd pulumi=C:\ProgramData\chocolatey\lib\pulumi\tools\Pulumi\bin\pulumi.exe
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
+  ARM-REBUILD-SPEC unicode@0.5.3
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3728 exit=1 events=22310 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  => BROKEN-WITHOUT-JAIL-TOO (unjailed rebuild rc=1)
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"1c27894ea70991b16fb81fdc878a473fe7d05c152528bbae1fea5d615828fe09","bytes":69241856,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-NODE-SELECTION {"pkg":"unicode","packageVersion":"0.5.3","lookupFailure":null,"major":4,"version":"4.9.1","npm":"2.15.11","pinnable":true,"engines":">= 0.8.x","publishedAt":"2014-02-19T23:24:06.728Z","eraMajor":0,"startMajor":4,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":true,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"pinned":true,"pinnedBin":"C:\\Users\\runneradmin\\.cache\\nub\\era-node\\4.9.1\\node-v4.9.1-win-x64","eraNodeRoot":"C:\\Users\\runneradmin\\.cache\\nub"}
+    | npm error /usr/share/unicode-data/UnicodeData.txt not found.
+    | npm error UnicodeData.txt not found.
+    | npm error D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferjs\indexOf.js:16
+    | npm error         if (haystack.get(i+j) !== needle.get(j)) {
+    | npm error                      ^
+    | npm error
+    | npm error TypeError: haystack.get is not a function
+    | npm error     at indexOf (D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferjs\indexOf.js:16:22)
+    | npm error     at exports.indexOf (D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferstream\lib\fn.js:16:14)
+    | npm error     at BufferStream.split (D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferstream\lib\buffer-stream.js:30:24)
+    | npm error     at BufferStream.write (D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferstream\lib\buffer-stream.js:210:17)
+    | npm error     at BufferStream.write (D:\jail\m-unicode-mtj6l6p2\observe\node_modules\bufferstream\lib\buffer-stream.js:3:61)
+    | npm error     at IncomingMessage.ondata (node:internal/streams/readable:1009:22)
+    | npm error     at IncomingMessage.emit (node:events:519:28)
+    | npm error     at Readable.read (node:internal/streams/readable:782:10)
+    | npm error     at flow (node:internal/streams/readable:1283:53)
+    | npm error     at resume_ (node:internal/streams/readable:1262:3)
+    | npm error
+    | npm error Node.js v22.23.2
+    | npm error A complete log of this run can be found in: D:\jail\m-unicode-mtj6l6p2\npm-cache\_logs\2026-09-01T21_30_26_884Z-debug-0.log
+  ERA-NODE PINNED 4.9.1 (arms will run: v4.9.1)
+  ⛔ ERA-NODE 4.9.1 PREDATES THE JAIL'S SHIMS (needs 20.6+ for `--import`). nub delivers NEITHER the child_process stdio shim NOR the net gate to this interpreter. A lifecycle script that PIPES a spawn (node-gyp configure does) will HANG forever under the jail, and no --arm-timeout value can rescue it — a TIMED-OUT arm below this line is structural, not a slow venue. A script that does not pipe is unaffected.
