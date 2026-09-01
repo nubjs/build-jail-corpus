@@ -72,6 +72,7 @@
 // `--out` ending in `.gz` is gzipped in place. Prefer it: the stream is ~10x its own size in text.
 import fs from 'node:fs';
 import zlib from 'node:zlib';
+import { pathToFileURL } from 'node:url';
 
 export const EVENT_SCHEMA = 1;
 
@@ -486,7 +487,20 @@ export function serialize(decoded, header) {
 }
 
 // ── CLI ─────────────────────────────────────────────────────────────────────────────────────────
-if (import.meta.url === `file://${process.argv[1]}`) {
+//
+// ⛔ THE TRACE THIS DECODES IS LINUX'S; THE DECODER IS NOT. It reads strace TEXT and writes NDJSON
+// with no `node:path` anywhere — every path in it is a POSIX string out of the trace — so it runs
+// identically on any host, and `denial-witness-decode.test.mjs` drives it as a CLI on all three.
+// That is why the guard below cannot be the `` `file://${process.argv[1]}` `` form this file used
+// to carry: on Windows `process.argv[1]` is `D:\...\linux.mjs` against an `import.meta.url` of
+// `file:///D:/.../linux.mjs`, so it NEVER matches, the whole CLI is skipped, and the process exits
+// 0 having written no `--out` file at all. Every one of that test's nine cases then failed reading
+// the file this block did not write, and the adapter itself reported success. `cli-guard.test.mjs`
+// carried a POSIX_ONLY exemption for this file whose reason was "no Windows or macOS caller"; that
+// stopped being true when the test landed, which is the exact rot the exemption's own comment
+// predicted.
+if (process.argv[1] &&
+    import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const val = (f, d = null) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : d; };
   const file = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));

@@ -86,8 +86,14 @@ test('⭑ the VARIANT NAMES are the ones record.mjs can parse, checked in the CO
   // could not be spelling the names right by accident.
   assert.match(CODE, /from '\.\/descent-terms\.mjs'/,
     'measure-windows.mjs no longer reaches the module that owns the descent vocabulary');
-  assert.match(CODE, /descentTerms\(g0\)/,
-    'measure-windows.mjs no longer asks the module for its arm list');
+  // ⛔ THE PLATFORM ARGUMENT IS PART OF THE PIN NOW, AND `WIN32` IS REQUIRED RATHER THAN OPTIONAL.
+  // The module defaults to `process.platform`, so an argument-less call is right only while this
+  // driver runs on a Windows box. Asked `darwin` or `linux` it GAINS a `no-network` arm that cannot
+  // go red at `write:"disk"` — a vacuous pass that narrows the record to "no network needed" for a
+  // package that used the network freely.
+  assert.match(CODE, /descentTerms\(g0, WIN32\)/,
+    'measure-windows.mjs no longer asks the module for its arm list, or no longer names the'
+    + ' platform it measures — an inferred platform is an under-grant on this driver');
   assert.doesNotMatch(CODE, /Object\.keys\(g0\.write/,
     'measure-windows.mjs builds write arm names itself again — on a string reach that fabricates '
     + 'four `no-write-<digit>` arms record.mjs cannot parse');
@@ -105,8 +111,9 @@ test('⭑ the win32 TERMINAL RUNG yields no arm, and the driver says so rather t
   // used the network freely. The module refuses to run it; the driver must print the refusal rather
   // than the nothing the old `g.write !== 'disk'` guard printed.
   assert.deepEqual(descentTerms({ write: 'disk', network: true }, 'win32').terms, []);
-  assert.match(CODE, /verdictLines\(g0\)/,
-    'the win32 driver no longer prints the UNSUPPORTED verdict when it has no arm to run');
+  assert.match(CODE, /verdictLines\(g0, WIN32\)/,
+    'the win32 driver no longer prints the UNSUPPORTED verdict when it has no arm to run, or no'
+    + ' longer names the platform whose refusal it is printing');
   assert.doesNotMatch(CODE, /if \(g\.write !== 'disk'\) descend/,
     'the ladder guard is back, so the terminal rung emits no marker at all');
 });
@@ -228,7 +235,7 @@ test('⭑ DRIFT GUARD: the driver emits the exact sentences these cases pin', ()
   // sentence as `minimality: MINIMAL` either way. Printing it for `{"write":"disk","network":true}`
   // would publish the widest grant in the corpus as a proven minimum off zero arms. The driver now
   // calls `verdictLines`, which picks the right one of the two.
-  assert.match(DRIVER, /verdictLines\(g0\)/,
+  assert.match(DRIVER, /verdictLines\(g0, WIN32\)/,
     'measure-windows.mjs no longer prints either empty-descent verdict');
   assert.match(verdictLines({}, 'win32').join('\n'),
     /grant is already empty — nothing to narrow; MINIMAL by construction\./,

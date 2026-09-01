@@ -26,10 +26,15 @@ const HERE = import.meta.dirname;
 // ⛔ THE EXEMPTION IS PER-FILE AND NEEDS A REASON, because "this one only runs on Linux" is a claim
 // about the file's callers, not about its syntax — and it stops being true the moment someone points
 // a second platform at it.
-const POSIX_ONLY = new Map([
-  ['adapters/linux.mjs', 'the Linux strace adapter; it is invoked only by measure.sh on Linux and has'
-    + ' no Windows or macOS caller, so the string form is correct there and only there'],
-]);
+//
+// ⛔⛔ IT IS EMPTY NOW, AND THE ONE ENTRY IT EVER HELD IS THE ARGUMENT FOR KEEPING IT EMPTY.
+// `adapters/linux.mjs` was exempted as "invoked only by measure.sh on Linux and has no Windows or
+// macOS caller". `denial-witness-decode.test.mjs` then started driving that adapter AS A CLI on
+// every platform — its decoder is text-and-POSIX-string work with no `node:path` in it, so it runs
+// anywhere — and all nine of that file's cases went red on `windows-latest`, each one reading a
+// `--out` file the skipped CLI never wrote while the adapter reported success. The exemption did
+// not rot; it was always a claim about callers, and a caller changed. Fix the guard instead.
+const POSIX_ONLY = new Map([]);
 
 const SCRIPTS = [];
 for (const dir of ['', 'adapters']) {
