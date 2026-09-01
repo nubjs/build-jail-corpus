@@ -162,7 +162,10 @@ test('⭑ a record frozen at the pre-epoch-58 rule is STALE, and the drop is sco
   const log = LOG();
   const r = replay({ committed: committedFor(log), log, capture: CAPTURE });
   assert.equal(r.verdict, STALE, r.reason);
-  assert.deepEqual(r.dropped, ['write.userHome']);
+  // ⛔ ONE CAPABILITY, TWO TOKENS. `write` implies read at its own scope, and the parser REJECTS a
+  // grant that spells the implied half out, so `capsOf` materialises `read.userHome` instead of
+  // reading it off the text. Dropping the home write drops both; `write.project` keeps `read.project`.
+  assert.deepEqual(r.dropped, ['write.userHome', 'read.userHome']);
   assert.deepEqual(r.grant, { write: { project: true }, network: true });
   // ⛔ THE PROJECT'S SCORER DECIDED IT, not this module. `decide` is imported, and its own words are
   // what reach the reason — a hand-rolled version of that rule was wrong here once.
@@ -188,7 +191,7 @@ test('⭑ a committed grant the current rule would WIDEN is named, not reported 
   const under = { ...committedFor(log), grant: { write: { project: true }, network: true } };
   const r = replay({ committed: under, log, capture: CAPTURE });
   assert.equal(r.verdict, CURRENT, r.reason);
-  assert.deepEqual(r.widens, ['write.userHome']);
+  assert.deepEqual(r.widens, ['write.userHome', 'read.userHome']);
   assert.match(r.reason, /UNDER-GRANT/);
 });
 

@@ -166,18 +166,91 @@ test('⛔ P2: `write:"disk"` is a capability — narrowing it away is not a no-o
   // The ladder's top rung is `{"write":"disk","network":true}` and `record.mjs` records a ladder
   // MINIMUM verbatim. Flattening only object-shaped `write` made the LARGEST possible narrowing
   // report "does not narrow" and publish.
-  assert.deepEqual([...capsOf({ write: 'disk', network: true })].sort(), ['network', 'write:disk']);
-  assert.deepEqual(narrows({ write: 'disk', network: true }, { network: true }), ['write:disk']);
-  // A per-scope write does NOT satisfy whole-disk write.
-  assert.deepEqual(narrows({ write: 'disk' }, { write: { deps: true } }), ['write:disk']);
+  // `"disk"` keeps its own token AND emits every scope it covers, on both axes, plus the reads the
+  // write implies — `Reach::covers` answers `true` for `Disk` at every scope, and `write:"disk"`
+  // "already grants every read" (`check_write_implies_read`).
+  assert.deepEqual([...capsOf({ write: 'disk', network: true })].sort(), [
+    'network', 'read.project', 'read.userHome', 'read:disk',
+    'write.deps', 'write.project', 'write.userHome', 'write:disk',
+  ]);
+  assert.deepEqual(narrows({ write: 'disk', network: true }, { network: true }).sort(), [
+    'read.project', 'read.userHome', 'read:disk',
+    'write.deps', 'write.project', 'write.userHome', 'write:disk',
+  ]);
+  // A per-scope write does NOT satisfy whole-disk write: everything `"disk"` held beyond `deps` is
+  // dropped, the reads included — `write.deps` implies no read token, because `read` has no `deps`
+  // scope for it to imply.
+  assert.deepEqual(narrows({ write: 'disk' }, { write: { deps: true } }).sort(), [
+    'read.project', 'read.userHome', 'read:disk', 'write.project', 'write.userHome', 'write:disk',
+  ]);
   // …and the read axis is real too, for the `{"write":{…},"read":"disk",…}` rung.
-  assert.deepEqual(narrows({ read: 'disk', network: true }, { network: true }), ['read:disk']);
+  assert.deepEqual(narrows({ read: 'disk', network: true }, { network: true }).sort(),
+    ['read.project', 'read.userHome', 'read:disk']);
+});
+
+// ⛔⛔ P2b: THE OPPOSITE DIRECTION, WHICH THE ORIGINAL P2 FIX DID NOT COVER AND WHICH FAILS THE OTHER
+// WAY. An OPAQUE `write:disk` token satisfies no per-scope token — right for `"disk"` → `{deps}` —
+// and is satisfied BY none either, which turns the WIDEST widening the corpus can express into a
+// reported narrowing of every scope it replaced. `"disk"` is "the absence of confinement rather than
+// a rule" (`crates/nub-sandbox/src/compiler/curated.rs`), so this is a bounded write set being
+// replaced by no write confinement at all, announced as `narrows (write.deps, write.project)`.
+//
+// Never exercised — every transform so far has gone the safe way — so there is no incident behind
+// this, only a predicate that answers the wrong question when finally asked.
+test('⛔ P2b: widening to `"disk"` is NOT a narrowing, on either axis or through their implication', () => {
+  assert.deepEqual(narrows({ write: { deps: true, project: true } }, { write: 'disk' }), []);
+  assert.deepEqual(narrows({ read: { project: true } }, { read: 'disk' }), []);
+  // The ladder's own descent: rung `{write:{…},read:"disk"}` → rung `{write:"disk"}` drops the whole
+  // `read` axis from the TEXT while granting strictly more, because whole-disk write covers it.
+  assert.deepEqual(narrows({ write: { deps: true }, read: 'disk' }, { write: 'disk' }), []);
+  // And the same implication one scope down: gaining `write.project` cannot lose `read.project`.
+  assert.deepEqual(
+    narrows({ write: { deps: true }, read: { project: true } }, { write: { deps: true, project: true } }), []);
+  // ⛔ THE POSITIVE CONTROL, WITHOUT WHICH THE FOUR ABOVE ARE SATISFIED BY A `narrows` THAT RETURNS
+  // `[]` FOR EVERYTHING. A genuine narrowing on each axis must still report, or the fix is a mute.
+  assert.deepEqual(narrows({ write: { deps: true, project: true } }, { write: { deps: true } }),
+    ['write.project', 'read.project']);
+  assert.deepEqual(narrows({ write: 'disk' }, { write: { deps: true, project: true, userHome: true } }),
+    ['write:disk', 'read:disk']);
+  assert.deepEqual(narrows({ network: true }, {}), ['network']);
+});
+
+test('⛔ P2b: a reach shape no catalog can hold stays OPAQUE, so it withholds in both directions', () => {
+  // `parse_reach` accepts an object of scopes or the string `"disk"` and NOTHING else — `true` is a
+  // parse error there. Expanding an unrecognised form would be a guess in the under-grant direction:
+  // were one ever narrower than disk, expanding it would make a real narrowing away from `"disk"`
+  // report as a no-op. One token and no scopes reads as a narrowing BOTH ways, which can only withhold.
+  assert.deepEqual([...capsOf({ write: true })], ['write:*']);
+  assert.deepEqual(narrows({ write: { deps: true } }, { write: true }), ['write.deps']);
+  assert.deepEqual(narrows({ write: true }, { write: { deps: true } }), ['write:*']);
+  assert.deepEqual(narrows({ write: 'disk' }, { write: true }).sort(), [
+    'read.project', 'read.userHome', 'read:disk',
+    'write.deps', 'write.project', 'write.userHome', 'write:disk',
+  ]);
 });
 
 test('⛔ P2: a vacuous record narrowing whole-disk write is WITHHELD, not waved through', () => {
   const prior = rec({ write: 'disk', network: true }, [], 'MINIMAL');
   const incoming = rec({ network: true }, ['arms-unfalsifiable'], 'OVER-PREDICTED');
   assert.equal(decide(prior, incoming).publish, false);
+});
+
+test('⛔ P2b: `decide` calls the widening a widening, and still scores a real narrowing', () => {
+  // The reason is the entire audit trail for why a replacement was allowed, so a transition to
+  // whole-disk write recorded as `narrows (write.deps, write.project)` is a false account of the one
+  // thing this file decides.
+  const prior = rec({ write: { deps: true, project: true } }, [], 'MINIMAL');
+  const wider = decide(prior, rec({ write: 'disk' }, [], 'MINIMAL'));
+  assert.equal(wider.publish, true);
+  assert.equal(wider.reason, 'does not narrow the existing grant');
+  // ⛔ THE POSITIVE CONTROL, AND IT IS WHAT MAKES THE ASSERTION ABOVE MEAN ANYTHING. A `narrows` that
+  // returned `[]` for every input satisfies it while disabling the guard outright, so a genuine
+  // narrowing must still be named — and a vacuous one must still be refused.
+  const narrower = decide(prior, rec({ write: { deps: true } }, [], 'MINIMAL'));
+  assert.equal(narrower.publish, true);
+  assert.match(narrower.reason, /^narrows \(write\.project, read\.project\)/);
+  assert.equal(decide(prior, rec({ write: { deps: true } }, ['arms-unfalsifiable'], 'OVER-PREDICTED')).publish,
+    false, 'the withholding path must still be reachable');
 });
 
 test('⛔ P3: on darwin, MINIMAL does not imply a red arm', () => {

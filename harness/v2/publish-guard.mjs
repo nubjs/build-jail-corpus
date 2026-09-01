@@ -65,15 +65,53 @@ import { vetoesNarrowing } from './observed-effect.mjs';
 // published whole-disk-write → nothing as though it changed nothing. Caught in review before any v2
 // ladder record existed, but not hypothetical: both PRIOR playwright records were
 // `verifiedBy: "ladder"`, so only the top rung had never been reached.
+//
+// ⛔⛔ GIVING THE STRING FORM A TOKEN IS HALF THE JOB, AND THE MISSING HALF FAILS IN THE OPPOSITE
+// DIRECTION. An OPAQUE `write:disk` token satisfies no per-scope token — which is right going DOWN,
+// `"disk"` → `{deps}` — and is satisfied BY no per-scope token either, which is wrong going UP:
+// `{deps,project}` → `"disk"` is the widest write grant that exists replacing a bounded one, and a
+// set difference over opaque tokens reports it as `narrows (write.deps, write.project)`. `"disk"` is
+// "the absence of confinement rather than a rule" (`crates/nub-sandbox/src/compiler/curated.rs`), so
+// that is the largest widening the corpus can express, described as its opposite.
+//
+// The token set IS the order, so every implication the catalog's vocabulary carries has to be
+// MATERIALISED here or the difference cannot see it. Two exist, both stated in
+// `crates/nub-sandbox/src/catalog_v2.rs`, and both are materialised below:
+//
+//   `Reach::Disk` covers every scope        `covers()`: `Self::Disk => true`
+//   `write` implies read at its own scope   `check_write_implies_read` REJECTS the redundant pair
+//
+// This is the same move `harness/states.mjs`'s `atomsOf` already makes, for the reason it states
+// there: containment becomes plain set inclusion and never has to know the semantics.
+
+// The scope vocabulary each axis accepts, mirroring the `allowed` argument `parse_reach` is called
+// with. `read` has no `deps` — read on a declared dependency is part of the base profile, so there is
+// no such capability to grant or to drop, and emitting the token would name one that cannot exist.
+const AXIS_SCOPES = { write: ['deps', 'project', 'userHome'], read: ['project', 'userHome'] };
+
+// The ONLY string `parse_reach` accepts on either axis: every other string is a parse error there.
+const DISK = 'disk';
+
 const scopeTokens = (out, axis, v) => {
   if (v === undefined || v === null || v === false) return;
-  // The string form is the WIDEST grant on its axis, so it gets one token that no per-scope token
-  // can satisfy — `write:"disk"` → `write:{deps:true}` must therefore read as a narrowing.
-  if (typeof v === 'string') { out.add(`${axis}:${v}`); return; }
-  if (v === true) { out.add(`${axis}:*`); return; }
   if (typeof v === 'object') {
     for (const [k, on] of Object.entries(v)) if (on === true) out.add(`${axis}.${k}`);
+    return;
   }
+  // The maximal form keeps its OWN token, so dropping to the full scope set is still the narrowing it
+  // is, and additionally emits every per-scope token it covers, so widening TO it is not.
+  if (v === DISK) {
+    out.add(`${axis}:${DISK}`);
+    for (const s of AXIS_SCOPES[axis]) out.add(`${axis}.${s}`);
+    return;
+  }
+  // ⛔ EVERY OTHER NON-OBJECT REACH STAYS OPAQUE, AND THAT IS FAIL-CLOSED RATHER THAN UNFINISHED.
+  // `parse_reach` accepts no other string and rejects `true` outright, so this shape can only reach
+  // here from a record no catalog could hold. Expanding it would be a guess in the under-grant
+  // direction: were such a form ever NARROWER than disk, expanding it would make a real narrowing
+  // away from `"disk"` report as a no-op. One token and no scopes instead — which reads as a
+  // narrowing in BOTH directions, so it can only ever withhold.
+  out.add(`${axis}:${v === true ? '*' : v}`);
 };
 
 export const capsOf = (grant) => {
@@ -82,6 +120,14 @@ export const capsOf = (grant) => {
   if (grant.network === true) out.add('network');
   scopeTokens(out, 'write', grant.write);
   scopeTokens(out, 'read', grant.read);
+  // ⛔ THE IMPLIED READS EXIST IN NO GRANT'S TEXT, WHICH IS EXACTLY WHY THEY MUST BE ADDED HERE.
+  // `check_write_implies_read` REJECTS a `read` beside `write:"disk"`, and rejects `read.<s>` wherever
+  // `write` already covers `<s>` — "a grant whose author believed it was doing something is worse
+  // than one that fails the build". So a legal grant never spells the implied half out, and without
+  // this the ladder's own `{write:{…},read:"disk"}` → `{write:"disk"}` — a widening `measure.sh`
+  // produces — reports as dropping the entire read axis.
+  if (out.has(`write:${DISK}`)) out.add(`read:${DISK}`);
+  for (const s of AXIS_SCOPES.read) if (out.has(`write.${s}`)) out.add(`read.${s}`);
   return out;
 };
 
@@ -184,7 +230,15 @@ const licensedByPromotion = (rec) => {
   // the probe proves nothing.
   const caps = capsOf(rec?.grant);
   if (caps.has('write.userHome') || caps.has('write:disk')) return new Set();
-  return new Set(['write.userHome']);
+  // ⛔ CLOSED UNDER THE IMPLICATION `capsOf` MATERIALISES, AND THAT IS NOT A WIDER LICENCE — IT IS THE
+  // SAME ONE, SPELLED IN THE VOCABULARY THE DROP SET NOW USES. No grant ever authored `read.userHome`;
+  // `capsOf` derives it from `write.userHome`, which is the token the probe speaks to. So a narrowing
+  // that gives up the home write gives up both, and demanding separate evidence for the derived half
+  // would demand evidence of a decision nobody made — the `costAtomsOf` distinction `states.mjs` draws
+  // between authored atoms and free implied ones, applied to the licence instead of to cost.
+  // It is still ONE capability: an INDEPENDENTLY-authored `read.project` is not implied by
+  // `write.userHome`, is not in this set, and still withholds.
+  return new Set(['write.userHome', 'read.userHome']);
 };
 
 // The `why` is returned rather than a bare boolean so a caller can say WHICH term carried it; the
