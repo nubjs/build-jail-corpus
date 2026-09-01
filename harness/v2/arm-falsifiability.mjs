@@ -129,7 +129,19 @@ try {
 // a subshell — `cmd || (exit 0)` — which the first version of this pattern missed because it only
 // allowed a closing paren AFTER `exit 0`. Caught by running the detector against the very package it
 // was written for and seeing one of its two discriminants stay silent.
-const SWALLOWS = /(\|\||;)\s*\(?\s*(true|:|exit\s+0)\s*\)?\s*$/;
+// ⛔⛔ `echo` AND `printf` ARE SWALLOWS TOO, AND MISSING THEM COST A RECORD ITS ONLY HONEST FLAG.
+// MEASURED 2026-09-01: `backport@12.0.4`'s postinstall is
+// `test -f ./dist/src/scripts/run-postinstall.js && node ./dist/… || echo 'Dist folder missing'`.
+// `echo` cannot fail, so the script's exit code is 0 whether the work happened or not — but the
+// alternation was `true|:|exit 0`, so the package was flagged `gate-vacuous` ALONE and `record.mjs`
+// computed `rcLive === true` for a package whose rc cannot be non-zero. Verified against the
+// `ttf2woff2@1.2.3` positive control, which still matches.
+//
+// ⛔ THE LIST IS COMMANDS THAT CANNOT FAIL, NOT "ANYTHING AFTER `||`". `cmd || node fallback.js` is a
+// real fallback whose own status is reported, so treating every trailing `||` as a swallow would flag
+// honest scripts and withhold correct narrowings — the blanket-refusal mistake this harness has
+// already paid for once. Anything added here has to be a command with no failing path.
+const SWALLOWS = /(\|\||;)\s*\(?\s*(true|:|exit\s+0|echo(\s[^|;&]*)?|printf(\s[^|;&]*)?)\s*\)?\s*$/;
 for (const k of ['preinstall', 'install', 'postinstall']) {
   const body = scripts[k];
   if (typeof body === 'string' && SWALLOWS.test(body.trim())) {
