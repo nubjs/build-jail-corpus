@@ -1,5 +1,10 @@
-### opencode-ai@1.18.4   (/Users/runner/v2m-Ph8r4R)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1020208fddd5a19befa255b123b5c8e7cf32da9615546573f4806019654953f9","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:27:00.934Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-6zcpMp/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1020208fddd5
+  ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
+  ERA-PYTHON /Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python (Python 3.9.13) for era Node 24, whose node-gyp requires python3
+  ARM-MAKE /usr/bin/make (GNU Make 3.81) — the system make; a build needing GNU Make 4 WILL fail here
+### opencode-ai@1.18.4   (/Users/runner/v2m-6zcpMp)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"69e622342d0c8393c78fa50a01dc9cc0a94371ac9b106b59bdcc016f06d86d30","bytes":94535576,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
@@ -9,28 +14,37 @@
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+  ERA-RESOLUTION DATED 2026-07-21T15:25:18.231Z (deps as of the package's own publish date + 1d)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"18606041372d0c7865523f4b42febfc0ae410f07c5f9913ede8537df3e0f3c90","specCount":2,"lockfiles":{"digest":"8a56cc587bac1f3543bd24fcff727cb674c4393bc6f50655c34c35c6ff966546","files":[{"path":"package-lock.json","sha256":"fad42cf73681420c09c2c2f14e88d0a12e667177fee292830fa10513ffa87fe0","bytes":6256}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:27:14.037Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-6zcpMp/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 18606041372d
+  ARM-PATH SANITISED (dropped 1: /Users/runner/.yarn/bin)
+  ARM-AMBIENT-TOOLS none
+  ARM-SCAFFOLD none
+  ARM-UNPROVIDABLE none
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  ARM-REBUILD-SPEC opencode-ai@1.18.4
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-Ph8r4R/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-Ph8r4R/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8hcyHn"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "opencode-ai" > "/Users/runner/v2m-Ph8r4R/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-Ph8r4R/Observe/rc"
+     cd "/Users/runner/v2m-6zcpMp/Observe"
+     sudo -u "runner" -H env "PATH=/Users/runner/v2m-6zcpMp/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools"   "HOME=/Users/runner/v2m-6zcpMp/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbieviZ"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python   npm rebuild --no-audit --no-fund "opencode-ai@1.18.4" > "/Users/runner/v2m-6zcpMp/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-6zcpMp/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-Ph8r4R/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-Ph8r4R/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8hcyHn NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund opencode-ai
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000016d8000) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-6zcpMp/Observe
+     + sudo -u runner -H env PATH=/Users/runner/v2m-6zcpMp/Observe/node_modules/.bin:/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin:/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-6zcpMp/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbieviZ NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix PYTHON=/Users/runner/hostedtoolcache/Python/3.9.13/arm64/bin/python npm rebuild --no-audit --no-fund opencode-ai@1.18.4
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d44090) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=15 (pre=13) trace=12099 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=15 (pre=13) trace=8392 lines
   CLOSURE   2 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-Ph8r4R/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-Ph8r4R/Observe/capture.json
-  RAWLOG-BYTES raw=2089055 gz=65712
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-Ph8r4R/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8hcyHn","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-6zcpMp/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-6zcpMp/Observe/capture.json
+  RAWLOG-BYTES raw=1557275 gz=59000
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-NODE-SELECTION {"pkg":"opencode-ai","packageVersion":"1.18.4","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":null,"publishedAt":"2026-07-20T15:25:18.231Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/Users/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-darwin-arm64/bin","eraNodeRoot":"/Users/runner/.cache/nub"}
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-6zcpMp/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbieviZ","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":1,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-Ph8r4R/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":12100,"parsed":12080,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":26,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4604,"enoent":4597,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":4597,"EEXIST":4},"procs":6,"lifecyclePids":1,"distinctEvents":5399,"emitted":5399,"calls":11526,"bytes":1103751,"gzipBytes":37226,"out":"/Users/runner/v2m-Ph8r4R/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=3182 dropped-events=1
+  EVENTLOG-FILE /Users/runner/v2m-6zcpMp/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":8393,"parsed":8373,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":26,"unresolvedFd":0,"pairedTwoPath":529,"danglingPair":0,"failed":2563,"enoent":2555,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":2555,"EEXIST":5},"procs":6,"lifecyclePids":1,"distinctEvents":5008,"emitted":5008,"calls":7829,"bytes":1085867,"gzipBytes":34859,"out":"/Users/runner/v2m-6zcpMp/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3166 dropped-events=1
     NOTE 18 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
     ⛔ CWD-UNOBSERVED 4 relative path(s) (0 write(s)) came from a lifecycle
@@ -38,48 +52,48 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=18370 read  unproven .
-         pid=18370 read  unproven .
-         pid=18370 read  unproven .
-         pid=18371 read  unproven .
+         pid=21750 read  unproven .
+         pid=21750 read  unproven .
+         pid=21750 read  unproven .
+         pid=21751 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x6000016d8000
+             1 x  epid=128 action=1 fault=1 addr=0x600003d44090
   == ATTRIBUTION == lifecycle pids: 1
-    writes  script 15  /  whole traced subtree 1105
+    writes  script 15  /  whole traced subtree 1081
     sockets script 0  /  whole traced subtree 1
-  == ROOTS (from /Users/runner/v2m-Ph8r4R/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-Ph8r4R/Observe
+  == ROOTS (from /Users/runner/v2m-6zcpMp/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-6zcpMp/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-Ph8r4R/jailhome
+    jailHome      /Users/runner/v2m-6zcpMp/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-Ph8r4R/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-6zcpMp/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8hcyHn
+    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbieviZ
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-Ph8r4R/Observe/node_modules/opencode-ai
+    ownPkg        /Users/runner/v2m-6zcpMp/Observe/node_modules/opencode-ai
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
     ownPkg        1  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-Ph8r4R/Observe/node_modules/opencode-ai/bin/opencode.exe
+        /Users/runner/v2m-6zcpMp/Observe/node_modules/opencode-ai/bin/opencode.exe
     jailHome     12  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-Ph8r4R/jailhome/.local
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/share
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/share/opencode
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/share/opencode/log
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/share/opencode/repos
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/state
-        /Users/runner/v2m-Ph8r4R/jailhome/.local/state/opencode
-        /Users/runner/v2m-Ph8r4R/jailhome/.cache
-        /Users/runner/v2m-Ph8r4R/jailhome/.cache/opencode
-        /Users/runner/v2m-Ph8r4R/jailhome/.config
+        /Users/runner/v2m-6zcpMp/jailhome/.local
+        /Users/runner/v2m-6zcpMp/jailhome/.local/share
+        /Users/runner/v2m-6zcpMp/jailhome/.local/share/opencode
+        /Users/runner/v2m-6zcpMp/jailhome/.local/share/opencode/repos
+        /Users/runner/v2m-6zcpMp/jailhome/.local/share/opencode/log
+        /Users/runner/v2m-6zcpMp/jailhome/.local/state
+        /Users/runner/v2m-6zcpMp/jailhome/.local/state/opencode
+        /Users/runner/v2m-6zcpMp/jailhome/.cache
+        /Users/runner/v2m-6zcpMp/jailhome/.cache/opencode
+        /Users/runner/v2m-6zcpMp/jailhome/.config
         … and 2 more
     jailTmp       1  (base profile already grants this — NOT billed)
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs8hcyHn/opencode
+        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbieviZ/opencode
   == READS the script performed, by scope ==
     outside       8
     systemfs      8
@@ -107,10 +121,11 @@
         .local/share/opencode
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 1065 in store
-     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 1850 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"18606041372d0c7865523f4b42febfc0ae410f07c5f9913ede8537df3e0f3c90","specCount":2,"lockfiles":{"digest":"858dae000af3dffb6554ee0dacd8de218f27ae26afe57d7ef2444e47c04c21d3","files":[{"path":"nub.lock","sha256":"775b347ba6239e962864de138e861bdf1a4cee467b074477b73a8a7f091c6773","bytes":3919}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T00:27:14.037Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-6zcpMp/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 18606041372d (cached exact-tree clearance)
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 33/15) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".cache/opencode",".local/share/opencode"]}
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 34/15) OVERRIDDEN=3 REJECTED=0 grant={"writePaths":[".cache/opencode",".local/share/opencode"]}
   => VERIFIED {"writePaths":[".cache/opencode",".local/share/opencode"]}
   NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction
 ### DONE opencode-ai@1.18.4  synthesized={"writePaths":[".cache/opencode",".local/share/opencode"]} verified=1
