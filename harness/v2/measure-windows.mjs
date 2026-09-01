@@ -42,6 +42,7 @@ import { buildCatalog } from './dep-scaffold.mjs';
 // The arm PATH's tool bin lives in the OBSERVE tree, which a jailed arm's project does not contain.
 // Shared with both POSIX drivers so the three cannot drift on where a scaffolded tool has to sit.
 import { stageArmTools, stagedArmPath } from './stage-arm-tools.mjs';
+import { purgeArmReplayRoots, marker as replayPurgeMarker } from './arm-artifact-cache.mjs';
 // The wide-but-confined probe: its path set, its never-a-root-glob guard, and the ONE marker spelling
 // `record.mjs` reads. Shared with both POSIX drivers so the three cannot drift on what the probe is.
 import { confinedWideBaseline, interpretation, marker as confinedWideMarker } from './confined-wide.mjs';
@@ -1826,6 +1827,21 @@ let armBaseline = null;
 const verify = (grant, label, { realHome = null } = {}) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
+  // ⛔⛔ THE FOURTH REPLAY PATH, AND THIS DRIVER HAD NO PART OF IT UNTIL 2026-09-01. Per-arm virtual
+  // stores answer the RELINK hazard `evictClosure()` was built for, and they do not touch the roots
+  // that live outside the store entirely: `%LOCALAPPDATA%\nub\pm\tools\{ms-playwright,
+  // electron-cache}` are the redirect targets `build_jail.rs` stamps for every jailed spawn, they are
+  // machine-global, and nothing here removed them. A downloader that finds its artifact already there
+  // opens no socket, so a LATER arm passes on a grant that would have failed cold — an
+  // UNDER-prediction, the one direction this harness may not take.
+  //
+  // `measure.sh` has purged these since the `playwright-chromium@0.17.0` measurement; this driver and
+  // `measure-macos.sh` never got the port. Same one-driver failure `dep-scaffold.mjs` was extracted to
+  // stop, and the corpus shows its cost on the platform that HAS been measuring: 44 empty-grant
+  // `MINIMUM` records across the electron/playwright families, 44 of 44 darwin, none on linux.
+  //
+  // `CACHE` is `<root>/nub/pm`, so the module's cache root is its parent.
+  console.log(replayPurgeMarker(label, purgeArmReplayRoots(path.dirname(CACHE), PKG)));
   // The arm opts out of nub's resolve-time supply-chain gates. Full reasoning at the same point in
   // `measure.sh`; the short version is that they refuse during RESOLUTION, before any lifecycle
   // script exists to confine, so when they fire the jail question cannot be asked at all. A project

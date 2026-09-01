@@ -1379,7 +1379,7 @@ verify () {
   # and removing it would reintroduce a second replay path behind the one being fixed here.
   # ⛔ THIS LINE HAS NEVER REMOVED ANYTHING AND IS KEPT ONLY SO THE CLAIM DIES HERE RATHER THAN BEING
   # REDISCOVERED. `NUB_CACHE_DIR` does not relocate the side-effects cache — measured; the real purge
-  # is the `SE-PURGE` below, at the XDG path with the cache's own `__` encoding. Harmless either way,
+  # is the `EVICT-REPLAY` below, at the XDG path with the cache's own `__` encoding. Harmless either way,
   # because `side-effects-cache=false` above is what actually closes this path.
   rm -rf "$NUB_CACHE_DIR/pm/side-effects-v1" 2>/dev/null
   # ⛔ THE SLUG MUST MATCH THE STORE'S OWN NAMING, AND THE FIRST REVISION OF THIS EVICTION DID NOT
@@ -1535,11 +1535,18 @@ verify () {
   # links into the global store; wiping it strands the only node-gyp a confined native build can
   # reach, which is the exact failure the elaborate "spared as nub tooling" logic above exists to
   # prevent. Naming the two redirect leaves keeps this away from it entirely.
+  # ⛔⛔ THE BODY MOVED TO `arm-artifact-cache.mjs` ON 2026-09-01, AND THIS DRIVER'S OWN HISTORY IS THE
+  # REASON. The purge lived here and ONLY here: neither `measure-macos.sh` nor `measure-windows.mjs`
+  # carried any part of it, so the fourth replay path stayed wide open on two platforms of three —
+  # the same shape as the dependency-scaffold fix that `dep-scaffold.mjs`'s header records as
+  # "LINUX-ONLY for as long as it took to notice". The gap is visible in the committed corpus: of the
+  # 110 records that wrote into `pm/tools/{electron-cache,ms-playwright}`, 44 are `MINIMUM` with an
+  # EMPTY grant, and 44 of 44 are darwin. `arm-artifact-cache.test.mjs` asserts all three drivers
+  # call the module, which is the only thing that stops a fifth recurrence. Every comment here stays,
+  # because each carries the measurement behind its term.
   local jailcache="${XDG_CACHE_HOME:-$HOME/.cache}/nub"
-  rm -rf "$jailcache/pm/tools/ms-playwright" "$jailcache/pm/tools/electron-cache" 2>/dev/null
-  # The private home is keyed on a hash of the package dir, which differs per arm root, so match the
-  # readable basename prefix rather than trying to recompute nub's hash.
-  rm -rf "$jailcache"/jail-home/"$(basename "$PKG")"-* 2>/dev/null
+  # The private home is keyed on a hash of the package dir, which differs per arm root, so the module
+  # matches the readable basename prefix rather than trying to recompute nub's hash.
   # ⛔ REPAIRING A DEAD GUARD — NOT CLOSING A LIVE HOLE, AND THE DISTINCTION IS RECORDED BECAUSE THE
   # AUTHOR OF THIS LINE FIRST GOT IT WRONG IN THE ALARMING DIRECTION. The `rm -rf` above at the
   # `$NUB_CACHE_DIR` path has never removed anything: `side_effects_cache_root` is
@@ -1572,16 +1579,14 @@ verify () {
   # changes is indistinguishable from a working one — which is the exact failure the `+` spelling
   # above would have shipped.
   #
-  # ⛔ READ THE COUNT CORRECTLY: `SE-PURGE 0` IS THE HEALTHY STATE AND MEANS NOTHING WAS THERE TO
-  # REMOVE. `side-effects-cache=false` stops any entry being written in the first place, so a
+  # ⛔ READ THE COUNT CORRECTLY: `0 side-effects entries` IS THE HEALTHY STATE AND MEANS NOTHING WAS
+  # THERE TO REMOVE. `side-effects-cache=false` stops any entry being written in the first place, so a
   # production arm should print 0 every time and a NON-ZERO count is the interesting one — it says an
   # entry existed, i.e. something wrote to this cache despite the setting. An earlier draft of this
   # comment had it exactly backwards and called 0 the tell, which would have trained a reader to
   # ignore the only value that carries information.
-  local sedir="$jailcache/pm/side-effects-v1/$(printf '%s' "$PKG" | sed 's|/|__|g')"
-  local sen=0
-  for d in "$sedir"@*; do [ -e "$d" ] && { rm -rf "$d" 2>/dev/null; sen=$((sen + 1)); }; done
-  echo "  SE-PURGE  $sen side-effects-cache entr$([ "$sen" -eq 1 ] && echo y || echo ies) for $PKG"
+  node "$HERE/arm-artifact-cache.mjs" --cache "$jailcache" --pkg "$PKG" --label "$label" \
+    || echo "  ⛔ REPLAY-ROOT PURGE FAILED — this arm may replay a prior arm's download and UNDER-report"
   # ⛔⛔ AN EMPTY GRANT CANNOT BE WRITTEN AS AN ENTRY, AND GETTING THIS WRONG SILENTLY DESTROYS THE
   # MODAL CASE. nub REJECTS a catalog entry that widens nothing — "`default` widens nothing and
   # there are no version bands, so the entry grants exactly the base profile; drop it" — and then

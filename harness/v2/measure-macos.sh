@@ -1280,6 +1280,26 @@ verify () {
   else
     echo "  EVICT[$label] no store at $STORE yet (first arm on this box)"
   fi
+  # ⛔⛔ THE FOURTH REPLAY PATH, AND THIS DRIVER HAD NO PART OF IT UNTIL 2026-09-01. The store
+  # eviction above cannot reach the roots nub hands the script that live OUTSIDE `pm/store` — the two
+  # redirect targets `$cache/nub/pm/tools/{ms-playwright,electron-cache}` above all. `measure.sh` has
+  # purged them since the `playwright-chromium@0.17.0` measurement; this driver and
+  # `measure-windows.mjs` never got the port, which is the same one-driver failure `dep-scaffold.mjs`
+  # was extracted to stop.
+  #
+  # ⛔ THE CONSEQUENCE IS IN THE COMMITTED CORPUS AND IT IS THIS PLATFORM'S. Of the 110 records that
+  # wrote into those two leaves, 44 are `MINIMUM` with an EMPTY grant — 44 of 44 darwin, two families
+  # (`electron` ×6, `electron-chromedriver` ×38), none on linux. MEASURED on `electron@33.4.11` with
+  # nub at the pinned `30757a70`, grant `{}` in every row and only the preceding arm varying: COLD
+  # rc=1 `getaddrinfo ENOTFOUND github.com`; WARM after a `{write:{userHome},network}` arm rc=0; WARM
+  # with this purge rc=1 again. The committed record for that cell reads `VERIFY[nar-no-network] rc=0
+  # artifacts=109/109` and narrows to `{}`, and `harness/overrides/electron.json` records that grant
+  # breaking a real install twice with the same `ENOTFOUND`.
+  #
+  # Body shared rather than copied — three copies is what produced this gap. `$STORE` is
+  # `$USER_HOME/.cache/nub/pm/store`, so the cache root is its grandparent.
+  node "$HERE/arm-artifact-cache.mjs" --cache "$USER_HOME/.cache/nub" --pkg "$PKG" --label "$label" \
+    || echo "  ⛔ REPLAY-ROOT PURGE FAILED — this arm may replay a prior arm's download and UNDER-report"
   # The lifecycle arm resolves with Nub, not npm. Pre-resolve with scripts disabled under the same
   # user, cache and catalog, then clear that exact tree before either execution path. A clearance
   # from npm's OBSERVE tree is deliberately not transferable across resolvers.
