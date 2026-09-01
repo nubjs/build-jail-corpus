@@ -2,142 +2,119 @@
   ERA-NODE PINNED 24.19.0 (provisioned) (arms will run: v24.19.0)
   ERA-PYTHON /opt/hostedtoolcache/Python/3.9.25/x64/bin/python (Python 3.9.25) for era Node 24, whose node-gyp requires python3
   ARM-MAKE /usr/bin/gmake (GNU Make 4.3) — the system make; a build needing GNU Make 4 WILL fail here
-### @playwright/browser-chromium@1.61.1   (/home/runner/v2-2JyMQa)
+### @playwright/browser-chromium@1.61.1   (/home/runner/v2-pjZ262)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"97f12a3767b7620d75f4a5a8f75b3e390697bc070c44558e8c12f15a4f5dd5a6","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:38:45.839Z","cacheHit":false,"clearancePath":"/home/runner/v2-2JyMQa/security/direct.json"}
+  XDG-ENV scrubbed from the traced child: XDG_CONFIG_HOME
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"97f12a3767b7620d75f4a5a8f75b3e390697bc070c44558e8c12f15a4f5dd5a6","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:39.498Z","cacheHit":false,"clearancePath":"/home/runner/v2-pjZ262/security/direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 97f12a3767b7
   VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
   VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"bed0d624b324fb3de83de474ff73731ad2f1fd040ff548bb0158e2baf850701d","bytes":208304640,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-NODE-SELECTION {"pkg":"@playwright/browser-chromium","packageVersion":"1.61.1","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":">=18","publishedAt":"2026-06-23T19:49:43.110Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
   ERA-RESOLUTION DATED 2026-06-24T19:49:43.110Z (deps as of the package's own publish date + 1d)
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"772e4cf49e766b6c22b9436d7adf42d4d2f3e991f0d4ac02a10b79ac4eb49f46","files":[{"path":"package-lock.json","sha256":"c99245abf3e7fbd0a330578d267d67fbffc5037b43b52ed005fb38551a4fe311","bytes":1164}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:38:47.347Z","cacheHit":false,"clearancePath":"/home/runner/v2-2JyMQa/security/npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"772e4cf49e766b6c22b9436d7adf42d4d2f3e991f0d4ac02a10b79ac4eb49f46","files":[{"path":"package-lock.json","sha256":"c99245abf3e7fbd0a330578d267d67fbffc5037b43b52ed005fb38551a4fe311","bytes":1164}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":false,"clearancePath":"/home/runner/v2-pjZ262/security/npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a
   ARM-PATH SANITISED (nothing to drop)
   ARM-AMBIENT-TOOLS 7 leaked: tsc=/usr/local/bin/tsc grunt=/usr/local/bin/grunt gulp=/usr/local/bin/gulp webpack=/usr/local/bin/webpack lerna=/usr/local/bin/lerna yarn=/usr/local/bin/yarn pulumi=/usr/local/bin/pulumi
   ARM-SCAFFOLD none
   ARM-UNPROVIDABLE none
-  OBSERVE   rc=0 files=118 trace=28936 lines
+  ARM-REBUILD-SPEC @playwright/browser-chromium@1.61.1
+  OBSERVE   rc=0 files=118 trace=27473 lines
   CLOSURE   2 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+  ⛔ ARMS-UNFALSIFIABLE — the artifact gate carries no signal for this package:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/runner/v2-2JyMQa/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/runner/v2-2JyMQa/observe/capture.json
-  RAWLOG-BYTES raw=5577418 gz=104146
+       The EXIT CODE is still a live detector here, so a descent arm that actually
+       FAILED is evidence. What is missing is the gate, not every signal — do not read
+       a green arm as proof on its own, and do not read this note as "no evidence".
+  RAWLOG-FILE /home/runner/v2-pjZ262/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-pjZ262/observe/capture.json
+  RAWLOG-BYTES raw=5259900 gz=102399
   VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
   VENUE-NODE-SELECTION {"pkg":"@playwright/browser-chromium","packageVersion":"1.61.1","major":24,"version":"24.19.0","npm":"11.17.0","pinnable":true,"engines":">=18","publishedAt":"2026-06-23T19:49:43.110Z","eraMajor":24,"startMajor":24,"raisedByEngines":false,"enginesUnsatisfiable":false,"clampedToFloor":false,"clampedToCeiling":false,"matrixFloor":4,"matrixCeiling":26,"lookupFailure":null,"pinned":true,"pinnedBin":"/home/runner/.cache/nub/era-node/24.19.0/node-v24.19.0-linux-x64/bin","eraNodeRoot":"/home/runner/.cache/nub"}
-  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-2JyMQa/jailhome","TMPDIR":"/tmp/nub-tmp-obsxESXsf","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-2JyMQa/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 53
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-pjZ262/jailhome","TMPDIR":"/tmp/nub-tmp-obswD5snT","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-pjZ262/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"unsetForTracedChild":["XDG_CONFIG_HOME"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null,"XDG_CONFIG_HOME":"/home/runner/.config"}}
+  == ATTRIBUTION == attributed pids: 54
     writes  script 623  /  whole traced tree 1687
-    sockets script 29  /  whole traced tree 33
+    sockets script 30  /  whole traced tree 34
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/runner/v2-2JyMQa/observe
+    project       /home/runner/v2-pjZ262/observe
     home          /home/runner
-    jailHome      /home/runner/v2-2JyMQa/jailhome
+    jailHome      /home/runner/v2-pjZ262/jailhome
     globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/runner/v2-2JyMQa/observe/node_modules/.store   [declared, not keyed on]
+    projectStore  /home/runner/v2-pjZ262/observe/node_modules/.store   [declared, not keyed on]
     interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
-    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsxESXsf
+    toolsDir      /home/runner/.cache/nub/pm/tools
+    temp          /tmp/nub-tmp-obswD5snT
     npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/runner/v2-2JyMQa/observe/node_modules/@playwright/browser-chromium
+    ownPkg        /home/runner/v2-pjZ262/observe/node_modules/@playwright/browser-chromium
   == WRITES the script actually performed ==
-    userHome    617
+    toolsRw     617  (base profile already grants this — NOT billed)
+        /home/runner/.cache/nub/pm/tools/ms-playwright
+        /home/runner/.cache/nub/pm/tools/ms-playwright/__dirlock
+        /home/runner/.cache/nub/pm/tools/ms-playwright/.links
+        /home/runner/.cache/nub/pm/tools/ms-playwright/.links/0ed5bc6d3d99c101e4c1109a538986e7dccffc57
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/ABOUT
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/manifest.json
+        /home/runner/.cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/preloaded_data.pb
+        … and 607 more
     jailTmp       6  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obsxESXsf/playwright-download-0SaIdy
-        /tmp/nub-tmp-obsxESXsf/playwright-download-0SaIdy/playwright-download-chromium-ubuntu24.04-x64-1228.zip
-        /tmp/nub-tmp-obsxESXsf/playwright-download-7DoYDM
-        /tmp/nub-tmp-obsxESXsf/playwright-download-7DoYDM/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
-        /tmp/nub-tmp-obsxESXsf/playwright-download-Vf7qYg
-        /tmp/nub-tmp-obsxESXsf/playwright-download-Vf7qYg/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
+        /tmp/nub-tmp-obswD5snT/playwright-download-kZeHcJ
+        /tmp/nub-tmp-obswD5snT/playwright-download-kZeHcJ/playwright-download-chromium-ubuntu24.04-x64-1228.zip
+        /tmp/nub-tmp-obswD5snT/playwright-download-BRL8Gv
+        /tmp/nub-tmp-obswD5snT/playwright-download-BRL8Gv/playwright-download-chromium-headless-shell-ubuntu24.04-x64-1228.zip
+        /tmp/nub-tmp-obswD5snT/playwright-download-XeEJkZ
+        /tmp/nub-tmp-obswD5snT/playwright-download-XeEJkZ/playwright-download-ffmpeg-ubuntu24.04-x64-1011.zip
   == NETWORK ==
-    AF_INET sockets: 29   distinct peers: 3
+    AF_INET sockets: 30   distinct peers: 4
         127.0.0.53:53
-        104.16.10.34:443
-        150.171.109.147:443
+        104.16.3.34:443
+        150.171.109.119:443
+        150.171.109.116:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"userHome":true},"network":true}
+    {"network":true}
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
     private-home writes observed: 0
     none declared — the script wrote nothing into its private home — there is nothing to promote
-    617 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 617
-        .cache/nub/pm/tools/ms-playwright
-        .cache/nub/pm/tools/ms-playwright/__dirlock
-        .cache/nub/pm/tools/ms-playwright/.links
-        .cache/nub/pm/tools/ms-playwright/.links/e03ccf346a6c13d3de31702e151f9f9b0beed9b2
-        .cache/nub/pm/tools/ms-playwright/chromium-1228
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/ABOUT
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/manifest.json
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/MEIPreload/preloaded_data.pb
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded/manifest.json
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/LICENSE
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific/linux_x64
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/WidevineCdm/manifest.json
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome-wrapper
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_100_percent.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_200_percent.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_crashpad_handler
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/chrome_sandbox
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/deb.deps
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/icudtl.dat
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libEGL.so
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libGLESv2.so
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libvk_swiftshader.so
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/libvulkan.so.1
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_FEMININE.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_MASCULINE.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/af_NEUTER.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_FEMININE.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_MASCULINE.pak
-        .cache/nub/pm/tools/ms-playwright/chromium-1228/chrome-linux64/locales/am_NEUTER.pak
-        … and 577 more
-    EVENTS    5260 distinct from 28729 calls (28937 lines, 141 rejoined, 0 unparsed)
+    count: 0
+    EVENTS    5307 distinct from 27234 calls (27474 lines, 173 rejoined, 0 unparsed)
     PROCS     61   lifecycle shells 49
     ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: recvmsg×11832 getsockname×141 getsockopt×99 setsockopt×76 exit×50 getcwd×8 socketpair×6 exit_group×6
-    wrote /home/runner/v2-2JyMQa/observe/events.ndjson.gz (36543 bytes)
-  EVENTLOG-FILE /home/runner/v2-2JyMQa/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":28937,"parsed":28729,"unparsed":0,"unfinished":141,"rejoined":141,"unresolvedDirfd":4,"truncatedArg":0,"procs":61,"lifecyclePids":49,"distinctEvents":5260,"unknownSyscall":{"getsockname":141,"getsockopt":99,"getcwd":8,"recvmsg":11832,"exit":50,"setsockopt":76,"sendmmsg":1,"socketpair":6,"shutdown":3,"exit_group":6,"wait4":6},"out":"/home/runner/v2-2JyMQa/observe/events.ndjson.gz","gzipBytes":36543}
+    unsubscribed/unmapped syscalls: recvmsg×10305 getsockname×144 getsockopt×99 setsockopt×76 exit×50 getcwd×8 exit_group×6 wait4×6
+    wrote /home/runner/v2-pjZ262/observe/events.ndjson.gz (36833 bytes)
+  EVENTLOG-FILE /home/runner/v2-pjZ262/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":27474,"parsed":27234,"unparsed":0,"unfinished":173,"rejoined":173,"unresolvedDirfd":4,"truncatedArg":0,"procs":61,"lifecyclePids":49,"distinctEvents":5307,"unknownSyscall":{"getsockname":144,"getsockopt":99,"getcwd":8,"recvmsg":10305,"exit":50,"setsockopt":76,"sendmmsg":1,"shutdown":3,"exit_group":6,"wait4":6},"out":"/home/runner/v2-pjZ262/observe/events.ndjson.gz","gzipBytes":36833}
   EVICT     0 store entries removed, 0 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:38:47.347Z","cacheHit":true,"clearancePath":"/home/runner/v2-2JyMQa/security/nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
-  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  VERIFY[synth] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     [synth/a] Error: EACCES: permission denied, mkdir '/home/runner/.cache/nub/pm/tools/ms-playwright'
+     [synth/a]   code: 'EACCES',
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
   EVICT     2 store entries removed, 0 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:38:47.347Z","cacheHit":true,"clearancePath":"/home/runner/v2-2JyMQa/security/nub-drop-no-network-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[fb2126003217] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-drop-no-network-resolved.json"}
   SECURITY nub-drop-no-network-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
-  VERIFY[drop-no-network] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
-     [drop-no-network/i] DEBUG final message final_message=; header 47301:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 2449:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 34164:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG final message final_message=; header 53453:QUERY:RD:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 47301:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 47301:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 34164:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 34164:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 2449:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 2449:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 53453:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-network/i] DEBUG response: ; header 53453:RESPONSE:RD,RA:NoError:QUERY
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-network] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 354/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
      [drop-no-network/a] Error: getaddrinfo ENOTFOUND cdn.playwright.dev
      [drop-no-network/a]   code: 'ENOTFOUND',
      [drop-no-network/a] Error: getaddrinfo ENOTFOUND cdn.playwright.dev
@@ -148,27 +125,43 @@ OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"cl
      [drop-no-network/a]   code: 'ENOTFOUND',
      [drop-no-network/a] Error: getaddrinfo ENOTFOUND cdn.playwright.dev
      [drop-no-network/a]   code: 'ENOTFOUND',
+     [drop-no-network/a] /home/runner/v2-pjZ262/verify-drop-no-network/node_modules/.store/playwright-core@1.61.1/node_modules/playwright-core/lib/coreBundle.js:29227
      [drop-no-network/a] Error: Failed to download Chrome for Testing 149.0.7827.55 (playwright chromium v1228), caused by
-     [drop-no-network/a] Error: Download failure, code=1
+     DENIAL-WITNESS {"cap":"no-network","scope":"network","verdict":"WITNESSED","refusalsInScope":30,"lifecyclePids":73,"events":2233,"sample":["socket = -1 EPERM"]}
+          WITNESSED — 30 socket-family call(s) inside network were attempted by the lifecycle subtree and REFUSED
+            socket = -1 EPERM
      'no-network' is NECESSARY — dropping it fails to verify
   EVICT     2 store entries removed, 0 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-08-29T14:38:47.347Z","cacheHit":true,"clearancePath":"/home/runner/v2-2JyMQa/security/nub-drop-no-write-userHome-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"write":{"project":true,"userHome":true},"network":true} is sufficient
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-project-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-drop-no-write-project-resolved.json"}
+  SECURITY nub-drop-no-write-project-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-write-project] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-project' STILL VERIFIES — {"write":{"deps":true,"userHome":true},"network":true} is sufficient
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-drop-no-write-userHome-resolved.json"}
   SECURITY nub-drop-no-write-userHome-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
-  VERIFY[drop-no-write-userHome] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
-     [drop-no-write-userHome/i] DEBUG final message final_message=; header 47596:QUERY:RD:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG final message final_message=; header 54582:QUERY:RD:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG final message final_message=; header 45842:QUERY:RD:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG final message final_message=; header 39381:QUERY:RD:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 47596:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 47596:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 54582:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 54582:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 39381:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 39381:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 45842:RESPONSE:RD,RA:NoError:QUERY
-     [drop-no-write-userHome/i] DEBUG response: ; header 45842:RESPONSE:RD,RA:NoError:QUERY
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[drop-no-write-userHome] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 354/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
      [drop-no-write-userHome/a] Error: EACCES: permission denied, mkdir '/home/runner/.cache/nub/pm/tools/ms-playwright'
      [drop-no-write-userHome/a]   code: 'EACCES',
+     DENIAL-WITNESS {"cap":"no-write-userHome","scope":"userHome","verdict":"WITNESSED","refusalsInScope":1,"lifecyclePids":13,"events":1477,"sample":["mkdir /home/runner/.cache/nub/pm/tools/ms-playwright = -1 EACCES"]}
+          WITNESSED — 1 write(s) inside userHome were attempted by the lifecycle subtree and REFUSED
+            mkdir /home/runner/.cache/nub/pm/tools/ms-playwright = -1 EACCES
      'no-write-userHome' is NECESSARY — dropping it fails to verify
-  => MINIMAL — every capability in {"write":{"userHome":true},"network":true} is independently necessary
+  => OVER-PREDICTED by: no-write-deps no-write-project  (ladder-rung {"write":{"deps":true,"project":true,"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-chromium
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"2d0b97d0df9a9f8f0b1bca1f1468428dd8c4dbdb9185342f1e7a4da9075345d8","specCount":2,"lockfiles":{"digest":"43b5abe602471feb0e4ae1928f0c318a76d7125ffb8892e773559ce9e78013a0","files":[{"path":"nub.lock","sha256":"4397b0120ec01d30e1478d8aa971d46c95c0f4203b8f2317ccd9768d8b398fc3","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-01T10:28:41.282Z","cacheHit":true,"clearancePath":"/home/runner/v2-pjZ262/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 2 exact package-version(s), tree 2d0b97d0df9a (cached exact-tree clearance)
+  ARM-TOOLS staged 1 bin entry (115 files, 1 symlinks, hardlink) into node_modules/.harness-tools
+  VERIFY[joint-narrow] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 352/118) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true},"network":true} — all 2 capabilities drop TOGETHER, measured
