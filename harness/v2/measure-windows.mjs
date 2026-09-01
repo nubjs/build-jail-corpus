@@ -50,6 +50,11 @@ import { confinedWideBaseline, interpretation, marker as confinedWideMarker } fr
 // spell was already refuted by a failed rung) and that win32 yields no NETWORK term either, because
 // this platform drops the net axis together with the AppContainer token at that rung.
 import { descentTerms, narrow as narrowGrant, verdictLines } from './descent-terms.mjs';
+// The promotion probe's vocabulary and scoring, shared with the two shell drivers through the same
+// module they call over its CLI — so all three ask the identical question and spell the answer once.
+import {
+  observeHome, probeArms, probePlan, scoreProbe, verdictLines as probeVerdictLines,
+} from './promotion-probe.mjs';
 import { excusesSizeDifference } from './artifact-excusal.mjs';
 // ONE implementation of nub's 20.6 `--import` threshold, shared with falsify's waiver. Recomputing it
 // here is how the same constant drifts into two answers — the npm-shim bug appeared three times that way.
@@ -1791,7 +1796,10 @@ let storeLayoutReported = false;
 // rung. A module-scoped latch rather than a `verify` parameter, so this driver's shape matches the two
 // shell drivers' `$ARM_CONFINED_WIDE` and every other arm's call site is untouched.
 let armBaseline = null;
-const verify = (grant, label) => {
+// `realHome` repoints the arm's REAL home — the directory `build_jail.rs::persist_declared_home_writes`
+// promotes a declared `writePaths` entry INTO. Only the promotion probe passes it; every other arm
+// leaves it undefined and inherits the ambient profile exactly as before.
+const verify = (grant, label, { realHome = null } = {}) => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
   // The arm opts out of nub's resolve-time supply-chain gates. Full reasoning at the same point in
@@ -1917,6 +1925,13 @@ const verify = (grant, label) => {
   // ⛔ THE ERA PYTHON REACHES THE VERIFY ARMS TOO — see `unjailed-nub.mjs`'s `asIdentity`.
   const env = { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), NUB_BUILD_JAIL_CATALOG: cat,
     XDG_CACHE_HOME: armCache, RUST_LOG: 'debug' };
+  // ⛔ BOTH SPELLINGS, BECAUSE `sandbox_homes` READS `HOME` FIRST AND `USERPROFILE` ONLY AS A
+  // FALLBACK. Setting one on a box where the other is present would leave nub promoting into the
+  // ambient profile while this driver looked in the fresh directory — both arms would read ABSENT,
+  // which scores UNPROVEN-CONTROL: safe, and a silent instrument failure reported as a package
+  // property. The cache is untouched: `XDG_CACHE_HOME` is already per-arm above, and it is what the
+  // jail derives its private home from, so the two roots move independently by construction here.
+  if (realHome) { env.HOME = realHome; env.USERPROFILE = realHome; }
   // Resolve and materialize this arm's exact Nub tree with all lifecycle hooks disabled. The npm
   // OBSERVE tree is not interchangeable: the two resolvers may select different transitive versions.
   //
@@ -2265,6 +2280,54 @@ const descend = (g0, provenance) => {
   }
 };
 
+// ── THE PROMOTION PROBE — the one axis the descent above structurally cannot ask about. ───────
+//
+// ⛔⛔ `writePaths` GRANTS NOTHING, SO NO ARM ABOVE THIS LINE COULD EVER HAVE GONE RED ON IT.
+// `catalog_v2.rs`: `write_paths` "cannot decide whether a write SUCCEEDS, only whether the result is
+// KEPT". `rc` cannot fail for a dropped entry, `artifact-gate.mjs` only walks the package's own
+// directory, and this platform takes no jailed trace at all so there is no denial witness either. A
+// `{"writePaths":[…]}` grant flattens to ZERO capability tokens in `publish-guard.mjs`, so
+// `hasRedArm` is false by construction and every narrowing to such a grant is withheld.
+//
+// ⛔ AND THIS IS THE PLATFORM WHERE THAT BITES HARDEST, BECAUSE THE PRIVATE HOME ONLY JUST ARRIVED
+// HERE. Until this driver declared it, the lane derived NO `writePaths` at all — 0 of 2,270 win32
+// records against 284 on POSIX — so every home write bucketed `userHome` and the records carry the
+// whole-home grant. The narrowings that declaration unlocks are exactly the ones the guard withholds.
+//
+// ⛔ THE PROBE IS RUN HERE, NOT DECLARED UNSUPPORTED. `persist_declared_home_writes` says "WINDOWS
+// PROMOTES THROUGH THIS SAME BODY … What was actually missing was a call site", and that call site
+// now exists — but the binary a given run measured may predate it, and a hardcoded platform list
+// would be a claim about the binary rather than a measurement of it. The control arm IS that
+// measurement: on a nub that does not promote here it comes back ABSENT and the pair scores
+// UNPROVEN-CONTROL, which licenses nothing.
+const promotionProbe = (grant) => {
+  const plan = probePlan(grant);
+  if (!plan.supported) {
+    for (const l of probeVerdictLines('win32', grant, plan, scoreProbe(plan, {}))) console.log(l);
+    return;
+  }
+  let arms;
+  // The drop grant comes from `descent-terms.mjs`'s shared applier, which THROWS rather than
+  // returning a grant that merely looks narrowed. A refusal means no probe, never a guessed one.
+  try { arms = probeArms(grant, narrowGrant); } catch (e) {
+    console.log(`  !! PROMOTION PROBE SKIPPED — ${e.message}`);
+    return;
+  }
+  console.log('  probing the promotion: the same grant with and without its `writePaths` declaration');
+  const observed = {};
+  for (const [label, g] of arms) {
+    const home = path.join(ROOT, `promo-${label}-home`);
+    fs.rmSync(home, { recursive: true, force: true });
+    fs.mkdirSync(home, { recursive: true });
+    // ⛔ THE ARM'S rc IS DELIBERATELY NOT READ. A failed control arm produces no directory and the
+    // gate reports UNPROVEN-CONTROL on its own; reading rc here would add a second, differently
+    // scoped verdict for the same fact, and the two would eventually disagree.
+    verify(g, `promo-${label}`, { realHome: home });
+    observed[label] = observeHome(home, plan.entries, { fs, path });
+  }
+  for (const l of probeVerdictLines('win32', grant, plan, scoreProbe(plan, observed))) console.log(l);
+};
+
 const synth = verify(GRANT, 'synth');
 // ⛔⛔ THE VERDICT ARM'S VOID CASE MUST ABORT, NOT LADDER. A VOID synth arm measured the COMPILED-IN
 // catalog, so falling through to the ladder walks upward from a hypothesis that was never tested and
@@ -2280,6 +2343,7 @@ if (synth.timedOut) { console.log(`  => TIMED-OUT at the synthesized grant (${sy
 if (synth.ok) {
   console.log(`  => MINIMUM ${JSON.stringify(GRANT)}   (observed, then verified)`);
   descend(GRANT, 'synth');
+  promotionProbe(GRANT);
   process.exit(0);
 }
 
@@ -2375,6 +2439,12 @@ for (const [i, g] of LADDER.entries()) {
     // `DESCENT-UNSUPPORTED` marker naming the backend reason instead of a silent nothing. A reader of
     // a win32 record can now tell "not measured because untestable here" from "not measured".
     descend(g, 'ladder');
+    // A LADDER rung never carries a `writePaths` declaration — the rungs are literal grant objects
+    // and none of them has the key — so the probe declines on `no-declaration` and costs nothing but
+    // its marker. Called anyway rather than made conditional on the grant's shape: a driver where the
+    // probe runs on one path and not another is how a marker comes to be present for synthesized
+    // records and silently absent for ladder ones.
+    promotionProbe(g);
     process.exit(0);
   }
 }

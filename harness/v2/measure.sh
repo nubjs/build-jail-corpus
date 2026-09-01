@@ -1736,6 +1736,17 @@ verify () {
     # arm failed where npm succeeded and the record was filed BROKEN-UNJAILED-NUB: a claimed nub
     # install defect manufactured by handing two arms different interpreters.
     [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"
+    # ⛔ THE PROMOTION PROBE'S PER-ARM REAL HOME, AND THE ORDER OF THESE TWO LINES IS LOAD-BEARING.
+    # `XDG_CACHE_HOME` is pinned to the value the ORIGINAL `$HOME` implies BEFORE `HOME` moves, because
+    # `sandbox_homes` falls back to `$HOME/.cache` only when the variable is unset — so repointing HOME
+    # first would silently relocate the store, the persistent private jail home and the tool caches,
+    # and the resulting cold arm would fail in a way that reads exactly like a denial. Set for the
+    # probe's two arms and for nothing else: `$ARM_PROMOTION_HOME` is empty in every other arm, and it
+    # is exported inside this subshell so it cannot leak into the driver's own bookkeeping.
+    if [ -n "${ARM_PROMOTION_HOME:-}" ]; then
+      export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+      export HOME="$ARM_PROMOTION_HOME"
+    fi
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" ${tracer:+$tracer-i.txt} "$NUB" install > "$v/i.log" 2>&1
     irc=$?
     if grep -q 'defaultTrust: running build scripts for' "$v/i.log" 2>/dev/null; then
@@ -2205,9 +2216,61 @@ descend () {
   fi
 }
 
+# ── THE PROMOTION PROBE — the one axis the descent above structurally cannot ask about. ───────
+#
+# ⛔⛔ `writePaths` GRANTS NOTHING, SO NO ARM ABOVE THIS LINE COULD EVER HAVE GONE RED ON IT.
+# `catalog_v2.rs`: `write_paths` "cannot decide whether a write SUCCEEDS, only whether the result is
+# KEPT". So `rc` cannot fail for a dropped entry, `artifact-gate.mjs` is scoped to the package's own
+# directory and never looks in the home, and `denial-witness.mjs` scores refusals a dropped promotion
+# does not produce. A `{"writePaths":[…]}` grant flattens to ZERO capability tokens in
+# `publish-guard.mjs`, so `hasRedArm` is false by construction and EVERY narrowing to such a grant is
+# withheld — measured, `@clerk/shared@2.9.2` is exactly that record on darwin today.
+#
+# The pair below is the missing detector. Both arms run the ordinary `verify`, so nothing about the
+# jail, the eviction or the replay guards changes; the ONE variable is the declaration, and the ONE
+# thing read afterwards is whether the declared directory reached that arm's own real home.
+#
+# ⛔ EACH ARM GETS ITS OWN REAL HOME, AND WITHOUT THAT THE DROP ARM COULD NOT GO RED. Promotion only
+# ever ADDS (`promote_declared_path` renames where the destination is absent), so a control arm that
+# promoted into the shared `$HOME` would leave the directory sitting there for the drop arm to find —
+# a green that could not have been red, arrived at through the very instrument meant to prevent one.
+# `$ARM_PROMOTION_HOME` repoints HOME for the arm's nub invocation and for nothing else.
+#
+# ⛔ AND IT PINS `XDG_CACHE_HOME` WHILE DOING IT. `build_jail.rs::sandbox_homes` resolves the cache as
+# `XDG_CACHE_HOME` first and `$HOME/.cache` only as a fallback, so moving HOME with that variable
+# unset would move the STORE, the private jail home and the tool caches with it — a cold arm whose
+# failure would read as a denial. The two must move independently, and this is what makes them.
+ARM_PROMOTION_HOME=
+promotion_probe () {
+  local g="$1" ch="$ROOT/promo-control-home" dh="$ROOT/promo-drop-home" dropg
+  # No declaration, or a grant that already writes the real home: the module says so and stops. The
+  # marker still prints — a silent skip is indistinguishable from a driver that has no probe at all,
+  # which is the state every `writePaths` record was already in.
+  if [ -z "$(node "$HERE/promotion-probe.mjs" --grant "$g" --entries)" ]; then
+    node "$HERE/promotion-probe.mjs" --grant "$g" --score --platform linux
+    return 0
+  fi
+  # The applier is `descent-terms.mjs`'s, shared with every other drop in this driver, and it THROWS
+  # rather than producing a no-op narrowing. A refusal means no probe, never a guessed one.
+  if ! dropg=$(node "$HERE/descent-terms.mjs" --narrow "$g" --drop "no-writePaths"); then
+    echo "  !! PROMOTION PROBE SKIPPED — the drop grant could not be computed from $g"
+    return 0
+  fi
+  echo "  probing the promotion: the same grant with and without its \`writePaths\` declaration"
+  rm -rf "$ch" "$dh"; mkdir -p "$ch" "$dh"
+  ARM_PROMOTION_HOME="$ch"; verify "$g"     "promo-control"; ARM_PROMOTION_HOME=
+  ARM_PROMOTION_HOME="$dh"; verify "$dropg" "promo-drop";    ARM_PROMOTION_HOME=
+  # ⛔ THE ARMS' rc IS DELIBERATELY NOT READ. A failed control arm produces no directory and the gate
+  # reports UNPROVEN-CONTROL on its own; reading rc here would add a second, differently-scoped
+  # verdict for the same fact and the two would eventually disagree.
+  node "$HERE/promotion-probe.mjs" --grant "$g" --score \
+    --control-home "$ch" --drop-home "$dh" --platform linux
+}
+
 if [ "$SRC" -eq 0 ]; then
   echo "  => VERIFIED $GRANT   (observed, then verified)"
   descend "$GRANT" synth
+  promotion_probe "$GRANT"
   exit 0
 fi
 
@@ -2352,6 +2415,12 @@ do
     # versus fails-under-confinement-for-another-reason — is `confined_wide_probe`'s question, and it
     # ran a few lines above on this same rung.
     descend "$g" ladder
+    # A LADDER rung never carries a `writePaths` declaration — the rungs are literal grant strings a
+    # few lines above and none of them has the key — so the probe declines on `no-declaration` here
+    # and costs one `node` invocation. It is called anyway rather than being made conditional on the
+    # grant's shape: a driver where the probe runs on one path and not another is how the marker comes
+    # to be present for synthesized records and silently absent for ladder ones.
+    promotion_probe "$g"
     exit 0
   fi
 done

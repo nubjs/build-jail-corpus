@@ -290,6 +290,19 @@ export function parseDriverLog(log) {
     // an empty map must license nothing and block nothing. Same absent-is-not-empty direction as
     // `falsifiabilityReasons` above.
     denialWitness: {},
+    // ⛔⛔ THE ONE AXIS NO OTHER DETECTOR CAN SEE. `writePaths` grants nothing — `catalog_v2.rs` says
+    // it "cannot decide whether a write SUCCEEDS, only whether the result is KEPT" — so `rc` cannot
+    // fail for it, `artifact-gate.mjs` is scoped to the package's OWN directory and never looks in
+    // the home, and `denial-witness.mjs` scores refusals where a dropped promotion produces none. A
+    // grant that is `{"writePaths":[…]}` therefore flattens to ZERO capability tokens in
+    // `publish-guard.mjs` and can never carry a red arm, which withholds every narrowing to it.
+    //
+    // `promotion-probe.mjs` runs the pair that fixes that — the grant WITH the declaration and the
+    // same grant WITHOUT it, each against its own fresh real home — and this is where its verdict
+    // lands. NULL is "not established": every record taken before the probe existed carries no
+    // marker, and a null must license nothing. Same absent-is-not-empty direction as the three fields
+    // above.
+    promotionProbe: null,
     notes: [],
     rawLogPath: null,
     capturePath: null,
@@ -534,6 +547,24 @@ export function parseDriverLog(log) {
     // (`|| true`, `|| (exit 0)`), so `rc` is 0 whatever happened. The GRANT may still be correct; what
     // is absent is a signal that could have gone red. Recorded because an unfalsifiable arm filed as a
     // clean MINIMAL is the shape that erodes trust in a whole corpus. See `arm-falsifiability.mjs`.
+    // ⛔ THE PROMOTION PROBE'S ONE LINE, OWNED BY `promotion-probe.mjs` AND PRINTED BY ALL THREE
+    // DRIVERS THROUGH IT. Same construction as the DENIAL-WITNESS and CONFINED-WIDE markers above and
+    // for the same reason: three hand-written `printf`s of one marker is how a note came to be live on
+    // one platform of three.
+    //
+    // ⛔ FAILS CLOSED. An unparsable payload, or a verdict this recorder does not recognise, leaves the
+    // field null — which licenses nothing, so the guard keeps the behaviour it had. Only `PROVEN`
+    // carries weight downstream, and `publish-guard.mjs` re-checks the whole payload rather than
+    // trusting a word.
+    const pp = /PROMOTION-PROBE\s+(\{.*\})\s*$/.exec(l);
+    if (pp) {
+      try {
+        const p = JSON.parse(pp[1]);
+        out.promotionProbe = typeof p?.verdict === 'string' ? p : null;
+        if (out.promotionProbe === null) out.notes.push('promotion-probe-unparsable');
+      } catch { out.notes.push('promotion-probe-unparsable'); }
+      continue;
+    }
     if (/ARMS-UNFALSIFIABLE/.test(l)) out.notes.push('arms-unfalsifiable');
     // ⛔ WHICH DETECTOR DIED, NOT MERELY THAT ONE DID. `arm-falsifiability.mjs` reports two
     // INDEPENDENT reasons and the note above collapses them: `gate-vacuous` kills the artifact gate,
@@ -1281,6 +1312,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // Same reason as the two fields above: `publish-guard.mjs` reads records, not logs, and a
     // WITNESSED capability is the strongest reason a re-measure must not be allowed to narrow.
     denialWitness: parsed.denialWitness ?? {},
+    // ⛔ AND IT MUST BE IN THIS LIST, WHICH IS THE HALF `confinedWide` GOT WRONG. The comment above
+    // records what that cost: the probe ran, printed its marker, was parsed into a field, and was then
+    // dropped from the emitted object — so the arm that adjudicates the write axis of a `write:"disk"`
+    // record left no trace in any record. This field is the ONLY route by which a `writePaths`
+    // narrowing's evidence reaches `publish-guard.mjs`, which reads records and never logs, so
+    // omitting it here would leave the probe running for nothing on every package that has one.
+    // `promotion-probe-round-trip` in `record.test.mjs` pins it.
+    promotionProbe: parsed.promotionProbe ?? null,
     notes: [...new Set(parsed.notes)],
     // The event log's own census, inlined so `results.json` states how much evidence sits beside
     // it — event count, dropped-event count, the errno histogram — without opening the log.
