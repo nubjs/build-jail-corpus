@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 55,
+  "currentEpoch": 56,
   "transitions": [
     {
       "fromEpoch": null,
@@ -743,6 +743,18 @@
         ]
       },
       "reason": "The drivers could not say WHY a package failed the jail-off control, and the record lost the era-node pin. Linux discarded npm.log at the BROKEN-WITHOUT-JAIL-TOO exit (258 records) and Windows discarded the traced child's run.out/run.err (562 records); both now echo a bounded tail. Both shell drivers emitted VENUE-NODE-SELECTION downstream of that same exit, so 1206 of 1329 such records carry no nodeSelection at all while 598 of them say ERA-NODE PINNED in the log. Reopening this verdict re-measures those failures under drivers that record the reason and the pin; the verdict itself is not in question."
+    },
+    {
+      "fromEpoch": 55,
+      "fromHarnessSha256": "38e0fd0ec7c8e019dad01347c0c87b2d5ba3ee99ed6b6b81a73181d7a7f3c728",
+      "toEpoch": 56,
+      "toHarnessSha256": "95980aeafee3d5873f6f59eab1aca3ab9fddd3087e4fb2fe4005f4516d316cf3",
+      "invalidate": {
+        "platforms": [
+          "win32-x64"
+        ]
+      },
+      "reason": "The windows observe arm now runs under a private jail home, which changes what it measures. Linux and macOS have always traced with HOME redirected, so a write that merely FOLLOWED the home landed in a throwaway bucket and earned a narrow promotable writePaths entry; windows redirected only the npm cache and temp, so every home write billed write.userHome and the lane derived 0 writePaths against 284 on POSIX. The driver now creates a per-run private home, exports HOME/USERPROFILE/APPDATA at it (APPDATA at the AppData/Roaming leaf, matching compiler/preset.rs rather than collapsing onto the home root), declares it as roots.jailHome, and classify.mjs keys a jailHome bucket on that declared path. Existing win32 grants were measured in the un-redirected environment and are over-broad in exactly that dimension, so this reopens that platform; 5 done rows, the rest already pending."
     }
   ]
 }
