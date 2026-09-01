@@ -2,20 +2,17 @@
   "pkg": "electron",
   "version": "40.10.2",
   "harnessVersion": 2,
-  "harnessEpoch": 3,
+  "harnessEpoch": 58,
   "verdict": "MINIMUM",
+  "eraDepMismatch": null,
   "grant": {},
   "synthesized": {
-    "write": {
-      "userHome": true
-    },
     "network": true
   },
   "verifiedBy": "synth",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "no-network",
-    "no-write-userHome"
+    "no-network"
   ],
   "writePaths": [],
   "writePathsVersionPinned": [],
@@ -31,7 +28,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:15.263Z",
+      "screenedAt": "2026-09-01T06:19:09.294Z",
       "cacheHit": false
     },
     {
@@ -51,7 +48,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:32.331Z",
+      "screenedAt": "2026-09-01T06:19:16.292Z",
       "cacheHit": false
     },
     {
@@ -71,7 +68,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:44.083Z",
+      "screenedAt": "2026-09-01T06:19:25.944Z",
       "cacheHit": false
     },
     {
@@ -91,47 +88,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:44.083Z",
-      "cacheHit": true
-    },
-    {
-      "schemaVersion": 1,
-      "kind": "nub-nar-no-write-userHome-resolved",
-      "status": "clean",
-      "digest": "839df43ac264523604b389c389f55ce7fc082a4c184f1e750a9c292c9150b24f",
-      "specCount": 70,
-      "lockfiles": {
-        "digest": "6f2ae1df33568f1676a88bdd18f887a62ce5cde9511b9f568da51814d35821e1",
-        "files": [
-          {
-            "path": "nub.lock",
-            "sha256": "a2fdff795dd7f080f046587b16dbdc836f46c30714fc40265ce16d7da90242e6",
-            "bytes": 17225
-          }
-        ]
-      },
-      "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:44.083Z",
-      "cacheHit": true
-    },
-    {
-      "schemaVersion": 1,
-      "kind": "nub-joint-narrow-resolved",
-      "status": "clean",
-      "digest": "839df43ac264523604b389c389f55ce7fc082a4c184f1e750a9c292c9150b24f",
-      "specCount": 70,
-      "lockfiles": {
-        "digest": "6f2ae1df33568f1676a88bdd18f887a62ce5cde9511b9f568da51814d35821e1",
-        "files": [
-          {
-            "path": "nub.lock",
-            "sha256": "a2fdff795dd7f080f046587b16dbdc836f46c30714fc40265ce16d7da90242e6",
-            "bytes": 17225
-          }
-        ]
-      },
-      "maliciousAdvisories": [],
-      "screenedAt": "2026-08-24T10:56:44.083Z",
+      "screenedAt": "2026-09-01T06:19:25.944Z",
       "cacheHit": true
     }
   ],
@@ -149,7 +106,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-08-24T10:56:15.263Z"
+      "screenedAt": "2026-09-01T06:19:09.294Z"
     },
     {
       "digest": "9442bd5ed9713edd7b74dd8da3c0a282f1ad3ee3faa870243b5322f33c1a0b09",
@@ -239,7 +196,7 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-08-24T10:56:32.331Z"
+      "screenedAt": "2026-09-01T06:19:16.292Z"
     },
     {
       "digest": "839df43ac264523604b389c389f55ce7fc082a4c184f1e750a9c292c9150b24f",
@@ -327,72 +284,72 @@
         ]
       },
       "kinds": [
-        "nub-joint-narrow-resolved",
         "nub-nar-no-network-resolved",
-        "nub-nar-no-write-userHome-resolved",
         "nub-synth-resolved"
       ],
-      "screenedAt": "2026-08-24T10:56:44.083Z"
+      "screenedAt": "2026-09-01T06:19:25.944Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-08-24T10:56:14.657Z",
-    "latestVersion": "43.4.1",
-    "weeklyDownloads": 5887219,
+    "observedAt": "2026-09-01T06:19:08.622Z",
+    "latestVersion": "44.1.0",
+    "weeklyDownloads": 6383880,
     "sources": {
       "distTags": "https://registry.npmjs.org/-/package/electron/dist-tags",
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/electron"
     }
   },
   "grantSource": "descended",
-  "grantSourceReason": "2 capabilities were dropped and the JOINT grant was explicitly verified",
+  "grantSourceReason": "one capability (no-network) was dropped and the resulting grant was verified in the real jail by a single arm",
   "descendedGrant": {},
+  "falsifiabilityReasons": [],
+  "descentRedArm": false,
   "notes": [
     "cwd-unobserved",
     "events-lost"
   ],
   "eventLog": {
-    "lines": 20347,
-    "parsed": 20329,
+    "lines": 19979,
+    "parsed": 19961,
     "unparsed": 0,
     "live": true,
     "tracerErrors": 1,
     "tracerErrorTotal": 1,
     "unresolvedDirfd": 21,
     "unresolvedFd": 0,
-    "pairedTwoPath": 542,
+    "pairedTwoPath": 530,
     "danglingPair": 0,
-    "failed": 4344,
-    "enoent": 3479,
+    "failed": 4150,
+    "enoent": 3285,
     "refusals": 0,
     "byErrno": {
       "ENXIO": 3,
-      "ENOENT": 3479,
+      "ENOENT": 3285,
       "EEXIST": 861,
       "ENOTEMPTY": 1
     },
     "procs": 5,
     "lifecyclePids": 1,
-    "distinctEvents": 7555,
-    "emitted": 7555,
-    "calls": 19774,
-    "bytes": 1533507,
-    "gzipBytes": 47665,
-    "out": "/Users/runner/v2m-Kzlgxy/Observe/events.ndjson"
+    "distinctEvents": 7353,
+    "emitted": 7353,
+    "calls": 19417,
+    "bytes": 1536840,
+    "gzipBytes": 46408,
+    "out": "/Users/runner/v2m-KnNf9a/Observe/events.ndjson"
   },
   "driverRc": 0,
-  "durationMs": 48261,
+  "durationMs": 22892,
   "provenance": {
     "platform": "darwin-arm64",
     "harness": "measure-macos.sh",
     "nubGitSha": "30757a70ffc4b5663c176e8ccf3871ec500c4900",
     "nubVersion": "v0.7.1",
     "corpusGitSha": null,
-    "harnessEpoch": 3,
-    "harnessSha256": "f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6",
-    "harnessInputCount": 273,
-    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
+    "harnessEpoch": 58,
+    "harnessSha256": "7faf1465b4b2f3b1ffd51512118fc0ffd4ef0b4f522e11a1307b77684cca292f",
+    "harnessInputCount": 311,
+    "invalidationPolicySha256": "2ced822c1d4cafccefdcb4846201f28852108c96aefcec300970fd94eae8b80a",
     "node": "v22.23.2",
     "runtime": {
       "node": {
@@ -521,7 +478,7 @@
         "shell": "/bin/bash"
       }
     },
-    "at": "2026-08-24T10:57:03.354Z",
+    "at": "2026-09-01T06:19:31.977Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
@@ -566,8 +523,8 @@
     "overrides": {
       "set": {
         "PATH": "inherited-and-forwarded",
-        "HOME": "/Users/runner/v2m-Kzlgxy/jailhome",
-        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsrDrdWq",
+        "HOME": "/Users/runner/v2m-KnNf9a/jailhome",
+        "TMPDIR": "/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsbKPiJK",
         "NODE_COMPAT": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "PLAYWRIGHT_BROWSERS_PATH": "/Users/runner/.cache/nub/pm/tools/ms-playwright",
