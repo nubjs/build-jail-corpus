@@ -200,10 +200,26 @@ test('the driver wires the witness to the two arms the scorer expresses and to n
   assert.ok(!/\[ "\$cap" = "no-write-userHome" \]/.test(src),
     'and must no longer gate the tracer on the home arm alone');
   assert.match(src, /--jailed/, 'the arm decode must mark the stream jailed');
-  // macOS is deliberately NOT wired: its traced branch runs `nub install` alone and skips
-  // `approve-builds`, so tracing a descent arm there would change the arm's own verdict.
+  // ⛔ macOS IS WIRED SINCE 2026-09-01, AND ITS PRECONDITION IS PINNED HERE RATHER THAN ASSUMED. This
+  // block used to assert the ABSENCE of the witness on that driver, with the repair named: its traced
+  // branch ran `nub install` alone, so a traced descent arm was a different experiment from an
+  // untraced one for any package whose build is deferred to `approve-builds`. Both halves are pinned
+  // now, because re-wiring one without the other is the regression that would matter — it would score
+  // arms nobody else ran.
   const mac = readFileSync(join(HERE, 'measure-macos.sh'), 'utf8')
     .split('\n').map((l) => l.replace(/(^|\s)#.*$/, '')).join('\n');
-  assert.ok(!/denial_witness/.test(mac),
-    'if macOS gains this, its traced branch must first run approve-builds like the untraced one');
+  assert.match(mac, /denial_witness \(\)/, 'measure-macos.sh must define the helper');
+  assert.match(mac, /\[ -n "\$WTRACE" \] && denial_witness "nar-\$nm" "\$nm"/,
+    'its descent loop must call it for the arm it just ran');
+  assert.match(mac, /sh -c "cd '\$v' && '\$NUB' install > '\$v\/i\.log' 2>&1; '\$NUB' approve-builds --all > '\$v\/a\.log' 2>&1"/,
+    'the TRACED branch must run both commands that compose an arm\'s rc, like the untraced one');
+  assert.match(mac, /--jailed/, 'the arm decode must mark the stream jailed');
+  // ⛔ TWO CAPS THERE, ONE HERE, AND THE ASYMMETRY IS THE PROBE'S RATHER THAN A CHOICE. The darwin
+  // decoder never declares `netRefusals`, because `adapters/macos-observe.d` has `connect` clauses and
+  // no `socket` clause — so the scorer answers `no-network` with UNSUPPORTED there. The rule is the
+  // same on both drivers: trace exactly the caps the scorer can express for THAT platform's stream.
+  assert.match(mac, /no-write-userHome\) WTRACE="dtrace" ;;/,
+    'the darwin descent must trace the one arm its decoder can answer');
+  assert.ok(!/no-network\) WTRACE=/.test(mac),
+    'and must not pay a dtraced arm for an axis its probe cannot see');
 });
