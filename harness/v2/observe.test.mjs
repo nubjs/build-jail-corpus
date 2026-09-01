@@ -300,24 +300,68 @@ test('the SHARED /tmp stays `outside` — the Landlock arm grants the per-run di
   assert.match(out, /writes OUTSIDE/, `the OUTSIDE alarm was suppressed for a genuinely refused path:\n${out}`);
 });
 
-test("nub's tool cache is READ-ONLY except the npm prefix, and the classifier splits them", () => {
-  // ⛔ BOTH POLARITIES IN ONE CASE, because the failure is a false EQUIVALENCE between four paths
-  // that all sit under `$cache/nub/pm/tools`. `grant_build_jail_dependency_reads` grants that
-  // directory read-only and then `push_rw_path`s `tools/npm-prefix` alone. Billing the whole
-  // directory free is an UNDER-grant on the two redirects that really are refused; billing all of
-  // it is a spurious `userHome` on every package whose npm invocation creates a prefix.
-  const refused = grantOf(runTmp(
-    `100 mkdir("${TOOLS}/ms-playwright/chromium-764964", 0777) = 0\n`,
-  ));
-  assert.deepStrictEqual(refused, { write: { userHome: true } },
-    'a write into the READ-ONLY tool cache is refused in the jail and must earn userHome');
+test("nub's tool cache is READ-ONLY except THREE rw leaves, and none of the three bills", () => {
+  // ⛔ THIS CASE USED TO ASSERT THE OPPOSITE FOR TWO OF THE THREE, which is why it is worth reading
+  // rather than skimming. It REQUIRED `ms-playwright` to earn `write:{userHome}`, on the premise
+  // that `npm-prefix` was the only leaf carved out of the read-only `tools` grant. `preset.rs`
+  // `push_rw_path`s all three in one loop — `npm-prefix`, `ms-playwright`, `electron-cache`, at
+  // `preset.rs:498-500` in the corpus's pinned nub — so the premise died and this test kept the
+  // classifier pinned to it.
+  //
+  // The direction is what makes it a defect rather than a wart. `toolsDir` is under `$HOME` on both
+  // POSIX drivers, so an unrecognised leaf falls through to `userHome`, and `write.userHome` is the
+  // WHOLE home — `~/.ssh/authorized_keys`, every shell profile. The classifier was manufacturing
+  // the exact persistence capability the jail exists to withhold, to reach a directory nub created
+  // for the package and pointed it at through an env var nub sets itself.
+  for (const leaf of ['npm-prefix/lib/node_modules', 'ms-playwright/chromium-764964',
+                      'electron-cache/httpsgithub.com']) {
+    const out = runTmp(`100 mkdir("${TOOLS}/${leaf}", 0777) = 0\n`);
+    assert.match(out, /toolsRw\s+1/, `${leaf} was not recognised as a carve-out:\n${out}`);
+    assert.deepStrictEqual(grantOf(out), {},
+      `${leaf} is push_rw_path-granted, so billing it manufactures a userHome grant`);
+  }
+});
 
-  const granted = runTmp(
-    `100 mkdir("${TOOLS}/npm-prefix/lib/node_modules", 0777) = 0\n`,
+test('the carve-out is the THREE LEAVES, never `tools` itself — a write beside them still bills', () => {
+  // ⛔ THE SECURITY CONTROL, and without it the case above is satisfied by a classifier that frees
+  // the whole tool cache. `preset.rs` states the boundary in the same breath as it adds the leaves:
+  // `tools` also holds the node-gyp bootstraps nub installs for ITS OWN use and executes on every
+  // later install, so a write grant spanning the directory lets one package's lifecycle script
+  // replace a binary every subsequent install then runs. Widening to the parent is persistence
+  // dressed as a build need, so a write beside the leaves must keep costing what it really costs.
+  for (const beside of ['node-gyp/lazy-bin/node-gyp', 'stray.bin']) {
+    assert.deepStrictEqual(
+      grantOf(runTmp(`100 mkdir("${TOOLS}/${beside}", 0777) = 0\n`)),
+      { write: { userHome: true } },
+      `${beside} sits in the READ-ONLY part of the tool cache and must still earn userHome`,
+    );
+  }
+
+  // And the leaf match is a PATH-COMPONENT test, not a bare string prefix. A sibling whose name
+  // merely STARTS WITH a granted leaf's name is a different directory that the jail does not grant.
+  assert.deepStrictEqual(
+    grantOf(runTmp(`100 mkdir("${TOOLS}/ms-playwright-cache/x", 0777) = 0\n`)),
+    { write: { userHome: true } },
+    'a sibling sharing a leaf NAME PREFIX is a different directory and the jail does not grant it',
   );
-  assert.match(granted, /npmPrefix\s+1/, `the rw carve-out was not recognised:\n${granted}`);
-  assert.deepStrictEqual(grantOf(granted), {},
-    'the npm prefix is push_rw_path-granted, so billing it manufactures a userHome grant');
+});
+
+test('a null `toolsDir` derives no leaves and does not throw — null is an answer, not a gap', () => {
+  // Several captures declare `toolsDir: null` (the Windows driver reproduces no redirect at all),
+  // and the three leaves are DERIVED from that root, so a null one must yield an empty contribution
+  // rather than a path built from the string "null". The other half of the case is the reason
+  // `npmPrefix` is unioned in rather than replaced: a capture in exactly this shape keeps the
+  // carve-out it already had instead of silently losing it, and losing one bills a free write.
+  const { f, cap } = writeCase('', PROJ, 'p',
+    { temp: JTMP, toolsDir: null, npmPrefix: `${TOOLS}/npm-prefix` });
+  fs.writeFileSync(f, SHELL
+    + `100 mkdir("${TOOLS}/npm-prefix/lib", 0777) = 0\n`
+    + `100 mkdir("${TOOLS}/ms-playwright/chromium", 0777) = 0\n`);
+  const out = execFileSync('node', [path.join(HERE, 'observe.mjs'), f, '--capture', cap],
+    { encoding: 'utf8' });
+  assert.match(out, /toolsRw\s+1/, `the declared npmPrefix root stopped carving out:\n${out}`);
+  assert.deepStrictEqual(grantOf(out), { write: { userHome: true } },
+    'with no toolsDir declared the other two leaves are underivable, so they still bill');
 });
 
 test('an UNRESOLVABLE dirfd is reported as UNKNOWN and never guessed into a scope', () => {

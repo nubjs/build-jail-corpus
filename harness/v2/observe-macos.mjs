@@ -59,16 +59,19 @@ if (undeclared.length) {
   console.error('   Declare each one, or `null` where this platform genuinely has no such root.');
   process.exit(3);
 }
-// ⛔ ELEVEN ROOTS ARE REQUIRED; THREE ARE KEYED ON. That is deliberate and not an oversight.
+// ⛔ ELEVEN ROOTS ARE REQUIRED; SIX ARE KEYED ON. That is deliberate and not an oversight.
 // R1 requires every root the classifier COULD key on to be DECLARED, because a root re-derived
 // later is a root re-derived from ambient state — the exact failure R2 exists to stop. Changing
 // which bucket a path lands in is a grant-semantics change and needs its own evidence, exactly as
 // the bytecode drop did. The OBSERVE arm is `npm rebuild` in a plain hoisted layout and never
 // touches nub's store, so inventing a bucket for a path this arm cannot produce would be policy
-// with no measurement under it.
+// with no measurement under it. `globalStore`, `projectStore`, `interpreter` and `cwd` stay in that
+// declared-but-unkeyed set. `toolsDir` LEFT it when the tool-cache carve-out grew from one leaf to
+// three, and it is keyed on to DERIVE those leaves rather than as a bucket of its own — `tools`
+// itself stays unwritable.
 //
-// Only these three are destructured, and every use below is null-guarded — a `null` root must never
-// reach `startsWith`, which would match the literal string "null" and silently misclassify.
+// Only the keyed ones are destructured, and every use below is null-guarded — a `null` root must
+// never reach `startsWith`, which would match the literal string "null" and silently misclassify.
 // ⛔ COLLAPSE REPEATED SLASHES IN EVERY ROOT BEFORE COMPARING. A root is only ever used as a
 // `startsWith` prefix, and the kernel reports canonical single-slash paths — so one stray `//` from
 // however the root was built makes that root silently match NOTHING. Normalising here rather than
@@ -76,7 +79,7 @@ if (undeclared.length) {
 // correctly, which is the whole point of retaining the raw trace.
 const norm = (p) => (typeof p === 'string' ? p.replace(/\/{2,}/g, '/').replace(/(.)\/$/, '$1') : p);
 for (const k of Object.keys(roots)) roots[k] = norm(roots[k]);
-const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix } = roots;
+const { project: proj, home, ownPkg: ownPkgDir, jailHome, temp: jailTmp, npmPrefix, toolsDir } = roots;
 const pkgName = capture.pkg ?? null;
 // The MEASURED version, used for one thing only: saying whether a derived `writePaths` entry embeds
 // it and therefore stops matching on the next release. Never used to guess a path.
@@ -432,7 +435,7 @@ for (const raw of lines) {
 // over-grant on every macOS record plus a redundant arm on the platform with the scarcest runners.
 //
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
-// ⛔ jailHome / jailTmp / npmPrefix ARE TESTED BEFORE `proj` AND `home`, AND THE ORDER IS THE WHOLE
+// ⛔ jailHome / jailTmp / toolsRw ARE TESTED BEFORE `proj` AND `home`, AND THE ORDER IS THE WHOLE
 // POINT. The jail home is a subdirectory of the real `$HOME`, so `p.startsWith(home)` matches it
 // first and bills `userHome` for a directory the base profile already owns. MEASURED on
 // kerberos@7.0.0 immediately after the OBSERVE parity fix landed: the redirect demonstrably worked —
@@ -448,7 +451,17 @@ for (const raw of lines) {
 // writes into, and then not keying on it, converts a free write into a billed capability.
 //
 // Each maps to a real base-profile grant, exactly as on Linux: private_home_dir/jail_private_home
-// (RW via push_rw_path), make_private_tmp/TmpMode::Private, and redirect_npm_prefix's leaf carve-out.
+// (RW via push_rw_path), make_private_tmp/TmpMode::Private, and the tool-cache leaf carve-outs.
+//
+// ⛔ AND THE SAME ERROR HAD A THIRD INSTANCE, FOUND LATER AND FIXED WITH THIS COMMENT. The tool-cache
+// carve-out is THREE leaves, not one: `preset.rs` `push_rw_path`s `npm-prefix`, `ms-playwright` AND
+// `electron-cache` in one loop, matching the three unconditional redirects `measure-macos.sh`
+// reproduces (`PLAYWRIGHT_BROWSERS_PATH`, `ELECTRON_CACHE`/`electron_config_cache`,
+// `npm_config_prefix`). This classifier keyed on `npmPrefix` alone, so the other two fell through to
+// `userHome` — `toolsDir` is under `$HOME` here too — and a package that only ever wrote into a
+// directory nub created for it and pointed it at synthesized authority over the whole user home.
+// Identical shape to the kerberos defect above, one directory deeper. See `observe.mjs`'s `toolsRw`
+// paragraph for the full argument and for why the scope is the LEAVES and never `tools` itself.
 // ⛔ PYTHON BYTECODE IS DROPPED WHEREVER IT LANDS, AND IT IS TESTED FIRST, AHEAD OF EVERY ROOT.
 // Ported from `observe.mjs:264`, which carries the two grounds; they are not restated here. What IS
 // worth stating is what its absence cost on THIS platform, because it was not the harmless
@@ -466,12 +479,24 @@ for (const raw of lines) {
 // on essentially every package with a native build. Security-material, not tidiness.
 const isBytecode = (p) => /(^|\/)__pycache__(\/|$)/.test(p) || /\.py[co]$/.test(p);
 
+const under = (p, root) => p === root || p.startsWith(`${root}/`);
+
+// Derived from the DECLARED `toolsDir`, never from a hardcoded `~/.cache/nub` pattern (R2): the leaf
+// NAMES are nub's constants, the parent is whatever this venue's capture declares. `npmPrefix` is
+// unioned in rather than replaced so a capture declaring it while leaving `toolsDir` null keeps the
+// carve-out it already had; both roots are null-safe, because `null` is the capture ANSWERING that
+// this venue has no such root. Same construction and same reasoning as `observe.mjs`.
+const TOOLS_RW = [
+  ...(toolsDir ? ['npm-prefix', 'ms-playwright', 'electron-cache'].map((l) => `${toolsDir}/${l}`) : []),
+  ...(npmPrefix ? [npmPrefix] : []),
+];
+
 const scope = (p) => {
   if (isBytecode(p)) return 'bytecode';
-  if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
-  if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
-  if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
-  if (npmPrefix && (p === npmPrefix || p.startsWith(`${npmPrefix}/`))) return 'npmPrefix';
+  if (ownPkgDir && under(p, ownPkgDir)) return 'ownPkg';
+  if (jailHome && under(p, jailHome)) return 'jailHome';
+  if (jailTmp && under(p, jailTmp)) return 'jailTmp';
+  if (TOOLS_RW.some((leaf) => under(p, leaf))) return 'toolsRw';
   if (proj && p.startsWith(proj)) return p.includes('/node_modules/') ? 'deps' : 'project';
   if (home && p.startsWith(home)) return 'userHome';
   // macOS has no /proc. The nearest equivalent read floor is the shared cache and the system
@@ -480,7 +505,7 @@ const scope = (p) => {
   return 'outside';
 };
 // Named once so the report and the synthesized grant cannot disagree about which writes are free.
-const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
+const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'toolsRw'];
 // ⛔ `bytecode` IS NOT IN `BASE_COVERED`, AND THE DISTINCTION IS THE POINT. A base-covered write is
 // one the jail GRANTS; a bytecode write is one the jail REFUSES and the build survives without.
 // Collapsing them would make the report claim the jail hands these paths over, which is the opposite

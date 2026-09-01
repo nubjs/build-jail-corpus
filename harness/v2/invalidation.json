@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 56,
+  "currentEpoch": 57,
   "transitions": [
     {
       "fromEpoch": null,
@@ -755,6 +755,26 @@
         ]
       },
       "reason": "The windows observe arm now runs under a private jail home, which changes what it measures. Linux and macOS have always traced with HOME redirected, so a write that merely FOLLOWED the home landed in a throwaway bucket and earned a narrow promotable writePaths entry; windows redirected only the npm cache and temp, so every home write billed write.userHome and the lane derived 0 writePaths against 284 on POSIX. The driver now creates a per-run private home, exports HOME/USERPROFILE/APPDATA at it (APPDATA at the AppData/Roaming leaf, matching compiler/preset.rs rather than collapsing onto the home root), declares it as roots.jailHome, and classify.mjs keys a jailHome bucket on that declared path. Existing win32 grants were measured in the un-redirected environment and are over-broad in exactly that dimension, so this reopens that platform; 5 done rows, the rest already pending."
+    },
+    {
+      "fromEpoch": 56,
+      "fromHarnessSha256": "95980aeafee3d5873f6f59eab1aca3ab9fddd3087e4fb2fe4005f4516d316cf3",
+      "toEpoch": 57,
+      "toHarnessSha256": "1c4b73d1cd166ff5f6c8185bd8cb41d1decf4b7987fcb66974fef5da0fd8c08f",
+      "invalidate": {
+        "packages": [
+          "@playwright/browser-chromium",
+          "@playwright/browser-firefox",
+          "@playwright/browser-webkit",
+          "@shoelace-style/shoelace",
+          "electron",
+          "electron-chromedriver",
+          "playwright",
+          "playwright-chromium",
+          "playwright-webkit"
+        ]
+      },
+      "reason": "Epoch 57 corrects a classifier defect that manufactured whole-home write grants. nub's build jail grants READ-WRITE to three leaves inside its own tool cache -- $cache/nub/pm/tools/{npm-prefix,ms-playwright,electron-cache} -- in one push_rw_path loop (preset.rs:498-500 at the pinned nub 30757a70), matching the three unconditional redirects (npm_config_prefix, PLAYWRIGHT_BROWSERS_PATH, ELECTRON_CACHE/electron_config_cache) that both POSIX drivers reproduce. observe.mjs and observe-macos.mjs carved out npm-prefix ALONE. toolsDir sits under $HOME on both drivers, so a write into either of the other two leaves fell through to userHome and synthesized write.userHome -- authority over the entire user home, ~/.ssh and every shell profile included -- to reach a directory nub itself created for the package and pointed it at through an env var nub sets. The bucket is renamed npmPrefix -> toolsRw, the leaves are DERIVED from the declared toolsDir root rather than a hardcoded cache pattern (R2), and the scope stays the exact leaves: tools also holds the node-gyp bootstraps nub executes on every later install, so a grant spanning the parent would be a persistence primitive rather than a build need. MEASURED by re-running the pre-fix and post-fix classifiers over all 4053 archived POSIX traces: 110 records (58 linux-x64, 52 darwin-arm64; 58 distinct package-versions across 9 package names) lose write.userHome entirely, and nothing else in any grant moves -- 103 of them keep network:true and no record gains a scope. Those 9 names are this transition's scope. NO record merely narrows: the 154 userHome records whose only tool-cache contact is npm-prefix -- dominated by the @pulumi/* family and netlify-cli -- were already covered by the old carve-out and cannot move, so an earlier estimate of ~95 narrowing records does not survive measurement. winchan was proposed for this scope and is EXCLUDED: neither of its two records carries a userHome synthesized grant at all. playwright-chromium (10 records) does, and had been missed -- observe.mjs's own header already named it the canonical case at 650 of 651 writes, and this re-run measures 649 leaf writes for playwright-chromium@0.17.0. classify.mjs (win32) is deliberately unchanged: measure-windows.mjs reproduces none of the three redirects, so no observed path can land in a leaf, and 0 win32 records carry a tool-cache writes row against 7 on POSIX."
     }
   ]
 }

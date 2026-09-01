@@ -512,3 +512,45 @@ test('an archive with NO manifest cannot resolve, and does not pretend to', () =
   assert.match(out, /CWD-UNOBSERVED/, 'no manifest means no confirmation');
   assert.equal(grant(out), '{"write":{"deps":true,"project":true}}');
 });
+
+// ── 8. THE TOOL-CACHE READ-WRITE LEAVES ──────────────────────────────────────────────────────────
+//
+// This classifier is a SEPARATE implementation from `observe.mjs`, not a shared module, so the
+// Linux cases next door prove nothing here — and the defect these guard lived in both files at once.
+const TOOLS_MAC = '/Users/runner/.cache/nub/pm/tools';
+const toolWrite = (rel, roots = {}) => decode(`
+DTRACE-LIVE|target=3888
+EXECARGV|3950|3896|sh|-c|postinstall
+EXEC|3950|3896|sh|sh
+PATHOP|3952|3950|node|mkdir|ret=0|errno=0|${TOOLS_MAC}/${rel}
+`, { rootsOverride: {
+  project: '/proj', home: '/Users/runner', jailHome: null, temp: null,
+  npmPrefix: `${TOOLS_MAC}/npm-prefix`, toolsDir: TOOLS_MAC,
+  globalStore: null, projectStore: null, interpreter: null, cwd: null, ownPkg: null,
+  ...roots,
+} });
+
+test('all THREE tool-cache rw leaves are free on macOS too, not just the npm prefix', () => {
+  // RED ON REVERT: key `scope()` on `npmPrefix` alone, as this file did, and `ms-playwright` and
+  // `electron-cache` fall through to `userHome` — `toolsDir` is under `$HOME` here as well. That
+  // synthesizes authority over the whole user home for a package that only ever wrote into a
+  // directory nub created for it. `measure-macos.sh` sets all three redirects unconditionally
+  // (`PLAYWRIGHT_BROWSERS_PATH`, `ELECTRON_CACHE`/`electron_config_cache`, `npm_config_prefix`) and
+  // `preset.rs` `push_rw_path`s all three targets, so all three are free.
+  for (const leaf of ['npm-prefix/lib', 'ms-playwright/chromium-764964', 'electron-cache/gh']) {
+    const out = toolWrite(leaf);
+    assert.match(out, /toolsRw\s+1\s+\(base profile already grants this/,
+      `${leaf} was not recognised as a carve-out:\n${out}`);
+    assert.equal(grant(out), '{}', `${leaf} is push_rw_path-granted and must earn no scope`);
+  }
+});
+
+test('macOS scopes the carve-out to the LEAVES — `tools` itself stays billable', () => {
+  // The positive control that keeps the case above from being satisfied by freeing the whole tool
+  // cache. `tools` holds the node-gyp bootstraps nub executes on later installs, so a write grant
+  // over the directory is a persistence primitive; `preset.rs` refuses it by name and so does this.
+  assert.equal(grant(toolWrite('node-gyp/lazy-bin/node-gyp')), '{"write":{"userHome":true}}',
+    'a write beside the leaves is genuinely refused in the jail and must still earn userHome');
+  assert.equal(grant(toolWrite('ms-playwright-cache/x')), '{"write":{"userHome":true}}',
+    'a sibling sharing a leaf NAME PREFIX is a different directory the jail does not grant');
+});

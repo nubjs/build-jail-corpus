@@ -688,23 +688,28 @@ JAIL_HOME="$ROOT/jailhome"; mkdir -p "$JAIL_HOME"
 #   electron_config_cache / ELECTRON_CACHE   `redirect_electron_cache`, likewise.
 #   npm_config_prefix        `redirect_npm_prefix`, likewise.
 #
-# ⛔ THE FOUR REDIRECT TARGETS DO NOT ALL LAND IN THE SAME PLACE, AND TREATING THEM ALIKE WOULD
-# MANUFACTURE A GRANT. `$cache/nub/pm/tools` is granted READ-ONLY, but
-# `grant_build_jail_dependency_reads` then `push_rw_path`s the single leaf
-# `$cache/nub/pm/tools/npm-prefix` — because a prefix is a directory npm CREATES, and an unwritable
-# one was measured refusing `iedriver@4.0.0` outright. So `ms-playwright` and `electron-cache` are
-# refused writes that genuinely need `userHome`, while `npm-prefix` is free; the classifier is told
-# about the leaf below so the free one is not billed.
+# ⛔ ALL THREE REDIRECT TARGETS ARE READ-WRITE CARVE-OUTS, AND A PREVIOUS VERSION OF THIS BLOCK SAID
+# OTHERWISE. `$cache/nub/pm/tools` is granted READ-ONLY, and `grant_build_jail_dependency_reads` then
+# `push_rw_path`s THREE leaves on top of it in one loop — `npm-prefix`, `ms-playwright` and
+# `electron-cache` (`preset.rs`; in the pinned nub, `preset.rs:498-500`). Each is a directory the
+# package CREATES after a redirect hands it the path, and an unwritable one is measurably fatal: an
+# unwritable prefix refused `iedriver@4.0.0` outright, and 653 refused writes under
+# `tools/ms-playwright` are what made `playwright-chromium@0.17.0` demand the whole user home.
 #
-# ⛔ THE REDIRECT TARGETS ARE NOT INSIDE THE JAIL'S WRITABLE SET, AND THAT IS THE POINT RATHER THAN
-# A BUG TO ROUTE AROUND. All four point under `$cache/nub/pm/tools`, which `preset.rs`'s
-# `NUB_PM_CACHE_PATTERNS` grants READ-ONLY (`grant_build_jail_dependency_reads` → `push_read_path`).
-# On Linux `$cache` is `${XDG_CACHE_HOME:-$HOME/.cache}` — under the REAL user home — so a package
-# that writes its cache there needs `write.userHome` and nothing narrower covers it. Observing
-# without the redirect sent the same write to `$JAIL_HOME/.cache/...`, which the base profile already
-# owns, so it was billed as FREE and the synthesized grant omitted the scope the jailed run then
-# required. MEASURED on `playwright-chromium@0.17.0`: 650 of 651 writes landed under `jailHome`,
-# synthesis emitted `{"network":true}`, and the jailed arm died on `mkdir … = -1 EACCES`.
+# This text used to read "`ms-playwright` and `electron-cache` are refused writes that genuinely need
+# `userHome`, while `npm-prefix` is free". That was true of an earlier nub and is false of the pinned
+# one — the other two leaves got their carve-out later. The classifier is told about all three below,
+# derived from the `toolsDir` root, so none of the three is billed.
+#
+# ⛔ THE REDIRECT TARGETS ARE STILL NOT INSIDE THE JAIL'S *DEFAULT* WRITABLE SET, AND REPRODUCING THE
+# REDIRECT IS STILL THE POINT RATHER THAN A BUG TO ROUTE AROUND. All three point under
+# `$cache/nub/pm/tools`, which `preset.rs`'s `NUB_PM_CACHE_PATTERNS` grants READ-ONLY
+# (`grant_build_jail_dependency_reads` → `push_read_path`) before the three leaves are carved out of
+# it. On Linux `$cache` is `${XDG_CACHE_HOME:-$HOME/.cache}` — under the REAL user home — so
+# observing WITHOUT the redirect sends the same write to `$JAIL_HOME/.cache/...` and measures a
+# different path from the one the jailed run takes. MEASURED on `playwright-chromium@0.17.0`: 650 of
+# 651 writes landed under `jailHome`, synthesis emitted `{"network":true}`, and the jailed arm died
+# on `mkdir … = -1 EACCES`. The redirect is what makes OBSERVE and VERIFY the same experiment.
 #
 # `$HOME` here is the REAL home — the redirect is applied to the CHILD's env only, exactly as nub
 # does it: `sandbox_homes` reads nub's OWN `HOME`, not the one it hands the script.

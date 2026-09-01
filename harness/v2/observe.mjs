@@ -206,17 +206,35 @@ for (const e of decoded.events) {
 //                 package's own directory resolves into granted space. A write to a SIBLING
 //                 dependency does NOT, and stays `deps`.
 //
-//   `npmPrefix` — the ONE read-write carve-out inside nub's own tool cache.
+//   `toolsRw`   — the read-write carve-outs inside nub's own tool cache. THREE LEAVES, NOT ONE.
 //                 `grant_build_jail_dependency_reads` grants `$cache/nub/pm/tools` READ-ONLY and
-//                 then `push_rw_path`s `$cache/nub/pm/tools/npm-prefix` on top, because
-//                 `redirect_npm_prefix` points `npm_config_prefix` there and a prefix is a
-//                 directory npm CREATES. ⛔ THE DISTINCTION IS NOT PEDANTRY, IT IS THE DIFFERENCE
-//                 BETWEEN THE TWO REDIRECTS: `ms-playwright` and `electron-cache` sit under the
-//                 read-only `tools` grant, so a write there is genuinely refused and genuinely
-//                 needs `userHome`; `npm-prefix` is granted, so billing it would manufacture a
-//                 `userHome` grant for a directory the jail hands the script for free. The scope is
-//                 the exact leaf, never `tools` — a write grant over the whole directory would
-//                 reach the node-gyp nub bootstraps for itself and executes on later installs.
+//                 then `push_rw_path`s three leaves on top of it, in one loop over
+//                 `npm-prefix`, `ms-playwright` and `electron-cache` (`compiler/preset.rs`, and in
+//                 the corpus's pinned nub that loop is `preset.rs:498-500`). Each is a directory a
+//                 REDIRECT hands the script — `redirect_npm_prefix`, `redirect_playwright_browsers`
+//                 and `redirect_electron_cache`, none of them platform-gated — and each is then a
+//                 directory the package CREATES, so granting it read-only would be telling the
+//                 package to download into space it cannot write.
+//
+//                 ⛔ THIS BUCKET WAS `npmPrefix` AND COVERED ONE LEAF, AND THAT WAS A MEASUREMENT
+//                 BUG RATHER THAN A NAMING ONE. This paragraph used to read: "`ms-playwright` and
+//                 `electron-cache` sit under the read-only `tools` grant, so a write there is
+//                 genuinely refused and genuinely needs `userHome`". True of an earlier nub, false
+//                 of the pinned one. So the two uncarved leaves fell through to `userHome` — on
+//                 both POSIX drivers `toolsDir` lives under `$HOME` — and synthesized a grant over
+//                 the ENTIRE USER HOME to reach a directory the jail hands the script for free.
+//                 That is exactly the manufacturing the very next clause of the old text warned
+//                 about for `npm-prefix`: the warning was right and the carve-out was one third
+//                 done. `write.userHome` is the persistence capability, so the direction here is
+//                 the expensive one — it hands out what the jail exists to withhold.
+//
+//                 ⛔ SCOPED TO THE EXACT LEAVES, NEVER TO `tools` ITSELF, and that is a security
+//                 boundary rather than tidiness. `tools` also holds the node-gyp bootstraps nub
+//                 installs for its OWN use and executes on every later install, so a write grant
+//                 spanning the directory would let one package's lifecycle script replace a binary
+//                 every subsequent install then runs — persistence, dressed as a build need.
+//                 `preset.rs` states the same rule at the same place. Adding a leaf is safe;
+//                 widening to the parent is not, and a test below pins that both ways.
 //
 //   `jailTmp`   — `TmpMode::Private`. `backend/mod.rs::make_private_tmp` creates a fresh per-run
 //                 dir under the OS temp root, `backend/linux_landlock.rs` grants it READ-WRITE, and
@@ -267,15 +285,37 @@ for (const e of decoded.events) {
 // ⇒ Any further drop class needs its own "refused, and rc=0 anyway" measurement with a control.
 const isBytecode = (p) => /(^|\/)__pycache__(\/|$)/.test(p) || /\.py[co]$/.test(p);
 
+const under = (p, root) => p === root || p.startsWith(`${root}/`);
+
+// ⛔ DERIVED FROM THE DECLARED `toolsDir`, NEVER FROM A HARDCODED `~/.cache/nub` PATTERN (R2). The
+// leaf NAMES are the constant — they are nub's, fixed in `preset.rs` alongside the redirects that
+// point at them — while the parent is whatever `capture.json` declares for this venue.
+//
+// ⛔ `npmPrefix` IS UNIONED IN RATHER THAN REPLACED, AND THE REDUNDANCY IS DELIBERATE. Both POSIX
+// drivers declare `npmPrefix` as `${toolsDir}/npm-prefix`, so the derived set already covers it —
+// but a capture that declares `npmPrefix` while leaving `toolsDir` null would otherwise silently
+// LOSE the carve-out it used to have, and losing a carve-out bills a free write, which is the
+// over-grant this whole change exists to stop. Keeping both cannot widen past what the jail
+// grants: every member is a path `push_rw_path` covers.
+//
+// ⛔ NULL-SAFE ON BOTH ROOTS. Several captures declare `toolsDir: null` (the Windows driver sets no
+// redirect at all) and several declare `npmPrefix: null`; `null` is the capture ANSWERING that this
+// venue has no such root, so the correct response is an empty contribution, never a throw and never
+// a path built from the string "null".
+const TOOLS_RW = [
+  ...(toolsDir ? ['npm-prefix', 'ms-playwright', 'electron-cache'].map((l) => `${toolsDir}/${l}`) : []),
+  ...(jailNpmPrefix ? [jailNpmPrefix] : []),
+];
+
 // Ordered before the `proj` test on purpose: `ownPkgDir` is a subtree of the project.
 const scope = (p) => {
   if (isBytecode(p)) return 'bytecode';
-  if (ownPkgDir && (p === ownPkgDir || p.startsWith(`${ownPkgDir}/`))) return 'ownPkg';
-  if (jailHome && (p === jailHome || p.startsWith(`${jailHome}/`))) return 'jailHome';
-  if (jailTmp && (p === jailTmp || p.startsWith(`${jailTmp}/`))) return 'jailTmp';
-  // Before the `tools`-wide answer below it would ever be reached, and before `home`: the leaf is
-  // nested inside both, and only the leaf is writable.
-  if (jailNpmPrefix && (p === jailNpmPrefix || p.startsWith(`${jailNpmPrefix}/`))) return 'npmPrefix';
+  if (ownPkgDir && under(p, ownPkgDir)) return 'ownPkg';
+  if (jailHome && under(p, jailHome)) return 'jailHome';
+  if (jailTmp && under(p, jailTmp)) return 'jailTmp';
+  // Before the `tools`-wide answer below it would ever be reached, and before `home`: each leaf is
+  // nested inside both, and only the leaves are writable — `tools` itself is not.
+  if (TOOLS_RW.some((leaf) => under(p, leaf))) return 'toolsRw';
   // ⛔ THE `/node_modules/` TEST RUNS ON THE SUFFIX AFTER `proj`, NEVER ON THE WHOLE PATH, and
   // MAPPING.md rule 2 names this exact anti-pattern: "A rule like 'contains `/node_modules/`' is
   // not deterministic: it depends on where the fixture happened to live." Testing `p` whole is
@@ -297,7 +337,7 @@ const scope = (p) => {
 };
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
-const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'npmPrefix'];
+const BASE_COVERED = ['ownPkg', 'jailHome', 'jailTmp', 'toolsRw'];
 // ⛔ `bytecode` IS NOT IN `BASE_COVERED`, AND THE DISTINCTION IS THE POINT. A base-covered write is
 // one the jail GRANTS; a bytecode write is one the jail REFUSES and the build survives without.
 // Collapsing them into one list would make the report claim the jail hands these paths over, which
@@ -358,7 +398,9 @@ if (lifecycle.size === 0) {
 // it. They are here so the next person has the roots without re-deriving them from ambient state.
 console.log('== ROOTS (from capture.json — R2: no ambient reads) ==');
 for (const k of REQUIRED_ROOTS) {
-  const keyed = ['project', 'home', 'jailHome', 'temp', 'npmPrefix', 'ownPkg'].includes(k);
+  // `toolsDir` joined this list when the `toolsRw` bucket grew from one leaf to three: it is keyed
+  // on to DERIVE the leaves, never as a bucket of its own — `tools` itself stays unwritable.
+  const keyed = ['project', 'home', 'jailHome', 'temp', 'npmPrefix', 'toolsDir', 'ownPkg'].includes(k);
   console.log(`  ${k.padEnd(13)} ${roots[k] ?? '(null)'}${keyed ? '' : '   [declared, not keyed on]'}`);
 }
 console.log('== WRITES the script actually performed ==');
@@ -406,11 +448,16 @@ if (sockets > 0) g.network = true;
 //             `write:{userHome}` is granted, and promotion cannot help because there is nothing of
 //             its in the private home. ⇒ the scope STAYS, and `refuseUserHome` says so in the log.
 //
-// MEASURED, both halves, on this corpus: `@pulumi/gcp@0.16.9` wrote `/home/runner/.pulumi/...` with
-// `HOME` pointed at the jail home (so it resolves the home some way other than `$HOME`), and the two
-// playwright packages write into `$HOME/.cache/nub/pm/tools/ms-playwright` because nub itself sets
-// `PLAYWRIGHT_BROWSERS_PATH` to that absolute path. Both are `userHome`, and a `writePaths` entry
-// naming those directories would move nothing while removing the grant that makes the write legal.
+// MEASURED on this corpus: `@pulumi/gcp@0.16.9` wrote `/home/runner/.pulumi/...` with `HOME` pointed
+// at the jail home, so it resolves the home some way other than `$HOME`. That is `userHome`, and a
+// `writePaths` entry naming it would move nothing while removing the grant that makes the write
+// legal.
+//
+// ⛔ THE PLAYWRIGHT PACKAGES USED TO BE THE SECOND EXAMPLE HERE AND ARE NOT ONE ANY MORE. They write
+// into `$HOME/.cache/nub/pm/tools/ms-playwright` because nub sets `PLAYWRIGHT_BROWSERS_PATH` to that
+// absolute path — and `preset.rs` `push_rw_path`s that exact leaf, so those writes are `toolsRw` and
+// earn no scope at all. Citing them as `userHome` was this file reading its own misclassification
+// back as evidence; the surviving `@pulumi/gcp` half never depended on the tool cache.
 //
 // ⛔ AND THE DESCENT NEVER TESTS THIS FIELD, DELIBERATELY. `measure.sh`'s `descend` enumerates
 // `no-network` and `no-write-<scope>` only, so `writePaths` rides through every arm unchanged. That

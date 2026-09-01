@@ -146,6 +146,21 @@ const jailHomeRoot = roots.jailHome ? norm(roots.jailHome) : null;
 
 // The buckets a base-profile grant already covers. Named once so the report and the synthesized
 // grant cannot disagree about which writes are free.
+//
+// ⛔ NO `toolsRw` BUCKET HERE, AND THE ABSENCE IS MEASURED RATHER THAN ASSUMED. Both POSIX
+// classifiers carve the three tool-cache read-write leaves — `$cache/nub/pm/tools/{npm-prefix,
+// ms-playwright,electron-cache}`, `push_rw_path`ed together in `preset.rs` — out of `userHome`,
+// because their drivers reproduce the three redirects that send a package there and a write that
+// lands in one is free. THIS DRIVER REPRODUCES NONE OF THEM: `measure-windows.mjs` sets no
+// `PLAYWRIGHT_BROWSERS_PATH`, no `ELECTRON_CACHE`/`electron_config_cache` and no
+// `npm_config_prefix`, and says so where it declares `npmPrefix: null`. A package cannot reach
+// those directories without the redirect — the paths are nub's own and no package hardcodes them —
+// so there is nothing to carve out and adding a bucket would be policy with no path under it.
+//
+// CHECKED against the committed corpus: 0 of the win32-x64 `driver.out` files carry a tool-cache
+// WRITES row, against 7 on POSIX. Restore this bucket if and when the Windows driver starts
+// reproducing the redirects — at which point `toolsDir`, already declared and unkeyed, is the root
+// to derive the leaves from, exactly as `observe.mjs` does.
 const BASE_COVERED = ['jailTmp', 'jailHome'];
 
 const under = (p, root) => p === root || p.startsWith(root + (WIN ? '\\' : '/'));
