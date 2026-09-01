@@ -1937,8 +1937,15 @@ verify () {
   if [ "$rc" -ne 0 ]; then
     for _al in i a; do
       [ -f "$v/$_al.log" ] || continue
-      grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT|^[[:space:]]*(file://)?/[^ ]*\.(c|m)?js:[0-9]+$' \
-        "$v/$_al.log" 2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
+      # ⛔ STRIP `RUST_LOG` LINES FIRST. `Error:` matches `NoError:` — the DNS response code nub's
+      # own debug trace prints on EVERY successful lookup — so on a run with `RUST_LOG=debug` the
+      # `head -12` budget is consumed entirely by resolver chatter and the installer's real error
+      # never reaches the record. MEASURED: 706 records affected, 9 of 26 sampled retained ONLY DNS
+      # packet headers. The prefix is anchored to the level token so an installer line that happens
+      # to contain the word cannot be dropped with it.
+      grep -avE '^[[:space:]]*(DEBUG|TRACE|INFO)[[:space:]]' "$v/$_al.log" 2>/dev/null \
+        | grep -aE 'npm ERR!|gyp ERR!|command not found|No such file or directory|Error:|EACCES|EPERM|ENOTFOUND|ETIMEDOUT|^[[:space:]]*(file://)?/[^ ]*\.(c|m)?js:[0-9]+$' \
+          2>/dev/null | head -12 | sed "s|^|     [$label/$_al] |"
     done
   fi
   # ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
