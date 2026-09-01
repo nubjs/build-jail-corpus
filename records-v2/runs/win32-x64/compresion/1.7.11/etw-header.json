@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "compresion",
   "version": "1.7.11",
-  "at": "2026-08-24T01:37:44.897Z",
+  "at": "2026-09-01T11:11:21.122Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8744_mt6kgg1w",
+      "name": "nubobs_7160_mtikgzxt",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm6iq3x",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm6iq3x\\runneradmin",
-    "sid": "S-1-5-21-1765882305-833847025-4098194446-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,31 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-compresion-mt6kgdb0\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-compresion-mt6kgdb0\\observe",
-    "rootPid": 7996,
-    "launcherPid": 7980,
+    "command": "D:\\jail\\m-compresion-mtikgx5j\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-compresion-mtikgx5j\\observe",
+    "rootPid": 3232,
+    "launcherPid": 2588,
     "exitCode": 0,
-    "startedUtc": "2026-08-24T01:37:36.8845176Z",
-    "endedUtc": "2026-08-24T01:37:37.7837281Z"
+    "startedUtc": "2026-09-01T11:11:16.6652893Z",
+    "endedUtc": "2026-09-01T11:11:17.3096039Z"
   },
   "integrity": {
-    "eventsTotal": 70933,
+    "eventsTotal": 26139,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-compresion-mt6kgdb0\\observe",
+    "project": "D:\\jail\\m-compresion-mtikgx5j\\observe",
     "home": "C:\\Users\\runneradmin",
-    "jailHome": null,
+    "jailHome": "D:\\jail\\m-compresion-mtikgx5j\\jailhome",
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-compresion-mt6kgdb0\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-compresion-mtikgx5j\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-compresion-mt6kgdb0\\tmp",
+    "temp": "D:\\jail\\m-compresion-mtikgx5j\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-compresion-mt6kgdb0\\observe\\node_modules\\compresion",
+    "npmCache": "D:\\jail\\m-compresion-mtikgx5j\\npm-cache",
+    "ownPkg": "D:\\jail\\m-compresion-mtikgx5j\\observe\\node_modules\\compresion",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +92,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 91498239,
-    "gzBytes": 1350840,
-    "sha256": "453f459de0c59f5df72a37a16efb11f23ab6f215035e6f41de4ea747dd396508",
+    "bytes": 33355522,
+    "gzBytes": 514648,
+    "sha256": "9b926a6cabaea0b7184dc9a1f53995a786dd607ca6a83a8171a1748c610f2293",
     "of": "trace.xml",
-    "etlBytes": 12582912,
+    "etlBytes": 6291456,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +107,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 7996 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 3232 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm6iq3x))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 70933,
-    "kept": 6365,
-    "distinct": 5233,
+    "xmlEvents": 26139,
+    "kept": 6390,
+    "distinct": 5232,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 70916,
-      "Microsoft-Windows-Kernel-Process": 15
+      "Microsoft-Windows-Kernel-File": 26123,
+      "Microsoft-Windows-Kernel-Process": 10,
+      "Microsoft-Windows-Kernel-Network": 4
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
     "unsettled": 0,
-    "reattributedByThread": 3,
-    "outOfSubtree": 23075,
+    "reattributedByThread": 0,
+    "outOfSubtree": 3368,
     "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,
