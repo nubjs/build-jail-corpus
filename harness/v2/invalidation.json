@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 70,
+  "currentEpoch": 71,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1474,6 +1474,16 @@
         "verdicts": []
       },
       "reason": "Refuses to narrow away a whole-home write grant when the driver's own attributed census recorded writes in the real home and no denial witness came back CLEAN. The artifact gate only walks the package's own directory, so a home write is invisible to it and a passing drop arm is as consistent with a swallowed refusal as with the capability being unnecessary. A red sibling arm does not settle it either, because it proves the refusal chain fires somewhere in the run rather than on the home write. The census reader moves to its own leaf module so the recorder and the offline re-adjudicator share one implementation. No invalidation: nothing about the measurement changed, only how the recorder reads a log that is already committed beside every record, so the affected records are repaired by re-recording them offline rather than by re-running them."
+    },
+    {
+      "fromEpoch": 70,
+      "fromHarnessSha256": "005c7a9260f0b298dcbe11e4162d8cdae22d38b83952f31c95487d77e8e9fe25",
+      "toEpoch": 71,
+      "toHarnessSha256": "3ca0732d96443cca2d02432bbb6e7ca58bf22a75453ed61c1fe5825bb556fa58",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Adds an offline re-record path and applies it to the 115 records whose committed grant dropped a whole-home write the artifact gate could never have tested. It replays each record's own archived driver log through the current recorder and may only ever WIDEN, since a re-record that narrows is the harm being repaired. Only grant, grantSource, grantSourceReason and notes change; the full record is diffed to prove nothing else moves. No measurement was re-run and no record is invalidated."
     }
   ]
 }
