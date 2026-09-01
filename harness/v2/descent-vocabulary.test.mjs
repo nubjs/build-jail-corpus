@@ -215,6 +215,12 @@ test('INSTRUMENT: the legacy detector can actually fire', () => {
 // per-arm sentence instead. Both paths are exercised in this file so neither can rot unnoticed.
 const linuxLog = (names, grant, tail = []) => [
   '  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}',
+  // ⛔ THE OBSERVE NETWORK CENSUS, WHICH `observe.mjs` PRINTS UNCONDITIONALLY. `record.mjs`'s network
+  // term FAILS CLOSED on its absence, so a fixture without it refuses every `no-network` drop for a
+  // reason that has nothing to do with the vocabulary this file is about. ZERO peers keeps the NAME
+  // PARSING the only variable.
+  '  == NETWORK ==', '    AF_INET sockets: 0   distinct peers: 0',
+  '  == REFUSALS ==', '    distinct: 0',
   `  => MINIMUM ${JSON.stringify(grant)}   (observed, then verified)`,
   `  => OVER-PREDICTED by: ${names.join(' ')}  (synthesized ${JSON.stringify(grant)}; each named capability drops on its own)`,
   ...tail,

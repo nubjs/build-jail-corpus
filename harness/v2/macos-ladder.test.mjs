@@ -113,6 +113,14 @@ const run = (oracle, {
     // the whole grant-source rule on seeing it — absence is read as "the check never ran" — so a
     // round trip that omitted it would test the wrong branch of `applyGrantSourceRule`.
     'echo \'  ARM-FALSIFIABILITY {"pkg":"demo","falsifiable":true}\'',
+    // ⛔ THE SAME ARGUMENT ON THE NETWORK AXIS. `observe-macos.mjs` prints a `== NETWORK` census
+    // unconditionally, above this region, and `record.mjs`'s network term FAILS CLOSED on its absence
+    // — so a round trip that omitted it would refuse every rung that drops `network` and test the
+    // wrong branch. ZERO peers, because the subject of this file is the LADDER: a census that found
+    // nothing is the one shape that leaves the descent's own behaviour untouched.
+    'echo \'  == NETWORK ==\'',
+    'echo \'    AF_INET connects: 0   distinct peers: 0\'',
+    'echo \'  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==\'',
     // The jail-off control the terminal verdict now consults. Stubbed for the same reason `verify` is:
     // the real one runs two `nub` installs, which no unit test can afford.
     //
