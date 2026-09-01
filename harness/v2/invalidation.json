@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 68,
+  "currentEpoch": 69,
   "transitions": [
     {
       "fromEpoch": null,
@@ -1454,6 +1454,16 @@
         ]
       },
       "reason": "Wires the denial witness into the macOS driver. It scores whether a drop arm's script attempted a write the jail refused and swallowed, and until now it ran on Linux only, so no darwin record carried the signal. The macOS traced verify branch also now runs approve-builds, matching the untraced branch, so a traced arm's exit code can differ from before. The scope is every darwin package whose descent ran a no-write-userHome arm - those that narrowed on it and those that did not - because the exit-code change reaches both."
+    },
+    {
+      "fromEpoch": 68,
+      "fromHarnessSha256": "6a26519de32690a7fe6ecc95ed9740b751bb52cc08e60a47cbb6aad90d7da336",
+      "toEpoch": 69,
+      "toHarnessSha256": "267525003d9c080abf1435572a106e54bb62616c22f8cd3a5c6362c8dd0628d1",
+      "invalidate": {
+        "verdicts": []
+      },
+      "reason": "Adds an offline re-adjudication module. A committed record is frozen at whatever grant-source rule ran at measurement time, and the epoch-58 three-term rule never re-runs, so records measured before it keep a one-term answer. The module replays a record's own archived driver log through the current rule and scores the result with publish-guard, refusing on parse drift, on an unsound red arm, and on a home-write the artifact gate could not have tested. It reads records and rewrites nothing, so no measurement behaviour changes and no record is invalidated."
     }
   ]
 }
