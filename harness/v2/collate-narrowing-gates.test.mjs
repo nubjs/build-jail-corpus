@@ -188,6 +188,37 @@ test('GATE 2 CONTROL: the identical vacuous record publishes once a drop arm wen
     'a descent arm that went red IS the detector firing — this narrowing must publish');
 });
 
+test('GATE 2: a record whose arms never saw the subject is blind, though nothing flagged it', () => {
+  // ⛔ THE SHAPE THE OTHER TWO GATE-2 CASES CANNOT SEE. Both of those key on `arms-unfalsifiable`,
+  // and all 39 of the measured records here carry `notes: []` with `reasons: []` — the vacuity
+  // detectors are silent because there was no arm for them to judge. `subjectInObserveTree: false`
+  // is the only field that says so, and without it win32 reads as a clean falsifiable measurement.
+  const { catalog } = collateRecords([
+    record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'linux-x64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { network: true } },
+      { subjectInObserveTree: false }),
+  ], SHIPPED_WIDE);
+  assert.equal(effective(catalog.packages.demo.default, 'win').write, 'disk',
+    'win32 reported, but `npm rebuild` ran against a tree with no subject in it');
+  // The gate must not cost the two platforms that measured the package for real.
+  for (const plat of ['macos', 'linux']) {
+    assert.equal(effective(catalog.packages.demo.default, plat).write, undefined,
+      `${plat} measured the subject and must still narrow`);
+  }
+});
+
+test('GATE 2 CONTROL: the identical record publishes once the subject was in the tree', () => {
+  const { catalog } = collateRecords([
+    record({ pkg: 'demo', version: '1.0.0', platform: 'darwin-arm64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'linux-x64', grant: { network: true } }),
+    record({ pkg: 'demo', version: '1.0.0', platform: 'win32-x64', grant: { network: true } },
+      { subjectInObserveTree: true }),
+  ], SHIPPED_WIDE);
+  assert.equal(effective(catalog.packages.demo.default, 'win').write, undefined,
+    'one field differs from the case above; a gate that refused both would freeze the catalog');
+});
+
 test('GATE 2: one blind record among sound ones still refuses, because the cell is a UNION', () => {
   // 1.0.0 narrows on a red arm; 2.0.0 narrows on nothing. The cell takes the WIDEST of the two, so a
   // capability 2.0.0 vacuously failed to observe is one the union can never recover — `every`, not
@@ -288,6 +319,29 @@ test('CONTROL: a package every platform measured as needing nothing IS dropped',
   );
   assert.equal(catalog.packages.demo, undefined,
     'an evidenced "needs nothing" must not be resurrected by the floor');
+});
+
+test('a "needs nothing" measured on a tree with no subject in it does NOT earn the removal', () => {
+  // ⛔⛔ THE SAME FIXTURE AS THE CONTROL ABOVE, DIFFERING IN EXACTLY ONE FIELD, AND IT IS THE WIDEST
+  // UNDER-GRANT THE `manifestFiles` DEFECT CAN REACH. The observe arm is `npm rebuild <pkg>`: run
+  // against a tree that does not hold `<pkg>` it executes nothing and the synthesized grant is `{}`
+  // — byte-identical to a package that genuinely needs nothing. `evidencedDrop` then reads that as
+  // an EARNED removal and lets it past the carry-forward floor, and an absent entry runs at the base
+  // profile, so the package does not get a narrower grant, it gets none.
+  //
+  // MEASURED over all 6,887 committed logs: 39 records report `manifestFiles: null`, 13 of them
+  // `MINIMUM` at `grant: {}`. None carries `arms-unfalsifiable` — every one reports `reasons: []` —
+  // so Gate 2's other terms are all silent on them and this is the term that has to see it.
+  const { catalog } = collateRecords(
+    ['darwin-arm64', 'linux-x64', 'win32-x64'].map((platform) =>
+      record({ pkg: 'demo', version: '1.0.0', platform, grant: {} },
+        platform === 'linux-x64' ? { subjectInObserveTree: false } : {})),
+    SHIPPED_WIDE,
+  );
+  assert.notEqual(catalog.packages.demo, undefined,
+    'one arm that never saw the package is enough to un-earn the removal — the shipped entry stays');
+  assert.equal(effective(catalog.packages.demo.default, 'linux').write, 'disk',
+    'and the platform whose arm measured an empty tree keeps the widest grant that ever shipped');
 });
 
 // ── the flag itself ───────────────────────────────────────────────────────────────────────────

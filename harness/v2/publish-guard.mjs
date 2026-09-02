@@ -141,6 +141,34 @@ export const narrows = (priorGrant, incomingGrant) => {
 
 const notesOf = (rec) => (Array.isArray(rec?.notes) ? rec.notes : []);
 
+// ⛔⛔ THE ARMS WERE NOT LOOKING AT THE PACKAGE. This is not a weaker detector — it is no detector,
+// and it outranks every term in this file in the refusing direction.
+//
+// The observe arm is `npm rebuild <pkg>`. Run against a tree that does not contain `<pkg>` it
+// executes nothing, the decoder attributes zero lifecycle pids, and the synthesized grant is `{}` —
+// byte-identical to the grant of a package that genuinely needs nothing. Every detector this file
+// weighs then answers about that empty run: the artifact gate passes (no artifact was expected), the
+// exit code is 0 (nothing ran to fail), a denial witness comes back CLEAN (nothing was attempted to
+// be refused), and `minimality` reads MINIMAL by construction. So the record arrives looking like the
+// cleanest measurement in the corpus.
+//
+// MEASURED over all 6,887 committed `driver.out` files: `arm-falsifiability.mjs` reported
+// `manifestFiles: null` — its `pkgDir()` resolved no layout for the subject — in 39 records, 36
+// linux-x64 and 3 darwin-arm64. Every one carries an `ARM-SCAFFOLD` line and `reasons: []`, so NOT
+// ONE of them is caught by the `arms-unfalsifiable` note this file's other terms key on. 15 are
+// `MINIMUM` and 13 of those publish `grant: {}`.
+//
+// ⛔ THE DRIVER HALF IS ALREADY CLOSED AND THIS IS STILL NEEDED. All three drivers now re-install the
+// subject after the scaffold and REFUSE (`ARM-SUBJECT-EVICTED` → `=> UNKNOWN`) rather than measure a
+// tree without it — `subject-survives-scaffold.test.mjs` pins that on all three. But a rule only runs
+// at measurement time, and those 39 records are frozen at the bad answer with their logs beside them.
+// This is the reading half: the same fact, applied where records are SCORED.
+//
+// ⛔ `=== false` AND NOTHING LOOSER. `subjectInObserveTree` is a tri-state — `null`/absent means the
+// marker predates the field or there is no marker at all, which describes 1,220 committed logs, and
+// reading those as absent-subject would make `collate.mjs`'s Gate 2 floor the entire corpus.
+export const subjectAbsent = (rec) => rec?.subjectInObserveTree === false;
+
 // ⛔ A RED ARM IS THE WHOLE POINT, AND `MINIMAL` ALONE DOES NOT IMPLY ONE.
 // `minimality: "MINIMAL"` means "no capability in the grant was droppable". With a NON-EMPTY grant
 // that is the descent having run one arm per capability and every arm having FAILED — red arms, so a
@@ -249,6 +277,20 @@ const licensedByPromotion = (rec) => {
 // question the promotion term answers — and not being able to ask it means no licence, which keeps
 // that consumer exactly as strict as it was before this term existed.
 export const narrowingEvidence = (rec, dropped = null) => {
+  // ⛔⛔ TESTED FIRST, ABOVE THE `arms-unfalsifiable` EARLY RETURN, AND BOTH HALVES OF THAT POSITION
+  // ARE LOAD-BEARING. Above the early return, because not one of the 39 measured records carries the
+  // note — they all report `reasons: []`, so a term placed below it is unreachable for every record
+  // this exists to catch. Above `hasRedArm` and `licensedByPromotion`, because those are LICENCES and
+  // a licence derived from the same empty tree is worth nothing: an arm that went red in a tree
+  // without the subject proves the jail fires, not that this package needs the capability.
+  if (subjectAbsent(rec)) {
+    return {
+      evidence: false,
+      why: 'an observe tree that did not contain the subject at all (ARM-FALSIFIABILITY reported no '
+        + 'package directory) — `npm rebuild` ran nothing, so no arm in this record measured this '
+        + 'package and no detector here can speak to it',
+    };
+  }
   if (!notesOf(rec).includes('arms-unfalsifiable')) {
     return { evidence: true, why: 'falsifiable arms' };
   }
@@ -326,6 +368,36 @@ export const decide = (prior, incoming) => {
   const introducesEmptyEntry = isMeasurement(incoming)
     && capsOf(incoming?.grant).size === 0
     && !(isMeasurement(prior) && capsOf(prior?.grant).size === 0);
+
+  // ⛔⛔ THE PRIOR-EST QUESTION OF ALL, AND IT SITS ABOVE THE `observed-effect` VETO BECAUSE IT
+  // SUBSUMES IT. That one asks whether the script DID anything; this asks whether the package was
+  // even in the tree. A subject-absent arm necessarily attempted nothing, so this is the more
+  // specific finding of the two, and the reason text has to say so — "the script produced no
+  // observable effect" sends a reader hunting for a missing host precondition, when the tree simply
+  // had no package in it to rebuild.
+  //
+  // ⛔ SAME CONDITION AS THE VETO BELOW, AND THE `introducesEmptyEntry` HALF IS THE ONE THAT MATTERS
+  // HERE. 13 of the 15 MINIMUM records in this population publish `grant: {}` with nothing prior, so
+  // `dropped` is empty for every one of them — a term gated on `dropped.length > 0` alone would let
+  // all 13 through. An empty entry is TIGHTER than no entry (see `introducesEmptyEntry` above), so
+  // publishing one off an empty tree withdraws the baseline's write-path promotion.
+  //
+  // ⛔ AND IT IS A REFUSAL, NEVER A LICENCE, exactly like the veto below: it can only ever move a
+  // record from publish to WITHHELD, and a widening or confirming record still publishes as it did.
+  if (subjectAbsent(incoming) && (dropped.length > 0 || introducesEmptyEntry)) {
+    const what = dropped.length
+      ? `would drop ${dropped.join(', ')} from ${JSON.stringify(prior?.grant ?? null)} to `
+        + `${JSON.stringify(incoming?.grant ?? null)}`
+      : 'would publish an EMPTY entry where the corpus has none, which disables the baseline\'s '
+        + 'write-path promotion rather than leaving it in place';
+    return {
+      publish: false,
+      reason: `WITHHELD — ${what}, but ARM-FALSIFIABILITY reported no package directory in the `
+        + 'observe tree, so `npm rebuild` ran nothing and this record measured a tree the subject '
+        + 'was never in. Its `{}` means "did not run", not "needs nothing". Re-measure on a tree '
+        + 'that holds the subject; do not narrow it.',
+    };
+  }
 
   // ⛔⛔ THE VETO, AND IT IS TESTED BEFORE `narrowingEvidence` SO THAT NO PRESENT OR FUTURE TERM CAN
   // OUTRANK IT. Every term below answers "could this arm have gone red?". This one answers a prior

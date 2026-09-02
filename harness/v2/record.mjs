@@ -297,6 +297,30 @@ export function parseDriverLog(log) {
     // says which detector died; this says whether npm had anything to run at all, which is what
     // `observed-effect.mjs` needs to tell "the script did nothing" from "there was no script".
     declaresInstallWork: null,
+    // ⛔⛔ WAS THE PACKAGE EVEN IN THE TREE THE ARMS RAN AGAINST? Every other field here asks how much
+    // a green arm proves; this one asks the prior question, and when the answer is no, none of the
+    // others is measuring the subject at all. The observe arm is `npm rebuild <pkg>`: run against a
+    // tree that does not contain `<pkg>` it executes nothing, the decoder attributes zero lifecycle
+    // pids, and the synthesized grant is `{}` — byte-identical to the grant of a package that
+    // genuinely needs nothing, so the record lands MINIMUM off a run that never happened.
+    // `subject-survives-scaffold.test.mjs` carries the measurement and the drivers' refusal branch.
+    //
+    // THREE STATES, and `false` is the only one that refuses anything:
+    //
+    //   true    the marker carried a numeric `manifestFiles` — `arm-falsifiability.mjs` resolved the
+    //           package's directory in the observe tree and walked it.
+    //   false   it carried `manifestFiles: null` — that file's `pkgDir()` found no layout for the
+    //           subject at all, so the arms measured a tree without it.
+    //   null    no marker, or a marker predating the field. NOT ESTABLISHED, and it has to stay
+    //           distinguishable from `false` forever: 1,220 of the 6,887 committed logs carry no
+    //           marker at all, so a consumer that read absent as absent-SUBJECT would floor the
+    //           entire corpus.
+    //
+    // ⛔ A TRI-STATE BOOLEAN RATHER THAN THE RAW COUNT, AND THAT IS THE WHOLE SAFETY ARGUMENT. Carried
+    // verbatim, the alarm value would be `manifestFiles === null` — one loose `== null` or `!x` at
+    // any future consumer then turns "unknown" into "evicted" for every marker-less record. Here
+    // `=== false` is the only refusal and no falsy-test can reach it by accident.
+    subjectInObserveTree: null,
     // ⛔ THE COUNTS HALF, FROM THE `OBSERVED-EFFECT` MARKER ALL THREE CLASSIFIERS EMIT. Null means the
     // record predates the marker, and `observedEffect()` reads that as UNKNOWN — which vetoes
     // nothing, so every existing record keeps the behaviour it was measured under.
@@ -623,6 +647,23 @@ export function parseDriverLog(log) {
         // `?? null` rather than a boolean coercion: a marker predating this field is UNKNOWN, and
         // `false` there would mean "npm runs nothing", exempting the record from the veto.
         out.declaresInstallWork = typeof af.declaresInstallWork === 'boolean' ? af.declaresInstallWork : null;
+        // ⛔⛔ `manifestFiles` WAS EMITTED FOR MONTHS AND READ BY NOTHING, WHICH IS THE DEFECT THIS
+        // LINE CLOSES. `applyGrantSourceRule` gates the whole grant-source rule on the marker LINE
+        // EXISTING — so a payload of `{"manifestFiles":null,…}` read as "asked and answered" while
+        // the arm behind it had measured a tree the subject was never in. MEASURED over all 6,887
+        // committed logs: 39 records (36 linux-x64, 3 darwin-arm64, 0 win32), 15 of them MINIMUM and
+        // 13 of those at `grant: {}` — a published under-grant, and an under-grant breaks installs.
+        //
+        // ⛔ THE KEY'S PRESENCE IS WHAT SEPARATES "UNKNOWN" FROM "ABSENT", so it is tested rather than
+        // inferred from the value. A marker predating the field yields `undefined`, which must score
+        // exactly as no marker at all does; only an explicit `manifestFiles: null` is the alarm.
+        // Any other type is folded into the alarm too — fail-closed, since a payload this recorder
+        // cannot read is not evidence the subject was present.
+        out.subjectInObserveTree = 'manifestFiles' in af ? typeof af.manifestFiles === 'number' : null;
+        // A human-visible label beside the typed field. The gates below and in `publish-guard.mjs`
+        // key on the field, never on this string — `notes` is an open vocabulary and a note is a
+        // description, not a trust boundary.
+        if (out.subjectInObserveTree === false) out.notes.push('subject-absent');
       } catch { out.notes.push('arm-falsifiability-marker-unparsable'); }
       continue;
     }
@@ -1029,7 +1070,24 @@ const applyGrantSourceRule = (out, lines) => {
     : null;
 
   let source, reason;
-  if (n === 0) {
+  // ⛔⛔ FIRST OF THE CHAIN, ABOVE EVEN `n === 0`, BECAUSE IT ANSWERS A PRIOR QUESTION. Every branch
+  // below reasons about which detector could have gone red; this one says the arms were not looking
+  // at the package. Placed first so the RECORD'S OWN SENTENCE is true as well as its source: with
+  // `n === 0` the next branch would print "no capability was droppable — synthesized IS the minimum"
+  // over a `{}` that was synthesized from a tree the subject was never in, which is the flattering
+  // reading this whole file exists to refuse.
+  //
+  // ⛔ IT IS A REFUSAL, NEVER A LICENCE — the same asymmetry as the `denial-witnessed` branch below.
+  // It can only ever hold a record on the wider synthesized grant; nothing here can narrow one.
+  // MEASURED on the committed corpus: `p5@0.7.0` (linux-x64) is the one record this branch actually
+  // moves — `grantSource: descended`, `{"write":{"userHome":true}}`, narrowed off an observe tree
+  // with no `p5` in it.
+  if (out.subjectInObserveTree === false) {
+    source = 'synthesized';
+    reason = 'the observe tree did not contain the subject at all (ARM-FALSIFIABILITY reported no '
+      + 'package directory), so `npm rebuild` ran nothing and no arm here measured this package — '
+      + 'the descent cannot be read as evidence and the wider synthesized grant is kept';
+  } else if (n === 0) {
     source = 'synthesized'; reason = 'no capability was droppable — synthesized IS the minimum';
   } else if (unparsedNames.length) {
     // ⛔ TESTED BEFORE EVERY NARROWING BRANCH, because this is an INSTRUMENT failure and the branches
@@ -1496,6 +1554,17 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // records this rule just narrowed. `falsifiabilityReasons` rides along for the same reason it
     // exists above: `arms-unfalsifiable` alone cannot say which detector died.
     falsifiabilityReasons: parsed.falsifiabilityReasons ?? null,
+    // ⛔⛔ AND THIS IS THE FIELD WHOSE ABSENCE FROM THIS WHITELIST WOULD REPEAT `confinedWide`'s
+    // SCAR EXACTLY. `arm-falsifiability.mjs` has emitted `manifestFiles` since it was written and
+    // nothing has ever read it; parsing it above and omitting it here would leave the fact stranded
+    // one step further along, in a recorder that now knows the subject was missing and tells no
+    // downstream consumer. `narrowingEvidence` in `publish-guard.mjs` is the consumer — used both by
+    // `decide()` and by `collate.mjs`'s Gate 2 — and it reads records, never logs.
+    //
+    // `?? null` is the right collapse HERE and the wrong one in the parser: by this point the parser
+    // has already separated "the key was absent" (null) from "the key said null" (false), so an
+    // undefined arriving from an older `parsed` shape means not-established, which is what null is.
+    subjectInObserveTree: parsed.subjectInObserveTree ?? null,
     descentRedArm: parsed.descentRedArm === true,
     // Same reason as the two fields above: `publish-guard.mjs` reads records, not logs, and a
     // WITNESSED capability is the strongest reason a re-measure must not be allowed to narrow.
