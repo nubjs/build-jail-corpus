@@ -32,10 +32,12 @@
 // after this call, guarded by its own ARM-SUBJECT-EVICTED refusal, and each reads the tree back in the
 // layout-aware way its platform needs. Two owners for that repair is how it drifts.
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { installedManifest } from './arm-prepare.mjs';
+import { installedManifest, installedFileReader } from './arm-prepare.mjs';
 import { scriptScaffold } from './script-scaffold.mjs';
+import { SELF_DOWNLOADING, prestageLauncher, prestageMarker } from './prestage-launcher.mjs';
 
 /** One npm install. Injected in tests; the real one is below.
  *
@@ -168,11 +170,26 @@ if (fs.realpathSync(process.argv[1] || '.') === fs.realpathSync(fileURLToPath(im
     process.stdout.write('ARM-SCAFFOLD-PLAN none (the subject is not in the observe tree)\n');
     process.exit(0);
   }
-  const plan = scriptScaffold(manifest);
+  const plan = scriptScaffold(manifest, { readFile: installedFileReader(observeDir, pkg) });
   const base = { cwd: observeDir, before, npmArgv: argv, env: process.env, prefix };
   const result = applyScaffold(plan, {
     runDated: (specs) => npmInstall({ ...base, specs, dated: true }),
     runUndated: (specs) => npmInstall({ ...base, specs, dated: false }),
   });
   for (const m of scaffoldMarkers(result)) process.stdout.write(`${m}\n`);
+
+  // ⛔ AFTER THE TOOLS TIER, AND ONLY FOR A TOOL THAT ACTUALLY INSTALLED. A self-downloading launcher
+  // would otherwise fetch its payload into the arm's HOME on first use, which is the scope being
+  // measured — see `prestage-launcher.mjs` for the 291 MB this keeps out of it. The staging dir is a
+  // sibling of the observe tree rather than a child: a child would be inside the very directory the
+  // artifact gate diffs, and 100 MB of tool would read as files the script produced.
+  const installedTools = new Set(result.tiers.tools?.installed ?? []);
+  for (const tool of Object.keys(SELF_DOWNLOADING)) {
+    if (!installedTools.has(tool)) continue;
+    const stageDir = path.join(path.dirname(observeDir), `.prestage-${tool}`);
+    let r;
+    try { r = prestageLauncher(tool, { observeDir, stageDir }); }
+    catch (e) { r = { tool, staged: false, why: `threw: ${e.message}`, binaries: [] }; }
+    process.stdout.write(`${prestageMarker(r)}\n`);
+  }
 }

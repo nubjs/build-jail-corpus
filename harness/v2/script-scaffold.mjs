@@ -153,6 +153,66 @@ export function commandsIn(script) {
   return out;
 }
 
+/** Script-file arguments a script hands to `node`, so the scan below can follow them.
+ *
+ *  Only the FIRST non-flag word after a bare `node` counts, and only when it looks like a relative
+ *  path to a JS file. Anything else — a `-e` body, an absolute path, a bin shim — is left alone. */
+export function nodeScriptTargets(script) {
+  if (typeof script !== 'string') return [];
+  const out = [];
+  for (const segment of script.split(/&&|\|\||;|\|/)) {
+    const words = segment.trim().split(/\s+/).filter(Boolean);
+    let i = 0;
+    while (i < words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[i])) i++;
+    if (words[i] !== 'node') continue;
+    i++;
+    while (i < words.length && words[i].startsWith('-')) i++;
+    const target = words[i];
+    // Relative, inside the package, and a JS file. `..` is refused: a script may only pull in its own.
+    if (target && /^[.\w][\w./-]*\.[cm]?js$/.test(target) && !target.startsWith('/') && !target.includes('..'))
+      out.push(target.replace(/^\.\//, ''));
+  }
+  return out;
+}
+
+/** Command names a JS file SPAWNS at runtime, read from the file's own source.
+ *
+ *  ⛔⛔ THIS IS THE `node <file>` CASE, AND IT IS 86% OF THE PULUMI CORPUS RATHER THAN A CORNER.
+ *  `commandsIn()` reads the first word of a script segment, so `install: "node scripts/install-pulumi-
+ *  plugin.js resource awsx v2.9.0"` yields `node` — which is AMBIENT — and the real requirement is
+ *  never seen. MEASURED 2026-09-01 over all 86 `@pulumi/*` cells in `records-v2/runs`, against their
+ *  published registry manifests:
+ *
+ *    script shape                                     cells   reached WITHOUT this scan
+ *    `pulumi plugin install …`                          12          12
+ *    `node scripts/install-pulumi-plugin.js …`          74           0
+ *
+ *  So the routing that put `pulumi` in `UNDATED_TOOLS` reaches one cell in seven, and `@pulumi/awsx@2.9.0`
+ *  — the package the change was made for — is in the missed 74. The header note above calls this class
+ *  "RUNTIME-DISCOVERED and no static script parser can reach them". That is true of a parser that reads
+ *  the script STRING; it is not true of one that opens the file the string names, which is what this does.
+ *
+ *  ⛔ LITERAL FIRST ARGUMENTS ONLY, AND THAT IS THE WHOLE SAFETY ARGUMENT. It matches a quoted string
+ *  in argument one of `spawn`/`spawnSync`/`execFile`/`execFileSync`, plus the leading word of an
+ *  `exec`/`execSync` command string. A computed name (`spawnSync(bin, …)`) is deliberately invisible:
+ *  the module's standing rule is that a missed binary is cheap and a wrongly-guessed one is not, and
+ *  guessing here would install an unrelated package and let the record lie about its environment.
+ *  It does not follow `require()` into a second file — one hop is what the measurement showed is needed. */
+export function spawnedCommandsIn(source) {
+  if (typeof source !== 'string') return [];
+  const out = new Set();
+  const add = (name) => {
+    // A bare command name only. A path is the caller's own file, not a PATH lookup.
+    if (name && /^[@a-z0-9][\w.@-]*$/i.test(name) && !name.includes('/')) out.add(name);
+  };
+  for (const m of source.matchAll(/\b(?:spawnSync|spawn|execFileSync|execFile)\s*\(\s*(['"])([^'"]+)\1/g))
+    add(m[2]);
+  // `exec`/`execSync` take a whole command LINE, so only its first word is a binary.
+  for (const m of source.matchAll(/\b(?:execSync|exec)\s*\(\s*(['"])([^'"]+)\1/g))
+    add(m[2].trim().split(/\s+/)[0]);
+  return [...out];
+}
+
 /** Follow the script graph the way npm actually executes it.
  *
  *  ⛔ TWO RULES, AND BOTH WERE MISSED BY THE FIRST VERSION — each cost real records in the
@@ -214,7 +274,7 @@ const AMBIENT = new Set([
  *
  *  `unprovidable` and `ambient` exist so the RECORD can state why a binary was left unsatisfied instead
  *  of leaving the reader to infer it from a failure. */
-export function scriptScaffold(manifest, { has = () => false } = {}) {
+export function scriptScaffold(manifest, { has = () => false, readFile = () => null } = {}) {
   const scripts = manifest?.scripts ?? {};
   const declared = { ...(manifest?.devDependencies ?? {}), ...(manifest?.peerDependencies ?? {}) };
   const own = new Set([
@@ -224,6 +284,19 @@ export function scriptScaffold(manifest, { has = () => false } = {}) {
 
   const wanted = new Set();
   for (const entry of LIFECYCLE) for (const c of resolveScriptCommands(scripts, entry)) wanted.add(c);
+
+  // ⛔ ONE HOP INTO `node <file>`, AND ONLY WHEN THE CALLER SUPPLIED A READER. `readFile` defaults to
+  // returning null so every existing caller — and every test that passes a bare manifest — keeps the
+  // old plan exactly. The drivers reach the real files through `scaffold-install.mjs`, which is the
+  // one place that already knows where the subject is unpacked.
+  for (const entry of LIFECYCLE) {
+    if (!(entry in scripts)) continue;
+    for (const rel of nodeScriptTargets(String(scripts[entry]))) {
+      let src = null;
+      try { src = readFile(rel); } catch { src = null; }
+      if (typeof src === 'string') for (const c of spawnedCommandsIn(src)) wanted.add(c);
+    }
+  }
 
   const install = [], tools = [], unprovidable = [], ambient = [];
   const named = new Set();     // providers already covered by `install`, so `closure` cannot duplicate them

@@ -8,7 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scriptScaffold, commandsIn, resolveScriptCommands, BIN_TO_PACKAGE, UNPROVIDABLE } from './script-scaffold.mjs';
+import { scriptScaffold, commandsIn, resolveScriptCommands, nodeScriptTargets, spawnedCommandsIn, BIN_TO_PACKAGE, UNPROVIDABLE } from './script-scaffold.mjs';
 
 test('takes the version from the package\'s OWN devDependencies, not the bare name', () => {
   // Verbatim from @paypal/paypal-js@2.1.8 (trimmed to the fields that matter).
@@ -161,4 +161,69 @@ test('every BIN_TO_PACKAGE entry maps a bin whose name differs from its package'
 test('UNPROVIDABLE and BIN_TO_PACKAGE never disagree about the same binary', () => {
   for (const bin of Object.keys(UNPROVIDABLE))
     assert.ok(!(bin in BIN_TO_PACKAGE), `${bin} is both providable and not`);
+});
+
+// ── The one-hop `node <file>` scan ────────────────────────────────────────────────────────────────
+//
+// ⛔ THE CASE THAT DROVE IT, PINNED VERBATIM. `@pulumi/awsx@2.9.0`'s `install` is
+// `node scripts/install-pulumi-plugin.js resource awsx v2.9.0`, and the CLI it needs is spawned from
+// inside that file. MEASURED over all 86 `@pulumi/*` cells in `records-v2/runs` against their published
+// manifests: the script-string parser alone reaches 12; with this scan it reaches 86.
+
+/** The real body of `scripts/install-pulumi-plugin.js`, as published in @pulumi/awsx@2.9.0. */
+const PULUMI_WRAPPER = `"use strict";
+var childProcess = require("child_process");
+var args = process.argv.slice(2);
+var res = childProcess.spawnSync("pulumi", ["plugin", "install"].concat(args), {
+    stdio: ["ignore", "inherit", "inherit"]
+});
+process.exit(0);`;
+
+const AWSX = {
+  scripts: { install: 'node scripts/install-pulumi-plugin.js resource awsx v2.9.0', build: 'tsc' },
+  dependencies: { '@pulumi/pulumi': '^3.0.0' },
+};
+
+test('a tool spawned from inside a `node <file>` script is unreachable without a reader, and reached with one', () => {
+  assert.deepEqual(scriptScaffold(AWSX).tools, [],
+    'the script names only `node`, which is ambient — this is the 74-of-86 miss');
+  const withReader = scriptScaffold(AWSX, {
+    readFile: (rel) => (rel === 'scripts/install-pulumi-plugin.js' ? PULUMI_WRAPPER : null),
+  });
+  assert.deepEqual(withReader.tools, ['pulumi'],
+    'following the file the script names finds the spawned CLI');
+});
+
+test('the reader defaults to absent, so no existing caller sees a changed plan', () => {
+  assert.deepEqual(scriptScaffold(AWSX), scriptScaffold(AWSX, {}),
+    'an omitted reader and an empty options object must produce the same plan');
+});
+
+test('nodeScriptTargets takes only a relative JS file after a bare `node`', () => {
+  assert.deepEqual(nodeScriptTargets('node scripts/x.js a b'), ['scripts/x.js']);
+  assert.deepEqual(nodeScriptTargets('node ./build.mjs'), ['build.mjs'], 'a leading ./ is normalised away');
+  assert.deepEqual(nodeScriptTargets('node -e "require(\'x\')"'), [],
+    'an inline -e body is not a file to open');
+  assert.deepEqual(nodeScriptTargets('node /etc/passwd.js'), [], 'absolute paths are refused');
+  assert.deepEqual(nodeScriptTargets('node ../../outside.js'), [],
+    '`..` is refused — the path comes from an untrusted published manifest');
+  assert.deepEqual(nodeScriptTargets('tsc && node scripts/post.js'), ['scripts/post.js'],
+    'each && segment is considered');
+});
+
+test('spawnedCommandsIn reads literal command names and ignores computed ones', () => {
+  assert.deepEqual(spawnedCommandsIn(PULUMI_WRAPPER), ['pulumi']);
+  assert.deepEqual(spawnedCommandsIn('execSync("pg_config --includedir")'), ['pg_config'],
+    'exec takes a whole command line, so only its first word is the binary');
+  assert.deepEqual(spawnedCommandsIn('spawnSync(bin, args)'), [],
+    'a computed name is deliberately invisible — guessing installs an unrelated package');
+  assert.deepEqual(spawnedCommandsIn('spawnSync("./local/tool")'), [],
+    'a path is the caller\'s own file, not a PATH lookup');
+  assert.deepEqual(spawnedCommandsIn(null), []);
+});
+
+test('a reader that throws or returns nothing leaves the plan exactly as it was', () => {
+  const thrower = scriptScaffold(AWSX, { readFile: () => { throw new Error('ENOENT'); } });
+  assert.deepEqual(thrower.tools, [], 'a missing file must never convert a measurable package into an error');
+  assert.deepEqual(scriptScaffold(AWSX, { readFile: () => null }).tools, []);
 });

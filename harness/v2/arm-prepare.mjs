@@ -37,6 +37,22 @@ export function installedManifest(observeDir, pkg) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
+/** Read a file from INSIDE the installed subject, for `scriptScaffold`'s one-hop `node <file>` scan.
+ *
+ *  ⛔ CONFINED TO THE PACKAGE DIRECTORY ON PURPOSE. The relative path comes out of a published
+ *  package's own script string, so it is untrusted input; a `..` that climbed out would let a package
+ *  point the scan at an arbitrary file on the runner. `nodeScriptTargets` already refuses `..`, and
+ *  this refuses it again after resolution — the two checks are cheap and the failure they prevent is
+ *  a harness reading whatever a package names. */
+export function installedFileReader(observeDir, pkg) {
+  const root = path.join(observeDir, 'node_modules', ...pkg.split('/'));
+  return (rel) => {
+    const p = path.resolve(root, rel);
+    if (p !== root && !p.startsWith(root + path.sep)) return null;
+    try { return fs.readFileSync(p, 'utf8'); } catch { return null; }
+  };
+}
+
 /** Everything a driver needs to start an arm, as plain data.
  *
  *  ⛔ THE ORDER MATTERS AND IS NOT ARBITRARY. The PATH is sanitised FIRST, then probed, and the probe
@@ -49,7 +65,7 @@ export function prepareArm({ observeDir, pkg, eraBin = null, ambient = process.e
   const leaked = ambientTools(value, { resolve });
   const manifest = installedManifest(observeDir, pkg);
   const scaffold = manifest
-    ? scriptScaffold(manifest, { has: (bin) => bin in leaked })
+    ? scriptScaffold(manifest, { has: (bin) => bin in leaked, readFile: installedFileReader(observeDir, pkg) })
     : { install: [], unprovidable: [], ambient: [], note: 'manifest absent — the fetch did not land the package' };
   return {
     armPath: value, dropped, kept, ambientTools: leaked, scaffold,
