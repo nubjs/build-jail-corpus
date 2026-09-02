@@ -305,6 +305,46 @@ const NET_OPS = new Set(['net', 'connect']);
 // say nothing about whether a LowBox denial is visible. ZERO of the 1,688 committed streams carry
 // `0xc0000022` on a Create, so this control is a real discriminant. See `windows-retain.mjs`, which
 // owns the split.
+
+// ⛔⛔ NUB'S OWN PATH-SHIM DIRECTORY, AND IT IS THE ONLY THING THIS FILE SUBTRACTS BY NAME RATHER
+// THAN BY ROOT. It exists because of a MEASURED false WITNESSED: on a real Windows box
+// `electron-chromedriver@44.1.1` scored WITNESSED off four refusals that were ALL
+// `0xc0000121` STATUS_CANNOT_DELETE on `…\AppData\Local\Temp\nub-node-shim-<pid>-<nonce>\node.exe`
+// — nub deleting its own just-exited shim binary. Not one was the package being denied anything, and
+// because WITNESSED KEEPS the wide grant, the record published `write.userHome` for a package
+// measured not to need it. Confirmed end to end through `record.mjs`: with the verdict WITNESSED the
+// record publishes `grantSource: "synthesized"` and the whole-home grant; with it CLEAN the same log
+// publishes `grantSource: "descended"` and `{"network":true}`.
+//
+// ⛔ WHY THIS, AND NOT THE TWO CHEAPER FIXES THAT LOOK EQUIVALENT.
+//
+//   NOT `witnessRoots({ temp })`. That `null` is deliberate and load-bearing, and its own test says
+//   so — `win32-witness.test.mjs` requires a refusal at `…\AppData\Local\Temp\phantomjs\bin` to be a
+//   HIT. The ambient `%TEMP%` lives INSIDE the home, so declaring it as a root would carve a hole in
+//   the scope and silence every genuine package that stages through temp. That is a false CLEAN,
+//   which publishes an UNDER-grant — strictly worse than the over-grant being fixed here.
+//
+//   NOT dropping `0xc0000121` from `REFUSAL_STATUS`. STATUS_CANNOT_DELETE on a path the PACKAGE owns
+//   is a real refusal, and narrowing what counts as one is how a false WITNESSED becomes a false
+//   CLEAN across every stream at once. The defect is WHOSE PATH it was, not WHICH STATUS it carried,
+//   so the discriminant is ownership and this subtraction is deliberately not gated on the status.
+//
+// The name is nub's own namespace, mirroring `parse_shim_dir_name` in `crates/nub-core/src/node/
+// spawn.rs` rather than globbing: `PATH_SHIM_PREFIX` + a pid with no leading zero, optionally `-`
+// and a 32-character hex nonce. Kept strict on purpose — a loose `nub-node-shim-*` glob would let a
+// package create a lookalike directory and have its own refusals subtracted, and this predicate's
+// whole licence is that nub, not the package, created the path.
+//
+// ⛔ ONE DELIBERATE DIVERGENCE FROM THE RUST: THE CASE FOLD. `parse_shim_dir_name` demands lower-case
+// hex because it reads a name nub itself wrote; this reads whatever spelling the KERNEL reported for
+// that same directory, and NTFS is case-insensitive, so `NUB-NODE-SHIM-…2BAC…` and
+// `nub-node-shim-…2bac…` are ONE path. Matching case-sensitively here would miss nub's own teardown
+// under any other spelling and re-open the false WITNESSED — the same argument, and the same
+// direction, as `winKey`'s fold above.
+const NUB_SHIM_DIR = /^nub-node-shim-[1-9]\d*(?:-[0-9a-f]{32})?$/;
+const isNubShimPath = (p) => typeof p === 'string'
+  && p.split(/[\\/]/).some((seg) => NUB_SHIM_DIR.test(seg.toLowerCase()));
+
 function win32PathAxis(cap, header, extraExcludes) {
   const m = scopeMatcher(cap, header?.roots ?? {}, extraExcludes, underWin, WIN_ABS);
   if (!m) return null;
@@ -325,10 +365,17 @@ function win32PathAxis(cap, header, extraExcludes) {
   // into the blanket licence, which is what the check is for.
   // Deliberately NOT added to the POSIX path, where it would change committed verdicts.
   if (m.subtract.some((s) => underWin(header.roots.home, s))) return null;
+  // ⛔ ONE END AT A TIME, NEVER "ANY SPELLING IS NUB'S, SO DROP THE EVENT". `f`/`fx` are two
+  // spellings of the SOURCE path and `g`/`gx` two of the DESTINATION, so ownership is asked per END:
+  // a rename OUT of a shim dir INTO the home is a write to the home and must still count. Collapsing
+  // all four into one test would subtract exactly that event — the false-CLEAN direction. Within one
+  // end BOTH spellings are consulted, which is what lets the 8.3 short form (`NUB-NO~1`) be
+  // recognised through its `fx` expansion instead of reading as a stranger's path.
+  const ownedEnd = (p, px) => (m.inScope(p) || m.inScope(px))
+    && !(isNubShimPath(p) || isNubShimPath(px));
   return {
     scope: m.scope,
-    hit: (e) => REFUSAL_STATUS.has(e.st)
-      && (m.inScope(e.f) || m.inScope(e.fx) || m.inScope(e.g) || m.inScope(e.gx)),
+    hit: (e) => REFUSAL_STATUS.has(e.st) && (ownedEnd(e.f, e.fx) || ownedEnd(e.g, e.gx)),
     control: (events) => (events.some((e) => CREATE_EVENTS.has(e.s) && e.st === REFUSAL_ACCESS_DENIED)
       ? null
       : 'the decoder recorded no Create refused with STATUS_ACCESS_DENIED anywhere in this stream — '
