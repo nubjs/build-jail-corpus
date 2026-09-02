@@ -496,6 +496,35 @@ if [ -f "$NUB" ] && [ "$NUB_HAS_OVERRIDE" != true ]; then
   exit 3
 fi
 
+# ⛔ BELOW THE OVERRIDE GATE, NOT BESIDE THE ERA-NODE MARKER, AND THE REASON IS A TEST RATHER THAN A
+# PREFERENCE. `override-probe-parity.test.mjs` SLICES lines `NUB_HAS_OVERRIDE=false;` … the `fi` above
+# out of this file and replays them against stub binaries in a scratch dir, where `$HERE` does not
+# exist — so a `node "$HERE/…"` call anywhere in that span dies on `HERE: unbound variable` under
+# `set -u` and takes three gate cases down with it. Everything below still precedes all four early
+# `exit 0`s, which is the property the era-node marker's placement note actually requires.
+#
+# ⛔ REFUSE TO MEASURE FROM A MIXED HARNESS TREE. See `instrument-selfcheck.mjs`, including the part
+# it cannot do: a wholly self-consistent OLD harness is undetectable from inside one.
+node "$HERE/instrument-selfcheck.mjs" || {
+  echo "⛔ refusing to measure: this harness tree disagrees with itself about its epoch." >&2
+  exit 2
+}
+
+# ⛔⛔ WHETHER ANYTHING PROVED A DENIED NETWORK IS OBSERVABLE IN THIS VENUE. The value comes from
+# `run-batch-v2.mjs`'s falsification pre-flight; when this driver was invoked DIRECTLY the variable is
+# unset and the marker renders an explicit NEGATIVE rather than nothing, which is the entire point of
+# the field. See `net-enforcement.mjs` for the three routes past that pre-flight that were previously
+# invisible in `results.json`.
+#
+# ⛔ THE MARKER NAME IS SPELLED HERE, NOT INSIDE THE MODULE. `marker-contract.test.mjs` scans THIS
+# file for the emission site, so a name composed in the module reads to it as a field `record.mjs`
+# parses and nothing emits. ⛔ AND THE `||` FALLBACK IS NOT DECORATION: a command substitution that
+# fails yields an empty value, `record.mjs`'s pattern then matches no marker at all, and the record
+# would silently take the "no marker" negative instead of naming what actually went wrong.
+NET_ENFORCEMENT="$(node "$HERE/net-enforcement.mjs" 2>/dev/null)"
+[ -n "$NET_ENFORCEMENT" ] || NET_ENFORCEMENT='NOT-VERIFIED (net-enforcement.mjs produced no value)'
+echo "  VENUE-NET-ENFORCEMENT $NET_ENFORCEMENT"
+
 # ── 1. OBSERVE — unjailed, traced. This is the DISCOVERY step and it needs no jail at all. ─────
 OBS="$ROOT/observe"; mkdir -p "$OBS"; cd "$OBS" || exit 1
 printf '{"name":"o","version":"1.0.0"}\n' > package.json
@@ -1638,6 +1667,22 @@ verify () {
   # reporting under the same rung. `${x:+…}` is safe under `set -u` (probed) and expands to nothing
   # for every other arm, leaving their command line byte-identical to what it was.
   node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" ${ARM_CONFINED_WIDE:+--confined-wide} || return 1
+  fi
+  # ⛔⛔ READ THE CATALOG BACK AND PROVE THE PACKAGE UNDER TEST IS IN IT, BEFORE SPENDING AN ARM ON IT.
+  # A target absent from `cat.json` runs at the BASELINE, and `baseline_caps()` grants `network` — so
+  # a narrow rung comes back SUFFICIENT because egress was never denied. That is an UNDER-grant, and
+  # the `OVERRIDDEN >= 1 && REJECTED == 0` assertion below cannot see it: a sentinel entry engages the
+  # override just as well as the real one does. `target-catalogued.mjs` carries the measurement and
+  # the mechanism.
+  #
+  # Checked HERE rather than after the arm so a broken catalog costs seconds instead of a ten-minute
+  # install, and so the VOID is attributed to the catalog rather than to whatever the arm then did.
+  if [ -n "${AT_CATALOG:-}" ]; then
+    node "$HERE/target-catalogued.mjs" "$v/cat.json" "$PKG" --at-catalog || true
+  elif ! node "$HERE/target-catalogued.mjs" "$v/cat.json" "$PKG"; then
+    echo "     ⛔ the package under test is not in this arm's catalog — arm is VOID (it would have run"
+    echo "        at the baseline, where egress is permitted, and reported that as the rung's result)"
+    return 2
   fi
   # `$tracer` is empty for a normal arm and `strace -f -o <file>` for the DIAGNOSE arm below. Kept
   # as a parameter rather than a second copy of this function so the preconditions above — unique

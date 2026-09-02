@@ -385,6 +385,10 @@ export function parseDriverLog(log) {
     cwdResolved: null,
     nubBinary: null,
     nodeSelection: null,
+    // ⛔ NULL HERE MEANS "THE DRIVER EMITTED NO MARKER", AND IT NEVER REACHES THE RECORD AS NULL.
+    // `venueProvenance` substitutes an explicit negative, because a null in a field whose entire job
+    // is to say "nobody checked" is indistinguishable from the field not existing yet.
+    netEnforcement: null,
   };
 
   let synthesizedNext = false;
@@ -483,6 +487,12 @@ export function parseDriverLog(log) {
       catch { out.notes.push('node-selection-unparsable'); }
       continue;
     }
+    // ⛔ FREE TEXT, NOT JSON, AND DELIBERATELY SO — the value is meant to be read by a human scanning
+    // `provenance`, and its shape mirrors the era-node pin's `PINNED <v>` / `NOT-PINNED (<why>)`.
+    // Taken as the LAST occurrence, like every marker here, so a driver that emits it upstream of an
+    // early exit and again later cannot disagree with itself.
+    const ne = /VENUE-NET-ENFORCEMENT\s+(\S.*?)\s*$/.exec(l);
+    if (ne) { out.netEnforcement = ne[1]; continue; }
     const ov = /VENUE-OVERRIDES\s+(\{.*)/.exec(l);
     if (ov) {
       try { out.overrides = JSON.parse(ov[1]); }
@@ -1374,6 +1384,19 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       // selection silently fell through, and nothing in the record could tell that from a deliberate
       // no-pin — so the acceptance bar is POPULATED, not merely present.
       nodeSelection: p.nodeSelection ?? null,
+      // ⛔⛔ WHETHER ANY CONTROL PROVED A DENIED NETWORK IS OBSERVABLE IN THIS VENUE — AND THE ABSENT
+      // CASE RENDERS AS AN EXPLICIT NEGATIVE, NOT AS `null`. Every other field here uses `?? null`
+      // and documents that null means "the driver did not assert it"; this one may not, because the
+      // hole it reports on IS a missing assertion reading as a pass. A probe measured
+      // `playwright-chromium@0.17.0` at the empty grant, downloaded 358 MB of Chromium at rc=0, and
+      // recorded "needs no network" — and nothing in `results.json` could say that no falsification
+      // control had ever established that egress denial is detectable there. Three routes reach that
+      // state and none was visible: `--no-falsify` (which `corpus-v2-runner.yml` passes for a
+      // targeted re-measure), a loud platform SKIP, and invoking a driver directly outside
+      // `run-batch-v2.mjs`, which is what that probe did. `net-enforcement.mjs` composes the value.
+      netEnforcement: p.netEnforcement
+        ?? 'NOT-VERIFIED (the driver emitted no VENUE-NET-ENFORCEMENT marker, so this record predates '
+          + 'the field or its driver died before the provenance block)',
       // R6. Normalisation that is RECORDED is a covered axis; normalisation that is invisible is a
       // silent bet that it did not matter. The driver names each variable it set, unset or
       // redirected, so a reader can tell whether `CI` was touched — the one override that would

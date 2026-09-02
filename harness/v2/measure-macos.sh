@@ -372,6 +372,26 @@ fi
 [ -n "$NODE_SELECTION_MARKER" ] || NODE_SELECTION_MARKER='{"error":"era-node marker not built"}'
 echo "  VENUE-NODE-SELECTION $NODE_SELECTION_MARKER"
 
+# ⛔ REFUSE TO MEASURE FROM A MIXED HARNESS TREE. See `instrument-selfcheck.mjs`, including the part
+# it cannot do: a wholly self-consistent OLD harness is undetectable from inside one.
+node "$HERE/instrument-selfcheck.mjs" || {
+  echo "⛔ refusing to measure: this harness tree disagrees with itself about its epoch." >&2
+  exit 2
+}
+
+# ⛔⛔ WHETHER ANYTHING PROVED A DENIED NETWORK IS OBSERVABLE IN THIS VENUE — emitted here for the same
+# reason the era-node marker above is, i.e. upstream of every early `exit 0`. The value comes from
+# `run-batch-v2.mjs`'s falsification pre-flight; when this driver was invoked DIRECTLY the variable is
+# unset and the marker renders an explicit NEGATIVE rather than nothing. See `net-enforcement.mjs`.
+#
+# ⛔ THE MARKER NAME IS SPELLED HERE, NOT INSIDE THE MODULE — `marker-contract.test.mjs` scans THIS
+# file for the emission site, so a name composed in the module reads to it as a field `record.mjs`
+# parses and nothing emits. ⛔ AND THE FALLBACK IS NOT DECORATION: a failed command substitution
+# yields an empty value, which `record.mjs` would read as no marker at all.
+NET_ENFORCEMENT="$(node "$HERE/net-enforcement.mjs" 2>/dev/null)"
+[ -n "$NET_ENFORCEMENT" ] || NET_ENFORCEMENT='NOT-VERIFIED (net-enforcement.mjs produced no value)'
+echo "  VENUE-NET-ENFORCEMENT $NET_ENFORCEMENT"
+
 # ── 0a. THE CI-DETECTION SCRUB ─────────────────────────────────────────────────────────────────
 # Shared with `measure.sh`; `measure-windows.mjs` carries the same key list in JS and
 # `ci-env-scrub.test.mjs` asserts all three agree. Full reasoning is in the sourced file. The short
@@ -1195,13 +1215,13 @@ verify () {
   # write in `measure.sh`. ONE file, ONE write — a second `>` to this path truncates it.
   printf 'side-effects-cache=false\ntrust-policy=off\nminimum-release-age=0\nblockExoticSubdeps=false\n' > "$v/.npmrc"
   chown "$RUNUSER" "$v/.npmrc" 2>/dev/null
-  # ⛔ AN EMPTY GRANT CANNOT BE EXPRESSED AS `{"<pkg>":{"default":{}}}` — the parser REJECTS an empty
-  # default block, which would make the arm VOID and read as "the grant did not work" rather than
-  # "the package needs nothing". The override REPLACES the compiled-in table rather than merging
-  # into it, so OMITTING the package makes it run at the base profile, which IS the empty grant. A
-  # throwaway sentinel entry keeps the file non-empty so the override still engages and the
-  # OVERRIDDEN>=1 / REJECTED==0 assertion below stays meaningful. Ported from measure.sh; the
-  # Windows lane took husky@4.3.8 from write:"disk" to a verified {} on exactly this construction.
+  # ⛔ AN EMPTY GRANT IS CATALOGUED AS `{"<pkg>":{"default":{}}}`, NOT EXPRESSED BY OMISSION. This
+  # comment used to say the opposite, and the construction it described is the under-grant that
+  # `target-catalogued.mjs` now asserts against: omitting the target leaves `v2_grant_for` returning
+  # `None`, so the arm runs at `baseline_caps()` — which grants `network` — and a narrow rung is
+  # scored SUFFICIENT because egress was never denied. `catalog_v2.rs:807` accepts an empty `default`
+  # as the positive statement it is, so the zero rung has an honest spelling and needs no omission.
+  # The sentinel below survives only for the case where nothing at all would be catalogued.
   # ⛔ UNDER `--at-catalog` NONE OF THE CONSTRUCTION BELOW APPLIES — THE FILE IS THE HYPOTHESIS.
   # Copied VERBATIM, sentinel or no sentinel, because the question that mode asks is whether the
   # catalog AS COLLATED installs the package. Rewriting it here to be likelier to engage would
@@ -1219,6 +1239,18 @@ verify () {
   # accident would be running a different experiment from every other arm while reporting under the
   # same rung. `${x:+…}` is safe under `set -u` (probed) and expands to nothing for every other arm.
   node "$HERE/dep-scaffold.mjs" "$v" "$PKG" "$grant" "$OBS" ${ARM_CONFINED_WIDE:+--confined-wide} || return 1
+  fi
+  # ⛔⛔ READ THE CATALOG BACK AND PROVE THE PACKAGE UNDER TEST IS IN IT. A target absent from
+  # `cat.json` runs at the BASELINE, where `baseline_caps()` grants `network`, so a narrow rung comes
+  # back SUFFICIENT because egress was never denied — an UNDER-grant. The `OVERRIDDEN >= 1 &&
+  # REJECTED == 0` assertion below cannot see it: a sentinel entry engages the override just as well
+  # as the real one. Shared with the other two drivers — see `target-catalogued.mjs`.
+  if [ -n "${AT_CATALOG:-}" ]; then
+    node "$HERE/target-catalogued.mjs" "$v/cat.json" "$PKG" --at-catalog || true
+  elif ! node "$HERE/target-catalogued.mjs" "$v/cat.json" "$PKG"; then
+    echo "     ⛔ the package under test is not in this arm's catalog — arm is VOID (it would have run"
+    echo "        at the baseline, where egress is permitted, and reported that as the rung's result)"
+    return 2
   fi
   # ⛔⛔ EVICT THIS PACKAGE **AND ITS CLOSURE** FROM THE MACHINE-GLOBAL STORE. Ported from
   # `measure.sh`, whose comments carry the measurements; the load-bearing ones, restated because

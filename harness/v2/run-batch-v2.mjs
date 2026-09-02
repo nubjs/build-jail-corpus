@@ -16,6 +16,7 @@
 //   usage: node run-batch-v2.mjs --file <worklist> --nub <bin> [--runs <dir>] [--force]
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,9 @@ import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs
 import { fetchPackageStanding } from './package-standing.mjs';
 import { provisionMatrix } from './provision-node-matrix.mjs';
 import { sweepDecision } from './scratch-sweep.mjs';
+// The egress-axis provenance this file DECIDES and the drivers merely echo — see its header for the
+// three routes past the pre-flight that were invisible in `results.json` until now.
+import { NET_ENFORCEMENT_ENV, netEnforcementFromFalsify } from './net-enforcement.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -156,11 +160,20 @@ const DRIVER_ARGS = process.env.NUB_V2_DRIVER_ARGS ? JSON.parse(process.env.NUB_
 // than refusing, and a platform gains coverage the instant its case lands — with no edit here.
 const hasCase = spawnSync(process.execPath, [path.join(HERE, 'falsify.mjs'), '--has-case'],
   { encoding: 'utf8' });
+//
+// ⛔⛔ EVERY BRANCH BELOW ALSO WRITES `NUB_V2_NET_ENFORCEMENT`, WHICH IS WHAT PUTS THIS DECISION ON
+// THE RECORD. Each skip is already printed into the slice log, and a slice log is exactly what nobody
+// has when they are reading `results.json` six weeks later — so a record measured under `--no-falsify`
+// was indistinguishable from one the control covered. The drivers echo the variable as a
+// `VENUE-NET-ENFORCEMENT` marker and `record.mjs` files it under `provenance`; the default when it is
+// unset is an explicit NEGATIVE, never an absence. See `net-enforcement.mjs`.
 if (hasCase.status !== 0) {
   console.log(`falsify: SKIPPED — ${(hasCase.stdout ?? '').trim() || `no case is grounded on ${process.platform}`}`
     + ', so this slice is NOT covered by the falsification control');
+  process.env[NET_ENFORCEMENT_ENV] = `NOT-VERIFIED (no falsification case is grounded on ${process.platform})`;
 } else if (argv.includes('--no-falsify')) {
   console.log('falsify: SKIPPED by --no-falsify — this slice is NOT covered by the falsification control');
+  process.env[NET_ENFORCEMENT_ENV] = 'NOT-VERIFIED (--no-falsify)';
 } else if (!NUB) {
   // ⛔ REFUSE, DO NOT SKIP. Without `--nub` the driver falls back to its own default path, so the
   // control would be exercising a different binary from the one about to measure the slice — and a
@@ -176,7 +189,19 @@ if (hasCase.status !== 0) {
   //
   // No timeout here on purpose: `falsify.mjs` already caps each arm, and a `spawnSync` timeout
   // surfaces as `status === null`, which would otherwise be reported with the P0 exit code.
-  const f = spawnSync(process.execPath, [path.join(HERE, 'falsify.mjs'), '--nub', NUB],
+  //
+  // ⛔ `--json` IS HOW THE ENFORCEMENT VALUE LEARNS WHICH AXIS WAS ACTUALLY ATTESTED, AND THE EXIT
+  // CODE CANNOT ANSWER THAT. `falsify.mjs` runs every case grounded on the platform and exits 0 if
+  // they all passed, but on linux that set includes `write.deps` (`@apollo/rover`), which says
+  // nothing whatever about egress. Reading the per-case report is what stops a filesystem case
+  // vouching for the network axis. Written beside the runs root rather than into a scratch dir so a
+  // reader of the slice's artifacts can see the control's own output, not just its verdict.
+  //
+  // ⛔ A SCRATCH DIR, NOT `RUNS`. `records-v2/runs` is the tracked records tree and the runner commits
+  // it wholesale, so a report written there would be pushed as a corpus artifact. `mkdtempSync` also
+  // keeps two lanes on one box from reading each other's report.
+  const falsifyJson = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'v2-falsify-')), `${PLATFORM}.json`);
+  const f = spawnSync(process.execPath, [path.join(HERE, 'falsify.mjs'), '--nub', NUB, '--json', falsifyJson],
     { stdio: 'inherit' });
   if (f.status !== 0) {
     const rc = f.status ?? 2;
@@ -184,6 +209,16 @@ if (hasCase.status !== 0) {
     console.log('   Run `node falsify.mjs --nub <bin>` directly for the per-arm detail.');
     process.exit(rc);
   }
+  // ⛔ AN UNREADABLE REPORT IS A NEGATIVE, NOT A PASS. The control exited 0, so the batch proceeds —
+  // but nothing here can then say WHICH axis it attested, and guessing in the permissive direction is
+  // the failure this field exists to end.
+  let report = null;
+  try { report = JSON.parse(fs.readFileSync(falsifyJson, 'utf8')); }
+  catch (error) { console.log(`falsify: report unreadable (${error.message}); the egress axis will record as NOT-VERIFIED`); }
+  process.env[NET_ENFORCEMENT_ENV] = report
+    ? netEnforcementFromFalsify(report, process.platform)
+    : `NOT-VERIFIED (the control passed but its report at ${falsifyJson} could not be read)`;
+  console.log(`falsify: egress axis — ${process.env[NET_ENFORCEMENT_ENV]}`);
 }
 
 let attempted = 0; let recorded = 0; let skipped = 0; let deadlineStopped = 0;

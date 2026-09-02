@@ -64,6 +64,49 @@ test('every marker is a single line, because driver.out is parsed line-wise', ()
   assert.ok(r.markers.some((m) => m.startsWith('ARM-UNPROVIDABLE') && m.includes('pulumi')));
 });
 
+// ⛔ THE PARITY LIST IS EXTENDED HERE RATHER THAN RE-INVENTED PER MODULE, because the failure it
+// guards is not about any one module: it is that this harness has now shipped THREE fixes into one
+// driver and called them landed. Each entry names a shared module and what a driver missing it does
+// WRONG — a bare "does not call X" says nothing to whoever reads the failure.
+const SHARED_BY_ALL_DRIVERS = [
+  ['arm-prepare', 'prepares the arm PATH, its leaked tools and its script scaffold'],
+  ['dep-scaffold', "grants script-bearing DEPENDENCIES a fixed wide scaffold, so a dependency's "
+    + "denial is not recorded as the target's verdict"],
+  ['target-catalogued', "asserts the package under test is IN the arm's catalog; without it an "
+    + 'uncatalogued target runs at the baseline, where egress is permitted, and a narrow rung is '
+    + 'scored SUFFICIENT — an under-grant'],
+  ['net-enforcement', 'records whether any falsification control proved a denied network is '
+    + 'observable in this venue; without it a record cannot say the axis went unattested'],
+  ['instrument-selfcheck', 'refuses to measure from a harness tree that disagrees with itself '
+    + 'about its epoch'],
+  ['never-spawned', 'treats a lifecycle script that never LAUNCHED as VOID rather than as a pass'],
+];
+
+test('⛔ EVERY SHARED MODULE IS WIRED INTO ALL THREE DRIVERS', () => {
+  const missing = [];
+  for (const d of ['measure.sh', 'measure-macos.sh', 'measure-windows.mjs']) {
+    const src = fs.readFileSync(path.join(HERE, d), 'utf8');
+    for (const [mod, why] of SHARED_BY_ALL_DRIVERS) {
+      if (!src.includes(mod)) missing.push(`${d} does not use ${mod}.mjs — it ${why}`);
+    }
+  }
+  assert.deepEqual(missing, [], `\n  ${missing.join('\n  ')}\n`);
+});
+
+test('CONTROL: the parity scan can actually fail', () => {
+  // ⛔ The scan above is a substring search over three files, which is exactly the shape that reports
+  // everything clean when the file list or the read is wrong. Two ways it could pass vacuously: a
+  // module name that matches nothing real (a typo in the list), and a search string so generic that
+  // every driver contains it by accident.
+  for (const [mod] of SHARED_BY_ALL_DRIVERS) {
+    assert.ok(fs.existsSync(path.join(HERE, `${mod}.mjs`)),
+      `${mod}.mjs is listed as shared but does not exist — the scan would pass on a typo`);
+  }
+  const src = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8');
+  assert.ok(!src.includes('a-module-that-was-never-written'),
+    'the known-absent control string is present, so a green scan proves nothing');
+});
+
 test('⛔ ALL THREE DRIVERS CONSUME IT — the guard that makes landed mean landed', () => {
   // Two shell drivers and one JS driver cannot share a function, so this asserts they share the
   // PROCESS. A fix wired into one driver and mistaken for done has happened twice in this harness.

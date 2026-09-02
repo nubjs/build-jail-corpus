@@ -39,6 +39,13 @@ import { shortfallDigest } from './shortfall-invariance.mjs';
 // both POSIX drivers, so three drivers cannot drift apart on what a jail-off control proved.
 import { classify, offSwitchEngaged } from './unjailed-nub.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
+// The assertion that the arm's catalog actually names the package under test. Shared with both POSIX
+// drivers, which reach it through its CLI — see its header for the under-grant it closes.
+import { targetCatalogued, targetCataloguedMarker } from './target-catalogued.mjs';
+// The egress-axis provenance marker, spelled once for all three drivers.
+import { netEnforcementValue } from './net-enforcement.mjs';
+// The mixed-harness-tree refusal, shared with both POSIX drivers through its CLI.
+import { instrumentSelfCheck } from './instrument-selfcheck.mjs';
 // The arm PATH's tool bin lives in the OBSERVE tree, which a jailed arm's project does not contain.
 // Shared with both POSIX drivers so the three cannot drift on where a scaffolded tool has to sit.
 import { stageArmTools, stagedArmPath } from './stage-arm-tools.mjs';
@@ -1695,6 +1702,26 @@ function emitBinaryProvenance() {
   })}`);
 }
 emitBinaryProvenance();
+// ⛔ REFUSE TO MEASURE FROM A MIXED HARNESS TREE. See `instrument-selfcheck.mjs`, including the part
+// it cannot do: a wholly self-consistent OLD harness is undetectable from inside one.
+{
+  const selfCheck = instrumentSelfCheck();
+  console.log(`  ${selfCheck.marker}`);
+  if (!selfCheck.ok) {
+    console.error('⛔ refusing to measure: this harness tree disagrees with itself about its epoch.');
+    process.exit(2);
+  }
+}
+// ⛔⛔ WHETHER ANYTHING PROVED A DENIED NETWORK IS OBSERVABLE IN THIS VENUE. The value comes from
+// `run-batch-v2.mjs`'s falsification pre-flight; when this driver was invoked DIRECTLY the variable is
+// unset and the marker renders an explicit NEGATIVE rather than nothing, which is the entire point of
+// the field. Emitted beside the other provenance markers, upstream of every early exit, for the same
+// reason the era-node marker is. See `net-enforcement.mjs`.
+//
+// ⛔ THE MARKER NAME IS SPELLED HERE, NOT INSIDE THE MODULE. `marker-contract.test.mjs` scans THIS
+// file for an emission site, so a name composed in the module reads to it as a field `record.mjs`
+// parses and nothing emits — which is the exact half-wired state that guard exists to catch.
+console.log(`  VENUE-NET-ENFORCEMENT ${netEnforcementValue()}`);
 // ⛔ WHERE THE JAILED ARMS RAN, BECAUSE ON THIS PLATFORM THE ROOT PATH CAN DECIDE THE OUTCOME BY
 // ITSELF. Any jail root under `C:\Users\<user>` fails before a single script runs — "could not
 // evaluate ALL APPLICATION PACKAGES rights on …: The access control list (ACL) structure is
@@ -2121,18 +2148,37 @@ const verify = (grant, label, { realHome = null, tracer = null } = {}) => {
   // into a near-total grant -- on Windows precisely the packages the junction gate fix was meant
   // to rescue.
   //
-  // The fix follows from what the base profile already IS: nothing. The override REPLACES the
-  // compiled-in table wholesale rather than merging into it (`compiler/curated.rs` `curated_table()`
-  // returns a table built entirely from the override; `catalog_override.rs` `v2_grant_for()` is
-  // `packages.get(package)?`, so an ABSENT package yields `None` and runs at the base profile). So
-  // express the empty grant by OMITTING the package under test, and carry a sentinel entry under an
-  // unrelated name purely so the override still engages and the assertion below stays meaningful.
+  // ⛔ AND THE FIX IS NOT "OMIT THE TARGET", WHICH IS WHAT THIS COMMENT USED TO PRESCRIBE. Omission
+  // was retired on 2026-08-16 and the sentence outlived it: `catalog_override.rs` `v2_grant_for()`
+  // is `packages.get(package)?`, so an ABSENT package yields `None` and the arm runs at
+  // `catalog_v2::baseline_caps()` -- which grants `network`. Under that construction a narrow rung
+  // was scored SUFFICIENT because egress was never denied, which is an UNDER-grant. The honest
+  // spelling of the zero rung is an explicit empty `default`, which `catalog_v2.rs:807` accepts as a
+  // positive statement; the sentinel survives only for the case where nothing at all is catalogued.
   // ⛔ SHARED WITH THE OTHER TWO DRIVERS — see `dep-scaffold.mjs`. This driver carried the
   // target-only construction while `measure.sh` had already been fixed, so the dependency-grant
   // confound stayed live here.
   const { catalog, scaffolded } = buildCatalog(PKG, grant, OBS, armBaseline);
   fs.writeFileSync(cat, JSON.stringify(catalog));
   if (scaffolded) console.log(`  scaffold: ${scaffolded} dependency package(s) with lifecycle scripts granted a fixed wide grant`);
+
+  // ⛔⛔ READ THE CATALOG BACK AND PROVE THE PACKAGE UNDER TEST IS IN IT, BEFORE SPENDING AN ARM ON IT.
+  // A target absent from `cat.json` runs at the BASELINE, and `baseline_caps()` grants `network` — so
+  // a narrow rung comes back SUFFICIENT because egress was never denied. That is an UNDER-grant, and
+  // the `ovr >= 1 && rej === 0` assertion far below cannot see it: a sentinel entry engages the
+  // override just as well as the real one. `target-catalogued.mjs` carries the measurement.
+  //
+  // ⛔ NO `sweepArmCache()` HERE, AND ITS ABSENCE IS DELIBERATE RATHER THAN AN OMISSION. That helper
+  // is a `const` declared further down this function, so calling it from here is a TDZ throw — and
+  // there is nothing to sweep in any case: this returns before the first spawn, so no arm cache has
+  // been populated.
+  const catalogued = targetCatalogued(cat, PKG);
+  console.log(`  ${targetCataloguedMarker(catalogued)}`);
+  if (!catalogued.present) {
+    console.log('     !! the package under test is not in this arm\'s catalog -- arm is VOID (it would');
+    console.log('        have run at the baseline, where egress is permitted, and reported that as the rung)');
+    return { ok: false, void: true, files: countFiles(v, isArmNoise), rc: null };
+  }
 
   // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
   // Both were tried and both FAILED to stop an arm replaying its predecessor's result. There are
