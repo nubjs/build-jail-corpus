@@ -7,12 +7,36 @@
 // not: it is the arm withholding the environment the script was written against. MEASURED across the
 // 1,529 `BROKEN-*` records: 105 die exactly this way, on 34 distinct binaries.
 //
-// ⛔ WHOLESALE devDependency INSTALL IS THE WRONG FIX, AND IT WAS MEASURED WRONG BEFORE THIS SHAPE
-// WAS WRITTEN. `@paypal/paypal-js@2.1.8` declares 29 devDependencies (puppeteer, jest, rollup, …).
-// Installing them ALL returned exit 1 and left `node_modules/.bin` EMPTY — npm's install is atomic,
-// so one bad resolution in a large closure loses the entire scaffold and the arm is no better off.
-// Installing ONLY `husky@^5.0.9`, the one binary its `postinstall` names, took the same package from
-// rc=127 to rc=0. Surgical, not wholesale.
+// ⛔⛔ THE DECLARED CLOSURE IS INSTALLED TOO, AND THE ARGUMENT THAT SAID OTHERWISE RESTED ON A MISREAD
+// CAUSE. This block used to read: "WHOLESALE devDependency INSTALL IS THE WRONG FIX … `@paypal/paypal-js@2.1.8`
+// declares 29 devDependencies; installing them ALL returned exit 1 and left `node_modules/.bin` EMPTY —
+// npm's install is atomic, so one bad resolution loses the entire scaffold." The OBSERVATION reproduces
+// exactly. The CAUSE was wrong, and the conclusion drawn from it with it.
+//
+// MEASURED 2026-09-01 on that same package, same specs, same `--before`, with the instrument calibrated
+// in BOTH directions first (no scaffold -> rc=127 `sh: husky: command not found`; surgical -> rc=0):
+//
+//   scaffold mode                       scaffold rc   .bin entries   rebuild rc
+//   none                                     —          absent          127
+//   surgical (what this module did)          0             1              0
+//   full closure, as described above         1          absent          127
+//   full closure + `--legacy-peer-deps`      0            48              0
+//
+// The failure is `ERESOLVE` — npm 7+'s STRICT PEER RESOLUTION, which npm 6 (the era npm for a 2021
+// package) never had. Nothing was unresolvable, and nothing was lost to atomicity; the invocation was
+// wrong for the era. One flag installs all 29.
+//
+// So the surgical set is no longer the ceiling, it is the FLOOR. `install` keeps exactly its old meaning
+// and is applied first; `closure` carries the rest of the declared devDependencies. `scaffold-install.mjs`
+// applies them RESILIENTLY — whole batch first, then bisect — so a genuinely unresolvable spec costs only
+// itself. Atomicity was never the reason to install less; it is the reason to install in recoverable batches.
+//
+// ⛔ WHY THE CLOSURE EARNS ITS COST rather than merely being more. The surgical set is derived by PARSING
+// the script string, so it reaches only what a script NAMES. It cannot reach what a script REQUIRES at
+// runtime — `node build.js` whose build.js pulls in `rollup` — which is exactly the ceiling the note lower
+// in this header calls unreachable by any static parser. The author already wrote that set down: it is the
+// declared devDependency closure. `observe-only.mjs` chases the same thing one error at a time with a retry
+// loop, and the three measurement drivers have no retry loop at all.
 //
 // ⛔ THE VERSION COMES FROM THE PACKAGE'S OWN MANIFEST WHENEVER IT DECLARES ONE, AND THAT IS THE
 // WHOLE POINT. `husky install` is husky 4/5 grammar; husky 9 removed it. Resolving the bare name
@@ -69,17 +93,44 @@ export const UNPROVIDABLE = {
   nodejs: 'Debian-only binary name for node; not an npm package',
   'node-waf': 'removed from Node in 0.8 (2012); no provisionable era supplies it',
   pg_config: 'PostgreSQL system tool, not an npm package',
-  pulumi: 'external CLI distributed outside npm',
 };
 
-// ⛔ THE PACKAGE MANAGERS CAME OFF THIS LIST (2026-08-23). They sat here as "a different package
+// ⛔ THE PACKAGE MANAGERS CAME OFF THAT LIST (2026-08-23). They sat there as "a different package
 // manager; a corpus policy call, not a package defect" — but pnpm, yarn and bun ARE npm packages,
 // and a package whose postinstall shells out to `pnpm` genuinely needs pnpm on any machine that
 // installs it. Withholding it does not measure the package, it measures our refusal: 18 rows of the
 // 2026-08-22 ledger die on exactly this, and their capability profile is unknown as a result.
 // The corpus records what a package NEEDS; supplying a tool it invokes is the same act as supplying
 // its era Node or its era Python.
+//
+// ⛔ AND `pulumi` CAME OFF IT ON 2026-09-01, BECAUSE ITS REASON WAS FACTUALLY FALSE. The entry read
+// "external CLI distributed outside npm". There IS an npm package named `pulumi` — `npm view pulumi
+// bin` returns `{"pulumi":"run.js"}`, a launcher that fetches the real CLI on first use — and it is
+// the single largest remaining `command not found` blocker in the corpus: 11 rows of the 2026-08-22
+// ledger, out of 67 in that whole class. Refusing them cost 11 unmeasured packages for a premise
+// nobody rechecked. Grep before writing "not an npm package" into this table.
 export const PACKAGE_MANAGERS = { pnpm: 'pnpm', yarn: 'yarn', bun: 'bun' };
+
+/** Providers that must be resolved UNDATED, even though every other install in the arm is dated.
+ *
+ *  ⛔ MEASURED, AND THE DATED FORM IS SILENTLY USELESS RATHER THAN LOUDLY WRONG. `@pulumi/kubernetes@0.12.0`
+ *  declares `install: "pulumi plugin install resource kubernetes v0.12.0"`, publish date 2018-04-25:
+ *
+ *    no tool          -> rc=127, `sh: pulumi: command not found`      (the record learns nothing)
+ *    DATED   pulumi   -> resolves `pulumi@0.0.1`, a deprecated stub with NO bin at all -> still rc=127
+ *    UNDATED pulumi   -> resolves 3.260.0, `pulumi` lands in `.bin`, rc=127 -> 1, and the script RUNS:
+ *                        it fetches the 100 MB CLI and then fails 403 on the 2018 darwin-arm64 plugin
+ *                        tarball, which is an attributable result about the PACKAGE.
+ *
+ *  The split is the one `era-resolution.mjs` already draws for npm itself — "resolve with a MODERN npm,
+ *  execute with the ERA Node". A package's DEPENDENCIES are era-dated because they are what the author
+ *  shipped against. The TOOLS its script invokes are not dependencies; they are the environment, and an
+ *  environment is wanted in working order, not in period costume.
+ *
+ *  Deliberately narrow: a provider belongs here only when it is a self-updating launcher or a package
+ *  manager, where the old published artifact is a stub or a security-expired shim. `tsc`, `rimraf` and
+ *  `husky` are NOT here — their era version is the whole point (see the husky note above). */
+export const UNDATED_TOOLS = new Set([...Object.values(PACKAGE_MANAGERS), 'pulumi']);
 
 /** Command names a shell script invokes, best-effort.
  *
@@ -149,9 +200,20 @@ const AMBIENT = new Set([
 
 /** What the observe arm should install alongside `manifest`'s package so its lifecycle scripts can run.
  *
- *  Returns `{ install: [<spec>], unprovidable: [{bin, why}], ambient: [<bin>] }`. `install` is what
- *  the arm adds; the other two exist so the RECORD can state why a binary was left unsatisfied
- *  instead of leaving the reader to infer it from a failure. */
+ *  Returns `{ install, tools, closure, unprovidable, ambient }`. The three install lists are SEPARATE
+ *  because they are applied differently, and collapsing them would lose exactly the distinctions that
+ *  were measured into them:
+ *
+ *    install  — the binaries the lifecycle scripts NAME. Era-DATED, applied FIRST, and the one list
+ *               whose failure is worth reporting loudly. Unchanged in meaning from before `closure`
+ *               existed, so a record's old `ARM-SCAFFOLD` line still means what it always meant.
+ *    tools    — the subset of the above whose provider is in `UNDATED_TOOLS`. Same specs, resolved
+ *               without `--before`; see that constant for the pulumi measurement.
+ *    closure  — the rest of the declared devDependencies and peerDependencies. Era-dated, BEST-EFFORT:
+ *               this is the list that supplies what a script requires at RUNTIME rather than names.
+ *
+ *  `unprovidable` and `ambient` exist so the RECORD can state why a binary was left unsatisfied instead
+ *  of leaving the reader to infer it from a failure. */
 export function scriptScaffold(manifest, { has = () => false } = {}) {
   const scripts = manifest?.scripts ?? {};
   const declared = { ...(manifest?.devDependencies ?? {}), ...(manifest?.peerDependencies ?? {}) };
@@ -163,17 +225,36 @@ export function scriptScaffold(manifest, { has = () => false } = {}) {
   const wanted = new Set();
   for (const entry of LIFECYCLE) for (const c of resolveScriptCommands(scripts, entry)) wanted.add(c);
 
-  const install = [], unprovidable = [], ambient = [];
+  const install = [], tools = [], unprovidable = [], ambient = [];
+  const named = new Set();     // providers already covered by `install`, so `closure` cannot duplicate them
   for (const bin of wanted) {
     if (AMBIENT.has(bin) || bin.startsWith('./') || bin.startsWith('/') || bin.includes('/')) { ambient.push(bin); continue; }
     if (own.has(bin) || has(bin)) continue;                       // already reachable in the tree
     if (bin in UNPROVIDABLE) { unprovidable.push({ bin, why: UNPROVIDABLE[bin] }); continue; }
     // The package's OWN declared range wins — it is the era-correct one. See the header note on husky.
     const provider = BIN_TO_PACKAGE[bin] ?? bin;
-    if (declared[provider]) install.push(`${provider}@${declared[provider]}`);
-    else if (declared[bin]) install.push(`${bin}@${declared[bin]}`);
-    else if (BIN_TO_PACKAGE[bin] || /^[@a-z0-9][\w.@/-]*$/i.test(bin)) install.push(provider);
-    else unprovidable.push({ bin, why: 'no provider known and the name is not a valid package name' });
+    let spec = null;
+    if (declared[provider]) spec = `${provider}@${declared[provider]}`;
+    else if (declared[bin]) spec = `${bin}@${declared[bin]}`;
+    else if (BIN_TO_PACKAGE[bin] || /^[@a-z0-9][\w.@/-]*$/i.test(bin)) spec = provider;
+    else { unprovidable.push({ bin, why: 'no provider known and the name is not a valid package name' }); continue; }
+    named.add(provider);
+    named.add(bin);
+    // ⛔ AN UNDATED TOOL GOES IN `tools` BY BARE NAME AND NOT IN `install`, never both. It is listed
+    // without the manifest's range on purpose: a package that declares `pnpm: "^6"` and also shells out
+    // to it wants a WORKING pnpm, and carrying the range here would re-impose the era through the back
+    // door and reproduce the `pulumi@0.0.1` stub result exactly. Putting it in only ONE list is what
+    // keeps the two installs from racing to overwrite each other in an order nothing pins.
+    if (UNDATED_TOOLS.has(provider)) tools.push(provider);
+    else install.push(spec);
   }
-  return { install, unprovidable, ambient };
+
+  // Everything else the author declared. Ranges are kept — for a DEPENDENCY the era range is the point.
+  const closure = [];
+  for (const [name, range] of Object.entries(declared)) {
+    if (named.has(name) || own.has(name)) continue;
+    closure.push(typeof range === 'string' && range ? `${name}@${range}` : name);
+  }
+
+  return { install, tools, closure, unprovidable, ambient };
 }

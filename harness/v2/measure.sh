@@ -589,10 +589,22 @@ else
   [ -n "$ARM_PATH" ] || ARM_PATH="${ERA_PATH:-$PATH}"
   # Every marker on its own line — `driver.out` is read line-wise.
   printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const m of JSON.parse(s).markers||[])process.stdout.write("  "+m+"\n")}catch{}})'
-  # Install ONLY the binaries the lifecycle scripts name. Never the whole devDependency closure:
-  # measured, installing all 29 of paypal-js's returned rc=1 and left `.bin` EMPTY, because npm's
-  # install is atomic and one bad resolution loses the entire scaffold.
-  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
+  # ⛔⛔ THE WHOLE devDependency CLOSURE, NOT ONLY THE BINARIES THE SCRIPTS NAME — reversed 2026-09-01.
+  # This block read: "Install ONLY the binaries the lifecycle scripts name. Never the whole
+  # devDependency closure: measured, installing all 29 of paypal-js's returned rc=1 and left `.bin`
+  # EMPTY, because npm's install is atomic and one bad resolution loses the entire scaffold."
+  #
+  # The OBSERVATION reproduces exactly. The CAUSE was misread, and the conclusion with it: the failure
+  # is `ERESOLVE` under npm 7+'s STRICT PEER RESOLUTION, which npm 6 — the era npm for that 2021
+  # package — never had. The same 29 specs with `--legacy-peer-deps` install clean: rc=0, 48 binaries
+  # in `.bin`, rebuild rc=0. Full table in `script-scaffold.mjs`'s header. Atomicity was never the
+  # reason to install LESS; it is the reason to install in RECOVERABLE batches, which is what
+  # `scaffold-install.mjs` does — whole batch, then bisect, so one bad spec costs only itself.
+  #
+  # This variable is now only the GATE (is there anything at all to do?); the module derives the plan
+  # itself from the same `scriptScaffold()` call on the same manifest, so the two cannot drift, and a
+  # 29-spec list never has to survive shell word-splitting.
+  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const p=JSON.parse(s).scaffold||{};process.stdout.write([...(p.tools||[]),...(p.install||[]),...(p.closure||[])].join(" "))}catch{}})')"
   if [ -n "$ARM_SCAFFOLD" ]; then
     # ⛔ NON-FATAL BY DESIGN. A scaffold that cannot resolve leaves the arm exactly as badly off as it
     # is today, so it must not convert a measurable package into a harness error. The rc is RECORDED
@@ -617,8 +629,22 @@ else
     # The dating stands on its mechanism alone, which `observe-only.mjs:330` already measured on the
     # observe lane. Do not restore the ratio, and do not reason from a ratio whose numerator and
     # denominator came from different commands.
-    PATH="$ARM_PATH" npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+    #
+    # ⛔ `$HARNESS_NODE`, NEVER A BARE `node`, AND THE `PATH=` PREFIX IS EXACTLY WHY. That prefix applies
+    # to every word of this command, and `$ARM_PATH` leads with the era Node — so a bare `node` here is
+    # Node 4 on an old package and cannot parse a modern `.mjs` at all. That is the trap the HARNESS-NODE
+    # block at the top of this file exists for, and it costs the whole record when it fires.
+    #
+    # The module spawns npm through `npm-cli.mjs`, which resolves it beside `process.execPath` — so the
+    # install runs on the MODERN npm whatever `$ARM_PATH` says. Deliberate, and the design
+    # `era-resolution.mjs` states: RESOLVE with a modern npm (`--before` needs npm >= 6.9), EXECUTE with
+    # the era Node.
+    PATH="$ARM_PATH" "$HARNESS_NODE" "$HERE/scaffold-install.mjs" --observe "$OBS" --pkg "$PKG" \
+      ${ERA_BEFORE:+--before "$ERA_BEFORE"} > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+    # The per-tier markers the module printed. `driver.out` is read line-wise, and the module emits one
+    # marker per line and nothing else — every npm child's output is captured, not inherited.
+    sed 's/^/  /' "$OBS/scaffold.log" 2>/dev/null | grep -a 'ARM-SCAFFOLD-' || true
     # ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT, AND THE ARM THEN MEASURES AN EMPTY TREE.
     #
     # MEASURED across all 6,880 committed records, cross-tabulating `ARM-FALSIFIABILITY`'s

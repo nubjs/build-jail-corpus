@@ -524,7 +524,13 @@ else
   ARM_PATH="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).armPath||"")}catch{}})')"
   [ -n "$ARM_PATH" ] || ARM_PATH="${ERA_PATH:-$PATH}"
   printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const m of JSON.parse(s).markers||[])process.stdout.write("  "+m+"\n")}catch{}})'
-  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write((JSON.parse(s).scaffold.install||[]).join(" "))}catch{}})')"
+  # ⛔⛔ THE WHOLE devDependency CLOSURE, NOT ONLY THE SCRIPT-NAMED BINARIES — reversed 2026-09-01; the
+  # measurement that overturned the old "surgical, never wholesale" rule is in `script-scaffold.mjs`'s
+  # header (the failure was `ERESOLVE` under npm 7+ strict peers, not npm's atomicity). This variable is
+  # now only the GATE; `scaffold-install.mjs` derives the plan from the same manifest, so a 29-spec list
+  # never has to survive shell word-splitting — which is its own measured hazard, since an unsplit list
+  # arrives at npm as ONE package name and installs one bogus thing with rc=0.
+  ARM_SCAFFOLD="$(printf '%s' "$ARM_PREP" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const p=JSON.parse(s).scaffold||{};process.stdout.write([...(p.tools||[]),...(p.install||[]),...(p.closure||[])].join(" "))}catch{}})')"
   if [ -n "$ARM_SCAFFOLD" ]; then
     # Dated, for the reason spelled out at the same site in `measure.sh`.
     #
@@ -543,9 +549,23 @@ else
     #
     # SAME DEFECT AS EPOCH 18, WHERE A COMMENT BETWEEN `--ref` and `-f os=` broke the dispatch. Both
     # were invisible to `bash -n`, which calls this file clean.
+    # ⛔ THE WHOLE RESILIENT LOOP RUNS INSIDE THE SUDO, which is the only shape that keeps this driver's
+    # privilege rule. The bisect issues several npm installs, and every one of them must be $RUNUSER —
+    # dropping to the module and letting IT re-elevate would be a second owner for the same rule.
+    # Everything it writes is still chowned on the line below.
+    #
+    # ⛔ `$HARNESS_NODE`, NEVER A BARE `node`: `PATH=$ARM_PATH` leads with the era Node, and the module
+    # is modern `.mjs`. Same trap as `measure.sh`, same cost — the whole record.
+    #
+    # ⛔ NO COMMENT BETWEEN THE `\` AND THE COMMAND. Bash folds the continuation BEFORE it honours `#`,
+    # so a comment there silently turns this into a `sudo` with no command plus a separately-run install
+    # as ROOT — see the long note above, which is the record of that exact defect.
     sudo -u "$RUNUSER" -H env "PATH=$ARM_PATH" "HOME=$JAIL_HOME" \
-      npm install --prefix "$OBS" --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD > "$OBS/scaffold.log" 2>&1
+      "$HARNESS_NODE" "$HERE/scaffold-install.mjs" --observe "$OBS" --pkg "$PKG" --prefix "$OBS" ${ERA_BEFORE:+--before "$ERA_BEFORE"} > "$OBS/scaffold.log" 2>&1
     echo "  ARM-SCAFFOLD-INSTALL rc=$?"
+    # The per-tier markers the module printed; `driver.out` is read line-wise and the module emits one
+    # marker per line, every npm child's output being captured rather than inherited.
+    sed 's/^/  /' "$OBS/scaffold.log" 2>/dev/null | grep -a 'ARM-SCAFFOLD-' || true
     # ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT — the long note is at the matching branch
     # in `measure.sh`. Measured over all 6,880 records: `ARM-FALSIFIABILITY`'s `manifestFiles: null`
     # (which means `pkgDir()` found no layout for the subject at all) occurs in 51 records, **every one
@@ -2096,9 +2116,45 @@ if [ "$VERIFIED" -eq 0 ]; then
       # This arm decides whose fault a failure is, so a spurious npm failure here EXONERATES nub and
       # files a candidate nub defect as a dead package. It ran undated on the harness toolchain while
       # every other arm ran the era one.
+      # ⛔⛔ AND THE SAME IDENTITY, NOT ONLY THE SAME TOOLCHAIN. This driver measures under `sudo` and
+      # re-drops every other arm to $RUNUSER; this one alone kept the root spawn, so it ran as a user
+      # no arm it is compared against ever runs as. `mktemp -d` is 0700 AND OWNED BY ITS CREATOR, so
+      # under root the reference tree is a directory $RUNUSER cannot search — and npm de-escalates the
+      # lifecycle child off root, which then dies in `getcwd()` before executing a line of the
+      # package's script: `Error: EACCES: permission denied, uv_cwd`. The `--ignore-scripts` fetch
+      # SURVIVES, because it spawns no lifecycle child and so nothing de-escalates; only the rebuild
+      # dies, which is why the arm looked alive for so long.
+      #
+      # ⛔ THE DIRECTION IS THE DANGEROUS ONE: a spurious failure here EXONERATES nub, filing a
+      # candidate nub defect as a dead package that nobody re-reads. MEASURED on the committed corpus:
+      # all 55 darwin records reaching this branch are BROKEN-WITHOUT-JAIL-TOO and NOT ONE is
+      # BROKEN-UNJAILED-NUB, against 27 of 97 on linux — the driver that has no root spawn. This is the
+      # third time this file has paid for a root-owned tree handed to a dropped-privilege child; the
+      # `chown` is the same one the observe fetch already needed above.
       npm_ok () {
         local d; d=$(mktemp -d "${TMPDIR:-/tmp}/nspnpm-XXXXXX") || return 1
         printf '{"name":"nspnpm","version":"1.0.0"}\n' > "$d/package.json"
+        # ⛔ BOTH HALVES ARE GATED ON ACTUALLY BEING ROOT, AND THE GATE IS LOAD-BEARING TWICE OVER.
+        # Off root neither is needed: `mktemp -d` already belongs to the running user, and npm only
+        # de-escalates a lifecycle child when euid is 0. And the ladder suites SOURCE this region under
+        # `set -u` WITHOUT defining $RUNUSER — MEASURED: an unconditional expansion aborts the shell
+        # mid-run, so all five macos-ladder cases lose their verdict entirely rather than failing an
+        # assertion, which reads as the ladder being broken rather than as this line.
+        #
+        # ⛔ AND THE SECOND REASON: the gate keeps the bare `npm` below resolvable as a shell FUNCTION
+        # in the unit venue, which is not root. `sudo … env npm` EXECS a binary and cannot see a
+        # function, and `macos-ladder.test.mjs:145` drives BOTH branches of this control with
+        # `npm () { return $rc; }` — an unconditional drop takes the REAL npm and the suite goes red
+        # against the network, the same trap the note below already records for `env`.
+        if [ "$(id -u)" -eq 0 ]; then chown -R "$RUNUSER" "$d" 2>/dev/null; fi
+        npm_as_arm () {
+          if [ "$(id -u)" -eq 0 ]; then
+            sudo -u "$RUNUSER" -H env "PATH=${ARM_PATH:-${ERA_PATH:-$PATH}}" \
+              ${ERA_PYTHON:+"PYTHON=$ERA_PYTHON"} npm "$@"
+          else
+            npm "$@"
+          fi
+        }
         # ⛔ THE ERA CONTEXT IS EXPORTED INSIDE THE SUBSHELL, NOT PASSED THROUGH `env`. `env npm` EXECS
         # the binary and so cannot see a shell FUNCTION -- and `linux-ladder.test.mjs:147` drives both
         # branches of this control by defining `npm () { return $rc; }`, which is the only way to test
@@ -2107,7 +2163,7 @@ if [ "$VERIFIED" -eq 0 ]; then
         # as a function here and as the era binary in production, which is what each venue needs.
         ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
             && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
-            && npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$1@$2" \
+            && npm_as_arm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} "$1@$2" \
             > fetch.log 2>&1 ) || {
           echo "  NPM-REFERENCE fetch FAILED for $1@$2 (era ${ERA_NODE_VERSION:-none}${ERA_BEFORE:+, $ERA_BEFORE})"
           sed 's/^/    | /' "$d/fetch.log" 2>/dev/null | tail -20
@@ -2117,7 +2173,7 @@ if [ "$VERIFIED" -eq 0 ]; then
         # well as the target's, so targeting only `$1` would change the reference arm.
         ( cd "$d" && export PATH="${ARM_PATH:-${ERA_PATH:-$PATH}}" \
             && { [ -z "${ERA_PYTHON:-}" ] || export PYTHON="$ERA_PYTHON"; } \
-            && npm rebuild --no-audit --no-fund > n.log 2>&1 )
+            && npm_as_arm rebuild --no-audit --no-fund > n.log 2>&1 )
         local rc=$?
         # The log survives a failure: the arm that decides nub is innocent must leave evidence.
         [ "$rc" -eq 0 ] || { echo "  NPM-REFERENCE rebuild rc=$rc for $1@$2 (era ${ERA_NODE_VERSION:-none})"

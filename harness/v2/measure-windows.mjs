@@ -1034,7 +1034,14 @@ if (!armPrep) {
 } else {
   ARM_PATH = armPrep.armPath || ERA_NODE.armPath;
   for (const m of armPrep.markers ?? []) console.log(`  ${m}`);
-  const scaffold = armPrep.scaffold?.install ?? [];
+  // ⛔⛔ THE WHOLE devDependency CLOSURE, NOT ONLY THE SCRIPT-NAMED BINARIES — reversed 2026-09-01. The
+  // measurement that overturned "surgical, never wholesale" is in `script-scaffold.mjs`'s header: the
+  // failure was `ERESOLVE` under npm 7+'s strict peer resolution, not npm's install atomicity, and the
+  // same 29 specs install clean with `--legacy-peer-deps`. This list is now only the GATE —
+  // `scaffold-install.mjs` derives the plan itself from the same manifest, so the three drivers cannot
+  // drift on what a scaffold IS, only on how each privileges the process that applies it.
+  const scaffold = [...(armPrep.scaffold?.tools ?? []), ...(armPrep.scaffold?.install ?? []),
+    ...(armPrep.scaffold?.closure ?? [])];
   if (scaffold.length) {
     // Non-fatal by design: a scaffold that will not resolve leaves the arm exactly as badly off as
     // it is today, so it must never turn a measurable package into a harness error.
@@ -1042,14 +1049,25 @@ if (!armPrep) {
     // ⛔ DATED, like the fetch above and for the reason `observe-only.mjs:330` already records:
     // undated, this pulls TODAY's build tools into a tree pinned to the package's own era, and the
     // era Node cannot parse them. `eraResolution.before` is the SAME value the fetch used, so the
-    // two installs cannot disagree about the date.
-    const si = run(NODE, [NPM, 'install', '--no-audit', '--no-fund', '--ignore-scripts',
-      ...(eraResolution.before ? [`--before=${eraResolution.before}`] : []), ...scaffold],
+    // two installs cannot disagree about the date. The module carries the one deliberate exception —
+    // `UNDATED_TOOLS`, where the era-dated artifact is a stub rather than a period-correct tool.
+    //
+    // ⛔ `run(NODE, …)` PINS THE HARNESS INTERPRETER, and that is load-bearing rather than incidental:
+    // `ARM_PATH` below leads with the era Node, so resolving the module through the PATH would hand a
+    // modern `.mjs` to Node 4 on an old package. Both shell drivers need an explicit `$HARNESS_NODE`
+    // at this same call for exactly this reason.
+    const si = run(NODE, [path.join(HERE, 'scaffold-install.mjs'), '--observe', OBS, '--pkg', PKG,
+      ...(eraResolution.before ? ['--before', eraResolution.before] : [])],
       // ⛔ THE ERA PYTHON, like `obsEnv` above. Every arm that can run node-gyp must hold the
       // SAME interpreter or a Python failure in one is read as a defect in what the other blames.
       // See `unjailed-nub.mjs`'s `asIdentity` for the node-sass@9.0.0 measurement behind this.
       { cwd: OBS, env: { ...process.env, PATH: ARM_PATH, ...(ERA_PYTHON ? { PYTHON: ERA_PYTHON } : {}), ...OBS_ENV } });
     console.log(`  ARM-SCAFFOLD-INSTALL rc=${si.status}`);
+    // The per-tier markers. `driver.out` is read line-wise and the module emits one marker per line,
+    // with every npm child's output captured rather than inherited.
+    for (const line of String(si.stdout ?? '').split('\n')) {
+      if (line.includes('ARM-SCAFFOLD-')) console.log(`  ${line.trim()}`);
+    }
     // ⛔⛔ THE SCAFFOLD INSTALL SOMETIMES REMOVES THE SUBJECT — the long note is at the matching branch
     // in `measure.sh`. Measured over all 6,880 records, `ARM-FALSIFIABILITY`'s `manifestFiles: null`
     // (no layout for the subject exists at all) occurs in 51 records, EVERY one of them with a
