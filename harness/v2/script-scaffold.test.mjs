@@ -227,3 +227,19 @@ test('a reader that throws or returns nothing leaves the plan exactly as it was'
   assert.deepEqual(thrower.tools, [], 'a missing file must never convert a measurable package into an error');
   assert.deepEqual(scriptScaffold(AWSX, { readFile: () => null }).tools, []);
 });
+
+test('a bin whose real provider is scoped never falls through to the squatted bare name', () => {
+  // Each bare name is a real published package that would install cleanly and provide nothing:
+  // `nuxt-module-build` is a dependency-confusion placeholder, `pkg-utils` is an unrelated browser
+  // tool whose bin is `pkg`, and `kiota` is a security holding package with no bin.
+  const cases = [
+    ['nuxt-module-build', { '@nuxt/module-builder': '0.8.1' }, '@nuxt/module-builder@0.8.1'],
+    ['pkg-utils', { '@sanity/pkg-utils': '^7.8.4' }, '@sanity/pkg-utils@^7.8.4'],
+    ['kiota', { '@kiota-community/kiota-gen': '^1.0.2' }, '@kiota-community/kiota-gen@^1.0.2'],
+  ];
+  for (const [bin, devDependencies, expected] of cases) {
+    const r = scriptScaffold({ scripts: { prepare: `${bin} --stub` }, devDependencies });
+    assert.deepEqual(r.install, [expected],
+      `${bin} must resolve through its declared scoped provider, not the bare name`);
+  }
+});

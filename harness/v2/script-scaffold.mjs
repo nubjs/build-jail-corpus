@@ -80,6 +80,23 @@ export const BIN_TO_PACKAGE = {
   remix: '@remix-run/dev',      // 1
   'node-pre-gyp': '@mapbox/node-pre-gyp', // 1
   neon: 'neon-cli',             // 1
+  // ⛔ THE THREE BELOW ARE NOT CONVENIENCES — WITHOUT THEM THE FALLBACK INSTALLS THE WRONG PACKAGE.
+  // The last branch of the resolver is `spec = provider` with `provider` defaulting to the BIN NAME,
+  // so a bin whose real provider is scoped resolves to whatever squats the bare name. Checked on the
+  // registry 2026-09-01, and each bare name is actively harmful rather than merely absent:
+  //
+  //   nuxt-module-build  -> "🚫 Placeholder to prevent dependency confusion."  (a real published stub)
+  //   pkg-utils          -> "Run clientside project in the browser", and its bin is `pkg`, not `pkg-utils`
+  //   kiota              -> "security holding package", no bin at all
+  //
+  // All three ARE declared by the packages that need them, under the scoped name — so with an entry
+  // here the resolver's earlier `declared[provider]` branch wins and the era-correct range is used
+  // (@nuxtjs/sitemap@5.3.1 declares @nuxt/module-builder 0.8.1; @sanity/json-match@1.0.3 declares
+  // @sanity/pkg-utils ^7.8.4; @keycloak/keycloak-admin-client@26.6.0 declares @kiota-community/kiota-gen
+  // ^1.0.2). Each provider was confirmed to publish the bin named on the left.
+  'nuxt-module-build': '@nuxt/module-builder',      // 4 records
+  'pkg-utils': '@sanity/pkg-utils',                 // 2
+  kiota: '@kiota-community/kiota-gen',              // 2
 };
 
 /** Binaries no npm package can supply, with the reason. A scaffold must not invent a provider for
