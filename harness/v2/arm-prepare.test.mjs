@@ -58,10 +58,60 @@ test('a fetch that did not land the package says so instead of silently scaffold
 });
 
 test('every marker is a single line, because driver.out is parsed line-wise', () => {
-  const d = tree('p', { scripts: { postinstall: 'pulumi up' } });
+  // ⛔ `pg_config`, NOT `pulumi`. This fixture used `pulumi` until 2026-09-01, when that entry came off
+  // `UNPROVIDABLE` — its stated reason, "external CLI distributed outside npm", was false: `npm view
+  // pulumi bin` returns `{"pulumi":"run.js"}`. The example here has to be a binary no npm package can
+  // supply or the test stops covering the marker it is named for, and `pg_config` is one.
+  const d = tree('p', { scripts: { postinstall: 'pg_config --libdir' } });
   const r = prepareArm({ observeDir: d, pkg: 'p', ambient: '/usr/bin', resolve: () => null });
   for (const m of r.markers) assert.ok(!m.includes('\n'), `multi-line marker: ${m}`);
-  assert.ok(r.markers.some((m) => m.startsWith('ARM-UNPROVIDABLE') && m.includes('pulumi')));
+  assert.ok(r.markers.some((m) => m.startsWith('ARM-UNPROVIDABLE') && m.includes('pg_config')),
+    `no ARM-UNPROVIDABLE marker naming pg_config in ${JSON.stringify(r.markers)}`);
+});
+
+test('an external-launcher tool routes to the UNDATED tools tier, not to unprovidable', () => {
+  // The behaviour change `pulumi` came off `UNPROVIDABLE` for. It is the largest single remaining
+  // `command not found` blocker in the corpus — 11 rows of the 2026-08-22 ledger out of 67 in that
+  // whole class — and it was refused on a premise nobody rechecked.
+  const d = tree('p', { scripts: { postinstall: 'pulumi plugin install resource kubernetes v0.12.0' } });
+  const r = prepareArm({ observeDir: d, pkg: 'p', ambient: '/usr/bin', resolve: () => null });
+  assert.deepEqual(r.scaffold.tools, ['pulumi'], 'pulumi must be scaffolded as an undated tool');
+  assert.deepEqual(r.scaffold.unprovidable, [], 'and must no longer be refused');
+  // ⛔ AND IT MUST NOT ALSO BE IN THE DATED LIST. Two tiers installing it would race to overwrite each
+  // other in an order nothing pins, and the dated one resolves `pulumi@0.0.1` — a stub with no bin at
+  // all, measured to leave the arm at rc=127 exactly as if it had never been scaffolded.
+  assert.deepEqual(r.scaffold.install, [], 'an undated tool belongs to exactly one tier');
+});
+
+test('a package manager a script shells out to is supplied, by bare name', () => {
+  // pnpm/yarn/bun came off UNPROVIDABLE on 2026-08-23 for the same reason: 18 rows of the 2026-08-22
+  // ledger die on it, and withholding the tool measures our refusal rather than the package.
+  const d = tree('p', { scripts: { postinstall: 'pnpm precompile-schema' },
+    devDependencies: { pnpm: '^6.0.0' } });
+  const r = prepareArm({ observeDir: d, pkg: 'p', ambient: '/usr/bin', resolve: () => null });
+  // ⛔ BARE NAME, NEVER THE MANIFEST'S RANGE — carrying `^6.0.0` through would re-impose the era on a
+  // TOOL through the back door and reproduce the `pulumi@0.0.1` stub result on a different binary.
+  assert.deepEqual(r.scaffold.tools, ['pnpm']);
+});
+
+test('the declared devDependency closure is offered alongside the script-named binaries', () => {
+  // The 2026-09-01 reversal. `install` keeps exactly its old meaning so an existing record's
+  // ARM-SCAFFOLD line still reads the same; `closure` is the new, best-effort tier, and it is what
+  // reaches what a script REQUIRES at runtime rather than what it NAMES — the ceiling
+  // `script-scaffold.mjs` calls unreachable by any static parser.
+  const d = tree('p', {
+    scripts: { postinstall: 'husky install' },
+    devDependencies: { husky: '^5.0.9', rollup: '^2.39.0', typescript: '^4.1.5' },
+    dependencies: { 'left-pad': '^1.0.0' },
+  });
+  const r = prepareArm({ observeDir: d, pkg: 'p', ambient: '/usr/bin', resolve: () => null });
+  assert.deepEqual(r.scaffold.install, ['husky@^5.0.9'], 'the named binary keeps its own tier');
+  assert.deepEqual(r.scaffold.closure.sort(), ['rollup@^2.39.0', 'typescript@^4.1.5'],
+    'the rest of the declared devDependencies, with their ranges');
+  assert.ok(!r.scaffold.closure.some((s) => s.startsWith('husky@')),
+    'a spec already in `install` must not be duplicated into `closure`');
+  assert.ok(!r.scaffold.closure.some((s) => s.startsWith('left-pad@')),
+    'a runtime dependency is already in the tree and is never scaffolded');
 });
 
 // ⛔ THE PARITY LIST IS EXTENDED HERE RATHER THAN RE-INVENTED PER MODULE, because the failure it
@@ -80,6 +130,10 @@ const SHARED_BY_ALL_DRIVERS = [
   ['instrument-selfcheck', 'refuses to measure from a harness tree that disagrees with itself '
     + 'about its epoch'],
   ['never-spawned', 'treats a lifecycle script that never LAUNCHED as VOID rather than as a pass'],
+  ['scaffold-install', 'applies the scaffold in RECOVERABLE batches — whole batch, then bisect — so '
+    + 'one unresolvable spec cannot empty the whole scaffold, and so the declared devDependency '
+    + 'closure can be attempted at all; a driver still issuing a single flat `npm install` reverts '
+    + 'to the surgical-only scaffold and loses every package whose script needs a devDep at runtime'],
 ];
 
 test('⛔ EVERY SHARED MODULE IS WIRED INTO ALL THREE DRIVERS', () => {
