@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 81,
+  "currentEpoch": 82,
   "transitions": [
     {
       "fromEpoch": null,
@@ -565,11 +565,11 @@
           "NO-STATE-PASSED"
         ],
         "packages": [
-          "@antv+dom-util",
-          "@antv+g-canvas",
-          "@antv+g-math",
-          "@antv+matrix-util",
-          "@rsuite+icons",
+          "@antv/dom-util",
+          "@antv/g-canvas",
+          "@antv/g-math",
+          "@antv/matrix-util",
+          "@rsuite/icons",
           "clientjs",
           "jest-stare",
           "lucia",
@@ -579,11 +579,11 @@
           "real-cancellable-promise",
           "spectron",
           "xero-node",
-          "@antv+g-base",
-          "@antv+g-svg",
-          "@open-wc+testing",
-          "@sap+hana-theme-vscode",
-          "@wessberg+ts-evaluator",
+          "@antv/g-base",
+          "@antv/g-svg",
+          "@open-wc/testing",
+          "@sap/hana-theme-vscode",
+          "@wessberg/ts-evaluator",
           "aws-crt",
           "babel-plugin-parameter-decorator",
           "bigint-buffer",
@@ -1615,6 +1615,16 @@
         "verdicts": []
       },
       "reason": "epoch 81 for the arm-log filter fix"
+    },
+    {
+      "fromEpoch": 81,
+      "fromHarnessSha256": "b0a50767d7f0fb1ed61e80c10c028ffe020e9bba0990426e0418858fbc07f6ec",
+      "toEpoch": 82,
+      "toHarnessSha256": "c3bee14b3045fd2f27eab728c756ba852407e21ab18b4f32ce047b8ccecbb86f",
+      "invalidate": {
+        "all": true
+      },
+      "reason": "epoch 82 for the full-closure scaffold, the one-hop tool scan, and the manifestFiles gate, scoped all because the first of them changes the tree the observe arm measures for most of the corpus. scaffold-install.mjs replaces the surgical install with three tiers - undated tools, script-named binaries, and the declared devDependency and peerDependency closure - applied whole-batch first and bisected on failure under --legacy-peer-deps. Measured against the published manifests of all 601 cells still valid at epoch 81: every one declares a lifecycle script, and 457 of them, covering 693 of the 907 valid records, receive a non-empty closure tier the previous scaffold never installed. A grant measured without that closure can only be narrower than the one a richer tree produces, so those records cannot be carried forward. The one-hop node <file> scan and the pulumi pre-stage change about 4 of 307 cells by exact plan differential. The manifestFiles gate moves nothing already committed. A package-name union sized against the same manifests spares 61 of the 907 records and 64 of the 913 done rows, which does not justify a 355-name selector maintained by hand; withholding the transition costs the same 913 rows, because no transition names the current digest."
     }
   ]
 }
