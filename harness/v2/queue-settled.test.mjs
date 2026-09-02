@@ -159,21 +159,109 @@ test('the invalidation policy names the current epoch and the current harness di
   }
 });
 
-test('an epoch-3 record at the frozen digest survives into epoch 4', () => {
-  // The 1,769 records the corpus held when epoch 4 landed all carry this digest. If this goes red,
-  // the drain restarts from zero — which is the entire cost the targeted transition exists to avoid.
-  const FROZEN = 'f9e4c4fde7a5ce7c86828b1c89d2bc24c671248f1db83584905ca3864c216db6';
-  const record = {
-    harnessVersion: 2, harnessEpoch: 3, pkg: 'demo', version: '1.0.0', verdict: 'MINIMUM',
-    provenance: { harnessSha256: FROZEN, platform: 'linux-x64' },
-  };
-  const v = recordValidity(record, computeHarnessIdentity(), loadInvalidationPolicy());
-  assert.equal(v.reusable, true, `a frozen-epoch-3 record was invalidated: ${v.reason}`);
+// ⛔ THE FROZEN EPOCH-3 CHAIN ENDS AT EPOCH 82, AND THIS GUARD NO LONGER CLAIMS OTHERWISE.
+//
+// What stood here asserted against the LIVE policy that a synthetic epoch-3 `demo@1.0.0` record was
+// still reusable, and said in its comment that this protected the 1,769 records the corpus held when
+// epoch 4 landed. It protected none of them, and had stopped describing the corpus long before it
+// went red. MEASURED over `records-v2/runs/**/results.json` at epoch 81, with the chain repaired so
+// that the assertion passes: 1,267 records carry the frozen epoch-3 digest, and 972 of them were
+// ALREADY invalidated while the guard read green — 723 by the epoch-59 package union alone. A record
+// named `demo` matches no `packages` selector, so the selector that has done the most invalidating on
+// this chain is the one the fixture could never feel.
+//
+// Epoch 82 invalidates `{"all": true}`, deliberately: the full-closure scaffold changes the tree the
+// observe arm measures for 693 of the 907 records still valid at epoch 81, so a grant carried forward
+// across it could only be too narrow. Frozen-epoch-3 reuse is therefore over, and a guard asserting
+// that it survives asserts against the decision rather than against a defect.
+//
+// What is worth pinning is what the transition machinery actually promises, stated in
+// `record-validity.mjs` above `settlementSurvives`: "re-measuring cannot change the outcome under
+// instrument X" stays true when X changes in a way that invalidates nothing. So — a record walks a
+// measurement-neutral chain, and is refused the instant a scope names it. The chain below is
+// SYNTHETIC for the same reason `settlement-survives.test.mjs`'s is: a fixture pinned to today's
+// digests stops testing the property and starts tracking the calendar. That file holds the settlement
+// half of this pair; this is the record half.
+test('a record survives a measurement-neutral chain and is refused the moment a scope names it', () => {
+  const E7 = '7'.repeat(64);
+  const E8 = '8'.repeat(64);
+  const E9 = '9'.repeat(64);
+  const current = { harnessEpoch: 9, harnessSha256: E9 };
+  // Two hops, of the two shapes this chain is really built from: a `{verdicts: []}` bump that selects
+  // nothing, then a `packages` bump — the shape the replaced fixture was structurally blind to.
+  const policy = { schemaVersion: 1, currentEpoch: 9, transitions: [
+    { fromEpoch: 7, fromHarnessSha256: E7, toEpoch: 8, toHarnessSha256: E8,
+      invalidate: { verdicts: [] }, reason: 'comment and test only' },
+    { fromEpoch: 8, fromHarnessSha256: E8, toEpoch: 9, toHarnessSha256: E9,
+      invalidate: { packages: ['sharp'] }, reason: 'the sharp classifier changed' },
+  ] };
+  const record = (pkg) => ({
+    harnessVersion: 2, harnessEpoch: 7, pkg, version: '1.0.0', verdict: 'MINIMUM',
+    provenance: { harnessSha256: E7, platform: 'linux-x64' },
+  });
 
-  // ⛔ AND THE CONTROL: a record from some OTHER epoch-3 harness must STILL be refused, or the
-  // assertion above is only measuring how permissive the policy is.
-  const alien = { ...record, provenance: { ...record.provenance, harnessSha256: 'a-different-harness' } };
-  assert.equal(recordValidity(alien, computeHarnessIdentity(), loadInvalidationPolicy()).reusable, false);
+  const kept = recordValidity(record('left-pad'), current, policy);
+  assert.equal(kept.reusable, true, `a record no scope names was invalidated: ${kept.reason}`);
+  assert.equal(kept.via, 'targeted-transition', 'the record must be WALKED, not matched outright');
+
+  // ⛔ THE RED HALF. Preserving a record is only correct while nothing invalidates it; an assertion
+  // that only proved records survive would pass against an engine that never drops one, and a record
+  // whose measurement the instrument genuinely changed would then be reused forever.
+  const dropped = recordValidity(record('sharp'), current, policy);
+  assert.equal(dropped.reusable, false, 'a record the epoch-9 scope names must be re-measured');
+  assert.equal(dropped.reason, 'the sharp classifier changed', 'refused, but by some OTHER hop');
+
+  // ⛔ AND THE ALIEN CONTROL: a record from a different harness at the same epoch is still refused, so
+  // the walk is keyed on instrument identity rather than on the epoch number alone.
+  const alien = recordValidity({ ...record('left-pad'),
+    provenance: { harnessSha256: 'a-different-harness', platform: 'linux-x64' } }, current, policy);
+  assert.equal(alien.reusable, false, 'a foreign epoch-7 digest was accepted onto the chain');
+  assert.match(alien.reason, /does not match transition source/);
+});
+
+// The live policy still deserves one assertion, and it is not about any particular record. A
+// transition whose scope the engine cannot read, an epoch two transitions leave, or a hole in the run
+// refuses EVERY record from that point onward — the same whole-corpus-looks-stale failure the epoch
+// and digest test above guards against, reached through the selectors instead of through the digest.
+// Each hop is probed on its own, so a scope is exercised even when no record in the corpus happens to
+// traverse it, and the check keeps holding as the chain grows.
+test('every hop of the live chain declares a scope the engine can read, and the hops form one run', () => {
+  const policy = loadInvalidationPolicy();
+  const leaving = new Map();
+  for (const t of policy.transitions) {
+    leaving.set(t.fromEpoch, [...(leaving.get(t.fromEpoch) ?? []), t]);
+    const probe = {
+      harnessVersion: 2, harnessEpoch: t.fromEpoch, pkg: 'no-such-package', version: '0.0.0',
+      verdict: 'MINIMUM', provenance: { harnessSha256: t.fromHarnessSha256, platform: 'linux-x64' },
+    };
+    const { reason = '' } = recordValidity(probe,
+      { harnessEpoch: t.toEpoch, harnessSha256: t.toHarnessSha256 },
+      { schemaVersion: 1, currentEpoch: t.toEpoch, transitions: [t] });
+    assert.doesNotMatch(reason, /^invalid policy:/,
+      `the epoch-${t.toEpoch} transition declares a scope the engine cannot read: ${reason}`);
+  }
+  for (const [from, hops] of leaving) {
+    assert.equal(hops.length, 1,
+      `${hops.length} transitions leave epoch ${from}, so no record can be walked past it`);
+  }
+  // Walking the hops in order is also the only thing that sees them COMPOSED. `instrumentCompatibility`
+  // carries each hop's `toHarnessSha256` into the next hop's source check, so a digest one hop
+  // produces that the next hop does not expect strands every record behind it — invisible to any
+  // single-hop probe. The root hop is the unversioned instrument and names no target digest, so the
+  // run is walked from the first hop that does.
+  let epoch = policy.transitions.find((t) => t.fromEpoch === null)?.toEpoch;
+  assert.ok(Number.isInteger(epoch), 'the chain has no root transition to walk from');
+  let digest = leaving.get(epoch)?.[0]?.fromHarnessSha256;
+  for (let hop = 0; leaving.has(epoch) && hop <= policy.transitions.length; hop++) {
+    const [t] = leaving.get(epoch);
+    assert.equal(t.fromHarnessSha256, digest,
+      `the epoch-${t.fromEpoch} hop starts from a digest the hop before it does not produce, `
+      + 'so every record walked as far as it is stranded there');
+    digest = t.toHarnessSha256;
+    epoch = t.toEpoch;
+  }
+  assert.equal(epoch, policy.currentEpoch,
+    `the chain runs out at epoch ${epoch}, so every record at or before it is stranded`);
 });
 
 test('reopening a settled row clears its settled fields', () => {
