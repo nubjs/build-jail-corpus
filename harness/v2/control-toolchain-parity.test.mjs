@@ -23,7 +23,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const HERE = import.meta.dirname;
 const read = (f) => fs.readFileSync(path.join(HERE, f), 'utf8');
@@ -85,4 +87,67 @@ test('the control prints what nub actually said before accusing it', () => {
     + 'then written into a scratch dir that is discarded, so a real defect and a harness asymmetry '
     + 'leave identical records — measured on linux-x64 @stdlib/math-base-special-signum@0.0.6');
   assert.match(branch, /slice\(-20\)/, 'the printed tail is unbounded — print a tail, not the whole log');
+});
+
+// ⛔ AND THE SAME IDENTITY, WHICH IS THE OTHER HALF OF "NOTHING BUT THE SUBJECT".
+//
+//   epoch 82 — the darwin npm reference arm ran as ROOT while every arm it is compared against runs
+//              as $RUNUSER, and its `mktemp -d` tree was root-owned 0700. npm de-escalates the
+//              lifecycle child off root; that child could not search its own cwd and died in
+//              `getcwd()` — `Error: EACCES: permission denied, uv_cwd` — before running a line of
+//              the package's script.
+//
+// The direction is the dangerous one: a spurious failure in THIS arm exonerates nub and files a
+// candidate nub defect as a dead package. MEASURED on the committed corpus at the time of the fix:
+// all 55 darwin records that reached this branch are BROKEN-WITHOUT-JAIL-TOO and NOT ONE is
+// BROKEN-UNJAILED-NUB, against 27 of 97 on linux — the driver that never runs as root.
+//
+// Scoped to darwin ON PURPOSE. `measure.sh` never drops privileges, so its reference arm already
+// shares the arms' identity; `measure-windows.mjs` cannot reach this mechanism because npm does not
+// de-escalate on win32. A blanket three-driver assertion here would be a false parity claim.
+function npmOkBody(src) {
+  const i = src.indexOf('      npm_ok () {');
+  assert.notEqual(i, -1, 'npm_ok is gone from the darwin driver — re-read measure-macos.sh');
+  const j = src.indexOf('# ⛔ ONE `=>` LINE PER PATH', i);
+  assert.notEqual(j, -1, 'the npm_ok branch has been restructured — re-read it');
+  return src.slice(i, j);
+}
+
+test('the darwin reference arm hands its tree to the user that will run in it', () => {
+  assert.match(npmOkBody(read('measure-macos.sh')), /chown -R "\$RUNUSER" "\$d"/,
+    'npm_ok leaves its `mktemp -d` tree root-owned and 0700. npm de-escalates the lifecycle child '
+    + 'off root, and that child then cannot getcwd() — the arm dies with EACCES/uv_cwd before the '
+    + 'package runs, and the failure is read as "npm cannot install this either"');
+});
+
+test('the darwin reference arm drops to $RUNUSER, and only when it is actually root', () => {
+  const fn = npmOkBody(read('measure-macos.sh'));
+  assert.match(fn, /sudo -u "\$RUNUSER"/,
+    'npm_ok still spawns npm as root, so it runs as a user no arm it is compared against runs as');
+  assert.match(fn, /id -u/,
+    'the drop is ungated. The ladder suites drive both branches of this control with a shell '
+    + 'function `npm () { return $rc; }`, and `sudo … env npm` EXECS a binary that cannot see one — '
+    + 'so an unconditional drop takes the REAL npm and the suite goes red against the network');
+});
+
+// The mechanism itself, executed rather than asserted about: this is WHY the chown above is
+// load-bearing. If Node ever stopped failing this way the guard above would be protecting nothing.
+test('a process that cannot search its cwd dies exactly the way the corpus records show', () => {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'uvcwd-'));
+  const inner = path.join(d, 'inner');
+  fs.mkdirSync(inner);
+  const probe = path.join(d, 'probe.js');
+  fs.writeFileSync(probe, 'try{process.cwd();console.log("OK")}catch(e){console.log(e.code+" "+e.syscall)}');
+  try {
+    // The child must already BE in the directory when it becomes unsearchable — which is the arm's
+    // situation exactly. Chmod-then-spawn cannot reproduce it: the parent fails to chdir and the
+    // spawn errors before Node ever starts.
+    const r = spawnSync('sh', ['-c', 'cd "$1" && chmod 000 . && exec "$2" "$3"', 'sh',
+      inner, process.execPath, probe], { encoding: 'utf8' });
+    assert.match(`${r.stdout}`, /EACCES uv_cwd/,
+      'an unsearchable cwd no longer produces EACCES/uv_cwd — re-derive what the darwin arm was dying of');
+  } finally {
+    fs.chmodSync(inner, 0o755);
+    fs.rmSync(d, { recursive: true, force: true });
+  }
 });
