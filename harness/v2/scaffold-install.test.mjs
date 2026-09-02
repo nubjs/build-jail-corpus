@@ -8,6 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { installResiliently, applyScaffold, scaffoldMarkers, whyFailed, npmInstall } from './scaffold-install.mjs';
 
@@ -150,7 +151,7 @@ test('⛔ `--prefix` is a named option and never enters the batch the bisect sli
   // hand npm a `--prefix` with nothing after it. macOS is the driver that passes one.
   const seen = [];
   const r = npmInstall({
-    specs: ['a@1', 'b@1'], cwd: '/tmp', before: '2021-01-01T00:00:00.000Z', prefix: '/obs',
+    specs: ['a@1', 'b@1'], cwd: os.tmpdir(), before: '2021-01-01T00:00:00.000Z', prefix: '/obs',
     npmArgv: [process.execPath, '-e', 'process.exit(0)'], env: process.env,
   });
   assert.equal(r.status, 0);
@@ -162,7 +163,7 @@ test('⛔ `--prefix` is a named option and never enters the batch the bisect sli
     captured.push(...JSON.parse(probe.out.trim()));
     return captured;
   };
-  const argv = argvOf({ specs: ['a@1', 'b@1'], cwd: '/tmp', before: '2021-01-01T00:00:00.000Z',
+  const argv = argvOf({ specs: ['a@1', 'b@1'], cwd: os.tmpdir(), before: '2021-01-01T00:00:00.000Z',
     prefix: '/obs', env: process.env });
   assert.deepEqual(argv.slice(-2), ['a@1', 'b@1'], 'the specs are last and unmixed with flags');
   assert.equal(argv[argv.indexOf('--prefix') + 1], '/obs');
@@ -172,7 +173,7 @@ test('⛔ `--prefix` is a named option and never enters the batch the bisect sli
 });
 
 test('an UNDATED install carries no --before at all', () => {
-  const probe = npmInstall({ specs: ['pulumi'], cwd: '/tmp', before: '2018-04-26T21:37:22.861Z',
+  const probe = npmInstall({ specs: ['pulumi'], cwd: os.tmpdir(), before: '2018-04-26T21:37:22.861Z',
     dated: false, npmArgv: [process.execPath, '-p', 'JSON.stringify(process.argv.slice(2))'],
     env: process.env });
   const argv = JSON.parse(probe.out.trim());

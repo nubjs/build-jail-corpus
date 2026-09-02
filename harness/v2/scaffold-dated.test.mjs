@@ -20,6 +20,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
+import { npmInstall } from './scaffold-install.mjs';
 
 const here = import.meta.dirname;
 const read = (f) => fs.readFileSync(path.join(here, f), 'utf8');
@@ -31,31 +32,58 @@ const scaffoldLine = (src, marker) => {
   return src.slice(at, at + 400);
 };
 
-test('the LINUX scaffold install is dated', () => {
-  const line = scaffoldLine(read('measure.sh'), 'npm install --no-audit --no-fund --ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD');
-  assert.match(line, /\$\{ERA_BEFORE:\+"\$ERA_BEFORE"\}/);
+// ⛔ THE SCAFFOLD INSTALL MOVED ON 2026-09-01 AND THIS TEST MOVED WITH IT, KEEPING ITS PURPOSE. The
+// three drivers no longer each issue their own `npm install`; they hand the plan to
+// `scaffold-install.mjs`, which applies it in recoverable batches. So the date now has to survive TWO
+// hops rather than one — driver into the module's argv, then module into every npm invocation it makes
+// — and both halves are asserted below. Dropping either restores exactly the omission this file exists
+// for, and the second is the newly-reachable one: a bisect issues SEVERAL installs, so "the install is
+// dated" stopped being a statement about a single command line.
+test('the LINUX driver hands the era date to the scaffold installer', () => {
+  const line = scaffoldLine(read('measure.sh'), 'scaffold-install.mjs" --observe "$OBS" --pkg "$PKG"');
+  assert.match(line, /\$\{ERA_BEFORE:\+--before "\$ERA_BEFORE"\}/,
+    'the linux scaffold install does not carry the date the fetch used');
 });
 
-test('the MACOS scaffold install is dated', () => {
-  const line = scaffoldLine(read('measure-macos.sh'), '--ignore-scripts ${ERA_BEFORE:+"$ERA_BEFORE"} $ARM_SCAFFOLD');
-  assert.match(line, /\$\{ERA_BEFORE:\+"\$ERA_BEFORE"\}/);
+test('the MACOS driver hands the era date to the scaffold installer', () => {
+  const line = scaffoldLine(read('measure-macos.sh'), 'scaffold-install.mjs" --observe "$OBS" --pkg "$PKG"');
+  assert.match(line, /\$\{ERA_BEFORE:\+--before "\$ERA_BEFORE"\}/,
+    'the macos scaffold install does not carry the date the fetch used');
 });
 
-test('the WINDOWS scaffold install reuses the fetch\'s own date', () => {
+test('the WINDOWS driver reuses the fetch\'s own date', () => {
   const src = read('measure-windows.mjs');
-  const at = src.indexOf('...scaffold]');
-  assert.notEqual(at, -1, 'the scaffold install site moved');
-  const region = src.slice(Math.max(0, at - 400), at + 40);
+  const at = src.indexOf("scaffold-install.mjs'), '--observe'");
+  assert.notEqual(at, -1, 'the scaffold install site moved — this test is now checking nothing');
+  const region = src.slice(at, at + 300);
   assert.match(region, /eraResolution\.before/,
     'the windows scaffold install does not carry the date the fetch used');
 });
 
-test('CONTROL: an UNDATED install line would fail these checks', () => {
-  // ⛔ THE ASSERTION ABOVE IS `match`, WHICH PASSES ON ANY LINE CONTAINING THE PATTERN — so without
+test('⛔ AND THE INSTALLER ITSELF DATES EVERY BATCH IT ISSUES', () => {
+  // The second hop. A driver that passes `--before` to a module which drops it is the same silent
+  // omission with one more layer of indirection — and it is invisible to a source scan of the drivers,
+  // which is all this file could do before the module existed.
+  const argvOf = (opts) => JSON.parse(npmInstall({
+    specs: ['x@1'], cwd: here, env: process.env,
+    npmArgv: [process.execPath, '-p', 'JSON.stringify(process.argv.slice(2))'], ...opts,
+  }).out.trim());
+  assert.ok(argvOf({ before: '2016-05-05T00:00:00.000Z' }).includes('--before=2016-05-05T00:00:00.000Z'),
+    'a dated batch must carry --before');
+  // ⛔ THE ONE DELIBERATE EXCEPTION, ASSERTED HERE SO IT CANNOT QUIETLY SPREAD. `UNDATED_TOOLS` is
+  // undated because the dated artifact is a stub rather than a period-correct tool: `pulumi` at a 2018
+  // date resolves 0.0.1, which ships no bin at all and leaves the arm at rc=127 exactly as if nothing
+  // had been scaffolded. Measured — see `script-scaffold.mjs`.
+  assert.ok(!argvOf({ before: '2016-05-05T00:00:00.000Z', dated: false }).some((a) => a.startsWith('--before')),
+    'the undated tools tier must not be dated');
+});
+
+test('CONTROL: an UNDATED driver line would fail these checks', () => {
+  // ⛔ THE ASSERTIONS ABOVE ARE `match`, WHICH PASSES ON ANY LINE CONTAINING THE PATTERN — so without
   // this, a rewrite that dropped the flag but left the marker string in a comment would read green.
-  const undated = 'npm install --no-audit --no-fund --ignore-scripts $ARM_SCAFFOLD > "$OBS/scaffold.log"';
-  assert.doesNotMatch(undated, /\$\{ERA_BEFORE:\+"\$ERA_BEFORE"\}/);
-  assert.doesNotMatch('run(NODE, [NPM, "install", ...scaffold]', /eraResolution\.before/);
+  const undated = '"$HERE/scaffold-install.mjs" --observe "$OBS" --pkg "$PKG" > "$OBS/scaffold.log"';
+  assert.doesNotMatch(undated, /\$\{ERA_BEFORE:\+--before "\$ERA_BEFORE"\}/);
+  assert.doesNotMatch("run(NODE, [path.join(HERE, 'scaffold-install.mjs'), '--observe', OBS]", /eraResolution\.before/);
 });
 
 test('every driver dates its package FETCH too — the rule these three are instances of', () => {

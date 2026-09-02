@@ -55,10 +55,28 @@ test('a dependency of the package itself is not scaffolded', () => {
 });
 
 test('names what it CANNOT provide rather than guessing a provider', () => {
-  const r = scriptScaffold({ scripts: { postinstall: 'pulumi version' } });
+  // ⛔ `pg_config`, NOT `pulumi`. This asserted `pulumi` was unprovidable — "external CLI distributed
+  // outside npm" — and on 2026-09-01 that reason turned out to be false: `npm view pulumi bin` returns
+  // `{"pulumi":"run.js"}`. It was the largest single remaining `command not found` blocker in the
+  // corpus, 11 rows of the 2026-08-22 ledger out of 67 in that whole class, refused on a premise
+  // nobody rechecked. The RULE this test guards is still right; its example had to become a binary npm
+  // genuinely cannot supply, and a PostgreSQL system tool is one.
+  const r = scriptScaffold({ scripts: { postinstall: 'pg_config --libdir' } });
   assert.deepEqual(r.install, []);
-  assert.equal(r.unprovidable[0].bin, 'pulumi');
-  assert.match(r.unprovidable[0].why, /external CLI/);
+  assert.equal(r.unprovidable[0].bin, 'pg_config');
+  assert.match(r.unprovidable[0].why, /not an npm package/);
+});
+
+test('an external launcher is supplied UNDATED, because its dated artifact is a stub', () => {
+  // The other half of the pulumi correction, and why it needs a tier of its own rather than joining
+  // `install`. Measured on `@pulumi/kubernetes@0.12.0` (`install: "pulumi plugin install …"`, published
+  // 2018-04-25): DATED, `pulumi` resolves 0.0.1 — deprecated, no bin at all — and the arm stays at
+  // rc=127 exactly as if nothing had been scaffolded. UNDATED it resolves a real launcher, rc goes
+  // 127 -> 1, and the script actually runs.
+  const r = scriptScaffold({ scripts: { install: 'pulumi plugin install resource kubernetes v0.12.0' } });
+  assert.deepEqual(r.tools, ['pulumi']);
+  assert.deepEqual(r.install, [], 'a spec belongs to exactly one tier, or the two race to overwrite');
+  assert.deepEqual(r.unprovidable, []);
 });
 
 test('node-waf is unprovidable at every era, not a pin we are missing', () => {
@@ -111,7 +129,11 @@ test('a package manager at the head of a script is a chain AND a requirement —
   const r = scriptScaffold({
     scripts: { postinstall: 'pnpm precompile-schema', 'precompile-schema': 'node ./scripts/precompile-schema.js' },
   });
-  assert.deepEqual(r.install, ['pnpm'], 'the package manager is the requirement, and npm can supply it');
+  // ⛔ `tools`, NOT `install` — it moved tiers on 2026-09-01 without changing what it means. A package
+  // manager is supplied by BARE NAME and UNDATED for the same reason `pulumi` is: what a script needs
+  // is a working PM, and an era-dated one is a period artifact rather than a tool.
+  assert.deepEqual(r.tools, ['pnpm'], 'the package manager is the requirement, and npm can supply it');
+  assert.deepEqual(r.install, [], 'a spec belongs to exactly one tier');
   assert.deepEqual(r.unprovidable, [], 'nothing here is unprovidable any more');
 });
 
