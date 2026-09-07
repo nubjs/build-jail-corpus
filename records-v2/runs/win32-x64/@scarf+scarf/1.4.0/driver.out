@@ -1,32 +1,36 @@
-### @scarf/scarf@1.4.0   (D:\jail\m-scarfscarf-msjs73f7)
+### @scarf/scarf@1.4.0   (D:\jail\m-scarfscarf-mtrm3klq)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=2696 exit=0 events=95801 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 4 files  (D:\jail\m-scarfscarf-msjs73f7\observe\node_modules\@scarf\scarf)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"eb01930513cf1dcffec2de7bd5af3713630aaee5a5dcbb57879cb831002dadee","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T19:06:43.086Z","cacheHit":false,"clearancePath":"D:\\jail\\m-scarfscarf-mtrm3klq\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree eb01930513cf
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"eb01930513cf1dcffec2de7bd5af3713630aaee5a5dcbb57879cb831002dadee","specCount":1,"lockfiles":{"digest":"9d2deb6496f214aa47a3a2f21a53fa2d3a518bf343248c1421859212f1a3eeae","files":[{"path":"package-lock.json","sha256":"be0fb9fc90982ab77d6921d4c288d2c54a9e5f2c64ba82ec27d53c2ebce6cafc","bytes":558}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T19:06:43.086Z","cacheHit":true,"clearancePath":"D:\\jail\\m-scarfscarf-mtrm3klq\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree eb01930513cf (cached exact-tree clearance)
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6440 exit=0 events=60177 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 4 files  (D:\jail\m-scarfscarf-mtrm3klq\observe\node_modules\@scarf\scarf)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 1 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-scarfscarf-msjs73f7\observe   [keyed on]
+    project       D:\jail\m-scarfscarf-mtrm3klq\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-scarfscarf-msjs73f7\observe\node_modules\.store
+    projectStore  D:\jail\m-scarfscarf-mtrm3klq\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-scarfscarf-msjs73f7\tmp   [keyed on]
+    temp          D:\jail\m-scarfscarf-mtrm3klq\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-scarfscarf-msjs73f7\observe\node_modules\@scarf\scarf
-  == ATTRIBUTION == lifecycle pids: 6 (root 2696)
+    ownPkg        D:\jail\m-scarfscarf-mtrm3klq\observe\node_modules\@scarf\scarf
+  == ATTRIBUTION == lifecycle pids: 6 (root 6440)
     writes  script 5  /  whole traced tree 12
     peers   script 0  /  whole traced tree 0
   == WRITES ==
     outside       1
-        d:\jail\m-scarfscarf-msjs73f7\npm-cache\_logs\2026-08-08t02_55_37_370z-debug-0.log
+        d:\jail\m-scarfscarf-mtrm3klq\npm-cache\_logs\2026-09-07t19_06_47_471z-debug-0.log
     jailTmp       4
   == READS ==
     deps          6
@@ -43,19 +47,21 @@
     NOTE 4 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
     !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
-  RAW       etw-raw.xml.gz  122369986 B xml -> 1817472 B gz (67.3x)  sha256 a1ca2004f4a45779…
-  HEADER    etw-header.json (5084 bytes)
-  DERIVED   10651 distinct from 13119 kept ops (95801 xml events, 24113 out of subtree)
+  RAW       etw-raw.xml.gz  76957953 B xml -> 1225415 B gz (62.8x)  sha256 36d5be65c245841c…
+  HEADER    etw-header.json (5083 bytes)
+  DERIVED   10651 distinct from 13119 kept ops (60177 xml events, 10647 out of subtree)
   PROCS     8   thread-reattributed 0
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (125457 bytes)
-  RAWLOG-CAPTURE D:\jail\m-scarfscarf-msjs73f7\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (125682 bytes)
+  RAWLOG-CAPTURE D:\jail\m-scarfscarf-mtrm3klq\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-scarfscarf-msjs73f7
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-scarfscarf-msjs73f7\\npm-cache","TMP":"D:\\jail\\m-scarfscarf-msjs73f7\\tmp","TEMP":"D:\\jail\\m-scarfscarf-msjs73f7\\tmp","TMPDIR":"D:\\jail\\m-scarfscarf-msjs73f7\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-scarfscarf-msjs73f7\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5656/8) OVERRIDDEN=2 REJECTED=0 grant={}
+  VENUE-JAIL-ROOT D:\jail\m-scarfscarf-mtrm3klq
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-scarfscarf-mtrm3klq\\npm-cache","TMP":"D:\\jail\\m-scarfscarf-mtrm3klq\\tmp","TEMP":"D:\\jail\\m-scarfscarf-mtrm3klq\\tmp","TMPDIR":"D:\\jail\\m-scarfscarf-mtrm3klq\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-scarfscarf-mtrm3klq\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"eb01930513cf1dcffec2de7bd5af3713630aaee5a5dcbb57879cb831002dadee","specCount":1,"lockfiles":{"digest":"bc81bfd3a6ac9181ba3475ff2a136c80d41c0071cf3231e4efd19b7f6daef3bd","files":[{"path":"nub.lock","sha256":"49069741530bef28f9f98b1c5c8dd190df1a4a2075791d26a91c5a9867f2ad39","bytes":400}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T19:06:43.086Z","cacheHit":true,"clearancePath":"D:\\jail\\m-scarfscarf-mtrm3klq\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree eb01930513cf (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5657/8) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
