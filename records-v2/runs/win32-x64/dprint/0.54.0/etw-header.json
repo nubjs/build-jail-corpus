@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "dprint",
   "version": "0.54.0",
-  "at": "2026-08-08T01:37:15.338Z",
+  "at": "2026-09-07T16:51:36.839Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7448_msjpe99r",
+      "name": "nubobs_7060_mtrh9p2e",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "C:\\jail\\m-dprint-msjpe6ik\\rebuild.cmd",
-    "workDir": "C:\\jail\\m-dprint-msjpe6ik\\observe",
-    "rootPid": 5900,
-    "launcherPid": 9012,
+    "command": "D:\\jail\\m-dprint-mtrh9nb2\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-dprint-mtrh9nb2\\observe",
+    "rootPid": 1792,
+    "launcherPid": 7688,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T01:37:10.7927320Z",
-    "endedUtc": "2026-08-08T01:37:11.4144978Z"
+    "startedUtc": "2026-09-07T16:51:32.7086933Z",
+    "endedUtc": "2026-09-07T16:51:33.3705081Z"
   },
   "integrity": {
-    "eventsTotal": 25849,
+    "eventsTotal": 21695,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "C:\\jail\\m-dprint-msjpe6ik\\observe",
+    "project": "D:\\jail\\m-dprint-mtrh9nb2\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "C:\\jail\\m-dprint-msjpe6ik\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-dprint-mtrh9nb2\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "C:\\jail\\m-dprint-msjpe6ik\\tmp",
+    "temp": "D:\\jail\\m-dprint-mtrh9nb2\\tmp",
     "npmPrefix": null,
-    "ownPkg": "C:\\jail\\m-dprint-msjpe6ik\\observe\\node_modules\\dprint",
+    "ownPkg": "D:\\jail\\m-dprint-mtrh9nb2\\observe\\node_modules\\dprint",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,9 +91,9 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 33074091,
-    "gzBytes": 520247,
-    "sha256": "5fa4d0c567708e238f332d8bffec2f9f99034a1d2a3dd188e92d227999df4761",
+    "bytes": 27664840,
+    "gzBytes": 403108,
+    "sha256": "3f1758128a6553507d95538b6bf17cd6a3a46e0edf7b0255c93db44881bc29e5",
     "of": "trace.xml",
     "etlBytes": 6291456,
     "etlRetained": false
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 5900 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 1792 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 25849,
-    "kept": 6482,
-    "distinct": 5291,
+    "xmlEvents": 21695,
+    "kept": 6447,
+    "distinct": 5280,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 25837,
-      "Microsoft-Windows-Kernel-Process": 10
+      "Microsoft-Windows-Kernel-File": 21674,
+      "Microsoft-Windows-Kernel-Process": 11,
+      "Microsoft-Windows-Kernel-Network": 8
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 11,
-    "unsettled": 3,
+    "unresolvedHandle": 0,
+    "unsettled": 4,
     "reattributedByThread": 0,
-    "outOfSubtree": 3695,
+    "outOfSubtree": 1709,
     "destResolved": 5,
     "destUnresolved": 0,
     "shortExpanded": 0,
