@@ -16,7 +16,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
 
-const RUNS = opt('--runs', path.join(here, '..', 'records'));
+const RUNS = opt('--runs', path.join(here, '..', 'records-v2', 'runs'));
 const OUT = opt('--out', '');
 
 const files = [];

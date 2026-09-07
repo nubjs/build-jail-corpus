@@ -25,7 +25,7 @@ import { fileIdentity } from './v2/runtime-provenance.mjs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
-const QUEUE = opt('--queue', path.join(here, '..', 'queue.ndjson'));
+const QUEUE = opt('--queue', path.join(here, '..', 'queue-v2.ndjson'));
 
 const read = () => fs.readFileSync(QUEUE, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
 // Written back in the SAME ORDER read. Re-sorting would make every commit a whole-file rewrite and
@@ -110,7 +110,7 @@ if (argv.includes('--status')) {
 // record for that exact (pkg, version, platform) exists on disk. It never invents a verdict, never
 // un-does one, and never returns a row to pending — `--reclaim-stale` owns that direction.
 if (argv.includes('--reconcile')) {
-  const recordsDir = opt('--records', path.join(here, '..', 'records'));
+  const recordsDir = opt('--records', path.join(here, '..', 'records-v2', 'runs'));
   const requireCurrentInstrument = argv.includes('--require-current-instrument');
   const instrument = requireCurrentInstrument ? computeHarnessIdentity() : null;
   const invalidation = requireCurrentInstrument ? loadInvalidationPolicy() : null;

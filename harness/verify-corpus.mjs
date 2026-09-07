@@ -49,8 +49,8 @@ if (unknown.length) {
   process.exit(2);
 }
 
-const RECORDS = opt('--records', path.join(here, '..', 'records'));
-const QUEUE = opt('--queue', path.join(here, '..', 'queue.ndjson'));
+const RECORDS = opt('--records', path.join(here, '..', 'records-v2', 'runs'));
+const QUEUE = opt('--queue', path.join(here, '..', 'queue-v2.ndjson'));
 const CURRENT_INSTRUMENT = argv.includes('--current-instrument') || argv.includes('--strict');
 const STRICT = argv.includes('--strict');
 const COMPLETE = argv.includes('--complete');
