@@ -1,92 +1,124 @@
-### @arbitrum/sdk@1.1.4   (/home/nub/v2-2tXxMP)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=15300 trace=29611 lines
+### @arbitrum/sdk@1.1.4   (/home/runner/v2-AQbqZV)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8060c0d14dba9182daab403610aa45d4867ffd8dee4c1b5f6c73c0e203221ddf","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:06.162Z","cacheHit":false,"clearancePath":"/home/runner/v2-AQbqZV/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8060c0d14dba
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"419d857e27b6dbd64e975b55f7066a84ce44d5d0a6aca4587f07d60e80865886","specCount":377,"lockfiles":{"digest":"e6ebe03d75c4c005f80175332cf57129d809c0a00f2b794b2ac5de288d06be91","files":[{"path":"package-lock.json","sha256":"6d02c2ad9fd8d3f4e72d0ab71b34a5ffa0cdf171daa9660fa3c78fa749358237","bytes":196542}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:20.826Z","cacheHit":false,"clearancePath":"/home/runner/v2-AQbqZV/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 377 exact package-version(s), tree 419d857e27b6
+  OBSERVE   rc=0 files=15307 trace=38222 lines
   CLOSURE   338 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":802,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (802) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-2tXxMP/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-2tXxMP/observe/capture.json
-  RAWLOG-BYTES raw=5121912 gz=199214
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-2tXxMP/jailhome","TMPDIR":"/tmp/nub-tmp-obs4DZ9DT","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-2tXxMP/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 70
-    writes  script 591  /  whole traced tree 1675
-    sockets script 15  /  whole traced tree 21
+  RAWLOG-FILE /home/runner/v2-AQbqZV/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-AQbqZV/observe/capture.json
+  RAWLOG-BYTES raw=7284639 gz=229520
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-AQbqZV/jailhome","TMPDIR":"/tmp/nub-tmp-obs3pelEq","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-AQbqZV/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 72
+    writes  script 584  /  whole traced tree 1581
+    sockets script 16  /  whole traced tree 22
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-2tXxMP/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-2tXxMP/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-2tXxMP/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs4DZ9DT
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-2tXxMP/observe/node_modules/@arbitrum/sdk
+    project       /home/runner/v2-AQbqZV/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-AQbqZV/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-AQbqZV/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs3pelEq
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-AQbqZV/observe/node_modules/@arbitrum/sdk
   == WRITES the script actually performed ==
-    jailHome     22  (base profile already grants this — NOT billed)
-        /home/nub/v2-2tXxMP/jailhome/.npm/_logs/2026-08-07T01_07_27_375Z-debug-0.log
-        /home/nub/v2-2tXxMP/jailhome/.config
-        /home/nub/v2-2tXxMP/jailhome/.config/hardhat-nodejs
-        /home/nub/v2-2tXxMP/jailhome/.config/hardhat-nodejs/vars.json
-        /home/nub/v2-2tXxMP/jailhome/.local
-        /home/nub/v2-2tXxMP/jailhome/.local/share
-        /home/nub/v2-2tXxMP/jailhome/.local/share/hardhat-nodejs
-        /home/nub/v2-2tXxMP/jailhome/.local/share/buidler-nodejs
-        /home/nub/v2-2tXxMP/jailhome/.local/share/hardhat-nodejs/analytics.json
-        /home/nub/v2-2tXxMP/jailhome/.cache
-        … and 12 more
-    jailTmp     192  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obs4DZ9DT/compiler-download.txt
-        /tmp/nub-tmp-obs4DZ9DT/hardhat-solc
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/7cde1131.tRaieN
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/7cde1131
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/349c2e45.NrYPTo
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/349c2e45
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/0dbbdf0a.j1X1pq
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/0dbbdf0a
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/a075ba47.PO7FBn
-        /tmp/nub-tmp-obs4DZ9DT/node-compile-cache/v22.20.0-x64-9de703df-1001/a075ba47
-        … and 182 more
+    jailHome     19  (base profile already grants this — NOT billed)
+        /home/runner/v2-AQbqZV/jailhome/.npm/_logs/2026-09-07T23_54_22_574Z-debug-0.log
+        /home/runner/v2-AQbqZV/jailhome/.local
+        /home/runner/v2-AQbqZV/jailhome/.local/share
+        /home/runner/v2-AQbqZV/jailhome/.local/share/hardhat-nodejs
+        /home/runner/v2-AQbqZV/jailhome/.local/share/buidler-nodejs
+        /home/runner/v2-AQbqZV/jailhome/.local/share/hardhat-nodejs/analytics.json
+        /home/runner/v2-AQbqZV/jailhome/.cache
+        /home/runner/v2-AQbqZV/jailhome/.cache/hardhat-nodejs
+        /home/runner/v2-AQbqZV/jailhome/.cache/hardhat-nodejs/compilers-v2
+        /home/runner/v2-AQbqZV/jailhome/.cache/hardhat-nodejs/compilers-v2/linux-amd64
+        … and 9 more
+    userHome      2
+    jailTmp     186  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs3pelEq/compiler-download.txt
+        /tmp/nub-tmp-obs3pelEq/hardhat-solc
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/0cc3b12e.fm8XTJ
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/0cc3b12e
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/4c453fdb.Gm2hxI
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/4c453fdb
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/b39804f1.JbFC4p
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/b39804f1
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/c2b0df45.Uqm1Xh
+        /tmp/nub-tmp-obs3pelEq/node-compile-cache/v22.23.2-x64-9ac5647c-1001/c2b0df45
+        … and 176 more
     deps        377
   == NETWORK ==
-    AF_INET sockets: 15   distinct peers: 4
+    AF_INET sockets: 16   distinct peers: 4
         127.0.0.53:53
-        104.16.11.34:443
+        104.16.6.34:443
         104.20.47.207:443
         172.66.151.151:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"deps":true},"network":true}
+    {"write":{"deps":true,"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 19
+        .cache/hardhat-nodejs
+        .local/share/hardhat-nodejs
+    2 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 0
-    EVENTS    13610 distinct from 26723 calls (29612 lines, 2793 rejoined, 0 unparsed)
-    PROCS     76   lifecycle shells 65
-    ⛔ 237 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×199 getsockname×138 getsockopt×116 exit×50 socketpair×36 recvmsg×30 shutdown×29 wait4×29
-    wrote /home/nub/v2-2tXxMP/observe/events.ndjson.gz (84280 bytes)
-  EVENTLOG-FILE /home/nub/v2-2tXxMP/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":29612,"parsed":26723,"unparsed":0,"unfinished":2793,"rejoined":2793,"unresolvedDirfd":237,"truncatedArg":0,"procs":76,"lifecyclePids":65,"distinctEvents":13610,"unknownSyscall":{"getsockname":138,"getsockopt":116,"getcwd":16,"recvmsg":30,"setsockopt":199,"sendmmsg":5,"socketpair":36,"shutdown":29,"getpeername":4,"exit_group":20,"wait4":29,"exit":50},"out":"/home/nub/v2-2tXxMP/observe/events.ndjson.gz","gzipBytes":84280}
-  EVICT     146 store entries removed, 10 spared as nub tooling
+    count: 2
+        .config/hardhat-nodejs
+        .config/hardhat-nodejs/vars.json
+    EVENTS    13540 distinct from 35165 calls (38223 lines, 2959 rejoined, 0 unparsed)
+    PROCS     79   lifecycle shells 67
+    ⛔ 247 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×199 getsockname×138 getsockopt×116 exit×53 socketpair×36 recvmsg×35 shutdown×29 wait4×29
+    wrote /home/runner/v2-AQbqZV/observe/events.ndjson.gz (83837 bytes)
+  EVENTLOG-FILE /home/runner/v2-AQbqZV/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":38223,"parsed":35165,"unparsed":0,"unfinished":2959,"rejoined":2959,"unresolvedDirfd":247,"truncatedArg":0,"procs":79,"lifecyclePids":67,"distinctEvents":13540,"unknownSyscall":{"getsockname":138,"getsockopt":116,"getcwd":17,"recvmsg":35,"exit":53,"setsockopt":199,"sendmmsg":5,"socketpair":36,"shutdown":29,"getpeername":4,"exit_group":20,"wait4":29},"out":"/home/runner/v2-AQbqZV/observe/events.ndjson.gz","gzipBytes":83837}
+  EVICT     113 store entries removed, 10 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @arbitrum/sdk
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c1f8f13383b5aae723b30563f50d72de10523ffd6208184fc688371dc85f3471","specCount":377,"lockfiles":{"digest":"953dae0dfef13ec82c4961f52895c8b008ae3f4b8cec04aa8969df6efb1e9d98","files":[{"path":"nub.lock","sha256":"3c8e64bc39d7907cfacccd3f70c71aa822078c0c48c0443cd07fc2a6600e65f2","bytes":112655}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:38.986Z","cacheHit":false,"clearancePath":"/home/runner/v2-AQbqZV/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 377 exact package-version(s), tree c1f8f13383b5
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59469/15300) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
-  => VERIFIED {"write":{"deps":true},"network":true}   (observed, then verified)
+  VERIFY[synth] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59525/15307) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+  => VERIFIED {"write":{"deps":true,"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}   (observed, then verified)
   EVICT     375 store entries removed, 10 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @arbitrum/sdk
-  VERIFY[drop-no-network] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59469/15300) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
-     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"deps":true}} is sufficient
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"c1f8f13383b5aae723b30563f50d72de10523ffd6208184fc688371dc85f3471","specCount":377,"lockfiles":{"digest":"953dae0dfef13ec82c4961f52895c8b008ae3f4b8cec04aa8969df6efb1e9d98","files":[{"path":"nub.lock","sha256":"3c8e64bc39d7907cfacccd3f70c71aa822078c0c48c0443cd07fc2a6600e65f2","bytes":112655}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:38.986Z","cacheHit":true,"clearancePath":"/home/runner/v2-AQbqZV/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 377 exact package-version(s), tree c1f8f13383b5 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59525/15307) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"deps":true,"userHome":true},"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]} is sufficient
   EVICT     375 store entries removed, 10 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @arbitrum/sdk
-  VERIFY[drop-no-write-deps] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59469/15300) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"network":true} is sufficient
-  => OVER-PREDICTED by: no-network no-write-deps  (synthesized {"write":{"deps":true},"network":true}; each named capability drops on its own)
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"c1f8f13383b5aae723b30563f50d72de10523ffd6208184fc688371dc85f3471","specCount":377,"lockfiles":{"digest":"953dae0dfef13ec82c4961f52895c8b008ae3f4b8cec04aa8969df6efb1e9d98","files":[{"path":"nub.lock","sha256":"3c8e64bc39d7907cfacccd3f70c71aa822078c0c48c0443cd07fc2a6600e65f2","bytes":112655}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:38.986Z","cacheHit":true,"clearancePath":"/home/runner/v2-AQbqZV/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 377 exact package-version(s), tree c1f8f13383b5 (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59525/15307) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"write":{"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]} is sufficient
   EVICT     375 store entries removed, 10 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @arbitrum/sdk
-  VERIFY[joint-narrow] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59469/15300) OVERRIDDEN=2 REJECTED=0 grant={}
-  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"c1f8f13383b5aae723b30563f50d72de10523ffd6208184fc688371dc85f3471","specCount":377,"lockfiles":{"digest":"953dae0dfef13ec82c4961f52895c8b008ae3f4b8cec04aa8969df6efb1e9d98","files":[{"path":"nub.lock","sha256":"3c8e64bc39d7907cfacccd3f70c71aa822078c0c48c0443cd07fc2a6600e65f2","bytes":112655}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:38.986Z","cacheHit":true,"clearancePath":"/home/runner/v2-AQbqZV/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 377 exact package-version(s), tree c1f8f13383b5 (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59525/15307) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"write":{"deps":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]} is sufficient
+  => OVER-PREDICTED by: no-network no-write-deps no-write-userHome  (synthesized {"write":{"deps":true,"userHome":true},"network":true,"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}; each named capability drops on its own)
+  EVICT     375 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @arbitrum/sdk
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"c1f8f13383b5aae723b30563f50d72de10523ffd6208184fc688371dc85f3471","specCount":377,"lockfiles":{"digest":"953dae0dfef13ec82c4961f52895c8b008ae3f4b8cec04aa8969df6efb1e9d98","files":[{"path":"nub.lock","sha256":"3c8e64bc39d7907cfacccd3f70c71aa822078c0c48c0443cd07fc2a6600e65f2","bytes":112655}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:54:38.986Z","cacheHit":true,"clearancePath":"/home/runner/v2-AQbqZV/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 377 exact package-version(s), tree c1f8f13383b5 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=802/802 missing=0 shortfall=none (tree 59525/15307) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]}
+  => JOINT-NARROW VERIFIED {"writePaths":[".cache/hardhat-nodejs",".local/share/hardhat-nodejs"]} — all 3 capabilities drop TOGETHER, measured
