@@ -81,3 +81,41 @@ test('claiming with a new Nub subject reopens a same-harness row', () => {
   assert.equal(result.stdout.trim(), 'demo@1.0.0');
   assert.match(read(queue)[0].invalidated.reason, /Nub binary|Nub commit/);
 });
+
+test('a claim never reopens ANOTHER platform\'s done rows', () => {
+  // ⛔ THE REGRESSION IS A LIVELOCK, AND IT IS INVISIBLE UNTIL A SECOND PLATFORM STARTS. The runtime
+  // half of the validity check compares a row's stamped Node and Nub hashes against the CLAIMING
+  // process's, and those differ per platform by construction. Without an os guard a linux runner
+  // judged every macos and windows row by linux's hashes, failed all of them, and returned each to
+  // pending as "Node executable changed" — so each platform undid the others' completions forever.
+  // MEASURED: 197 records existed on the current instrument and all 197 rows carried that reason,
+  // while linux held at exactly 104 records for an hour re-measuring the same packages.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'queue-cross-os-'));
+  const queue = path.join(root, 'queue-v2.ndjson');
+  const instrument = computeHarnessIdentity();
+  const stamped = (name, osName, platform) => ({
+    pkg: name, version: '1.0.0', os: osName, status: 'done', verdict: 'MINIMUM',
+    harnessVersion: 2, harnessEpoch: instrument.harnessEpoch,
+    harnessSha256: instrument.harnessSha256, platform,
+    // Deliberately FOREIGN to this process — that is the whole point.
+    node: 'v22.0.0', nodeSha256: 'f'.repeat(64), nubSha256: 'e'.repeat(64), nubGitSha: 'd'.repeat(40),
+  });
+  fs.writeFileSync(queue, [
+    stamped('mac-done', 'macos', 'darwin-arm64'),
+    stamped('win-done', 'windows', 'win32-x64'),
+    { pkg: 'linux-todo', version: '1.0.0', os: 'linux', status: 'pending' },
+  ].map(JSON.stringify).join('\n') + '\n');
+
+  // `--subject-nub` is what engages the runtime comparison; any readable binary serves as the subject.
+  const result = spawnSync(process.execPath, [claim, '--queue', queue, '--claim', '1',
+    '--os', 'linux', '--run', 'test-run',
+    '--subject-nub', process.execPath, '--subject-nub-git-sha', 'a'.repeat(40)], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const rows = read(queue);
+  const by = Object.fromEntries(rows.map((r) => [r.pkg, r]));
+  assert.equal(by['mac-done'].status, 'done',
+    'a linux claim must leave a macos row alone — its Node hash is not linux\'s to judge');
+  assert.equal(by['win-done'].status, 'done',
+    'a linux claim must leave a windows row alone');
+  assert.equal(by['linux-todo'].status, 'claimed', 'the linux row is still claimed normally');
+});

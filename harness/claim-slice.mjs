@@ -244,6 +244,28 @@ if (path.basename(QUEUE) === 'queue-v2.ndjson') {
   }
   for (const row of rows) {
     if (row.status !== 'done') continue;
+    // ⛔⛔ ONLY THIS RUNNER'S OWN PLATFORM. The runtime half of the check below compares the row's
+    // stamped Node and Nub hashes against THIS process's, and those are per-platform by construction
+    // — darwin's node is not linux's. Judging another platform's rows by them therefore fails for
+    // every row, always, and returns it to `pending` with "Node executable changed" although nothing
+    // about it changed.
+    //
+    // MEASURED 2026-09-07, and it is a LIVELOCK rather than a slowdown: with the three platforms
+    // draining at once, every row each one completed was returned to pending by the next claim from
+    // either of the other two. 197 records existed on the current instrument and all 197 of their
+    // rows carried that reason; linux sat at exactly 104 records for an hour while its runners
+    // re-measured the same packages, because a record path is unique per (platform, package,
+    // version) and a re-measurement overwrites in place. Nothing was lost and nothing progressed.
+    //
+    // ⛔ IT IS INVISIBLE IN A SINGLE-PLATFORM DRAIN. The windows-only run earlier that day
+    // accumulated 849 rows without trouble, because every claimant was a windows runner comparing
+    // against windows hashes. The bug appears only when a second platform starts, which is exactly
+    // when the corpus is running at full speed.
+    //
+    // The instrument (harness) half of the check IS platform-independent, and skipping foreign rows
+    // does not weaken it: each platform's own runners invalidate that platform's rows on their next
+    // claim, so a moved harness digest still reaches every row.
+    if (row.os !== os) continue;
     const pseudoRecord = {
       ...row,
       provenance: {
