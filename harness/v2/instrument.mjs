@@ -46,7 +46,15 @@ export function instrumentFiles(root = REPO_ROOT, config = loadInstrumentConfig(
   const excluded = (rel) => excludedFiles.has(rel)
     || excludedPrefixes.some((prefix) => rel.startsWith(prefix));
 
+  // ⛔ THE WALK IS OVER THE FILESYSTEM, NOT GIT, so an untracked or ignored file under an input
+  // directory silently changes the harness identity and invalidates every record measured elsewhere.
+  // Measured 2026-09-07: one `harness/.DS_Store` moved the digest, so a checkout on a Mac and a
+  // `git archive` of the same commit disagreed while zero tracked files differed. Ignoring the
+  // basename outright covers every directory, where an exact-path exclusion covers only the one.
+  const ignoredBasename = (name) => name === '.DS_Store' || name === 'Thumbs.db';
+
   const visit = (absolute) => {
+    if (ignoredBasename(path.basename(absolute))) return;
     const rel = posix(path.relative(root, absolute));
     if (excluded(rel) || excludedPrefixes.some((prefix) => `${rel}/`.startsWith(prefix))) return;
     const stat = fs.lstatSync(absolute);
