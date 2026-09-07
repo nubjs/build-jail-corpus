@@ -1,34 +1,39 @@
-### mongodb-client-encryption@7.2.0   (/Users/runner/v2m-G9dsYw)   nub=/tmp/nub/target/release/nub
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f4d9b329622f942cc46fd25fd554a893b1e12ae7a8fa41923455fd91be08736d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:48:27.286Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-jaw9y1/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f4d9b329622f
+### mongodb-client-encryption@7.2.0   (/Users/runner/v2m-jaw9y1)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"eaac9134ae7cc713a55f9bffcbf20f49360b4bdbcdc9abb1c5a0cc9a58b2c6ea","specCount":37,"lockfiles":{"digest":"d70985b01eae0162efc3c592693543c64aa43f6203bf5d2b7dd21461608e9b94","files":[{"path":"package-lock.json","sha256":"d90211a9114bd09cf34eeaed8212c8a19067934b782290526610503b0eab0364","bytes":16381}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:48:35.612Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-jaw9y1/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 37 exact package-version(s), tree eaac9134ae7c
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-G9dsYw/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-G9dsYw/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4RwA69"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "mongodb-client-encryption" > "/Users/runner/v2m-G9dsYw/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-G9dsYw/Observe/rc"
+     cd "/Users/runner/v2m-jaw9y1/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-jaw9y1/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obs90kKzi"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "mongodb-client-encryption" > "/Users/runner/v2m-jaw9y1/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-jaw9y1/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-G9dsYw/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-G9dsYw/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4RwA69 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund mongodb-client-encryption
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003804000) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-jaw9y1/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-jaw9y1/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obs90kKzi NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund mongodb-client-encryption
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000ba8000) in action #1 at DIF offset 20
      + echo 0
   OBSERVE   rc=0 dtrace_rc=0 files=366 (pre=363) trace=13204 lines
   CLOSURE   37 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-G9dsYw/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-G9dsYw/Observe/capture.json
-  RAWLOG-BYTES raw=2235750 gz=70099
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-G9dsYw/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4RwA69","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-jaw9y1/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-jaw9y1/Observe/capture.json
+  RAWLOG-BYTES raw=2232451 gz=70531
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-jaw9y1/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obs90kKzi","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":1,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-G9dsYw/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":13205,"parsed":13187,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":542,"danglingPair":0,"failed":5035,"enoent":5032,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5032},"procs":6,"lifecyclePids":1,"distinctEvents":6040,"emitted":6040,"calls":12623,"bytes":1196054,"gzipBytes":40509,"out":"/Users/runner/v2m-G9dsYw/Observe/events.ndjson"}
+  EVENTLOG-FILE /Users/runner/v2m-jaw9y1/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13205,"parsed":13187,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":542,"danglingPair":0,"failed":5035,"enoent":5032,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5032},"procs":6,"lifecyclePids":1,"distinctEvents":6040,"emitted":6040,"calls":12623,"bytes":1196058,"gzipBytes":40523,"out":"/Users/runner/v2m-jaw9y1/Observe/events.ndjson"}
   == TRACER == live=true decodable-events=3334 dropped-events=1
     NOTE 16 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
@@ -37,39 +42,39 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=75737 read  unproven .
-         pid=75738 read  unproven .
-         pid=75738 read  unproven .
+         pid=31525 read  unproven .
+         pid=31526 read  unproven .
+         pid=31526 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x600003804000
+             1 x  epid=128 action=1 fault=1 addr=0x600000ba8000
   == ATTRIBUTION == lifecycle pids: 1
     writes  script 7  /  whole traced subtree 1097
     sockets script 2  /  whole traced subtree 3
-  == ROOTS (from /Users/runner/v2m-G9dsYw/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-G9dsYw/Observe
+  == ROOTS (from /Users/runner/v2m-jaw9y1/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-jaw9y1/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-G9dsYw/jailhome
+    jailHome      /Users/runner/v2m-jaw9y1/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-G9dsYw/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-jaw9y1/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4RwA69
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obs90kKzi
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-G9dsYw/Observe/node_modules/mongodb-client-encryption
+    ownPkg        /Users/runner/v2m-jaw9y1/Observe/node_modules/mongodb-client-encryption
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
     jailHome      3  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-G9dsYw/jailhome/.npm/_prebuilds
-        /Users/runner/v2m-G9dsYw/jailhome/.npm/_prebuilds/ad80ad-mongodb-client-encryption-v7.2.0-napi-v9-darwin-arm64.tar.gz.75738-2d56bf070520b.tmp
-        /Users/runner/v2m-G9dsYw/jailhome/.npm/_prebuilds/ad80ad-mongodb-client-encryption-v7.2.0-napi-v9-darwin-arm64.tar.gz
+        /Users/runner/v2m-jaw9y1/jailhome/.npm/_prebuilds
+        /Users/runner/v2m-jaw9y1/jailhome/.npm/_prebuilds/ad80ad-mongodb-client-encryption-v7.2.0-napi-v9-darwin-arm64.tar.gz.31526-88a4464561218.tmp
+        /Users/runner/v2m-jaw9y1/jailhome/.npm/_prebuilds/ad80ad-mongodb-client-encryption-v7.2.0-napi-v9-darwin-arm64.tar.gz
     ownPkg        3  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-G9dsYw/Observe/node_modules/mongodb-client-encryption/build
-        /Users/runner/v2m-G9dsYw/Observe/node_modules/mongodb-client-encryption/build/Release
-        /Users/runner/v2m-G9dsYw/Observe/node_modules/mongodb-client-encryption/build/Release/mongocrypt.node
+        /Users/runner/v2m-jaw9y1/Observe/node_modules/mongodb-client-encryption/build
+        /Users/runner/v2m-jaw9y1/Observe/node_modules/mongodb-client-encryption/build/Release
+        /Users/runner/v2m-jaw9y1/Observe/node_modules/mongodb-client-encryption/build/Release/mongocrypt.node
   == READS the script performed, by scope ==
     outside       8
     systemfs      9
@@ -87,20 +92,27 @@
         outside: /var/db/timezone/zoneinfo/UTC
   == NETWORK ==
     AF_INET connects: 2   distinct peers: 2
-        20.29.134.23:443
-        185.199.110.133:443
+        172.182.252.133:443
+        185.199.108.133:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  EVICT[synth] 37 store entries removed, 2 spared as nub tooling, 1182 in store
+  EVICT[synth] 21 store entries removed, 2 spared as nub tooling, 774 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"eaac9134ae7cc713a55f9bffcbf20f49360b4bdbcdc9abb1c5a0cc9a58b2c6ea","specCount":37,"lockfiles":{"digest":"04d69db846c11f73f2ebb31f7f1aed4ff7c67807dd2ae900b04c72ee3eb10490","files":[{"path":"nub.lock","sha256":"c63988c4e59d945260dc0648923be88b31c8c1330c32ec387497550e27c2f6e0","bytes":8499}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:48:35.612Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-jaw9y1/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 37 exact package-version(s), tree eaac9134ae7c (cached exact-tree clearance)
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 1166/366) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 1169/366) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}
-  EVICT[nar-no-network] 36 store entries removed, 2 spared as nub tooling, 1181 in store
-  VERIFY[nar-no-network] rc=1 artifacts=28/24 missing=1 shortfall=5feeee566503 (tree 1176/366) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT[nar-no-network] 36 store entries removed, 2 spared as nub tooling, 789 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"eaac9134ae7cc713a55f9bffcbf20f49360b4bdbcdc9abb1c5a0cc9a58b2c6ea","specCount":37,"lockfiles":{"digest":"04d69db846c11f73f2ebb31f7f1aed4ff7c67807dd2ae900b04c72ee3eb10490","files":[{"path":"nub.lock","sha256":"c63988c4e59d945260dc0648923be88b31c8c1330c32ec387497550e27c2f6e0","bytes":8499}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:48:35.612Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-jaw9y1/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 37 exact package-version(s), tree eaac9134ae7c (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=28/24 missing=1 shortfall=5feeee566503 (tree 1182/366) OVERRIDDEN=3 REJECTED=0 grant={}
        missing: build/Release/mongocrypt.node
      narrowing 'no-network' fails ⇒ that capability IS necessary
   => MINIMAL — every capability in {"network":true} is independently necessary
