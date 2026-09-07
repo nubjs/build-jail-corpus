@@ -1,33 +1,37 @@
-### @progress/kendo-licensing@1.9.1   (C:\jail\m-progresskendolicensing-msjoyjfc)
+### @progress/kendo-licensing@1.9.1   (D:\jail\m-progresskendolicensing-mtrire3j)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3292 exit=0 events=80742 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 13 files  (C:\jail\m-progresskendolicensing-msjoyjfc\observe\node_modules\@progress\kendo-licensing)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"873fd37a56b9d7e156b3e0bdf578212ea032c001a0f9b57c8f8064a65568c8a5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:33:15.984Z","cacheHit":false,"clearancePath":"D:\\jail\\m-progresskendolicensing-mtrire3j\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 873fd37a56b9
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"80d40b06c0675315c4bd054cd478653221f46fb5baaa92d2a49f5a279ae319b0","specCount":39,"lockfiles":{"digest":"c3b5c5a589aa494689cccb3d478de8aa90a6a8a1fe7ec8ec8b5e9a2398c5ece9","files":[{"path":"package-lock.json","sha256":"abbbd23eb88436b9d375df2534cbccb1e57974d4527aba52984217bb64f3ede6","bytes":16037}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:33:18.617Z","cacheHit":false,"clearancePath":"D:\\jail\\m-progresskendolicensing-mtrire3j\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 39 exact package-version(s), tree 80d40b06c067
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=9204 exit=0 events=71236 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 13 files  (D:\jail\m-progresskendolicensing-mtrire3j\observe\node_modules\@progress\kendo-licensing)
   ARM-FALSIFIABILITY {"manifestFiles":14,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (14) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 39 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-progresskendolicensing-msjoyjfc\observe   [keyed on]
+    project       D:\jail\m-progresskendolicensing-mtrire3j\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-progresskendolicensing-msjoyjfc\observe\node_modules\.store
+    projectStore  D:\jail\m-progresskendolicensing-mtrire3j\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-progresskendolicensing-msjoyjfc\tmp   [keyed on]
+    temp          D:\jail\m-progresskendolicensing-mtrire3j\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-progresskendolicensing-msjoyjfc\observe\node_modules\@progress\kendo-licensing
-  == ATTRIBUTION == lifecycle pids: 3 (root 3292)
-    writes  script 62  /  whole traced tree 72
+    ownPkg        D:\jail\m-progresskendolicensing-mtrire3j\observe\node_modules\@progress\kendo-licensing
+  == ATTRIBUTION == lifecycle pids: 3 (root 9204)
+    writes  script 61  /  whole traced tree 71
     peers   script 0  /  whole traced tree 0
   == WRITES ==
-    systemfs     56
+    systemfs     55
         c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
-        c:\windows\system32\windowspowershell\v1.0
+        c:\windows\system32\wbem\powershell.exe.com
         c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
@@ -43,12 +47,11 @@
     jailTmp       2
   == READS ==
     deps        131
-    outside     237
+    outside     236
     project       3
-    systemfs    552
+    systemfs    571
     userHome     45
     jailTmp       3
-    kernelfs      1
   == NETWORK ==
     distinct peers: 0
   == REFUSALS (adapter-classified) ==
@@ -57,25 +60,29 @@
     {"write":{"userHome":true}}
     NOTE 2 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    !! 56 writes into system dirs -- an unprivileged user would be refused these
+    !! 55 writes into system dirs -- an unprivileged user would be refused these
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  102841096 B xml -> 1534898 B gz (67.0x)  sha256 4386d1883ede9080…
+  RAW       etw-raw.xml.gz  90366370 B xml -> 1336869 B gz (67.6x)  sha256 07c3f828aba29661…
   HEADER    etw-header.json (5180 bytes)
-  DERIVED   10917 distinct from 20880 kept ops (80742 xml events, 9520 out of subtree)
+  DERIVED   11000 distinct from 20940 kept ops (71236 xml events, 4666 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 5 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
   ⛔ 5 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (150854 bytes)
-  RAWLOG-CAPTURE C:\jail\m-progresskendolicensing-msjoyjfc\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (151390 bytes)
+  RAWLOG-CAPTURE D:\jail\m-progresskendolicensing-mtrire3j\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-progresskendolicensing-msjoyjfc
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-progresskendolicensing-msjoyjfc\\npm-cache","TMP":"C:\\jail\\m-progresskendolicensing-msjoyjfc\\tmp","TEMP":"C:\\jail\\m-progresskendolicensing-msjoyjfc\\tmp","TMPDIR":"C:\\jail\\m-progresskendolicensing-msjoyjfc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-progresskendolicensing-msjoyjfc\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=14/13 missing=0 shortfall=none (tree 6328/576) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  VENUE-JAIL-ROOT D:\jail\m-progresskendolicensing-mtrire3j
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-progresskendolicensing-mtrire3j\\npm-cache","TMP":"D:\\jail\\m-progresskendolicensing-mtrire3j\\tmp","TEMP":"D:\\jail\\m-progresskendolicensing-mtrire3j\\tmp","TMPDIR":"D:\\jail\\m-progresskendolicensing-mtrire3j\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-progresskendolicensing-mtrire3j\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"80d40b06c0675315c4bd054cd478653221f46fb5baaa92d2a49f5a279ae319b0","specCount":39,"lockfiles":{"digest":"c8b267bf983231dbc787fde17bc20eae54ccd054f84061e4b7d01e1fae2a9545","files":[{"path":"nub.lock","sha256":"0eb498b15e7dffd1394fe39722895bead1cc5c1371cb12660c4962f614b12326","bytes":9174}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:33:18.617Z","cacheHit":true,"clearancePath":"D:\\jail\\m-progresskendolicensing-mtrire3j\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 39 exact package-version(s), tree 80d40b06c067 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=14/13 missing=0 shortfall=none (tree 6335/576) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
   => MINIMUM {"write":{"userHome":true}}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-progresskendolicensing-msjoyjfc\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=14/13 missing=0 shortfall=none (tree 6328/576) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-progresskendolicensing-mtrire3j\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"80d40b06c0675315c4bd054cd478653221f46fb5baaa92d2a49f5a279ae319b0","specCount":39,"lockfiles":{"digest":"c8b267bf983231dbc787fde17bc20eae54ccd054f84061e4b7d01e1fae2a9545","files":[{"path":"nub.lock","sha256":"0eb498b15e7dffd1394fe39722895bead1cc5c1371cb12660c4962f614b12326","bytes":9174}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:33:18.617Z","cacheHit":true,"clearancePath":"D:\\jail\\m-progresskendolicensing-mtrire3j\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 39 exact package-version(s), tree 80d40b06c067 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=14/13 missing=0 shortfall=none (tree 6335/576) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
