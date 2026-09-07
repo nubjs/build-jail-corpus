@@ -1,27 +1,31 @@
-### backport@5.6.6   (C:\jail\m-backport-msjgg09j)
+### backport@5.6.6   (D:\jail\m-backport-mtrjlgdt)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3264 exit=0 events=212628 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 214 files  (C:\jail\m-backport-msjgg09j\observe\node_modules\backport)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"0b7c41a3d49ba82b21edbf009ffb072a3c5537beead8156bbb7cea55027a1572","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:56:38.636Z","cacheHit":false,"clearancePath":"D:\\jail\\m-backport-mtrjlgdt\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 0b7c41a3d49b
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"99ca3c066582a750e5031fd6ad1917870c95886879828190976e5f37cc32d97c","specCount":169,"lockfiles":{"digest":"7edbe1c9a200c4f7be22514984e1db1d3e8a7bf1e740627eb21a70c369e01afc","files":[{"path":"package-lock.json","sha256":"f17186520bad92a7c2e254a832e792609c0d11731c5ae9fc28a62d1d41cdbb32","bytes":70152}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:56:47.724Z","cacheHit":false,"clearancePath":"D:\\jail\\m-backport-mtrjlgdt\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 169 exact package-version(s), tree 99ca3c066582
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=5636 exit=0 events=23799 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 214 files  (D:\jail\m-backport-mtrjlgdt\observe\node_modules\backport)
   ARM-FALSIFIABILITY {"manifestFiles":215,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (215) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 166 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-backport-msjgg09j\observe   [keyed on]
+    project       D:\jail\m-backport-mtrjlgdt\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-backport-msjgg09j\observe\node_modules\.store
+    projectStore  D:\jail\m-backport-mtrjlgdt\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-backport-msjgg09j\tmp   [keyed on]
+    temp          D:\jail\m-backport-mtrjlgdt\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-backport-msjgg09j\observe\node_modules\backport
-  == ATTRIBUTION == lifecycle pids: 3 (root 3264)
+    ownPkg        D:\jail\m-backport-mtrjlgdt\observe\node_modules\backport
+  == ATTRIBUTION == lifecycle pids: 3 (root 5636)
     writes  script 3  /  whole traced tree 14
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -38,23 +42,26 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true}}
-  RAW       etw-raw.xml.gz  270726433 B xml -> 3627669 B gz (74.6x)  sha256 396e6b1f4999549a…
-  HEADER    etw-header.json (5018 bytes)
-  DERIVED   6026 distinct from 7345 kept ops (212628 xml events, 71134 out of subtree)
+  RAW       etw-raw.xml.gz  30364355 B xml -> 441282 B gz (68.8x)  sha256 9cb6069e6871a798…
+  HEADER    etw-header.json (5056 bytes)
+  DERIVED   6019 distinct from 7311 kept ops (23799 xml events, 1617 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (76691 bytes)
-  RAWLOG-CAPTURE C:\jail\m-backport-msjgg09j\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (76081 bytes)
+  RAWLOG-CAPTURE D:\jail\m-backport-mtrjlgdt\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-backport-msjgg09j
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-backport-msjgg09j\\npm-cache","TMP":"C:\\jail\\m-backport-msjgg09j\\tmp","TEMP":"C:\\jail\\m-backport-msjgg09j\\tmp","TMPDIR":"C:\\jail\\m-backport-msjgg09j\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-backport-msjgg09j\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=214/214 missing=0 shortfall=none (tree 13844/7261) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  VENUE-JAIL-ROOT D:\jail\m-backport-mtrjlgdt
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-backport-mtrjlgdt\\npm-cache","TMP":"D:\\jail\\m-backport-mtrjlgdt\\tmp","TEMP":"D:\\jail\\m-backport-mtrjlgdt\\tmp","TMPDIR":"D:\\jail\\m-backport-mtrjlgdt\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-backport-mtrjlgdt\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"0af6ec8c4a312bf0cc7f7640cc6575e488050b2d267014ea8890cab7b9edb13e","specCount":168,"lockfiles":{"digest":"1f1cec51c24bcff0930a8625865251f6661a5c6f94ab587fd4a7ded5456b5364","files":[{"path":"nub.lock","sha256":"2c3bc31f345d4bc553e74719afaf9540b368528c9918863c0c99ae7ac0941fe0","bytes":40123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:57:06.346Z","cacheHit":false,"clearancePath":"D:\\jail\\m-backport-mtrjlgdt\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 168 exact package-version(s), tree 0af6ec8c4a31
+  VERIFY[synth] rc=0 artifacts=214/214 missing=0 shortfall=none (tree 13854/7285) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
   => MINIMUM {"write":{"userHome":true}}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-backport-msjgg09j\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=214/214 missing=0 shortfall=none (tree 13844/7261) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-backport-mtrjlgdt\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"0af6ec8c4a312bf0cc7f7640cc6575e488050b2d267014ea8890cab7b9edb13e","specCount":168,"lockfiles":{"digest":"1f1cec51c24bcff0930a8625865251f6661a5c6f94ab587fd4a7ded5456b5364","files":[{"path":"nub.lock","sha256":"2c3bc31f345d4bc553e74719afaf9540b368528c9918863c0c99ae7ac0941fe0","bytes":40123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:57:06.346Z","cacheHit":true,"clearancePath":"D:\\jail\\m-backport-mtrjlgdt\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 168 exact package-version(s), tree 0af6ec8c4a31 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=214/214 missing=0 shortfall=none (tree 13854/7285) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
