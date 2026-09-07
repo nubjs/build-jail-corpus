@@ -1,65 +1,74 @@
-### kerberos@7.0.0   (C:\jail\m-kerberos-msjnwcse)
+### kerberos@7.0.0   (D:\jail\m-kerberos-mtri9xke)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5052 exit=0 events=23869 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 21 files  (C:\jail\m-kerberos-msjnwcse\observe\node_modules\kerberos)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"eea9204c17c15ee57a7b100e8e503b0cdf12a995283427b0ad7c3218f9140da9","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:19:41.413Z","cacheHit":false,"clearancePath":"D:\\jail\\m-kerberos-mtri9xke\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree eea9204c17c1
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9f622407bc5a58934a957ee0309877309581d89b3b2d5fe3d2f0ae4c89c1bf0f","specCount":37,"lockfiles":{"digest":"bfde4c157b56a0a4675e333cd4a8e324669ae94a6556bb09d3cbce4dcc0894be","files":[{"path":"package-lock.json","sha256":"0d9cf3ee79fb6f7533531c3031284b5d68b0e586bd0683f37c1ff3620f2e5244","bytes":16313}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:19:43.763Z","cacheHit":false,"clearancePath":"D:\\jail\\m-kerberos-mtri9xke\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 37 exact package-version(s), tree 9f622407bc5a
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=4628 exit=0 events=24372 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 21 files  (D:\jail\m-kerberos-mtri9xke\observe\node_modules\kerberos)
   ARM-FALSIFIABILITY {"manifestFiles":21,"filesTheScriptProduced":1,"reasons":[]}
   CLOSURE 37 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-kerberos-msjnwcse\observe   [keyed on]
+    project       D:\jail\m-kerberos-mtri9xke\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-kerberos-msjnwcse\observe\node_modules\.store
+    projectStore  D:\jail\m-kerberos-mtri9xke\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-kerberos-msjnwcse\tmp   [keyed on]
+    temp          D:\jail\m-kerberos-mtri9xke\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-kerberos-msjnwcse\observe\node_modules\kerberos
-  == ATTRIBUTION == lifecycle pids: 2 (root 5052)
+    ownPkg        D:\jail\m-kerberos-mtri9xke\observe\node_modules\kerberos
+  == ATTRIBUTION == lifecycle pids: 2 (root 4628)
     writes  script 6  /  whole traced tree 13
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     outside       3
-        c:\jail\m-kerberos-msjnwcse\npm-cache\_prebuilds
-        c:\jail\m-kerberos-msjnwcse\npm-cache\_prebuilds\0d4849-kerberos-v7.0.0-napi-v9-win32-x64.tar.gz.9112-0351fe0758984.tmp
-        c:\jail\m-kerberos-msjnwcse\npm-cache\_prebuilds\0d4849-kerberos-v7.0.0-napi-v9-win32-x64.tar.gz
+        d:\jail\m-kerberos-mtri9xke\npm-cache\_prebuilds
+        d:\jail\m-kerberos-mtri9xke\npm-cache\_prebuilds\0d4849-kerberos-v7.0.0-napi-v9-win32-x64.tar.gz.576-fef33b3c1195c.tmp
+        d:\jail\m-kerberos-mtri9xke\npm-cache\_prebuilds\0d4849-kerberos-v7.0.0-napi-v9-win32-x64.tar.gz
     deps          3
   == READS ==
     deps        141
-    outside      10
+    outside       9
     project       1
     systemfs     33
   == NETWORK ==
     distinct peers: 2
-        140.82.112.4:443
-        185.199.111.133:443
+        140.82.114.3:443
+        185.199.110.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
     !! 3 writes OUTSIDE project/home -- no scope covers these; inspect before granting
-  RAW       etw-raw.xml.gz  30445908 B xml -> 445539 B gz (68.3x)  sha256 62c399c123837ae0…
+  RAW       etw-raw.xml.gz  31080586 B xml -> 454593 B gz (68.4x)  sha256 98c0a3abe148f570…
   HEADER    etw-header.json (5057 bytes)
-  DERIVED   5899 distinct from 7442 kept ops (23869 xml events, 1371 out of subtree)
+  DERIVED   5881 distinct from 7353 kept ops (24372 xml events, 1763 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (74205 bytes)
-  RAWLOG-CAPTURE C:\jail\m-kerberos-msjnwcse\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (73568 bytes)
+  RAWLOG-CAPTURE D:\jail\m-kerberos-mtri9xke\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-kerberos-msjnwcse
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-kerberos-msjnwcse\\npm-cache","TMP":"C:\\jail\\m-kerberos-msjnwcse\\tmp","TEMP":"C:\\jail\\m-kerberos-msjnwcse\\tmp","TMPDIR":"C:\\jail\\m-kerberos-msjnwcse\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-kerberos-msjnwcse\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 6127/362) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-kerberos-mtri9xke
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-kerberos-mtri9xke\\npm-cache","TMP":"D:\\jail\\m-kerberos-mtri9xke\\tmp","TEMP":"D:\\jail\\m-kerberos-mtri9xke\\tmp","TMPDIR":"D:\\jail\\m-kerberos-mtri9xke\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-kerberos-mtri9xke\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9f622407bc5a58934a957ee0309877309581d89b3b2d5fe3d2f0ae4c89c1bf0f","specCount":37,"lockfiles":{"digest":"5fbd43aa7f8de93032e5ca246af0c6c8cf4e28fc9e85d4e4a75fa4bbf0fea5c1","files":[{"path":"nub.lock","sha256":"7e878bbe5de041f1c23a2b47993149939309731f28d190669075aaba5d909dac","bytes":8448}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:19:43.763Z","cacheHit":true,"clearancePath":"D:\\jail\\m-kerberos-mtri9xke\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 37 exact package-version(s), tree 9f622407bc5a (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 6154/362) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-kerberos-msjnwcse\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=27/21 missing=1 shortfall=37330a44d5c8 (tree 6129/362) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  STORE   isolated virtual store at D:\jail\m-kerberos-mtri9xke\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"9f622407bc5a58934a957ee0309877309581d89b3b2d5fe3d2f0ae4c89c1bf0f","specCount":37,"lockfiles":{"digest":"5fbd43aa7f8de93032e5ca246af0c6c8cf4e28fc9e85d4e4a75fa4bbf0fea5c1","files":[{"path":"nub.lock","sha256":"7e878bbe5de041f1c23a2b47993149939309731f28d190669075aaba5d909dac","bytes":8448}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:19:43.763Z","cacheHit":true,"clearancePath":"D:\\jail\\m-kerberos-mtri9xke\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 37 exact package-version(s), tree 9f622407bc5a (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=27/21 missing=1 shortfall=37330a44d5c8 (tree 6160/362) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
      missing artifacts: build/Release/kerberos.node
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-kerberos-msjnwcse\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 6127/362) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-kerberos-mtri9xke\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"9f622407bc5a58934a957ee0309877309581d89b3b2d5fe3d2f0ae4c89c1bf0f","specCount":37,"lockfiles":{"digest":"5fbd43aa7f8de93032e5ca246af0c6c8cf4e28fc9e85d4e4a75fa4bbf0fea5c1","files":[{"path":"nub.lock","sha256":"7e878bbe5de041f1c23a2b47993149939309731f28d190669075aaba5d909dac","bytes":8448}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:19:43.763Z","cacheHit":true,"clearancePath":"D:\\jail\\m-kerberos-mtri9xke\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 37 exact package-version(s), tree 9f622407bc5a (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 6154/362) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
