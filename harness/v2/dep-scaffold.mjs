@@ -60,16 +60,38 @@ export function scriptBearingDeps(observeDir, target) {
 /**
  * The catalog object for one arm.
  *
- * ⛔ An EMPTY grant is expressed by OMITTING the target — the base profile already IS nothing, and
- * "needs nothing" is the modal answer, so it has to be measurable. The sentinel exists only when
- * nothing else would make the override engage, keeping the downstream assertion meaningful.
+ * ⛔⛔ THE TARGET IS ALWAYS WRITTEN, EVEN WHEN ITS GRANT IS EMPTY — and the version that omitted it
+ * made every "needs nothing" answer UNFALSIFIABLE. The old rule read "an EMPTY grant is expressed by
+ * OMITTING the target — the base profile already IS nothing". The second half stopped being true:
+ * `catalog_v2::baseline_caps()` now returns `network: true` plus `write: {deps}`, because a package
+ * published after a nub build is uncatalogued by construction and denying it does not converge.
+ *
+ * The two encodings therefore diverged, and nub is explicit that they mean opposite things — an
+ * ABSENT package takes the baseline, while an entry's own value is used as-is and is deliberately NOT
+ * unioned with it (`preset.rs::build_jail_net_allowed_for`, and the test
+ * `an_empty_entry_grants_less_than_no_entry_at_all`). So omitting the target asked for the BASELINE,
+ * which grants egress, exactly when the arm meant to grant nothing.
+ *
+ * MEASURED 2026-09-07, three packages on one unprivileged linux venue, each recorded MINIMUM/MINIMAL
+ * `{"network":true}` by the previous instrument, each installing cleanly with the network term
+ * dropped: hugo-extended@0.141.0 (12/12 artifacts), @sitespeed.io/chromedriver@100.0.4896-20 (5/5),
+ * mozjpeg@6.0.1 (8/8). All three reported `OVER-PREDICTED by: no-network`; none logged a single
+ * refusal. The pattern is exact: a case survives only while its residual grant is NON-EMPTY —
+ * @apollo/rover keeps `{"network":true}` after dropping `write.deps` and is caught, and win32 mozjpeg
+ * keeps `{"write":{...}}` after dropping `network` and is caught — so the defect hides wherever the
+ * measured minimum is a SINGLE capability.
+ *
+ * ⛔ THE OTHER HALF OF THE OLD PREMISE IS ALSO STALE: nub no longer rejects an entry that widens
+ * nothing. `catalog_v2.rs` says rejecting it "WAS A DEFECT", since an entry granting nothing is the
+ * tightest grant there is and a high-value target deserves to be expressible. That rejection is what
+ * the removed `__v2_empty_grant_sentinel__` existed to dodge; with the target always present the
+ * catalog is never empty, so the sentinel could not fire and its absence changes no arm.
  */
 export function buildCatalog(target, grant, observeDir) {
   const packages = {};
   for (const dep of scriptBearingDeps(observeDir, target)) packages[dep] = { default: SCAFFOLD };
   const scaffolded = Object.keys(packages).length;
-  if (Object.keys(grant).length) packages[target] = { default: grant };
-  if (!Object.keys(packages).length) packages.__v2_empty_grant_sentinel__ = { default: { network: true } };
+  packages[target] = { default: grant };
   return { catalog: { packages }, scaffolded };
 }
 

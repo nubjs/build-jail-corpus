@@ -372,11 +372,21 @@ function stageCatalog() {
 
   const entry = readEntry(out);
   summary.catalog = { file: out, source: 'collate.mjs', entry, absent: entry === undefined };
-  // ⛔ AN ABSENT ENTRY IS THE CORRECT ENCODING OF "NEEDS NOTHING", NOT A COLLATION FAILURE. nub
-  // REJECTS an entry that widens nothing and then falls back to the compiled-in table silently, so
-  // `collate.mjs` drops the package instead; the override REPLACES that table, so an absent package
-  // runs at the base profile — exactly what the record said. Worth stating in the summary because
-  // "no entry" and "collate lost the record" read identically otherwise.
+  // ⛔ AN ABSENT ENTRY IS THE CORRECT ENCODING OF "NEEDS NOTHING" IN THE SHIPPED CATALOG, NOT A
+  // COLLATION FAILURE. `collate.mjs` drops the package and the override REPLACES the compiled-in
+  // table, so an absent package runs at the base profile. Worth stating in the summary because "no
+  // entry" and "collate lost the record" read identically otherwise.
+  //
+  // ⛔ THE OLD REASON GIVEN HERE — "nub REJECTS an entry that widens nothing" — IS NO LONGER TRUE, and
+  // it is worth killing rather than leaving as folklore: `catalog_v2.rs` calls that rejection a defect
+  // and accepts an empty entry, since a package granted nothing is the tightest grant there is. What
+  // still justifies DROPPING here is a policy rather than a parser limit: absence means the baseline,
+  // an empty entry means nothing, and for a package measured as needing nothing the baseline is the
+  // safe direction — over-granting costs nothing while an under-grant breaks a stranger's install.
+  // ⛔ THAT ASYMMETRY IS WHY THIS DOES NOT GENERALISE TO THE PER-ARM CATALOG, WHERE THE OPPOSITE IS
+  // REQUIRED: an arm exists to test whether a capability is necessary, so it MUST express nothing as
+  // an empty entry. See `dep-scaffold.mjs::buildCatalog` — omitting the target there silently granted
+  // the baseline's egress and made every needs-nothing answer unfalsifiable.
   return done(s, 'ok', entry === undefined
     ? 'no entry — the package needs nothing, and absence IS that grant'
     : `entry: ${JSON.stringify(stripNotes(entry))}`, log);
@@ -443,13 +453,14 @@ function stageInstall() {
     // reports success has not been shown able to detect a failure.
     let g;
     try { g = JSON.parse(INSTALL_GRANT); } catch (e) { return done(s, 'fail', `--install-grant is not JSON: ${e.message}`); }
-    // nub rejects an entry that widens nothing and falls back to the compiled-in catalog, which
-    // reads as VOID rather than as a refused install — so an empty control would prove nothing.
-    if (!Object.keys(g).length) {
-      return done(s, 'fail', '--install-grant {} widens nothing, so nub REJECTS the entry and falls '
-        + 'back to the compiled-in catalog; the arm would be VOID, not insufficient. Use a '
-        + 'non-empty grant that is narrower than the measured one.');
-    }
+    // ⛔ THE EMPTY GRANT IS NOW A LEGAL — AND THE STRONGEST — NEGATIVE CONTROL, so the refusal that
+    // stood here is gone rather than re-worded. It read "nub rejects an entry that widens nothing and
+    // falls back to the compiled-in catalog, which reads as VOID rather than as a refused install",
+    // and both halves are stale: `catalog_v2.rs` calls that rejection a defect and accepts an empty
+    // entry, which denies everything instead of falling back. Keeping the guard would have blocked the
+    // one control that withholds every capability at once, and kept a false claim about nub in text a
+    // user reads. Note the entry is written unconditionally below, which is what makes {} mean nothing
+    // here — the same encoding `dep-scaffold.mjs::buildCatalog` now uses for exactly this reason.
     const doc = JSON.parse(fs.readFileSync(summary.catalog.file, 'utf8'));
     doc.packages[PKG] = { default: { ...g, notes: 'NEGATIVE CONTROL injected by e2e.mjs --install-grant' } };
     cat = path.join(WORK, 'catalog-control.json');

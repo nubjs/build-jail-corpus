@@ -65,19 +65,26 @@ test('a dependency with NO lifecycle script is not scaffolded', () => {
   assert.deepEqual(scriptBearingDeps(obs, 'a'), [], 'only lifecycle scripts count');
 });
 
-test('the empty grant still OMITS the target, and still scaffolds its dependencies', () => {
-  // The needs-nothing case is the modal one; expressing it by omission is what makes it measurable.
+test('the empty grant WRITES the target as an empty entry, and still scaffolds its dependencies', () => {
+  // ⛔ THE REGRESSION THIS PINS IS A SILENT UNDER-MEASUREMENT, NOT A CRASH. Omitting the target asked
+  // for the BASELINE, and the baseline grants `network` — so an arm meaning "grant nothing" quietly
+  // granted egress, every "needs nothing" answer became unfalsifiable, and three packages recorded
+  // MINIMAL-needs-network installed cleanly with the term dropped. An absent package and an empty
+  // entry are opposite instructions to nub; only the entry means nothing.
   const obs = tree({ a: { postinstall: 'x' }, dep: { install: 'node-gyp rebuild' } });
   const { catalog: { packages } } = buildCatalog('a', {}, obs);
-  assert.equal(packages.a, undefined, 'an empty grant must be expressed by omitting the target');
+  assert.deepEqual(packages.a, { default: {} },
+    'an empty grant must be written as an empty ENTRY — omitting the target requests the baseline');
   assert.ok(packages.dep, 'dependencies still need scaffolding when the target needs nothing');
 });
 
-test('with no dependencies at all, the sentinel still makes the override engage', () => {
+test('with no dependencies at all, the target entry alone makes the override engage', () => {
+  // This was the sentinel's job while an empty entry was unwritable. The target is now always
+  // present, so the catalog is never empty and no placeholder is needed to make nub engage.
   const obs = tree({ a: { postinstall: 'x' } });
   const { catalog: { packages } } = buildCatalog('a', {}, obs);
-  assert.ok(packages.__v2_empty_grant_sentinel__,
-    'without the sentinel the override would not engage and the arm would be VOID');
+  assert.deepEqual(Object.keys(packages), ['a'],
+    'the target alone must carry the override — and no sentinel may be smuggled in beside it');
 });
 
 test('⭑⭑ ALL THREE DRIVERS use the shared builder — none constructs a catalog inline', () => {
