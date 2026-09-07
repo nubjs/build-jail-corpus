@@ -2,6 +2,7 @@
   "pkg": "saucectl",
   "version": "0.183.0",
   "harnessVersion": 2,
+  "harnessEpoch": 3,
   "verdict": "MINIMUM",
   "grant": {
     "network": true
@@ -9,47 +10,519 @@
   "synthesized": {
     "write": {
       "deps": true
-    },
-    "network": true
+    }
   },
-  "verifiedBy": "synth",
+  "verifiedBy": "ladder",
   "minimality": "OVER-PREDICTED",
   "overPredictedBy": [
-    "no-write-deps"
+    "no-write-deps",
+    "no-write-project",
+    "no-write-userHome"
   ],
   "writePaths": [],
   "writePathsVersionPinned": [],
+  "securityScreens": [
+    {
+      "schemaVersion": 1,
+      "kind": "direct",
+      "status": "clean",
+      "digest": "135d3c27755d660fbe61b02d7cb360e9498fd173d4b9008168baf019eaadcf47",
+      "specCount": 1,
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:16.631Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "npm-observe-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "54031d7ae70b3a7eb4dcfd6fa3c554c2b36205a819e2ebeef6219a246e5bafe8",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "ea0f074e1c20f9b4457b583fce2017c4b77766f4298e4c09ae95ba01f4f837c6",
+            "bytes": 19402
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": false
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-synth-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-fb0-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-network-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-project-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-userHome-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-joint-narrow-resolved",
+      "status": "clean",
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-07T17:16:20.323Z",
+      "cacheHit": true
+    }
+  ],
+  "resolvedTrees": [
+    {
+      "digest": "135d3c27755d660fbe61b02d7cb360e9498fd173d4b9008168baf019eaadcf47",
+      "specCount": 1,
+      "specs": [
+        "saucectl@0.183.0"
+      ],
+      "lockfiles": {
+        "digest": null,
+        "files": []
+      },
+      "kinds": [
+        "direct"
+      ],
+      "screenedAt": "2026-09-07T17:16:16.631Z"
+    },
+    {
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "specs": [
+        "@saucelabs/bin-wrapper@2.2.0",
+        "adm-zip@0.6.0",
+        "agent-base@6.0.2",
+        "agent-base@7.1.4",
+        "asynckit@0.4.0",
+        "axios@1.20.0",
+        "b4a@1.8.1",
+        "bare-events@2.9.2",
+        "bare-fs@4.8.1",
+        "bare-path@3.1.2",
+        "bare-stream@2.13.4",
+        "bare-url@2.5.4",
+        "call-bind-apply-helpers@1.0.2",
+        "combined-stream@1.0.8",
+        "debug@4.4.3",
+        "delayed-stream@1.0.0",
+        "dunder-proto@1.0.1",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "es-set-tostringtag@2.1.0",
+        "events-universal@1.0.1",
+        "fast-fifo@1.3.2",
+        "follow-redirects@1.16.0",
+        "form-data@4.0.6",
+        "function-bind@1.1.2",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "gopd@1.2.0",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "hasown@2.0.4",
+        "https-proxy-agent@5.0.1",
+        "https-proxy-agent@7.0.6",
+        "math-intrinsics@1.1.0",
+        "mime-db@1.52.0",
+        "mime-types@2.1.35",
+        "ms@2.1.3",
+        "proxy-from-env@2.1.0",
+        "saucectl@0.183.0",
+        "streamx@2.28.1",
+        "tar-stream@3.2.1",
+        "teex@1.0.1",
+        "text-decoder@1.2.7"
+      ],
+      "lockfiles": {
+        "digest": "54031d7ae70b3a7eb4dcfd6fa3c554c2b36205a819e2ebeef6219a246e5bafe8",
+        "files": [
+          {
+            "path": "package-lock.json",
+            "sha256": "ea0f074e1c20f9b4457b583fce2017c4b77766f4298e4c09ae95ba01f4f837c6",
+            "bytes": 19402
+          }
+        ]
+      },
+      "kinds": [
+        "npm-observe-resolved"
+      ],
+      "screenedAt": "2026-09-07T17:16:20.323Z"
+    },
+    {
+      "digest": "d358ad9d2fea3ed7131ec8d26bd634eca9bbc0071c349b6d4dabc4dfe60edc43",
+      "specCount": 44,
+      "specs": [
+        "@saucelabs/bin-wrapper@2.2.0",
+        "adm-zip@0.6.0",
+        "agent-base@6.0.2",
+        "agent-base@7.1.4",
+        "asynckit@0.4.0",
+        "axios@1.20.0",
+        "b4a@1.8.1",
+        "bare-events@2.9.2",
+        "bare-fs@4.8.1",
+        "bare-path@3.1.2",
+        "bare-stream@2.13.4",
+        "bare-url@2.5.4",
+        "call-bind-apply-helpers@1.0.2",
+        "combined-stream@1.0.8",
+        "debug@4.4.3",
+        "delayed-stream@1.0.0",
+        "dunder-proto@1.0.1",
+        "es-define-property@1.0.1",
+        "es-errors@1.3.0",
+        "es-object-atoms@1.1.2",
+        "es-set-tostringtag@2.1.0",
+        "events-universal@1.0.1",
+        "fast-fifo@1.3.2",
+        "follow-redirects@1.16.0",
+        "form-data@4.0.6",
+        "function-bind@1.1.2",
+        "get-intrinsic@1.3.0",
+        "get-proto@1.0.1",
+        "gopd@1.2.0",
+        "has-symbols@1.1.0",
+        "has-tostringtag@1.0.2",
+        "hasown@2.0.4",
+        "https-proxy-agent@5.0.1",
+        "https-proxy-agent@7.0.6",
+        "math-intrinsics@1.1.0",
+        "mime-db@1.52.0",
+        "mime-types@2.1.35",
+        "ms@2.1.3",
+        "proxy-from-env@2.1.0",
+        "saucectl@0.183.0",
+        "streamx@2.28.1",
+        "tar-stream@3.2.1",
+        "teex@1.0.1",
+        "text-decoder@1.2.7"
+      ],
+      "lockfiles": {
+        "digest": "c4d6d3b64515cce166828388cb7ed6ba716533bc05ece6e340bd0526737109b6",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "4bfa10aa2d9b2be3f4bd0da228581caf8b20169ea8772fc04a41411fb5f30f0c",
+            "bytes": 12723
+          }
+        ]
+      },
+      "kinds": [
+        "nub-fb0-resolved",
+        "nub-joint-narrow-resolved",
+        "nub-nar-no-network-resolved",
+        "nub-nar-no-write-deps-resolved",
+        "nub-nar-no-write-project-resolved",
+        "nub-nar-no-write-userHome-resolved",
+        "nub-synth-resolved"
+      ],
+      "screenedAt": "2026-09-07T17:16:20.323Z"
+    }
+  ],
+  "maliciousAdvisories": [],
+  "standing": {
+    "observedAt": "2026-09-07T17:16:16.213Z",
+    "latestVersion": "0.213.0",
+    "weeklyDownloads": 24414,
+    "sources": {
+      "distTags": "https://registry.npmjs.org/-/package/saucectl/dist-tags",
+      "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/saucectl"
+    }
+  },
   "grantSource": "descended",
-  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
+  "grantSourceReason": "3 capabilities were dropped and the JOINT grant was explicitly verified",
   "descendedGrant": {
     "network": true
   },
-  "notes": [],
+  "notes": [
+    "under-predicted"
+  ],
   "eventLog": null,
   "driverRc": 0,
-  "durationMs": 101179,
+  "durationMs": 232161,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
-    "nubGitSha": "e8ed675df295e3836753620776cc678c8fc238f4",
+    "nubGitSha": "65faf115a1eebd64a74731634871089bc8d35ebc",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "7e1b887e3f5c05fc3d0794c69b6d1c923cd9a294",
+    "corpusGitSha": "bf7141d95f37baedda4e09026c2d695ea9a6e745",
+    "harnessEpoch": 3,
+    "harnessSha256": "b6c8596e7cc6588f80cb25bf7c3a19e50c7b84f2069d7714edc36aa9223e3fcb",
+    "harnessInputCount": 203,
+    "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
     "node": "v22.23.2",
-    "at": "2026-08-07T20:14:09.626Z",
+    "runtime": {
+      "node": {
+        "version": "v22.23.2",
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
+        "sha256": "0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4",
+        "bytes": 86997320
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+        "executable": {
+          "path": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\npm.cmd",
+          "sha256": "21b46c69ad6e2f231f02a9e120f4ba6c8e75fef5a45637103002eab99f888ab8",
+          "bytes": 538
+        },
+        "version": "10.9.8"
+      },
+      "python": [
+        {
+          "command": [
+            "python3",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python3.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "python",
+            "--version"
+          ],
+          "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+          "executable": {
+            "path": "C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\python.exe",
+            "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+            "bytes": 104952
+          },
+          "version": "Python 3.12.10"
+        },
+        {
+          "command": [
+            "py",
+            "-3",
+            "--version"
+          ],
+          "path": "C:\\Windows\\py.exe",
+          "executable": {
+            "path": "C:\\Windows\\py.exe",
+            "sha256": "a6b32b0ddcc53fa2e1a92905321ecfae80c2fb77abf2e313efc6238daad0f1ca",
+            "bytes": 783072
+          },
+          "version": "Python 3.14.7"
+        }
+      ],
+      "buildTools": {
+        "cl": {
+          "command": [
+            "cl",
+            "/?"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "e6d57100c82ae0310c18b16abfe52bc0df8fbb272ca6c5fb287d485807cfce91",
+            "bytes": 893328
+          },
+          "version": "C/C++ COMPILER OPTIONS"
+        },
+        "msbuild": {
+          "command": [
+            "msbuild",
+            "-version"
+          ],
+          "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+          "executable": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+            "sha256": "70838f9b80e04f79f2699e34f1ca8966e42c9a39a0383678c75bef459ec5a098",
+            "bytes": 378152
+          },
+          "version": "MSBuild version 18.9.1+a81b43525 for .NET Framework"
+        }
+      },
+      "os": {
+        "platform": "win32",
+        "arch": "x64",
+        "libc": null,
+        "type": "Windows_NT",
+        "release": "10.0.26100",
+        "version": "Windows Server 2025 Datacenter",
+        "machine": "x86_64"
+      },
+      "runner": {
+        "provider": "github-actions",
+        "os": "Windows",
+        "arch": "X64",
+        "environment": "github-hosted",
+        "imageOS": "win25-vs2026",
+        "imageVersion": "20260824.214.3"
+      },
+      "environment": {
+        "values": {
+          "CI": "true",
+          "GITHUB_ACTIONS": "true",
+          "NODE_ENV": null,
+          "NODE_EXECUTABLE": null,
+          "RUNNER_OS": "Windows",
+          "RUNNER_ARCH": "X64",
+          "RUNNER_ENVIRONMENT": "github-hosted",
+          "ImageOS": "win25-vs2026",
+          "ImageVersion": "20260824.214.3",
+          "LANG": null,
+          "LC_ALL": null
+        },
+        "endpoints": {
+          "nodeMirror": null
+        },
+        "pathSha256": "a586774bbd9e539e35b454d10de7a3a3747b688eb2d34acca14a6e780554b928",
+        "shell": "C:\\Windows\\system32\\cmd.exe"
+      }
+    },
+    "at": "2026-09-07T17:20:08.701Z",
     "venue": "ci",
     "ciEnvSet": true,
-    "storeLayout": "hoisted",
+    "storeLayout": "isolated",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "C:\\jail\\m-saucectl-msjdsqee",
-    "observeUser": "runnervm7vqe0\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
+    "jailRoot": "D:\\jail\\m-saucectl-mtri5jmm",
+    "observeUser": "runnervmeef0v\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
     "cwdUnplaceableWrites": null,
     "nubBinary": {
       "path": "C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe",
-      "sha256": "7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6",
-      "bytes": 68896768,
+      "sha256": "f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005",
+      "bytes": 68717056,
       "features": {
         "buildJailCatalogOverride": true,
         "pythonDontWriteBytecodeEnv": true
@@ -57,10 +530,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "C:\\jail\\m-saucectl-msjdsqee\\npm-cache",
-        "TMP": "C:\\jail\\m-saucectl-msjdsqee\\tmp",
-        "TEMP": "C:\\jail\\m-saucectl-msjdsqee\\tmp",
-        "TMPDIR": "C:\\jail\\m-saucectl-msjdsqee\\tmp"
+        "npm_config_cache": "D:\\jail\\m-saucectl-mtri5jmm\\npm-cache",
+        "TMP": "D:\\jail\\m-saucectl-mtri5jmm\\tmp",
+        "TEMP": "D:\\jail\\m-saucectl-mtri5jmm\\tmp",
+        "TMPDIR": "D:\\jail\\m-saucectl-mtri5jmm\\tmp"
       },
       "unset": [
         "CI",
