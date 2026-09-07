@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "dprint",
   "version": "0.45.1",
-  "at": "2026-08-08T02:24:45.508Z",
+  "at": "2026-09-07T18:48:28.798Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8820_msjr3dfs",
+      "name": "nubobs_8672_mtrlfvla",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -38,18 +38,18 @@
         "name": "Microsoft-Windows-Kernel-Process",
         "keywords": "0x10",
         "level": 5,
-        "exit": 0
+        "exit": -2147020696
       }
     ]
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,44 +58,44 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-dprint-msjr3cgg\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-dprint-msjr3cgg\\observe",
-    "rootPid": 8232,
-    "launcherPid": 3300,
+    "command": "D:\\jail\\m-dprint-mtrlftu0\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-dprint-mtrlftu0\\observe",
+    "rootPid": 6936,
+    "launcherPid": 9096,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T02:24:41.7532972Z",
-    "endedUtc": "2026-08-08T02:24:42.1810982Z"
+    "startedUtc": "2026-09-07T18:48:19.6883879Z",
+    "endedUtc": "2026-09-07T18:48:20.4763351Z"
   },
   "integrity": {
-    "eventsTotal": 23561,
+    "eventsTotal": 79032,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-dprint-msjr3cgg\\observe",
+    "project": "D:\\jail\\m-dprint-mtrlftu0\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-dprint-msjr3cgg\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-dprint-mtrlftu0\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-dprint-msjr3cgg\\tmp",
+    "temp": "D:\\jail\\m-dprint-mtrlftu0\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-dprint-msjr3cgg\\observe\\node_modules\\dprint",
+    "ownPkg": "D:\\jail\\m-dprint-mtrlftu0\\observe\\node_modules\\dprint",
     "cwd": null
   },
   "rootsFrom": "capture.json",
   "devmap": {
-    "\\Device\\HarddiskVolume4": "C:",
-    "\\Device\\HarddiskVolume6": "D:"
+    "\\Device\\HarddiskVolume5": "D:",
+    "\\Device\\HarddiskVolume4": "C:"
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 30065239,
-    "gzBytes": 460460,
-    "sha256": "a354399edc043681f55ce9fc76f052eb1f1b5446808b34fe0d65c66b0ab784b0",
+    "bytes": 100341878,
+    "gzBytes": 1782597,
+    "sha256": "3cfbcf8e974670a25c33110922650827efad8884879fe728b6f5439daaf80f6c",
     "of": "trace.xml",
-    "etlBytes": 6291456,
+    "etlBytes": 13631488,
     "etlRetained": false
   },
   "limits": {
@@ -106,25 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 8232 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 6936 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 23561,
-    "kept": 6494,
-    "distinct": 5288,
+    "xmlEvents": 79032,
+    "kept": 122,
+    "distinct": 56,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 23545,
-      "Microsoft-Windows-Kernel-Process": 10,
-      "Microsoft-Windows-Kernel-Network": 4
+      "Microsoft-Windows-Kernel-File": 79022,
+      "Microsoft-Windows-Kernel-Network": 8
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
-    "unsettled": 2,
-    "reattributedByThread": 18,
-    "outOfSubtree": 2613,
-    "destResolved": 5,
+    "unsettled": 0,
+    "reattributedByThread": 387,
+    "outOfSubtree": 30586,
+    "destResolved": 0,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
