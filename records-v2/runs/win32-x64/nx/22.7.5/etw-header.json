@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "nx",
   "version": "22.7.5",
-  "at": "2026-09-07T16:51:14.229Z",
+  "at": "2026-09-07T23:29:54.187Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8624_mtrh96p9",
+      "name": "nubobs_7584_mtrvhqiz",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -32,13 +32,13 @@
         "name": "Microsoft-Windows-Kernel-Network",
         "keywords": "0x30",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       },
       {
         "name": "Microsoft-Windows-Kernel-Process",
         "keywords": "0x10",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       }
     ]
   },
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-nx-mtrh8zzt\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-nx-mtrh8zzt\\observe",
-    "rootPid": 3884,
-    "launcherPid": 1160,
+    "command": "D:\\jail\\m-nx-mtrvhjs6\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-nx-mtrvhjs6\\observe",
+    "rootPid": 8076,
+    "launcherPid": 3728,
     "exitCode": 0,
-    "startedUtc": "2026-09-07T16:51:08.9362864Z",
-    "endedUtc": "2026-09-07T16:51:09.9209977Z"
+    "startedUtc": "2026-09-07T23:29:43.1656213Z",
+    "endedUtc": "2026-09-07T23:29:44.2379478Z"
   },
   "integrity": {
-    "eventsTotal": 29808,
+    "eventsTotal": 101783,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-nx-mtrh8zzt\\observe",
+    "project": "D:\\jail\\m-nx-mtrvhjs6\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-nx-mtrh8zzt\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-nx-mtrvhjs6\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-nx-mtrh8zzt\\tmp",
+    "temp": "D:\\jail\\m-nx-mtrvhjs6\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-nx-mtrh8zzt\\observe\\node_modules\\nx",
+    "ownPkg": "D:\\jail\\m-nx-mtrvhjs6\\observe\\node_modules\\nx",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 38084617,
-    "gzBytes": 552615,
-    "sha256": "07a2516d58a0aa82c00259873cc72b2ae72d6f534d4d434b43f1baf2c07010e8",
+    "bytes": 128647119,
+    "gzBytes": 1794930,
+    "sha256": "4470d638e0651592dcaf0e8f323b0e92be4e4b176a573a9169052dcfff94fb3d",
     "of": "trace.xml",
-    "etlBytes": 7340032,
+    "etlBytes": 16777216,
     "etlRetained": false
   },
   "limits": {
@@ -106,25 +106,23 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 3884 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 8076 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 29808,
-    "kept": 8705,
-    "distinct": 7322,
+    "xmlEvents": 101783,
+    "kept": 122,
+    "distinct": 56,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 29770,
-      "Microsoft-Windows-Kernel-Process": 10,
-      "Microsoft-Windows-Kernel-Network": 26
+      "Microsoft-Windows-Kernel-File": 101781
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
-    "unsettled": 3,
-    "reattributedByThread": 18,
-    "outOfSubtree": 2611,
-    "destResolved": 8,
+    "unsettled": 0,
+    "reattributedByThread": 48,
+    "outOfSubtree": 34591,
+    "destResolved": 0,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
