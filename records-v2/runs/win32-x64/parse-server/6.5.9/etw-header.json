@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "parse-server",
   "version": "6.5.9",
-  "at": "2026-09-07T16:48:05.996Z",
+  "at": "2026-09-07T23:18:30.009Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8980_mtrh55k2",
+      "name": "nubobs_8736_mtrv382c",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-parseserver-mtrh4jal\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-parseserver-mtrh4jal\\observe",
-    "rootPid": 7828,
-    "launcherPid": 8560,
+    "command": "D:\\jail\\m-parseserver-mtrv2kgs\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-parseserver-mtrv2kgs\\observe",
+    "rootPid": 7968,
+    "launcherPid": 1264,
     "exitCode": 0,
-    "startedUtc": "2026-09-07T16:48:00.7681019Z",
-    "endedUtc": "2026-09-07T16:48:01.5076783Z"
+    "startedUtc": "2026-09-07T23:18:25.3891396Z",
+    "endedUtc": "2026-09-07T23:18:26.1397298Z"
   },
   "integrity": {
-    "eventsTotal": 32235,
+    "eventsTotal": 24700,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-parseserver-mtrh4jal\\observe",
+    "project": "D:\\jail\\m-parseserver-mtrv2kgs\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-parseserver-mtrh4jal\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-parseserver-mtrv2kgs\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-parseserver-mtrh4jal\\tmp",
+    "temp": "D:\\jail\\m-parseserver-mtrv2kgs\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-parseserver-mtrh4jal\\observe\\node_modules\\parse-server",
+    "ownPkg": "D:\\jail\\m-parseserver-mtrv2kgs\\observe\\node_modules\\parse-server",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 41271808,
-    "gzBytes": 650180,
-    "sha256": "b46d4d9aa3f637c757e4eba07f4552faf6f3c33728e13239c3f26abef01a4fcd",
+    "bytes": 31592295,
+    "gzBytes": 457374,
+    "sha256": "958bef1db9b9e43d0a5c2f97879c9420e1bed42cdb7e694ccdfd2e896089aedd",
     "of": "trace.xml",
-    "etlBytes": 7340032,
+    "etlBytes": 6291456,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 7828 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 7968 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 32235,
-    "kept": 7291,
+    "xmlEvents": 24700,
+    "kept": 7290,
     "distinct": 6122,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 32223,
-      "Microsoft-Windows-Kernel-Process": 10
+      "Microsoft-Windows-Kernel-File": 24682,
+      "Microsoft-Windows-Kernel-Process": 14,
+      "Microsoft-Windows-Kernel-Network": 2
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
-    "unsettled": 0,
+    "unresolvedHandle": 1,
+    "unsettled": 1,
     "reattributedByThread": 0,
-    "outOfSubtree": 5184,
+    "outOfSubtree": 2111,
     "destResolved": 4,
     "destUnresolved": 0,
     "shortExpanded": 0,
