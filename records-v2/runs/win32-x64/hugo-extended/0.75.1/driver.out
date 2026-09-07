@@ -1,66 +1,70 @@
-### hugo-extended@0.75.1   (C:\jail\m-hugoextended-msjpahhb)
+### hugo-extended@0.75.1   (D:\jail\m-hugoextended-mtrhz3dp)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8204 exit=0 events=54923 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 10 files  (C:\jail\m-hugoextended-msjpahhb\observe\node_modules\hugo-extended)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c664680ffec622c0b512059fe312360c96d1c452f7272e11359bf2f71e88040e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:11:15.749Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtrhz3dp\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c664680ffec6
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"23e7c7016f02337a015e9c732f006ddef214416b3b5968e6eff3c26d7b9a412c","specCount":166,"lockfiles":{"digest":"22c4687a93b6e0f5973f913d5706dec5fda8a67a908faa3c3c3af9f01d7c33bd","files":[{"path":"package-lock.json","sha256":"f21338adcb355f257e67a9b9d2c571c4760070140803158fab54a21fb22cdd3d","bytes":71170}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:11:20.803Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtrhz3dp\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 166 exact package-version(s), tree 23e7c7016f02
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=5680 exit=0 events=123458 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-hugoextended-mtrhz3dp\observe\node_modules\hugo-extended)
   ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":3,"reasons":[]}
   CLOSURE 152 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-hugoextended-msjpahhb\observe   [keyed on]
+    project       D:\jail\m-hugoextended-mtrhz3dp\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-hugoextended-msjpahhb\observe\node_modules\.store
+    projectStore  D:\jail\m-hugoextended-mtrhz3dp\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-hugoextended-msjpahhb\tmp   [keyed on]
+    temp          D:\jail\m-hugoextended-mtrhz3dp\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-hugoextended-msjpahhb\observe\node_modules\hugo-extended
-  == ATTRIBUTION == lifecycle pids: 3 (root 8204)
-    writes  script 6  /  whole traced tree 16
+    ownPkg        D:\jail\m-hugoextended-mtrhz3dp\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 5680)
+    writes  script 4  /  whole traced tree 15
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     deps          4
-    kernelfs      1
-    systemfs      1
-        c:\programdata\microsoft\windows\onesettings
   == READS ==
     deps        377
     outside       7
     project       1
     systemfs     44
-    kernelfs      1
   == NETWORK ==
     distinct peers: 2
-        140.82.116.4:443
+        172.182.252.133:443
         185.199.109.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-    !! 1 writes into system dirs -- an unprivileged user would be refused these
-    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  71236424 B xml -> 999459 B gz (71.3x)  sha256 7772181a435575c2…
-  HEADER    etw-header.json (5097 bytes)
-  DERIVED   7202 distinct from 13226 kept ops (54923 xml events, 11468 out of subtree)
+  RAW       etw-raw.xml.gz  158401575 B xml -> 2172070 B gz (72.9x)  sha256 24a01e6b4b248c0f…
+  HEADER    etw-header.json (5102 bytes)
+  DERIVED   7175 distinct from 12068 kept ops (123458 xml events, 37677 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (89566 bytes)
-  RAWLOG-CAPTURE C:\jail\m-hugoextended-msjpahhb\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (88658 bytes)
+  RAWLOG-CAPTURE D:\jail\m-hugoextended-mtrhz3dp\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-hugoextended-msjpahhb
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-hugoextended-msjpahhb\\npm-cache","TMP":"C:\\jail\\m-hugoextended-msjpahhb\\tmp","TEMP":"C:\\jail\\m-hugoextended-msjpahhb\\tmp","TMPDIR":"C:\\jail\\m-hugoextended-msjpahhb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-hugoextended-msjpahhb\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7617/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-hugoextended-mtrhz3dp
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-mtrhz3dp\\npm-cache","TMP":"D:\\jail\\m-hugoextended-mtrhz3dp\\tmp","TEMP":"D:\\jail\\m-hugoextended-mtrhz3dp\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-mtrhz3dp\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtrhz3dp\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"000fec527ed1215654c59b96f07a824f5127ecf0905e137f002097c1afaf9c0c","specCount":170,"lockfiles":{"digest":"4d07d7751cbb355caa82a1e4722247b530419064b04a99631f9e827cd8440722","files":[{"path":"nub.lock","sha256":"09c3bb03532cc5302a596aba25a70639a1df17ecaf48d9b41dbca71f1e5fa20d","bytes":40194}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:11:41.460Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtrhz3dp\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 170 exact package-version(s), tree 000fec527ed1
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7634/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-hugoextended-msjpahhb\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=0 artifacts=7/10 missing=3 shortfall=a63fd828aa49 (tree 7614/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtrhz3dp\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"000fec527ed1215654c59b96f07a824f5127ecf0905e137f002097c1afaf9c0c","specCount":170,"lockfiles":{"digest":"4d07d7751cbb355caa82a1e4722247b530419064b04a99631f9e827cd8440722","files":[{"path":"nub.lock","sha256":"09c3bb03532cc5302a596aba25a70639a1df17ecaf48d9b41dbca71f1e5fa20d","bytes":40194}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:11:41.460Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtrhz3dp\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 170 exact package-version(s), tree 000fec527ed1 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=7/10 missing=3 shortfall=a63fd828aa49 (tree 7631/1130) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
      missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-hugoextended-msjpahhb\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7617/1130) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtrhz3dp\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"000fec527ed1215654c59b96f07a824f5127ecf0905e137f002097c1afaf9c0c","specCount":170,"lockfiles":{"digest":"4d07d7751cbb355caa82a1e4722247b530419064b04a99631f9e827cd8440722","files":[{"path":"nub.lock","sha256":"09c3bb03532cc5302a596aba25a70639a1df17ecaf48d9b41dbca71f1e5fa20d","bytes":40194}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:11:41.460Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtrhz3dp\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 170 exact package-version(s), tree 000fec527ed1 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 7634/1130) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
