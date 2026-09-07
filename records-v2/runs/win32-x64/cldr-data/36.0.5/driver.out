@@ -1,65 +1,73 @@
-### cldr-data@36.0.5   (C:\jail\m-cldrdata-msjhexre)
+### cldr-data@36.0.5   (D:\jail\m-cldrdata-mtrk103x)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=6748 exit=0 events=481308 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 12913 files  (C:\jail\m-cldrdata-msjhexre\observe\node_modules\cldr-data)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7b9c3fa115a50877a2f38f98ea45be2ae1b6a77f1f236893a56024d94fc784a1","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:08:43.955Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cldrdata-mtrk103x\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 7b9c3fa115a5
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"79ad47d4f4d8c9bd00f20a170ee010dd77d66e2c975a462cffdfa7c0c8b83e81","specCount":72,"lockfiles":{"digest":"f18394018f54327de3ee91b43e5678cbd53bbf5964039431c48ca830c6de1787","files":[{"path":"package-lock.json","sha256":"e03846b4dc7c8491c3972e354e6a6cb2f12f40125c54ff0caf48a971308c13b8","bytes":33868}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:08:47.435Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cldrdata-mtrk103x\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 72 exact package-version(s), tree 79ad47d4f4d8
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7676 exit=0 events=297665 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 12913 files  (D:\jail\m-cldrdata-mtrk103x\observe\node_modules\cldr-data)
   ARM-FALSIFIABILITY {"manifestFiles":12913,"filesTheScriptProduced":12907,"reasons":[]}
   CLOSURE 69 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-cldrdata-msjhexre\observe   [keyed on]
+    project       D:\jail\m-cldrdata-mtrk103x\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-cldrdata-msjhexre\observe\node_modules\.store
+    projectStore  D:\jail\m-cldrdata-mtrk103x\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-cldrdata-msjhexre\tmp   [keyed on]
+    temp          D:\jail\m-cldrdata-mtrk103x\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-cldrdata-msjhexre\observe\node_modules\cldr-data
-  == ATTRIBUTION == lifecycle pids: 6 (root 6748)
+    ownPkg        D:\jail\m-cldrdata-mtrk103x\observe\node_modules\cldr-data
+  == ATTRIBUTION == lifecycle pids: 6 (root 7676)
     writes  script 13296  /  whole traced tree 13302
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     deps      13295
     kernelfs      1
   == READS ==
-    deps        551
-    outside     116
+    deps        179
+    outside     117
     project       2
     systemfs     33
     jailTmp      78
-    kernelfs      1
   == NETWORK ==
     distinct peers: 2
-        140.82.113.3:443
-        140.82.114.9:443
+        140.82.113.4:443
+        140.82.113.10:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  615498683 B xml -> 11529499 B gz (53.4x)  sha256 fc88f0a67072e2fe…
-  HEADER    etw-header.json (5076 bytes)
-  DERIVED   59723 distinct from 125168 kept ops (481308 xml events, 34339 out of subtree)
+  RAW       etw-raw.xml.gz  383877537 B xml -> 6917526 B gz (55.5x)  sha256 28f10c6ea3cf1afa…
+  HEADER    etw-header.json (5074 bytes)
+  DERIVED   55922 distinct from 86701 kept ops (297665 xml events, 32797 out of subtree)
   PROCS     8   thread-reattributed 0
-  ⛔ 3990 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (931403 bytes)
-  RAWLOG-CAPTURE C:\jail\m-cldrdata-msjhexre\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1391 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (829728 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cldrdata-mtrk103x\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-cldrdata-msjhexre
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-cldrdata-msjhexre\\npm-cache","TMP":"C:\\jail\\m-cldrdata-msjhexre\\tmp","TEMP":"C:\\jail\\m-cldrdata-msjhexre\\tmp","TMPDIR":"C:\\jail\\m-cldrdata-msjhexre\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at C:\jail\m-cldrdata-msjhexre\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=12913/12913 missing=0 shortfall=none (tree 19769/13855) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-cldrdata-mtrk103x
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cldrdata-mtrk103x\\npm-cache","TMP":"D:\\jail\\m-cldrdata-mtrk103x\\tmp","TEMP":"D:\\jail\\m-cldrdata-mtrk103x\\tmp","TMPDIR":"D:\\jail\\m-cldrdata-mtrk103x\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-cldrdata-mtrk103x\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"79ad47d4f4d8c9bd00f20a170ee010dd77d66e2c975a462cffdfa7c0c8b83e81","specCount":72,"lockfiles":{"digest":"a8d5835c964b9615606fc7d332fdbafca5af8e7c9730e50723150b29c77dc591","files":[{"path":"nub.lock","sha256":"4dfb76bb2aaa423307d2247dbcdbd91a5b73165cfaeafb2a5cd98cf47c321205","bytes":18932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:08:47.435Z","cacheHit":true,"clearancePath":"D:\\jail\\m-cldrdata-mtrk103x\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 72 exact package-version(s), tree 79ad47d4f4d8 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=12913/12913 missing=0 shortfall=none (tree 19787/13857) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at C:\jail\m-cldrdata-msjhexre\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=7/12913 missing=12907 shortfall=04b34a7c388a (tree 6860/13855) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  STORE   isolated virtual store at D:\jail\m-cldrdata-mtrk103x\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"79ad47d4f4d8c9bd00f20a170ee010dd77d66e2c975a462cffdfa7c0c8b83e81","specCount":72,"lockfiles":{"digest":"a8d5835c964b9615606fc7d332fdbafca5af8e7c9730e50723150b29c77dc591","files":[{"path":"nub.lock","sha256":"4dfb76bb2aaa423307d2247dbcdbd91a5b73165cfaeafb2a5cd98cf47c321205","bytes":18932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:08:47.435Z","cacheHit":true,"clearancePath":"D:\\jail\\m-cldrdata-mtrk103x\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 72 exact package-version(s), tree 79ad47d4f4d8 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=7/12913 missing=12907 shortfall=04b34a7c388a (tree 6882/13857) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
      missing artifacts: .gitattributes, .gitignore, .ignored-bower.json, .ignored-package.json, availableLocales.json, defaultContent.json (+12901)
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at C:\jail\m-cldrdata-msjhexre\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=12913/12913 missing=0 shortfall=none (tree 19769/13855) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-cldrdata-mtrk103x\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"79ad47d4f4d8c9bd00f20a170ee010dd77d66e2c975a462cffdfa7c0c8b83e81","specCount":72,"lockfiles":{"digest":"a8d5835c964b9615606fc7d332fdbafca5af8e7c9730e50723150b29c77dc591","files":[{"path":"nub.lock","sha256":"4dfb76bb2aaa423307d2247dbcdbd91a5b73165cfaeafb2a5cd98cf47c321205","bytes":18932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:08:47.435Z","cacheHit":true,"clearancePath":"D:\\jail\\m-cldrdata-mtrk103x\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 72 exact package-version(s), tree 79ad47d4f4d8 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=12913/12913 missing=0 shortfall=none (tree 19787/13857) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
