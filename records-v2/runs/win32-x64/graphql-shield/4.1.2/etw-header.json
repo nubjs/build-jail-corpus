@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "graphql-shield",
   "version": "4.1.2",
-  "at": "2026-08-08T03:46:41.742Z",
+  "at": "2026-09-07T20:18:43.003Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8024_msju0pti",
+      "name": "nubobs_7312_mtroo1fe",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -26,30 +26,30 @@
         "name": "Microsoft-Windows-Kernel-File",
         "keywords": "0x1FF0",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       },
       {
         "name": "Microsoft-Windows-Kernel-Network",
         "keywords": "0x30",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       },
       {
         "name": "Microsoft-Windows-Kernel-Process",
         "keywords": "0x10",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       }
     ]
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-graphqlshield-msju0l1c\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-graphqlshield-msju0l1c\\observe",
-    "rootPid": 6996,
-    "launcherPid": 6548,
+    "command": "D:\\jail\\m-graphqlshield-mtronvvc\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-graphqlshield-mtronvvc\\observe",
+    "rootPid": 2308,
+    "launcherPid": 1528,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T03:46:37.0626284Z",
-    "endedUtc": "2026-08-08T03:46:37.8353941Z"
+    "startedUtc": "2026-09-07T20:18:40.1342925Z",
+    "endedUtc": "2026-09-07T20:18:41.1192047Z"
   },
   "integrity": {
-    "eventsTotal": 26113,
+    "eventsTotal": 2,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-graphqlshield-msju0l1c\\observe",
+    "project": "D:\\jail\\m-graphqlshield-mtronvvc\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-graphqlshield-msju0l1c\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-graphqlshield-mtronvvc\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-graphqlshield-msju0l1c\\tmp",
+    "temp": "D:\\jail\\m-graphqlshield-mtronvvc\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-graphqlshield-msju0l1c\\observe\\node_modules\\graphql-shield",
+    "ownPkg": "D:\\jail\\m-graphqlshield-mtronvvc\\observe\\node_modules\\graphql-shield",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 33321085,
-    "gzBytes": 488748,
-    "sha256": "15de0aa800520a493c12be4d40e492141c84ae3656182bc7b8f9400d8bc88aa5",
+    "bytes": 3417,
+    "gzBytes": 926,
+    "sha256": "356ea42936956239a561f84f25fd8376d8d78027b4b3f339eacf5e0f0c0807f0",
     "of": "trace.xml",
-    "etlBytes": 7340032,
+    "etlBytes": 1048576,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,21 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 6996 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 2308 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 26113,
-    "kept": 8148,
-    "distinct": 6746,
-    "byProvider": {
-      "Microsoft-Windows-Kernel-File": 26101,
-      "Microsoft-Windows-Kernel-Process": 10
-    },
+    "xmlEvents": 2,
+    "kept": 0,
+    "distinct": 0,
+    "byProvider": {},
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 1675,
-    "destResolved": 1,
+    "outOfSubtree": 0,
+    "destResolved": 0,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
