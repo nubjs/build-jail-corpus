@@ -1,50 +1,55 @@
-### puppeteer@24.43.1   (/home/nub/v2-3ogEzM)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=4384 trace=19253 lines
+### puppeteer@24.43.1   (/home/runner/v2-wPYq58)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7eba1235de912414773df7c7d59484b9c849b771156b983881cbc7b9d5164506","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:39:05.519Z","cacheHit":false,"clearancePath":"/home/runner/v2-wPYq58/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 7eba1235de91
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1d2ab144a8f74dd568308a29935b40825742fd7dc810540b8c0b5dbbe03418f9","specCount":98,"lockfiles":{"digest":"249a791c36ff9d3ecd766118693ea1cc6d6dee69ae2a4de917833d692cc1f315","files":[{"path":"package-lock.json","sha256":"77a3e3337819e8386040b1c168b47ab3f5b43f319924523ffdc4cb5c3a80926a","bytes":40932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:39:10.777Z","cacheHit":false,"clearancePath":"/home/runner/v2-wPYq58/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 98 exact package-version(s), tree 1d2ab144a8f7
+  OBSERVE   rc=0 files=4385 trace=21616 lines
   CLOSURE   98 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":43,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (43) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-3ogEzM/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-3ogEzM/observe/capture.json
-  RAWLOG-BYTES raw=3327392 gz=90544
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-3ogEzM/jailhome","TMPDIR":"/tmp/nub-tmp-obsTb4UDB","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-3ogEzM/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 17
-    writes  script 613  /  whole traced tree 1791
-    sockets script 8  /  whole traced tree 14
+  RAWLOG-FILE /home/runner/v2-wPYq58/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-wPYq58/observe/capture.json
+  RAWLOG-BYTES raw=4087300 gz=97515
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-wPYq58/jailhome","TMPDIR":"/tmp/nub-tmp-obscHKZu5","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-wPYq58/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 613  /  whole traced tree 1701
+    sockets script 6  /  whole traced tree 10
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-3ogEzM/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-3ogEzM/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-3ogEzM/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsTb4UDB
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-3ogEzM/observe/node_modules/puppeteer
+    project       /home/runner/v2-wPYq58/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-wPYq58/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-wPYq58/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obscHKZu5
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-wPYq58/observe/node_modules/puppeteer
   == WRITES the script actually performed ==
     jailHome    613  (base profile already grants this — NOT billed)
-        /home/nub/v2-3ogEzM/jailhome/.cache
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome/148.0.7778.97-chrome-linux64.zip
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell/148.0.7778.97-chrome-headless-shell-linux64.zip
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64/ABOUT
-        /home/nub/v2-3ogEzM/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64/LICENSE.headless_shell
+        /home/runner/v2-wPYq58/jailhome/.cache
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell/148.0.7778.97-chrome-headless-shell-linux64.zip
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome/148.0.7778.97-chrome-linux64.zip
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64/ABOUT
+        /home/runner/v2-wPYq58/jailhome/.cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64/LICENSE.headless_shell
         … and 603 more
   == NETWORK ==
-    AF_INET sockets: 8   distinct peers: 3
+    AF_INET sockets: 6   distinct peers: 3
         127.0.0.53:53
-        104.16.11.34:443
-        173.194.64.207:443
+        104.16.8.34:443
+        34.3.0.27:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -54,20 +59,24 @@
         .cache/puppeteer
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    6348 distinct from 19041 calls (19254 lines, 187 rejoined, 0 unparsed)
-    PROCS     23   lifecycle shells 12
+    EVENTS    6087 distinct from 21405 calls (21617 lines, 184 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×67 setsockopt×25 getsockopt×21 exit×18 getcwd×12 recvmsg×10 sendmmsg×3 socketpair×3
-    wrote /home/nub/v2-3ogEzM/observe/events.ndjson.gz (42057 bytes)
-  EVENTLOG-FILE /home/nub/v2-3ogEzM/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":19254,"parsed":19041,"unparsed":0,"unfinished":187,"rejoined":187,"unresolvedDirfd":3,"truncatedArg":0,"procs":23,"lifecyclePids":12,"distinctEvents":6348,"unknownSyscall":{"getsockname":67,"getsockopt":21,"getcwd":12,"recvmsg":10,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit":18,"exit_group":3,"wait4":3},"out":"/home/nub/v2-3ogEzM/observe/events.ndjson.gz","gzipBytes":42057}
-  EVICT     120 store entries removed, 2 spared as nub tooling
+    unsubscribed/unmapped syscalls: getsockname×50 setsockopt×25 getsockopt×21 exit×20 getcwd×13 recvmsg×11 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-wPYq58/observe/events.ndjson.gz (40503 bytes)
+  EVENTLOG-FILE /home/runner/v2-wPYq58/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":21617,"parsed":21405,"unparsed":0,"unfinished":184,"rejoined":184,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":6087,"unknownSyscall":{"getsockname":50,"getsockopt":21,"getcwd":13,"recvmsg":11,"exit":20,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-wPYq58/observe/events.ndjson.gz","gzipBytes":40503}
+  EVICT     22 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for puppeteer
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:39:37.762Z","cacheHit":false,"clearancePath":"/home/runner/v2-wPYq58/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 98 exact package-version(s), tree e8cbdc07078f
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 14387/4384) OVERRIDDEN=1 REJECTED=0 grant={"network":true,"writePaths":[".cache/puppeteer"]}
+  VERIFY[synth] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 14399/4385) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".cache/puppeteer"]}
   => VERIFIED {"network":true,"writePaths":[".cache/puppeteer"]}   (observed, then verified)
   EVICT     96 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for puppeteer
-  VERIFY[drop-no-network] rc=1 artifacts=43/43 missing=0 shortfall=none (tree 14385/4384) OVERRIDDEN=1 REJECTED=0 grant={"writePaths":[".cache/puppeteer"]}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:39:37.762Z","cacheHit":true,"clearancePath":"/home/runner/v2-wPYq58/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 98 exact package-version(s), tree e8cbdc07078f (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=43/43 missing=0 shortfall=none (tree 14400/4385) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".cache/puppeteer"]}
      'no-network' is NECESSARY — dropping it fails to verify
   => MINIMAL — every capability in {"network":true,"writePaths":[".cache/puppeteer"]} is independently necessary
