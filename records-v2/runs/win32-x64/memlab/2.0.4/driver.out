@@ -1,27 +1,31 @@
-### memlab@2.0.4   (C:\jail\m-memlab-msjlj16h)
+### memlab@2.0.4   (D:\jail\m-memlab-mtrh5bu6)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=2528 exit=0 events=21262 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 8 files  (C:\jail\m-memlab-msjlj16h\observe\node_modules\memlab)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"d88cc054ebe137f4231ffa5e77768f6b23bb4ec860067947e7f56bad826f0d4d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:48:06.993Z","cacheHit":false,"clearancePath":"D:\\jail\\m-memlab-mtrh5bu6\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree d88cc054ebe1
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9938258d50701c0e50ee6450f2672199c7bc66111c1372daa257dce529b4382d","specCount":227,"lockfiles":{"digest":"22f7baed47ed77187fd68a6ae5a66837095805649e2e3bdc2211dd4744ed63a0","files":[{"path":"package-lock.json","sha256":"3964f4c56f60ebccf3e7fe9d33b8f7dfbbd0dd2b6243a9725f39682b77127c51","bytes":111184}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:48:20.556Z","cacheHit":false,"clearancePath":"D:\\jail\\m-memlab-mtrh5bu6\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 227 exact package-version(s), tree 9938258d5070
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=4292 exit=0 events=42938 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-memlab-mtrh5bu6\observe\node_modules\memlab)
   ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 227 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       C:\jail\m-memlab-msjlj16h\observe   [keyed on]
+    project       D:\jail\m-memlab-mtrh5bu6\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  C:\jail\m-memlab-msjlj16h\observe\node_modules\.store
+    projectStore  D:\jail\m-memlab-mtrh5bu6\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          C:\jail\m-memlab-msjlj16h\tmp   [keyed on]
+    temp          D:\jail\m-memlab-mtrh5bu6\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        C:\jail\m-memlab-msjlj16h\observe\node_modules\memlab
-  == ATTRIBUTION == lifecycle pids: 2 (root 2528)
+    ownPkg        D:\jail\m-memlab-mtrh5bu6\observe\node_modules\memlab
+  == ATTRIBUTION == lifecycle pids: 2 (root 4292)
     writes  script 0  /  whole traced tree 11
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -36,21 +40,22 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
-  RAW       etw-raw.xml.gz  27160823 B xml -> 396346 B gz (68.5x)  sha256 2a57bf93fb35a45e…
-  HEADER    etw-header.json (5041 bytes)
-  DERIVED   5519 distinct from 6706 kept ops (21262 xml events, 1323 out of subtree)
+  RAW       etw-raw.xml.gz  54874185 B xml -> 820599 B gz (66.9x)  sha256 2fc9891e41b7ec89…
+  HEADER    etw-header.json (4995 bytes)
+  DERIVED   5501 distinct from 6669 kept ops (42938 xml events, 9951 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (70780 bytes)
-  RAWLOG-CAPTURE C:\jail\m-memlab-msjlj16h\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (69999 bytes)
+  RAWLOG-CAPTURE D:\jail\m-memlab-mtrh5bu6\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT C:\jail\m-memlab-msjlj16h
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"C:\\jail\\m-memlab-msjlj16h\\npm-cache","TMP":"C:\\jail\\m-memlab-msjlj16h\\tmp","TEMP":"C:\\jail\\m-memlab-msjlj16h\\tmp","TMPDIR":"C:\\jail\\m-memlab-msjlj16h\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-JAIL-ROOT D:\jail\m-memlab-mtrh5bu6
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-memlab-mtrh5bu6\\npm-cache","TMP":"D:\\jail\\m-memlab-mtrh5bu6\\tmp","TEMP":"D:\\jail\\m-memlab-mtrh5bu6\\tmp","TMPDIR":"D:\\jail\\m-memlab-mtrh5bu6\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at C:\jail\m-memlab-msjlj16h\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 22813/9736) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-memlab-mtrh5bu6\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"eb2035e0afeb2081db9e5c68e1bcb669e60d922a5423c568fe432da73d235972","specCount":227,"lockfiles":{"digest":"a72b9f16880e71d2c851c0dd9df22799a50f18630810a735f8cbd8f1cae09031","files":[{"path":"nub.lock","sha256":"a6e6d41e2f2a1cf6f117eedef3321cfb5184d3177b11d0d1291c84be2e778fc5","bytes":67440}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:48:48.204Z","cacheHit":false,"clearancePath":"D:\\jail\\m-memlab-mtrh5bu6\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 227 exact package-version(s), tree eb2035e0afeb
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 22931/9769) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
