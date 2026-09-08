@@ -1,7 +1,12 @@
-### @openapitools/openapi-generator-cli@2.39.1   (/home/nub/v2-z9iUf5)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=5310 trace=9448 lines
+### @openapitools/openapi-generator-cli@2.39.1   (/home/runner/v2-9EqlnJ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c5c8b555ae6c011d1eb44fe0891c4017e8aa2e8e5c6cab5f07154956c581e33d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:10:42.259Z","cacheHit":false,"clearancePath":"/home/runner/v2-9EqlnJ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c5c8b555ae6c
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ced3d989d26a265e89322a0fa0729564a23f7d0edb8f0983ae8a172845c355ee","specCount":142,"lockfiles":{"digest":"80fe594bc9bbbc222d9e9b544cba386da803bcb07dde97397630fbbb7dead2db","files":[{"path":"package-lock.json","sha256":"a3e5f9ea46923ce45bb2b6f211d2efa1d794be39d84c52414be0a579f663643f","bytes":66732}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:10:48.128Z","cacheHit":false,"clearancePath":"/home/runner/v2-9EqlnJ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 142 exact package-version(s), tree ced3d989d26a
+  OBSERVE   rc=0 files=5311 trace=11702 lines
   CLOSURE   131 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
@@ -9,33 +14,33 @@
        rc-vacuous: `postinstall` ends in a status-swallowing construct (`opencollective || exit 0`), so its exit code is 0 whether the work succeeded or failed
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-z9iUf5/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-z9iUf5/observe/capture.json
-  RAWLOG-BYTES raw=1818429 gz=67830
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-z9iUf5/jailhome","TMPDIR":"/tmp/nub-tmp-obsZ1eCHb","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-z9iUf5/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 19
-    writes  script 1  /  whole traced tree 1179
-    sockets script 3  /  whole traced tree 7
+  RAWLOG-FILE /home/runner/v2-9EqlnJ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-9EqlnJ/observe/capture.json
+  RAWLOG-BYTES raw=2504920 gz=76219
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-9EqlnJ/jailhome","TMPDIR":"/tmp/nub-tmp-obsKwd1oh","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-9EqlnJ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 20
+    writes  script 1  /  whole traced tree 1089
+    sockets script 4  /  whole traced tree 10
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-z9iUf5/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-z9iUf5/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-z9iUf5/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsZ1eCHb
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-z9iUf5/observe/node_modules/@openapitools/openapi-generator-cli
+    project       /home/runner/v2-9EqlnJ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-9EqlnJ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-9EqlnJ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsKwd1oh
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-9EqlnJ/observe/node_modules/@openapitools/openapi-generator-cli
   == WRITES the script actually performed ==
     kernelfs      1
         /dev/null
   == NETWORK ==
-    AF_INET sockets: 3   distinct peers: 3
+    AF_INET sockets: 4   distinct peers: 3
         127.0.0.53:53
-        104.16.11.34:443
-        104.26.13.145:443
+        104.16.5.34:443
+        172.67.71.29:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -46,20 +51,24 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    5180 distinct from 9256 calls (9449 lines, 163 rejoined, 0 unparsed)
-    PROCS     25   lifecycle shells 14
+    EVENTS    4906 distinct from 11379 calls (11703 lines, 292 rejoined, 0 unparsed)
+    PROCS     27   lifecycle shells 15
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×42 getsockname×32 exit×18 getsockopt×16 recvmsg×8 wait4×6 socketpair×5 exit_group×5
-    wrote /home/nub/v2-z9iUf5/observe/events.ndjson.gz (36362 bytes)
-  EVENTLOG-FILE /home/nub/v2-z9iUf5/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9449,"parsed":9256,"unparsed":0,"unfinished":163,"rejoined":163,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":14,"distinctEvents":5180,"unknownSyscall":{"getsockname":32,"getsockopt":16,"getcwd":4,"recvmsg":8,"setsockopt":42,"sendmmsg":2,"socketpair":5,"shutdown":4,"exit_group":5,"wait4":6,"exit":18},"out":"/home/nub/v2-z9iUf5/observe/events.ndjson.gz","gzipBytes":36362}
-  EVICT     201 store entries removed, 2 spared as nub tooling
+    unsubscribed/unmapped syscalls: setsockopt×42 getsockname×33 exit×20 getsockopt×16 recvmsg×9 wait4×6 socketpair×5 exit_group×5
+    wrote /home/runner/v2-9EqlnJ/observe/events.ndjson.gz (34612 bytes)
+  EVENTLOG-FILE /home/runner/v2-9EqlnJ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11703,"parsed":11379,"unparsed":0,"unfinished":292,"rejoined":292,"unresolvedDirfd":3,"truncatedArg":0,"procs":27,"lifecyclePids":15,"distinctEvents":4906,"unknownSyscall":{"getsockname":33,"getsockopt":16,"getcwd":4,"recvmsg":9,"exit":20,"setsockopt":42,"sendmmsg":2,"socketpair":5,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-9EqlnJ/observe/events.ndjson.gz","gzipBytes":34612}
+  EVICT     74 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @openapitools/openapi-generator-cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ced3d989d26a265e89322a0fa0729564a23f7d0edb8f0983ae8a172845c355ee","specCount":142,"lockfiles":{"digest":"88aeaa93f8de8ab8021eba73d4e422a59381c245d1b8b6626d90d836031095fd","files":[{"path":"nub.lock","sha256":"80e13d8f15b957ad0d228040a280e39353bcb3be20ae951ff1b05af5b83a93d3","bytes":37750}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:10:48.128Z","cacheHit":true,"clearancePath":"/home/runner/v2-9EqlnJ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 142 exact package-version(s), tree ced3d989d26a (cached exact-tree clearance)
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26418/5310) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26432/5311) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
   EVICT     140 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @openapitools/openapi-generator-cli
-  VERIFY[drop-no-network] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26418/5310) OVERRIDDEN=2 REJECTED=0 grant={}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"ced3d989d26a265e89322a0fa0729564a23f7d0edb8f0983ae8a172845c355ee","specCount":142,"lockfiles":{"digest":"88aeaa93f8de8ab8021eba73d4e422a59381c245d1b8b6626d90d836031095fd","files":[{"path":"nub.lock","sha256":"80e13d8f15b957ad0d228040a280e39353bcb3be20ae951ff1b05af5b83a93d3","bytes":37750}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:10:48.128Z","cacheHit":true,"clearancePath":"/home/runner/v2-9EqlnJ/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 142 exact package-version(s), tree ced3d989d26a (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 26432/5311) OVERRIDDEN=3 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
   => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
