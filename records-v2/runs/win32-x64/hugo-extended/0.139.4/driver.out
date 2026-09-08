@@ -1,32 +1,34 @@
-### hugo-extended@0.139.4   (D:\jail\m-hugoextended-mtri8w9g)
+### hugo-extended@0.139.4   (D:\jail\m-hugoextended-mtry5nvk)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"5a443780d11d7a392918e29b5c00628f4a56ce8d832050aba9baea64249fc5da","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:52.996Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"5a443780d11d7a392918e29b5c00628f4a56ce8d832050aba9baea64249fc5da","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:16.026Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 5a443780d11d
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"9e65e55860b6822e2f8e00d15ac091cecbcc3f540844e7205dc0de88032d784b","files":[{"path":"package-lock.json","sha256":"b4725925b9c0a8da8d0f09b3a728e2aeb2081db4bee59d7737834d5d9caa161d","bytes":63461}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"9e65e55860b6822e2f8e00d15ac091cecbcc3f540844e7205dc0de88032d784b","files":[{"path":"package-lock.json","sha256":"b4725925b9c0a8da8d0f09b3a728e2aeb2081db4bee59d7737834d5d9caa161d","bytes":63461}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":false,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 145 exact package-version(s), tree 27a63a4613df
-  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1320 exit=0 events=51027 lost=0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3544 exit=0 events=49888 lost=0
   VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 12 files  (D:\jail\m-hugoextended-mtri8w9g\observe\node_modules\hugo-extended)
+  OBSERVE artifacts: 12 files  (D:\jail\m-hugoextended-mtry5nvk\observe\node_modules\hugo-extended)
   ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":3,"reasons":[]}
   CLOSURE 136 packages evicted per arm
   8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-hugoextended-mtri8w9g\observe   [keyed on]
+    project       D:\jail\m-hugoextended-mtry5nvk\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-hugoextended-mtri8w9g\observe\node_modules\.store
+    projectStore  D:\jail\m-hugoextended-mtry5nvk\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-hugoextended-mtri8w9g\tmp   [keyed on]
+    temp          D:\jail\m-hugoextended-mtry5nvk\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-hugoextended-mtri8w9g\observe\node_modules\hugo-extended
-  == ATTRIBUTION == lifecycle pids: 3 (root 1320)
-    writes  script 8  /  whole traced tree 21
+    ownPkg        D:\jail\m-hugoextended-mtry5nvk\observe\node_modules\hugo-extended
+  == ATTRIBUTION == lifecycle pids: 3 (root 3544)
+    writes  script 8  /  whole traced tree 22
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     jailTmp       3
-    deps          5
+    deps          4
+    outside       1
+        c:\hostedtoolcache\windows\node\22.23.2\x64\node_modules\npm\node_modules\@sigstore\sign\dist\util\package.json
   == READS ==
     deps        437
     outside       8
@@ -35,7 +37,7 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     jailTmp       4
   == NETWORK ==
     distinct peers: 2
-        140.82.113.3:443
+        140.82.113.4:443
         185.199.110.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
@@ -43,67 +45,57 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     {"write":{"deps":true},"network":true}
     NOTE 3 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-  RAW       etw-raw.xml.gz  66153988 B xml -> 897751 B gz (73.7x)  sha256 1194df75cc634cc3…
+    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  64900737 B xml -> 921219 B gz (70.5x)  sha256 3d11162d6824fdaf…
   HEADER    etw-header.json (5098 bytes)
-  DERIVED   11020 distinct from 18923 kept ops (51027 xml events, 2475 out of subtree)
+  DERIVED   11021 distinct from 18634 kept ops (49888 xml events, 2779 out of subtree)
   PROCS     5   thread-reattributed 0
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 3 handle ops whose path no table could supply
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 2 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
-  wrote events.ndjson.gz (138690 bytes)
-  RAWLOG-CAPTURE D:\jail\m-hugoextended-mtri8w9g\cap\capture.json
+  wrote events.ndjson.gz (141278 bytes)
+  RAWLOG-CAPTURE D:\jail\m-hugoextended-mtry5nvk\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-hugoextended-mtri8w9g
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-mtri8w9g\\npm-cache","TMP":"D:\\jail\\m-hugoextended-mtri8w9g\\tmp","TEMP":"D:\\jail\\m-hugoextended-mtri8w9g\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-mtri8w9g\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-synth\.cache
+  VENUE-JAIL-ROOT D:\jail\m-hugoextended-mtry5nvk
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-hugoextended-mtry5nvk\\npm-cache","TMP":"D:\\jail\\m-hugoextended-mtry5nvk\\tmp","TEMP":"D:\\jail\\m-hugoextended-mtry5nvk\\tmp","TMPDIR":"D:\\jail\\m-hugoextended-mtry5nvk\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-synth\.cache
   VENUE-STORE-LAYOUT isolated
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
   VERIFY[synth] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
      missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-fb0\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-fb0-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-fb0-resolved.json"}
   SECURITY nub-fb0-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[fb0] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-     missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-fb1\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-fb1-resolved.json"}
-  SECURITY nub-fb1-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[fb1] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  VERIFY[fb0] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
   !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-nar-no-network\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-nar-no-network-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-nar-no-network-resolved.json"}
   SECURITY nub-nar-no-network-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[nar-no-network] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk"}
+  VERIFY[nar-no-network] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
      missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-nar-no-write-deps\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-nar-no-write-deps-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-nar-no-write-deps-resolved.json"}
   SECURITY nub-nar-no-write-deps-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[nar-no-write-deps] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"read":"disk","network":true}
-     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"read":"disk","network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-nar-no-write-project\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-nar-no-write-project-resolved.json"}
+  VERIFY[nar-no-write-deps] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-nar-no-write-project\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-nar-no-write-project-resolved.json"}
   SECURITY nub-nar-no-write-project-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[nar-no-write-project] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"read":"disk","network":true}
-     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"userHome":true},"read":"disk","network":true} also verifies; 'no-write-project' was not needed
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-nar-no-write-userHome\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-nar-no-write-userHome-resolved.json"}
+  VERIFY[nar-no-write-project] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"userHome":true},"network":true} also verifies; 'no-write-project' was not needed
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-nar-no-write-userHome-resolved.json"}
   SECURITY nub-nar-no-write-userHome-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"read":"disk","network":true}
-     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"read":"disk","network":true} also verifies; 'no-write-userHome' was not needed
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-nar-no-read\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-read-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-nar-no-read-resolved.json"}
-  SECURITY nub-nar-no-read-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[nar-no-read] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true,"userHome":true},"network":true} also verifies; 'no-read' was not needed
-  STORE   isolated virtual store at D:\jail\m-hugoextended-mtri8w9g\verify-joint-narrow\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T17:18:58.156Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtri8w9g\\security\\nub-joint-narrow-resolved.json"}
-  SECURITY nub-joint-narrow-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
-  VERIFY[joint-narrow] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=9/12 missing=3 shortfall=a63fd828aa49 (tree 7528/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
      missing artifacts: vendor/hugo.exe, vendor/LICENSE, vendor/README.md
-  => JOINT-NARROW FAILED {"network":true} — each capability drops alone but not together;
-     the leave-one-out results stand and the record keeps the ladder-rung grant.
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-hugoextended-mtry5nvk\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"27a63a4613df0abf5fca54bb4db6dfa9e09f3288a07c5ba0eefe67fa8141f021","specCount":145,"lockfiles":{"digest":"7ee5a6c27c759c770e5c874fa0b5de406be1415572f7dde0c2ee9e79551126b0","files":[{"path":"nub.lock","sha256":"f07906ad2bab6bbb7b0c47b3201706771c726096aa36818ced58aca5b71d6511","bytes":34923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:44:22.250Z","cacheHit":true,"clearancePath":"D:\\jail\\m-hugoextended-mtry5nvk\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 145 exact package-version(s), tree 27a63a4613df (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=12/12 missing=0 shortfall=none (tree 7531/1330) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true},"network":true} — all 2 capabilities drop TOGETHER, measured
