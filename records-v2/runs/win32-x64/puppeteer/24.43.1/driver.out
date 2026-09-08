@@ -1,12 +1,12 @@
-### puppeteer@24.43.1   (D:\jail\m-puppeteer-mtrjpz70)
+### puppeteer@24.43.1   (D:\jail\m-puppeteer-mts1rw15)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7eba1235de912414773df7c7d59484b9c849b771156b983881cbc7b9d5164506","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:00:09.542Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mtrjpz70\\security\\direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7eba1235de912414773df7c7d59484b9c849b771156b983881cbc7b9d5164506","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:25:31.928Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mts1rw15\\security\\direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 7eba1235de91
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1d2ab144a8f74dd568308a29935b40825742fd7dc810540b8c0b5dbbe03418f9","specCount":98,"lockfiles":{"digest":"249a791c36ff9d3ecd766118693ea1cc6d6dee69ae2a4de917833d692cc1f315","files":[{"path":"package-lock.json","sha256":"77a3e3337819e8386040b1c168b47ab3f5b43f319924523ffdc4cb5c3a80926a","bytes":40932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:00:16.950Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mtrjpz70\\security\\npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"1d2ab144a8f74dd568308a29935b40825742fd7dc810540b8c0b5dbbe03418f9","specCount":98,"lockfiles":{"digest":"249a791c36ff9d3ecd766118693ea1cc6d6dee69ae2a4de917833d692cc1f315","files":[{"path":"package-lock.json","sha256":"77a3e3337819e8386040b1c168b47ab3f5b43f319924523ffdc4cb5c3a80926a","bytes":40932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:25:40.656Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mts1rw15\\security\\npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 98 exact package-version(s), tree 1d2ab144a8f7
-  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2400 exit=0 events=411513 lost=0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6904 exit=0 events=489107 lost=0
   VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 43 files  (D:\jail\m-puppeteer-mtrjpz70\observe\node_modules\puppeteer)
+  OBSERVE artifacts: 43 files  (D:\jail\m-puppeteer-mts1rw15\observe\node_modules\puppeteer)
   ARM-FALSIFIABILITY {"manifestFiles":43,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (43) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -15,21 +15,22 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
   CLOSURE 98 packages evicted per arm
   8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-puppeteer-mtrjpz70\observe   [keyed on]
+    project       D:\jail\m-puppeteer-mts1rw15\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-puppeteer-mtrjpz70\observe\node_modules\.store
+    projectStore  D:\jail\m-puppeteer-mts1rw15\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-puppeteer-mtrjpz70\tmp   [keyed on]
+    temp          D:\jail\m-puppeteer-mts1rw15\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-puppeteer-mtrjpz70\observe\node_modules\puppeteer
-  == ATTRIBUTION == lifecycle pids: 4 (root 2400)
-    writes  script 629  /  whole traced tree 640
+    ownPkg        D:\jail\m-puppeteer-mts1rw15\observe\node_modules\puppeteer
+  == ATTRIBUTION == lifecycle pids: 4 (root 6904)
+    writes  script 630  /  whole traced tree 641
     peers   script 1  /  whole traced tree 1
   == WRITES ==
     userHome    628
+    kernelfs      1
     systemfs      1
         c:\windows\systemtemp\chromium_installer.log
   == READS ==
@@ -41,38 +42,39 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     kernelfs      1
   == NETWORK ==
     distinct peers: 1
-        34.144.171.27:443
+        192.178.164.207:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true},"network":true}
     !! 1 writes into system dirs -- an unprivileged user would be refused these
-  RAW       etw-raw.xml.gz  533628709 B xml -> 8598547 B gz (62.1x)  sha256 f024be18888330cb…
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  634027219 B xml -> 9768157 B gz (64.9x)  sha256 3546d970298a829a…
   HEADER    etw-header.json (5078 bytes)
-  DERIVED   9809 distinct from 130455 kept ops (411513 xml events, 48566 out of subtree)
+  DERIVED   9791 distinct from 129596 kept ops (489107 xml events, 83875 out of subtree)
   PROCS     6   thread-reattributed 0
-  ⛔ 86 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 66 operations with NO OperationEnd — kept, status marked unknown
   ⛔ 1 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
-  wrote events.ndjson.gz (124344 bytes)
-  RAWLOG-CAPTURE D:\jail\m-puppeteer-mtrjpz70\cap\capture.json
+  wrote events.ndjson.gz (124906 bytes)
+  RAWLOG-CAPTURE D:\jail\m-puppeteer-mts1rw15\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-puppeteer-mtrjpz70
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-mtrjpz70\\npm-cache","TMP":"D:\\jail\\m-puppeteer-mtrjpz70\\tmp","TEMP":"D:\\jail\\m-puppeteer-mtrjpz70\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-mtrjpz70\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-puppeteer-mtrjpz70\verify-synth\.cache
+  VENUE-JAIL-ROOT D:\jail\m-puppeteer-mts1rw15
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-puppeteer-mts1rw15\\npm-cache","TMP":"D:\\jail\\m-puppeteer-mts1rw15\\tmp","TEMP":"D:\\jail\\m-puppeteer-mts1rw15\\tmp","TMPDIR":"D:\\jail\\m-puppeteer-mts1rw15\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-mts1rw15\verify-synth\.cache
   VENUE-STORE-LAYOUT isolated
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:01:05.400Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mtrjpz70\\security\\nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:26:35.321Z","cacheHit":false,"clearancePath":"D:\\jail\\m-puppeteer-mts1rw15\\security\\nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 98 exact package-version(s), tree e8cbdc07078f
   VERIFY[synth] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 13032/4403) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
   => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-puppeteer-mtrjpz70\verify-nar-no-network\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:01:05.400Z","cacheHit":true,"clearancePath":"D:\\jail\\m-puppeteer-mtrjpz70\\security\\nub-nar-no-network-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-mts1rw15\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:26:35.321Z","cacheHit":true,"clearancePath":"D:\\jail\\m-puppeteer-mts1rw15\\security\\nub-nar-no-network-resolved.json"}
   SECURITY nub-nar-no-network-resolved clean: 98 exact package-version(s), tree e8cbdc07078f (cached exact-tree clearance)
   VERIFY[nar-no-network] rc=1 artifacts=43/43 missing=0 shortfall=none (tree 12435/4403) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-puppeteer-mtrjpz70\verify-nar-no-write-userHome\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:01:05.400Z","cacheHit":true,"clearancePath":"D:\\jail\\m-puppeteer-mtrjpz70\\security\\nub-nar-no-write-userHome-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-puppeteer-mts1rw15\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"e8cbdc07078fb43aea0be23597856528ff5e9c57d0869389df567d8d31e1bf23","specCount":98,"lockfiles":{"digest":"02b7f60f990d5cd10af79a3dd18b0edbf20c4f0daa52a81b138ea4813b54a70e","files":[{"path":"nub.lock","sha256":"d081f464c84ca745dcc830652e38bfe2c1ca5799661c725a1d7a1d02bdd899f3","bytes":25938}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:26:35.321Z","cacheHit":true,"clearancePath":"D:\\jail\\m-puppeteer-mts1rw15\\security\\nub-nar-no-write-userHome-resolved.json"}
   SECURITY nub-nar-no-write-userHome-resolved clean: 98 exact package-version(s), tree e8cbdc07078f (cached exact-tree clearance)
   VERIFY[nar-no-write-userHome] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 13032/4403) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
