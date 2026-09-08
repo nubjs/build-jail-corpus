@@ -1,36 +1,41 @@
-### electron-chromedriver@0.37.1   (/Users/runner/v2m-RkXceo)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a2cd4e8d946f794b683b42d519f2e9faf8b3582127de5590a73020113ef3ba28","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:00:08.453Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-OlOxTr/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a2cd4e8d946f
+### electron-chromedriver@0.37.1   (/Users/runner/v2m-OlOxTr)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"d4fac5b5d5bab3c5a51cd243aeeeee28c6e6f722f2bc90185dff092d17da87b3","specCount":221,"lockfiles":{"digest":"e87cac53e34b763f02d888827edefee40c115853ce2149ea6a2e8bf6b1714d19","files":[{"path":"package-lock.json","sha256":"29bffe90301a13317ff6420ad6a9c7f075d2ff12fa637fa57403a3a0a5d68ac1","bytes":95688}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:00:19.020Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-OlOxTr/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 221 exact package-version(s), tree d4fac5b5d5ba
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-RkXceo/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-RkXceo/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslygO8C"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "electron-chromedriver" > "/Users/runner/v2m-RkXceo/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-RkXceo/Observe/rc"
+     cd "/Users/runner/v2m-OlOxTr/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-OlOxTr/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsIFUjEj"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "electron-chromedriver" > "/Users/runner/v2m-OlOxTr/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-OlOxTr/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-RkXceo/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-RkXceo/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslygO8C NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund electron-chromedriver
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000061d0e0) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-OlOxTr/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-OlOxTr/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsIFUjEj NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund electron-chromedriver
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000036050e0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 100 (ID 845: syscall::stat64:return): invalid address (0x16d7415e8) in action #8 at DIF offset 12
      + echo 1
   OBSERVE   rc=1 dtrace_rc=0 files=1789 (pre=1786) trace=18442 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
      npm error code 1
-     npm error path /Users/runner/v2m-RkXceo/Observe/node_modules/electron-chromedriver
+     npm error path /Users/runner/v2m-OlOxTr/Observe/node_modules/electron-chromedriver
      npm error command failed
      npm error command sh -c node ./download-chromedriver.js
-     npm error (node:42928) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+     npm error (node:28004) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
      npm error (Use `node --trace-deprecation ...` to show where the warning was created)
-     npm error Download failed: ENOENT: no such file or directory, chmod '/Users/runner/v2m-RkXceo/Observe/node_modules/electron-chromedriver/bin/chromedriver'
+     npm error Download failed: ENOENT: no such file or directory, chmod '/Users/runner/v2m-OlOxTr/Observe/node_modules/electron-chromedriver/bin/chromedriver'
      npm notice
      npm notice New major version of npm available! 10.9.8 -> 12.0.2
      npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
      npm notice To update run: npm install -g npm@12.0.2
      npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-RkXceo/jailhome/.npm/_logs/2026-08-07T20_21_33_680Z-debug-0.log
+     npm error A complete log of this run can be found in: /Users/runner/v2m-OlOxTr/jailhome/.npm/_logs/2026-09-08T04_00_21_138Z-debug-0.log
