@@ -1,63 +1,76 @@
-### registry-js@1.16.1   (/home/nub/v2-WVeX3U)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=485 trace=26999 lines
+### registry-js@1.16.1   (/home/runner/v2-23vgRz)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f89f308237ba822b9c68f8a469ab68abedea839c0c47634b809f2c9af1d91a9b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:59:21.184Z","cacheHit":false,"clearancePath":"/home/runner/v2-23vgRz/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f89f308237ba
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2833315d10b285a89c8346457403e4025fe44921b2cde85c46e31cd2784b19e0","specCount":60,"lockfiles":{"digest":"124db698300b623fc5c1bf7ad06d51fa8b19d32189411098778670153c294662","files":[{"path":"package-lock.json","sha256":"c0061f996e8960ad6e2e9bf120d892d35c2c50a1e5179ccb383e1895e7e039da","bytes":24666}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:59:23.154Z","cacheHit":false,"clearancePath":"/home/runner/v2-23vgRz/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 60 exact package-version(s), tree 2833315d10b2
+  OBSERVE   rc=0 files=485 trace=91897 lines
   CLOSURE   59 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":20,"filesTheScriptProduced":8,"reasons":[]}
-  RAWLOG-FILE /home/nub/v2-WVeX3U/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-WVeX3U/observe/capture.json
-  RAWLOG-BYTES raw=5169476 gz=188745
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-WVeX3U/jailhome","TMPDIR":"/tmp/nub-tmp-obsgGzn9T","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-WVeX3U/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 52
-    writes  script 3348  /  whole traced tree 4526
+  RAWLOG-FILE /home/runner/v2-23vgRz/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-23vgRz/observe/capture.json
+  RAWLOG-BYTES raw=16937271 gz=411564
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-23vgRz/jailhome","TMPDIR":"/tmp/nub-tmp-obsWHpWLT","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-23vgRz/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 54
+    writes  script 6674  /  whole traced tree 7762
     sockets script 4  /  whole traced tree 10
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-WVeX3U/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-WVeX3U/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-WVeX3U/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsgGzn9T
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-WVeX3U/observe/node_modules/registry-js
+    project       /home/runner/v2-23vgRz/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-23vgRz/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-23vgRz/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsWHpWLT
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-23vgRz/observe/node_modules/registry-js
   == WRITES the script actually performed ==
     jailHome   3328  (base profile already grants this — NOT billed)
-        /home/nub/v2-WVeX3U/jailhome/.cache
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node/config.gypi
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node/common.gypi
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node/node.h
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node/node_api.h
-        /home/nub/v2-WVeX3U/jailhome/.cache/node-gyp/22.20.0/include/node/js_native_api.h
+        /home/runner/v2-23vgRz/jailhome/.cache
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node/common.gypi
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node/config.gypi
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/allocation.h
+        /home/runner/v2-23vgRz/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/common.h
         … and 3318 more
+    jailTmp    3329  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/v8-locker.h
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/zconf.h
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/v8config.h
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/common.gypi
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/v8-object.h
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/v8-forward.h
+        /tmp/nub-tmp-obsWHpWLT/node-gyp-tmp-8Vwmmk/include/node/v8-profiler.h
+        … and 3319 more
     ownPkg       16  (base profile already grants this — NOT billed)
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/config.gypi
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/Makefile
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/registry.target.mk
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/binding.Makefile
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/node_gyp_bins
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/node_gyp_bins/python3
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/Release
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/obj.target
-        /home/nub/v2-WVeX3U/observe/node_modules/registry-js/build/Release/.deps
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/config.gypi
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/Makefile
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/registry.target.mk
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/binding.Makefile
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/node_gyp_bins
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/node_gyp_bins/python3
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/Release
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/obj.target
+        /home/runner/v2-23vgRz/observe/node_modules/registry-js/build/Release/.deps
         … and 6 more
-    jailTmp       3  (base profile already grants this — NOT billed)
-        /tmp/nub-tmp-obsgGzn9T/cc4AOT71.res
-        /tmp/nub-tmp-obsgGzn9T/ccrqf1Ot.cdtor.c
-        /tmp/nub-tmp-obsgGzn9T/ccqPC35c.cdtor.o
     kernelfs      1
         /dev/null
   == NETWORK ==
     AF_INET sockets: 4   distinct peers: 3
         127.0.0.53:53
-        104.16.6.34:443
+        104.16.3.34:443
         104.16.212.131:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
@@ -69,20 +82,24 @@
     none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    15118 distinct from 26547 calls (27000 lines, 377 rejoined, 0 unparsed)
-    PROCS     58   lifecycle shells 47
-    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×70 getcwd×58 getsockname×47 wait4×32 getsockopt×31 exit×28 exit_group×26 socketpair×12
-    wrote /home/nub/v2-WVeX3U/observe/events.ndjson.gz (90190 bytes)
-  EVENTLOG-FILE /home/nub/v2-WVeX3U/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":27000,"parsed":26547,"unparsed":0,"unfinished":377,"rejoined":377,"unresolvedDirfd":4,"truncatedArg":0,"procs":58,"lifecyclePids":47,"distinctEvents":15118,"unknownSyscall":{"getsockname":47,"getsockopt":31,"getcwd":58,"recvmsg":8,"setsockopt":70,"sendmmsg":2,"socketpair":12,"shutdown":10,"exit_group":26,"wait4":32,"exit":28},"out":"/home/nub/v2-WVeX3U/observe/events.ndjson.gz","gzipBytes":90190}
-  EVICT     63 store entries removed, 2 spared as nub tooling
+    EVENTS    31467 distinct from 85091 calls (91898 lines, 6728 rejoined, 0 unparsed)
+    PROCS     61   lifecycle shells 49
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×70 getcwd×58 getsockname×45 wait4×32 exit×31 getsockopt×29 exit_group×26 socketpair×12
+    wrote /home/runner/v2-23vgRz/observe/events.ndjson.gz (186921 bytes)
+  EVENTLOG-FILE /home/runner/v2-23vgRz/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":91898,"parsed":85091,"unparsed":0,"unfinished":6728,"rejoined":6728,"unresolvedDirfd":3,"truncatedArg":0,"procs":61,"lifecyclePids":49,"distinctEvents":31467,"unknownSyscall":{"getsockname":45,"getsockopt":29,"getcwd":58,"recvmsg":9,"exit":31,"setsockopt":70,"sendmmsg":2,"socketpair":12,"shutdown":10,"exit_group":26,"wait4":32},"out":"/home/runner/v2-23vgRz/observe/events.ndjson.gz","gzipBytes":186921}
+  EVICT     32 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for registry-js
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"4819a986137b7cf1209ed8c556d2f8a91d2aa6f7ffa9a2b0597a98cf1723ffed","specCount":61,"lockfiles":{"digest":"c2066c9e40921c56bea43a8e4b81401590b6286b33dbedc50351c85e516800b4","files":[{"path":"nub.lock","sha256":"22e88bb33697e115861cd03fe5329d836b7e3a4a4ac12f4249e991828beefae6","bytes":13855}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:59:50.334Z","cacheHit":false,"clearancePath":"/home/runner/v2-23vgRz/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 61 exact package-version(s), tree 4819a986137b
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 1484/485) OVERRIDDEN=1 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 1488/485) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}   (observed, then verified)
   EVICT     61 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for registry-js
-  VERIFY[drop-no-network] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 1484/485) OVERRIDDEN=1 REJECTED=0 grant={}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"4819a986137b7cf1209ed8c556d2f8a91d2aa6f7ffa9a2b0597a98cf1723ffed","specCount":61,"lockfiles":{"digest":"c2066c9e40921c56bea43a8e4b81401590b6286b33dbedc50351c85e516800b4","files":[{"path":"nub.lock","sha256":"22e88bb33697e115861cd03fe5329d836b7e3a4a4ac12f4249e991828beefae6","bytes":13855}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:59:50.334Z","cacheHit":true,"clearancePath":"/home/runner/v2-23vgRz/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 61 exact package-version(s), tree 4819a986137b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=20/20 missing=0 shortfall=none (tree 1488/485) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
   => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
