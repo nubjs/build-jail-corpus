@@ -1,27 +1,31 @@
-### dprint@0.17.3   (D:\jail\m-dprint-msjym1im)
+### dprint@0.17.3   (D:\jail\m-dprint-mtsn29nc)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5664 exit=0 events=85529 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 10 files  (D:\jail\m-dprint-msjym1im\observe\node_modules\dprint)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":false,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a9b64036d596
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":"ad79b0c6d53a87649faf3b30aafb515e9df0192a65e477b88b01a88dd5901244","files":[{"path":"package-lock.json","sha256":"17feed50af3374f47a00e4898a3a92bd64d6c86af0c6707a95414f5b96bc7b41","bytes":588}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree a9b64036d596 (cached exact-tree clearance)
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3040 exit=0 events=194423 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-dprint-mtsn29nc\observe\node_modules\dprint)
   ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
   CLOSURE 1 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-dprint-msjym1im\observe   [keyed on]
+    project       D:\jail\m-dprint-mtsn29nc\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-dprint-msjym1im\observe\node_modules\.store
+    projectStore  D:\jail\m-dprint-mtsn29nc\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-dprint-msjym1im\tmp   [keyed on]
+    temp          D:\jail\m-dprint-mtsn29nc\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-dprint-msjym1im\observe\node_modules\dprint
-  == ATTRIBUTION == lifecycle pids: 4 (root 5664)
-    writes  script 54  /  whole traced tree 65
+    ownPkg        D:\jail\m-dprint-mtsn29nc\observe\node_modules\dprint
+  == ATTRIBUTION == lifecycle pids: 4 (root 3040)
+    writes  script 71  /  whole traced tree 82
     peers   script 2  /  whole traced tree 2
   == WRITES ==
-    systemfs     46
+    systemfs     62
         c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
         c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
@@ -36,53 +40,64 @@
         c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
     userHome      3
     kernelfs      1
+    outside       1
+        c:\hostedtoolcache\windows\python\3.12.10\x64\powershell.exe
     jailTmp       2
     deps          2
   == READS ==
     deps         10
-    outside     236
+    outside     338
     project       1
-    systemfs    565
+    systemfs    767
     userHome     45
     jailTmp       3
   == NETWORK ==
     distinct peers: 2
         140.82.112.4:443
-        185.199.109.133:443
+        185.199.111.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true,"userHome":true},"network":true}
     NOTE 2 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    !! 46 writes into system dirs -- an unprivileged user would be refused these
+    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    !! 62 writes into system dirs -- an unprivileged user would be refused these
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  109110787 B xml -> 1629959 B gz (66.9x)  sha256 5da4d83ffb3f2685…
-  HEADER    etw-header.json (5047 bytes)
-  DERIVED   10623 distinct from 28099 kept ops (85529 xml events, 4909 out of subtree)
+  RAW       etw-raw.xml.gz  248014951 B xml -> 3488757 B gz (71.1x)  sha256 b3bb89ad39642c22…
+  HEADER    etw-header.json (5052 bytes)
+  DERIVED   11927 distinct from 32312 kept ops (194423 xml events, 41758 out of subtree)
   PROCS     6   thread-reattributed 0
-  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 9 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (147904 bytes)
-  RAWLOG-CAPTURE D:\jail\m-dprint-msjym1im\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 5 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (164556 bytes)
+  RAWLOG-CAPTURE D:\jail\m-dprint-mtsn29nc\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-dprint-msjym1im
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-dprint-msjym1im\\npm-cache","TMP":"D:\\jail\\m-dprint-msjym1im\\tmp","TEMP":"D:\\jail\\m-dprint-msjym1im\\tmp","TMPDIR":"D:\\jail\\m-dprint-msjym1im\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-dprint-msjym1im\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5667/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-dprint-mtsn29nc
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-dprint-mtsn29nc\\npm-cache","TMP":"D:\\jail\\m-dprint-mtsn29nc\\tmp","TEMP":"D:\\jail\\m-dprint-mtsn29nc\\tmp","TMPDIR":"D:\\jail\\m-dprint-mtsn29nc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-dprint-mtsn29nc\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":"9b4b18a058803e7cd45d515bb5b4b3680e4d325b47023c36fe60a9862a623d04","files":[{"path":"nub.lock","sha256":"9709a0abbea9411be90688f952b94b47777171eb42802ccb452c4d0f774761b7","bytes":397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree a9b64036d596 (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5675/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
      missing artifacts: dprint.exe
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-dprint-msjym1im\verify-fb0\.cache
-  VERIFY[fb0] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5667/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-dprint-mtsn29nc\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":"9b4b18a058803e7cd45d515bb5b4b3680e4d325b47023c36fe60a9862a623d04","files":[{"path":"nub.lock","sha256":"9709a0abbea9411be90688f952b94b47777171eb42802ccb452c4d0f774761b7","bytes":397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 1 exact package-version(s), tree a9b64036d596 (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5675/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
      missing artifacts: dprint.exe
-  STORE   isolated virtual store at D:\jail\m-dprint-msjym1im\verify-fb1\.cache
-  VERIFY[fb1] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5667/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-dprint-mtsn29nc\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":"9b4b18a058803e7cd45d515bb5b4b3680e4d325b47023c36fe60a9862a623d04","files":[{"path":"nub.lock","sha256":"9709a0abbea9411be90688f952b94b47777171eb42802ccb452c4d0f774761b7","bytes":397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 1 exact package-version(s), tree a9b64036d596 (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=10/10 missing=1 shortfall=bfd2cfd888e8 (tree 5675/17) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
      missing artifacts: dprint.exe
-  STORE   isolated virtual store at D:\jail\m-dprint-msjym1im\verify-fb2\.cache
-  VERIFY[fb2] rc=0 artifacts=11/10 missing=0 shortfall=none (tree 5671/17) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-dprint-mtsn29nc\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"a9b64036d596d341bfb37d1ad7fff624ebf39bfb87e322d228754dca984c8258","specCount":1,"lockfiles":{"digest":"9b4b18a058803e7cd45d515bb5b4b3680e4d325b47023c36fe60a9862a623d04","files":[{"path":"nub.lock","sha256":"9709a0abbea9411be90688f952b94b47777171eb42802ccb452c4d0f774761b7","bytes":397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:21:28.016Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mtsn29nc\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 1 exact package-version(s), tree a9b64036d596 (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=11/10 missing=0 shortfall=none (tree 5675/17) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
   => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
   !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true},"network":true} and this is what the trace missed
   !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
