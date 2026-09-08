@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "graphql-shield",
   "version": "4.1.2",
-  "at": "2026-09-07T20:18:43.003Z",
+  "at": "2026-09-08T08:54:22.947Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7312_mtroo1fe",
+      "name": "nubobs_7700_mtsfntwt",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -26,19 +26,19 @@
         "name": "Microsoft-Windows-Kernel-File",
         "keywords": "0x1FF0",
         "level": 5,
-        "exit": -2147024637
+        "exit": 0
       },
       {
         "name": "Microsoft-Windows-Kernel-Network",
         "keywords": "0x30",
         "level": 5,
-        "exit": -2147024637
+        "exit": 0
       },
       {
         "name": "Microsoft-Windows-Kernel-Process",
         "keywords": "0x10",
         "level": 5,
-        "exit": -2147024637
+        "exit": 0
       }
     ]
   },
@@ -58,44 +58,44 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-graphqlshield-mtronvvc\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-graphqlshield-mtronvvc\\observe",
-    "rootPid": 2308,
-    "launcherPid": 1528,
+    "command": "D:\\jail\\m-graphqlshield-mtsfnqel\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-graphqlshield-mtsfnqel\\observe",
+    "rootPid": 7344,
+    "launcherPid": 2008,
     "exitCode": 0,
-    "startedUtc": "2026-09-07T20:18:40.1342925Z",
-    "endedUtc": "2026-09-07T20:18:41.1192047Z"
+    "startedUtc": "2026-09-08T08:54:18.8703996Z",
+    "endedUtc": "2026-09-08T08:54:19.5067599Z"
   },
   "integrity": {
-    "eventsTotal": 2,
+    "eventsTotal": 29450,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-graphqlshield-mtronvvc\\observe",
+    "project": "D:\\jail\\m-graphqlshield-mtsfnqel\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-graphqlshield-mtronvvc\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-graphqlshield-mtsfnqel\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-graphqlshield-mtronvvc\\tmp",
+    "temp": "D:\\jail\\m-graphqlshield-mtsfnqel\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-graphqlshield-mtronvvc\\observe\\node_modules\\graphql-shield",
+    "ownPkg": "D:\\jail\\m-graphqlshield-mtsfnqel\\observe\\node_modules\\graphql-shield",
     "cwd": null
   },
   "rootsFrom": "capture.json",
   "devmap": {
-    "\\Device\\HarddiskVolume5": "D:",
-    "\\Device\\HarddiskVolume4": "C:"
+    "\\Device\\HarddiskVolume4": "C:",
+    "\\Device\\HarddiskVolume6": "D:"
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 3417,
-    "gzBytes": 926,
-    "sha256": "356ea42936956239a561f84f25fd8376d8d78027b4b3f339eacf5e0f0c0807f0",
+    "bytes": 37543521,
+    "gzBytes": 540219,
+    "sha256": "52473b2f49d0225dd1b9a378b13c265211e291b442426c393406eac0a5eff73c",
     "of": "trace.xml",
-    "etlBytes": 1048576,
+    "etlBytes": 7340032,
     "etlRetained": false
   },
   "limits": {
@@ -106,21 +106,25 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2308 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 7344 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 2,
-    "kept": 0,
-    "distinct": 0,
-    "byProvider": {},
+    "xmlEvents": 29450,
+    "kept": 9085,
+    "distinct": 7649,
+    "byProvider": {
+      "Microsoft-Windows-Kernel-File": 29433,
+      "Microsoft-Windows-Kernel-Process": 14,
+      "Microsoft-Windows-Kernel-Network": 1
+    },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 0,
-    "destResolved": 0,
+    "outOfSubtree": 2140,
+    "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
