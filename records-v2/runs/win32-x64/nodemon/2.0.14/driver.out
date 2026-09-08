@@ -1,8 +1,12 @@
-### nodemon@2.0.14   (D:\jail\m-nodemon-msjwlpju)
+### nodemon@2.0.14   (D:\jail\m-nodemon-mtsk4joj)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5192 exit=0 events=44375 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 37 files  (D:\jail\m-nodemon-msjwlpju\observe\node_modules\nodemon)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"47a47c5d32c2139e789719d7279ef3a95bd63ae335dd91c9691915f97a5d5360","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:59:15.456Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nodemon-mtsk4joj\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 47a47c5d32c2
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b0bb7938186458086d817891c3ed11cf998de25397190c6bbc24da7039253f00","specCount":110,"lockfiles":{"digest":"5c3167cfb074b88c7d3e388f04b546a955150e26b9d78a4fb6fdeb70800d85bf","files":[{"path":"package-lock.json","sha256":"0a8365cd09e87c27f439afee0f1518ea21255d13c52dc9e836fdee2b918d697f","bytes":45571}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:59:19.219Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nodemon-mtsk4joj\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 110 exact package-version(s), tree b0bb79381864
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7824 exit=0 events=59947 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 37 files  (D:\jail\m-nodemon-mtsk4joj\observe\node_modules\nodemon)
   ARM-FALSIFIABILITY {"manifestFiles":45,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (45) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -10,24 +14,24 @@
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 103 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-nodemon-msjwlpju\observe   [keyed on]
+    project       D:\jail\m-nodemon-mtsk4joj\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-nodemon-msjwlpju\observe\node_modules\.store
+    projectStore  D:\jail\m-nodemon-mtsk4joj\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-nodemon-msjwlpju\tmp   [keyed on]
+    temp          D:\jail\m-nodemon-mtsk4joj\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-nodemon-msjwlpju\observe\node_modules\nodemon
-  == ATTRIBUTION == lifecycle pids: 2 (root 5192)
-    writes  script 6  /  whole traced tree 17
+    ownPkg        D:\jail\m-nodemon-mtsk4joj\observe\node_modules\nodemon
+  == ATTRIBUTION == lifecycle pids: 2 (root 7824)
+    writes  script 5  /  whole traced tree 16
     peers   script 0  /  whole traced tree 0
   == WRITES ==
     userHome      4
-    kernelfs      2
+    kernelfs      1
   == READS ==
     deps         37
     outside      11
@@ -40,23 +44,28 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true}}
-    NOTE 2 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  56108010 B xml -> 873981 B gz (64.2x)  sha256 1ad285d29ec33376…
-  HEADER    etw-header.json (5050 bytes)
-  DERIVED   5560 distinct from 6748 kept ops (44375 xml events, 8560 out of subtree)
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  74754618 B xml -> 1288945 B gz (58.0x)  sha256 cd61659fb69dfe53…
+  HEADER    etw-header.json (5007 bytes)
+  DERIVED   5559 distinct from 6747 kept ops (59947 xml events, 10967 out of subtree)
   PROCS     4   thread-reattributed 0
   ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (70383 bytes)
-  RAWLOG-CAPTURE D:\jail\m-nodemon-msjwlpju\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (70367 bytes)
+  RAWLOG-CAPTURE D:\jail\m-nodemon-mtsk4joj\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-nodemon-msjwlpju
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-nodemon-msjwlpju\\npm-cache","TMP":"D:\\jail\\m-nodemon-msjwlpju\\tmp","TEMP":"D:\\jail\\m-nodemon-msjwlpju\\tmp","TMPDIR":"D:\\jail\\m-nodemon-msjwlpju\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-nodemon-msjwlpju\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 6998/771) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  VENUE-JAIL-ROOT D:\jail\m-nodemon-mtsk4joj
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-nodemon-mtsk4joj\\npm-cache","TMP":"D:\\jail\\m-nodemon-mtsk4joj\\tmp","TEMP":"D:\\jail\\m-nodemon-mtsk4joj\\tmp","TMPDIR":"D:\\jail\\m-nodemon-mtsk4joj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-nodemon-mtsk4joj\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"031599820c45ffa3ad5d3922a4e310b6dea4f83783f051173b865b311a232b07","specCount":114,"lockfiles":{"digest":"d4a15ffb0cc9b78956a36ae57488680a344e1b05ab751dd085443ee66c6b8887","files":[{"path":"nub.lock","sha256":"90fa85ec5dc4ef1e391e8b965c23b13328296caac0c6f630d4aadead5826dc42","bytes":26683}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:59:30.917Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nodemon-mtsk4joj\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 114 exact package-version(s), tree 031599820c45
+  VERIFY[synth] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 7021/771) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
   => MINIMUM {"write":{"userHome":true}}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-nodemon-msjwlpju\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 6998/771) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-nodemon-mtsk4joj\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"031599820c45ffa3ad5d3922a4e310b6dea4f83783f051173b865b311a232b07","specCount":114,"lockfiles":{"digest":"d4a15ffb0cc9b78956a36ae57488680a344e1b05ab751dd085443ee66c6b8887","files":[{"path":"nub.lock","sha256":"90fa85ec5dc4ef1e391e8b965c23b13328296caac0c6f630d4aadead5826dc42","bytes":26683}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:59:30.917Z","cacheHit":true,"clearancePath":"D:\\jail\\m-nodemon-mtsk4joj\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 114 exact package-version(s), tree 031599820c45 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 7021/771) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
