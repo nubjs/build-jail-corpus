@@ -1,39 +1,43 @@
-### @bazel/rollup@1.7.0   (/Users/runner/v2m-SoRnUg)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c92a3bfcde3b388d4ceb225e2158cfc1864e8423f2b22aa8bd1baf72416a2d4d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:25:50.554Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-r7mh7A/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c92a3bfcde3b
+### @bazel/rollup@1.7.0   (/Users/runner/v2m-r7mh7A)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b2a30a40be1a9ed97f38bb6b1198500ae805f6f82c19b01cca913c0573370847","specCount":6,"lockfiles":{"digest":"5023437f925d8933351282a682abc122d812a5a14f7913bc1576c86332492d0b","files":[{"path":"package-lock.json","sha256":"a25f07eca7c6446c6345dbd45ee958c73b91b5bce4894f531c0f9e1ab03c8d73","bytes":2570}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:25:55.552Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-r7mh7A/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 6 exact package-version(s), tree b2a30a40be1a
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-SoRnUg/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-SoRnUg/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRt9W69"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "@bazel/rollup" > "/Users/runner/v2m-SoRnUg/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-SoRnUg/Observe/rc"
+     cd "/Users/runner/v2m-r7mh7A/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-r7mh7A/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obszFdwZ9"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "@bazel/rollup" > "/Users/runner/v2m-r7mh7A/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-r7mh7A/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-SoRnUg/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-SoRnUg/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRt9W69 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund @bazel/rollup
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000363d050) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-r7mh7A/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-r7mh7A/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obszFdwZ9 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund @bazel/rollup
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000068c090) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=190 (pre=188) trace=11903 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=191 (pre=189) trace=11903 lines
   CLOSURE   6 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-SoRnUg/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-SoRnUg/Observe/capture.json
-  RAWLOG-BYTES raw=2048068 gz=64189
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-SoRnUg/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRt9W69","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-r7mh7A/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-r7mh7A/Observe/capture.json
+  RAWLOG-BYTES raw=2068740 gz=64291
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-r7mh7A/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obszFdwZ9","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (11) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  EVENTLOG-FILE /Users/runner/v2m-SoRnUg/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":11904,"parsed":11886,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4557,"enoent":4554,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":4554},"procs":5,"lifecyclePids":1,"distinctEvents":5285,"emitted":5285,"calls":11333,"bytes":1085556,"gzipBytes":36446,"out":"/Users/runner/v2m-SoRnUg/Observe/events.ndjson"}
+  EVENTLOG-FILE /Users/runner/v2m-r7mh7A/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11904,"parsed":11886,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4557,"enoent":4554,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":4554},"procs":5,"lifecyclePids":1,"distinctEvents":5285,"emitted":5285,"calls":11333,"bytes":1090851,"gzipBytes":36484,"out":"/Users/runner/v2m-r7mh7A/Observe/events.ndjson"}
   == TRACER == live=true decodable-events=3119 dropped-events=1
     NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
@@ -42,26 +46,26 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=1309 read  unproven .
-         pid=1309 read  unproven .
+         pid=54004 read  unproven .
+         pid=54004 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x60000363d050
+             1 x  epid=128 action=1 fault=1 addr=0x60000068c090
   == ATTRIBUTION == lifecycle pids: 1
     writes  script 1  /  whole traced subtree 1091
     sockets script 0  /  whole traced subtree 1
-  == ROOTS (from /Users/runner/v2m-SoRnUg/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-SoRnUg/Observe
+  == ROOTS (from /Users/runner/v2m-r7mh7A/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-r7mh7A/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-SoRnUg/jailhome
+    jailHome      /Users/runner/v2m-r7mh7A/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-SoRnUg/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-r7mh7A/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsRt9W69
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obszFdwZ9
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-SoRnUg/Observe/node_modules/@bazel/rollup
+    ownPkg        /Users/runner/v2m-r7mh7A/Observe/node_modules/@bazel/rollup
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
@@ -85,9 +89,11 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  EVICT[synth] 4 store entries removed, 0 spared as nub tooling, 1414 in store
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 267 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"10025ad6bae18316136c2c6380532502d91ff0dec953769313925b2f3fce3a59","specCount":6,"lockfiles":{"digest":"b42dca77460bc1e0dce3aa68229faf3f2c7fcf977bb415026bd5acd7fde1ed3c","files":[{"path":"nub.lock","sha256":"ba7853a8368dcd6c6828e274b9d6d5646e54ea886b17e99374ed397fa73355f5","bytes":1592}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:25:59.511Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-r7mh7A/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 6 exact package-version(s), tree 10025ad6bae1
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 548/190) OVERRIDDEN=2 REJECTED=0 grant={}
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 554/191) OVERRIDDEN=3 REJECTED=0 grant={}
   => VERIFIED {}
   NARROW    no capability to drop — the grant is already empty; over-prediction is 0 by construction
 ### DONE @bazel/rollup@1.7.0  synthesized={} verified=1
