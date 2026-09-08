@@ -1,27 +1,31 @@
-### opencode-ai@1.18.4   (D:\jail\m-opencodeai-msjwjmxj)
+### opencode-ai@1.18.4   (D:\jail\m-opencodeai-mtsiuopn)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8388 exit=0 events=125194 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 4 files  (D:\jail\m-opencodeai-msjwjmxj\observe\node_modules\opencode-ai)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1020208fddd5a19befa255b123b5c8e7cf32da9615546573f4806019654953f9","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:35.826Z","cacheHit":false,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1020208fddd5
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a96c96fb9810e9b02514aaeb8c34f895030a345c9f9ce5f784947a0ee640fc90","specCount":3,"lockfiles":{"digest":"8a56cc587bac1f3543bd24fcff727cb674c4393bc6f50655c34c35c6ff966546","files":[{"path":"package-lock.json","sha256":"fad42cf73681420c09c2c2f14e88d0a12e667177fee292830fa10513ffa87fe0","bytes":6256}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:43.570Z","cacheHit":false,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree a96c96fb9810
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7900 exit=0 events=107709 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 4 files  (D:\jail\m-opencodeai-mtsiuopn\observe\node_modules\opencode-ai)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":1,"reasons":[]}
   CLOSURE 3 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-opencodeai-msjwjmxj\observe   [keyed on]
+    project       D:\jail\m-opencodeai-mtsiuopn\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-opencodeai-msjwjmxj\observe\node_modules\.store
+    projectStore  D:\jail\m-opencodeai-mtsiuopn\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-opencodeai-msjwjmxj\tmp   [keyed on]
+    temp          D:\jail\m-opencodeai-mtsiuopn\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-opencodeai-msjwjmxj\observe\node_modules\opencode-ai
-  == ATTRIBUTION == lifecycle pids: 8 (root 8388)
-    writes  script 62  /  whole traced tree 71
+    ownPkg        D:\jail\m-opencodeai-mtsiuopn\observe\node_modules\opencode-ai
+  == ATTRIBUTION == lifecycle pids: 8 (root 7900)
+    writes  script 61  /  whole traced tree 70
     peers   script 0  /  whole traced tree 0
   == WRITES ==
-    systemfs     35
+    systemfs     34
         c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
@@ -41,8 +45,8 @@
     deps          9
     outside     234
     project       2
-    systemfs    506
-    userHome     13
+    systemfs    530
+    userHome     12
     jailTmp      12
   == NETWORK ==
     distinct peers: 0
@@ -52,30 +56,38 @@
     {"write":{"deps":true,"userHome":true}}
     NOTE 12 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    !! 35 writes into system dirs -- an unprivileged user would be refused these
-  RAW       etw-raw.xml.gz  159873301 B xml -> 2360745 B gz (67.7x)  sha256 55c127aad735a168…
+    !! 34 writes into system dirs -- an unprivileged user would be refused these
+  RAW       etw-raw.xml.gz  136732017 B xml -> 2073111 B gz (66.0x)  sha256 08ed2c9947fa782d…
   HEADER    etw-header.json (5086 bytes)
-  DERIVED   10190 distinct from 14979 kept ops (125194 xml events, 34058 out of subtree)
+  DERIVED   10366 distinct from 15140 kept ops (107709 xml events, 23458 out of subtree)
   PROCS     10   thread-reattributed 0
-  ⛔ 6 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 2 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (131368 bytes)
-  RAWLOG-CAPTURE D:\jail\m-opencodeai-msjwjmxj\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 3 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (133544 bytes)
+  RAWLOG-CAPTURE D:\jail\m-opencodeai-mtsiuopn\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-opencodeai-msjwjmxj
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-opencodeai-msjwjmxj\\npm-cache","TMP":"D:\\jail\\m-opencodeai-msjwjmxj\\tmp","TEMP":"D:\\jail\\m-opencodeai-msjwjmxj\\tmp","TMPDIR":"D:\\jail\\m-opencodeai-msjwjmxj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-opencodeai-msjwjmxj\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=4/4 missing=0 shortfall=none (tree 5690/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
-  synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-opencodeai-msjwjmxj\verify-fb0\.cache
-  VERIFY[fb0] rc=1 artifacts=4/4 missing=0 shortfall=none (tree 5690/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  STORE   isolated virtual store at D:\jail\m-opencodeai-msjwjmxj\verify-fb1\.cache
-  VERIFY[fb1] rc=1 artifacts=4/4 missing=0 shortfall=none (tree 5690/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-  STORE   isolated virtual store at D:\jail\m-opencodeai-msjwjmxj\verify-fb2\.cache
-  VERIFY[fb2] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5692/15) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
-  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true}} and this is what the trace missed
-  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
+  VENUE-JAIL-ROOT D:\jail\m-opencodeai-mtsiuopn
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-opencodeai-mtsiuopn\\npm-cache","TMP":"D:\\jail\\m-opencodeai-mtsiuopn\\tmp","TEMP":"D:\\jail\\m-opencodeai-mtsiuopn\\tmp","TMPDIR":"D:\\jail\\m-opencodeai-mtsiuopn\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-opencodeai-mtsiuopn\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a96c96fb9810e9b02514aaeb8c34f895030a345c9f9ce5f784947a0ee640fc90","specCount":3,"lockfiles":{"digest":"66f16c8f2603655cb2a584d4a23126e39585e4b75f8f604219f8a9b7311049f0","files":[{"path":"nub.lock","sha256":"36bd2fe32e9604fcfd5bdf30a118462b076112f7d2e7776fd95778ecdf1109c7","bytes":3970}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:43.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree a96c96fb9810 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5698/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+  => MINIMUM {"write":{"deps":true,"userHome":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-opencodeai-mtsiuopn\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"a96c96fb9810e9b02514aaeb8c34f895030a345c9f9ce5f784947a0ee640fc90","specCount":3,"lockfiles":{"digest":"66f16c8f2603655cb2a584d4a23126e39585e4b75f8f604219f8a9b7311049f0","files":[{"path":"nub.lock","sha256":"36bd2fe32e9604fcfd5bdf30a118462b076112f7d2e7776fd95778ecdf1109c7","bytes":3970}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:43.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 3 exact package-version(s), tree a96c96fb9810 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5699/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-opencodeai-mtsiuopn\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"a96c96fb9810e9b02514aaeb8c34f895030a345c9f9ce5f784947a0ee640fc90","specCount":3,"lockfiles":{"digest":"66f16c8f2603655cb2a584d4a23126e39585e4b75f8f604219f8a9b7311049f0","files":[{"path":"nub.lock","sha256":"36bd2fe32e9604fcfd5bdf30a118462b076112f7d2e7776fd95778ecdf1109c7","bytes":3970}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:43.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 3 exact package-version(s), tree a96c96fb9810 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5699/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at D:\jail\m-opencodeai-mtsiuopn\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"a96c96fb9810e9b02514aaeb8c34f895030a345c9f9ce5f784947a0ee640fc90","specCount":3,"lockfiles":{"digest":"66f16c8f2603655cb2a584d4a23126e39585e4b75f8f604219f8a9b7311049f0","files":[{"path":"nub.lock","sha256":"36bd2fe32e9604fcfd5bdf30a118462b076112f7d2e7776fd95778ecdf1109c7","bytes":3970}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:23:43.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeai-mtsiuopn\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 3 exact package-version(s), tree a96c96fb9810 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5699/15) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
