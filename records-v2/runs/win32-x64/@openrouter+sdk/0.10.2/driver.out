@@ -1,8 +1,12 @@
-### @openrouter/sdk@0.10.2   (D:\jail\m-openroutersdk-msjyj7sj)
+### @openrouter/sdk@0.10.2   (D:\jail\m-openroutersdk-mtsp1kft)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5152 exit=0 events=23513 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 714 files  (D:\jail\m-openroutersdk-msjyj7sj\observe\node_modules\@openrouter\sdk)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4584dbb76a5642673db34fdb7b4e4f1d531d80f4b83e22dd46a6bcbbccbc3021","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:16:54.702Z","cacheHit":false,"clearancePath":"D:\\jail\\m-openroutersdk-mtsp1kft\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4584dbb76a56
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c534b5137b80a78af3eea566bb72fa6e045f8b8586a1a53100869ec3b4accfae","specCount":2,"lockfiles":{"digest":"e7688491e459e8a80456c2364494c325c256a9d86f89d3fd06e292209152b4c4","files":[{"path":"package-lock.json","sha256":"f2ba73cff62b57f462dd9f3da4e6976a85b1b5a3a27e3a35b608911d6e34cf4c","bytes":988}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:16:57.639Z","cacheHit":false,"clearancePath":"D:\\jail\\m-openroutersdk-mtsp1kft\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree c534b5137b80
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1404 exit=0 events=81480 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 714 files  (D:\jail\m-openroutersdk-mtsp1kft\observe\node_modules\@openrouter\sdk)
   ARM-FALSIFIABILITY {"manifestFiles":714,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (714) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -10,19 +14,19 @@
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 2 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-openroutersdk-msjyj7sj\observe   [keyed on]
+    project       D:\jail\m-openroutersdk-mtsp1kft\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-openroutersdk-msjyj7sj\observe\node_modules\.store
+    projectStore  D:\jail\m-openroutersdk-mtsp1kft\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-openroutersdk-msjyj7sj\tmp   [keyed on]
+    temp          D:\jail\m-openroutersdk-mtsp1kft\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-openroutersdk-msjyj7sj\observe\node_modules\@openrouter\sdk
-  == ATTRIBUTION == lifecycle pids: 2 (root 5152)
+    ownPkg        D:\jail\m-openroutersdk-mtsp1kft\observe\node_modules\@openrouter\sdk
+  == ATTRIBUTION == lifecycle pids: 2 (root 1404)
     writes  script 0  /  whole traced tree 7
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -37,19 +41,21 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
-  RAW       etw-raw.xml.gz  29998579 B xml -> 462512 B gz (64.9x)  sha256 7397d5112983d112…
-  HEADER    etw-header.json (5102 bytes)
-  DERIVED   5226 distinct from 6379 kept ops (23513 xml events, 2636 out of subtree)
+  RAW       etw-raw.xml.gz  104298560 B xml -> 1510687 B gz (69.0x)  sha256 78caa92cdc57e2ca…
+  HEADER    etw-header.json (5106 bytes)
+  DERIVED   5226 distinct from 6379 kept ops (81480 xml events, 24996 out of subtree)
   PROCS     4   thread-reattributed 0
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (65353 bytes)
-  RAWLOG-CAPTURE D:\jail\m-openroutersdk-msjyj7sj\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66147 bytes)
+  RAWLOG-CAPTURE D:\jail\m-openroutersdk-mtsp1kft\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-openroutersdk-msjyj7sj
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-openroutersdk-msjyj7sj\\npm-cache","TMP":"D:\\jail\\m-openroutersdk-msjyj7sj\\tmp","TEMP":"D:\\jail\\m-openroutersdk-msjyj7sj\\tmp","TMPDIR":"D:\\jail\\m-openroutersdk-msjyj7sj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-openroutersdk-msjyj7sj\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=714/714 missing=0 shortfall=none (tree 7799/1436) OVERRIDDEN=2 REJECTED=0 grant={}
+  VENUE-JAIL-ROOT D:\jail\m-openroutersdk-mtsp1kft
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-openroutersdk-mtsp1kft\\npm-cache","TMP":"D:\\jail\\m-openroutersdk-mtsp1kft\\tmp","TEMP":"D:\\jail\\m-openroutersdk-mtsp1kft\\tmp","TMPDIR":"D:\\jail\\m-openroutersdk-mtsp1kft\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-openroutersdk-mtsp1kft\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c534b5137b80a78af3eea566bb72fa6e045f8b8586a1a53100869ec3b4accfae","specCount":2,"lockfiles":{"digest":"39e3cf675ee064f6cf907e0bbe0298d6be4755c932f7527f81d29e901a6d44fb","files":[{"path":"nub.lock","sha256":"09928bedc5d3fb1b4d6168ed47ca9e7c2e05e9e8db3829f09ff0e843c133ad8e","bytes":601}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:16:57.639Z","cacheHit":true,"clearancePath":"D:\\jail\\m-openroutersdk-mtsp1kft\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree c534b5137b80 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=714/714 missing=0 shortfall=none (tree 7910/1546) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
