@@ -1,8 +1,12 @@
-### qlobber@4.2.0   (D:\jail\m-qlobber-msjy7eyh)
+### qlobber@4.2.0   (D:\jail\m-qlobber-mtso1dde)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4304 exit=0 events=526112 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 88 files  (D:\jail\m-qlobber-msjy7eyh\observe\node_modules\qlobber)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ec33003e1944cffa620189c6269cfe551ab7a1dee10657821f28d371d82e65cb","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:45.792Z","cacheHit":false,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ec33003e1944
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"83931688aa9771473cd1d846d7e50226b418a3e7ee3905c50ee42c3dfcba0fed","specCount":4,"lockfiles":{"digest":"57dbf97b6f57175cedac9179a7bac186183c439c1183ecaa3487e7ce5a3d6ca0","files":[{"path":"package-lock.json","sha256":"74e7f9546fb745c7d5ed6414698fdfd0b4d23eb36000fdfbcdb906fa54d0caa2","bytes":1647}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:47.261Z","cacheHit":false,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 4 exact package-version(s), tree 83931688aa97
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=5340 exit=0 events=619900 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 88 files  (D:\jail\m-qlobber-mtso1dde\observe\node_modules\qlobber)
   ARM-FALSIFIABILITY {"manifestFiles":89,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (89) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -10,27 +14,27 @@
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 4 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-qlobber-msjy7eyh\observe   [keyed on]
+    project       D:\jail\m-qlobber-mtso1dde\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-qlobber-msjy7eyh\observe\node_modules\.store
+    projectStore  D:\jail\m-qlobber-mtso1dde\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-qlobber-msjy7eyh\tmp   [keyed on]
+    temp          D:\jail\m-qlobber-mtso1dde\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-qlobber-msjy7eyh\observe\node_modules\qlobber
-  == ATTRIBUTION == lifecycle pids: 11 (root 4304)
+    ownPkg        D:\jail\m-qlobber-mtso1dde\observe\node_modules\qlobber
+  == ATTRIBUTION == lifecycle pids: 11 (root 5340)
     writes  script 6751  /  whole traced tree 6757
     peers   script 1  /  whole traced tree 1
   == WRITES ==
     userHome   3337
     jailTmp    3344
     kernelfs      2
+    deps          1
     systemfs     67
-        c:\windows\winsxs\fusion\amd64_policy.6.0.microsof..ows.common-controls_6595b64144ccf1df_en_38ed61190cd0c3d0
         c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
         c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
@@ -42,12 +46,12 @@
         c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
         c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
-    deps          1
+        c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
   == READS ==
     deps          2
-    outside     527
+    outside     528
     project       1
-    systemfs    722
+    systemfs    738
     userHome     54
     jailTmp    3345
     kernelfs      1
@@ -64,29 +68,37 @@
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
     !! 67 writes into system dirs -- an unprivileged user would be refused these
     NOTE 2 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  674637398 B xml -> 11629002 B gz (58.0x)  sha256 08c13dccc7258c0f…
-  HEADER    etw-header.json (5069 bytes)
-  DERIVED   95728 distinct from 196692 kept ops (526112 xml events, 10349 out of subtree)
+  RAW       etw-raw.xml.gz  794081928 B xml -> 13747511 B gz (57.8x)  sha256 0b7a7aa5c85c8be5…
+  HEADER    etw-header.json (5070 bytes)
+  DERIVED   96048 distinct from 197139 kept ops (619900 xml events, 47107 out of subtree)
   PROCS     13   thread-reattributed 2729
-  ⛔ 112 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 22 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (1232258 bytes)
-  RAWLOG-CAPTURE D:\jail\m-qlobber-msjy7eyh\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 131 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 17 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (1235661 bytes)
+  RAWLOG-CAPTURE D:\jail\m-qlobber-mtso1dde\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-qlobber-msjy7eyh
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-qlobber-msjy7eyh\\npm-cache","TMP":"D:\\jail\\m-qlobber-msjy7eyh\\tmp","TEMP":"D:\\jail\\m-qlobber-msjy7eyh\\tmp","TMPDIR":"D:\\jail\\m-qlobber-msjy7eyh\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-qlobber-msjy7eyh\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 5954/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-qlobber-mtso1dde
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-qlobber-mtso1dde\\npm-cache","TMP":"D:\\jail\\m-qlobber-mtso1dde\\tmp","TEMP":"D:\\jail\\m-qlobber-mtso1dde\\tmp","TMPDIR":"D:\\jail\\m-qlobber-mtso1dde\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-qlobber-mtso1dde\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"83931688aa9771473cd1d846d7e50226b418a3e7ee3905c50ee42c3dfcba0fed","specCount":4,"lockfiles":{"digest":"8b97bc7d740e4ef7ca6030c5bb95a6ae47c4db153fa28af5e411d21b518c42e6","files":[{"path":"nub.lock","sha256":"d22a29b5335c7a2a4ffef1e1195e3b9d56ccb1424644ed9619014c7170f3e8b1","bytes":1043}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:47.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 4 exact package-version(s), tree 83931688aa97 (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 6030/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-qlobber-msjy7eyh\verify-fb0\.cache
-  VERIFY[fb0] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 5954/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  STORE   isolated virtual store at D:\jail\m-qlobber-msjy7eyh\verify-fb1\.cache
-  VERIFY[fb1] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 5954/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-  STORE   isolated virtual store at D:\jail\m-qlobber-msjy7eyh\verify-fb2\.cache
-  VERIFY[fb2] rc=0 artifacts=96/88 missing=0 shortfall=none (tree 5955/182) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-qlobber-mtso1dde\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"83931688aa9771473cd1d846d7e50226b418a3e7ee3905c50ee42c3dfcba0fed","specCount":4,"lockfiles":{"digest":"8b97bc7d740e4ef7ca6030c5bb95a6ae47c4db153fa28af5e411d21b518c42e6","files":[{"path":"nub.lock","sha256":"d22a29b5335c7a2a4ffef1e1195e3b9d56ccb1424644ed9619014c7170f3e8b1","bytes":1043}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:47.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 4 exact package-version(s), tree 83931688aa97 (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 6030/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-qlobber-mtso1dde\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"83931688aa9771473cd1d846d7e50226b418a3e7ee3905c50ee42c3dfcba0fed","specCount":4,"lockfiles":{"digest":"8b97bc7d740e4ef7ca6030c5bb95a6ae47c4db153fa28af5e411d21b518c42e6","files":[{"path":"nub.lock","sha256":"d22a29b5335c7a2a4ffef1e1195e3b9d56ccb1424644ed9619014c7170f3e8b1","bytes":1043}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:47.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 4 exact package-version(s), tree 83931688aa97 (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=96/88 missing=0 shortfall=none (tree 6030/182) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-qlobber-mtso1dde\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"83931688aa9771473cd1d846d7e50226b418a3e7ee3905c50ee42c3dfcba0fed","specCount":4,"lockfiles":{"digest":"8b97bc7d740e4ef7ca6030c5bb95a6ae47c4db153fa28af5e411d21b518c42e6","files":[{"path":"nub.lock","sha256":"d22a29b5335c7a2a4ffef1e1195e3b9d56ccb1424644ed9619014c7170f3e8b1","bytes":1043}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T12:48:47.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-qlobber-mtso1dde\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 4 exact package-version(s), tree 83931688aa97 (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=96/88 missing=0 shortfall=none (tree 6031/182) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
   => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
   !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true},"network":true} and this is what the trace missed
   !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
