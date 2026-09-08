@@ -1,0 +1,80 @@
+### saucectl@0.71.1   (D:\jail\m-saucectl-mtsrzfxj)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"5284ae206953c0fb12e8b51e96fdd32edd6fb5a7cdbc28efaab59294fedb2a1e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:39:14.351Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsrzfxj\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 5284ae206953
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"f9829a791b51d6e19d8aff18e81464ec1b6f8d089443db848eb7c609e02ca0df","specCount":166,"lockfiles":{"digest":"0ad6b748dc8caa315179c45cc1bf23e3bdc1b60aa8404b7536e21a19cdff2549","files":[{"path":"package-lock.json","sha256":"0276a644745918a45f0934aeedc77513a3721e4c56f147494f22c6ceed57fb29","bytes":71112}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:39:19.380Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsrzfxj\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 166 exact package-version(s), tree f9829a791b51
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6272 exit=0 events=62556 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-saucectl-mtsrzfxj\observe\node_modules\saucectl)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 152 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-saucectl-mtsrzfxj\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-saucectl-mtsrzfxj\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-saucectl-mtsrzfxj\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-saucectl-mtsrzfxj\observe\node_modules\saucectl
+  == ATTRIBUTION == lifecycle pids: 4 (root 6272)
+    writes  script 11  /  whole traced tree 22
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          3
+    systemfs      8
+        c:\windows\syswow64\powrprof.dll:wofcompresseddata
+        c:\windows\syswow64\umpdc.dll:wofcompresseddata
+        c:\windows\syswow64\mswsock.dll:wofcompresseddata
+        c:\windows\syswow64\wshqos.dll:wofcompresseddata
+        c:\windows\syswow64\iphlpapi.dll:wofcompresseddata
+        c:\windows\syswow64\dhcpcsvc6.dll:wofcompresseddata
+        c:\windows\syswow64\dhcpcsvc.dll:wofcompresseddata
+        c:\windows\syswow64\dnsapi.dll:wofcompresseddata
+  == READS ==
+    deps        406
+    outside       7
+    project       1
+    systemfs     68
+  == NETWORK ==
+    distinct peers: 2
+        172.182.252.133:443
+        185.199.111.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    !! 8 writes into system dirs -- an unprivileged user would be refused these
+  RAW       etw-raw.xml.gz  79896821 B xml -> 1217893 B gz (65.6x)  sha256 551fd662cd3e44fd…
+  HEADER    etw-header.json (5062 bytes)
+  DERIVED   9812 distinct from 14968 kept ops (62556 xml events, 8125 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 8 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (124881 bytes)
+  RAWLOG-CAPTURE D:\jail\m-saucectl-mtsrzfxj\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-saucectl-mtsrzfxj
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saucectl-mtsrzfxj\\npm-cache","TMP":"D:\\jail\\m-saucectl-mtsrzfxj\\tmp","TEMP":"D:\\jail\\m-saucectl-mtsrzfxj\\tmp","TMPDIR":"D:\\jail\\m-saucectl-mtsrzfxj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsrzfxj\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"1da41324acfc34fecf5a5ca00dc6903dc2f5d605ac1672215e6c21fda8c99c49","specCount":170,"lockfiles":{"digest":"7f13cdf358baea234229fb79a32139885e6f55d7a7db7174645026fc7608626c","files":[{"path":"nub.lock","sha256":"df890204defb84fdb525857a4dab8e0c49185c2817219322ea165a4e0e1bfb9a","bytes":40151}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:39:34.106Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsrzfxj\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 170 exact package-version(s), tree 1da41324acfc
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7631/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsrzfxj\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"1da41324acfc34fecf5a5ca00dc6903dc2f5d605ac1672215e6c21fda8c99c49","specCount":170,"lockfiles":{"digest":"7f13cdf358baea234229fb79a32139885e6f55d7a7db7174645026fc7608626c","files":[{"path":"nub.lock","sha256":"df890204defb84fdb525857a4dab8e0c49185c2817219322ea165a4e0e1bfb9a","bytes":40151}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:39:34.106Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saucectl-mtsrzfxj\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 170 exact package-version(s), tree 1da41324acfc (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=6/8 missing=2 shortfall=d9782089ad00 (tree 7630/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/LICENSE, bin/saucectl.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsrzfxj\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"1da41324acfc34fecf5a5ca00dc6903dc2f5d605ac1672215e6c21fda8c99c49","specCount":170,"lockfiles":{"digest":"7f13cdf358baea234229fb79a32139885e6f55d7a7db7174645026fc7608626c","files":[{"path":"nub.lock","sha256":"df890204defb84fdb525857a4dab8e0c49185c2817219322ea165a4e0e1bfb9a","bytes":40151}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:39:34.106Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saucectl-mtsrzfxj\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 170 exact package-version(s), tree 1da41324acfc (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7631/1128) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
