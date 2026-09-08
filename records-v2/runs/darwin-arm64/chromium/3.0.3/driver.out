@@ -1,36 +1,40 @@
-### chromium@3.0.3   (/Users/runner/v2m-LrpDfE)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a91dc159c8060669344f621ed2c42cf61e02105dd906945b1a9e3a06bc488360","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:41:40.913Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-lWCEoE/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a91dc159c806
+### chromium@3.0.3   (/Users/runner/v2m-lWCEoE)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"dc7a3d04095e7cdcc57261c14b6f676e6ec0bdb64202905867151c4f5b657620","specCount":68,"lockfiles":{"digest":"20fa6f5c5b984ebb62cfc0e251761da59e6aa3751b053d28677e0324dc677e99","files":[{"path":"package-lock.json","sha256":"2efe49da8c8c78b09e953e4174b2a391bd8e28369c712571d4a8d12b5b6592c0","bytes":27018}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:41:48.230Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-lWCEoE/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 68 exact package-version(s), tree dc7a3d04095e
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-LrpDfE/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-LrpDfE/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4esMAY"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "chromium" > "/Users/runner/v2m-LrpDfE/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-LrpDfE/Observe/rc"
+     cd "/Users/runner/v2m-lWCEoE/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-lWCEoE/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsUW2yl7"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "chromium" > "/Users/runner/v2m-lWCEoE/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-lWCEoE/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-LrpDfE/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-LrpDfE/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4esMAY NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund chromium
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000028d90e0) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-lWCEoE/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-lWCEoE/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsUW2yl7 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund chromium
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000080090) in action #1 at DIF offset 20
      + echo 0
-  OBSERVE   rc=0 dtrace_rc=0 files=1457 (pre=592) trace=26490 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=1506 (pre=593) trace=27147 lines
   CLOSURE   65 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-LrpDfE/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-LrpDfE/Observe/capture.json
-  RAWLOG-BYTES raw=4330635 gz=103971
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-LrpDfE/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4esMAY","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-lWCEoE/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-lWCEoE/Observe/capture.json
+  RAWLOG-BYTES raw=4446247 gz=106199
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-lWCEoE/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsUW2yl7","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
-  ARM-FALSIFIABILITY {"manifestFiles":339,"filesTheScriptProduced":332,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-LrpDfE/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":26491,"parsed":26473,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":6365,"enoent":5374,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5374,"EEXIST":988},"procs":5,"lifecyclePids":1,"distinctEvents":7983,"emitted":7983,"calls":25920,"bytes":1653642,"gzipBytes":49748,"out":"/Users/runner/v2m-LrpDfE/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=5025 dropped-events=1
+  ARM-FALSIFIABILITY {"manifestFiles":355,"filesTheScriptProduced":348,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-lWCEoE/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":27148,"parsed":27130,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":6411,"enoent":5374,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":5374,"EEXIST":1034},"procs":5,"lifecyclePids":1,"distinctEvents":8055,"emitted":8055,"calls":26577,"bytes":1675090,"gzipBytes":50115,"out":"/Users/runner/v2m-lWCEoE/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=5101 dropped-events=1
     NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
     ⛔ CWD-UNOBSERVED 3 relative path(s) (0 write(s)) came from a lifecycle
@@ -38,50 +42,50 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=10301 read  unproven .
-         pid=10301 read  unproven .
-         pid=10301 read  unproven .
+         pid=19496 read  unproven .
+         pid=19496 read  unproven .
+         pid=19496 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x6000028d90e0
+             1 x  epid=128 action=1 fault=1 addr=0x600000080090
   == ATTRIBUTION == lifecycle pids: 1
-    writes  script 662  /  whole traced subtree 1752
+    writes  script 692  /  whole traced subtree 1782
     sockets script 1  /  whole traced subtree 2
-  == ROOTS (from /Users/runner/v2m-LrpDfE/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-LrpDfE/Observe
+  == ROOTS (from /Users/runner/v2m-lWCEoE/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-lWCEoE/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-LrpDfE/jailhome
+    jailHome      /Users/runner/v2m-lWCEoE/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-LrpDfE/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-lWCEoE/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4esMAY
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsUW2yl7
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium
+    ownPkg        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
     jailTmp       1  (base profile already grants this — NOT billed)
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4esMAY/tmp-10301djyhUH5QroWQ.tmp
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsUW2yl7/tmp-19496b0McdJzDUvZt.tmp
     jailHome      4  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-LrpDfE/jailhome/Library
-        /Users/runner/v2m-LrpDfE/jailhome/Library/Caches
-        /Users/runner/v2m-LrpDfE/jailhome/Library/Caches/node-chromium
-        /Users/runner/v2m-LrpDfE/jailhome/Library/Caches/node-chromium/chromium-1676014-darwin-arm64.zip
-    ownPkg      656  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/MacOS
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources/de.lproj
-        /Users/runner/v2m-LrpDfE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources/de.lproj/InfoPlist.strings
-        … and 646 more
+        /Users/runner/v2m-lWCEoE/jailhome/Library
+        /Users/runner/v2m-lWCEoE/jailhome/Library/Caches
+        /Users/runner/v2m-lWCEoE/jailhome/Library/Caches/node-chromium
+        /Users/runner/v2m-lWCEoE/jailhome/Library/Caches/node-chromium/chromium-1693566-darwin-arm64.zip
+    ownPkg      686  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/MacOS
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources/de.lproj
+        /Users/runner/v2m-lWCEoE/Observe/node_modules/chromium/lib/chromium/chrome-mac/Chromium.app/Contents/Resources/de.lproj/InfoPlist.strings
+        … and 676 more
   == READS the script performed, by scope ==
     outside       5
     systemfs      9
@@ -96,7 +100,7 @@
         outside: /var/db/timezone/zoneinfo/posixrules
   == NETWORK ==
     AF_INET connects: 1   distinct peers: 1
-        172.217.118.4:443
+        172.217.116.4:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -107,12 +111,16 @@
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
   EVICT[synth] 58 store entries removed, 0 spared as nub tooling, 339 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"75b8071762bd7eeb9d0adac8a3e3fbd1249c241d623bfb6717a00e454ca72647","specCount":68,"lockfiles":{"digest":"4b84c6ef24a031cc643c54e67f16fdfe5f9eecbac3634c7801ce64aba0ea9f7d","files":[{"path":"nub.lock","sha256":"ee9639e81a28cdce427189330855141ff21481c31d19c7e7047e65ad20e89391","bytes":16095}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:42:01.723Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-lWCEoE/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 68 exact package-version(s), tree 75b8071762bd
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=339/339 missing=0 shortfall=none (tree 4564/1457) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":["Library/Caches/node-chromium"]}
+  VERIFY[synth] rc=0 artifacts=355/355 missing=0 shortfall=none (tree 4716/1506) OVERRIDDEN=3 REJECTED=0 grant={"network":true,"writePaths":["Library/Caches/node-chromium"]}
   => VERIFIED {"network":true,"writePaths":["Library/Caches/node-chromium"]}
   EVICT[nar-no-network] 68 store entries removed, 0 spared as nub tooling, 349 in store
-  VERIFY[nar-no-network] rc=0 artifacts=7/339 missing=332 shortfall=26b00720cf52 (tree 1975/1457) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":["Library/Caches/node-chromium"]}
-       missing: lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Chromium Framework, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Info.plist, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/MacOS/Chromium Helper (Alerts), lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/PkgInfo, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Resources/Assets.car, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Resources/app.icns (+326)
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"75b8071762bd7eeb9d0adac8a3e3fbd1249c241d623bfb6717a00e454ca72647","specCount":68,"lockfiles":{"digest":"4b84c6ef24a031cc643c54e67f16fdfe5f9eecbac3634c7801ce64aba0ea9f7d","files":[{"path":"nub.lock","sha256":"ee9639e81a28cdce427189330855141ff21481c31d19c7e7047e65ad20e89391","bytes":16095}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:42:01.723Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-lWCEoE/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 68 exact package-version(s), tree 75b8071762bd (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=7/355 missing=348 shortfall=a01415278373 (tree 1983/1506) OVERRIDDEN=3 REJECTED=0 grant={"writePaths":["Library/Caches/node-chromium"]}
+       missing: lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Chromium Framework, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Info.plist, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/MacOS/Chromium Helper (Alerts), lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/PkgInfo, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Resources/Assets.car, lib/chromium/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Helpers/Chromium Helper (Alerts).app/Contents/Resources/app.icns (+342)
      narrowing 'no-network' fails ⇒ that capability IS necessary
   => MINIMAL — every capability in {"network":true,"writePaths":["Library/Caches/node-chromium"]} is independently necessary
 ### DONE chromium@3.0.3  synthesized={"network":true,"writePaths":["Library/Caches/node-chromium"]} verified=1
