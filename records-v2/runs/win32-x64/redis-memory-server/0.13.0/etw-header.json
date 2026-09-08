@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "redis-memory-server",
   "version": "0.13.0",
-  "at": "2026-08-08T06:46:56.825Z",
+  "at": "2026-09-08T14:14:51.469Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7560_msk0gfxr",
+      "name": "nubobs_8172_mtsr3umy",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-redismemoryserver-msk0gdib\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-redismemoryserver-msk0gdib\\observe",
-    "rootPid": 2216,
-    "launcherPid": 608,
+    "command": "D:\\jail\\m-redismemoryserver-mtsr3qca\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-redismemoryserver-mtsr3qca\\observe",
+    "rootPid": 2784,
+    "launcherPid": 7692,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T06:46:48.2684918Z",
-    "endedUtc": "2026-08-08T06:46:51.4830753Z"
+    "startedUtc": "2026-09-08T14:14:42.1526662Z",
+    "endedUtc": "2026-09-08T14:14:46.8356521Z"
   },
   "integrity": {
-    "eventsTotal": 54486,
+    "eventsTotal": 49731,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-redismemoryserver-msk0gdib\\observe",
+    "project": "D:\\jail\\m-redismemoryserver-mtsr3qca\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-redismemoryserver-msk0gdib\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-redismemoryserver-mtsr3qca\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-redismemoryserver-msk0gdib\\tmp",
+    "temp": "D:\\jail\\m-redismemoryserver-mtsr3qca\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-redismemoryserver-msk0gdib\\observe\\node_modules\\redis-memory-server",
+    "ownPkg": "D:\\jail\\m-redismemoryserver-mtsr3qca\\observe\\node_modules\\redis-memory-server",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 69728922,
-    "gzBytes": 995443,
-    "sha256": "c432cbf56e2b849a6b52405d9464b7d138750eff718dce540df9ee948b345dc6",
+    "bytes": 63678090,
+    "gzBytes": 926692,
+    "sha256": "5b2593a1671f598a75390f2c20f3a685d4391942e0986530397eb920ae144d0e",
     "of": "trace.xml",
-    "etlBytes": 11534336,
+    "etlBytes": 9437184,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2216 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 2784 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 54486,
-    "kept": 9021,
-    "distinct": 6662,
+    "xmlEvents": 49731,
+    "kept": 9091,
+    "distinct": 6699,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 54345,
-      "Microsoft-Windows-Kernel-Process": 17,
-      "Microsoft-Windows-Kernel-Network": 122
+      "Microsoft-Windows-Kernel-File": 49548,
+      "Microsoft-Windows-Kernel-Process": 13,
+      "Microsoft-Windows-Kernel-Network": 168
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 12,
-    "unsettled": 2,
+    "unresolvedHandle": 10,
+    "unsettled": 1,
     "reattributedByThread": 30,
-    "outOfSubtree": 12520,
+    "outOfSubtree": 10704,
     "destResolved": 23,
     "destUnresolved": 0,
     "shortExpanded": 0,
