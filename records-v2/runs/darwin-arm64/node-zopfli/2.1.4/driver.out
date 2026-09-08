@@ -1,0 +1,240 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e89ce5108d3a02fe974330677acb7245ecbe992b0c5561ef40e3a3f0ec0dd91b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:49:52.649Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-8D6Mss/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e89ce5108d3a
+### node-zopfli@2.1.4   (/Users/runner/v2m-8D6Mss)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"043b4ecf1ee48a5d9849850d4a6e1db6dc951c5a0ccb521eccb7c032e4ab292a","specCount":63,"lockfiles":{"digest":"72432388044b3a8ded92f4cad8c2b129d09ad1035aead998deb6365a8581138c","files":[{"path":"package-lock.json","sha256":"36f1339567784aac702f7fb935a1c088325b3519033766b04e976aa49ae0d0a3","bytes":25907}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:50:01.266Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-8D6Mss/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 63 exact package-version(s), tree 043b4ecf1ee4
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-8D6Mss/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-8D6Mss/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "node-zopfli" > "/Users/runner/v2m-8D6Mss/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-8D6Mss/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-8D6Mss/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-8D6Mss/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund node-zopfli
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000028e50e0) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000021980e0) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x105ce9c10) in action #1 at DIF offset 20
+  OBSERVE   rc=0 dtrace_rc=0 files=658 (pre=604) trace=153388 lines
+  CLOSURE   62 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-8D6Mss/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-8D6Mss/Observe/capture.json
+  RAWLOG-BYTES raw=24918576 gz=938871
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-8D6Mss/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":110,"filesTheScriptProduced":52,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-8D6Mss/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":153389,"parsed":153253,"unparsed":0,"live":true,"tracerErrors":79,"tracerErrorTotal":79,"unresolvedDirfd":1896,"unresolvedFd":0,"pairedTwoPath":565,"danglingPair":0,"failed":51847,"enoent":30366,"refusals":0,"byErrno":{"ENXIO":197,"ENOENT":30366,"EINVAL":6,"EEXIST":20677,"ENOTEMPTY":601},"procs":384,"lifecyclePids":194,"distinctEvents":86188,"emitted":86188,"calls":151660,"bytes":16385300,"gzipBytes":445855,"out":"/Users/runner/v2m-8D6Mss/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=63288 dropped-events=79
+    NOTE 1264 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 561 relative path(s) (65 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=11420 read  unproven .
+         pid=11421 read  unproven .
+         pid=11421 read  unproven .
+         pid=11428 read  unproven .
+         pid=11428 read  unproven .
+         pid=11430 read  unproven .
+         pid=11443 read  unproven .
+         pid=11444 read  unproven .
+         pid=11562 read  unproven .
+         pid=11562 read  unproven .
+         … and 551 more
+    CWD-UNPLACEABLE-WRITES ["../node-zopfli","../node-zopfli/node-zopfli.node","./Release/.deps/../node-zopfli","./Release/.deps/../node-zopfli/node-zopfli.node.d","./Release/.deps/Release/obj.target/node-zopfli/src/png/zopflipng.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/src/zopfli-binding.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/blocksplitter.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/cache.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/deflate.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/gzip_container.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/hash.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/katajainen.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/lz77.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/squeeze.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/tree.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/util.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/zlib_container.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopfli/zopfli_lib.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopflipng/lodepng/lodepng.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopflipng/lodepng/lodepng_util.o.d.raw","./Release/.deps/Release/obj.target/node-zopfli/zopfli/src/zopflipng/zopflipng_lib.o.d.raw","./Release/.deps/Release/obj.target/nothing/../node-addon-api","./Release/.deps/Release/obj.target/nothing/../node-addon-api/src","./Release/.deps/Release/obj.target/nothing/../node-addon-api/src/nothing.o.d","./Release/.deps/Release/obj.target/nothing/../node-addon-api/src/nothing.o.d.raw","./build/../node-addon-api","./build/../node-addon-api/src","./build/../node-addon-api/src/node-api.target.mk","./build/../node-addon-api/src/nothing.target.mk","Release","Release/nothing.a.WpFToa","Release/obj.target","Release/obj.target/node-zopfli","Release/obj.target/node-zopfli/src","Release/obj.target/node-zopfli/src/png","Release/obj.target/node-zopfli/zopfli","Release/obj.target/node-zopfli/zopfli/src","Release/obj.target/node-zopfli/zopfli/src/zopfli","Release/obj.target/node-zopfli/zopfli/src/zopflipng","Release/obj.target/node-zopfli/zopfli/src/zopflipng/lodepng","Release/obj.target/nothing","Release/obj.target/nothing/../node-addon-api","Release/obj.target/nothing/../node-addon-api/src"]
+    CWD-RESOLVED 96 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 79 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+            25 x  epid=128 action=6 fault=1 addr=0x656d616e75
+            13 x  epid=128 action=1 fault=1 addr=0x105ce9f50
+            10 x  epid=128 action=1 fault=1 addr=0x105981b90
+             6 x  epid=128 action=1 fault=1 addr=0x1047fb510
+             1 x  epid=128 action=1 fault=1 addr=0x6000028e50e0
+             1 x  epid=128 action=5 fault=1 addr=0x6000021980e0
+             1 x  epid=128 action=1 fault=1 addr=0x105ce9c10
+             1 x  epid=128 action=1 fault=1 addr=0x105ce9e30
+             1 x  epid=128 action=6 fault=1 addr=0x6000039dc0a0
+             1 x  epid=8 action=9 fault=1 addr=0x141611d50
+  == ATTRIBUTION == lifecycle pids: 194
+    writes  script 6762  /  whole traced subtree 7852
+    sockets script 1  /  whole traced subtree 2
+  == ROOTS (from /Users/runner/v2m-8D6Mss/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-8D6Mss/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-8D6Mss/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-8D6Mss/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      2
+        /dev/dtracehelper
+        /dev/null
+    jailHome   3329  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-8D6Mss/jailhome/Library
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include/node
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include/node/common.gypi
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include/node/config.gypi
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include/node/cppgc
+        /Users/runner/v2m-8D6Mss/jailhome/Library/Caches/node-gyp/22.23.2/include/node/cppgc/allocation.h
+        … and 3319 more
+    jailTmp    3326  (base profile already grants this — NOT billed)
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/v8-locker.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/zconf.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/v8config.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/common.gypi
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/v8-object.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/v8-forward.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsK1xk7Z/node-gyp-tmp-5sk6xu/include/node/v8-profiler.h
+        … and 3316 more
+    ownPkg       98  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/config.gypi
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/Makefile
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/gyp-mac-tool
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/node-zopfli.target.mk
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/action_after_build.target.mk
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/binding.Makefile
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/node_gyp_bins
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/node_gyp_bins/python3
+        /Users/runner/v2m-8D6Mss/Observe/node_modules/node-zopfli/build/Release/.deps
+        … and 88 more
+    outside       7
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-xp1yWcS7
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-fNEyqELr
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync2DE9.RKh0Oh
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-Joqb9pLo
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-wmz01p5y
+  == READS the script performed, by scope ==
+    outside    1644
+    systemfs    636
+    userHome    307
+    deps        180
+    ownPkg       26
+    bytecode    110
+    jailTmp    3326
+    jailHome      5
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /bin/sh
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14
+  == NETWORK ==
+    AF_INET connects: 1   distinct peers: 1
+        104.16.213.131:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+    ⛔ 7 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3329
+        Library/Caches/node-gyp
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 7
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-xp1yWcS7
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-fNEyqELr
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync2DE9.RKh0Oh
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-Joqb9pLo
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-wmz01p5y
+  EVICT[synth] 24 store entries removed, 2 spared as nub tooling, 168 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f308ca45880c7616a3fbef49130afd292a4adfe32429a03e88576c7f59cbb355","specCount":64,"lockfiles":{"digest":"9a67f98f1a834fe7074f4891ffc552dd9b731a9b432a463e4107e52ed8f4468d","files":[{"path":"nub.lock","sha256":"9541f754a5b3083ab97a6de4310953cc4a444c717d74e57641b52c32d104e60a","bytes":14497}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:50:30.023Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-8D6Mss/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 64 exact package-version(s), tree f308ca45880c
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=106/110 missing=4 shortfall=6949e35bef64 (tree 1977/658) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  !! OBSERVE UNDER-PREDICTED — the synthesized grant did NOT verify. This is the correctness
+     finding: OBSERVE saw a run that the jail then refused on some axis it did not cover.
+     The bounded ladder below is the repair; the terminal verdict waits on its outcome.
+  DIAGNOSE  re-running the failing grant JAILED, under dtrace
+     trace lines: 51408
+     refused paths under the failing grant (count, path):
+        629 System/Cryptexes/OS
+         21 /Library/Developer/CommandLineTools/SDKs
+          6 /Users/runner/.CFUserTextEncoding
+          6 /System/Library/CoreServices/SystemVersion.bundle
+          2 /System/Library/CoreServices/SystemVersion.bundle/
+     ⇒ TREAT THIS AS A CANDIDATE SET, NOT AN ANSWER. On Linux the last refusal before a
+       fatal exit was a trailing red herring once already; settle it with a
+       single-variable arm per path plus a negative control granting all the others.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT[fb903772438] 64 store entries removed, 2 spared as nub tooling, 208 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb903772438-resolved","status":"clean","digest":"f308ca45880c7616a3fbef49130afd292a4adfe32429a03e88576c7f59cbb355","specCount":64,"lockfiles":{"digest":"9a67f98f1a834fe7074f4891ffc552dd9b731a9b432a463e4107e52ed8f4468d","files":[{"path":"nub.lock","sha256":"9541f754a5b3083ab97a6de4310953cc4a444c717d74e57641b52c32d104e60a","bytes":14497}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:50:30.023Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-8D6Mss/security/nub-fb903772438-resolved.json"}
+  SECURITY nub-fb903772438-resolved clean: 64 exact package-version(s), tree f308ca45880c (cached exact-tree clearance)
+  VERIFY[fb903772438] rc=0 artifacts=106/110 missing=4 shortfall=6949e35bef64 (tree 1977/658) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  EVICT[fb2128993570] 64 store entries removed, 2 spared as nub tooling, 208 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2128993570-resolved","status":"clean","digest":"f308ca45880c7616a3fbef49130afd292a4adfe32429a03e88576c7f59cbb355","specCount":64,"lockfiles":{"digest":"9a67f98f1a834fe7074f4891ffc552dd9b731a9b432a463e4107e52ed8f4468d","files":[{"path":"nub.lock","sha256":"9541f754a5b3083ab97a6de4310953cc4a444c717d74e57641b52c32d104e60a","bytes":14497}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:50:30.023Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-8D6Mss/security/nub-fb2128993570-resolved.json"}
+  SECURITY nub-fb2128993570-resolved clean: 64 exact package-version(s), tree f308ca45880c (cached exact-tree clearance)
+  VERIFY[fb2128993570] rc=0 artifacts=106/110 missing=4 shortfall=6949e35bef64 (tree 1977/658) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  EVICT[fb1962834996] 64 store entries removed, 2 spared as nub tooling, 208 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1962834996-resolved","status":"clean","digest":"f308ca45880c7616a3fbef49130afd292a4adfe32429a03e88576c7f59cbb355","specCount":64,"lockfiles":{"digest":"9a67f98f1a834fe7074f4891ffc552dd9b731a9b432a463e4107e52ed8f4468d","files":[{"path":"nub.lock","sha256":"9541f754a5b3083ab97a6de4310953cc4a444c717d74e57641b52c32d104e60a","bytes":14497}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:50:30.023Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-8D6Mss/security/nub-fb1962834996-resolved.json"}
+  SECURITY nub-fb1962834996-resolved clean: 64 exact package-version(s), tree f308ca45880c (cached exact-tree clearance)
+  VERIFY[fb1962834996] rc=0 artifacts=106/110 missing=4 shortfall=6949e35bef64 (tree 1977/658) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+       missing: build/Release/.deps/Release/obj.target/node-addon-api/src/nothing.o.d, build/Release/obj.target/node-addon-api/src/nothing.o, node-addon-api/src/node-api.target.mk, node-addon-api/src/nothing.target.mk
+  => ARTIFACT-GATE-SUSPECT {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}   (every arm rc=0 and the SAME 4-artifact shortfall at every
+     grant up to write:"disk" — invariant under widening, so it is not a capability gap)
+     ⇒ The grant is the SYNTHESIZED one and is UNVERIFIED — minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
+### DONE node-zopfli@2.1.4  synthesized={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} verified=0
