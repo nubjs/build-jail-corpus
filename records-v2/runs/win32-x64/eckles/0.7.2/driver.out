@@ -1,28 +1,32 @@
-### eckles@0.7.2   (D:\jail\m-eckles-msjvg98d)
+### eckles@0.7.2   (D:\jail\m-eckles-mtsi5xdw)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3352 exit=0 events=42963 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 17 files  (D:\jail\m-eckles-msjvg98d\observe\node_modules\eckles)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e066d75ccea3cd0fe407cdbf83a20c4953c3a7db03b674e183ad18bd5c851a6e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:04:20.678Z","cacheHit":false,"clearancePath":"D:\\jail\\m-eckles-mtsi5xdw\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e066d75ccea3
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"e066d75ccea3cd0fe407cdbf83a20c4953c3a7db03b674e183ad18bd5c851a6e","specCount":1,"lockfiles":{"digest":"c30add40332b6bdfc582cc7f0fe7fbfeba9b40c12e81ab12211f75dbc2e0b8c2","files":[{"path":"package-lock.json","sha256":"30d7be95b75037fb92ce23c54efdc12cc81a6ebcf78f62acd921554ba77666df","bytes":596}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:04:20.678Z","cacheHit":true,"clearancePath":"D:\\jail\\m-eckles-mtsi5xdw\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree e066d75ccea3 (cached exact-tree clearance)
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3376 exit=0 events=37581 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 17 files  (D:\jail\m-eckles-mtsi5xdw\observe\node_modules\eckles)
   ARM-FALSIFIABILITY {"manifestFiles":17,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (17) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 1 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-eckles-msjvg98d\observe   [keyed on]
+    project       D:\jail\m-eckles-mtsi5xdw\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-eckles-msjvg98d\observe\node_modules\.store
+    projectStore  D:\jail\m-eckles-mtsi5xdw\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-eckles-msjvg98d\tmp   [keyed on]
+    temp          D:\jail\m-eckles-mtsi5xdw\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-eckles-msjvg98d\observe\node_modules\eckles
-  == ATTRIBUTION == lifecycle pids: 2 (root 3352)
-    writes  script 0  /  whole traced tree 11
+    ownPkg        D:\jail\m-eckles-mtsi5xdw\observe\node_modules\eckles
+  == ATTRIBUTION == lifecycle pids: 2 (root 3376)
+    writes  script 0  /  whole traced tree 10
     peers   script 1  /  whole traced tree 1
   == WRITES ==
   == READS ==
@@ -37,22 +41,26 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"network":true}
-  RAW       etw-raw.xml.gz  53421946 B xml -> 832822 B gz (64.1x)  sha256 c8a7c9639b311bdc…
+  RAW       etw-raw.xml.gz  47082732 B xml -> 732569 B gz (64.3x)  sha256 b117f6b9bb301f20…
   HEADER    etw-header.json (5041 bytes)
-  DERIVED   5268 distinct from 6454 kept ops (42963 xml events, 5784 out of subtree)
+  DERIVED   5266 distinct from 6452 kept ops (37581 xml events, 5242 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (66253 bytes)
-  RAWLOG-CAPTURE D:\jail\m-eckles-msjvg98d\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66639 bytes)
+  RAWLOG-CAPTURE D:\jail\m-eckles-mtsi5xdw\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-eckles-msjvg98d
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-eckles-msjvg98d\\npm-cache","TMP":"D:\\jail\\m-eckles-msjvg98d\\tmp","TEMP":"D:\\jail\\m-eckles-msjvg98d\\tmp","TMPDIR":"D:\\jail\\m-eckles-msjvg98d\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-eckles-msjvg98d\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 5685/24) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-eckles-mtsi5xdw
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-eckles-mtsi5xdw\\npm-cache","TMP":"D:\\jail\\m-eckles-mtsi5xdw\\tmp","TEMP":"D:\\jail\\m-eckles-mtsi5xdw\\tmp","TMPDIR":"D:\\jail\\m-eckles-mtsi5xdw\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-eckles-mtsi5xdw\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e066d75ccea3cd0fe407cdbf83a20c4953c3a7db03b674e183ad18bd5c851a6e","specCount":1,"lockfiles":{"digest":"64516119c53a45853b607b392c6f69e9450c9cbd965652cc45d5ffe70de89184","files":[{"path":"nub.lock","sha256":"5587b9f7a047a64dd405dbd8be3a58ee0d2587a59c85ea286958cb0d15f60b17","bytes":393}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:04:20.678Z","cacheHit":true,"clearancePath":"D:\\jail\\m-eckles-mtsi5xdw\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree e066d75ccea3 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 5689/24) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => MINIMUM {"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-eckles-msjvg98d\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 5685/24) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-eckles-mtsi5xdw\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"e066d75ccea3cd0fe407cdbf83a20c4953c3a7db03b674e183ad18bd5c851a6e","specCount":1,"lockfiles":{"digest":"64516119c53a45853b607b392c6f69e9450c9cbd965652cc45d5ffe70de89184","files":[{"path":"nub.lock","sha256":"5587b9f7a047a64dd405dbd8be3a58ee0d2587a59c85ea286958cb0d15f60b17","bytes":393}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:04:20.678Z","cacheHit":true,"clearancePath":"D:\\jail\\m-eckles-mtsi5xdw\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 1 exact package-version(s), tree e066d75ccea3 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 5689/24) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-network' was not needed
