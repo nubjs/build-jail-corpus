@@ -1,56 +1,101 @@
-### @pulumi/datadog@1.4.0   (/home/nub/v2-1ArSIy)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=10359 trace=9527 lines
+### @pulumi/datadog@1.4.0   (/home/runner/v2-94Bu9G)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"71426feb0988bef8b1e2b9390ca32ce13ed8286116588415fa73863bad587cd8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:57:44.197Z","cacheHit":false,"clearancePath":"/home/runner/v2-94Bu9G/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 71426feb0988
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2eaf0c19057b9ff0666c2b265c0cdf7f7bfc6d5fe2e5efb3e60b220d01f82b71","specCount":247,"lockfiles":{"digest":"92e3453d49d7398b990b1fdb5ba54873764682b3da0c014b37dc02c0b7d4a5dd","files":[{"path":"package-lock.json","sha256":"13d7a8ba7a213c34f2ccfc108aacc6c4bc984ce5089049129ebe2e166853348d","bytes":106374}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:57:53.234Z","cacheHit":false,"clearancePath":"/home/runner/v2-94Bu9G/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 247 exact package-version(s), tree 2eaf0c19057b
+  OBSERVE   rc=0 files=10360 trace=12993 lines
   CLOSURE   188 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":99,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (99) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-1ArSIy/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-1ArSIy/observe/capture.json
-  RAWLOG-BYTES raw=1824937 gz=66664
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-1ArSIy/jailhome","TMPDIR":"/tmp/nub-tmp-obsJBMC7C","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-1ArSIy/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 14
-    writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 6
+  RAWLOG-FILE /home/runner/v2-94Bu9G/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-94Bu9G/observe/capture.json
+  RAWLOG-BYTES raw=2621273 gz=83549
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-94Bu9G/jailhome","TMPDIR":"/tmp/nub-tmp-obsGs17oX","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-94Bu9G/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 22
+    writes  script 10  /  whole traced tree 1098
+    sockets script 25  /  whole traced tree 31
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-1ArSIy/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-1ArSIy/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-1ArSIy/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsJBMC7C
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-1ArSIy/observe/node_modules/@pulumi/datadog
+    project       /home/runner/v2-94Bu9G/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-94Bu9G/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-94Bu9G/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsGs17oX
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-94Bu9G/observe/node_modules/@pulumi/datadog
   == WRITES the script actually performed ==
+    userHome      9
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsGs17oX/pulumi-plugin-tar935227303
   == NETWORK ==
-    AF_INET sockets: 0   distinct peers: 2
+    AF_INET sockets: 25   distinct peers: 5
         127.0.0.53:53
-        104.16.9.34:443
+        104.16.0.34:443
+        140.82.116.3:443
+        143.204.160.111:443
+        20.29.134.17:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {}
+    {"write":{"userHome":true},"network":true}
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
     private-home writes observed: 0
     none declared — the script wrote nothing into its private home — there is nothing to promote
+    9 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 0
-    EVENTS    5211 distinct from 9162 calls (9528 lines, 342 rejoined, 0 unparsed)
-    PROCS     20   lifecycle shells 9
+    count: 9
+        .pulumi
+        .pulumi/logs
+        .pulumi/logs/pulumi-20260907T235758-18682-plugin_install.log
+        .pulumi/plugins
+        .pulumi/plugins/resource-datadog-v1.4.0.lock
+        .pulumi/plugins/resource-datadog-v1.4.0.partial
+        .pulumi/plugins/resource-datadog-v1.4.0
+        .pulumi/plugins/resource-datadog-v1.4.0/pulumi-resource-datadog
+        .pulumi/.cachedVersionInfo
+    EVENTS    5489 distinct from 12307 calls (12994 lines, 394 rejoined, 0 unparsed)
+    PROCS     29   lifecycle shells 17
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×23 setsockopt×23 exit×14 getsockopt×9 recvmsg×6 getcwd×4 exit_group×4 wait4×4
-    wrote /home/nub/v2-1ArSIy/observe/events.ndjson.gz (36597 bytes)
-  EVENTLOG-FILE /home/nub/v2-1ArSIy/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":9528,"parsed":9162,"unparsed":0,"unfinished":342,"rejoined":342,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":9,"distinctEvents":5211,"unknownSyscall":{"getsockname":23,"getsockopt":9,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":4,"wait4":4,"exit":14},"out":"/home/nub/v2-1ArSIy/observe/events.ndjson.gz","gzipBytes":36597}
+    unsubscribed/unmapped syscalls: tgkill×260 setsockopt×64 getsockname×40 getpeername×18 getsockopt×15 exit×15 recvmsg×7 getcwd×4
+    wrote /home/runner/v2-94Bu9G/observe/events.ndjson.gz (38955 bytes)
+  EVENTLOG-FILE /home/runner/v2-94Bu9G/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12994,"parsed":12307,"unparsed":0,"unfinished":394,"rejoined":394,"unresolvedDirfd":3,"truncatedArg":0,"procs":29,"lifecyclePids":17,"distinctEvents":5489,"unknownSyscall":{"getsockname":40,"getsockopt":15,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":64,"sendmmsg":1,"socketpair":3,"shutdown":3,"tgkill":260,"listen":1,"accept4":1,"getpeername":18,"exit_group":4,"wait4":4},"out":"/home/runner/v2-94Bu9G/observe/events.ndjson.gz","gzipBytes":38955}
+  EVICT     116 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/datadog
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"5964813bcd0b258d54e8ce843edf3a1e030bb4434b8818aaac8302cfa7140312","specCount":247,"lockfiles":{"digest":"e7a5c31043edb35cf2d5a5fe7f25841665796da78ea0c078419dfcb4dd920949","files":[{"path":"nub.lock","sha256":"6bfbb847ed691ea84c6dc9fc9f28cca8c08b596aa3acfb69b4469dae5955d3a1","bytes":53496}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:58:04.718Z","cacheHit":false,"clearancePath":"/home/runner/v2-94Bu9G/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 247 exact package-version(s), tree 5964813bcd0b
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 45040/10360) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
   EVICT     193 store entries removed, 2 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @pulumi/datadog
-  VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 45025/10359) OVERRIDDEN=1 REJECTED=0 grant={}
-  => VERIFIED {}   (observed, then verified)
-  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"5964813bcd0b258d54e8ce843edf3a1e030bb4434b8818aaac8302cfa7140312","specCount":247,"lockfiles":{"digest":"e7a5c31043edb35cf2d5a5fe7f25841665796da78ea0c078419dfcb4dd920949","files":[{"path":"nub.lock","sha256":"6bfbb847ed691ea84c6dc9fc9f28cca8c08b596aa3acfb69b4469dae5955d3a1","bytes":53496}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:58:04.718Z","cacheHit":true,"clearancePath":"/home/runner/v2-94Bu9G/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 247 exact package-version(s), tree 5964813bcd0b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 45040/10360) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"write":{"userHome":true}} is sufficient
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/datadog
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"5964813bcd0b258d54e8ce843edf3a1e030bb4434b8818aaac8302cfa7140312","specCount":247,"lockfiles":{"digest":"e7a5c31043edb35cf2d5a5fe7f25841665796da78ea0c078419dfcb4dd920949","files":[{"path":"nub.lock","sha256":"6bfbb847ed691ea84c6dc9fc9f28cca8c08b596aa3acfb69b4469dae5955d3a1","bytes":53496}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:58:04.718Z","cacheHit":true,"clearancePath":"/home/runner/v2-94Bu9G/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 247 exact package-version(s), tree 5964813bcd0b (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 45040/10360) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-network no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     193 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @pulumi/datadog
+  scaffold: 3 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"5964813bcd0b258d54e8ce843edf3a1e030bb4434b8818aaac8302cfa7140312","specCount":247,"lockfiles":{"digest":"e7a5c31043edb35cf2d5a5fe7f25841665796da78ea0c078419dfcb4dd920949","files":[{"path":"nub.lock","sha256":"6bfbb847ed691ea84c6dc9fc9f28cca8c08b596aa3acfb69b4469dae5955d3a1","bytes":53496}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T23:58:04.718Z","cacheHit":true,"clearancePath":"/home/runner/v2-94Bu9G/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 247 exact package-version(s), tree 5964813bcd0b (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 45040/10360) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
