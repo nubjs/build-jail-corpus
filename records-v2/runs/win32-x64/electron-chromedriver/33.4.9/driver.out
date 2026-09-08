@@ -1,27 +1,27 @@
-### electron-chromedriver@33.4.9   (D:\jail\m-electronchromedriver-mtrl5mnx)
+### electron-chromedriver@33.4.9   (D:\jail\m-electronchromedriver-mts6szal)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"cb00e2fb01abea0bb49c6a3c62a41c7dff49f8694870f8e2b7980df02dee86e5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:19.476Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"cb00e2fb01abea0bb49c6a3c62a41c7dff49f8694870f8e2b7980df02dee86e5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:20.913Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree cb00e2fb01ab
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"57716dbc74687acad87c02a9f0d28662517c631f2488848f15d50709e965cd50","specCount":70,"lockfiles":{"digest":"900e2b77c8eb3ae31b9c35b33485310f2a97df56380ce56d3528c5f1263720ad","files":[{"path":"package-lock.json","sha256":"e517284eb036d74f27346af9feee24eecffce235b73790d2707366f67ae43471","bytes":29415}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:23.125Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"57716dbc74687acad87c02a9f0d28662517c631f2488848f15d50709e965cd50","specCount":70,"lockfiles":{"digest":"900e2b77c8eb3ae31b9c35b33485310f2a97df56380ce56d3528c5f1263720ad","files":[{"path":"package-lock.json","sha256":"e517284eb036d74f27346af9feee24eecffce235b73790d2707366f67ae43471","bytes":29415}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:24.881Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 70 exact package-version(s), tree 57716dbc7468
-  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7124 exit=0 events=38931 lost=0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=9620 exit=0 events=77736 lost=0
   VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 11 files  (D:\jail\m-electronchromedriver-mtrl5mnx\observe\node_modules\electron-chromedriver)
+  OBSERVE artifacts: 11 files  (D:\jail\m-electronchromedriver-mts6szal\observe\node_modules\electron-chromedriver)
   ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":6,"reasons":[]}
   CLOSURE 68 packages evicted per arm
   8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-electronchromedriver-mtrl5mnx\observe   [keyed on]
+    project       D:\jail\m-electronchromedriver-mts6szal\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-electronchromedriver-mtrl5mnx\observe\node_modules\.store
+    projectStore  D:\jail\m-electronchromedriver-mts6szal\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-electronchromedriver-mtrl5mnx\tmp   [keyed on]
+    temp          D:\jail\m-electronchromedriver-mts6szal\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-electronchromedriver-mtrl5mnx\observe\node_modules\electron-chromedriver
-  == ATTRIBUTION == lifecycle pids: 2 (root 7124)
+    ownPkg        D:\jail\m-electronchromedriver-mts6szal\observe\node_modules\electron-chromedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 9620)
     writes  script 21  /  whole traced tree 32
     peers   script 2  /  whole traced tree 2
   == WRITES ==
@@ -30,58 +30,57 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     deps         10
   == READS ==
     deps        163
-    outside       6
+    outside      11
     project       1
     systemfs     29
     jailTmp       6
     userHome      3
   == NETWORK ==
     distinct peers: 2
-        140.82.114.4:443
-        185.199.111.133:443
+        172.182.252.133:443
+        185.199.109.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true,"userHome":true},"network":true}
     NOTE 6 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-  RAW       etw-raw.xml.gz  50264456 B xml -> 746693 B gz (67.3x)  sha256 04b0904831ef6577…
-  HEADER    etw-header.json (5160 bytes)
-  DERIVED   6141 distinct from 13944 kept ops (38931 xml events, 2447 out of subtree)
+  RAW       etw-raw.xml.gz  99979826 B xml -> 1508439 B gz (66.3x)  sha256 a1e91c3294ae9eb5…
+  HEADER    etw-header.json (5164 bytes)
+  DERIVED   6161 distinct from 14733 kept ops (77736 xml events, 17373 out of subtree)
   PROCS     4   thread-reattributed 17
   ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 1 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
-  wrote events.ndjson.gz (77901 bytes)
-  RAWLOG-CAPTURE D:\jail\m-electronchromedriver-mtrl5mnx\cap\capture.json
+  wrote events.ndjson.gz (78223 bytes)
+  RAWLOG-CAPTURE D:\jail\m-electronchromedriver-mts6szal\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-electronchromedriver-mtrl5mnx
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\npm-cache","TMP":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\tmp","TEMP":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\tmp","TMPDIR":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtrl5mnx\verify-synth\.cache
+  VENUE-JAIL-ROOT D:\jail\m-electronchromedriver-mts6szal
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronchromedriver-mts6szal\\npm-cache","TMP":"D:\\jail\\m-electronchromedriver-mts6szal\\tmp","TEMP":"D:\\jail\\m-electronchromedriver-mts6szal\\tmp","TMPDIR":"D:\\jail\\m-electronchromedriver-mts6szal\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mts6szal\verify-synth\.cache
   VENUE-STORE-LAYOUT isolated
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:34.792Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:39.906Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 70 exact package-version(s), tree f86dde54e072
   VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6908/894) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
   => MINIMUM {"write":{"deps":true,"userHome":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtrl5mnx\verify-nar-no-network\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:34.792Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\nub-nar-no-network-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mts6szal\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:39.906Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\nub-nar-no-network-resolved.json"}
   SECURITY nub-nar-no-network-resolved clean: 70 exact package-version(s), tree f86dde54e072 (cached exact-tree clearance)
   VERIFY[nar-no-network] rc=1 artifacts=5/11 missing=6 shortfall=33cf23f5ec03 (tree 6902/894) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
      missing artifacts: bin/chromedriver.exe, bin/ffmpeg.dll, bin/gen/electron/buildflags/buildflags.h, bin/icudtl.dat, bin/LICENSE, bin/LICENSES.chromium.html
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtrl5mnx\verify-nar-no-write-deps\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:34.792Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\nub-nar-no-write-deps-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mts6szal\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:39.906Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\nub-nar-no-write-deps-resolved.json"}
   SECURITY nub-nar-no-write-deps-resolved clean: 70 exact package-version(s), tree f86dde54e072 (cached exact-tree clearance)
   VERIFY[nar-no-write-deps] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6908/894) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtrl5mnx\verify-nar-no-write-userHome\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:34.792Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\nub-nar-no-write-userHome-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mts6szal\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:39.906Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\nub-nar-no-write-userHome-resolved.json"}
   SECURITY nub-nar-no-write-userHome-resolved clean: 70 exact package-version(s), tree f86dde54e072 (cached exact-tree clearance)
   VERIFY[nar-no-write-userHome] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6908/894) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true} also verifies; 'no-write-userHome' was not needed
-  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mtrl5mnx\verify-joint-narrow\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T18:40:34.792Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mtrl5mnx\\security\\nub-joint-narrow-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-electronchromedriver-mts6szal\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"f86dde54e0723796a34829a859f22368d9482ccadc87e01722448b54f164849b","specCount":70,"lockfiles":{"digest":"f1c67e7c43bedddeeddba2fec52cc25b27a62786e18be16fbbfee06645414243","files":[{"path":"nub.lock","sha256":"5822c91a0bde318f021e47d884c83620e1a185f5e9543cec6b182eae415fd048","bytes":17220}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:46:39.906Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronchromedriver-mts6szal\\security\\nub-joint-narrow-resolved.json"}
   SECURITY nub-joint-narrow-resolved clean: 70 exact package-version(s), tree f86dde54e072 (cached exact-tree clearance)
   VERIFY[joint-narrow] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 6908/894) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => JOINT-NARROW VERIFIED {"network":true} — all 2 capabilities drop TOGETHER, measured
