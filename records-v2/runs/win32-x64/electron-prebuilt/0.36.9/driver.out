@@ -1,30 +1,33 @@
-### electron-prebuilt@0.36.9   (D:\jail\m-electronprebuilt-msk08zsa)
+### electron-prebuilt@0.36.9   (D:\jail\m-electronprebuilt-mtsrb344)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=1068 exit=0 events=68975 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 89 files  (D:\jail\m-electronprebuilt-msk08zsa\observe\node_modules\electron-prebuilt)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f8ff90d91c3f0eeced212dcec8e3ba43f11aa728b6819eabbe79086590d8e761","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:17.920Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f8ff90d91c3f
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"e4ee98ba4f9b557a3b6f9bd27752573b58f94b4d2799aad6df72e509b41cbf6e","specCount":145,"lockfiles":{"digest":"f73c92ff9b6d6bd270a00b9c56ac82fc5ce38ae35a2302c099610ed0a3a7013b","files":[{"path":"package-lock.json","sha256":"5bf256dd22b66bfdf3380aa11909250005ab580dd87db61c58b2d418db9ebbba","bytes":56926}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:23.314Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 145 exact package-version(s), tree e4ee98ba4f9b
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=5644 exit=0 events=107139 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 89 files  (D:\jail\m-electronprebuilt-mtsrb344\observe\node_modules\electron-prebuilt)
   ARM-FALSIFIABILITY {"manifestFiles":90,"filesTheScriptProduced":80,"reasons":[]}
   CLOSURE 140 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-electronprebuilt-msk08zsa\observe   [keyed on]
+    project       D:\jail\m-electronprebuilt-mtsrb344\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-electronprebuilt-msk08zsa\observe\node_modules\.store
+    projectStore  D:\jail\m-electronprebuilt-mtsrb344\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-electronprebuilt-msk08zsa\tmp   [keyed on]
+    temp          D:\jail\m-electronprebuilt-mtsrb344\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-electronprebuilt-msk08zsa\observe\node_modules\electron-prebuilt
-  == ATTRIBUTION == lifecycle pids: 2 (root 1068)
-    writes  script 89  /  whole traced tree 99
+    ownPkg        D:\jail\m-electronprebuilt-mtsrb344\observe\node_modules\electron-prebuilt
+  == ATTRIBUTION == lifecycle pids: 2 (root 5644)
+    writes  script 88  /  whole traced tree 99
     peers   script 2  /  whole traced tree 2
   == WRITES ==
     userHome      2
     jailTmp       2
     deps         84
-    kernelfs      1
   == READS ==
     deps        325
     outside      11
@@ -34,7 +37,7 @@
     userHome      2
   == NETWORK ==
     distinct peers: 2
-        140.82.116.4:443
+        140.82.114.4:443
         185.199.109.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
@@ -42,33 +45,42 @@
     {"write":{"deps":true,"userHome":true},"network":true}
     NOTE 2 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  90128670 B xml -> 1303771 B gz (69.1x)  sha256 67f2a6c1d20383f3…
-  HEADER    etw-header.json (5129 bytes)
-  DERIVED   7033 distinct from 30495 kept ops (68975 xml events, 1793 out of subtree)
+  RAW       etw-raw.xml.gz  138577919 B xml -> 2215261 B gz (62.6x)  sha256 b4aac7de477f04d8…
+  HEADER    etw-header.json (5133 bytes)
+  DERIVED   7034 distinct from 29224 kept ops (107139 xml events, 17195 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 4 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (88488 bytes)
-  RAWLOG-CAPTURE D:\jail\m-electronprebuilt-msk08zsa\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 6 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (88543 bytes)
+  RAWLOG-CAPTURE D:\jail\m-electronprebuilt-mtsrb344\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-electronprebuilt-msk08zsa
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronprebuilt-msk08zsa\\npm-cache","TMP":"D:\\jail\\m-electronprebuilt-msk08zsa\\tmp","TEMP":"D:\\jail\\m-electronprebuilt-msk08zsa\\tmp","TMPDIR":"D:\\jail\\m-electronprebuilt-msk08zsa\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-electronprebuilt-msk08zsa\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7692/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-electronprebuilt-mtsrb344
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronprebuilt-mtsrb344\\npm-cache","TMP":"D:\\jail\\m-electronprebuilt-mtsrb344\\tmp","TEMP":"D:\\jail\\m-electronprebuilt-mtsrb344\\tmp","TMPDIR":"D:\\jail\\m-electronprebuilt-mtsrb344\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-electronprebuilt-mtsrb344\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:42.157Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 146 exact package-version(s), tree d076b7ddd014
+  VERIFY[synth] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7741/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
   => MINIMUM {"write":{"deps":true,"userHome":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-electronprebuilt-msk08zsa\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=11/89 missing=79 shortfall=aac33e6e0ad0 (tree 7609/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+  STORE   isolated virtual store at D:\jail\m-electronprebuilt-mtsrb344\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:42.157Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=11/89 missing=79 shortfall=aac33e6e0ad0 (tree 7662/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
      missing artifacts: dist/content_resources_200_percent.pak, dist/content_shell.pak, dist/d3dcompiler_47.dll, dist/electron.exe, dist/ffmpeg.dll, dist/icudtl.dat (+73)
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-electronprebuilt-msk08zsa\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7692/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-electronprebuilt-mtsrb344\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:42.157Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7741/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at D:\jail\m-electronprebuilt-msk08zsa\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7692/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-electronprebuilt-mtsrb344\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:42.157Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7741/1423) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true} also verifies; 'no-write-userHome' was not needed
-  STORE   isolated virtual store at D:\jail\m-electronprebuilt-msk08zsa\verify-joint-narrow\.cache
-  VERIFY[joint-narrow] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7692/1423) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-electronprebuilt-mtsrb344\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"d076b7ddd0149ce58b6f0775284bce39a55f27749eb3c3fb7212b5141bf4b3a5","specCount":146,"lockfiles":{"digest":"bce33abf3b01ac95fa7a4e5f3be330114051d557e7ccbc603baee4afb85d3658","files":[{"path":"nub.lock","sha256":"759dd383d525a558b9591a8756c5d4bf29fd057e4a4b408d0275f315eb7ef053","bytes":34123}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:20:42.157Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronprebuilt-mtsrb344\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 146 exact package-version(s), tree d076b7ddd014 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=90/89 missing=0 shortfall=none (tree 7741/1423) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
   => JOINT-NARROW VERIFIED {"network":true} — all 2 capabilities drop TOGETHER, measured
