@@ -2,9 +2,9 @@
   "k": "h",
   "v": 1,
   "platform": "win32-x64",
-  "pkg": "saucectl",
-  "version": "0.194.3",
-  "at": "2026-09-08T16:34:11.116Z",
+  "pkg": "windows-build-tools",
+  "version": "1.4.3",
+  "at": "2026-09-08T16:38:02.459Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7120_mtsw271u",
+      "name": "nubobs_7988_mtsw6dot",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-saucectl-mtsw23i5\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-saucectl-mtsw23i5\\observe",
-    "rootPid": 5640,
-    "launcherPid": 1908,
+    "command": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\observe",
+    "rootPid": 9600,
+    "launcherPid": 4104,
     "exitCode": 0,
-    "startedUtc": "2026-09-08T16:33:23.3396732Z",
-    "endedUtc": "2026-09-08T16:33:25.0567786Z"
+    "startedUtc": "2026-09-08T16:36:38.5760264Z",
+    "endedUtc": "2026-09-08T16:37:42.0148137Z"
   },
   "integrity": {
-    "eventsTotal": 558136,
+    "eventsTotal": 232435,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-saucectl-mtsw23i5\\observe",
+    "project": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-saucectl-mtsw23i5\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-saucectl-mtsw23i5\\tmp",
+    "temp": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-saucectl-mtsw23i5\\observe\\node_modules\\saucectl",
+    "ownPkg": "D:\\jail\\m-windowsbuildtools-mtsw6a7h\\observe\\node_modules\\windows-build-tools",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 711384398,
-    "gzBytes": 9260625,
-    "sha256": "e2593921d8b860fe985513f545f3bc5c4fafe45ce1bb8f9ffcf260f54a506b5a",
+    "bytes": 297382091,
+    "gzBytes": 4232530,
+    "sha256": "35078b3e67a9d2e6d14f26fe2d58afa9264fdbef3bb4f83d8527bf4d2f6aa710",
     "of": "trace.xml",
-    "etlBytes": 85983232,
+    "etlBytes": 34603008,
     "etlRetained": false
   },
   "limits": {
@@ -106,25 +106,25 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 5640 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 9600 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 558136,
-    "kept": 8566,
-    "distinct": 5986,
+    "xmlEvents": 232435,
+    "kept": 62448,
+    "distinct": 26191,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 557097,
-      "Microsoft-Windows-Kernel-Process": 12,
-      "Microsoft-Windows-Kernel-Network": 1025
+      "Microsoft-Windows-Kernel-File": 231034,
+      "Microsoft-Windows-Kernel-Process": 51,
+      "Microsoft-Windows-Kernel-Network": 1348
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
-    "unsettled": 0,
-    "reattributedByThread": 0,
-    "outOfSubtree": 197575,
-    "destResolved": 4,
+    "unresolvedHandle": 12,
+    "unsettled": 13,
+    "reattributedByThread": 7,
+    "outOfSubtree": 28530,
+    "destResolved": 146,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
