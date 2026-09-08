@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "victory-scatter",
   "version": "0.4.0",
-  "at": "2026-08-08T06:18:35.941Z",
+  "at": "2026-09-08T14:01:16.620Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8268_msjzfmw7",
+      "name": "nubobs_5152_mtsqmdgy",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-victoryscatter-msjzfaz9\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-victoryscatter-msjzfaz9\\observe",
-    "rootPid": 8504,
-    "launcherPid": 2156,
+    "command": "D:\\jail\\m-victoryscatter-mtsqm0bb\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-victoryscatter-mtsqm0bb\\observe",
+    "rootPid": 5612,
+    "launcherPid": 9168,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T06:18:11.7047922Z",
-    "endedUtc": "2026-08-08T06:18:12.7688585Z"
+    "startedUtc": "2026-09-08T14:01:06.9330266Z",
+    "endedUtc": "2026-09-08T14:01:07.8931928Z"
   },
   "integrity": {
-    "eventsTotal": 299940,
+    "eventsTotal": 96647,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-victoryscatter-msjzfaz9\\observe",
+    "project": "D:\\jail\\m-victoryscatter-mtsqm0bb\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-victoryscatter-msjzfaz9\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-victoryscatter-mtsqm0bb\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-victoryscatter-msjzfaz9\\tmp",
+    "temp": "D:\\jail\\m-victoryscatter-mtsqm0bb\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-victoryscatter-msjzfaz9\\observe\\node_modules\\victory-scatter",
+    "ownPkg": "D:\\jail\\m-victoryscatter-mtsqm0bb\\observe\\node_modules\\victory-scatter",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 382683302,
-    "gzBytes": 5273573,
-    "sha256": "5f58703ffb144de9e6bc6d2e1c306f43ab61c91c028cfca8b5457a7ba25a761b",
+    "bytes": 123232018,
+    "gzBytes": 1887788,
+    "sha256": "bd08ecc22be2f67ed1febea36d41494346f62e64597bd86ba8d030b69ec538ad",
     "of": "trace.xml",
-    "etlBytes": 47185920,
+    "etlBytes": 16777216,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 8504 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 5612 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 299940,
-    "kept": 7014,
-    "distinct": 5863,
+    "xmlEvents": 96647,
+    "kept": 7006,
+    "distinct": 5855,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 299918,
-      "Microsoft-Windows-Kernel-Process": 10,
-      "Microsoft-Windows-Kernel-Network": 10
+      "Microsoft-Windows-Kernel-File": 96599,
+      "Microsoft-Windows-Kernel-Process": 20,
+      "Microsoft-Windows-Kernel-Network": 26
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
+    "unresolvedHandle": 1,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 105774,
+    "outOfSubtree": 31031,
     "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,
