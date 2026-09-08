@@ -1,27 +1,31 @@
-### fallow@0.1.6   (D:\jail\m-fallow-msjvqlua)
+### fallow@0.1.6   (D:\jail\m-fallow-mtsinoxl)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=3488 exit=0 events=22776 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 4 files  (D:\jail\m-fallow-msjvqlua\observe\node_modules\fallow)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3c88b512ee13a1e0462b835903c931861b6942b1fccfe83ff0ebbe229b9ba58e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:18:09.527Z","cacheHit":false,"clearancePath":"D:\\jail\\m-fallow-mtsinoxl\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3c88b512ee13
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"d94cc0d3d8b6aa003045714392504f907bbe7fb880e11d9e9eb8aca8d2e8a61e","specCount":3,"lockfiles":{"digest":"b2d58677f5d577f899219a46dbef56ce1824a8b39ad81a8026d1f2993a70d902","files":[{"path":"package-lock.json","sha256":"905adf4c7d449a6c391ebdd0b870d32ee698c8a2b5d22652f43d99875d05c882","bytes":4397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:18:11.855Z","cacheHit":false,"clearancePath":"D:\\jail\\m-fallow-mtsinoxl\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree d94cc0d3d8b6
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7332 exit=0 events=22500 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 4 files  (D:\jail\m-fallow-mtsinoxl\observe\node_modules\fallow)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 3 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-fallow-msjvqlua\observe   [keyed on]
+    project       D:\jail\m-fallow-mtsinoxl\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-fallow-msjvqlua\observe\node_modules\.store
+    projectStore  D:\jail\m-fallow-mtsinoxl\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-fallow-msjvqlua\tmp   [keyed on]
+    temp          D:\jail\m-fallow-mtsinoxl\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-fallow-msjvqlua\observe\node_modules\fallow
-  == ATTRIBUTION == lifecycle pids: 2 (root 3488)
+    ownPkg        D:\jail\m-fallow-mtsinoxl\observe\node_modules\fallow
+  == ATTRIBUTION == lifecycle pids: 2 (root 7332)
     writes  script 0  /  whole traced tree 11
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -36,20 +40,21 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
-  RAW       etw-raw.xml.gz  29119771 B xml -> 435434 B gz (66.9x)  sha256 00f45f0ed7718573…
-  HEADER    etw-header.json (5040 bytes)
-  DERIVED   5262 distinct from 6427 kept ops (22776 xml events, 2282 out of subtree)
+  RAW       etw-raw.xml.gz  28715870 B xml -> 420446 B gz (68.3x)  sha256 8d15157f8f9b9d5c…
+  HEADER    etw-header.json (4995 bytes)
+  DERIVED   5261 distinct from 6427 kept ops (22500 xml events, 2031 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (66440 bytes)
-  RAWLOG-CAPTURE D:\jail\m-fallow-msjvqlua\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66402 bytes)
+  RAWLOG-CAPTURE D:\jail\m-fallow-mtsinoxl\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-fallow-msjvqlua
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-fallow-msjvqlua\\npm-cache","TMP":"D:\\jail\\m-fallow-msjvqlua\\tmp","TEMP":"D:\\jail\\m-fallow-msjvqlua\\tmp","TMPDIR":"D:\\jail\\m-fallow-msjvqlua\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-fallow-msjvqlua\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5692/22) OVERRIDDEN=2 REJECTED=0 grant={}
+  VENUE-JAIL-ROOT D:\jail\m-fallow-mtsinoxl
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-fallow-mtsinoxl\\npm-cache","TMP":"D:\\jail\\m-fallow-mtsinoxl\\tmp","TEMP":"D:\\jail\\m-fallow-mtsinoxl\\tmp","TMPDIR":"D:\\jail\\m-fallow-mtsinoxl\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-fallow-mtsinoxl\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d94cc0d3d8b6aa003045714392504f907bbe7fb880e11d9e9eb8aca8d2e8a61e","specCount":3,"lockfiles":{"digest":"c818b41e8e248e373427bfffab613f56882d9c197cb967d2354c2f004995cd1b","files":[{"path":"nub.lock","sha256":"b42943e0252504eaaf7eefb6d8d23ea112758074ae859223efb706a8aa75bb26","bytes":2747}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:18:11.855Z","cacheHit":true,"clearancePath":"D:\\jail\\m-fallow-mtsinoxl\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree d94cc0d3d8b6 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5698/22) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
