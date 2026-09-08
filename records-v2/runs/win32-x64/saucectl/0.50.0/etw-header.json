@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "saucectl",
   "version": "0.50.0",
-  "at": "2026-08-08T05:34:07.248Z",
+  "at": "2026-09-08T12:23:19.709Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_5916_msjxutwx",
+      "name": "nubobs_5436_mtsn4h7u",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-saucectl-msjxupsn\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-saucectl-msjxupsn\\observe",
-    "rootPid": 3212,
-    "launcherPid": 2840,
+    "command": "D:\\jail\\m-saucectl-mtsn4cme\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-saucectl-mtsn4cme\\observe",
+    "rootPid": 2320,
+    "launcherPid": 3660,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T05:34:00.8540223Z",
-    "endedUtc": "2026-08-08T05:34:02.6079392Z"
+    "startedUtc": "2026-09-08T12:23:13.0899084Z",
+    "endedUtc": "2026-09-08T12:23:14.7874507Z"
   },
   "integrity": {
-    "eventsTotal": 36236,
+    "eventsTotal": 39071,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-saucectl-msjxupsn\\observe",
+    "project": "D:\\jail\\m-saucectl-mtsn4cme\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-saucectl-msjxupsn\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-saucectl-mtsn4cme\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-saucectl-msjxupsn\\tmp",
+    "temp": "D:\\jail\\m-saucectl-mtsn4cme\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-saucectl-msjxupsn\\observe\\node_modules\\saucectl",
+    "ownPkg": "D:\\jail\\m-saucectl-mtsn4cme\\observe\\node_modules\\saucectl",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 46760974,
-    "gzBytes": 656323,
-    "sha256": "a7ea22e5b7a83b93c31c87ffbdbcb3b8acfa9d69de58b25d64c08d9cf9304e9f",
+    "bytes": 50489976,
+    "gzBytes": 697053,
+    "sha256": "4964ab06464073c77482b8c33c4e60d0d4a9617234bc1b3e32e51784911f2740",
     "of": "trace.xml",
-    "etlBytes": 8388608,
+    "etlBytes": 9437184,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 3212 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 2320 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 36236,
-    "kept": 13230,
-    "distinct": 9243,
+    "xmlEvents": 39071,
+    "kept": 14152,
+    "distinct": 9745,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 35860,
-      "Microsoft-Windows-Kernel-Process": 14,
-      "Microsoft-Windows-Kernel-Network": 360
+      "Microsoft-Windows-Kernel-File": 38884,
+      "Microsoft-Windows-Kernel-Process": 16,
+      "Microsoft-Windows-Kernel-Network": 169
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 9,
-    "unsettled": 2,
+    "unresolvedHandle": 4,
+    "unsettled": 3,
     "reattributedByThread": 0,
-    "outOfSubtree": 1551,
+    "outOfSubtree": 1773,
     "destResolved": 4,
     "destUnresolved": 0,
     "shortExpanded": 0,
