@@ -5,10 +5,16 @@
   "harnessEpoch": 3,
   "verdict": "MINIMUM",
   "grant": {},
-  "synthesized": {},
+  "synthesized": {
+    "write": {
+      "deps": true
+    }
+  },
   "verifiedBy": "synth",
-  "minimality": "MINIMAL",
-  "overPredictedBy": [],
+  "minimality": "OVER-PREDICTED",
+  "overPredictedBy": [
+    "no-write-deps"
+  ],
   "writePaths": [],
   "writePathsVersionPinned": [],
   "securityScreens": [
@@ -23,7 +29,7 @@
         "files": []
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-09-07T18:48:15.307Z",
+      "screenedAt": "2026-09-08T05:04:54.341Z",
       "cacheHit": false
     },
     {
@@ -43,7 +49,7 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-09-07T18:48:17.224Z",
+      "screenedAt": "2026-09-08T05:04:56.036Z",
       "cacheHit": false
     },
     {
@@ -63,7 +69,27 @@
         ]
       },
       "maliciousAdvisories": [],
-      "screenedAt": "2026-09-07T18:48:17.224Z",
+      "screenedAt": "2026-09-08T05:04:56.036Z",
+      "cacheHit": true
+    },
+    {
+      "schemaVersion": 1,
+      "kind": "nub-nar-no-write-deps-resolved",
+      "status": "clean",
+      "digest": "7830b85345983a4f2878044125216eb01d88c551fc2ea7005db4389815e2be51",
+      "specCount": 2,
+      "lockfiles": {
+        "digest": "84f0f1b41ff6c47e0e47160da58e181c637516a66038d52094af65e3e4164924",
+        "files": [
+          {
+            "path": "nub.lock",
+            "sha256": "c200690947f8ee3120f61da6abf6b6db83e2467de5449c5af5023051d226d7e5",
+            "bytes": 2485
+          }
+        ]
+      },
+      "maliciousAdvisories": [],
+      "screenedAt": "2026-09-08T05:04:56.036Z",
       "cacheHit": true
     }
   ],
@@ -81,7 +107,7 @@
       "kinds": [
         "direct"
       ],
-      "screenedAt": "2026-09-07T18:48:15.307Z"
+      "screenedAt": "2026-09-08T05:04:54.341Z"
     },
     {
       "digest": "7830b85345983a4f2878044125216eb01d88c551fc2ea7005db4389815e2be51",
@@ -103,7 +129,7 @@
       "kinds": [
         "npm-observe-resolved"
       ],
-      "screenedAt": "2026-09-07T18:48:17.224Z"
+      "screenedAt": "2026-09-08T05:04:56.036Z"
     },
     {
       "digest": "7830b85345983a4f2878044125216eb01d88c551fc2ea7005db4389815e2be51",
@@ -123,14 +149,15 @@
         ]
       },
       "kinds": [
+        "nub-nar-no-write-deps-resolved",
         "nub-synth-resolved"
       ],
-      "screenedAt": "2026-09-07T18:48:17.224Z"
+      "screenedAt": "2026-09-08T05:04:56.036Z"
     }
   ],
   "maliciousAdvisories": [],
   "standing": {
-    "observedAt": "2026-09-07T18:48:14.784Z",
+    "observedAt": "2026-09-08T05:04:53.939Z",
     "latestVersion": "0.57.4",
     "weeklyDownloads": 200803,
     "sources": {
@@ -138,21 +165,21 @@
       "weeklyDownloads": "https://api.npmjs.org/downloads/point/last-week/dprint"
     }
   },
-  "grantSource": "synthesized",
-  "grantSourceReason": "no capability was droppable — synthesized IS the minimum",
+  "grantSource": "descended",
+  "grantSourceReason": "one capability (no-write-deps) was dropped and the resulting grant was verified in the real jail by a single arm",
   "descendedGrant": {},
   "notes": [],
   "eventLog": null,
   "driverRc": 0,
-  "durationMs": 20562,
+  "durationMs": 20537,
   "provenance": {
     "platform": "win32-x64",
     "harness": "measure-windows.mjs",
     "nubGitSha": "65faf115a1eebd64a74731634871089bc8d35ebc",
     "nubVersion": "v0.7.1",
-    "corpusGitSha": "72fdfd00837890d259764557fb0c0a4e046adf3c",
+    "corpusGitSha": "54561e0dc43455c224cf795ff8c5d127d8852bf2",
     "harnessEpoch": 3,
-    "harnessSha256": "b6c8596e7cc6588f80cb25bf7c3a19e50c7b84f2069d7714edc36aa9223e3fcb",
+    "harnessSha256": "7ea16a100247831443770eed73afafddb5dfe5812eea48dff592b2dc2e66dab4",
     "harnessInputCount": 203,
     "invalidationPolicySha256": "06169e73b994a573a1e6d9a53ae7c4f9281e00d3bb05c1270e20022b8448d89f",
     "node": "v22.23.2",
@@ -284,13 +311,13 @@
         "shell": "C:\\Windows\\system32\\cmd.exe"
       }
     },
-    "at": "2026-09-07T18:48:35.755Z",
+    "at": "2026-09-08T05:05:14.814Z",
     "venue": "ci",
     "ciEnvSet": true,
     "storeLayout": "isolated",
     "interpreterPath": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "interpreterInsideHome": false,
-    "jailRoot": "D:\\jail\\m-dprint-mtrlftu0",
+    "jailRoot": "D:\\jail\\m-dprint-mts7gui9",
     "observeUser": "runnervmeef0v\\runneradmin elevated=true privDropped={\"SeBackupPrivilege\":\"removed\",\"SeRestorePrivilege\":\"removed\",\"SeTakeOwnershipPrivilege\":\"removed\"}",
     "ciChild": null,
     "cwdResolved": null,
@@ -306,10 +333,10 @@
     },
     "overrides": {
       "set": {
-        "npm_config_cache": "D:\\jail\\m-dprint-mtrlftu0\\npm-cache",
-        "TMP": "D:\\jail\\m-dprint-mtrlftu0\\tmp",
-        "TEMP": "D:\\jail\\m-dprint-mtrlftu0\\tmp",
-        "TMPDIR": "D:\\jail\\m-dprint-mtrlftu0\\tmp"
+        "npm_config_cache": "D:\\jail\\m-dprint-mts7gui9\\npm-cache",
+        "TMP": "D:\\jail\\m-dprint-mts7gui9\\tmp",
+        "TEMP": "D:\\jail\\m-dprint-mts7gui9\\tmp",
+        "TMPDIR": "D:\\jail\\m-dprint-mts7gui9\\tmp"
       },
       "unset": [
         "CI",
