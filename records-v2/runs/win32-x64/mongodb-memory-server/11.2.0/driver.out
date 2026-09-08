@@ -1,27 +1,31 @@
-### mongodb-memory-server@11.2.0   (D:\jail\m-mongodbmemoryserver-msjyxmn0)
+### mongodb-memory-server@11.2.0   (D:\jail\m-mongodbmemoryserver-mtsoyhx6)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4144 exit=0 events=186046 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 6 files  (D:\jail\m-mongodbmemoryserver-msjyxmn0\observe\node_modules\mongodb-memory-server)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1bf46b595b3dcd9d381081fde93f35cafe04cc6632ab1df7edf3f1ef62c1c512","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:14:31.341Z","cacheHit":false,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1bf46b595b3d
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"84a2ba4802b1f5ad770eac1bd9755ce57e87c0cc57115f5b4cd79ab0a98e1334","specCount":49,"lockfiles":{"digest":"2d164c0f0eec58823324efe2e2e81b82d8205e9e95c9b51e5024c57fcd89341b","files":[{"path":"package-lock.json","sha256":"d5f4d00fa01e1a22fc4a5d3fff5178e1001c1e1ef107dd017e724fc07257c191","bytes":21387}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:14:36.403Z","cacheHit":false,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 49 exact package-version(s), tree 84a2ba4802b1
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7928 exit=0 events=168355 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 6 files  (D:\jail\m-mongodbmemoryserver-mtsoyhx6\observe\node_modules\mongodb-memory-server)
   ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (6) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 48 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-mongodbmemoryserver-msjyxmn0\observe   [keyed on]
+    project       D:\jail\m-mongodbmemoryserver-mtsoyhx6\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-mongodbmemoryserver-msjyxmn0\observe\node_modules\.store
+    projectStore  D:\jail\m-mongodbmemoryserver-mtsoyhx6\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-mongodbmemoryserver-msjyxmn0\tmp   [keyed on]
+    temp          D:\jail\m-mongodbmemoryserver-mtsoyhx6\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-mongodbmemoryserver-msjyxmn0\observe\node_modules\mongodb-memory-server
-  == ATTRIBUTION == lifecycle pids: 2 (root 4144)
+    ownPkg        D:\jail\m-mongodbmemoryserver-mtsoyhx6\observe\node_modules\mongodb-memory-server
+  == ATTRIBUTION == lifecycle pids: 2 (root 7928)
     writes  script 8  /  whole traced tree 15
     peers   script 1  /  whole traced tree 1
   == WRITES ==
@@ -33,32 +37,40 @@
     systemfs     28
   == NETWORK ==
     distinct peers: 1
-        13.32.205.41:443
+        13.226.209.73:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  242206450 B xml -> 3410546 B gz (71.0x)  sha256 e49ae14ffa2d18d3…
-  HEADER    etw-header.json (5158 bytes)
-  DERIVED   5884 distinct from 76970 kept ops (186046 xml events, 4744 out of subtree)
+  RAW       etw-raw.xml.gz  220554956 B xml -> 3106946 B gz (71.0x)  sha256 43efe7956fc8e9ee…
+  HEADER    etw-header.json (5159 bytes)
+  DERIVED   5884 distinct from 76205 kept ops (168355 xml events, 4467 out of subtree)
   PROCS     4   thread-reattributed 0
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (73595 bytes)
-  RAWLOG-CAPTURE D:\jail\m-mongodbmemoryserver-msjyxmn0\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (73993 bytes)
+  RAWLOG-CAPTURE D:\jail\m-mongodbmemoryserver-mtsoyhx6\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-mongodbmemoryserver-msjyxmn0
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\npm-cache","TMP":"D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp","TEMP":"D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp","TMPDIR":"D:\\jail\\m-mongodbmemoryserver-msjyxmn0\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-msjyxmn0\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6794/993) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-mongodbmemoryserver-mtsoyhx6
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\npm-cache","TMP":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\tmp","TEMP":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\tmp","TMPDIR":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-mtsoyhx6\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7b48af763e9c34d8fe46367d94b49a37c2ce56bd77aac17145b467df577f9ce5","specCount":49,"lockfiles":{"digest":"5934a10c38ce332a0c7be48faf8e972b41b7ae51a597cb56daca88fd0a59a185","files":[{"path":"nub.lock","sha256":"536fc36d1562034c65ea9ef35e257f851158b039765b5d7a31fd4226b7e6e883","bytes":14209}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:15:05.388Z","cacheHit":false,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 49 exact package-version(s), tree 7b48af763e9c
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6805/997) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-msjyxmn0\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6794/993) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-mtsoyhx6\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"7b48af763e9c34d8fe46367d94b49a37c2ce56bd77aac17145b467df577f9ce5","specCount":49,"lockfiles":{"digest":"5934a10c38ce332a0c7be48faf8e972b41b7ae51a597cb56daca88fd0a59a185","files":[{"path":"nub.lock","sha256":"536fc36d1562034c65ea9ef35e257f851158b039765b5d7a31fd4226b7e6e883","bytes":14209}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:15:05.388Z","cacheHit":true,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 49 exact package-version(s), tree 7b48af763e9c (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6805/997) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true}} also verifies; 'no-network' was not needed
-  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-msjyxmn0\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6794/993) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-mtsoyhx6\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"7b48af763e9c34d8fe46367d94b49a37c2ce56bd77aac17145b467df577f9ce5","specCount":49,"lockfiles":{"digest":"5934a10c38ce332a0c7be48faf8e972b41b7ae51a597cb56daca88fd0a59a185","files":[{"path":"nub.lock","sha256":"536fc36d1562034c65ea9ef35e257f851158b039765b5d7a31fd4226b7e6e883","bytes":14209}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:15:05.388Z","cacheHit":true,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 49 exact package-version(s), tree 7b48af763e9c (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6805/997) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-msjyxmn0\verify-joint-narrow\.cache
-  VERIFY[joint-narrow] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6794/993) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-mongodbmemoryserver-mtsoyhx6\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"7b48af763e9c34d8fe46367d94b49a37c2ce56bd77aac17145b467df577f9ce5","specCount":49,"lockfiles":{"digest":"5934a10c38ce332a0c7be48faf8e972b41b7ae51a597cb56daca88fd0a59a185","files":[{"path":"nub.lock","sha256":"536fc36d1562034c65ea9ef35e257f851158b039765b5d7a31fd4226b7e6e883","bytes":14209}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:15:05.388Z","cacheHit":true,"clearancePath":"D:\\jail\\m-mongodbmemoryserver-mtsoyhx6\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 49 exact package-version(s), tree 7b48af763e9c (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 6805/997) OVERRIDDEN=2 REJECTED=0 grant={}
   => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
