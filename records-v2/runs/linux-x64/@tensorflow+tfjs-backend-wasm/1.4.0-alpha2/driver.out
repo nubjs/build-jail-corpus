@@ -1,5 +1,116 @@
-### @tensorflow/tfjs-backend-wasm@1.4.0-alpha2   (/home/nub/v2-MQMGu8)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=127 files=1543 trace=8610 lines
-  => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed; nothing to measure)
+### @tensorflow/tfjs-backend-wasm@1.4.0-alpha2   (/home/runner/v2-LLusEk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6decce3514ac817614608030e2f94e7558fce1bc1c12bca402c2e6d3005d20f5","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:57.326Z","cacheHit":false,"clearancePath":"/home/runner/v2-LLusEk/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6decce3514ac
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a7f3186c56c9b23b4c603557ddb6101e18c51bd1357ecdccb7cfea0cc2c9a5c8","specCount":8,"lockfiles":{"digest":"65c076aedb4317d6c63060a6d751899edbbfba373574032228945c09c0f35f4a","files":[{"path":"package-lock.json","sha256":"fc1c1f1a839a6037f3c64304dad6f7f6d437bead9df451e3c782e3310c4db15f","bytes":3346}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:58.942Z","cacheHit":false,"clearancePath":"/home/runner/v2-LLusEk/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 8 exact package-version(s), tree a7f3186c56c9
+  OBSERVE   rc=0 files=18920 trace=428819 lines
+  CLOSURE   8 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":244,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (244) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-LLusEk/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-LLusEk/observe/capture.json
+  RAWLOG-BYTES raw=84256573 gz=3177865
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-LLusEk/jailhome","TMPDIR":"/tmp/nub-tmp-obsQyHGtj","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-LLusEk/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 60
+    writes  script 43060  /  whole traced tree 44148
+    sockets script 11  /  whole traced tree 15
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-LLusEk/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-LLusEk/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-LLusEk/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsQyHGtj
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-LLusEk/observe/node_modules/@tensorflow/tfjs-backend-wasm
+  == WRITES the script actually performed ==
+    jailHome  22749  (base profile already grants this — NOT billed)
+        /home/runner/v2-LLusEk/jailhome/.cache
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/.tmp
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-node-fetch-2.1.2-ab884e8e7e57e38a944753cec706f788d1768bb5-integrity
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-seedrandom-2.4.3-2438504dad33917314bff18ac4d794f16d6aaecc-integrity
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-@types-offscreencanvas-2019.3.0-3336428ec7e9180cf4566dfea5da04eb586a6553-integrity
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-@types-seedrandom-2.4.27-9db563937dd86915f69092bc43259d2f48578e41-integrity
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-@types-webgl-ext-0.0.30-0ce498c16a41a23d15289e0b844d945b25f0fb9d-integrity
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-@types-webgl2-0.0.4-c3b0f9d6b465c66138e84e64cb3bdf8373c2c279-integrity
+        … and 22739 more
+    bytecode      6  (jail REFUSES these and the build succeeds anyway — NOT billed)
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-jasmine-core-3.1.0-a4785e135d5df65024dfc9224953df585bd2766c-integrity/node_modules/jasmine-core/images/__init__.pyc
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-jasmine-core-3.1.0-a4785e135d5df65024dfc9224953df585bd2766c-integrity/node_modules/jasmine-core/images/__pycache__
+        /home/runner/v2-LLusEk/jailhome/.cache/yarn/v6/npm-jasmine-core-3.1.0-a4785e135d5df65024dfc9224953df585bd2766c-integrity/node_modules/jasmine-core/images/__pycache__/__init__.cpython-36.pyc
+        /home/runner/v2-LLusEk/observe/node_modules/@tensorflow/tfjs-core/node_modules/jasmine-core/images/__pycache__
+        /home/runner/v2-LLusEk/observe/node_modules/@tensorflow/tfjs-core/node_modules/jasmine-core/images/__init__.pyc
+        /home/runner/v2-LLusEk/observe/node_modules/@tensorflow/tfjs-core/node_modules/jasmine-core/images/__pycache__/__init__.cpython-36.pyc
+    deps      20291
+    jailTmp      14  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsQyHGtj/yarn--1788834065449-0.7140629625014157
+        /tmp/nub-tmp-obsQyHGtj/yarn--1788834065449-0.33502928534959664
+        /tmp/nub-tmp-obsQyHGtj/yarn--1788834065449-0.7140629625014157/node
+        /tmp/nub-tmp-obsQyHGtj/yarn--1788834065449-0.33502928534959664/node
+        /tmp/nub-tmp-obsQyHGtj/yarn--1788834065449-0.33502928534959664/yarn
+        /tmp/nub-tmp-obsQyHGtj/core-js-banners
+        /tmp/nub-tmp-obsQyHGtj/v8-compile-cache-1001
+        /tmp/nub-tmp-obsQyHGtj/v8-compile-cache-1001/12.4.254.21-node.56
+        /tmp/nub-tmp-obsQyHGtj/v8-compile-cache-1001/12.4.254.21-node.56/zSusrzSlocalzSlibzSnode_moduleszSyarnzSbinzSyarn.js.LOCK
+        /tmp/nub-tmp-obsQyHGtj/v8-compile-cache-1001/12.4.254.21-node.56/zSusrzSlocalzSlibzSnode_moduleszSyarnzSbinzSyarn.js.BLOB
+        … and 4 more
+  == NETWORK ==
+    AF_INET sockets: 11   distinct peers: 3
+        127.0.0.53:53
+        104.16.6.34:443
+        104.16.5.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true,"writePaths":[".cache/yarn"]}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 22749
+        .cache/yarn
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    216977 distinct from 333375 calls (428820 lines, 95367 rejoined, 0 unparsed)
+    PROCS     67   lifecycle shells 55
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×72 setsockopt×72 getsockopt×50 exit×49 recvmsg×29 wait4×16 getcwd×12 exit_group×11
+    wrote /home/runner/v2-LLusEk/observe/events.ndjson.gz (1312470 bytes)
+  EVENTLOG-FILE /home/runner/v2-LLusEk/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":428820,"parsed":333375,"unparsed":0,"unfinished":95367,"rejoined":95367,"unresolvedDirfd":3,"truncatedArg":0,"procs":67,"lifecyclePids":55,"distinctEvents":216977,"unknownSyscall":{"getsockname":72,"getsockopt":50,"getcwd":12,"recvmsg":29,"exit":49,"setsockopt":72,"sendmmsg":2,"socketpair":7,"shutdown":7,"exit_group":11,"wait4":16},"out":"/home/runner/v2-LLusEk/observe/events.ndjson.gz","gzipBytes":1312470}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @tensorflow/tfjs-backend-wasm
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a7f3186c56c9b23b4c603557ddb6101e18c51bd1357ecdccb7cfea0cc2c9a5c8","specCount":8,"lockfiles":{"digest":"7c1a16c3d07dee30dcbb5aef44c676cd8f9b07b9c4618e794b413c422fbb3f0e","files":[{"path":"nub.lock","sha256":"fd95d845180ab0405fff00fe2635536362e85d6f4be87ec7bd7eff02c2c1bcd0","bytes":2214}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:58.942Z","cacheHit":true,"clearancePath":"/home/runner/v2-LLusEk/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 8 exact package-version(s), tree a7f3186c56c9 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 4625/18920) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":[".cache/yarn"]}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     8 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @tensorflow/tfjs-backend-wasm
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"a7f3186c56c9b23b4c603557ddb6101e18c51bd1357ecdccb7cfea0cc2c9a5c8","specCount":8,"lockfiles":{"digest":"7c1a16c3d07dee30dcbb5aef44c676cd8f9b07b9c4618e794b413c422fbb3f0e","files":[{"path":"nub.lock","sha256":"fd95d845180ab0405fff00fe2635536362e85d6f4be87ec7bd7eff02c2c1bcd0","bytes":2214}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:58.942Z","cacheHit":true,"clearancePath":"/home/runner/v2-LLusEk/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 8 exact package-version(s), tree a7f3186c56c9 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 4625/18920) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  EVICT     8 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @tensorflow/tfjs-backend-wasm
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"a7f3186c56c9b23b4c603557ddb6101e18c51bd1357ecdccb7cfea0cc2c9a5c8","specCount":8,"lockfiles":{"digest":"7c1a16c3d07dee30dcbb5aef44c676cd8f9b07b9c4618e794b413c422fbb3f0e","files":[{"path":"nub.lock","sha256":"fd95d845180ab0405fff00fe2635536362e85d6f4be87ec7bd7eff02c2c1bcd0","bytes":2214}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:58.942Z","cacheHit":true,"clearancePath":"/home/runner/v2-LLusEk/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 8 exact package-version(s), tree a7f3186c56c9 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=244/244 missing=0 shortfall=none (tree 4625/18920) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  EVICT     8 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @tensorflow/tfjs-backend-wasm
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"a7f3186c56c9b23b4c603557ddb6101e18c51bd1357ecdccb7cfea0cc2c9a5c8","specCount":8,"lockfiles":{"digest":"7c1a16c3d07dee30dcbb5aef44c676cd8f9b07b9c4618e794b413c422fbb3f0e","files":[{"path":"nub.lock","sha256":"fd95d845180ab0405fff00fe2635536362e85d6f4be87ec7bd7eff02c2c1bcd0","bytes":2214}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T02:19:58.942Z","cacheHit":true,"clearancePath":"/home/runner/v2-LLusEk/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 8 exact package-version(s), tree a7f3186c56c9 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=244/244 missing=0 shortfall=none (tree 57230/18920) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"write":{"deps":true},"network":true,"writePaths":[".cache/yarn"]} and {"write":"disk","network":true} is worth reading
+  !! top rung is write:"disk" — no droppable terms, so no descent
