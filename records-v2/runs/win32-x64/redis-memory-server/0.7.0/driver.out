@@ -1,28 +1,32 @@
-### redis-memory-server@0.7.0   (D:\jail\m-redismemoryserver-msjzbiaf)
+### redis-memory-server@0.7.0   (D:\jail\m-redismemoryserver-mtsqese6)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=2020 exit=0 events=30553 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 41 files  (D:\jail\m-redismemoryserver-msjzbiaf\observe\node_modules\redis-memory-server)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"5606deee655b5896694a57b402bb5b283500fb784bc39e2c7bb857f0dd941b1a","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:11.004Z","cacheHit":false,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 5606deee655b
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6f2c3a4525294d81a3fbc4b48c45fd2718a58461bab266263b3c39aeee67f676","specCount":83,"lockfiles":{"digest":"4215f98a7f72f95a00bcfa5c03452556bfb7db57577068235b179bd96bb23c20","files":[{"path":"package-lock.json","sha256":"30909a49e0f6064c74dc1ddfd04c1916f4c053a31c805d88a6873b429a61fee5","bytes":37889}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:15.640Z","cacheHit":false,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 83 exact package-version(s), tree 6f2c3a452529
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2168 exit=0 events=35091 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 41 files  (D:\jail\m-redismemoryserver-mtsqese6\observe\node_modules\redis-memory-server)
   ARM-FALSIFIABILITY {"manifestFiles":41,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (41) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 75 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-redismemoryserver-msjzbiaf\observe   [keyed on]
+    project       D:\jail\m-redismemoryserver-mtsqese6\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-redismemoryserver-msjzbiaf\observe\node_modules\.store
+    projectStore  D:\jail\m-redismemoryserver-mtsqese6\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-redismemoryserver-msjzbiaf\tmp   [keyed on]
+    temp          D:\jail\m-redismemoryserver-mtsqese6\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-redismemoryserver-msjzbiaf\observe\node_modules\redis-memory-server
-  == ATTRIBUTION == lifecycle pids: 2 (root 2020)
-    writes  script 24  /  whole traced tree 31
+    ownPkg        D:\jail\m-redismemoryserver-mtsqese6\observe\node_modules\redis-memory-server
+  == ATTRIBUTION == lifecycle pids: 2 (root 2168)
+    writes  script 24  /  whole traced tree 30
     peers   script 1  /  whole traced tree 1
   == WRITES ==
     deps         24
@@ -33,42 +37,58 @@
     systemfs     29
   == NETWORK ==
     distinct peers: 1
-        185.199.108.133:443
+        185.199.111.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  39251316 B xml -> 581698 B gz (67.5x)  sha256 ad67e7ed5bdd2809…
+  RAW       etw-raw.xml.gz  45028841 B xml -> 674303 B gz (66.8x)  sha256 301f69c24071eabd…
   HEADER    etw-header.json (5135 bytes)
-  DERIVED   6281 distinct from 10701 kept ops (30553 xml events, 1630 out of subtree)
+  DERIVED   6281 distinct from 10704 kept ops (35091 xml events, 3342 out of subtree)
   PROCS     4   thread-reattributed 2
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (79130 bytes)
-  RAWLOG-CAPTURE D:\jail\m-redismemoryserver-msjzbiaf\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (79494 bytes)
+  RAWLOG-CAPTURE D:\jail\m-redismemoryserver-mtsqese6\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-redismemoryserver-msjzbiaf
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-redismemoryserver-msjzbiaf\\npm-cache","TMP":"D:\\jail\\m-redismemoryserver-msjzbiaf\\tmp","TEMP":"D:\\jail\\m-redismemoryserver-msjzbiaf\\tmp","TMPDIR":"D:\\jail\\m-redismemoryserver-msjzbiaf\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7173/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-redismemoryserver-mtsqese6
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-redismemoryserver-mtsqese6\\npm-cache","TMP":"D:\\jail\\m-redismemoryserver-mtsqese6\\tmp","TEMP":"D:\\jail\\m-redismemoryserver-mtsqese6\\tmp","TMPDIR":"D:\\jail\\m-redismemoryserver-mtsqese6\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":false,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5
+  VERIFY[synth] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-fb0\.cache
-  VERIFY[fb0] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7177/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[fb0] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
   => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
   !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7174/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7207/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7177/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-nar-no-write-project\.cache
-  VERIFY[nar-no-write-project] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7173/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-nar-no-write-project\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-nar-no-write-project-resolved.json"}
+  SECURITY nub-nar-no-write-project-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[nar-no-write-project] rc=1 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
      'no-write-project' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-nar-no-write-userHome\.cache
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7177/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"network":true} also verifies; 'no-write-userHome' was not needed
-  STORE   isolated virtual store at D:\jail\m-redismemoryserver-msjzbiaf\verify-joint-narrow\.cache
-  VERIFY[joint-narrow] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7177/1248) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-redismemoryserver-mtsqese6\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"9a18fba8daf5e381786004174f652097c315d1581f40ebbc0eacd609df56d47f","specCount":83,"lockfiles":{"digest":"97d34fcf9c94c9aa6b944f7dac5598f24aa0e1f4c0185ba533440968bac62646","files":[{"path":"nub.lock","sha256":"2a35ee426d2e62f60e1b9f6f2fb243de4c0f8ed1e3649e5a7456faab26f3fa6b","bytes":20646}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T13:55:30.139Z","cacheHit":true,"clearancePath":"D:\\jail\\m-redismemoryserver-mtsqese6\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 83 exact package-version(s), tree 9a18fba8daf5 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=41/41 missing=0 shortfall=none (tree 7206/1249) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true}
   => JOINT-NARROW VERIFIED {"write":{"project":true},"network":true} — all 2 capabilities drop TOGETHER, measured
