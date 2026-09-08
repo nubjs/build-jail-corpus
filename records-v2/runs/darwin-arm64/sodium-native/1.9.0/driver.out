@@ -1,69 +1,73 @@
-### sodium-native@1.9.0   (/Users/runner/v2m-DIOJcZ)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"903f1a365e1e2c6920ac2e33331115327a83d2339610b08f541616c812465dfc","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T05:59:56.605Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-z9W9Ds/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 903f1a365e1e
+### sodium-native@1.9.0   (/Users/runner/v2m-z9W9Ds)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ff0ce3bfa4432f4328bab3364310cf986b060247f36510f91bc6133ea347d5a7","specCount":3,"lockfiles":{"digest":"d436e90e4ac5424112c2c655e2e67eeba51e6893ea6f4a0f997147a6a070792a","files":[{"path":"package-lock.json","sha256":"796f45eb80b842989edbb2680b7760adbe0ae6097ae932f6517a926da2e533a8","bytes":1383}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T06:00:01.163Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-z9W9Ds/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree ff0ce3bfa443
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-DIOJcZ/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-DIOJcZ/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslEiAQa"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "sodium-native" > "/Users/runner/v2m-DIOJcZ/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-DIOJcZ/Observe/rc"
+     cd "/Users/runner/v2m-z9W9Ds/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-z9W9Ds/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obskkhi6E"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "sodium-native" > "/Users/runner/v2m-z9W9Ds/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-z9W9Ds/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-DIOJcZ/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-DIOJcZ/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obslEiAQa NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund sodium-native
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002e0c000) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x2074736574206669) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x2074736574206669) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002614060) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x2074736574206669) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x2074736574206669) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000f0c000) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000f0c000) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002a0d830) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000024121c0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002410d60) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002410c60) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002410da0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002412220) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000261f2f0) in action #4 at DIF offset 88
+     + cd /Users/runner/v2m-z9W9Ds/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-z9W9Ds/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obskkhi6E NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund sodium-native
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001768000) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e696c5f73612020) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6564756c636e6923) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6564756c636e6923) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e69622f7273752f) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x2074736574206669) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e696c5f73612020) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002e2a9a0) in action #4 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002a0ea00) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e696c5f73612020) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000b24000) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000b201c0) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002e2af10) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002039180) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002039300) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002e27ae0) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002024b40) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6574666e6f632f2e) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e696c5f73612020) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x68635f76635f7861) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x159008800) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x68635f76635f7861) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x136008800) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002450ce0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000241a660) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002450460) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000024504a0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002633510) in action #4 at DIF offset 88
-  OBSERVE   rc=1 dtrace_rc=0 files=953 (pre=620) trace=306920 lines
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002005f00) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6e696c5f73612020) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x5f656c62616e650a) in action #6 at DIF offset 88
+  OBSERVE   rc=1 dtrace_rc=0 files=953 (pre=620) trace=307046 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
      npm error make[3]: *** [crypto_generichash/blake2b/ref/libsodium_la-blake2b-ref.lo] Error 1
      npm error make[2]: *** [install-recursive] Error 1
      npm error make[1]: *** [install-recursive] Error 1
      npm error make: *** [install-recursive] Error 1
-     npm error /Users/runner/v2m-DIOJcZ/Observe/node_modules/sodium-native/preinstall.js:86
+     npm error /Users/runner/v2m-z9W9Ds/Observe/node_modules/sodium-native/preinstall.js:86
      npm error       if (err) throw err
      npm error                ^
      npm error
      npm error Error: make exited with 2
-     npm error     at ChildProcess.<anonymous> (/Users/runner/v2m-DIOJcZ/Observe/node_modules/sodium-native/preinstall.js:115:25)
+     npm error     at ChildProcess.<anonymous> (/Users/runner/v2m-z9W9Ds/Observe/node_modules/sodium-native/preinstall.js:115:25)
      npm error     at ChildProcess.emit (node:events:519:28)
      npm error     at ChildProcess._handle.onexit (node:internal/child_process:293:12)
      npm error
-     npm error Node.js v22.23.1
+     npm error Node.js v22.23.2
      npm notice
      npm notice New major version of npm available! 10.9.8 -> 12.0.2
      npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
      npm notice To update run: npm install -g npm@12.0.2
      npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-DIOJcZ/jailhome/.npm/_logs/2026-08-07T22_29_36_785Z-debug-0.log
+     npm error A complete log of this run can be found in: /Users/runner/v2m-z9W9Ds/jailhome/.npm/_logs/2026-09-08T06_00_02_542Z-debug-0.log
