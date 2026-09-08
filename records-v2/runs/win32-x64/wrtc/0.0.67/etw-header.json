@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "wrtc",
   "version": "0.0.67",
-  "at": "2026-08-08T04:39:08.581Z",
+  "at": "2026-09-08T10:31:56.064Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_3784_msjvw20k",
+      "name": "nubobs_4972_mtsj585d",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-wrtc-msjvvy5n\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-wrtc-msjvvy5n\\observe",
-    "rootPid": 5568,
-    "launcherPid": 4176,
+    "command": "D:\\jail\\m-wrtc-mtsj540t\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-wrtc-mtsj540t\\observe",
+    "rootPid": 1764,
+    "launcherPid": 9008,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T04:38:58.8365347Z",
-    "endedUtc": "2026-08-08T04:39:01.6089294Z"
+    "startedUtc": "2026-09-08T10:31:49.5082726Z",
+    "endedUtc": "2026-09-08T10:31:51.2481705Z"
   },
   "integrity": {
-    "eventsTotal": 71207,
+    "eventsTotal": 40069,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-wrtc-msjvvy5n\\observe",
+    "project": "D:\\jail\\m-wrtc-mtsj540t\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-wrtc-msjvvy5n\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-wrtc-mtsj540t\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-wrtc-msjvvy5n\\tmp",
+    "temp": "D:\\jail\\m-wrtc-mtsj540t\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-wrtc-msjvvy5n\\observe\\node_modules\\wrtc",
+    "ownPkg": "D:\\jail\\m-wrtc-mtsj540t\\observe\\node_modules\\wrtc",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 89064659,
-    "gzBytes": 1501881,
-    "sha256": "90b743f5e9de51f2abc6d543930be18a4c304c1c0d90e8bf51abdc8c204e3c31",
+    "bytes": 50665189,
+    "gzBytes": 741070,
+    "sha256": "744c05afb2e7d9f2c87fe2b14c2f024c07de44823333444976d6c25901698552",
     "of": "trace.xml",
-    "etlBytes": 11534336,
+    "etlBytes": 7340032,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 5568 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 1764 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 71207,
-    "kept": 10182,
-    "distinct": 7757,
+    "xmlEvents": 40069,
+    "kept": 10211,
+    "distinct": 7822,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 71181,
-      "Microsoft-Windows-Kernel-Process": 24
+      "Microsoft-Windows-Kernel-File": 40027,
+      "Microsoft-Windows-Kernel-Process": 30,
+      "Microsoft-Windows-Kernel-Network": 10
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 4,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 11889,
+    "outOfSubtree": 3717,
     "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,

@@ -1,27 +1,31 @@
-### wrtc@0.0.67   (D:\jail\m-wrtc-msjvvy5n)
+### wrtc@0.0.67   (D:\jail\m-wrtc-mtsj540t)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5568 exit=0 events=71207 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 69 files  (D:\jail\m-wrtc-msjvvy5n\observe\node_modules\wrtc)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a26a59e770879253cf8d2b459961a23db018bda7872543725eaad4965b260d7f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:31:42.192Z","cacheHit":false,"clearancePath":"D:\\jail\\m-wrtc-mtsj540t\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a26a59e77087
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"642959a673bef1b7acfcf63863c906d11eadca88a4a78fc6da02a0f496b87132","specCount":180,"lockfiles":{"digest":"02ee5c88e820214a212663b989cf3c6511465b4f274a772113eee91e5f8b4c63","files":[{"path":"package-lock.json","sha256":"bd642b399f0f17d9f21831893f79367487311ccae333df437b117658fb65f662","bytes":74530}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:31:47.244Z","cacheHit":false,"clearancePath":"D:\\jail\\m-wrtc-mtsj540t\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 180 exact package-version(s), tree 642959a673be
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1764 exit=0 events=40069 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 69 files  (D:\jail\m-wrtc-mtsj540t\observe\node_modules\wrtc)
   ARM-FALSIFIABILITY {"manifestFiles":70,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (70) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 173 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-wrtc-msjvvy5n\observe   [keyed on]
+    project       D:\jail\m-wrtc-mtsj540t\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-wrtc-msjvvy5n\observe\node_modules\.store
+    projectStore  D:\jail\m-wrtc-mtsj540t\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-wrtc-msjvvy5n\tmp   [keyed on]
+    temp          D:\jail\m-wrtc-mtsj540t\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-wrtc-msjvvy5n\observe\node_modules\wrtc
-  == ATTRIBUTION == lifecycle pids: 9 (root 5568)
+    ownPkg        D:\jail\m-wrtc-mtsj540t\observe\node_modules\wrtc
+  == ATTRIBUTION == lifecycle pids: 9 (root 1764)
     writes  script 1  /  whole traced tree 7
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -30,30 +34,35 @@
     deps        196
     outside      26
     project       1
-    systemfs     87
+    systemfs    108
     userHome      3
+    kernelfs      1
   == NETWORK ==
     distinct peers: 0
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true}}
-  RAW       etw-raw.xml.gz  89064659 B xml -> 1501881 B gz (59.3x)  sha256 90b743f5e9de51f2…
-  HEADER    etw-header.json (4984 bytes)
-  DERIVED   7757 distinct from 10182 kept ops (71207 xml events, 11889 out of subtree)
+  RAW       etw-raw.xml.gz  50665189 B xml -> 741070 B gz (68.4x)  sha256 744c05afb2e7d9f2…
+  HEADER    etw-header.json (5027 bytes)
+  DERIVED   7822 distinct from 10211 kept ops (40069 xml events, 3717 out of subtree)
   PROCS     11   thread-reattributed 0
   ⛔ 4 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (96608 bytes)
-  RAWLOG-CAPTURE D:\jail\m-wrtc-msjvvy5n\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (97208 bytes)
+  RAWLOG-CAPTURE D:\jail\m-wrtc-mtsj540t\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-wrtc-msjvvy5n
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-wrtc-msjvvy5n\\npm-cache","TMP":"D:\\jail\\m-wrtc-msjvvy5n\\tmp","TEMP":"D:\\jail\\m-wrtc-msjvvy5n\\tmp","TMPDIR":"D:\\jail\\m-wrtc-msjvvy5n\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-wrtc-msjvvy5n\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=69/69 missing=0 shortfall=none (tree 8257/1606) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  VENUE-JAIL-ROOT D:\jail\m-wrtc-mtsj540t
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-wrtc-mtsj540t\\npm-cache","TMP":"D:\\jail\\m-wrtc-mtsj540t\\tmp","TEMP":"D:\\jail\\m-wrtc-mtsj540t\\tmp","TMPDIR":"D:\\jail\\m-wrtc-mtsj540t\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-wrtc-mtsj540t\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e3192d5a08d7931c1287c45d07e6f0c241bc074eae3b103b89ab998a7de6ee94","specCount":184,"lockfiles":{"digest":"95ff4524db4903b53f763213b29d7f6511601e12960c2ef85d5239455f38b35a","files":[{"path":"nub.lock","sha256":"085c268fee959ed50862d73909702bcdcd8a6f2563ae2c359fddd884d40528ff","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:31:58.912Z","cacheHit":false,"clearancePath":"D:\\jail\\m-wrtc-mtsj540t\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 184 exact package-version(s), tree e3192d5a08d7
+  VERIFY[synth] rc=0 artifacts=69/69 missing=0 shortfall=none (tree 8283/1606) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
   => MINIMUM {"write":{"deps":true}}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-wrtc-msjvvy5n\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=69/69 missing=0 shortfall=none (tree 8257/1606) OVERRIDDEN=2 REJECTED=0 grant={}
+  STORE   isolated virtual store at D:\jail\m-wrtc-mtsj540t\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"e3192d5a08d7931c1287c45d07e6f0c241bc074eae3b103b89ab998a7de6ee94","specCount":184,"lockfiles":{"digest":"95ff4524db4903b53f763213b29d7f6511601e12960c2ef85d5239455f38b35a","files":[{"path":"nub.lock","sha256":"085c268fee959ed50862d73909702bcdcd8a6f2563ae2c359fddd884d40528ff","bytes":43203}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:31:58.912Z","cacheHit":true,"clearancePath":"D:\\jail\\m-wrtc-mtsj540t\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 184 exact package-version(s), tree e3192d5a08d7 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=69/69 missing=0 shortfall=none (tree 8283/1606) OVERRIDDEN=2 REJECTED=0 grant={}
      ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
