@@ -1,143 +1,116 @@
-### @shoelace-style/shoelace@2.13.1   (/Users/runner/v2m-ytTDYp)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c91826241b144b51b607c22ba157b7d22683a7c83b69878a76f705ca02bce805","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:40:58.503Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-wTZ6zd/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c91826241b14
+### @shoelace-style/shoelace@2.13.1   (/Users/runner/v2m-wTZ6zd)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"906ca0c40a5f9881222fccd0c27e3a17c556cab4e6bb66f606a2b4b0fa4563d8","specCount":18,"lockfiles":{"digest":"eee9b9cd1d2ed4d8e4fb6da9dad0f2397c9e09cb42cbe6a938e3783f4547e0dc","files":[{"path":"package-lock.json","sha256":"4a0b25a4d949bb83ab299c2dc2ec8c1d8b93fc93d331a4f97c021f47614ebb6b","bytes":7205}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:41:05.582Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-wTZ6zd/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 18 exact package-version(s), tree 906ca0c40a5f
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-ytTDYp/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-ytTDYp/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "@shoelace-style/shoelace" > "/Users/runner/v2m-ytTDYp/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-ytTDYp/Observe/rc"
+     cd "/Users/runner/v2m-wTZ6zd/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-wTZ6zd/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "@shoelace-style/shoelace" > "/Users/runner/v2m-wTZ6zd/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-wTZ6zd/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-ytTDYp/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-ytTDYp/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund @shoelace-style/shoelace
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003f04000) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003a380e0) in action #5 at DIF offset 88
-     dtrace: error on enabled probe ID 9 (ID 965: syscall::open_nocancel:return): invalid address (0x600001338540) in action #9 at DIF offset 12
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-  OBSERVE   rc=0 dtrace_rc=0 files=7123 (pre=7121) trace=244500 lines
+     + cd /Users/runner/v2m-wTZ6zd/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-wTZ6zd/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund @shoelace-style/shoelace
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002438090) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=7123 (pre=7121) trace=165001 lines
   CLOSURE   18 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-ytTDYp/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-ytTDYp/Observe/capture.json
-  RAWLOG-BYTES raw=37566798 gz=918350
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-ytTDYp/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-wTZ6zd/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-wTZ6zd/Observe/capture.json
+  RAWLOG-BYTES raw=23294444 gz=512250
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-wTZ6zd/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":5833,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (5833) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  EVENTLOG-FILE /Users/runner/v2m-ytTDYp/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":244501,"parsed":244436,"unparsed":0,"live":true,"tracerErrors":40,"tracerErrorTotal":40,"unresolvedDirfd":99,"unresolvedFd":0,"pairedTwoPath":1097,"danglingPair":0,"failed":51576,"enoent":14984,"refusals":0,"byErrno":{"ENXIO":7,"ENOENT":14984,"EEXIST":35974,"EINVAL":4,"ENOTEMPTY":607},"procs":18,"lifecyclePids":4,"distinctEvents":58514,"emitted":58514,"calls":243226,"bytes":13092988,"gzipBytes":320655,"out":"/Users/runner/v2m-ytTDYp/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=66107 dropped-events=40
-    NOTE 66 relative path(s) under a non-AT_FDCWD dirfd were not
+  EVENTLOG-FILE /Users/runner/v2m-wTZ6zd/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":165002,"parsed":164982,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":60,"unresolvedFd":0,"pairedTwoPath":1095,"danglingPair":0,"failed":26435,"enoent":10725,"refusals":0,"byErrno":{"ENXIO":5,"ENOENT":10725,"EEXIST":15700,"ENOTEMPTY":5},"procs":12,"lifecyclePids":3,"distinctEvents":21531,"emitted":21531,"calls":163828,"bytes":4728554,"gzipBytes":140740,"out":"/Users/runner/v2m-wTZ6zd/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=30519 dropped-events=1
+    NOTE 40 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
-    ⛔ CWD-UNOBSERVED 18 relative path(s) (0 write(s)) came from a lifecycle
+    ⛔ CWD-UNOBSERVED 9 relative path(s) (0 write(s)) came from a lifecycle
        process whose own cwd was never observed
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=96824 read  unproven .
-         pid=96824 read  unproven .
-         pid=96824 read  unproven .
-         pid=96876 read  unproven .
-         pid=96877 read  unproven .
-         pid=96902 read  unproven .
-         pid=96905 read  unproven .
-         pid=97169 read  unproven .
-         pid=97169 read  unproven .
-         pid=97169 read  unproven .
-         … and 8 more
-    ⛔ THE TRACER DROPPED 40 EVENT(S). A dropped event is a path never
+         pid=17086 read  unproven .
+         pid=17086 read  unproven .
+         pid=17086 read  unproven .
+         pid=17136 read  unproven .
+         pid=17137 read  unproven .
+         pid=17167 read  unproven .
+         pid=17174 read  unproven .
+         pid=17394 read  unproven .
+         pid=17701 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-            37 x  epid=128 action=6 fault=1 addr=0x656d616e75
-             1 x  epid=128 action=1 fault=1 addr=0x600003f04000
-             1 x  epid=128 action=5 fault=1 addr=0x600003a380e0
-             1 x  epid=9 action=9 fault=1 addr=0x600001338540
-  == ATTRIBUTION == lifecycle pids: 4
-    writes  script 15928  /  whole traced subtree 16479
-    sockets script 5  /  whole traced subtree 6
-  == ROOTS (from /Users/runner/v2m-ytTDYp/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-ytTDYp/Observe
+             1 x  epid=128 action=1 fault=1 addr=0x600002438090
+  == ATTRIBUTION == lifecycle pids: 3
+    writes  script 9318  /  whole traced subtree 9869
+    sockets script 3  /  whole traced subtree 4
+  == ROOTS (from /Users/runner/v2m-wTZ6zd/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-wTZ6zd/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-ytTDYp/jailhome
+    jailHome      /Users/runner/v2m-wTZ6zd/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-ytTDYp/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-wTZ6zd/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-ytTDYp/Observe/node_modules/@shoelace-style/shoelace
+    ownPkg        /Users/runner/v2m-wTZ6zd/Observe/node_modules/@shoelace-style/shoelace
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
-    jailHome   3612  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_logs/2026-08-07T17_59_20_481Z-debug-0.log
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/tmp
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/tmp/2e00e5bd
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/content-v2
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/content-v2/sha512
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/content-v2/sha512/f6
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/content-v2/sha512/f6/b9
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/content-v2/sha512/f6/b9/9ebc57b75b208b76c262645c5153adee67dcd0c24fd5599c26f3f087115c0c33b8e328c445880147e95fd92a5464c469644f7fa0c072ace5f1d3cb95391e
-        /Users/runner/v2m-ytTDYp/jailhome/.npm/_cacache/index-v5
-        … and 3602 more
-    jailTmp    4432  (base profile already grants this — NOT billed)
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/v8-platform.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/v8-local-handle.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/uv.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/v8-script.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/v8-debug.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/v8-value.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsckiyhx/node-gyp-tmp-Ja7Krs/include/node/node_api.h
-        … and 4422 more
-    userHome   7883
+    jailHome    263  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_logs/2026-09-08T00_41_07_828Z-debug-0.log
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/tmp
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/tmp/35a58d50
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/content-v2
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/content-v2/sha512
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/content-v2/sha512/20
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/content-v2/sha512/20/af
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/content-v2/sha512/20/af/c062c29d7567177eadd13fe392d9f10832672458f8ad33c55863a1c233c680c6307f70e6b5fba5441271ee2871d0a84a29f57b49c65f191b667a79645b40
+        /Users/runner/v2m-wTZ6zd/jailhome/.npm/_cacache/index-v5
+        … and 253 more
+    userHome   7948
+    jailTmp    1106  (base profile already grants this — NOT billed)
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-aRod88
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-aRod88/playwright-download-chromium-mac15-arm64-1243.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-xYF7DP
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-xYF7DP/playwright-download-chromium-headless-shell-mac15-arm64-1243.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-MkkVwH
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-MkkVwH/playwright-download-firefox-mac15-arm64-1543.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-b5tydt
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-b5tydt/playwright-download-webkit-mac15-arm64-2359.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-071j2n
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsNizzcK/playwright-download-071j2n/playwright-download-ffmpeg-mac15-arm64-1011.zip
+        … and 1096 more
   == READS the script performed, by scope ==
-    outside      70
-    systemfs     19
-    userHome    734
+    outside      11
+    systemfs     17
+    userHome    684
     project       1
-    jailHome     35
+    jailHome     33
     ownPkg        1
-    bytecode    107
-    jailTmp    3336
+    npmPrefix     1
+    jailTmp      10
         outside: /
         outside: /bin/bash
         outside: /bin
@@ -149,69 +122,73 @@
         outside: /var/db/timezone/zoneinfo/UTC
         outside: /bin/sh
   == NETWORK ==
-    AF_INET connects: 5   distinct peers: 2
-        104.16.4.34:443
-        104.16.213.131:443
+    AF_INET connects: 3   distinct peers: 1
+        104.16.10.34:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
-    {"write":{"userHome":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+    {"write":{"userHome":true},"network":true}
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
-    private-home writes observed: 3612
-        Library/Caches/node-gyp
-    7883 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+    private-home writes observed: 263
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+    7948 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 7883
-        .cache/nub/pm/tools/ms-playwright
+    count: 7948
         .cache/nub/pm/tools/ms-playwright/__dirlock
         .cache/nub/pm/tools/ms-playwright/.links
-        .cache/nub/pm/tools/ms-playwright/.links/1ee4f87ae96f4f3f1da151b41061fde4b2035df7
-        .cache/nub/pm/tools/ms-playwright/chromium-1234
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/ABOUT
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/manifest.json
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources/accessibility
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/content.js
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/gdocs_script.js
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper_manifest.json
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj/InfoPlist.strings
-        .cache/nub/pm/tools/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/uk.lproj
-        … and 7843 more
-  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 956 in store
-     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run
+        .cache/nub/pm/tools/ms-playwright/.links/2a617baa3fb24e0ae4ef63ab64679d0bde3b0dc8
+        .cache/nub/pm/tools/ms-playwright/chromium-1243
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/ABOUT
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/content.js
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/gdocs_script.js
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper_manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/uk.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/uk.lproj/InfoPlist.strings
+        … and 7908 more
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 891 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"906ca0c40a5f9881222fccd0c27e3a17c556cab4e6bb66f606a2b4b0fa4563d8","specCount":18,"lockfiles":{"digest":"b02731f8996ed5563bcf1f40f6d78ebce7bacd6a09555b4055b52997b0a73a20","files":[{"path":"nub.lock","sha256":"773054c78221eba425357af0a0bc3226f97502703c329e3249ffbba8015b3d45","bytes":4570}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:41:05.582Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-wTZ6zd/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 18 exact package-version(s), tree 906ca0c40a5f (cached exact-tree clearance)
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
-  => VERIFIED {"write":{"userHome":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
-  EVICT[nar-no-network] 18 store entries removed, 0 spared as nub tooling, 974 in store
-  VERIFY[nar-no-network] rc=1 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"writePaths":["Library/Caches/node-gyp"]}
+  VERIFY[synth] rc=0 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}
+  EVICT[nar-no-network] 18 store entries removed, 0 spared as nub tooling, 909 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"906ca0c40a5f9881222fccd0c27e3a17c556cab4e6bb66f606a2b4b0fa4563d8","specCount":18,"lockfiles":{"digest":"b02731f8996ed5563bcf1f40f6d78ebce7bacd6a09555b4055b52997b0a73a20","files":[{"path":"nub.lock","sha256":"773054c78221eba425357af0a0bc3226f97502703c329e3249ffbba8015b3d45","bytes":4570}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:41:05.582Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-wTZ6zd/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 18 exact package-version(s), tree 906ca0c40a5f (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
      narrowing 'no-network' fails ⇒ that capability IS necessary
-  EVICT[nar-no-write-userHome] 18 store entries removed, 0 spared as nub tooling, 974 in store
-  VERIFY[nar-no-write-userHome] rc=0 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":["Library/Caches/node-gyp"]}
-     ⛔ OVER-PREDICTED — the strictly narrower {"network":true,"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-write-userHome' was not needed
-### DONE @shoelace-style/shoelace@2.13.1  synthesized={"write":{"userHome":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} verified=1
+  EVICT[nar-no-write-userHome] 18 store entries removed, 0 spared as nub tooling, 909 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"906ca0c40a5f9881222fccd0c27e3a17c556cab4e6bb66f606a2b4b0fa4563d8","specCount":18,"lockfiles":{"digest":"b02731f8996ed5563bcf1f40f6d78ebce7bacd6a09555b4055b52997b0a73a20","files":[{"path":"nub.lock","sha256":"773054c78221eba425357af0a0bc3226f97502703c329e3249ffbba8015b3d45","bytes":4570}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:41:05.582Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-wTZ6zd/security/nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 18 exact package-version(s), tree 906ca0c40a5f (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=5833/5833 missing=0 shortfall=none (tree 21944/7123) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+### DONE @shoelace-style/shoelace@2.13.1  synthesized={"write":{"userHome":true},"network":true} verified=1
