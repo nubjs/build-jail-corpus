@@ -1,27 +1,31 @@
-### fallow@1.9.0   (D:\jail\m-fallow-msjuwro8)
+### fallow@1.9.0   (D:\jail\m-fallow-mtsgqlhb)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8504 exit=0 events=20708 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 4 files  (D:\jail\m-fallow-msjuwro8\observe\node_modules\fallow)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"d814a1459ff95da801fbf47323aa1f2789295528eca755aac2056b9afdc78d30","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:24:25.766Z","cacheHit":false,"clearancePath":"D:\\jail\\m-fallow-mtsgqlhb\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree d814a1459ff9
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7e01957d7d61908cc4d0757ea8ae587ae3e80793ccaff5631f7559b6589bd1bf","specCount":3,"lockfiles":{"digest":"93bc037c4852375b199f4971f1c4a42764962eaabee5516dba2703ddd3bbe279","files":[{"path":"package-lock.json","sha256":"e117d095101b08cca2953ad106f19cb0bb9e97304107238762e07106781555f8","bytes":4397}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:24:27.677Z","cacheHit":false,"clearancePath":"D:\\jail\\m-fallow-mtsgqlhb\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 7e01957d7d61
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6568 exit=0 events=35566 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 4 files  (D:\jail\m-fallow-mtsgqlhb\observe\node_modules\fallow)
   ARM-FALSIFIABILITY {"manifestFiles":4,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (4) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 3 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-fallow-msjuwro8\observe   [keyed on]
+    project       D:\jail\m-fallow-mtsgqlhb\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-fallow-msjuwro8\observe\node_modules\.store
+    projectStore  D:\jail\m-fallow-mtsgqlhb\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-fallow-msjuwro8\tmp   [keyed on]
+    temp          D:\jail\m-fallow-mtsgqlhb\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-fallow-msjuwro8\observe\node_modules\fallow
-  == ATTRIBUTION == lifecycle pids: 2 (root 8504)
+    ownPkg        D:\jail\m-fallow-mtsgqlhb\observe\node_modules\fallow
+  == ATTRIBUTION == lifecycle pids: 2 (root 6568)
     writes  script 0  /  whole traced tree 11
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -36,20 +40,22 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {}
-  RAW       etw-raw.xml.gz  26415469 B xml -> 388391 B gz (68.0x)  sha256 957773fbec9c420d…
-  HEADER    etw-header.json (5041 bytes)
-  DERIVED   5262 distinct from 6427 kept ops (20708 xml events, 1329 out of subtree)
+  RAW       etw-raw.xml.gz  45477617 B xml -> 681692 B gz (66.7x)  sha256 9160e6354491df04…
+  HEADER    etw-header.json (4995 bytes)
+  DERIVED   5263 distinct from 6427 kept ops (35566 xml events, 7068 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (66314 bytes)
-  RAWLOG-CAPTURE D:\jail\m-fallow-msjuwro8\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66532 bytes)
+  RAWLOG-CAPTURE D:\jail\m-fallow-mtsgqlhb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-fallow-msjuwro8
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-fallow-msjuwro8\\npm-cache","TMP":"D:\\jail\\m-fallow-msjuwro8\\tmp","TEMP":"D:\\jail\\m-fallow-msjuwro8\\tmp","TMPDIR":"D:\\jail\\m-fallow-msjuwro8\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-fallow-msjuwro8\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5692/22) OVERRIDDEN=2 REJECTED=0 grant={}
+  VENUE-JAIL-ROOT D:\jail\m-fallow-mtsgqlhb
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-fallow-mtsgqlhb\\npm-cache","TMP":"D:\\jail\\m-fallow-mtsgqlhb\\tmp","TEMP":"D:\\jail\\m-fallow-mtsgqlhb\\tmp","TMPDIR":"D:\\jail\\m-fallow-mtsgqlhb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-fallow-mtsgqlhb\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7e01957d7d61908cc4d0757ea8ae587ae3e80793ccaff5631f7559b6589bd1bf","specCount":3,"lockfiles":{"digest":"cf7384a1b04904e81c37fb3ae30d620c3e1b1aa497f0bae0607cd55ee64596a1","files":[{"path":"nub.lock","sha256":"1028eebdc4934a533801de7ae8639700681f321fa15355defc2bed2451a941a0","bytes":2747}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:24:27.677Z","cacheHit":true,"clearancePath":"D:\\jail\\m-fallow-mtsgqlhb\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 7e01957d7d61 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=4/4 missing=0 shortfall=none (tree 5698/22) OVERRIDDEN=2 REJECTED=0 grant={}
   => MINIMUM {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
