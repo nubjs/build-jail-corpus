@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "pre-push",
   "version": "0.1.4",
-  "at": "2026-09-07T19:53:43.020Z",
+  "at": "2026-09-08T08:43:47.996Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_2728_mtrnrvwk",
+      "name": "nubobs_6056_mtsfa8ku",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -26,7 +26,7 @@
         "name": "Microsoft-Windows-Kernel-File",
         "keywords": "0x1FF0",
         "level": 5,
-        "exit": 0
+        "exit": -2147024637
       },
       {
         "name": "Microsoft-Windows-Kernel-Network",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-prepush-mtrnruab\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-prepush-mtrnruab\\observe",
-    "rootPid": 2532,
-    "launcherPid": 9140,
+    "command": "D:\\jail\\m-prepush-mtsfa6fe\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-prepush-mtsfa6fe\\observe",
+    "rootPid": 396,
+    "launcherPid": 9240,
     "exitCode": 0,
-    "startedUtc": "2026-09-07T19:53:39.0017551Z",
-    "endedUtc": "2026-09-07T19:53:39.6191828Z"
+    "startedUtc": "2026-09-08T08:43:45.2745294Z",
+    "endedUtc": "2026-09-08T08:43:46.1413127Z"
   },
   "integrity": {
-    "eventsTotal": 21601,
+    "eventsTotal": 78,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-prepush-mtrnruab\\observe",
+    "project": "D:\\jail\\m-prepush-mtsfa6fe\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-prepush-mtrnruab\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-prepush-mtsfa6fe\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-prepush-mtrnruab\\tmp",
+    "temp": "D:\\jail\\m-prepush-mtsfa6fe\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-prepush-mtrnruab\\observe\\node_modules\\pre-push",
+    "ownPkg": "D:\\jail\\m-prepush-mtsfa6fe\\observe\\node_modules\\pre-push",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 27546045,
-    "gzBytes": 398716,
-    "sha256": "e7e5f30aeaecb2c2b15a0477ea39c505c990628d784e759ff0955c7f280b61cc",
+    "bytes": 152189,
+    "gzBytes": 7473,
+    "sha256": "53fac9d8d38f4732eff9b5268a2e901b2edff034c446d8487fc4784f75d3c559",
     "of": "trace.xml",
-    "etlBytes": 6291456,
+    "etlBytes": 5242880,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2532 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 396 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 21601,
-    "kept": 6387,
-    "distinct": 5238,
+    "xmlEvents": 78,
+    "kept": 0,
+    "distinct": 0,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 21589,
-      "Microsoft-Windows-Kernel-Process": 10
+      "Microsoft-Windows-Kernel-Process": 58,
+      "Microsoft-Windows-Kernel-Network": 18
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 1657,
-    "destResolved": 1,
+    "outOfSubtree": 18,
+    "destResolved": 0,
     "destUnresolved": 0,
     "shortExpanded": 0,
     "shortUnexpanded": 0,
