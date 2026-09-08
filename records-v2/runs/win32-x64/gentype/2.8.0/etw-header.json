@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "gentype",
   "version": "2.8.0",
-  "at": "2026-08-08T06:45:54.288Z",
+  "at": "2026-09-08T14:55:50.443Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7324_msk0f562",
+      "name": "nubobs_1588_mtssknxf",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,44 +58,44 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-gentype-msk0f3y8\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-gentype-msk0f3y8\\observe",
-    "rootPid": 6080,
-    "launcherPid": 3460,
+    "command": "D:\\jail\\m-gentype-mtsskmst\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-gentype-mtsskmst\\observe",
+    "rootPid": 5544,
+    "launcherPid": 8460,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T06:45:48.7248904Z",
-    "endedUtc": "2026-08-08T06:45:50.3436344Z"
+    "startedUtc": "2026-09-08T14:55:46.1918204Z",
+    "endedUtc": "2026-09-08T14:55:46.6753901Z"
   },
   "integrity": {
-    "eventsTotal": 23514,
+    "eventsTotal": 36659,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-gentype-msk0f3y8\\observe",
+    "project": "D:\\jail\\m-gentype-mtsskmst\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-gentype-msk0f3y8\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-gentype-mtsskmst\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-gentype-msk0f3y8\\tmp",
+    "temp": "D:\\jail\\m-gentype-mtsskmst\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-gentype-msk0f3y8\\observe\\node_modules\\gentype",
+    "ownPkg": "D:\\jail\\m-gentype-mtsskmst\\observe\\node_modules\\gentype",
     "cwd": null
   },
   "rootsFrom": "capture.json",
   "devmap": {
-    "\\Device\\HarddiskVolume5": "D:",
-    "\\Device\\HarddiskVolume4": "C:"
+    "\\Device\\HarddiskVolume4": "C:",
+    "\\Device\\HarddiskVolume6": "D:"
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 30070601,
-    "gzBytes": 470850,
-    "sha256": "dd16ecfaff663f7cbe7eda8ece56ac09e441232454a3ce892177cead643eec70",
+    "bytes": 46867365,
+    "gzBytes": 707236,
+    "sha256": "efe64c80122c3f82b9a42893fb5c4199ad822ccf7621dba03a508fa3c8a756d1",
     "of": "trace.xml",
-    "etlBytes": 6291456,
+    "etlBytes": 8388608,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,23 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 6080 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 5544 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 23514,
-    "kept": 6426,
-    "distinct": 5256,
+    "xmlEvents": 36659,
+    "kept": 6423,
+    "distinct": 5255,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 23478,
-      "Microsoft-Windows-Kernel-Process": 10,
-      "Microsoft-Windows-Kernel-Network": 24
+      "Microsoft-Windows-Kernel-File": 36647,
+      "Microsoft-Windows-Kernel-Process": 10
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 2,
+    "unresolvedHandle": 1,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 2521,
+    "outOfSubtree": 7583,
     "destResolved": 5,
     "destUnresolved": 0,
     "shortExpanded": 0,

@@ -1,33 +1,37 @@
-### netlify-cli@26.2.0   (D:\jail\m-netlifycli-msk05b25)
+### netlify-cli@26.2.0   (D:\jail\m-netlifycli-mtss8flb)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=4996 exit=0 events=48866 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 1113 files  (D:\jail\m-netlifycli-msk05b25\observe\node_modules\netlify-cli)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"527e21d7487de49f0bc22a255e7784eb25279e5d8f1b0b0d3ff75662c088a7e4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:46:13.746Z","cacheHit":false,"clearancePath":"D:\\jail\\m-netlifycli-mtss8flb\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 527e21d7487d
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3160941a1de0dd850c7c5567859c28b22ab84c6d2ffd91aef9e9c7a0be2fc190","specCount":966,"lockfiles":{"digest":"3eab2ea42817e8a92cc97b4df14072a3c4ce1a09dea8513f41118588a3a77099","files":[{"path":"package-lock.json","sha256":"05f436aaac241785524b098fc9aabba1dbbe75c6b2f2bcdeaa388e541f41bf9f","bytes":623021}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:46:58.936Z","cacheHit":false,"clearancePath":"D:\\jail\\m-netlifycli-mtss8flb\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 966 exact package-version(s), tree 3160941a1de0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6116 exit=0 events=54984 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 1113 files  (D:\jail\m-netlifycli-mtss8flb\observe\node_modules\netlify-cli)
   ARM-FALSIFIABILITY {"manifestFiles":1110,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (1110) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 835 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-netlifycli-msk05b25\observe   [keyed on]
+    project       D:\jail\m-netlifycli-mtss8flb\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-netlifycli-msk05b25\observe\node_modules\.store
+    projectStore  D:\jail\m-netlifycli-mtss8flb\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-netlifycli-msk05b25\tmp   [keyed on]
+    temp          D:\jail\m-netlifycli-mtss8flb\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-netlifycli-msk05b25\observe\node_modules\netlify-cli
-  == ATTRIBUTION == lifecycle pids: 2 (root 4996)
+    ownPkg        D:\jail\m-netlifycli-mtss8flb\observe\node_modules\netlify-cli
+  == ATTRIBUTION == lifecycle pids: 2 (root 6116)
     writes  script 3  /  whole traced tree 17
     peers   script 0  /  whole traced tree 0
   == WRITES ==
     userHome      3
   == READS ==
-    deps       1743
+    deps       1760
     outside       6
     project       1
     systemfs     28
@@ -37,35 +41,29 @@
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true}}
-  RAW       etw-raw.xml.gz  62723760 B xml -> 943983 B gz (66.4x)  sha256 4369bba1ef815ae8…
-  HEADER    etw-header.json (5078 bytes)
-  DERIVED   14071 distinct from 17334 kept ops (48866 xml events, 1486 out of subtree)
+  RAW       etw-raw.xml.gz  70431722 B xml -> 1003157 B gz (70.2x)  sha256 01ce50ac5ade750c…
+  HEADER    etw-header.json (5079 bytes)
+  DERIVED   16491 distinct from 19916 kept ops (54984 xml events, 1758 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (170812 bytes)
-  RAWLOG-CAPTURE D:\jail\m-netlifycli-msk05b25\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (195045 bytes)
+  RAWLOG-CAPTURE D:\jail\m-netlifycli-mtss8flb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-netlifycli-msk05b25
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-netlifycli-msk05b25\\npm-cache","TMP":"D:\\jail\\m-netlifycli-msk05b25\\tmp","TEMP":"D:\\jail\\m-netlifycli-msk05b25\\tmp","TMPDIR":"D:\\jail\\m-netlifycli-msk05b25\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-JAIL-ROOT D:\jail\m-netlifycli-mtss8flb
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-netlifycli-mtss8flb\\npm-cache","TMP":"D:\\jail\\m-netlifycli-mtss8flb\\tmp","TEMP":"D:\\jail\\m-netlifycli-mtss8flb\\tmp","TMPDIR":"D:\\jail\\m-netlifycli-mtss8flb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-netlifycli-msk05b25\verify-synth\.cache
-  VERIFY[synth] rc=23 artifacts=ABSENT/1113 missing=1 shortfall=7f7367677a90 (tree 757/35691) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
-     missing artifacts: <package absent>
-  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-netlifycli-mtss8flb\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e445e3345eaa1d22c0a7914222f8f965f3b6b06decdaf2305261062798891c09","specCount":966,"lockfiles":{"digest":"43ba709adc57d6326354c22a84a24789541458186335b8083854ec1479b1d580","files":[{"path":"nub.lock","sha256":"9f24145ef6725d6aff62268cf798cc93a935aafa8fcfc313332b2d86ea6de044","bytes":293348}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:47:41.654Z","cacheHit":false,"clearancePath":"D:\\jail\\m-netlifycli-mtss8flb\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 966 exact package-version(s), tree e445e3345eaa
+  VERIFY[synth] rc=0 artifacts=1113/1113 missing=0 shortfall=none (tree 49252/36953) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  => MINIMUM {"write":{"userHome":true}}   (observed, then verified)
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-netlifycli-msk05b25\verify-fb0\.cache
-  VERIFY[fb0] rc=23 artifacts=ABSENT/1113 missing=1 shortfall=7f7367677a90 (tree 759/35691) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-     missing artifacts: <package absent>
-  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-netlifycli-msk05b25\verify-fb1\.cache
-  VERIFY[fb1] rc=23 artifacts=ABSENT/1113 missing=1 shortfall=7f7367677a90 (tree 759/35691) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-     missing artifacts: <package absent>
-  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-netlifycli-msk05b25\verify-fb2\.cache
-  VERIFY[fb2] rc=23 artifacts=ABSENT/1113 missing=1 shortfall=7f7367677a90 (tree 759/35691) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-     missing artifacts: <package absent>
-  NOT-GRANT-INDEPENDENT an arm exited non-zero
-  => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly
+  STORE   isolated virtual store at D:\jail\m-netlifycli-mtss8flb\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"e445e3345eaa1d22c0a7914222f8f965f3b6b06decdaf2305261062798891c09","specCount":966,"lockfiles":{"digest":"43ba709adc57d6326354c22a84a24789541458186335b8083854ec1479b1d580","files":[{"path":"nub.lock","sha256":"9f24145ef6725d6aff62268cf798cc93a935aafa8fcfc313332b2d86ea6de044","bytes":293348}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T14:47:41.654Z","cacheHit":true,"clearancePath":"D:\\jail\\m-netlifycli-mtss8flb\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 966 exact package-version(s), tree e445e3345eaa (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=1113/1113 missing=0 shortfall=none (tree 49252/36953) OVERRIDDEN=2 REJECTED=0 grant={}
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"write":{"userHome":true}} is independently necessary
