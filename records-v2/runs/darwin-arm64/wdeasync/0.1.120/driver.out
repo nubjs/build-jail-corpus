@@ -1,23 +1,27 @@
-### wdeasync@0.1.120   (/Users/runner/v2m-vnA7kQ)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"09278fcf1d6358cc8d65ac6042354ca76ca16dc797ec3b67cbeb6fdbadfcc851","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:44.345Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 09278fcf1d63
+### wdeasync@0.1.120   (/Users/runner/v2m-5PkqJZ)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"7d843431111204e6b0e9a0d21031e54a2e1424651d2ddb0bc387858dd5e315e4","files":[{"path":"package-lock.json","sha256":"74ab9ff8750088cd9ab4054b0f23ceeb0d85d836820ecd1ff6718a9b038b0a39","bytes":46258}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-vnA7kQ/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-vnA7kQ/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "wdeasync" > "/Users/runner/v2m-vnA7kQ/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-vnA7kQ/Observe/rc"
+     cd "/Users/runner/v2m-5PkqJZ/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-5PkqJZ/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "wdeasync" > "/Users/runner/v2m-5PkqJZ/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-5PkqJZ/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-vnA7kQ/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-vnA7kQ/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund wdeasync
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001124090) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-5PkqJZ/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-5PkqJZ/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund wdeasync
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000275c000) in action #1 at DIF offset 20
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
@@ -45,18 +49,18 @@
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-  OBSERVE   rc=0 dtrace_rc=0 files=1140 (pre=1124) trace=112271 lines
+  OBSERVE   rc=0 dtrace_rc=0 files=1139 (pre=1123) trace=112271 lines
   CLOSURE   101 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-vnA7kQ/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-vnA7kQ/Observe/capture.json
-  RAWLOG-BYTES raw=19268170 gz=603837
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-vnA7kQ/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-5PkqJZ/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-5PkqJZ/Observe/capture.json
+  RAWLOG-BYTES raw=19268331 gz=605801
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-5PkqJZ/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":21,"filesTheScriptProduced":13,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-vnA7kQ/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":112272,"parsed":112168,"unparsed":0,"live":true,"tracerErrors":55,"tracerErrorTotal":55,"unresolvedDirfd":291,"unresolvedFd":0,"pairedTwoPath":635,"danglingPair":0,"failed":38115,"enoent":17042,"refusals":0,"byErrno":{"ENXIO":25,"ENOENT":17042,"EEXIST":20443,"EINVAL":4,"ENOTEMPTY":601},"procs":54,"lifecyclePids":23,"distinctEvents":55947,"emitted":55947,"calls":111310,"bytes":11629278,"gzipBytes":295416,"out":"/Users/runner/v2m-vnA7kQ/Observe/events.ndjson"}
-  == TRACER == live=true decodable-events=44317 dropped-events=55
+  EVENTLOG-FILE /Users/runner/v2m-5PkqJZ/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":112272,"parsed":112160,"unparsed":0,"live":true,"tracerErrors":63,"tracerErrorTotal":63,"unresolvedDirfd":291,"unresolvedFd":0,"pairedTwoPath":636,"danglingPair":0,"failed":38112,"enoent":17039,"refusals":0,"byErrno":{"ENXIO":25,"ENOENT":17039,"EEXIST":20443,"EINVAL":4,"ENOTEMPTY":601},"procs":54,"lifecyclePids":23,"distinctEvents":55947,"emitted":55947,"calls":111309,"bytes":11629140,"gzipBytes":294511,"out":"/Users/runner/v2m-5PkqJZ/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=44312 dropped-events=63
     NOTE 194 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
     ⛔ CWD-UNOBSERVED 101 relative path(s) (13 write(s)) came from a lifecycle
@@ -64,86 +68,87 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=16439 read  unproven .
-         pid=16439 read  unproven .
-         pid=16440 read  unproven .
-         pid=16440 read  unproven .
-         pid=16474 read  unproven .
-         pid=16476 read  unproven .
-         pid=16477 read  unproven .
-         pid=16498 read  unproven .
-         pid=16499 read  unproven .
-         pid=16586 read  unproven .
+         pid=15067 read  unproven .
+         pid=15067 read  unproven .
+         pid=15068 read  unproven .
+         pid=15068 read  unproven .
+         pid=15105 read  unproven .
+         pid=15106 read  unproven .
+         pid=15108 read  unproven .
+         pid=15131 read  unproven .
+         pid=15133 read  unproven .
+         pid=15251 read  unproven .
          … and 91 more
-    CWD-UNPLACEABLE-WRITES ["./Release/.deps//Users","./Release/.deps//Users/runner","./Release/.deps//Users/runner/v2m-vnA7kQ","./Release/.deps//Users/runner/v2m-vnA7kQ/Observe","./Release/.deps//Users/runner/v2m-vnA7kQ/Observe/node_modules","./Release/.deps//Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync","./Release/.deps//Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/Release","./Release/.deps//Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/Release/deasync.node.d","./Release/.deps/Release/obj.target/deasync/cpp/deasync.o.d.raw","Release/obj.target","Release/obj.target/deasync","Release/obj.target/deasync/cpp"]
+    CWD-UNPLACEABLE-WRITES ["./Release/.deps//Users","./Release/.deps//Users/runner","./Release/.deps//Users/runner/v2m-5PkqJZ","./Release/.deps//Users/runner/v2m-5PkqJZ/Observe","./Release/.deps//Users/runner/v2m-5PkqJZ/Observe/node_modules","./Release/.deps//Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync","./Release/.deps//Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/Release","./Release/.deps//Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/Release/deasync.node.d","./Release/.deps/Release/obj.target/deasync/cpp/deasync.o.d.raw","Release/obj.target","Release/obj.target/deasync","Release/obj.target/deasync/cpp"]
     CWD-RESOLVED 25 relative path(s) placed against the package dir
        and CONFIRMED by an artifact present after the run — not assumed.
-    ⛔ THE TRACER DROPPED 55 EVENT(S). A dropped event is a path never
+    ⛔ THE TRACER DROPPED 63 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
             33 x  epid=128 action=6 fault=1 addr=0x656d616e75
-            15 x  epid=128 action=1 fault=1 addr=0x1020cb430
-             5 x  epid=128 action=1 fault=1 addr=0x101d5b8d0
-             1 x  epid=128 action=1 fault=1 addr=0x600001124090
-             1 x  epid=128 action=1 fault=1 addr=0x1020ca390
+            15 x  epid=128 action=1 fault=1 addr=0x1022cf390
+            13 x  epid=128 action=1 fault=1 addr=0x101f63330
+             1 x  epid=128 action=1 fault=1 addr=0x60000275c000
+             1 x  epid=128 action=1 fault=1 addr=0x1022ce2f0
   == ATTRIBUTION == lifecycle pids: 23
-    writes  script 6868  /  whole traced subtree 7867
+    writes  script 6869  /  whole traced subtree 7868
     sockets script 2  /  whole traced subtree 3
-  == ROOTS (from /Users/runner/v2m-vnA7kQ/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-vnA7kQ/Observe
+  == ROOTS (from /Users/runner/v2m-5PkqJZ/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-5PkqJZ/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-vnA7kQ/jailhome
+    jailHome      /Users/runner/v2m-5PkqJZ/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-vnA7kQ/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-5PkqJZ/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync
+    ownPkg        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      2
         /dev/dtracehelper
         /dev/null
     jailHome   3331  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-vnA7kQ/jailhome/.npm/_logs/2026-08-07T20_13_08_618Z-debug-0.log
-        /Users/runner/v2m-vnA7kQ/jailhome/Library
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1/include
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1/include/node
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1/include/node/common.gypi
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1/include/node/config.gypi
-        /Users/runner/v2m-vnA7kQ/jailhome/Library/Caches/node-gyp/22.23.1/include/node/cppgc
+        /Users/runner/v2m-5PkqJZ/jailhome/.npm/_logs/2026-09-08T04_04_56_425Z-debug-0.log
+        /Users/runner/v2m-5PkqJZ/jailhome/Library
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2/include
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2/include/node
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2/include/node/common.gypi
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2/include/node/config.gypi
+        /Users/runner/v2m-5PkqJZ/jailhome/Library/Caches/node-gyp/22.23.2/include/node/cppgc
         … and 3321 more
     ownPkg       23  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/Release
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/config.gypi
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/Makefile
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/gyp-mac-tool
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/deasync.target.mk
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/action_after_build.target.mk
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/binding.Makefile
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/node_gyp_bins
-        /Users/runner/v2m-vnA7kQ/Observe/node_modules/wdeasync/build/node_gyp_bins/python3
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/Release
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/config.gypi
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/Makefile
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/gyp-mac-tool
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/deasync.target.mk
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/action_after_build.target.mk
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/binding.Makefile
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/node_gyp_bins
+        /Users/runner/v2m-5PkqJZ/Observe/node_modules/wdeasync/build/node_gyp_bins/python3
         … and 13 more
     jailTmp    3510  (base profile already grants this — NOT billed)
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/v8-platform.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/v8-local-handle.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/uv.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/v8-script.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/v8-debug.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/v8-value.h
-        /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsdK1uet/node-gyp-tmp-CvKphI/include/node/node_api.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/v8-locker.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/zconf.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/v8config.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/common.gypi
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/v8-object.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/v8-forward.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsqVmsoh/node-gyp-tmp-mQrUSJ/include/node/v8-profiler.h
         … and 3500 more
-    outside       2
-        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-8M2I5tLw
-        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
+    outside       3
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-371a0K8I
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-vgl92Jd7
   == READS the script performed, by scope ==
     outside    1101
     systemfs    617
@@ -166,34 +171,45 @@
         outside: /var/db/timezone/zoneinfo/UTC
   == NETWORK ==
     AF_INET connects: 2   distinct peers: 2
-        20.29.134.23:443
-        104.16.212.131:443
+        172.182.252.133:443
+        104.16.213.131:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
-    ⛔ 2 writes OUTSIDE project/home — no scope covers these; inspect before granting
+    ⛔ 3 writes OUTSIDE project/home — no scope covers these; inspect before granting
   == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
     private-home writes observed: 3331
         Library/Caches/node-gyp
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
-    count: 2
-        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db-8M2I5tLw
-        /var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/xcrun_db
-  EVICT[synth] 56 store entries removed, 13 spared as nub tooling, 764 in store
+    count: 3
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-371a0K8I
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-vgl92Jd7
+  EVICT[synth] 45 store entries removed, 13 spared as nub tooling, 346 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"db136a268e342c7f3c8cd4aa63d5e77da98e9c99e2c936b68c0500e2ec4d1f6a","files":[{"path":"nub.lock","sha256":"a4f3bd25ed8de0522a8a00571be11701f422e18d86da242bca7e0de305ade48f","bytes":28566}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed (cached exact-tree clearance)
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3785/1140) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+  VERIFY[synth] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3791/1139) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
   => VERIFIED {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
-  EVICT[nar-no-network] 106 store entries removed, 13 spared as nub tooling, 814 in store
-  VERIFY[nar-no-network] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3785/1140) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"writePaths":["Library/Caches/node-gyp"]}
+  EVICT[nar-no-network] 106 store entries removed, 13 spared as nub tooling, 407 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"db136a268e342c7f3c8cd4aa63d5e77da98e9c99e2c936b68c0500e2ec4d1f6a","files":[{"path":"nub.lock","sha256":"a4f3bd25ed8de0522a8a00571be11701f422e18d86da242bca7e0de305ade48f","bytes":28566}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3791/1139) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"writePaths":["Library/Caches/node-gyp"]}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-network' was not needed
-  EVICT[nar-no-write-deps] 106 store entries removed, 13 spared as nub tooling, 814 in store
-  VERIFY[nar-no-write-deps] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3785/1140) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+  EVICT[nar-no-write-deps] 106 store entries removed, 13 spared as nub tooling, 407 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"db136a268e342c7f3c8cd4aa63d5e77da98e9c99e2c936b68c0500e2ec4d1f6a","files":[{"path":"nub.lock","sha256":"a4f3bd25ed8de0522a8a00571be11701f422e18d86da242bca7e0de305ade48f","bytes":28566}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3791/1139) OVERRIDDEN=3 REJECTED=0 grant={"write":{"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-write-deps' was not needed
-  EVICT[nar-no-write-project] 106 store entries removed, 13 spared as nub tooling, 814 in store
-  VERIFY[nar-no-write-project] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3785/1140) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+  EVICT[nar-no-write-project] 106 store entries removed, 13 spared as nub tooling, 407 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"db136a268e342c7f3c8cd4aa63d5e77da98e9c99e2c936b68c0500e2ec4d1f6a","files":[{"path":"nub.lock","sha256":"a4f3bd25ed8de0522a8a00571be11701f422e18d86da242bca7e0de305ade48f","bytes":28566}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/nub-nar-no-write-project-resolved.json"}
+  SECURITY nub-nar-no-write-project-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed (cached exact-tree clearance)
+  VERIFY[nar-no-write-project] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3791/1139) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
      ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-write-project' was not needed
-  EVICT[joint-narrow] 106 store entries removed, 13 spared as nub tooling, 814 in store
-  VERIFY[joint-narrow] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3785/1140) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":["Library/Caches/node-gyp"]}
+  EVICT[joint-narrow] 106 store entries removed, 13 spared as nub tooling, 407 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"fc4dcb8130ed0d361ddef25b4d85c397abbbf2f573c4c6fd4f31ea0f6a9620e2","specCount":109,"lockfiles":{"digest":"db136a268e342c7f3c8cd4aa63d5e77da98e9c99e2c936b68c0500e2ec4d1f6a","files":[{"path":"nub.lock","sha256":"a4f3bd25ed8de0522a8a00571be11701f422e18d86da242bca7e0de305ade48f","bytes":28566}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T04:04:53.082Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-5PkqJZ/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 109 exact package-version(s), tree fc4dcb8130ed (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=21/21 missing=0 shortfall=none (tree 3791/1139) OVERRIDDEN=3 REJECTED=0 grant={"writePaths":["Library/Caches/node-gyp"]}
   => JOINT-NARROW VERIFIED {"writePaths":["Library/Caches/node-gyp"]} — all 3 capabilities drop TOGETHER, measured
 ### DONE wdeasync@0.1.120  synthesized={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} verified=1
