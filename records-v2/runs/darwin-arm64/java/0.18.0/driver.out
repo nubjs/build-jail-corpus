@@ -1,23 +1,28 @@
-### java@0.18.0   (/Users/runner/v2m-hedemB)   nub=/tmp/nub/target/release/nub
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4596b738ad07ba06e4d9b3f7c981ae0da9c2fe8e3b7c0f81a552186a163b33c3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:40:52.133Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-QjaVoL/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4596b738ad07
+### java@0.18.0   (/Users/runner/v2m-QjaVoL)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c5b9ac751edebf7e7775e8837f12c9dd376dd2ec2aa48d90e8219968479ecf85","specCount":101,"lockfiles":{"digest":"9f1b67e8ad87e17be396bc19fddad8708874b5a966b3c24597af3a759b6aa68c","files":[{"path":"package-lock.json","sha256":"70d5272fb2a11aa6bc30b723c3811f506947ee71c9a5f332c66a3dec71c95ff1","bytes":48133}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:40:59.757Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-QjaVoL/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 101 exact package-version(s), tree c5b9ac751ede
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-hedemB/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-hedemB/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsMrRppk"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "java" > "/Users/runner/v2m-hedemB/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-hedemB/Observe/rc"
+     cd "/Users/runner/v2m-QjaVoL/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-QjaVoL/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsMTPFB7"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "java" > "/Users/runner/v2m-QjaVoL/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-QjaVoL/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-hedemB/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-hedemB/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsMrRppk NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund java
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000035f8090) in action #1 at DIF offset 20
-     dtrace: error on enabled probe ID 53 (ID 189: syscall::unlink:return): invalid address (0x6000028dccc0) in action #10 at DIF offset 12
+     + cd /Users/runner/v2m-QjaVoL/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-QjaVoL/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsMTPFB7 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund java
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001bb0090) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 53 (ID 189: syscall::unlink:return): invalid address (0x600000269ce0) in action #10 at DIF offset 12
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
@@ -43,8 +48,8 @@
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
      dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x1062e6f10) in action #1 at DIF offset 20
-  OBSERVE   rc=1 dtrace_rc=0 files=1927 (pre=1920) trace=100732 lines
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x10169ccf0) in action #1 at DIF offset 20
+  OBSERVE   rc=1 dtrace_rc=0 files=1932 (pre=1925) trace=100753 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
      npm error ../src-cpp/java.h:5:10: fatal error: 'jni.h' file not found
      npm error     5 | #include <jni.h>
@@ -53,11 +58,11 @@
      npm error make: *** [Release/obj.target/nodejavabridge_bindings/src-cpp/java.o] Error 1
      npm error gyp ERR! build error 
      npm error gyp ERR! stack Error: `make` failed with exit code: 2
-     npm error gyp ERR! stack at ChildProcess.<anonymous> (/Users/runner/v2m-hedemB/Observe/node_modules/node-gyp/lib/build.js:219:23)
+     npm error gyp ERR! stack at ChildProcess.<anonymous> (/Users/runner/v2m-QjaVoL/Observe/node_modules/node-gyp/lib/build.js:219:23)
      npm error gyp ERR! System Darwin 24.6.0
-     npm error gyp ERR! command "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/node" "/Users/runner/v2m-hedemB/Observe/node_modules/.bin/node-gyp" "rebuild"
-     npm error gyp ERR! cwd /Users/runner/v2m-hedemB/Observe/node_modules/java
-     npm error gyp ERR! node -v v22.23.1
+     npm error gyp ERR! command "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/node" "/Users/runner/v2m-QjaVoL/Observe/node_modules/.bin/node-gyp" "rebuild"
+     npm error gyp ERR! cwd /Users/runner/v2m-QjaVoL/Observe/node_modules/java
+     npm error gyp ERR! node -v v22.23.2
      npm error gyp ERR! node-gyp -v v11.5.0
      npm error gyp ERR! not ok
      npm notice
@@ -65,4 +70,4 @@
      npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
      npm notice To update run: npm install -g npm@12.0.2
      npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-hedemB/jailhome/.npm/_logs/2026-08-07T02_17_13_799Z-debug-0.log
+     npm error A complete log of this run can be found in: /Users/runner/v2m-QjaVoL/jailhome/.npm/_logs/2026-09-08T03_41_01_808Z-debug-0.log
