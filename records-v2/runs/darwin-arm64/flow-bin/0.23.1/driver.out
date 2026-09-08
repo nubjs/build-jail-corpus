@@ -1,35 +1,39 @@
-### flow-bin@0.23.1   (/Users/runner/v2m-NNd1Qi)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"481fdab37cd3e1801edf25ffe8c3cb50038aa9d4d8211aeb561d3a6306628df3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:37:59.436Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-99OKrw/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 481fdab37cd3
+### flow-bin@0.23.1   (/Users/runner/v2m-99OKrw)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"e466154233fc82d66330ec5c457373c74379569300cc59da8f8fd88ff54fde62","specCount":301,"lockfiles":{"digest":"b78074a27c62626ed01ac0532be720c707c43d096e239cbf6b6383bba4c3bfba","files":[{"path":"package-lock.json","sha256":"14db37c80878fff1b12a44d3ddec079e0ad26ea8437dd26f4110e6b3f4e1f9b9","bytes":130976}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:38:11.316Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-99OKrw/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 301 exact package-version(s), tree e466154233fc
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-NNd1Qi/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-NNd1Qi/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4mjriu"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "flow-bin" > "/Users/runner/v2m-NNd1Qi/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-NNd1Qi/Observe/rc"
+     cd "/Users/runner/v2m-99OKrw/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-99OKrw/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsWQQimU"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "flow-bin" > "/Users/runner/v2m-99OKrw/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-99OKrw/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-NNd1Qi/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-NNd1Qi/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4mjriu NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund flow-bin
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000268120) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-99OKrw/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-99OKrw/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsWQQimU NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund flow-bin
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000012c4000) in action #1 at DIF offset 20
      + echo 0
   OBSERVE   rc=0 dtrace_rc=0 files=1988 (pre=1984) trace=20520 lines
   CLOSURE   281 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
-  RAWLOG-FILE /Users/runner/v2m-NNd1Qi/Observe/trace.txt.gz
-  RAWLOG-CAPTURE /Users/runner/v2m-NNd1Qi/Observe/capture.json
-  RAWLOG-BYTES raw=3197313 gz=109127
-  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.1/arm64
-  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-NNd1Qi/jailhome","TMPDIR":"/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4mjriu","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  RAWLOG-FILE /Users/runner/v2m-99OKrw/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-99OKrw/Observe/capture.json
+  RAWLOG-BYTES raw=3193105 gz=108390
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-99OKrw/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsWQQimU","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
   ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":2,"reasons":[]}
-  EVENTLOG-FILE /Users/runner/v2m-NNd1Qi/Observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":20521,"parsed":20501,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":9001,"enoent":8997,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":8997,"EEXIST":1},"procs":6,"lifecyclePids":1,"distinctEvents":10866,"emitted":10866,"calls":19947,"bytes":1912366,"gzipBytes":69553,"out":"/Users/runner/v2m-NNd1Qi/Observe/events.ndjson"}
+  EVENTLOG-FILE /Users/runner/v2m-99OKrw/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":20521,"parsed":20501,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":24,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":9001,"enoent":8997,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":8997,"EEXIST":1},"procs":6,"lifecyclePids":1,"distinctEvents":10866,"emitted":10866,"calls":19947,"bytes":1912369,"gzipBytes":69574,"out":"/Users/runner/v2m-99OKrw/Observe/events.ndjson"}
   == TRACER == live=true decodable-events=4232 dropped-events=1
     NOTE 16 relative path(s) under a non-AT_FDCWD dirfd were not
        scope-assigned: resolving them against the cwd would invent a path.
@@ -38,37 +42,37 @@
        macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
        emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
        scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
-         pid=53151 read  unproven .
-         pid=53151 read  unproven .
-         pid=53151 read  unproven .
-         pid=53151 read  unproven .
-         pid=53155 read  unproven .
+         pid=26355 read  unproven .
+         pid=26355 read  unproven .
+         pid=26355 read  unproven .
+         pid=26355 read  unproven .
+         pid=26362 read  unproven .
     ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
        seen, so the grant below can only be too NARROW — the direction that breaks installs.
        Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
-             1 x  epid=128 action=1 fault=1 addr=0x600000268120
+             1 x  epid=128 action=1 fault=1 addr=0x6000012c4000
   == ATTRIBUTION == lifecycle pids: 1
     writes  script 4  /  whole traced subtree 1094
     sockets script 2  /  whole traced subtree 3
-  == ROOTS (from /Users/runner/v2m-NNd1Qi/Observe/capture.json; the classifier reads no other source) ==
-    project       /Users/runner/v2m-NNd1Qi/Observe
+  == ROOTS (from /Users/runner/v2m-99OKrw/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-99OKrw/Observe
     home          /Users/runner
-    jailHome      /Users/runner/v2m-NNd1Qi/jailhome
+    jailHome      /Users/runner/v2m-99OKrw/jailhome
     globalStore   /Users/runner/.cache/nub/pm/store
-    projectStore  /Users/runner/v2m-NNd1Qi/Observe/node_modules/.store
-    interpreter   /Users/runner/hostedtoolcache/node/22.23.1/arm64
+    projectStore  /Users/runner/v2m-99OKrw/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
     toolsDir      /Users/runner/.cache/nub/pm/tools
-    temp          /private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obs4mjriu
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsWQQimU
     npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /Users/runner/v2m-NNd1Qi/Observe/node_modules/flow-bin
+    ownPkg        /Users/runner/v2m-99OKrw/Observe/node_modules/flow-bin
     cwd           (null — this platform has no such root)
   == WRITES the script actually performed ==
     systemfs      1
         /dev/dtracehelper
     ownPkg        3  (base profile already grants this — NOT billed)
-        /Users/runner/v2m-NNd1Qi/Observe/node_modules/flow-bin/vendor
-        /Users/runner/v2m-NNd1Qi/Observe/node_modules/flow-bin/vendor/flow.js
-        /Users/runner/v2m-NNd1Qi/Observe/node_modules/flow-bin/vendor/flow
+        /Users/runner/v2m-99OKrw/Observe/node_modules/flow-bin/vendor
+        /Users/runner/v2m-99OKrw/Observe/node_modules/flow-bin/vendor/flow.js
+        /Users/runner/v2m-99OKrw/Observe/node_modules/flow-bin/vendor/flow
   == READS the script performed, by scope ==
     outside       6
     systemfs     11
@@ -83,7 +87,7 @@
         outside: /etc/localtime
   == NETWORK ==
     AF_INET connects: 2   distinct peers: 2
-        20.29.134.23:443
+        172.182.252.133:443
         185.199.110.133:443
   == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
     distinct: 0
@@ -94,13 +98,16 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-  EVICT[synth] 126 store entries removed, 2 spared as nub tooling, 597 in store
-     ⛔ REPLAY SUSPECTED — 'materialized' with no install line; the script may not have run
+  EVICT[synth] 122 store entries removed, 2 spared as nub tooling, 536 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"da36ad785ca9cabd6141b8dab860916abcd35958b7e96d73cce4a7ec9a91342b","specCount":304,"lockfiles":{"digest":"d084b0492a2ee466cdfab2039a460dad5b5b2dd65f9e76dea7743f8e591800c4","files":[{"path":"nub.lock","sha256":"d90eccd8eba62230360296bdf67cff0280f66023557508ccd0e5021b18475c01","bytes":74078}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:38:18.386Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-99OKrw/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 304 exact package-version(s), tree da36ad785ca9
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 7517/1988) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 7536/1988) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
   => VERIFIED {"network":true}
-  EVICT[nar-no-network] 299 store entries removed, 2 spared as nub tooling, 770 in store
-  VERIFY[nar-no-network] rc=0 artifacts=7/9 missing=2 shortfall=072995e47ef7 (tree 7511/1988) OVERRIDDEN=2 REJECTED=0 grant={}
+  EVICT[nar-no-network] 299 store entries removed, 2 spared as nub tooling, 713 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"da36ad785ca9cabd6141b8dab860916abcd35958b7e96d73cce4a7ec9a91342b","specCount":304,"lockfiles":{"digest":"d084b0492a2ee466cdfab2039a460dad5b5b2dd65f9e76dea7743f8e591800c4","files":[{"path":"nub.lock","sha256":"d90eccd8eba62230360296bdf67cff0280f66023557508ccd0e5021b18475c01","bytes":74078}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T03:38:18.386Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-99OKrw/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 304 exact package-version(s), tree da36ad785ca9 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=7/9 missing=2 shortfall=072995e47ef7 (tree 7530/1988) OVERRIDDEN=3 REJECTED=0 grant={}
        missing: vendor/flow, vendor/flow.js
      narrowing 'no-network' fails ⇒ that capability IS necessary
   => MINIMAL — every capability in {"network":true} is independently necessary
