@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "cloudflared",
   "version": "0.1.1",
-  "at": "2026-08-08T07:06:05.825Z",
+  "at": "2026-09-08T15:23:30.786Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_4380_msk153nn",
+      "name": "nubobs_4532_mtstk76q",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-cloudflared-msk152r6\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-cloudflared-msk152r6\\observe",
-    "rootPid": 1204,
-    "launcherPid": 7200,
+    "command": "D:\\jail\\m-cloudflared-mtstk60p\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-cloudflared-mtstk60p\\observe",
+    "rootPid": 5840,
+    "launcherPid": 1896,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T07:05:58.9477980Z",
-    "endedUtc": "2026-08-08T07:06:00.7908630Z"
+    "startedUtc": "2026-09-08T15:23:24.3580219Z",
+    "endedUtc": "2026-09-08T15:23:26.0453171Z"
   },
   "integrity": {
-    "eventsTotal": 35816,
+    "eventsTotal": 36931,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-cloudflared-msk152r6\\observe",
+    "project": "D:\\jail\\m-cloudflared-mtstk60p\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-cloudflared-msk152r6\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-cloudflared-mtstk60p\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-cloudflared-msk152r6\\tmp",
+    "temp": "D:\\jail\\m-cloudflared-mtstk60p\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-cloudflared-msk152r6\\observe\\node_modules\\cloudflared",
+    "ownPkg": "D:\\jail\\m-cloudflared-mtstk60p\\observe\\node_modules\\cloudflared",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 46084852,
-    "gzBytes": 656405,
-    "sha256": "862ae4e23f174cbb4db02a02ce81e99a2d0542150c1f1a537ba2b9ef8d9aa033",
+    "bytes": 47509485,
+    "gzBytes": 665996,
+    "sha256": "0aabc5092b31543a2fc494d176d57975775f300538285f87e61b7d9914f223e8",
     "of": "trace.xml",
-    "etlBytes": 7340032,
+    "etlBytes": 8388608,
     "etlRetained": false
   },
   "limits": {
@@ -106,24 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 1204 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 5840 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 35816,
-    "kept": 13399,
-    "distinct": 5475,
+    "xmlEvents": 36931,
+    "kept": 13321,
+    "distinct": 5477,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 35445,
-      "Microsoft-Windows-Kernel-Process": 16,
-      "Microsoft-Windows-Kernel-Network": 353
+      "Microsoft-Windows-Kernel-File": 36629,
+      "Microsoft-Windows-Kernel-Network": 282,
+      "Microsoft-Windows-Kernel-Process": 18
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 1,
-    "unsettled": 1,
+    "unresolvedHandle": 0,
+    "unsettled": 4,
     "reattributedByThread": 0,
-    "outOfSubtree": 1451,
+    "outOfSubtree": 1979,
     "destResolved": 4,
     "destUnresolved": 0,
     "shortExpanded": 0,
