@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "backport",
   "version": "9.6.6",
-  "at": "2026-08-08T05:41:30.464Z",
+  "at": "2026-09-08T12:39:03.358Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_2220_msjy3o1r",
+      "name": "nubobs_4488_mtsnopn0",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-backport-msjy3d0r\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-backport-msjy3d0r\\observe",
-    "rootPid": 2940,
-    "launcherPid": 4892,
+    "command": "D:\\jail\\m-backport-mtsnoeye\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-backport-mtsnoeye\\observe",
+    "rootPid": 9568,
+    "launcherPid": 9616,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T05:40:53.4136327Z",
-    "endedUtc": "2026-08-08T05:40:54.3924568Z"
+    "startedUtc": "2026-09-08T12:38:57.5713214Z",
+    "endedUtc": "2026-09-08T12:38:58.4152794Z"
   },
   "integrity": {
-    "eventsTotal": 472161,
+    "eventsTotal": 35581,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-backport-msjy3d0r\\observe",
+    "project": "D:\\jail\\m-backport-mtsnoeye\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-backport-msjy3d0r\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-backport-mtsnoeye\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-backport-msjy3d0r\\tmp",
+    "temp": "D:\\jail\\m-backport-mtsnoeye\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-backport-msjy3d0r\\observe\\node_modules\\backport",
+    "ownPkg": "D:\\jail\\m-backport-mtsnoeye\\observe\\node_modules\\backport",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 602374502,
-    "gzBytes": 7642997,
-    "sha256": "90120e755954c01ee51c31e6015a9e0f8c2339549b977e68393a28c49d32d234",
+    "bytes": 45448502,
+    "gzBytes": 685662,
+    "sha256": "20e8a802ea082651fa2d30b219e44c93572a2a299a49f63948d59aafb787af0c",
     "of": "trace.xml",
-    "etlBytes": 75497472,
+    "etlBytes": 8388608,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 2940 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 9568 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 472161,
-    "kept": 7456,
-    "distinct": 6159,
+    "xmlEvents": 35581,
+    "kept": 7467,
+    "distinct": 6167,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 472147,
-      "Microsoft-Windows-Kernel-Process": 12
+      "Microsoft-Windows-Kernel-File": 35562,
+      "Microsoft-Windows-Kernel-Network": 4,
+      "Microsoft-Windows-Kernel-Process": 13
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
-    "unsettled": 2,
+    "unresolvedHandle": 1,
+    "unsettled": 1,
     "reattributedByThread": 0,
-    "outOfSubtree": 167014,
+    "outOfSubtree": 6205,
     "destResolved": 4,
     "destUnresolved": 0,
     "shortExpanded": 0,
