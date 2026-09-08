@@ -1,16 +1,125 @@
-### windows-build-tools@0.6.1   (D:\jail\m-windowsbuildtools-msjzmfv9)
+### windows-build-tools@0.6.1   (D:\jail\m-windowsbuildtools-mtsxma2s)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=7672 exit=0 events=662369 lost=598522
-  CAPTURE-WARNING 598522 events lost; this trace cannot support an exact-set claim
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  !! 598522 events LOST -- exact-set claims are not supported by this trace
-  OBSERVE artifacts: 34 files  (D:\jail\m-windowsbuildtools-msjzmfv9\observe\node_modules\windows-build-tools)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"812cde19fe71a5fa18449b3b47a4453c333378689170d81cb772c592be8c8dc1","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:16:57.983Z","cacheHit":false,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 812cde19fe71
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ca5152b8af93af0abd85e877eef3e6cb11448ecda84dad460f2cfa0fe244b2db","specCount":81,"lockfiles":{"digest":"04e3c22f89cf26cb8b8767f33fd961d93150d94b2801f9322bbaf9ba10c8b0de","files":[{"path":"package-lock.json","sha256":"a62b3fb6f3f844fbd1d4c2d2fee67ef43012171b665e733a072ad6ab0ebee36b","bytes":31593}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:17:01.570Z","cacheHit":false,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 81 exact package-version(s), tree ca5152b8af93
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=4900 exit=0 events=918115 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 34 files  (D:\jail\m-windowsbuildtools-mtsxma2s\observe\node_modules\windows-build-tools)
   ARM-FALSIFIABILITY {"manifestFiles":34,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (34) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 80 packages evicted per arm
-  => PARSE FAILED
-windows.mjs: trace lost 598522 events; re-capture with bigger buffers, or pass --allow-lossy to read it anyway
-
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-windowsbuildtools-mtsxma2s\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-windowsbuildtools-mtsxma2s\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-windowsbuildtools-mtsxma2s\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-windowsbuildtools-mtsxma2s\observe\node_modules\windows-build-tools
+  == ATTRIBUTION == lifecycle pids: 14 (root 4900)
+    writes  script 230  /  whole traced tree 235
+    peers   script 8  /  whole traced tree 8
+  == WRITES ==
+    systemfs     85
+        c:\windows\syswow64\propsys.dll:wofcompresseddata
+        c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+    userHome     20
+    kernelfs      3
+    jailTmp     120
+    outside       2
+        d:\jail\m-windowsbuildtools-mtsxma2s\npm-cache\_logs\2026-09-08t17_18_07_024z-debug-0.log
+        d:\jail\m-windowsbuildtools-mtsxma2s\npm-cache\_logs\2026-09-08t17_18_07_332z-debug-0.log
+  == READS ==
+    deps        323
+    outside     352
+    project       2
+    systemfs   1472
+    userHome     96
+    jailTmp     199
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 8
+        131.253.33.219:80
+        131.253.33.219:443
+        151.101.64.223:443
+        23.11.232.14:443
+        23.36.21.215:80
+        23.36.21.215:443
+        23.45.137.206:443
+        20.42.73.28:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 14
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\bootstrappercore.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\managedux.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.applicationinsights.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.applicationinsights.persistencechannel.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.diagnostics.tracing.eventsource.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.visualstudio.remotecontrol.net35.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.visualstudio.telemetry.net35.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.visualstudio.utilities.internal.net35.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\microsoft.vs.platforminstaller.dynamicfeed.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\newtonsoft.json.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\sqmapi.dll
+        write [jailTmp] d:\jail\m-windowsbuildtools-mtsxma2s\tmp\{a9528995-e130-4501-ae19-bbfaddb779cc}\.ba1\system.threading.dll
+        read [userHome] c:\users\runneradmin\appdata\roaming\microsoft\windows\recent\customdestinations\590aee7bdd69b59b.customdestinations-ms
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 120 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 2 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+    !! 85 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 3 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  1174292259 B xml -> 16017226 B gz (73.3x)  sha256 bba5fe6ce4ec045c…
+  HEADER    etw-header.json (5151 bytes)
+  DERIVED   25983 distinct from 61932 kept ops (918115 xml events, 293836 out of subtree)
+  PROCS     16   thread-reattributed 7
+  ⛔ 13 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (362747 bytes)
+  RAWLOG-CAPTURE D:\jail\m-windowsbuildtools-mtsxma2s\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-windowsbuildtools-mtsxma2s
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\npm-cache","TMP":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\tmp","TEMP":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\tmp","TMPDIR":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-windowsbuildtools-mtsxma2s\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ca5152b8af93af0abd85e877eef3e6cb11448ecda84dad460f2cfa0fe244b2db","specCount":81,"lockfiles":{"digest":"91c84479991b76a3da7f01fda7a601c15043f3a4fd2742bc73ed2478a4231354","files":[{"path":"nub.lock","sha256":"02bec418d00fef9d12f41954b805b8e90b069a26d6c5abae6f21a57a97b0d814","bytes":18791}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:17:01.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 81 exact package-version(s), tree ca5152b8af93 (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=35/34 missing=0 shortfall=none (tree 6903/870) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-windowsbuildtools-mtsxma2s\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"ca5152b8af93af0abd85e877eef3e6cb11448ecda84dad460f2cfa0fe244b2db","specCount":81,"lockfiles":{"digest":"91c84479991b76a3da7f01fda7a601c15043f3a4fd2742bc73ed2478a4231354","files":[{"path":"nub.lock","sha256":"02bec418d00fef9d12f41954b805b8e90b069a26d6c5abae6f21a57a97b0d814","bytes":18791}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:17:01.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 81 exact package-version(s), tree ca5152b8af93 (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=35/34 missing=0 shortfall=none (tree 6903/870) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-windowsbuildtools-mtsxma2s\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"ca5152b8af93af0abd85e877eef3e6cb11448ecda84dad460f2cfa0fe244b2db","specCount":81,"lockfiles":{"digest":"91c84479991b76a3da7f01fda7a601c15043f3a4fd2742bc73ed2478a4231354","files":[{"path":"nub.lock","sha256":"02bec418d00fef9d12f41954b805b8e90b069a26d6c5abae6f21a57a97b0d814","bytes":18791}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:17:01.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 81 exact package-version(s), tree ca5152b8af93 (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=35/34 missing=0 shortfall=none (tree 6903/870) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-windowsbuildtools-mtsxma2s\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"ca5152b8af93af0abd85e877eef3e6cb11448ecda84dad460f2cfa0fe244b2db","specCount":81,"lockfiles":{"digest":"91c84479991b76a3da7f01fda7a601c15043f3a4fd2742bc73ed2478a4231354","files":[{"path":"nub.lock","sha256":"02bec418d00fef9d12f41954b805b8e90b069a26d6c5abae6f21a57a97b0d814","bytes":18791}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T17:17:01.570Z","cacheHit":true,"clearancePath":"D:\\jail\\m-windowsbuildtools-mtsxma2s\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 81 exact package-version(s), tree ca5152b8af93 (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=35/34 missing=0 shortfall=none (tree 6909/870) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"userHome":true},"network":true} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
