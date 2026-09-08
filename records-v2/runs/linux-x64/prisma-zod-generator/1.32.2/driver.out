@@ -1,37 +1,42 @@
-### prisma-zod-generator@1.32.2   (/home/nub/v2-gIdy3U)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=7326 trace=8979 lines
+### prisma-zod-generator@1.32.2   (/home/runner/v2-hNAB7u)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c5c8cca7f852da76811d068cc6ee98ae1112231cd9a5ac867ae8182a1a97b3f6","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:25:02.681Z","cacheHit":false,"clearancePath":"/home/runner/v2-hNAB7u/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c5c8cca7f852
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3dc89e699487547f4603d7d19510f7b39791d92e0a535a326a3661c1b6c6f730","specCount":147,"lockfiles":{"digest":"ee2ca3e5866bdf06d5f68c07d24e70ae5bd908de8e22b824088bf07f70bf4694","files":[{"path":"package-lock.json","sha256":"1826b491c07308540b7f13930daa1bfd5a6f6be7521dfe404a85d0945fac2220","bytes":65464}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:25:14.569Z","cacheHit":false,"clearancePath":"/home/runner/v2-hNAB7u/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 147 exact package-version(s), tree 3dc89e699487
+  OBSERVE   rc=0 files=7479 trace=11188 lines
   CLOSURE   145 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":248,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (248) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-gIdy3U/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-gIdy3U/observe/capture.json
-  RAWLOG-BYTES raw=1758640 gz=63724
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-gIdy3U/jailhome","TMPDIR":"/tmp/nub-tmp-obsQU3155","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-gIdy3U/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  RAWLOG-FILE /home/runner/v2-hNAB7u/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-hNAB7u/observe/capture.json
+  RAWLOG-BYTES raw=2434187 gz=71049
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-hNAB7u/jailhome","TMPDIR":"/tmp/nub-tmp-obsjDahXe","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-hNAB7u/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   == ATTRIBUTION == attributed pids: 13
-    writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 6
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-gIdy3U/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-gIdy3U/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-gIdy3U/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obsQU3155
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-gIdy3U/observe/node_modules/prisma-zod-generator
+    project       /home/runner/v2-hNAB7u/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-hNAB7u/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-hNAB7u/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsjDahXe
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-hNAB7u/observe/node_modules/prisma-zod-generator
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 2
         127.0.0.53:53
-        104.16.8.34:443
+        104.16.6.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -41,16 +46,19 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    4970 distinct from 8923 calls (8980 lines, 35 rejoined, 0 unparsed)
-    PROCS     19   lifecycle shells 8
+    EVENTS    4684 distinct from 10982 calls (11189 lines, 184 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×25 setsockopt×23 exit×14 getsockopt×11 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/nub/v2-gIdy3U/observe/events.ndjson.gz (34991 bytes)
-  EVENTLOG-FILE /home/nub/v2-gIdy3U/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":8980,"parsed":8923,"unparsed":0,"unfinished":35,"rejoined":35,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":4970,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":4,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-gIdy3U/observe/events.ndjson.gz","gzipBytes":34991}
-  EVICT     116 store entries removed, 1 spared as nub tooling
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×15 getsockopt×9 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-hNAB7u/observe/events.ndjson.gz (33177 bytes)
+  EVENTLOG-FILE /home/runner/v2-hNAB7u/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11189,"parsed":10982,"unparsed":0,"unfinished":184,"rejoined":184,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4684,"unknownSyscall":{"getsockname":22,"getsockopt":9,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-hNAB7u/observe/events.ndjson.gz","gzipBytes":33177}
+  EVICT     33 store entries removed, 1 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for prisma-zod-generator
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f9c287ee493e771ea703710f3cae67734c25a5bf17b423eb2e45545773c7cec4","specCount":147,"lockfiles":{"digest":"e1e04c0ad52207840a4c7cae186f244bd5f735cee5dd8a92432ca6a6af27ff31","files":[{"path":"nub.lock","sha256":"647cb84fc593a641148e75b6b33b961b30214d5eda0a893cfbe9d7d5510a38c1","bytes":37365}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:25:22.509Z","cacheHit":false,"clearancePath":"/home/runner/v2-hNAB7u/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 147 exact package-version(s), tree f9c287ee493e
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=248/248 missing=0 shortfall=none (tree 23970/7326) OVERRIDDEN=2 REJECTED=0 grant={}
+  VERIFY[synth] rc=0 artifacts=248/248 missing=0 shortfall=none (tree 24377/7479) OVERRIDDEN=2 REJECTED=0 grant={}
   => VERIFIED {}   (observed, then verified)
   DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
