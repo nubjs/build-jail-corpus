@@ -1,39 +1,44 @@
-### ctrlc-windows@0.1.9   (/home/nub/v2-lATPmg)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=6507 trace=10181 lines
+### ctrlc-windows@0.1.9   (/home/runner/v2-MbFedW)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6d8be439324988b8695a6c201b461abe934035e8226e4b5fcf17881199b97c13","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T11:53:29.626Z","cacheHit":false,"clearancePath":"/home/runner/v2-MbFedW/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6d8be4393249
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"939e9e2929da8e96a00dae4fae18c1b1b32c5a05fb78e7ddba6e0fde7b838591","specCount":136,"lockfiles":{"digest":"d2fb902945cd0a92ef9ac56cdcbbed7b432139be4006b96938932a2943c0f3e7","files":[{"path":"package-lock.json","sha256":"290a9fdd3c0f78d5db7d39f234ecea3ff04251ce11e087668fcb55d3fa653a41","bytes":55777}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T11:53:36.034Z","cacheHit":false,"clearancePath":"/home/runner/v2-MbFedW/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 136 exact package-version(s), tree 939e9e2929da
+  OBSERVE   rc=0 files=6507 trace=12406 lines
   CLOSURE   121 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":446,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (446) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-lATPmg/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-lATPmg/observe/capture.json
-  RAWLOG-BYTES raw=1937239 gz=72695
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-lATPmg/jailhome","TMPDIR":"/tmp/nub-tmp-obs4rW58b","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-lATPmg/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 25
-    writes  script 1  /  whole traced tree 1179
-    sockets script 2  /  whole traced tree 8
+  RAWLOG-FILE /home/runner/v2-MbFedW/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-MbFedW/observe/capture.json
+  RAWLOG-BYTES raw=2658559 gz=80959
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-MbFedW/jailhome","TMPDIR":"/tmp/nub-tmp-obspCb60X","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-MbFedW/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 26
+    writes  script 1  /  whole traced tree 1089
+    sockets script 2  /  whole traced tree 6
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-lATPmg/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-lATPmg/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-lATPmg/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs4rW58b
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-lATPmg/observe/node_modules/ctrlc-windows
+    project       /home/runner/v2-MbFedW/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-MbFedW/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-MbFedW/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obspCb60X
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-MbFedW/observe/node_modules/ctrlc-windows
   == WRITES the script actually performed ==
     ownPkg        1  (base profile already grants this — NOT billed)
-        /home/nub/v2-lATPmg/observe/node_modules/ctrlc-windows/dist
+        /home/runner/v2-MbFedW/observe/node_modules/ctrlc-windows/dist
   == NETWORK ==
     AF_INET sockets: 2   distinct peers: 3
         127.0.0.53:53
-        104.16.10.34:443
+        104.16.11.34:443
         140.82.113.3:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
@@ -44,34 +49,24 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    5595 distinct from 9865 calls (10182 lines, 281 rejoined, 0 unparsed)
-    PROCS     31   lifecycle shells 20
-    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×36 getsockname×33 exit×23 getsockopt×19 recvmsg×8 socketpair×6 wait4×6 getcwd×5
-    wrote /home/nub/v2-lATPmg/observe/events.ndjson.gz (38391 bytes)
-  EVENTLOG-FILE /home/nub/v2-lATPmg/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":10182,"parsed":9865,"unparsed":0,"unfinished":281,"rejoined":281,"unresolvedDirfd":3,"truncatedArg":0,"procs":31,"lifecyclePids":20,"distinctEvents":5595,"unknownSyscall":{"getcwd":5,"getsockname":33,"recvmsg":8,"setsockopt":36,"sendmmsg":2,"getsockopt":19,"socketpair":6,"shutdown":4,"exit_group":5,"wait4":6,"exit":23},"out":"/home/nub/v2-lATPmg/observe/events.ndjson.gz","gzipBytes":38391}
-  EVICT     141 store entries removed, 8 spared as nub tooling
+    EVENTS    5354 distinct from 12177 calls (12407 lines, 192 rejoined, 0 unparsed)
+    PROCS     33   lifecycle shells 21
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×36 getsockname×33 exit×25 getsockopt×20 recvmsg×9 socketpair×6 wait4×6 getcwd×5
+    wrote /home/runner/v2-MbFedW/observe/events.ndjson.gz (36796 bytes)
+  EVENTLOG-FILE /home/runner/v2-MbFedW/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12407,"parsed":12177,"unparsed":0,"unfinished":192,"rejoined":192,"unresolvedDirfd":1,"truncatedArg":0,"procs":33,"lifecyclePids":21,"distinctEvents":5354,"unknownSyscall":{"getsockname":33,"getsockopt":20,"getcwd":5,"recvmsg":9,"exit":25,"setsockopt":36,"sendmmsg":2,"socketpair":6,"shutdown":4,"exit_group":5,"wait4":6},"out":"/home/runner/v2-MbFedW/observe/events.ndjson.gz","gzipBytes":36796}
+  EVICT     78 store entries removed, 8 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for ctrlc-windows
-  VERIFY[synth] rc=1 artifacts=ABSENT/446 missing=1 shortfall=7f7367677a90 (tree 3/6507) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
-       missing: <package absent>
-  DIAGNOSE  ZERO filesystem refusals under the failing grant.
-     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
-       or a resource class strace's file+network filter does not carry.
-  synthesized grant did not verify — falling back to a bounded ladder
-  EVICT     134 store entries removed, 8 spared as nub tooling
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"939e9e2929da8e96a00dae4fae18c1b1b32c5a05fb78e7ddba6e0fde7b838591","specCount":136,"lockfiles":{"digest":"732719ab1989f3c9a28c01687e68b5a437c28d9a3a59ccc1b21386e71c6070dd","files":[{"path":"nub.lock","sha256":"2e88cc76c8c6433f87b831689e9f40b3ea92b3e56b58f4c48403e633dc7cf319","bytes":32149}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T11:53:36.034Z","cacheHit":true,"clearancePath":"/home/runner/v2-MbFedW/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 136 exact package-version(s), tree 939e9e2929da (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=446/446 missing=0 shortfall=none (tree 19566/6507) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     135 store entries removed, 8 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for ctrlc-windows
-  VERIFY[fb2126003217] rc=1 artifacts=ABSENT/446 missing=1 shortfall=7f7367677a90 (tree 3/6507) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-       missing: <package absent>
-  EVICT     134 store entries removed, 8 spared as nub tooling
-  SE-PURGE  0 side-effects-cache entries for ctrlc-windows
-  VERIFY[fb3938809772] rc=1 artifacts=ABSENT/446 missing=1 shortfall=7f7367677a90 (tree 3/6507) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-       missing: <package absent>
-  EVICT     134 store entries removed, 8 spared as nub tooling
-  SE-PURGE  0 side-effects-cache entries for ctrlc-windows
-  VERIFY[fb2742342390] rc=1 artifacts=ABSENT/446 missing=1 shortfall=7f7367677a90 (tree 3/6507) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-       missing: <package absent>
-  NOT-GRANT-INDEPENDENT an arm exited non-zero
-  => BROKEN-UNJAILED-NUB — npm installs this package but nub cannot, even with the jail
-     OFF. The ladder's failures say nothing about capabilities. NOT a jail finding and NOT
-     an under-grant: do not widen the catalog. This is a nub install defect to chase.
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"939e9e2929da8e96a00dae4fae18c1b1b32c5a05fb78e7ddba6e0fde7b838591","specCount":136,"lockfiles":{"digest":"732719ab1989f3c9a28c01687e68b5a437c28d9a3a59ccc1b21386e71c6070dd","files":[{"path":"nub.lock","sha256":"2e88cc76c8c6433f87b831689e9f40b3ea92b3e56b58f4c48403e633dc7cf319","bytes":32149}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T11:53:36.034Z","cacheHit":true,"clearancePath":"/home/runner/v2-MbFedW/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 136 exact package-version(s), tree 939e9e2929da (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=446/446 missing=0 shortfall=none (tree 19566/6507) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
