@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "pino-datadog-transport",
   "version": "3.0.6",
-  "at": "2026-08-08T04:39:51.285Z",
+  "at": "2026-09-08T10:49:44.034Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_7696_msjvx382",
+      "name": "nubobs_840_mtsjs5kt",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -44,12 +44,12 @@
   },
   "os": {
     "version": "Microsoft Windows NT 10.0.26100.0",
-    "host": "runnervm7vqe0",
+    "host": "runnervmeef0v",
     "arch": "x64"
   },
   "identity": {
-    "whoami": "runnervm7vqe0\\runneradmin",
-    "sid": "S-1-5-21-1178926710-2200278958-3596451971-500",
+    "whoami": "runnervmeef0v\\runneradmin",
+    "sid": "S-1-5-21-1456194669-2875347699-3862154473-500",
     "elevated": true,
     "privDropped": {
       "SeBackupPrivilege": "removed",
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\observe",
-    "rootPid": 9016,
-    "launcherPid": 5004,
+    "command": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\observe",
+    "rootPid": 1388,
+    "launcherPid": 6420,
     "exitCode": 0,
-    "startedUtc": "2026-08-08T04:39:47.0212869Z",
-    "endedUtc": "2026-08-08T04:39:47.6216691Z"
+    "startedUtc": "2026-09-08T10:49:39.4097776Z",
+    "endedUtc": "2026-09-08T10:49:40.0782306Z"
   },
   "integrity": {
-    "eventsTotal": 21506,
+    "eventsTotal": 21045,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\observe",
+    "project": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\tmp",
+    "temp": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-pinodatadogtransport-msjvwa9g\\observe\\node_modules\\pino-datadog-transport",
+    "ownPkg": "D:\\jail\\m-pinodatadogtransport-mtsjr48o\\observe\\node_modules\\pino-datadog-transport",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 27479608,
-    "gzBytes": 415386,
-    "sha256": "fe7f15a241618f7a69bbba1994a4e6b5d186d3141c0b30e4a09c6123f460450d",
+    "bytes": 26870576,
+    "gzBytes": 392861,
+    "sha256": "bf6630ea6b3ebec0b92ca66349c7d529b543093011e01139e3891a67599d3348",
     "of": "trace.xml",
-    "etlBytes": 6291456,
+    "etlBytes": 5242880,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 9016 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 1388 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
-    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervm7vqe0))"
+    "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 21506,
-    "kept": 6224,
-    "distinct": 5157,
+    "xmlEvents": 21045,
+    "kept": 6223,
+    "distinct": 5156,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 21496,
-      "Microsoft-Windows-Kernel-Process": 8
+      "Microsoft-Windows-Kernel-File": 21032,
+      "Microsoft-Windows-Kernel-Process": 8,
+      "Microsoft-Windows-Kernel-Network": 3
     },
     "unknownFileEvent": {},
-    "unresolvedHandle": 0,
+    "unresolvedHandle": 1,
     "unsettled": 0,
     "reattributedByThread": 0,
-    "outOfSubtree": 2015,
+    "outOfSubtree": 1658,
     "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,
