@@ -4,7 +4,7 @@
   "platform": "win32-x64",
   "pkg": "storage-engine",
   "version": "3.0.7",
-  "at": "2026-09-07T19:36:31.120Z",
+  "at": "2026-09-08T07:45:17.661Z",
   "tracer": {
     "kind": "etw",
     "capture": "harness/v2/adapters/windows.ps1",
@@ -13,7 +13,7 @@
     "convert": "tracerpt <etl> -o <xml> -of XML -summary <sum> -lr -y",
     "tracerptExit": 0,
     "session": {
-      "name": "nubobs_8548_mtrn5rcf",
+      "name": "nubobs_1832_mtsd6u6o",
       "bufferSizeKB": 1024,
       "minBuffers": 64,
       "maxBuffers": 320,
@@ -58,30 +58,30 @@
     }
   },
   "run": {
-    "command": "D:\\jail\\m-storageengine-mtrn5pxj\\rebuild.cmd",
-    "workDir": "D:\\jail\\m-storageengine-mtrn5pxj\\observe",
-    "rootPid": 6860,
-    "launcherPid": 5584,
+    "command": "D:\\jail\\m-storageengine-mtsd6sj5\\rebuild.cmd",
+    "workDir": "D:\\jail\\m-storageengine-mtsd6sj5\\observe",
+    "rootPid": 9892,
+    "launcherPid": 7416,
     "exitCode": 0,
-    "startedUtc": "2026-09-07T19:36:26.8027852Z",
-    "endedUtc": "2026-09-07T19:36:27.4940673Z"
+    "startedUtc": "2026-09-08T07:45:07.3414133Z",
+    "endedUtc": "2026-09-08T07:45:08.3725116Z"
   },
   "integrity": {
-    "eventsTotal": 22694,
+    "eventsTotal": 87850,
     "eventsLost": 0,
     "lostFrom": "tracerpt summary 'Total Events Lost'"
   },
   "roots": {
-    "project": "D:\\jail\\m-storageengine-mtrn5pxj\\observe",
+    "project": "D:\\jail\\m-storageengine-mtsd6sj5\\observe",
     "home": "C:\\Users\\runneradmin",
     "jailHome": null,
     "globalStore": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\store",
-    "projectStore": "D:\\jail\\m-storageengine-mtrn5pxj\\observe\\node_modules\\.store",
+    "projectStore": "D:\\jail\\m-storageengine-mtsd6sj5\\observe\\node_modules\\.store",
     "interpreter": "C:\\hostedtoolcache\\windows\\node\\22.23.2\\x64\\node.exe",
     "toolsDir": "C:\\Users\\runneradmin\\AppData\\Local\\nub\\pm\\tools",
-    "temp": "D:\\jail\\m-storageengine-mtrn5pxj\\tmp",
+    "temp": "D:\\jail\\m-storageengine-mtsd6sj5\\tmp",
     "npmPrefix": null,
-    "ownPkg": "D:\\jail\\m-storageengine-mtrn5pxj\\observe\\node_modules\\storage-engine",
+    "ownPkg": "D:\\jail\\m-storageengine-mtsd6sj5\\observe\\node_modules\\storage-engine",
     "cwd": null
   },
   "rootsFrom": "capture.json",
@@ -91,11 +91,11 @@
   },
   "raw": {
     "file": "etw-raw.xml.gz",
-    "bytes": 29008753,
-    "gzBytes": 429842,
-    "sha256": "a2c3eae960c823a111c2b2fc07eab131dc0e10345a8d35515ba2cac614a47e41",
+    "bytes": 111211331,
+    "gzBytes": 1700816,
+    "sha256": "bed8770d56f66701fdb5d51eeabcdf2ce299666f2bf619967260fce4313a71c2",
     "of": "trace.xml",
-    "etlBytes": 6291456,
+    "etlBytes": 14680064,
     "etlRetained": false
   },
   "limits": {
@@ -106,23 +106,24 @@
   },
   "derived": {
     "file": "events.ndjson.gz",
-    "filter": "subtree of rootPid 6860 (out-of-subtree events are in the raw only)",
+    "filter": "subtree of rootPid 9892 (out-of-subtree events are in the raw only)",
     "dedup": "identical (pid, op, path, path2, status, disposition, infoClass) tuples collapse to one line with a count `n`; `io` sums bytes across them and `ts`/`ts2` bracket the span. Per-operation ordering and file offsets are in the raw only.",
     "shortNames": "`f` is the kernel spelling; `fx` is an 8.3 expansion from the archived map (recorded 8.3 map (0 components, resolved on runnervmeef0v))"
   },
   "stats": {
-    "xmlEvents": 22694,
-    "kept": 6388,
-    "distinct": 5239,
+    "xmlEvents": 87850,
+    "kept": 6392,
+    "distinct": 5242,
     "byProvider": {
-      "Microsoft-Windows-Kernel-File": 22682,
-      "Microsoft-Windows-Kernel-Process": 10
+      "Microsoft-Windows-Kernel-File": 87733,
+      "Microsoft-Windows-Kernel-Process": 71,
+      "Microsoft-Windows-Kernel-Network": 44
     },
     "unknownFileEvent": {},
     "unresolvedHandle": 0,
     "unsettled": 2,
-    "reattributedByThread": 0,
-    "outOfSubtree": 2268,
+    "reattributedByThread": 1,
+    "outOfSubtree": 26467,
     "destResolved": 1,
     "destUnresolved": 0,
     "shortExpanded": 0,
