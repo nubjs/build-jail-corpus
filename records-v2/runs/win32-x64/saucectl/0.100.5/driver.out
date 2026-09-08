@@ -1,27 +1,31 @@
-### saucectl@0.100.5   (D:\jail\m-saucectl-msjutiav)
+### saucectl@0.100.5   (D:\jail\m-saucectl-mtsgkkgy)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=8876 exit=0 events=31486 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 8 files  (D:\jail\m-saucectl-msjutiav\observe\node_modules\saucectl)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f06e324924a0bf9fa8846a3fca0467cf16dfe857a7e2ce10c604266c6e730bfb","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:19:44.543Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsgkkgy\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f06e324924a0
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7f6edcbe1e0b42027587b77d3ee9b523e7f684c7dd14a56f7ed4d96102fbf033","specCount":166,"lockfiles":{"digest":"56184589fe37d695f582efce51c2879c44cbe3401806b2c3f29e9327a5d024db","files":[{"path":"package-lock.json","sha256":"2de885f256d9149c89e543fe8b7694c6acc3e169643bb848765438eaa94227df","bytes":71115}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:19:49.518Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsgkkgy\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 166 exact package-version(s), tree 7f6edcbe1e0b
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6348 exit=0 events=32227 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-saucectl-mtsgkkgy\observe\node_modules\saucectl)
   ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":2,"reasons":[]}
   CLOSURE 152 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-saucectl-msjutiav\observe   [keyed on]
+    project       D:\jail\m-saucectl-mtsgkkgy\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-saucectl-msjutiav\observe\node_modules\.store
+    projectStore  D:\jail\m-saucectl-mtsgkkgy\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-saucectl-msjutiav\tmp   [keyed on]
+    temp          D:\jail\m-saucectl-mtsgkkgy\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-saucectl-msjutiav\observe\node_modules\saucectl
-  == ATTRIBUTION == lifecycle pids: 4 (root 8876)
-    writes  script 12  /  whole traced tree 23
+    ownPkg        D:\jail\m-saucectl-mtsgkkgy\observe\node_modules\saucectl
+  == ATTRIBUTION == lifecycle pids: 4 (root 6348)
+    writes  script 13  /  whole traced tree 24
     peers   script 2  /  whole traced tree 2
   == WRITES ==
-    deps          3
+    deps          4
     systemfs      9
         c:\windows\syswow64\cryptbase.dll:wofcompresseddata
         c:\windows\syswow64\powrprof.dll:wofcompresseddata
@@ -36,37 +40,44 @@
     deps        406
     outside       7
     project       1
-    systemfs     64
+    systemfs     65
+    kernelfs      1
   == NETWORK ==
     distinct peers: 2
-        140.82.114.3:443
+        140.82.112.3:443
         185.199.110.133:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
     !! 9 writes into system dirs -- an unprivileged user would be refused these
-  RAW       etw-raw.xml.gz  40282173 B xml -> 607312 B gz (66.3x)  sha256 bf38f773e8ec2892…
-  HEADER    etw-header.json (5060 bytes)
-  DERIVED   7417 distinct from 9210 kept ops (31486 xml events, 2919 out of subtree)
+  RAW       etw-raw.xml.gz  41313900 B xml -> 598234 B gz (69.1x)  sha256 c8bab8eba9549696…
+  HEADER    etw-header.json (5059 bytes)
+  DERIVED   7421 distinct from 9841 kept ops (32227 xml events, 2925 out of subtree)
   PROCS     6   thread-reattributed 0
-  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
-  ⛔ 4 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (91376 bytes)
-  RAWLOG-CAPTURE D:\jail\m-saucectl-msjutiav\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 3 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (91152 bytes)
+  RAWLOG-CAPTURE D:\jail\m-saucectl-mtsgkkgy\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-saucectl-msjutiav
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saucectl-msjutiav\\npm-cache","TMP":"D:\\jail\\m-saucectl-msjutiav\\tmp","TEMP":"D:\\jail\\m-saucectl-msjutiav\\tmp","TMPDIR":"D:\\jail\\m-saucectl-msjutiav\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-saucectl-msjutiav\verify-synth\.cache
-  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7614/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  VENUE-JAIL-ROOT D:\jail\m-saucectl-mtsgkkgy
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saucectl-mtsgkkgy\\npm-cache","TMP":"D:\\jail\\m-saucectl-mtsgkkgy\\tmp","TEMP":"D:\\jail\\m-saucectl-mtsgkkgy\\tmp","TMPDIR":"D:\\jail\\m-saucectl-mtsgkkgy\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsgkkgy\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f3d5642b44e442b62190c488e4d81162d492774273fdb8b1e350406e44642285","specCount":170,"lockfiles":{"digest":"5e9a63e485b7a1300da6d168c0d4e8d26a3da8ab2ed6e7d76250441527ba720b","files":[{"path":"nub.lock","sha256":"74b30727de4762f2c9d8b62f050425f02fb4f1d7caf63d7f4ad901a4a4696e90","bytes":40155}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:19:59.891Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saucectl-mtsgkkgy\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 170 exact package-version(s), tree f3d5642b44e4
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7631/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
   => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
-  STORE   isolated virtual store at D:\jail\m-saucectl-msjutiav\verify-nar-no-network\.cache
-  VERIFY[nar-no-network] rc=1 artifacts=6/8 missing=2 shortfall=d9782089ad00 (tree 7609/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsgkkgy\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"f3d5642b44e442b62190c488e4d81162d492774273fdb8b1e350406e44642285","specCount":170,"lockfiles":{"digest":"5e9a63e485b7a1300da6d168c0d4e8d26a3da8ab2ed6e7d76250441527ba720b","files":[{"path":"nub.lock","sha256":"74b30727de4762f2c9d8b62f050425f02fb4f1d7caf63d7f4ad901a4a4696e90","bytes":40155}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:19:59.891Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saucectl-mtsgkkgy\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 170 exact package-version(s), tree f3d5642b44e4 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=6/8 missing=2 shortfall=d9782089ad00 (tree 7630/1128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
      missing artifacts: bin/LICENSE, bin/saucectl.exe
      'no-network' is NECESSARY — dropping it fails to verify
-  STORE   isolated virtual store at D:\jail\m-saucectl-msjutiav\verify-nar-no-write-deps\.cache
-  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7614/1128) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  STORE   isolated virtual store at D:\jail\m-saucectl-mtsgkkgy\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"f3d5642b44e442b62190c488e4d81162d492774273fdb8b1e350406e44642285","specCount":170,"lockfiles":{"digest":"5e9a63e485b7a1300da6d168c0d4e8d26a3da8ab2ed6e7d76250441527ba720b","files":[{"path":"nub.lock","sha256":"74b30727de4762f2c9d8b62f050425f02fb4f1d7caf63d7f4ad901a4a4696e90","bytes":40155}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T09:19:59.891Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saucectl-mtsgkkgy\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 170 exact package-version(s), tree f3d5642b44e4 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 7631/1128) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
      ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
