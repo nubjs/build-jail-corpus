@@ -1,27 +1,27 @@
-### free-email-domains@1.9.91   (D:\jail\m-freeemaildomains-msk0vmvv)
+### free-email-domains@1.9.91   (D:\jail\m-freeemaildomains-mtsuil8y)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=6440 exit=0 events=41346 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 7 files  (D:\jail\m-freeemaildomains-msk0vmvv\observe\node_modules\free-email-domains)
-  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
-  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
-       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (7) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
-       The grant may still be correct; what is missing is a signal that could have gone
-       red. Do not read this record's MINIMAL as a passing measurement.
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"493561d48aa7181ffed02cc2c5d2a4b40d7c5b16e534b6cad8b69b1b9ec2408b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T15:50:06.956Z","cacheHit":false,"clearancePath":"D:\\jail\\m-freeemaildomains-mtsuil8y\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 493561d48aa7
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"493561d48aa7181ffed02cc2c5d2a4b40d7c5b16e534b6cad8b69b1b9ec2408b","specCount":1,"lockfiles":{"digest":"acd0b7b85ea86a42dcdab9eb7f35f2b892df8e37bf83662db68b0befd4e0db61","files":[{"path":"package-lock.json","sha256":"b89f17f6a4b973e8022e300949ab8e94ab141c090ed910227ec039d788330dc8","bytes":637}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T15:50:06.956Z","cacheHit":true,"clearancePath":"D:\\jail\\m-freeemaildomains-mtsuil8y\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 493561d48aa7 (cached exact-tree clearance)
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8176 exit=0 events=45750 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 7 files  (D:\jail\m-freeemaildomains-mtsuil8y\observe\node_modules\free-email-domains)
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
   CLOSURE 1 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-freeemaildomains-msk0vmvv\observe   [keyed on]
+    project       D:\jail\m-freeemaildomains-mtsuil8y\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-freeemaildomains-msk0vmvv\observe\node_modules\.store
+    projectStore  D:\jail\m-freeemaildomains-mtsuil8y\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-freeemaildomains-msk0vmvv\tmp   [keyed on]
+    temp          D:\jail\m-freeemaildomains-mtsuil8y\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-freeemaildomains-msk0vmvv\observe\node_modules\free-email-domains
-  == ATTRIBUTION == lifecycle pids: 2 (root 6440)
+    ownPkg        D:\jail\m-freeemaildomains-mtsuil8y\observe\node_modules\free-email-domains
+  == ATTRIBUTION == lifecycle pids: 2 (root 8176)
     writes  script 1  /  whole traced tree 8
     peers   script 3  /  whole traced tree 3
   == WRITES ==
@@ -33,38 +33,38 @@
     systemfs     28
   == NETWORK ==
     distinct peers: 3
-        185.199.110.133:443
+        185.199.109.133:443
         104.18.41.124:443
-        141.101.90.98:443
+        141.101.90.99:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"deps":true},"network":true}
-  RAW       etw-raw.xml.gz  53210761 B xml -> 764172 B gz (69.6x)  sha256 4182af3c34fdcaeb…
-  HEADER    etw-header.json (5127 bytes)
-  DERIVED   5780 distinct from 6990 kept ops (41346 xml events, 10669 out of subtree)
-  PROCS     4   thread-reattributed 6
-  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (72360 bytes)
-  RAWLOG-CAPTURE D:\jail\m-freeemaildomains-msk0vmvv\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  RAW       etw-raw.xml.gz  58471558 B xml -> 863886 B gz (67.7x)  sha256 f77b48958c0a045f…
+  HEADER    etw-header.json (5128 bytes)
+  DERIVED   5230 distinct from 6430 kept ops (45750 xml events, 11312 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66278 bytes)
+  RAWLOG-CAPTURE D:\jail\m-freeemaildomains-mtsuil8y\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-freeemaildomains-msk0vmvv
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-freeemaildomains-msk0vmvv\\npm-cache","TMP":"D:\\jail\\m-freeemaildomains-msk0vmvv\\tmp","TEMP":"D:\\jail\\m-freeemaildomains-msk0vmvv\\tmp","TMPDIR":"D:\\jail\\m-freeemaildomains-msk0vmvv\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-freeemaildomains-msk0vmvv\verify-synth\.cache
-  VERIFY[synth] rc=21 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 8/11) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
-     missing artifacts: <package absent>
-  synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-freeemaildomains-msk0vmvv\verify-fb0\.cache
-  VERIFY[fb0] rc=21 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 8/11) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-     missing artifacts: <package absent>
-  STORE   isolated virtual store at D:\jail\m-freeemaildomains-msk0vmvv\verify-fb1\.cache
-  VERIFY[fb1] rc=21 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 8/11) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-     missing artifacts: <package absent>
-  STORE   isolated virtual store at D:\jail\m-freeemaildomains-msk0vmvv\verify-fb2\.cache
-  VERIFY[fb2] rc=21 artifacts=ABSENT/7 missing=1 shortfall=7f7367677a90 (tree 8/11) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
-     missing artifacts: <package absent>
-  NOT-GRANT-INDEPENDENT an arm exited non-zero
-  => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly
+  VENUE-JAIL-ROOT D:\jail\m-freeemaildomains-mtsuil8y
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-freeemaildomains-mtsuil8y\\npm-cache","TMP":"D:\\jail\\m-freeemaildomains-mtsuil8y\\tmp","TEMP":"D:\\jail\\m-freeemaildomains-mtsuil8y\\tmp","TMPDIR":"D:\\jail\\m-freeemaildomains-mtsuil8y\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-freeemaildomains-mtsuil8y\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"493561d48aa7181ffed02cc2c5d2a4b40d7c5b16e534b6cad8b69b1b9ec2408b","specCount":1,"lockfiles":{"digest":"a70b0998bd77bd642f0dfe4e5f1b2e57372c5160e3ef6135cabcf9b1c18f6818","files":[{"path":"nub.lock","sha256":"79417db428fc45ca4d0e3598a24478bc0281dc41cab774f077c854a269249417","bytes":445}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T15:50:06.956Z","cacheHit":true,"clearancePath":"D:\\jail\\m-freeemaildomains-mtsuil8y\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 493561d48aa7 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 5663/11) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-freeemaildomains-mtsuil8y\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"493561d48aa7181ffed02cc2c5d2a4b40d7c5b16e534b6cad8b69b1b9ec2408b","specCount":1,"lockfiles":{"digest":"a70b0998bd77bd642f0dfe4e5f1b2e57372c5160e3ef6135cabcf9b1c18f6818","files":[{"path":"nub.lock","sha256":"79417db428fc45ca4d0e3598a24478bc0281dc41cab774f077c854a269249417","bytes":445}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T15:50:06.956Z","cacheHit":true,"clearancePath":"D:\\jail\\m-freeemaildomains-mtsuil8y\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 1 exact package-version(s), tree 493561d48aa7 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=7/7 missing=1 shortfall=dee9379960cc (tree 5664/11) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: domains.json (254053B < 264790B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-freeemaildomains-mtsuil8y\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"493561d48aa7181ffed02cc2c5d2a4b40d7c5b16e534b6cad8b69b1b9ec2408b","specCount":1,"lockfiles":{"digest":"a70b0998bd77bd642f0dfe4e5f1b2e57372c5160e3ef6135cabcf9b1c18f6818","files":[{"path":"nub.lock","sha256":"79417db428fc45ca4d0e3598a24478bc0281dc41cab774f077c854a269249417","bytes":445}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T15:50:06.956Z","cacheHit":true,"clearancePath":"D:\\jail\\m-freeemaildomains-mtsuil8y\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 1 exact package-version(s), tree 493561d48aa7 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 5663/11) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
