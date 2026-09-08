@@ -1,27 +1,31 @@
-### @pulumi/gcp@0.13.0-dev-1528849084-ge189779   (D:\jail\m-pulumigcp-msjvjq9f)
+### @pulumi/gcp@0.13.0-dev-1528849084-ge189779   (D:\jail\m-pulumigcp-mtsibm5w)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-  CAPTURE user=runnervm7vqe0\runneradmin elevated=True rootPid=5052 exit=0 events=53192 lost=0
-  VENUE-OBSERVE-USER runnervm7vqe0\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 501 files  (D:\jail\m-pulumigcp-msjvjq9f\observe\node_modules\@pulumi\gcp)
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"5b79b7c44bf03cdf112928fb5cb63c9b5bcc354b9b30296a3d0635fd91207a39","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:08:46.095Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 5b79b7c44bf0
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9d60aae562f955cb2df04aaca0a38baf8b5b09c18628085f40a3863e4f7b3c63","specCount":107,"lockfiles":{"digest":"ba6282547f15d5a319248b4518936da51d5402ac1a9b40d06501532f3f85ff04","files":[{"path":"package-lock.json","sha256":"23a5594e27198d0e039507f8a8b1b8258f8531249ca441eaf21825e651dfaa60","bytes":46541}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:08:56.858Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 107 exact package-version(s), tree 9d60aae562f9
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8252 exit=0 events=858380 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 501 files  (D:\jail\m-pulumigcp-mtsibm5w\observe\node_modules\@pulumi\gcp)
   ARM-FALSIFIABILITY {"manifestFiles":501,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (501) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
   CLOSURE 98 packages evicted per arm
-  8.3 MAP 0 components resolved on runnervm7vqe0, folded into capture.json
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-pulumigcp-msjvjq9f\observe   [keyed on]
+    project       D:\jail\m-pulumigcp-mtsibm5w\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-pulumigcp-msjvjq9f\observe\node_modules\.store
+    projectStore  D:\jail\m-pulumigcp-mtsibm5w\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-pulumigcp-msjvjq9f\tmp   [keyed on]
+    temp          D:\jail\m-pulumigcp-mtsibm5w\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-pulumigcp-msjvjq9f\observe\node_modules\@pulumi\gcp
-  == ATTRIBUTION == lifecycle pids: 2 (root 5052)
+    ownPkg        D:\jail\m-pulumigcp-mtsibm5w\observe\node_modules\@pulumi\gcp
+  == ATTRIBUTION == lifecycle pids: 2 (root 8252)
     writes  script 6  /  whole traced tree 13
     peers   script 4  /  whole traced tree 4
   == WRITES ==
@@ -31,46 +35,54 @@
     deps          4
     outside      20
     project       1
-    systemfs     62
+    systemfs     78
     userHome      6
     jailTmp       1
   == NETWORK ==
     distinct peers: 4
-        13.225.61.89:443
-        140.82.112.4:443
-        140.82.113.6:443
-        104.20.20.220:443
+        13.226.238.67:443
+        140.82.113.3:443
+        140.82.114.5:443
+        172.66.173.242:443
   == REFUSALS (adapter-classified) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
     {"write":{"userHome":true},"network":true}
     NOTE 1 writes into the DECLARED private temp -- the base profile grants
          that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
-  RAW       etw-raw.xml.gz  68683787 B xml -> 1073354 B gz (64.0x)  sha256 c55e40f9255deb62…
-  HEADER    etw-header.json (5099 bytes)
-  DERIVED   5599 distinct from 15310 kept ops (53192 xml events, 7366 out of subtree)
+  RAW       etw-raw.xml.gz  1096086022 B xml -> 13984229 B gz (78.4x)  sha256 34a50578cd707107…
+  HEADER    etw-header.json (5108 bytes)
+  DERIVED   5647 distinct from 15733 kept ops (858380 xml events, 301659 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 handle ops whose path no table could supply
-  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervm7vqe0)]
-  wrote events.ndjson.gz (71957 bytes)
-  RAWLOG-CAPTURE D:\jail\m-pulumigcp-msjvjq9f\cap\capture.json
-  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"7686f225e7a1b79f8de373f5855ed610abf884d69ae9275d8e9531da2ce834d6","bytes":68896768,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (72808 bytes)
+  RAWLOG-CAPTURE D:\jail\m-pulumigcp-mtsibm5w\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-pulumigcp-msjvjq9f
-  VENUE-STORE-LAYOUT hoisted
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pulumigcp-msjvjq9f\\npm-cache","TMP":"D:\\jail\\m-pulumigcp-msjvjq9f\\tmp","TEMP":"D:\\jail\\m-pulumigcp-msjvjq9f\\tmp","TMPDIR":"D:\\jail\\m-pulumigcp-msjvjq9f\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-JAIL-ROOT D:\jail\m-pulumigcp-mtsibm5w
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pulumigcp-mtsibm5w\\npm-cache","TMP":"D:\\jail\\m-pulumigcp-mtsibm5w\\tmp","TEMP":"D:\\jail\\m-pulumigcp-mtsibm5w\\tmp","TMPDIR":"D:\\jail\\m-pulumigcp-mtsibm5w\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-pulumigcp-msjvjq9f\verify-synth\.cache
-  VERIFY[synth] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14830/6221) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-pulumigcp-mtsibm5w\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c8edf267574f7dccc751c3acae01e1997c012ef8e437e4d337908ab1b1de707c","specCount":107,"lockfiles":{"digest":"1400dac54e4a0e485fdf069fd415e7cfb6295a8b10146332d1f04b5793b56ef6","files":[{"path":"nub.lock","sha256":"81a9449592c440233349390fff532b2cf6151d4eabe49190caeffa9b7e780f85","bytes":25862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:10:16.935Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 107 exact package-version(s), tree c8edf267574f
+  VERIFY[synth] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14875/6222) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
   synthesized grant did not verify -- falling back to a bounded ladder
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-pulumigcp-msjvjq9f\verify-fb0\.cache
-  VERIFY[fb0] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14830/6221) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-pulumigcp-mtsibm5w\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"c8edf267574f7dccc751c3acae01e1997c012ef8e437e4d337908ab1b1de707c","specCount":107,"lockfiles":{"digest":"1400dac54e4a0e485fdf069fd415e7cfb6295a8b10146332d1f04b5793b56ef6","files":[{"path":"nub.lock","sha256":"81a9449592c440233349390fff532b2cf6151d4eabe49190caeffa9b7e780f85","bytes":25862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:10:16.935Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 107 exact package-version(s), tree c8edf267574f (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14875/6222) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-pulumigcp-msjvjq9f\verify-fb1\.cache
-  VERIFY[fb1] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14830/6221) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-pulumigcp-mtsibm5w\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"c8edf267574f7dccc751c3acae01e1997c012ef8e437e4d337908ab1b1de707c","specCount":107,"lockfiles":{"digest":"1400dac54e4a0e485fdf069fd415e7cfb6295a8b10146332d1f04b5793b56ef6","files":[{"path":"nub.lock","sha256":"81a9449592c440233349390fff532b2cf6151d4eabe49190caeffa9b7e780f85","bytes":25862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:10:16.935Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 107 exact package-version(s), tree c8edf267574f (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14875/6222) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
   scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  STORE   isolated virtual store at D:\jail\m-pulumigcp-msjvjq9f\verify-fb2\.cache
-  VERIFY[fb2] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14830/6221) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-pulumigcp-mtsibm5w\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"c8edf267574f7dccc751c3acae01e1997c012ef8e437e4d337908ab1b1de707c","specCount":107,"lockfiles":{"digest":"1400dac54e4a0e485fdf069fd415e7cfb6295a8b10146332d1f04b5793b56ef6","files":[{"path":"nub.lock","sha256":"81a9449592c440233349390fff532b2cf6151d4eabe49190caeffa9b7e780f85","bytes":25862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T10:10:16.935Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumigcp-mtsibm5w\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 107 exact package-version(s), tree c8edf267574f (cached exact-tree clearance)
+  VERIFY[fb2] rc=1 artifacts=501/501 missing=0 shortfall=none (tree 14875/6222) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
   NOT-GRANT-INDEPENDENT an arm exited non-zero
   => NO-STATE-PASSED even at write:disk -- investigate; do not widen the catalog blindly
