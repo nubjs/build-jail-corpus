@@ -1,12 +1,12 @@
-### @sap/hana-client@2.29.23   (D:\jail\m-saphanaclient-mtrhh2kd)
+### @sap/hana-client@2.29.23   (D:\jail\m-saphanaclient-mtrwvpdh)
   CI-ENV scrubbed: CI GITHUB_ACTIONS
-OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3826f6833090a4a91e4e316462305bf76c3b03cf420e81fc649073157bdc45ae","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:14.968Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\direct.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3826f6833090a4a91e4e316462305bf76c3b03cf420e81fc649073157bdc45ae","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:31.770Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\direct.json"}
   SECURITY direct clean: 1 exact package-version(s), tree 3826f6833090
-OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"e89d74087e4a3c3af369f046fdd043ddaff51b1c38532d1f242538b5256b25ca","files":[{"path":"package-lock.json","sha256":"c952780601486b61c7526c0ea6869098acfe94becaa31b1e2f62c40c103de92a","bytes":1269}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:17.609Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\npm-observe-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"e89d74087e4a3c3af369f046fdd043ddaff51b1c38532d1f242538b5256b25ca","files":[{"path":"package-lock.json","sha256":"c952780601486b61c7526c0ea6869098acfe94becaa31b1e2f62c40c103de92a","bytes":1269}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:34.247Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\npm-observe-resolved.json"}
   SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree bef6977ad6ef
-  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6448 exit=0 events=22300 lost=0
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=9180 exit=0 events=21973 lost=0
   VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
-  OBSERVE artifacts: 22 files  (D:\jail\m-saphanaclient-mtrhh2kd\observe\node_modules\@sap\hana-client)
+  OBSERVE artifacts: 22 files  (D:\jail\m-saphanaclient-mtrwvpdh\observe\node_modules\@sap\hana-client)
   ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (23) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
@@ -15,17 +15,17 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
   CLOSURE 1 packages evicted per arm
   8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       D:\jail\m-saphanaclient-mtrhh2kd\observe   [keyed on]
+    project       D:\jail\m-saphanaclient-mtrwvpdh\observe   [keyed on]
     home          C:\Users\runneradmin   [keyed on]
     jailHome      (null — declared inapplicable)
     globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
-    projectStore  D:\jail\m-saphanaclient-mtrhh2kd\observe\node_modules\.store
+    projectStore  D:\jail\m-saphanaclient-mtrwvpdh\observe\node_modules\.store
     interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
     toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
-    temp          D:\jail\m-saphanaclient-mtrhh2kd\tmp   [keyed on]
+    temp          D:\jail\m-saphanaclient-mtrwvpdh\tmp   [keyed on]
     npmPrefix     (null — declared inapplicable)
-    ownPkg        D:\jail\m-saphanaclient-mtrhh2kd\observe\node_modules\@sap\hana-client
-  == ATTRIBUTION == lifecycle pids: 2 (root 6448)
+    ownPkg        D:\jail\m-saphanaclient-mtrwvpdh\observe\node_modules\@sap\hana-client
+  == ATTRIBUTION == lifecycle pids: 2 (root 9180)
     writes  script 8  /  whole traced tree 15
     peers   script 0  /  whole traced tree 0
   == WRITES ==
@@ -40,7 +40,7 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     kernelfs      1
   == READS ==
     deps         15
-    outside       6
+    outside      11
     project       1
     systemfs     31
   == NETWORK ==
@@ -51,34 +51,34 @@ OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","di
     {}
     !! 7 writes into system dirs -- an unprivileged user would be refused these
     NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
-  RAW       etw-raw.xml.gz  28443838 B xml -> 412517 B gz (69.0x)  sha256 77011dc05c53319a…
-  HEADER    etw-header.json (5060 bytes)
-  DERIVED   5321 distinct from 6542 kept ops (22300 xml events, 1778 out of subtree)
+  RAW       etw-raw.xml.gz  28023177 B xml -> 404834 B gz (69.2x)  sha256 b249d14e837cc0e0…
+  HEADER    etw-header.json (5061 bytes)
+  DERIVED   5341 distinct from 6562 kept ops (21973 xml events, 1593 out of subtree)
   PROCS     4   thread-reattributed 0
-  ⛔ 1 handle ops whose path no table could supply
+  ⛔ 2 handle ops whose path no table could supply
   8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
-  wrote events.ndjson.gz (67503 bytes)
-  RAWLOG-CAPTURE D:\jail\m-saphanaclient-mtrhh2kd\cap\capture.json
+  wrote events.ndjson.gz (67772 bytes)
+  RAWLOG-CAPTURE D:\jail\m-saphanaclient-mtrwvpdh\cap\capture.json
   VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
-  VENUE-JAIL-ROOT D:\jail\m-saphanaclient-mtrhh2kd
-  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saphanaclient-mtrhh2kd\\npm-cache","TMP":"D:\\jail\\m-saphanaclient-mtrhh2kd\\tmp","TEMP":"D:\\jail\\m-saphanaclient-mtrhh2kd\\tmp","TMPDIR":"D:\\jail\\m-saphanaclient-mtrhh2kd\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
-  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrhh2kd\verify-synth\.cache
+  VENUE-JAIL-ROOT D:\jail\m-saphanaclient-mtrwvpdh
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saphanaclient-mtrwvpdh\\npm-cache","TMP":"D:\\jail\\m-saphanaclient-mtrwvpdh\\tmp","TEMP":"D:\\jail\\m-saphanaclient-mtrwvpdh\\tmp","TMPDIR":"D:\\jail\\m-saphanaclient-mtrwvpdh\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrwvpdh\verify-synth\.cache
   VENUE-STORE-LAYOUT isolated
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:17.609Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\nub-synth-resolved.json"}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:34.247Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\nub-synth-resolved.json"}
   SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree bef6977ad6ef (cached exact-tree clearance)
   VERIFY[synth] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={}
   synthesized grant did not verify -- falling back to a bounded ladder
-  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrhh2kd\verify-fb0\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:17.609Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\nub-fb0-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrwvpdh\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:34.247Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\nub-fb0-resolved.json"}
   SECURITY nub-fb0-resolved clean: 3 exact package-version(s), tree bef6977ad6ef (cached exact-tree clearance)
   VERIFY[fb0] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
-  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrhh2kd\verify-fb1\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:17.609Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\nub-fb1-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrwvpdh\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:34.247Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\nub-fb1-resolved.json"}
   SECURITY nub-fb1-resolved clean: 3 exact package-version(s), tree bef6977ad6ef (cached exact-tree clearance)
   VERIFY[fb1] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
-  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrhh2kd\verify-fb2\.cache
-OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-07T16:57:17.609Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrhh2kd\\security\\nub-fb2-resolved.json"}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtrwvpdh\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"bef6977ad6ef4eafff55047ac556d82633b8ed4f0252b0728ff5bd33d4d4f94f","specCount":3,"lockfiles":{"digest":"2401f975d2ddec2884606acad152fc6fb783d4dc03e3ef1884cc6c8dad8e5f77","files":[{"path":"nub.lock","sha256":"d89c9bf05a4e678069b964536d5f839eca91b0dc10044f690495ca2485caf323","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T00:08:34.247Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtrwvpdh\\security\\nub-fb2-resolved.json"}
   SECURITY nub-fb2-resolved clean: 3 exact package-version(s), tree bef6977ad6ef (cached exact-tree clearance)
   VERIFY[fb2] rc=0 artifacts=22/22 missing=0 shortfall=none (tree 5721/45) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
   => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
