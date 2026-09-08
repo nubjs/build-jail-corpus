@@ -1,28 +1,32 @@
-### mbt@0.0.9   (/Users/runner/v2m-T9AVsw)   nub=/tmp/nub/target/release/nub
-  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"96a20008266cf4b82096914dc1eddf3962fde269760393eef3a71f67e04dd9d4","bytes":94103896,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"02bd502cb92d8398b40f770861cc0d5a9ebb1624a75fb75ce944c00f9e3c88f2","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T05:15:35.959Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-mqig8I/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 02bd502cb92d
+### mbt@0.0.9   (/Users/runner/v2m-mqig8I)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
   CI-ENV scrubbed: CI GITHUB_ACTIONS
   --- fbt preflight (advisory; never fails the run) ---
      csrutil: System Integrity Protection status: disabled.
-     fbt probes visible: 93577
-     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50357 probes CPU     ID                    FUNCTION:NAME 
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
      cwd builtin value:  
      fbt chdir symbols:  
      fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
   --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"43c01f9f90469db71608f8ad29f18c46f473becd36bfb83aceade69e5cb8dc38","specCount":67,"lockfiles":{"digest":"72dba58ebe0b8dcb60f0719cbae91a14d12a45499411c0d0bf9d1f6e99cfcecd","files":[{"path":"package-lock.json","sha256":"74589c6169aa9c8bf5ee3f56ae3a95e2b5bd5db59d6eb5b87bbe5c5c69a6e31b","bytes":27068}]},"maliciousAdvisories":[],"screenedAt":"2026-09-08T05:15:42.100Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-mqig8I/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 67 exact package-version(s), tree 43c01f9f9046
   VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
   --- wrapper (run.sh) ---
-     cd "/Users/runner/v2m-T9AVsw/Observe"
-     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-T9AVsw/jailhome"   "TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsF9vQjT"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm" rebuild --no-audit --no-fund "mbt" > "/Users/runner/v2m-T9AVsw/Observe/npm.log" 2>&1
-     echo $? > "/Users/runner/v2m-T9AVsw/Observe/rc"
+     cd "/Users/runner/v2m-mqig8I/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-mqig8I/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsPD9muo"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "mbt" > "/Users/runner/v2m-mqig8I/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-mqig8I/Observe/rc"
   --- dtrace stderr + wrapper trace ---
-     + cd /Users/runner/v2m-T9AVsw/Observe
-     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.1/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-T9AVsw/jailhome TMPDIR=/private/var/folders/_5/zjnzxgh147qcg3bb5cg2wvqw0000gn/T/nub-tmp-obsF9vQjT NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.1/arm64/bin/npm rebuild --no-audit --no-fund mbt
-     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000d55170) in action #1 at DIF offset 20
+     + cd /Users/runner/v2m-mqig8I/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-mqig8I/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsPD9muo NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund mbt
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002f00090) in action #1 at DIF offset 20
      + echo 1
   OBSERVE   rc=1 dtrace_rc=0 files=799 (pre=797) trace=14732 lines
   => BROKEN-WITHOUT-JAIL-TOO (unjailed control failed rc=1; nothing to measure)
      npm error code 1
-     npm error path /Users/runner/v2m-T9AVsw/Observe/node_modules/mbt
+     npm error path /Users/runner/v2m-mqig8I/Observe/node_modules/mbt
      npm error command failed
      npm error command sh -c go-npm install
      npm error Installation is not supported for this architecture: arm64
@@ -32,4 +36,4 @@
      npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
      npm notice To update run: npm install -g npm@12.0.2
      npm notice
-     npm error A complete log of this run can be found in: /Users/runner/v2m-T9AVsw/jailhome/.npm/_logs/2026-08-07T21_32_00_499Z-debug-0.log
+     npm error A complete log of this run can be found in: /Users/runner/v2m-mqig8I/jailhome/.npm/_logs/2026-09-08T05_15_43_557Z-debug-0.log
