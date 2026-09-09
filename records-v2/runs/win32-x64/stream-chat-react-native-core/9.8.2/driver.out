@@ -1,0 +1,59 @@
+### stream-chat-react-native-core@9.8.2   (D:\jail\m-streamchatreactnativecore-mttnvvnb)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e3b8a401480a4fcb700dbc5afae5a3ba51243995d169f23d285777d21171f478","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:32:15.795Z","cacheHit":false,"clearancePath":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e3b8a401480a
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b5dd15a48d3253e87d3d5ac06f41d278dcb161a45756e3e592afede8cd82f574","specCount":382,"lockfiles":{"digest":"2691db60606e8d3e0d2a46c8ef21b732645f841649de3dbb67892f2e7f08b241","files":[{"path":"package-lock.json","sha256":"9e412bf156aa5e8e66475667880165c4d517e47369eea9735b8c99f4b3eb8ee3","bytes":192923}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:32:44.527Z","cacheHit":false,"clearancePath":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 382 exact package-version(s), tree b5dd15a48d32
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6748 exit=0 events=22544 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 6134 files  (D:\jail\m-streamchatreactnativecore-mttnvvnb\observe\node_modules\stream-chat-react-native-core)
+  ARM-FALSIFIABILITY {"manifestFiles":6134,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (6134) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 361 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-streamchatreactnativecore-mttnvvnb\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-streamchatreactnativecore-mttnvvnb\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-streamchatreactnativecore-mttnvvnb\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-streamchatreactnativecore-mttnvvnb\observe\node_modules\stream-chat-react-native-core
+  == ATTRIBUTION == lifecycle pids: 0 (root 6748)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+    !! NO LIFECYCLE SHELL FOUND -- the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == WRITES ==
+  == READS ==
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  28862486 B xml -> 440777 B gz (65.5x)  sha256 c99f728a65fe56f2…
+  HEADER    etw-header.json (5154 bytes)
+  DERIVED   5581 distinct from 6636 kept ops (22544 xml events, 1980 out of subtree)
+  PROCS     2   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (70077 bytes)
+  RAWLOG-CAPTURE D:\jail\m-streamchatreactnativecore-mttnvvnb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-streamchatreactnativecore-mttnvvnb
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\npm-cache","TMP":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\tmp","TEMP":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\tmp","TMPDIR":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-streamchatreactnativecore-mttnvvnb\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"16d9d3f279df96a1ee392f92fe337a9380c251aef65f41ae36979b994c7ec40c","specCount":382,"lockfiles":{"digest":"c0cfaabf0f1bcd7db5df20662e202f1578b9695f94599e7631603e9ebd7f3712","files":[{"path":"nub.lock","sha256":"fd97fe8dffee0c3c3d7d14e5bb86baa62830d589fa8635fa34972652c67f0b97","bytes":123802}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:33:43.931Z","cacheHit":false,"clearancePath":"D:\\jail\\m-streamchatreactnativecore-mttnvvnb\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 382 exact package-version(s), tree 16d9d3f279df
+  VERIFY[synth] rc=0 artifacts=6134/6134 missing=0 shortfall=none (tree 54194/28005) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
