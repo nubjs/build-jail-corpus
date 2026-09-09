@@ -1,0 +1,86 @@
+### subrequests@2.18.0   (/home/runner/v2-HkQvIq)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1088c9e74fa27c17610a485dd18c545c2b67084aab965ab04c67ce4ba088361f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:00:20.441Z","cacheHit":false,"clearancePath":"/home/runner/v2-HkQvIq/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1088c9e74fa2
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5ba9d258430d7a47867161302c8f790b2546da315f00d4f2de0bc6b68d89a71a","specCount":155,"lockfiles":{"digest":"734c1d58b93b1d254053b12d512fbb31ba95ecd0c74a4e793ce47068ed70882e","files":[{"path":"package-lock.json","sha256":"cfc839a2c06fd41c637b253c18786be9d37f93429ab593ce8d11d99f33625d86","bytes":59631}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:00:25.514Z","cacheHit":false,"clearancePath":"/home/runner/v2-HkQvIq/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 155 exact package-version(s), tree 5ba9d258430d
+  OBSERVE   rc=0 files=5421 trace=14633 lines
+  CLOSURE   132 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":44,"filesTheScriptProduced":14,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-HkQvIq/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-HkQvIq/observe/capture.json
+  RAWLOG-BYTES raw=3127281 gz=96582
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-HkQvIq/jailhome","TMPDIR":"/tmp/nub-tmp-obstvUVfJ","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-HkQvIq/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 36
+    writes  script 200  /  whole traced tree 1197
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-HkQvIq/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-HkQvIq/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-HkQvIq/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obstvUVfJ
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-HkQvIq/observe/node_modules/subrequests
+  == WRITES the script actually performed ==
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-HkQvIq/jailhome/.npm/_logs/2026-09-09T05_00_27_201Z-debug-0.log
+    ownPkg       15  (base profile already grants this — NOT billed)
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/BlueprintManager.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/HttpRequestor.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/JsonPathReplacer.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/MultipartRelatedResponse.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/ResponseMergerBase.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/SubrequestsManager.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/index.js
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/BlueprintManager.js.flow
+        /home/runner/v2-HkQvIq/observe/node_modules/subrequests/lib/HttpRequestor.js.flow
+        … and 5 more
+    jailTmp     184  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/0cc3b12e.j3Yv8e
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/0cc3b12e
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/4c453fdb.8PoqZ7
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/4c453fdb
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/b39804f1.iWu8ok
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/b39804f1
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/c2b0df45.YdcEqr
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/c2b0df45
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/f976fd99.UVvEl7
+        /tmp/nub-tmp-obstvUVfJ/node-compile-cache/v22.23.2-x64-9ac5647c-1001/f976fd99
+        … and 174 more
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.3.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    6319 distinct from 14490 calls (14634 lines, 95 rejoined, 0 unparsed)
+    PROCS     43   lifecycle shells 31
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×42 exit×33 getsockopt×27 setsockopt×23 recvmsg×12 wait4×8 getcwd×7 exit_group×6
+    wrote /home/runner/v2-HkQvIq/observe/events.ndjson.gz (42598 bytes)
+  EVENTLOG-FILE /home/runner/v2-HkQvIq/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":14634,"parsed":14490,"unparsed":0,"unfinished":95,"rejoined":95,"unresolvedDirfd":4,"truncatedArg":0,"procs":43,"lifecyclePids":31,"distinctEvents":6319,"unknownSyscall":{"getsockname":42,"getsockopt":27,"getcwd":7,"recvmsg":12,"exit":33,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":6,"wait4":8},"out":"/home/runner/v2-HkQvIq/observe/events.ndjson.gz","gzipBytes":42598}
+  EVICT     59 store entries removed, 2 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for subrequests
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"5ba9d258430d7a47867161302c8f790b2546da315f00d4f2de0bc6b68d89a71a","specCount":155,"lockfiles":{"digest":"2ef02a198d637d36cbc2dac9a413b4ca612f7c8e61c9d364a3efc76650ebd420","files":[{"path":"nub.lock","sha256":"3e65bb7c0fee7986170d60f5200c33ea9394122fa3145198be95b7308dda922b","bytes":31390}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:00:25.514Z","cacheHit":true,"clearancePath":"/home/runner/v2-HkQvIq/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 155 exact package-version(s), tree 5ba9d258430d (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 19215/5421) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

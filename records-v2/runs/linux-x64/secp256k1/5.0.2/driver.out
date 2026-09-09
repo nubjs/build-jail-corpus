@@ -1,0 +1,64 @@
+### secp256k1@5.0.2   (/home/runner/v2-FgrnBp)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"094f35226787a786c176556a053f2d2c8fdaae5722b04570d3f291915749463c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:40.517Z","cacheHit":false,"clearancePath":"/home/runner/v2-FgrnBp/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 094f35226787
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"27b67280febcb851b650c83553c7ffca2daec1478cf28b7df66371d781056e64","specCount":11,"lockfiles":{"digest":"425b8563ef5eb95853143ecc6568d6e9c1ee94f2f5340096ebc3c2d6723c1615","files":[{"path":"package-lock.json","sha256":"5c1cae742c5aeaa90e8199de4140ad0bfd047ea6590b96d3bbabb4a9c88a3a32","bytes":4351}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:41.830Z","cacheHit":false,"clearancePath":"/home/runner/v2-FgrnBp/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 11 exact package-version(s), tree 27b67280febc
+  OBSERVE   rc=0 files=208 trace=10930 lines
+  CLOSURE   11 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":108,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (108) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `install` ends in a status-swallowing construct (`node-gyp-build || exit 0`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-FgrnBp/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-FgrnBp/observe/capture.json
+  RAWLOG-BYTES raw=2392678 gz=69885
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-FgrnBp/jailhome","TMPDIR":"/tmp/nub-tmp-obso01BCh","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-FgrnBp/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 21
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-FgrnBp/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-FgrnBp/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-FgrnBp/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obso01BCh
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-FgrnBp/observe/node_modules/secp256k1
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.2.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4515 distinct from 10875 calls (10931 lines, 23 rejoined, 0 unparsed)
+    PROCS     28   lifecycle shells 16
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×25 exit×20 getsockopt×12 recvmsg×7 socketpair×6 wait4×6 shutdown×5
+    wrote /home/runner/v2-FgrnBp/observe/events.ndjson.gz (31834 bytes)
+  EVENTLOG-FILE /home/runner/v2-FgrnBp/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10931,"parsed":10875,"unparsed":0,"unfinished":23,"rejoined":23,"unresolvedDirfd":3,"truncatedArg":0,"procs":28,"lifecyclePids":16,"distinctEvents":4515,"unknownSyscall":{"getsockname":25,"getsockopt":12,"getcwd":4,"recvmsg":7,"exit":20,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":5,"exit_group":5,"wait4":6},"out":"/home/runner/v2-FgrnBp/observe/events.ndjson.gz","gzipBytes":31834}
+  EVICT     3 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for secp256k1
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"27b67280febcb851b650c83553c7ffca2daec1478cf28b7df66371d781056e64","specCount":11,"lockfiles":{"digest":"e332e6fb3c4533c43bb6d0ce7cc96f1e9c0343a1bd45228a856b93ac87892892","files":[{"path":"nub.lock","sha256":"b7ab31f837485bbdccaa74105238bb4efbf0d1e4c1971c2189339cc7f0ce20a9","bytes":2633}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:41.830Z","cacheHit":true,"clearancePath":"/home/runner/v2-FgrnBp/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 11 exact package-version(s), tree 27b67280febc (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=107/107 missing=0 shortfall=none (tree 664/208) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
