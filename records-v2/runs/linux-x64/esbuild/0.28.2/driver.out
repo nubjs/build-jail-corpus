@@ -1,0 +1,62 @@
+### esbuild@0.28.2   (/home/runner/v2-14GwdI)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4b34d6baf4333a15fcd2d76579340e3bea101bb35d91e7c61868bd2c4cfbb446","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:36.891Z","cacheHit":false,"clearancePath":"/home/runner/v2-14GwdI/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4b34d6baf433
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"cac7baaf66a4e7a291853968473d7f83d058eadb027024e03ea9375e76536666","specCount":2,"lockfiles":{"digest":"d064310c146bd62df508474f6e1e8dfa7084d2e9cce153d405bf405046e4fcce","files":[{"path":"package-lock.json","sha256":"002dd023bf165da3aeaf9b2c929050d56f066032d1466907582315f927b03801","bytes":13932}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:38.504Z","cacheHit":false,"clearancePath":"/home/runner/v2-14GwdI/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree cac7baaf66a4
+  OBSERVE   rc=0 files=14 trace=10769 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-14GwdI/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-14GwdI/observe/capture.json
+  RAWLOG-BYTES raw=2371434 gz=69058
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-14GwdI/jailhome","TMPDIR":"/tmp/nub-tmp-obstXDSqc","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-14GwdI/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 19
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-14GwdI/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-14GwdI/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-14GwdI/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obstXDSqc
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-14GwdI/observe/node_modules/esbuild
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-14GwdI/observe/node_modules/esbuild/bin-esbuild
+        /home/runner/v2-14GwdI/observe/node_modules/esbuild/bin/esbuild
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.9.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4392 distinct from 10723 calls (10770 lines, 16 rejoined, 0 unparsed)
+    PROCS     26   lifecycle shells 14
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×21 exit×16 getsockopt×7 recvmsg×7 socketpair×6 getcwd×4 shutdown×4
+    wrote /home/runner/v2-14GwdI/observe/events.ndjson.gz (31229 bytes)
+  EVENTLOG-FILE /home/runner/v2-14GwdI/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10770,"parsed":10723,"unparsed":0,"unfinished":16,"rejoined":16,"unresolvedDirfd":3,"truncatedArg":0,"procs":26,"lifecyclePids":14,"distinctEvents":4392,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":16,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"tgkill":1,"exit_group":4,"wait4":4},"out":"/home/runner/v2-14GwdI/observe/events.ndjson.gz","gzipBytes":31229}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for esbuild
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"cac7baaf66a4e7a291853968473d7f83d058eadb027024e03ea9375e76536666","specCount":2,"lockfiles":{"digest":"5e4fdcb3f68fc30cd961230506dc038b19e6f3334027d561138c05eceab951ff","files":[{"path":"nub.lock","sha256":"48c047b501bcf7f51ed4029d8d8b27c434971b09da913b3fb439c7652a5c2e31","bytes":8539}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:38.504Z","cacheHit":true,"clearancePath":"/home/runner/v2-14GwdI/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree cac7baaf66a4 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 49/14) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

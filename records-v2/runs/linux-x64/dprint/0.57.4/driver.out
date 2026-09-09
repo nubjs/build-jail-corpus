@@ -1,0 +1,68 @@
+### dprint@0.57.4   (/home/runner/v2-o4Ke5x)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4ac99e2cae5ccd2472a61854bbc548d06585542320872b7ba65b9c5ba6b7ddc4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:26.395Z","cacheHit":false,"clearancePath":"/home/runner/v2-o4Ke5x/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4ac99e2cae5c
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"34b97270969a2a5b0c808b31cad2dc3e4a02739a18687149baf553e342584a9b","specCount":2,"lockfiles":{"digest":"dd60b2c5df40aea1f747f20854d2ab6d21bcf24bad33ae3b0fd9d428afb2a743","files":[{"path":"package-lock.json","sha256":"585b74b9e6e61df41d3a308b989575dcaea0ff4de30c4bde784e4aca405038ba","bytes":7649}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:28.726Z","cacheHit":false,"clearancePath":"/home/runner/v2-o4Ke5x/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 34b97270969a
+  OBSERVE   rc=0 files=15 trace=10738 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-o4Ke5x/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-o4Ke5x/observe/capture.json
+  RAWLOG-BYTES raw=2368772 gz=68832
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-o4Ke5x/jailhome","TMPDIR":"/tmp/nub-tmp-obswbqsN6","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-o4Ke5x/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-o4Ke5x/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-o4Ke5x/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-o4Ke5x/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obswbqsN6
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-o4Ke5x/observe/node_modules/dprint
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-o4Ke5x/observe/node_modules/dprint/dprint
+    deps          1
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.7.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4394 distinct from 10697 calls (10739 lines, 19 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-o4Ke5x/observe/events.ndjson.gz (31181 bytes)
+  EVENTLOG-FILE /home/runner/v2-o4Ke5x/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10739,"parsed":10697,"unparsed":0,"unfinished":19,"rejoined":19,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4394,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-o4Ke5x/observe/events.ndjson.gz","gzipBytes":31181}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dprint
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"34b97270969a2a5b0c808b31cad2dc3e4a02739a18687149baf553e342584a9b","specCount":2,"lockfiles":{"digest":"17dd5a2fada796343865219c73d131967ad430c9e8a54b26e865e6285eae2b38","files":[{"path":"nub.lock","sha256":"6979df0a8eb0d89c709b4c5de9a4c958537f2a0c0ae9c1d91d4c2e7c3aadd725","bytes":4921}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:28.726Z","cacheHit":true,"clearancePath":"/home/runner/v2-o4Ke5x/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 34b97270969a (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 52/15) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => VERIFIED {"write":{"deps":true}}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dprint
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"34b97270969a2a5b0c808b31cad2dc3e4a02739a18687149baf553e342584a9b","specCount":2,"lockfiles":{"digest":"17dd5a2fada796343865219c73d131967ad430c9e8a54b26e865e6285eae2b38","files":[{"path":"nub.lock","sha256":"6979df0a8eb0d89c709b4c5de9a4c958537f2a0c0ae9c1d91d4c2e7c3aadd725","bytes":4921}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:58:28.726Z","cacheHit":true,"clearancePath":"/home/runner/v2-o4Ke5x/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 2 exact package-version(s), tree 34b97270969a (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 52/15) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-deps  (synthesized {"write":{"deps":true}}; each named capability drops on its own)
