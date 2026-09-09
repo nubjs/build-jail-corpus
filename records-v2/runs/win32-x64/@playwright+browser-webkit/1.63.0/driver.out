@@ -1,0 +1,80 @@
+### @playwright/browser-webkit@1.63.0   (D:\jail\m-playwrightbrowserwebkit-mtuqv4fw)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8f99c0822c636a596cd49ea54e7541648cb0b340be325eec4ecc34ef6510389e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:43:25.484Z","cacheHit":false,"clearancePath":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8f99c0822c63
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"7886c2fa9fadfb28136b6e0c9776aa03349532108c27e9d8eb2ae812e4157b84","files":[{"path":"package-lock.json","sha256":"48663fb01f76e4a35207f74fdbc5f275c3f8b602f90973699c41d8ae56ef1e4c","bytes":1156}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:43:27.515Z","cacheHit":false,"clearancePath":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree bf65985a8e2e
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8496 exit=0 events=102674 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\observe\node_modules\@playwright\browser-webkit)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\observe\node_modules\@playwright\browser-webkit
+  == ATTRIBUTION == lifecycle pids: 4 (root 8496)
+    writes  script 410  /  whole traced tree 417
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    userHome    406
+    jailTmp       4
+  == READS ==
+    deps         11
+    outside       6
+    project       1
+    systemfs     30
+    userHome     53
+    jailTmp       4
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 2
+        150.171.109.147:443
+        23.62.226.73:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 4 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  133528127 B xml -> 2092325 B gz (63.8x)  sha256 e7d63d37fd8872a1…
+  HEADER    etw-header.json (5194 bytes)
+  DERIVED   7033 distinct from 41853 kept ops (102674 xml events, 4222 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 17 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (94676 bytes)
+  RAWLOG-CAPTURE D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-playwrightbrowserwebkit-mtuqv4fw
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\npm-cache","TMP":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\tmp","TEMP":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\tmp","TMPDIR":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:43:27.515Z","cacheHit":true,"clearancePath":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 6259/128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:43:27.515Z","cacheHit":true,"clearancePath":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 5902/128) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-playwrightbrowserwebkit-mtuqv4fw\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:43:27.515Z","cacheHit":true,"clearancePath":"D:\\jail\\m-playwrightbrowserwebkit-mtuqv4fw\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 6259/128) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
