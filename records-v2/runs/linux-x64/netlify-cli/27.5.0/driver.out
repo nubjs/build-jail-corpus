@@ -1,0 +1,75 @@
+### netlify-cli@27.5.0   (/home/runner/v2-ByVZb0)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"fa780b4b07ff291081213a40a48a88c5917137da516ae01e3c9666ae2114e967","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:58:22.255Z","cacheHit":false,"clearancePath":"/home/runner/v2-ByVZb0/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree fa780b4b07ff
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5f9e0890920c28c690066b00f57c53a3553652803386e71e49fe34f83e99ab29","specCount":939,"lockfiles":{"digest":"b83ae2e2086d73b2adbd25558a83e3b49812236bf7acc9dce5e9b835eeff278c","files":[{"path":"package-lock.json","sha256":"36edc3ab4e9ef09361e85f37b52afe839fc84b0be8ad593dd9216a4999b79318","bytes":537436}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:58:55.012Z","cacheHit":false,"clearancePath":"/home/runner/v2-ByVZb0/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 939 exact package-version(s), tree 5f9e0890920c
+  OBSERVE   rc=0 files=34286 trace=33397 lines
+  CLOSURE   815 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":599,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (599) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-ByVZb0/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ByVZb0/observe/capture.json
+  RAWLOG-BYTES raw=6781015 gz=182702
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ByVZb0/jailhome","TMPDIR":"/tmp/nub-tmp-obs29vYah","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ByVZb0/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1090
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ByVZb0/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ByVZb0/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ByVZb0/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs29vYah
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ByVZb0/observe/node_modules/netlify-cli
+  == WRITES the script actually performed ==
+    userHome      2
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    2 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2
+        .config/netlify
+        .config/netlify/autocompletion.json
+    EVENTS    12444 distinct from 31904 calls (33398 lines, 1466 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getcwd×54 getsockname×46 getsockopt×32 setsockopt×23 exit×20 recvmsg×7 socketpair×3 shutdown×3
+    wrote /home/runner/v2-ByVZb0/observe/events.ndjson.gz (79758 bytes)
+  EVENTLOG-FILE /home/runner/v2-ByVZb0/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":33398,"parsed":31904,"unparsed":0,"unfinished":1466,"rejoined":1466,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":12444,"unknownSyscall":{"getsockname":46,"getsockopt":32,"getcwd":54,"recvmsg":7,"exit":20,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-ByVZb0/observe/events.ndjson.gz","gzipBytes":79758}
+  EVICT     101 store entries removed, 16 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7f183896b7ca5855abd75da973b8609bd185cdc03feb184229e54d6500098208","specCount":924,"lockfiles":{"digest":"e6dbfaf6d8042b34982b7f600c2ea6010d06e490d58f7d83c1ba365de0c34d9c","files":[{"path":"nub.lock","sha256":"fe2139e5c6f350e131403dad132a914a539e6b330397ced4416c5f9c92f74304","bytes":268762}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:59:11.251Z","cacheHit":false,"clearancePath":"/home/runner/v2-ByVZb0/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 924 exact package-version(s), tree 7f183896b7ca
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=599/599 missing=0 shortfall=none (tree 117381/34286) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}   (observed, then verified)
+  EVICT     912 store entries removed, 16 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for netlify-cli
+  scaffold: 2 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"7f183896b7ca5855abd75da973b8609bd185cdc03feb184229e54d6500098208","specCount":924,"lockfiles":{"digest":"e6dbfaf6d8042b34982b7f600c2ea6010d06e490d58f7d83c1ba365de0c34d9c","files":[{"path":"nub.lock","sha256":"fe2139e5c6f350e131403dad132a914a539e6b330397ced4416c5f9c92f74304","bytes":268762}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:59:11.251Z","cacheHit":true,"clearancePath":"/home/runner/v2-ByVZb0/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 924 exact package-version(s), tree 7f183896b7ca (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=599/599 missing=0 shortfall=none (tree 117381/34286) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true}}; each named capability drops on its own)
