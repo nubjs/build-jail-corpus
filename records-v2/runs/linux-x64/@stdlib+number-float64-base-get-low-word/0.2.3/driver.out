@@ -1,0 +1,65 @@
+### @stdlib/number-float64-base-get-low-word@0.2.3   (/home/runner/v2-EmG60M)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"582853c5e69d7d439c9875edacece6ed58853fdbb52b88b66c05fd169baa62a8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:22.768Z","cacheHit":false,"clearancePath":"/home/runner/v2-EmG60M/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 582853c5e69d
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c8cc8b36996f4ae7e30b16dd2ce5d3eb94738b188004e69d239af72a9a3993d4","specCount":69,"lockfiles":{"digest":"dd1b1dafa9f9e37e4d6d27d45c891da2768df0670ca6fd6961c3caa4af876cef","files":[{"path":"package-lock.json","sha256":"7ca5d684e4c2f2d818263f660f0b3c664c038db117516c7248b9d28a8f590150","bytes":53791}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:24.162Z","cacheHit":false,"clearancePath":"/home/runner/v2-EmG60M/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 69 exact package-version(s), tree c8cc8b36996f
+  OBSERVE   rc=0 files=929 trace=10736 lines
+  CLOSURE   69 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":17,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (17) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-EmG60M/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-EmG60M/observe/capture.json
+  RAWLOG-BYTES raw=2377537 gz=67964
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-EmG60M/jailhome","TMPDIR":"/tmp/nub-tmp-obsbXJFX5","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-EmG60M/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-EmG60M/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-EmG60M/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-EmG60M/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsbXJFX5
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-EmG60M/observe/node_modules/@stdlib/number-float64-base-get-low-word
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.10.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4437 distinct from 10678 calls (10737 lines, 46 rejoined, 0 unparsed)
+    PROCS     12   lifecycle shells 0
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×17 setsockopt×11 exit×10 recvmsg×7 getsockopt×4 getcwd×2 sendmmsg×1 exit_group×1
+    wrote /home/runner/v2-EmG60M/observe/events.ndjson.gz (31340 bytes)
+  EVENTLOG-FILE /home/runner/v2-EmG60M/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10737,"parsed":10678,"unparsed":0,"unfinished":46,"rejoined":46,"unresolvedDirfd":3,"truncatedArg":0,"procs":12,"lifecyclePids":0,"distinctEvents":4437,"unknownSyscall":{"getsockname":17,"getsockopt":4,"getcwd":2,"recvmsg":7,"exit":10,"setsockopt":11,"sendmmsg":1,"exit_group":1},"out":"/home/runner/v2-EmG60M/observe/events.ndjson.gz","gzipBytes":31340}
+  EVICT     68 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @stdlib/number-float64-base-get-low-word
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c8cc8b36996f4ae7e30b16dd2ce5d3eb94738b188004e69d239af72a9a3993d4","specCount":69,"lockfiles":{"digest":"7bc8f00754b6dd6ca11c6fb2d174a6802bf9ea608821fef59795f98f5bb990c9","files":[{"path":"nub.lock","sha256":"f6608b292b30e17f5d5e810e0360ed103c963529a1162b1d148a02ceaa29073b","bytes":28102}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:24.162Z","cacheHit":true,"clearancePath":"/home/runner/v2-EmG60M/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 69 exact package-version(s), tree c8cc8b36996f (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 3391/929) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
