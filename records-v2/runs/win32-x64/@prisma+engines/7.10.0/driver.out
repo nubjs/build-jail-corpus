@@ -1,0 +1,81 @@
+### @prisma/engines@7.10.0   (D:\jail\m-prismaengines-mtup3gbb)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7cedf5858035ecf54e3cdbda699cb3b08d634ce86d7cfefd659e1fa9aca654b6","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:54.984Z","cacheHit":false,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 7cedf5858035
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9b0410b1c97680009cb08cdc3446b6e8f670edf29bab4e570b62fdba33e24b97","specCount":5,"lockfiles":{"digest":"2cb2dc4b851e13a4a21023813b9d72637ee6141ecf91ede60f5ab186f9a60359","files":[{"path":"package-lock.json","sha256":"8ad4093cc13c52ecbf580cb498e25e812e78742ec826e7a95ee8b2410719b141","bytes":2429}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:58.510Z","cacheHit":false,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 5 exact package-version(s), tree 9b0410b1c976
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3280 exit=0 events=44159 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 11 files  (D:\jail\m-prismaengines-mtup3gbb\observe\node_modules\@prisma\engines)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 5 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-prismaengines-mtup3gbb\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-prismaengines-mtup3gbb\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-prismaengines-mtup3gbb\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-prismaengines-mtup3gbb\observe\node_modules\@prisma\engines
+  == ATTRIBUTION == lifecycle pids: 2 (root 3280)
+    writes  script 13  /  whole traced tree 20
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    deps          3
+    userHome      8
+    jailTmp       2
+  == READS ==
+    deps         39
+    outside       6
+    project       1
+    systemfs     29
+    userHome      4
+    jailTmp       2
+  == NETWORK ==
+    distinct peers: 1
+        172.66.156.100:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true},"network":true}
+    NOTE 2 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  56582826 B xml -> 864253 B gz (65.5x)  sha256 ddfbb0859d2fb022…
+  HEADER    etw-header.json (5105 bytes)
+  DERIVED   5465 distinct from 8937 kept ops (44159 xml events, 8572 out of subtree)
+  PROCS     4   thread-reattributed 40
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (69904 bytes)
+  RAWLOG-CAPTURE D:\jail\m-prismaengines-mtup3gbb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-prismaengines-mtup3gbb
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-prismaengines-mtup3gbb\\npm-cache","TMP":"D:\\jail\\m-prismaengines-mtup3gbb\\tmp","TEMP":"D:\\jail\\m-prismaengines-mtup3gbb\\tmp","TMPDIR":"D:\\jail\\m-prismaengines-mtup3gbb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-prismaengines-mtup3gbb\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9b0410b1c97680009cb08cdc3446b6e8f670edf29bab4e570b62fdba33e24b97","specCount":5,"lockfiles":{"digest":"35c4b93912bc211ccf2430fbdd6e351ec18eace12e23c1ed9075d8c7c22451be","files":[{"path":"nub.lock","sha256":"1144502ab61db47f12a8f20b3d078d7c3c950819f6d7e8c5305f9340c1eac1bb","bytes":1687}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:58.510Z","cacheHit":true,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 5 exact package-version(s), tree 9b0410b1c976 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 5866/105) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-prismaengines-mtup3gbb\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"9b0410b1c97680009cb08cdc3446b6e8f670edf29bab4e570b62fdba33e24b97","specCount":5,"lockfiles":{"digest":"35c4b93912bc211ccf2430fbdd6e351ec18eace12e23c1ed9075d8c7c22451be","files":[{"path":"nub.lock","sha256":"1144502ab61db47f12a8f20b3d078d7c3c950819f6d7e8c5305f9340c1eac1bb","bytes":1687}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:58.510Z","cacheHit":true,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 5 exact package-version(s), tree 9b0410b1c976 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=10/11 missing=1 shortfall=228c1ce188ec (tree 5862/105) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+     missing artifacts: schema-engine-windows.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-prismaengines-mtup3gbb\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"9b0410b1c97680009cb08cdc3446b6e8f670edf29bab4e570b62fdba33e24b97","specCount":5,"lockfiles":{"digest":"35c4b93912bc211ccf2430fbdd6e351ec18eace12e23c1ed9075d8c7c22451be","files":[{"path":"nub.lock","sha256":"1144502ab61db47f12a8f20b3d078d7c3c950819f6d7e8c5305f9340c1eac1bb","bytes":1687}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:58.510Z","cacheHit":true,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 5 exact package-version(s), tree 9b0410b1c976 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=11/11 missing=0 shortfall=none (tree 5866/105) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-prismaengines-mtup3gbb\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"9b0410b1c97680009cb08cdc3446b6e8f670edf29bab4e570b62fdba33e24b97","specCount":5,"lockfiles":{"digest":"35c4b93912bc211ccf2430fbdd6e351ec18eace12e23c1ed9075d8c7c22451be","files":[{"path":"nub.lock","sha256":"1144502ab61db47f12a8f20b3d078d7c3c950819f6d7e8c5305f9340c1eac1bb","bytes":1687}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:53:58.510Z","cacheHit":true,"clearancePath":"D:\\jail\\m-prismaengines-mtup3gbb\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 5 exact package-version(s), tree 9b0410b1c976 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=10/11 missing=1 shortfall=228c1ce188ec (tree 5863/105) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: schema-engine-windows.exe
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
