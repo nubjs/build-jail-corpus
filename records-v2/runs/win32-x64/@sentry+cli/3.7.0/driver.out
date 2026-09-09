@@ -1,0 +1,61 @@
+### @sentry/cli@3.7.0   (D:\jail\m-sentrycli-mttneutk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"565820824ad1ff56c50edd3812ec3ff8bcc919af4259bfaca2bd7273664600ff","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:19:01.558Z","cacheHit":false,"clearancePath":"D:\\jail\\m-sentrycli-mttneutk\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 565820824ad1
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"4fefdc260b135f6f20293731eec5f0ced395c3e5bd85445f80713599b48b45e1","specCount":7,"lockfiles":{"digest":"82978d30f2bb93448d9afbe3f153368095ceb91a6315145a5ddeb37eb8986dc1","files":[{"path":"package-lock.json","sha256":"54173bf2179b47c0b9ef2e87dfe058da006e2e9c44d05179075afd885f96055c","bytes":6846}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:19:03.660Z","cacheHit":false,"clearancePath":"D:\\jail\\m-sentrycli-mttneutk\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 7 exact package-version(s), tree 4fefdc260b13
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2796 exit=0 events=33476 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 28 files  (D:\jail\m-sentrycli-mttneutk\observe\node_modules\@sentry\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":29,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (29) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 7 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-sentrycli-mttneutk\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-sentrycli-mttneutk\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-sentrycli-mttneutk\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-sentrycli-mttneutk\observe\node_modules\@sentry\cli
+  == ATTRIBUTION == lifecycle pids: 2 (root 2796)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps        115
+    outside       6
+    project       1
+    systemfs     26
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  42636011 B xml -> 642070 B gz (66.4x)  sha256 8ec8a70501283986…
+  HEADER    etw-header.json (5024 bytes)
+  DERIVED   5714 distinct from 6962 kept ops (33476 xml events, 5644 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (71320 bytes)
+  RAWLOG-CAPTURE D:\jail\m-sentrycli-mttneutk\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-sentrycli-mttneutk
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-sentrycli-mttneutk\\npm-cache","TMP":"D:\\jail\\m-sentrycli-mttneutk\\tmp","TEMP":"D:\\jail\\m-sentrycli-mttneutk\\tmp","TMPDIR":"D:\\jail\\m-sentrycli-mttneutk\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-sentrycli-mttneutk\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"4fefdc260b135f6f20293731eec5f0ced395c3e5bd85445f80713599b48b45e1","specCount":7,"lockfiles":{"digest":"00cba51106fd5a0d2be5980bb90f133238269f2a465028ab81d137c85cb56217","files":[{"path":"nub.lock","sha256":"fc5e330a16b7aedfb9ffd669287c718524a6144f5cd3c7b743045bf15c782655","bytes":4090}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:19:03.660Z","cacheHit":true,"clearancePath":"D:\\jail\\m-sentrycli-mttneutk\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 7 exact package-version(s), tree 4fefdc260b13 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=28/28 missing=0 shortfall=none (tree 5789/245) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
