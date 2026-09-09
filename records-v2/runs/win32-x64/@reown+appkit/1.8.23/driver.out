@@ -1,0 +1,60 @@
+### @reown/appkit@1.8.23   (D:\jail\m-reownappkit-mtupoo2u)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3adf9daea6452656ed9f18fb40c1013e81fefc544ad5abd2902893fe7fd80796","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:10:24.851Z","cacheHit":false,"clearancePath":"D:\\jail\\m-reownappkit-mtupoo2u\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3adf9daea645
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"47ea37645caea8ca220d817bffed1e9ce00e464b8a3602a6767cb499cd08dd00","specCount":237,"lockfiles":{"digest":"793fc6a40b75ee8a5d51c930ea126966a08ee8248110fd2de789a0a750b791c9","files":[{"path":"package-lock.json","sha256":"c98dcb2f2a81518da922bc0cf95a5f9ca910c975cd0db0387d5f94e4b32cf9fc","bytes":126682}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:11:04.490Z","cacheHit":false,"clearancePath":"D:\\jail\\m-reownappkit-mtupoo2u\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 237 exact package-version(s), tree 47ea37645cae
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8556 exit=0 events=22927 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 135 files  (D:\jail\m-reownappkit-mtupoo2u\observe\node_modules\@reown\appkit)
+  ARM-FALSIFIABILITY {"manifestFiles":135,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (135) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 226 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-reownappkit-mtupoo2u\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-reownappkit-mtupoo2u\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-reownappkit-mtupoo2u\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-reownappkit-mtupoo2u\observe\node_modules\@reown\appkit
+  == ATTRIBUTION == lifecycle pids: 2 (root 8556)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps         52
+    outside       6
+    project       2
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  29275389 B xml -> 474918 B gz (61.6x)  sha256 3b03dfbd0af12cac…
+  HEADER    etw-header.json (5086 bytes)
+  DERIVED   5779 distinct from 6950 kept ops (22927 xml events, 1687 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (73014 bytes)
+  RAWLOG-CAPTURE D:\jail\m-reownappkit-mtupoo2u\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-reownappkit-mtupoo2u
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-reownappkit-mtupoo2u\\npm-cache","TMP":"D:\\jail\\m-reownappkit-mtupoo2u\\tmp","TEMP":"D:\\jail\\m-reownappkit-mtupoo2u\\tmp","TMPDIR":"D:\\jail\\m-reownappkit-mtupoo2u\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-reownappkit-mtupoo2u\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"28e5e4327a9ecfe5faf6f958fa40fcfeaf8530b10061712151ddc83e4f7104f2","specCount":235,"lockfiles":{"digest":"6322e5bcd080a0ad245278e38428e313100908271d7449248a43fa475cdd3d5e","files":[{"path":"nub.lock","sha256":"9b091861eadb95d42c4d8f407970c288838bf18b3f312f4b0b898252fef67cfd","bytes":89085}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:12:05.624Z","cacheHit":false,"clearancePath":"D:\\jail\\m-reownappkit-mtupoo2u\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 235 exact package-version(s), tree 28e5e4327a9e
+  VERIFY[synth] rc=0 artifacts=135/135 missing=0 shortfall=none (tree 65840/36059) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
