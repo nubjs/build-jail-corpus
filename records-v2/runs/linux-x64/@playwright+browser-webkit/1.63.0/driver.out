@@ -1,0 +1,122 @@
+### @playwright/browser-webkit@1.63.0   (/home/runner/v2-5IdeLw)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8f99c0822c636a596cd49ea54e7541648cb0b340be325eec4ecc34ef6510389e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:11.086Z","cacheHit":false,"clearancePath":"/home/runner/v2-5IdeLw/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8f99c0822c63
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"7886c2fa9fadfb28136b6e0c9776aa03349532108c27e9d8eb2ae812e4157b84","files":[{"path":"package-lock.json","sha256":"48663fb01f76e4a35207f74fdbc5f275c3f8b602f90973699c41d8ae56ef1e4c","bytes":1156}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:12.761Z","cacheHit":false,"clearancePath":"/home/runner/v2-5IdeLw/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree bf65985a8e2e
+  OBSERVE   rc=0 files=126 trace=16219 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-5IdeLw/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-5IdeLw/observe/capture.json
+  RAWLOG-BYTES raw=3438833 gz=82677
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-5IdeLw/jailhome","TMPDIR":"/tmp/nub-tmp-obsSaJD2T","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-5IdeLw/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 30
+    writes  script 67  /  whole traced tree 1155
+    sockets script 11  /  whole traced tree 17
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-5IdeLw/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-5IdeLw/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-5IdeLw/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsSaJD2T
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-5IdeLw/observe/node_modules/@playwright/browser-webkit
+  == WRITES the script actually performed ==
+    userHome     65
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsSaJD2T/playwright-download-p5tLW6
+        /tmp/nub-tmp-obsSaJD2T/playwright-download-p5tLW6/playwright-download-webkit-ubuntu24.04-x64-2359.zip
+  == NETWORK ==
+    AF_INET sockets: 11   distinct peers: 3
+        127.0.0.53:53
+        104.16.2.34:443
+        13.107.253.41:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    65 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 65
+        .cache/nub/pm/tools/ms-playwright/__dirlock
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/88167e61fb95a0838855cdc10a9b7e235fb8a26f
+        .cache/nub/pm/tools/ms-playwright/webkit-2359
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/pw_run.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/protocol.json
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/install-dependencies.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/lib
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/lib/libWPEWebKit-2.0.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/lib/libWPEInjectedBundle.so
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/lib/libWPEWebKit-2.0.so.1.12.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/README.txt
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/MiniBrowser
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/bin
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/bin/MiniBrowser
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/bin/WPEWebProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/bin/WPEGPUProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/bin/WPENetworkProcess
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libsoup-3.0.so.0.7.4
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlienc.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libjxl.so.0.8.2
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlidec.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libsoup-3.0.so.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlienc.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libjxl.so.0.8
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlidec.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbacktrace.so.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlicommon.so.1
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbacktrace.so.0.0.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/sys/lib/libbrotlicommon.so.1.0.7
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/share
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-wpe/share/inspector.gresource
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-gtk
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-gtk/install-dependencies.sh
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-gtk/lib
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-gtk/lib/libjavascriptcoregtk-6.0.so.1.9.0
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/minibrowser-gtk/lib/libwebkitgtk-6.0.so.4.20.0
+        … and 25 more
+    EVENTS    4773 distinct from 16130 calls (16220 lines, 49 rejoined, 0 unparsed)
+    PROCS     37   lifecycle shells 25
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: recvmsg×4145 getsockname×75 getsockopt×53 setsockopt×35 exit×30 getcwd×6 socketpair×4 exit_group×4
+    wrote /home/runner/v2-5IdeLw/observe/events.ndjson.gz (33941 bytes)
+  EVENTLOG-FILE /home/runner/v2-5IdeLw/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":16220,"parsed":16130,"unparsed":0,"unfinished":49,"rejoined":49,"unresolvedDirfd":3,"truncatedArg":0,"procs":37,"lifecyclePids":25,"distinctEvents":4773,"unknownSyscall":{"getsockname":75,"getsockopt":53,"getcwd":6,"recvmsg":4145,"exit":30,"setsockopt":35,"sendmmsg":1,"socketpair":4,"shutdown":3,"exit_group":4,"wait4":4},"out":"/home/runner/v2-5IdeLw/observe/events.ndjson.gz","gzipBytes":33941}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-webkit
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:12.761Z","cacheHit":true,"clearancePath":"/home/runner/v2-5IdeLw/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 376/126) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => VERIFIED {"write":{"userHome":true},"network":true}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-webkit
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:12.761Z","cacheHit":true,"clearancePath":"/home/runner/v2-5IdeLw/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=8/8 missing=0 shortfall=none (tree 376/126) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @playwright/browser-webkit
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"bf65985a8e2ef4796ed93692f713f3063ffc39310dcc04dfb03ed79d57c3e1b0","specCount":2,"lockfiles":{"digest":"576654296534b405fdf10679e6d9037d0b670d31c2bee1fc907153effc53f1c3","files":[{"path":"nub.lock","sha256":"be8dd2d12adf5a1620526fdea187ff71939766ff56cff7a902d723f77137a515","bytes":746}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:12.761Z","cacheHit":true,"clearancePath":"/home/runner/v2-5IdeLw/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 2 exact package-version(s), tree bf65985a8e2e (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 376/126) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true},"network":true}; each named capability drops on its own)
