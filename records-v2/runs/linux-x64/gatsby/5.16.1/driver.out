@@ -1,0 +1,72 @@
+### gatsby@5.16.1   (/home/runner/v2-I4ecR2)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ced39f6a111093ce494ed54b3dda7412e9cbaeb6ae7575cbefe4915f4b85f138","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:37:36.304Z","cacheHit":false,"clearancePath":"/home/runner/v2-I4ecR2/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ced39f6a1110
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3a090abf82fe735fcd9279ef01d1e287b2a5407931344f37e8f7376e9b66a2e0","specCount":1255,"lockfiles":{"digest":"d51e74043ee5db96b23920b41152bb2a7d759429b375c47f4af1f11a1b496d30","files":[{"path":"package-lock.json","sha256":"6a2e841001629a1a38dccbb57de6c5ff0bc0be1b835b0c56b55bc380c9bf8020","bytes":689485}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:38:19.468Z","cacheHit":false,"clearancePath":"/home/runner/v2-I4ecR2/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1255 exact package-version(s), tree 3a090abf82fe
+  OBSERVE   rc=0 files=59381 trace=17237 lines
+  CLOSURE   1116 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1363,"filesTheScriptProduced":2,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-I4ecR2/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-I4ecR2/observe/capture.json
+  RAWLOG-BYTES raw=3354839 gz=108474
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-I4ecR2/jailhome","TMPDIR":"/tmp/nub-tmp-obscWAn3m","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-I4ecR2/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1090
+    sockets script 11  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-I4ecR2/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-I4ecR2/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-I4ecR2/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obscWAn3m
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-I4ecR2/observe/node_modules/gatsby
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-I4ecR2/observe/node_modules/gatsby/latest-adapters.js
+        /home/runner/v2-I4ecR2/observe/node_modules/gatsby/latest-apis.json
+  == NETWORK ==
+    AF_INET sockets: 11   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        185.199.111.133:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    7754 distinct from 15089 calls (17238 lines, 2121 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×58 getsockname×40 exit×20 getsockopt×18 recvmsg×13 getcwd×5 sendmmsg×4 socketpair×3
+    wrote /home/runner/v2-I4ecR2/observe/events.ndjson.gz (53835 bytes)
+  EVENTLOG-FILE /home/runner/v2-I4ecR2/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":17238,"parsed":15089,"unparsed":0,"unfinished":2121,"rejoined":2121,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":7754,"unknownSyscall":{"getsockname":40,"getsockopt":18,"getcwd":5,"recvmsg":13,"exit":20,"setsockopt":58,"sendmmsg":4,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-I4ecR2/observe/events.ndjson.gz","gzipBytes":53835}
+  EVICT     117 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for gatsby
+  scaffold: 8 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3a263a29311e1d7bc4587ef7316574b4560e54bc82f4820a3f7c9833edf9ec4b","specCount":1259,"lockfiles":{"digest":"4f99a9b1912312d56ca86f11488a6c83c88ce3e6c346ea874ffbcf943003cc32","files":[{"path":"nub.lock","sha256":"2da5646aa83b110e025fc8ac65981247b3d7ef811742a781e060c15cb6c804e7","bytes":420540}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:38:45.380Z","cacheHit":false,"clearancePath":"/home/runner/v2-I4ecR2/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1259 exact package-version(s), tree 3a263a29311e
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1363/1363 missing=0 shortfall=none (tree 292341/59381) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1253 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for gatsby
+  scaffold: 8 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"3a263a29311e1d7bc4587ef7316574b4560e54bc82f4820a3f7c9833edf9ec4b","specCount":1259,"lockfiles":{"digest":"4f99a9b1912312d56ca86f11488a6c83c88ce3e6c346ea874ffbcf943003cc32","files":[{"path":"nub.lock","sha256":"2da5646aa83b110e025fc8ac65981247b3d7ef811742a781e060c15cb6c804e7","bytes":420540}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:38:45.380Z","cacheHit":true,"clearancePath":"/home/runner/v2-I4ecR2/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 1259 exact package-version(s), tree 3a263a29311e (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=1361/1363 missing=2 shortfall=22291cd17ee5 (tree 292327/59381) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: latest-adapters.js, latest-apis.json
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
