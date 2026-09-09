@@ -1,0 +1,65 @@
+### tiny-secp256k1@2.2.4   (/home/runner/v2-AWFpln)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c0a2bb02e004c49756a4c9466c0eadbbe5f6356e6aecf1c24fd51d408298d017","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:05.716Z","cacheHit":false,"clearancePath":"/home/runner/v2-AWFpln/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c0a2bb02e004
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"e234905ae00d5af5bf93e9321ddb6fb6cbeb02a8238bfe18ba44955ebd2b5202","specCount":2,"lockfiles":{"digest":"52606e20dc9a10a689be9089ae0b7f35ac97d3e79ab86d69a582d6a14700bbc5","files":[{"path":"package-lock.json","sha256":"762508d343592f7692f5da094a5a10ace47dfa6c6e2a57f2a70e48ea636635ba","bytes":1020}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:06.758Z","cacheHit":false,"clearancePath":"/home/runner/v2-AWFpln/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree e234905ae00d
+  OBSERVE   rc=0 files=40 trace=10644 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":28,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (28) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-AWFpln/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-AWFpln/observe/capture.json
+  RAWLOG-BYTES raw=2351082 gz=67131
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-AWFpln/jailhome","TMPDIR":"/tmp/nub-tmp-obsIx6aVC","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-AWFpln/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-AWFpln/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-AWFpln/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-AWFpln/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsIx6aVC
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-AWFpln/observe/node_modules/tiny-secp256k1
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.11.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4301 distinct from 10542 calls (10645 lines, 90 rejoined, 0 unparsed)
+    PROCS     12   lifecycle shells 0
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×17 setsockopt×11 exit×10 recvmsg×7 getsockopt×4 getcwd×2 sendmmsg×1 exit_group×1
+    wrote /home/runner/v2-AWFpln/observe/events.ndjson.gz (30378 bytes)
+  EVENTLOG-FILE /home/runner/v2-AWFpln/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10645,"parsed":10542,"unparsed":0,"unfinished":90,"rejoined":90,"unresolvedDirfd":3,"truncatedArg":0,"procs":12,"lifecyclePids":0,"distinctEvents":4301,"unknownSyscall":{"getsockname":17,"getsockopt":4,"getcwd":2,"recvmsg":7,"exit":10,"setsockopt":11,"sendmmsg":1,"exit_group":1},"out":"/home/runner/v2-AWFpln/observe/events.ndjson.gz","gzipBytes":30378}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for tiny-secp256k1
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e234905ae00d5af5bf93e9321ddb6fb6cbeb02a8238bfe18ba44955ebd2b5202","specCount":2,"lockfiles":{"digest":"3245fa4a111f558b726271e73f79f940dab1a63a46a2addb7dd54d6cd1e6c598","files":[{"path":"nub.lock","sha256":"78d0b9aaa4e8d9719027505ac267ff7b9a74be74cf0031077fa9597dfb4f8e5b","bytes":691}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:59:06.758Z","cacheHit":true,"clearancePath":"/home/runner/v2-AWFpln/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree e234905ae00d (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=28/28 missing=0 shortfall=none (tree 80/40) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
