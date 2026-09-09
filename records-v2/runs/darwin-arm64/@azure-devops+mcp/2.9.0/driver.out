@@ -1,0 +1,79 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"d83f9202b658305f580cec7c4400be918aa7a671f39494e870baf4522650428e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:55:56.456Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-qqs1Xi/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree d83f9202b658
+### @azure-devops/mcp@2.9.0   (/Users/runner/v2m-qqs1Xi)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"10913dc98b15fa93db45bcb4333b9d2c7dcc16077c8d02c23fd397d9df913f49","specCount":185,"lockfiles":{"digest":"7d29dbd1032c282dd05d6024591ccbb7a52978c46b7acc2ca3f495211934bf10","files":[{"path":"package-lock.json","sha256":"c0924b809cb64437b9c639fe64e257a6a33521417e0ff9c492d2f4a5e7ca7cd6","bytes":82503}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T04:56:06.952Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-qqs1Xi/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 185 exact package-version(s), tree 10913dc98b15
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-qqs1Xi/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-qqs1Xi/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsjpJyuB"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "@azure-devops/mcp" > "/Users/runner/v2m-qqs1Xi/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-qqs1Xi/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-qqs1Xi/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-qqs1Xi/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsjpJyuB NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund @azure-devops/mcp
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000031190e0) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=11682 (pre=11680) trace=12132 lines
+  CLOSURE   181 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-qqs1Xi/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-qqs1Xi/Observe/capture.json
+  RAWLOG-BYTES raw=2103920 gz=66152
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-qqs1Xi/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsjpJyuB","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":29,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (29) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  EVENTLOG-FILE /Users/runner/v2m-qqs1Xi/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12133,"parsed":12118,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":12,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4678,"enoent":4676,"refusals":0,"byErrno":{"ENXIO":2,"ENOENT":4676},"procs":4,"lifecyclePids":0,"distinctEvents":5561,"emitted":5561,"calls":11570,"bytes":1137928,"gzipBytes":38181,"out":"/Users/runner/v2m-qqs1Xi/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3262 dropped-events=1
+    NOTE 8 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x6000031190e0
+  == ATTRIBUTION == lifecycle pids: 0
+    writes  script 0  /  whole traced subtree 1091
+    sockets script 0  /  whole traced subtree 1
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from /Users/runner/v2m-qqs1Xi/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-qqs1Xi/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-qqs1Xi/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-qqs1Xi/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsjpJyuB
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-qqs1Xi/Observe/node_modules/@azure-devops/mcp
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+  == READS the script performed, by scope ==
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    UNKNOWN-ATTRIBUTION-FAILED
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no
+     measurement here. This is NOT a package that needs nothing.)
