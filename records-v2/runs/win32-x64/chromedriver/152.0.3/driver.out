@@ -1,0 +1,96 @@
+### chromedriver@152.0.3   (D:\jail\m-chromedriver-mttp0ccj)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"fbf2fd218dd4df8d18c699fbce2e22733bc899bf9d0c7b937877554d2011f9fe","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:43.612Z","cacheHit":false,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree fbf2fd218dd4
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"6de522813ed6447be9d46dc41cc0d136d39c3ef3094297501dba173296d95ede","files":[{"path":"package-lock.json","sha256":"bbedce4b2941a33bb089aa7dc2b6ba4e154f3aedd4ee7f45c152a5d287083877","bytes":28638}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":false,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 63 exact package-version(s), tree 5c222fc43666
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=828 exit=0 events=50015 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 6 files  (D:\jail\m-chromedriver-mttp0ccj\observe\node_modules\chromedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 59 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-chromedriver-mttp0ccj\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-chromedriver-mttp0ccj\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-chromedriver-mttp0ccj\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-chromedriver-mttp0ccj\observe\node_modules\chromedriver
+  == ATTRIBUTION == lifecycle pids: 2 (root 828)
+    writes  script 10  /  whole traced tree 21
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    jailTmp       8
+    deps          2
+  == READS ==
+    deps        144
+    outside       6
+    project       1
+    systemfs     30
+    jailTmp       6
+  == NETWORK ==
+    distinct peers: 2
+        185.199.111.153:443
+        142.251.16.207:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 8 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  64026848 B xml -> 994856 B gz (64.4x)  sha256 f1664e6a347f66a5…
+  HEADER    etw-header.json (5091 bytes)
+  DERIVED   5974 distinct from 9715 kept ops (50015 xml events, 10022 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (75371 bytes)
+  RAWLOG-CAPTURE D:\jail\m-chromedriver-mttp0ccj\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-chromedriver-mttp0ccj
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-chromedriver-mttp0ccj\\npm-cache","TMP":"D:\\jail\\m-chromedriver-mttp0ccj\\tmp","TEMP":"D:\\jail\\m-chromedriver-mttp0ccj\\tmp","TMPDIR":"D:\\jail\\m-chromedriver-mttp0ccj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=5/6 missing=1 shortfall=8e09a769f631 (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: lib/chromedriver/chromedriver.exe
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[fb0] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true},"network":true} and this is what the trace missed
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=5/6 missing=1 shortfall=8e09a769f631 (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     missing artifacts: lib/chromedriver/chromedriver.exe
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true,"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-nar-no-write-project\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-nar-no-write-project-resolved.json"}
+  SECURITY nub-nar-no-write-project-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[nar-no-write-project] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"userHome":true},"network":true} also verifies; 'no-write-project' was not needed
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=1 artifacts=5/6 missing=1 shortfall=8e09a769f631 (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     missing artifacts: lib/chromedriver/chromedriver.exe
+     'no-write-userHome' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-chromedriver-mttp0ccj\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:46.847Z","cacheHit":true,"clearancePath":"D:\\jail\\m-chromedriver-mttp0ccj\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 7081/1055) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => JOINT-NARROW VERIFIED {"write":{"userHome":true},"network":true} — all 2 capabilities drop TOGETHER, measured
