@@ -1,0 +1,59 @@
+### javascript-obfuscator@5.6.0   (D:\jail\m-javascriptobfuscator-mttnb1k3)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"07c916db51830cf57ba7d1559e3d3b0404ccd26d128ef2fe0cb58c35739e562d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:03.650Z","cacheHit":false,"clearancePath":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 07c916db5183
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"695fd385bca776a37eb4cf7b5f05157dda2dc356ee672e159bda1a8cb315b6ef","specCount":129,"lockfiles":{"digest":"ce3d0c9f36bcdc79d124f1247a593db4b1d90b8119b98d84ed2b62187ba2983f","files":[{"path":"package-lock.json","sha256":"6f9dfe218976e54d80d918e6550f6421e0af436bc84e2ca4f9a9b70ce1ae3fce","bytes":55434}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:13.867Z","cacheHit":false,"clearancePath":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 129 exact package-version(s), tree 695fd385bca7
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2596 exit=0 events=22725 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 429 files  (D:\jail\m-javascriptobfuscator-mttnb1k3\observe\node_modules\javascript-obfuscator)
+  ARM-FALSIFIABILITY {"manifestFiles":429,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (429) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 128 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-javascriptobfuscator-mttnb1k3\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-javascriptobfuscator-mttnb1k3\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-javascriptobfuscator-mttnb1k3\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-javascriptobfuscator-mttnb1k3\observe\node_modules\javascript-obfuscator
+  == ATTRIBUTION == lifecycle pids: 0 (root 2596)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+    !! NO LIFECYCLE SHELL FOUND -- the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == WRITES ==
+  == READS ==
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  29075673 B xml -> 439889 B gz (66.1x)  sha256 045134d270723bd4…
+  HEADER    etw-header.json (5154 bytes)
+  DERIVED   5244 distinct from 6312 kept ops (22725 xml events, 2344 out of subtree)
+  PROCS     2   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66431 bytes)
+  RAWLOG-CAPTURE D:\jail\m-javascriptobfuscator-mttnb1k3\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-javascriptobfuscator-mttnb1k3
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\npm-cache","TMP":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\tmp","TEMP":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\tmp","TMPDIR":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-javascriptobfuscator-mttnb1k3\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"e4b3900f5b8105b8c6157eb85d3760628ace216f98ca73b5c76e5c9e94705549","specCount":129,"lockfiles":{"digest":"64754e0b3ac05ce2cb6c232b278972bc74e3d7a3968926c5d9c14c60610a2426","files":[{"path":"nub.lock","sha256":"3f1dad27d3798eab492650a817a50ef02729b72afe74c6d5cafd5e93c48342f5","bytes":32031}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:49.914Z","cacheHit":false,"clearancePath":"D:\\jail\\m-javascriptobfuscator-mttnb1k3\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 129 exact package-version(s), tree e4b3900f5b81
+  VERIFY[synth] rc=0 artifacts=429/429 missing=0 shortfall=none (tree 8540/7030) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
