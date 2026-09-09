@@ -1,0 +1,63 @@
+### msw@2.15.0   (/home/runner/v2-2ApTpz)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c27d66644ac5991b65d0e2c7a7272f4297eada4cb6fecc6c6b7a6aec29b28215","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T21:31:19.462Z","cacheHit":false,"clearancePath":"/home/runner/v2-2ApTpz/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c27d66644ac5
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ea775417b5fb48e43e55bfca86b78e1126d721057eb4fb8a85d81eadd29aa30a","specCount":54,"lockfiles":{"digest":"968615ce87213504e680815a9b3823cfb485c9f0e33f0928f6729ef3f0d07110","files":[{"path":"package-lock.json","sha256":"92f7f61162f3b0d38131f335e6f8849d0f98a756c5b6fb1b99113049328214cc","bytes":22411}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T21:31:22.738Z","cacheHit":false,"clearancePath":"/home/runner/v2-2ApTpz/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 54 exact package-version(s), tree ea775417b5fb
+  OBSERVE   rc=0 files=2208 trace=10880 lines
+  CLOSURE   53 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":670,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (670) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-2ApTpz/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-2ApTpz/observe/capture.json
+  RAWLOG-BYTES raw=2391054 gz=69719
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-2ApTpz/jailhome","TMPDIR":"/tmp/nub-tmp-obs6ftyww","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-2ApTpz/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-2ApTpz/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-2ApTpz/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-2ApTpz/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs6ftyww
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-2ApTpz/observe/node_modules/msw
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.10.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4492 distinct from 10792 calls (10881 lines, 66 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-2ApTpz/observe/events.ndjson.gz (31895 bytes)
+  EVENTLOG-FILE /home/runner/v2-2ApTpz/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10881,"parsed":10792,"unparsed":0,"unfinished":66,"rejoined":66,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4492,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-2ApTpz/observe/events.ndjson.gz","gzipBytes":31895}
+  EVICT     30 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for msw
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"da09005634319f5523da8e555c8a2b9e986e3cd1f2178a17536f31b786ce07c0","specCount":54,"lockfiles":{"digest":"8425fc3baf271409818bb5c15d42a57dbfaefee91aba68667f2a237279c0495a","files":[{"path":"nub.lock","sha256":"99abd1880987bb49742582a56c722075db560368af38a8d03c7cd2742e891b61","bytes":13568}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T21:31:25.936Z","cacheHit":false,"clearancePath":"/home/runner/v2-2ApTpz/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 54 exact package-version(s), tree da0900563431
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=670/670 missing=0 shortfall=none (tree 6758/2208) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
