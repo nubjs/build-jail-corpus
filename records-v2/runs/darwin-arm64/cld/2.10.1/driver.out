@@ -1,0 +1,224 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"460d7435f61ca43e3567ad8444bcde33e4d9294b955a35cea98a1945ac05e5b7","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:06.934Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-net0BS/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 460d7435f61c
+### cld@2.10.1   (/Users/runner/v2m-net0BS)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"99f7c0be1629df875f4bbb179b018bde2085343701962ffeb78aa88e19c2ef7d","files":[{"path":"package-lock.json","sha256":"6824759de397b5fcd5ab102955540750fdec68ecddb2e805ce438ced4fa769c4","bytes":5744}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-net0BS/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree ce648895514b
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-net0BS/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-net0BS/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "cld" > "/Users/runner/v2m-net0BS/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-net0BS/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-net0BS/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-net0BS/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund cld
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001819170) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000007cc0e0) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x656d616e75) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x1038b2230) in action #1 at DIF offset 20
+  OBSERVE   rc=0 dtrace_rc=0 files=734 (pre=698) trace=162891 lines
+  CLOSURE   14 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-net0BS/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-net0BS/Observe/capture.json
+  RAWLOG-BYTES raw=26191207 gz=1056814
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-net0BS/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":151,"filesTheScriptProduced":34,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-net0BS/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":162892,"parsed":162750,"unparsed":0,"live":true,"tracerErrors":89,"tracerErrorTotal":89,"unresolvedDirfd":3039,"unresolvedFd":0,"pairedTwoPath":577,"danglingPair":0,"failed":51595,"enoent":29803,"refusals":0,"byErrno":{"ENXIO":322,"ENOENT":29803,"EINVAL":6,"EEXIST":20863,"ENOTEMPTY":601},"procs":618,"lifecyclePids":319,"distinctEvents":94288,"emitted":94288,"calls":160621,"bytes":17760004,"gzipBytes":481221,"out":"/Users/runner/v2m-net0BS/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=72480 dropped-events=89
+    NOTE 2026 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 918 relative path(s) (82 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=13782 read  unproven .
+         pid=13787 read  unproven .
+         pid=13811 read  unproven .
+         pid=13832 read  unproven .
+         pid=13864 read  unproven .
+         pid=13864 read  unproven .
+         pid=13864 read  unproven .
+         pid=13864 read  unproven .
+         pid=13864 read  unproven .
+         pid=13864 read  unproven .
+         … and 908 more
+    CWD-UNPLACEABLE-WRITES ["./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_cjk_compatible.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_deltaocta0122.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_deltaoctachrome.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_distinctocta0122.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_distinctoctachrome.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_quad0122.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_quadchrome_16.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld2_generated_quadchrome_2.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld_generated_cjk_delta_bi_32.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld_generated_cjk_uni_prop_80.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld_generated_score_quad_octa_0122.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cld_generated_score_quad_octa_2.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cldutil.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/cldutil_shared.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/compact_lang_det.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/compact_lang_det_hint_code.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/compact_lang_det_impl.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/debug.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/fixunicodevalue.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/generated_distinct_bi_0.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/generated_entities.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/generated_language.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/generated_ulscript.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/getonescriptspan.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/lang_script.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/offsetmap.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/scoreonescriptspan.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/tote.o.d.raw","./Release/.deps/Release/obj.target/cld-c/deps/cld/internal/utf8statetable.o.d.raw","./Release/.deps/Release/obj.target/cld/src/cld.o.d.raw","./Release/.deps/Release/obj.target/cld/src/constants.o.d.raw","./build/Makefile","./build/binding.Makefile","./build/cld.target.mk","./build/deps/cld/binding.Makefile","./build/deps/cld/cld-c.target.mk","./build/gyp-mac-tool","Release","Release/cld-c.a","Release/cld-c.a.EcoA5B","Release/obj.target","Release/obj.target/cld","Release/obj.target/cld-c","Release/obj.target/cld-c/deps","Release/obj.target/cld-c/deps/cld","Release/obj.target/cld-c/deps/cld/internal","Release/obj.target/cld/src"]
+    CWD-RESOLVED 110 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 89 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+            26 x  epid=128 action=1 fault=1 addr=0x1045619b0
+            25 x  epid=128 action=6 fault=1 addr=0x656d616e75
+             5 x  epid=128 action=1 fault=1 addr=0x1033648a0
+             1 x  epid=128 action=1 fault=1 addr=0x600001819170
+             1 x  epid=128 action=5 fault=1 addr=0x6000007cc0e0
+             1 x  epid=128 action=1 fault=1 addr=0x1038b2230
+             1 x  epid=128 action=6 fault=1 addr=0x6000024d8090
+             1 x  epid=128 action=6 fault=1 addr=0x6000014b00b0
+             1 x  epid=128 action=6 fault=1 addr=0x6000006080b0
+             1 x  epid=128 action=6 fault=1 addr=0x6000026040e0
+  == ATTRIBUTION == lifecycle pids: 319
+    writes  script 6812  /  whole traced subtree 7902
+    sockets script 1  /  whole traced subtree 2
+  == ROOTS (from /Users/runner/v2m-net0BS/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-net0BS/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-net0BS/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-net0BS/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-net0BS/Observe/node_modules/cld
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      2
+        /dev/dtracehelper
+        /dev/null
+    jailHome   3329  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-net0BS/jailhome/Library
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include/node
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include/node/common.gypi
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include/node/config.gypi
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include/node/cppgc
+        /Users/runner/v2m-net0BS/jailhome/Library/Caches/node-gyp/22.23.2/include/node/cppgc/allocation.h
+        … and 3319 more
+    jailTmp    3326  (base profile already grants this — NOT billed)
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/v8-locker.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/zconf.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/v8config.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/common.gypi
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/v8-object.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/v8-forward.h
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsl4svBe/node-gyp-tmp-Vq0EZr/include/node/v8-profiler.h
+        … and 3316 more
+    ownPkg      149  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/config.gypi
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/deps
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/deps/cld
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/node_gyp_bins
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/node_gyp_bins/python3
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/Release/.deps
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/Release/.deps/Release
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/Release/.deps/Release/obj.target
+        /Users/runner/v2m-net0BS/Observe/node_modules/cld/build/Release/.deps/Release/obj.target/cld-c
+        … and 139 more
+    outside       6
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-kW4N7ElN
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync44E3.tEHr7i
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-wbzeScPp
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-OOPwTvJZ
+  == READS the script performed, by scope ==
+    outside    1619
+    systemfs    636
+    userHome    307
+    bytecode    110
+    ownPkg       20
+    jailTmp    3326
+    jailHome      5
+    deps         33
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/env
+        outside: /usr/bin
+        outside: /bin/sh
+        outside: /var/db/timezone/icutz/icutz44l.dat
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14
+  == NETWORK ==
+    AF_INET connects: 1   distinct peers: 1
+        104.16.212.131:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+    ⛔ 6 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3329
+        Library/Caches/node-gyp
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-kW4N7ElN
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/.dat.nosync44E3.tEHr7i
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/C/com.apple.DeveloperTools/16.4-16F6/Xcode/PlugInCache-xcodebuild.xcplugincache
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-wbzeScPp
+        /var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/xcrun_db-OOPwTvJZ
+  EVICT[synth] 3 store entries removed, 0 spared as nub tooling, 163 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-net0BS/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=151/151 missing=0 shortfall=none (tree 2194/734) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+  => VERIFIED {"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+  EVICT[nar-no-network] 14 store entries removed, 0 spared as nub tooling, 174 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-net0BS/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=151/151 missing=0 shortfall=none (tree 2194/734) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true},"writePaths":["Library/Caches/node-gyp"]}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true,"project":true},"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-network' was not needed
+  EVICT[nar-no-write-deps] 14 store entries removed, 0 spared as nub tooling, 174 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-net0BS/security/nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=151/151 missing=0 shortfall=none (tree 2194/734) OVERRIDDEN=3 REJECTED=0 grant={"write":{"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-write-deps' was not needed
+  EVICT[nar-no-write-project] 14 store entries removed, 0 spared as nub tooling, 174 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-project-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-net0BS/security/nub-nar-no-write-project-resolved.json"}
+  SECURITY nub-nar-no-write-project-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VERIFY[nar-no-write-project] rc=0 artifacts=151/151 missing=0 shortfall=none (tree 2194/734) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":["Library/Caches/node-gyp"]}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} also verifies; 'no-write-project' was not needed
+  EVICT[joint-narrow] 14 store entries removed, 0 spared as nub tooling, 174 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T07:10:14.610Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-net0BS/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=151/151 missing=0 shortfall=none (tree 2194/734) OVERRIDDEN=3 REJECTED=0 grant={"writePaths":["Library/Caches/node-gyp"]}
+  => JOINT-NARROW VERIFIED {"writePaths":["Library/Caches/node-gyp"]} — all 3 capabilities drop TOGETHER, measured
+### DONE cld@2.10.1  synthesized={"write":{"deps":true,"project":true},"network":true,"writePaths":["Library/Caches/node-gyp"]} verified=1
