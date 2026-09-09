@@ -1,0 +1,165 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6d107830ee0f96723739b91d51aa93f16604f90da90e0c2dafbce8bbf85fda74","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:32.132Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-YGPbb5/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6d107830ee0f
+### @playwright/browser-chromium@1.63.0   (/Users/runner/v2m-YGPbb5)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bdcf4aa0a5c85b06d4d27b10d692b9ed00173f295e77f41989fe9fb4ca21508b","specCount":2,"lockfiles":{"digest":"56ec00ad4e4dafcf5ceb9b40499fb0ea26fb391d88a4b44b828cea7200615814","files":[{"path":"package-lock.json","sha256":"50c3dbff3e081112df2cacce1ad022595a54bfb9d9b1f8d6557f3deb1ae3d64c","bytes":1164}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:39.339Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-YGPbb5/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree bdcf4aa0a5c8
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-YGPbb5/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-YGPbb5/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "@playwright/browser-chromium" > "/Users/runner/v2m-YGPbb5/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-YGPbb5/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-YGPbb5/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-YGPbb5/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund @playwright/browser-chromium
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000024c8000) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=131 (pre=129) trace=26258 lines
+  CLOSURE   2 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-YGPbb5/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-YGPbb5/Observe/capture.json
+  RAWLOG-BYTES raw=4519629 gz=106397
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-YGPbb5/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (8) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  EVENTLOG-FILE /Users/runner/v2m-YGPbb5/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":26259,"parsed":26239,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":39,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":5820,"enoent":4752,"refusals":0,"byErrno":{"ENXIO":4,"ENOENT":4752,"EEXIST":1061,"ENOTEMPTY":3},"procs":9,"lifecyclePids":2,"distinctEvents":7500,"emitted":7500,"calls":25678,"bytes":1645158,"gzipBytes":48719,"out":"/Users/runner/v2m-YGPbb5/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=5099 dropped-events=1
+    NOTE 26 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 6 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=12304 read  unproven .
+         pid=12304 read  unproven .
+         pid=12304 read  unproven .
+         pid=12306 read  unproven .
+         pid=12489 read  unproven .
+         pid=12496 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x6000024c8000
+  == ATTRIBUTION == lifecycle pids: 2
+    writes  script 721  /  whole traced subtree 1811
+    sockets script 0  /  whole traced subtree 1
+  == ROOTS (from /Users/runner/v2m-YGPbb5/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-YGPbb5/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-YGPbb5/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-YGPbb5/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-YGPbb5/Observe/node_modules/@playwright/browser-chromium
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    userHome    714
+    jailTmp       6  (base profile already grants this — NOT billed)
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-Q8slV4
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-Q8slV4/playwright-download-chromium-mac15-arm64-1243.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-jd0EX6
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-jd0EX6/playwright-download-chromium-headless-shell-mac15-arm64-1243.zip
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-LPig4B
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsHe4LaV/playwright-download-LPig4B/playwright-download-ffmpeg-mac15-arm64-1011.zip
+  == READS the script performed, by scope ==
+    outside       9
+    systemfs     14
+    userHome      5
+    ownPkg        2
+    deps          5
+    jailTmp       6
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /bin/sh
+        outside: /usr/bin/sw_vers
+        outside: /usr/bin
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    714 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 714
+        .cache/nub/pm/tools/ms-playwright/__dirlock
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/7189e029c84282d26a16a0d77439c224d77e7d3a
+        .cache/nub/pm/tools/ms-playwright/chromium-1243
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/ABOUT
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/PrivacySandboxAttestationsPreloaded/privacy-sandbox-attestations.dat
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/content.js
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper/gdocs_script.js
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/resources/accessibility/reading_mode_gdocs_helper_manifest.json
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/de.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ur.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/he.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ar.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/el.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/ja.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/fa.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/mr.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/en.lproj/InfoPlist.strings
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/uk.lproj
+        .cache/nub/pm/tools/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Resources/uk.lproj/InfoPlist.strings
+        … and 674 more
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 163 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"bdcf4aa0a5c85b06d4d27b10d692b9ed00173f295e77f41989fe9fb4ca21508b","specCount":2,"lockfiles":{"digest":"de5edee59cac3e923dd71b82a4c5ad09458a126d1cd29fd2fffa5e7e257fbd9b","files":[{"path":"nub.lock","sha256":"c0a75dc369c938f3264e68dd411cf9c0fc4a943fb59b7b39a54a6ae01a713db8","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:39.339Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-YGPbb5/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree bdcf4aa0a5c8 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 376/131) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}
+  EVICT[nar-no-write-userHome] 2 store entries removed, 0 spared as nub tooling, 165 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"bdcf4aa0a5c85b06d4d27b10d692b9ed00173f295e77f41989fe9fb4ca21508b","specCount":2,"lockfiles":{"digest":"de5edee59cac3e923dd71b82a4c5ad09458a126d1cd29fd2fffa5e7e257fbd9b","files":[{"path":"nub.lock","sha256":"c0a75dc369c938f3264e68dd411cf9c0fc4a943fb59b7b39a54a6ae01a713db8","bytes":752}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:59:39.339Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-YGPbb5/security/nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 2 exact package-version(s), tree bdcf4aa0a5c8 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 376/131) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
+### DONE @playwright/browser-chromium@1.63.0  synthesized={"write":{"userHome":true}} verified=1
