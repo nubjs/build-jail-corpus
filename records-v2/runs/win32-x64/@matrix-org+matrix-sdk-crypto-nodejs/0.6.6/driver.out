@@ -1,0 +1,69 @@
+### @matrix-org/matrix-sdk-crypto-nodejs@0.6.6   (D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"2b40585c8abd677557a67de4b75aed71cfd20ec692d9bca0d4e6c329582d0d4c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:01:58.166Z","cacheHit":false,"clearancePath":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 2b40585c8abd
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"67c2399018265847354cd2da2fb38636fd312532f287e72ab1e9857515cc5bf5","specCount":6,"lockfiles":{"digest":"bfb2ce41ace48776387e9bfb67a0866a2258a3abfe65f86c3c2d969a3c7b0963","files":[{"path":"package-lock.json","sha256":"74b32d68dc4ee5389cf41bda85571b11f140e618571aef93066a291f5ce38f44","bytes":2788}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:02:00.261Z","cacheHit":false,"clearancePath":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 6 exact package-version(s), tree 67c239901826
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2960 exit=0 events=28289 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 13 files  (D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\observe\node_modules\@matrix-org\matrix-sdk-crypto-nodejs)
+  ARM-FALSIFIABILITY {"manifestFiles":15,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 6 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\observe\node_modules\@matrix-org\matrix-sdk-crypto-nodejs
+  == ATTRIBUTION == lifecycle pids: 2 (root 2960)
+    writes  script 2  /  whole traced tree 9
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          2
+  == READS ==
+    deps         20
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 2
+        140.82.113.3:443
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  36276551 B xml -> 551459 B gz (65.8x)  sha256 e98ce9e5a308f50e…
+  HEADER    etw-header.json (5247 bytes)
+  DERIVED   5875 distinct from 8307 kept ops (28289 xml events, 2968 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (74186 bytes)
+  RAWLOG-CAPTURE D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\npm-cache","TMP":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\tmp","TEMP":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\tmp","TMPDIR":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"67c2399018265847354cd2da2fb38636fd312532f287e72ab1e9857515cc5bf5","specCount":6,"lockfiles":{"digest":"1f689a5fa4438811b8fca3e6c0d757d6bc700a1e6e356ac50b7c5508c79a5ee9","files":[{"path":"nub.lock","sha256":"2e11aac1ea82484fc2deb2881755501efb82a9cde15ba1132bcaa35d8bdbd5bb","bytes":1901}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:02:00.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 6 exact package-version(s), tree 67c239901826 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=13/13 missing=0 shortfall=none (tree 7678/60) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"67c2399018265847354cd2da2fb38636fd312532f287e72ab1e9857515cc5bf5","specCount":6,"lockfiles":{"digest":"1f689a5fa4438811b8fca3e6c0d757d6bc700a1e6e356ac50b7c5508c79a5ee9","files":[{"path":"nub.lock","sha256":"2e11aac1ea82484fc2deb2881755501efb82a9cde15ba1132bcaa35d8bdbd5bb","bytes":1901}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:02:00.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 6 exact package-version(s), tree 67c239901826 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=11/13 missing=2 shortfall=48722ea9d93f (tree 7676/60) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: matrix-sdk-crypto.win32-x64-msvc.node, matrix-sdk-crypto.win32-x64-msvc.node.version
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"67c2399018265847354cd2da2fb38636fd312532f287e72ab1e9857515cc5bf5","specCount":6,"lockfiles":{"digest":"1f689a5fa4438811b8fca3e6c0d757d6bc700a1e6e356ac50b7c5508c79a5ee9","files":[{"path":"nub.lock","sha256":"2e11aac1ea82484fc2deb2881755501efb82a9cde15ba1132bcaa35d8bdbd5bb","bytes":1901}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:02:00.261Z","cacheHit":true,"clearancePath":"D:\\jail\\m-matrixorgmatrixsdkcryptonodejs-mtupdt3q\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 6 exact package-version(s), tree 67c239901826 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=13/13 missing=0 shortfall=none (tree 7678/60) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
