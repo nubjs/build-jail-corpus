@@ -1,0 +1,61 @@
+### @trufflesuite/bigint-buffer@1.1.10   (D:\jail\m-trufflesuitebigintbuffer-mttpewf0)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ce41a296e8f399db0066c5ecbcb8ac90507ba0ea066daf9910c7876dfbdfcb21","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:15:02.832Z","cacheHit":false,"clearancePath":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ce41a296e8f3
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9ffd7188cd79d4ceb215580a1327c553a58f993b25bf3870cb53f32ad1895c1d","specCount":2,"lockfiles":{"digest":"8c4093e33fd6fe6699778a9f639832e4f7ec9312630596e496baa71da50105bd","files":[{"path":"package-lock.json","sha256":"248ad7ab4cc0c22e8be1164715a1815dda739e3b763b2ca8fcbdae5124ea36cf","bytes":1195}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:15:04.563Z","cacheHit":false,"clearancePath":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 9ffd7188cd79
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6352 exit=0 events=70081 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 23 files  (D:\jail\m-trufflesuitebigintbuffer-mttpewf0\observe\node_modules\@trufflesuite\bigint-buffer)
+  ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (23) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-trufflesuitebigintbuffer-mttpewf0\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-trufflesuitebigintbuffer-mttpewf0\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-trufflesuitebigintbuffer-mttpewf0\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-trufflesuitebigintbuffer-mttpewf0\observe\node_modules\@trufflesuite\bigint-buffer
+  == ATTRIBUTION == lifecycle pids: 4 (root 6352)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps         14
+    outside       6
+    project       1
+    systemfs     27
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  88629914 B xml -> 1281218 B gz (69.2x)  sha256 9604d6e950401500…
+  HEADER    etw-header.json (5196 bytes)
+  DERIVED   5468 distinct from 7192 kept ops (70081 xml events, 18499 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (70182 bytes)
+  RAWLOG-CAPTURE D:\jail\m-trufflesuitebigintbuffer-mttpewf0\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-trufflesuitebigintbuffer-mttpewf0
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\npm-cache","TMP":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\tmp","TEMP":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\tmp","TMPDIR":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-trufflesuitebigintbuffer-mttpewf0\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9ffd7188cd79d4ceb215580a1327c553a58f993b25bf3870cb53f32ad1895c1d","specCount":2,"lockfiles":{"digest":"0c667e259d0ba4076ec12dd965b33f8acbaa24584a5af22af20a536325279777","files":[{"path":"nub.lock","sha256":"afa4702add21aa651ac41af32760378359513ca5ea5a3b24fce7c99921bea7c7","bytes":720}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:15:04.563Z","cacheHit":true,"clearancePath":"D:\\jail\\m-trufflesuitebigintbuffer-mttpewf0\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 9ffd7188cd79 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=23/23 missing=0 shortfall=none (tree 5725/43) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

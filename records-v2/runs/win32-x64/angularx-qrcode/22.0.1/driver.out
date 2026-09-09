@@ -1,0 +1,58 @@
+### angularx-qrcode@22.0.1   (D:\jail\m-angularxqrcode-mttpowmu)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"60845e5394b59e06901c38b1222dbaefc22c0756c37e99e780959c82f003492d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:22:49.661Z","cacheHit":false,"clearancePath":"D:\\jail\\m-angularxqrcode-mttpowmu\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 60845e5394b5
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"d70e02e20d30862908ce9529ee1aa031da37412542dd41f0a2012961fedc81b0","specCount":34,"lockfiles":{"digest":"3d281ec2f31dbdedff6fe2c5413a43df68c596c49adb37672132c9a25599893d","files":[{"path":"package-lock.json","sha256":"3bfb56c0becaf33340b58c463971b0205918fe7a50c475b033b9277c735f6329","bytes":13956}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:22:58.077Z","cacheHit":false,"clearancePath":"D:\\jail\\m-angularxqrcode-mttpowmu\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 34 exact package-version(s), tree d70e02e20d30
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=860 exit=0 events=20724 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 6 files  (D:\jail\m-angularxqrcode-mttpowmu\observe\node_modules\angularx-qrcode)
+  ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (6) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 34 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-angularxqrcode-mttpowmu\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-angularxqrcode-mttpowmu\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-angularxqrcode-mttpowmu\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-angularxqrcode-mttpowmu\observe\node_modules\angularx-qrcode
+  == ATTRIBUTION == lifecycle pids: 0 (root 860)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+    !! NO LIFECYCLE SHELL FOUND -- the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == WRITES ==
+  == READS ==
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  26444391 B xml -> 379648 B gz (69.7x)  sha256 d3374b5a2cc1e518…
+  HEADER    etw-header.json (5059 bytes)
+  DERIVED   5100 distinct from 6151 kept ops (20724 xml events, 1570 out of subtree)
+  PROCS     2   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (63999 bytes)
+  RAWLOG-CAPTURE D:\jail\m-angularxqrcode-mttpowmu\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-angularxqrcode-mttpowmu
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-angularxqrcode-mttpowmu\\npm-cache","TMP":"D:\\jail\\m-angularxqrcode-mttpowmu\\tmp","TEMP":"D:\\jail\\m-angularxqrcode-mttpowmu\\tmp","TMPDIR":"D:\\jail\\m-angularxqrcode-mttpowmu\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-angularxqrcode-mttpowmu\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"d70e02e20d30862908ce9529ee1aa031da37412542dd41f0a2012961fedc81b0","specCount":34,"lockfiles":{"digest":"ec6cdd66eeaf8830bbb9b01aa2d13cf0a921430d1cb7e4f45e2d06e09bb50cd4","files":[{"path":"nub.lock","sha256":"15479cc3a4fdf689b8f1713d1899c9097380d33cd7d90ee0f979766dc4903d55","bytes":8833}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:22:58.077Z","cacheHit":true,"clearancePath":"D:\\jail\\m-angularxqrcode-mttpowmu\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 34 exact package-version(s), tree d70e02e20d30 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 13328/7929) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
