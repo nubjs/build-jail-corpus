@@ -1,0 +1,99 @@
+### @salesforce/cli@2.150.6   (D:\jail\m-salesforcecli-mtuqjfak)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"75f5a5b5dca94ef778a242e256c2c9980e22d7ddf2cf43dfb24474df4da2069b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:34:19.747Z","cacheHit":false,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 75f5a5b5dca9
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"4470f3bdd9419711a8b0331de26d62b3dca30419a4b35ae61fe4a699f310a91d","specCount":1430,"lockfiles":{"digest":"4518bbf3b7dc1de3f5e5108d43f56b3f544e23b8d1f795d3c1f36962d14ec526","files":[{"path":"package-lock.json","sha256":"6ff529840fb91091ba089c854d60ee0898d199a28daca28f53d95f46ea8ee0da","bytes":832212}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:35:05.068Z","cacheHit":false,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1430 exact package-version(s), tree 4470f3bdd941
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=7988 exit=0 events=101868 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 23 files  (D:\jail\m-salesforcecli-mtuqjfak\observe\node_modules\@salesforce\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (24) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-salesforcecli-mtuqjfak\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-salesforcecli-mtuqjfak\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-salesforcecli-mtuqjfak\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-salesforcecli-mtuqjfak\observe\node_modules\@salesforce\cli
+  == ATTRIBUTION == lifecycle pids: 9 (root 7988)
+    writes  script 47  /  whole traced tree 61
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    systemfs     37
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.directoryservices\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.directoryservices.dll:wofcompresseddata
+    jailTmp       4
+    userHome      5
+    kernelfs      1
+  == READS ==
+    deps        565
+    outside     236
+    project       1
+    systemfs    534
+    userHome     10
+    jailTmp       5
+  == NETWORK ==
+    distinct peers: 1
+        104.16.4.34:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 4 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 37 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  130298639 B xml -> 1859881 B gz (70.1x)  sha256 f3eb1bc30ea756d3…
+  HEADER    etw-header.json (5114 bytes)
+  DERIVED   19706 distinct from 37524 kept ops (101868 xml events, 2157 out of subtree)
+  PROCS     11   thread-reattributed 0
+  ⛔ 6 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 4 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (269121 bytes)
+  RAWLOG-CAPTURE D:\jail\m-salesforcecli-mtuqjfak\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-salesforcecli-mtuqjfak
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-salesforcecli-mtuqjfak\\npm-cache","TMP":"D:\\jail\\m-salesforcecli-mtuqjfak\\tmp","TEMP":"D:\\jail\\m-salesforcecli-mtuqjfak\\tmp","TMPDIR":"D:\\jail\\m-salesforcecli-mtuqjfak\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-salesforcecli-mtuqjfak\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"95a15d8500c56e90fc828a75cd0269e0947f70b6bb58e382ac2e67767988088e","specCount":743,"lockfiles":{"digest":"a3329dde7881bbe97f55b29de783328fa80776e0ad63ea6b66de1a649d4e00b6","files":[{"path":"nub.lock","sha256":"98442310f71fe8b9d7969a6fb490f7135044218d64a4c7795c4b06f4826b39ef","bytes":179024}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:36:09.386Z","cacheHit":false,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 743 exact package-version(s), tree 95a15d8500c5
+  VERIFY[synth] rc=0 artifacts=24/23 missing=0 shortfall=none (tree 46972/55763) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-salesforcecli-mtuqjfak\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"95a15d8500c56e90fc828a75cd0269e0947f70b6bb58e382ac2e67767988088e","specCount":743,"lockfiles":{"digest":"a3329dde7881bbe97f55b29de783328fa80776e0ad63ea6b66de1a649d4e00b6","files":[{"path":"nub.lock","sha256":"98442310f71fe8b9d7969a6fb490f7135044218d64a4c7795c4b06f4826b39ef","bytes":179024}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:36:09.386Z","cacheHit":true,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 743 exact package-version(s), tree 95a15d8500c5 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=24/23 missing=0 shortfall=none (tree 46972/55763) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  STORE   isolated virtual store at D:\jail\m-salesforcecli-mtuqjfak\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"95a15d8500c56e90fc828a75cd0269e0947f70b6bb58e382ac2e67767988088e","specCount":743,"lockfiles":{"digest":"a3329dde7881bbe97f55b29de783328fa80776e0ad63ea6b66de1a649d4e00b6","files":[{"path":"nub.lock","sha256":"98442310f71fe8b9d7969a6fb490f7135044218d64a4c7795c4b06f4826b39ef","bytes":179024}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:36:09.386Z","cacheHit":true,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 743 exact package-version(s), tree 95a15d8500c5 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=24/23 missing=0 shortfall=none (tree 46972/55763) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at D:\jail\m-salesforcecli-mtuqjfak\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"95a15d8500c56e90fc828a75cd0269e0947f70b6bb58e382ac2e67767988088e","specCount":743,"lockfiles":{"digest":"a3329dde7881bbe97f55b29de783328fa80776e0ad63ea6b66de1a649d4e00b6","files":[{"path":"nub.lock","sha256":"98442310f71fe8b9d7969a6fb490f7135044218d64a4c7795c4b06f4826b39ef","bytes":179024}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:36:09.386Z","cacheHit":true,"clearancePath":"D:\\jail\\m-salesforcecli-mtuqjfak\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 743 exact package-version(s), tree 95a15d8500c5 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=24/23 missing=0 shortfall=none (tree 46972/55763) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
