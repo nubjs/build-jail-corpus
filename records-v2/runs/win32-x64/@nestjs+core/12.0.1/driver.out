@@ -1,0 +1,59 @@
+### @nestjs/core@12.0.1   (D:\jail\m-nestjscore-mttp2xx3)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"0c34427dbf0093a335a27e06395244a9add5e29686902de2f0aa6b6ffee7c5b8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:05:44.881Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nestjscore-mttp2xx3\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 0c34427dbf00
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a9a45e59fd7bc06f9d2c400d51b01f0a0859776fdc9907b269883fb212fdd5d0","specCount":22,"lockfiles":{"digest":"a988acc5f8f025e1c70c69b6bd32cf82d1b52bb3a4d2f1defa18bf99bdb211fc","files":[{"path":"package-lock.json","sha256":"eee00b2f439d2680d065c734fb50c292fe526aa43cc8c9f28dddb35fd7daa010","bytes":11082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:05:51.054Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nestjscore-mttp2xx3\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 22 exact package-version(s), tree a9a45e59fd7b
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6260 exit=0 events=20962 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 383 files  (D:\jail\m-nestjscore-mttp2xx3\observe\node_modules\@nestjs\core)
+  ARM-FALSIFIABILITY {"manifestFiles":383,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (383) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 22 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-nestjscore-mttp2xx3\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-nestjscore-mttp2xx3\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-nestjscore-mttp2xx3\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-nestjscore-mttp2xx3\observe\node_modules\@nestjs\core
+  == ATTRIBUTION == lifecycle pids: 0 (root 6260)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+    !! NO LIFECYCLE SHELL FOUND -- the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == WRITES ==
+  == READS ==
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  26733466 B xml -> 385289 B gz (69.4x)  sha256 c7f7666e7b679560…
+  HEADER    etw-header.json (5032 bytes)
+  DERIVED   5105 distinct from 6155 kept ops (20962 xml events, 1650 out of subtree)
+  PROCS     2   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (63882 bytes)
+  RAWLOG-CAPTURE D:\jail\m-nestjscore-mttp2xx3\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-nestjscore-mttp2xx3
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-nestjscore-mttp2xx3\\npm-cache","TMP":"D:\\jail\\m-nestjscore-mttp2xx3\\tmp","TEMP":"D:\\jail\\m-nestjscore-mttp2xx3\\tmp","TMPDIR":"D:\\jail\\m-nestjscore-mttp2xx3\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-nestjscore-mttp2xx3\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a9a45e59fd7bc06f9d2c400d51b01f0a0859776fdc9907b269883fb212fdd5d0","specCount":22,"lockfiles":{"digest":"9e02dfb66b40f117ddd81a2697d725bef1f20a61f562e07bab7e788c13f6be28","files":[{"path":"nub.lock","sha256":"3aba390a597ed990f2a0ac8c470a8491aac8bcb65a5e98f3edad153e2d8df832","bytes":6469}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:05:51.054Z","cacheHit":true,"clearancePath":"D:\\jail\\m-nestjscore-mttp2xx3\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 22 exact package-version(s), tree a9a45e59fd7b (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=383/383 missing=0 shortfall=none (tree 4216/3289) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
