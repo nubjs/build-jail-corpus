@@ -1,0 +1,71 @@
+### @depot/cli@0.0.1-cli.2.102.7   (/home/runner/v2-xlYzkk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"56b9ffc68cc7b545345a09dda59f8ef855ba255e42591f7472a30a48909d7623","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:03:43.959Z","cacheHit":false,"clearancePath":"/home/runner/v2-xlYzkk/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 56b9ffc68cc7
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"57687ee05bcc8e480c9ab41ccd83dfca0c15ab34914f98324a7515c9fe117d4a","specCount":2,"lockfiles":{"digest":"194f5c0f3dc8d55f5d40377e8587af89f217174a4f2e64803f472846593c102d","files":[{"path":"package-lock.json","sha256":"48d76ab4d09aad8ea3472414bab6b9fa7c318db8090f72361281bdc3a72d019f","bytes":5642}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:05.093Z","cacheHit":false,"clearancePath":"/home/runner/v2-xlYzkk/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 57687ee05bcc
+  OBSERVE   rc=0 files=13 trace=10904 lines
+  CLOSURE   2 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-xlYzkk/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-xlYzkk/observe/capture.json
+  RAWLOG-BYTES raw=2387289 gz=70122
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-xlYzkk/jailhome","TMPDIR":"/tmp/nub-tmp-obsbMtKoB","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-xlYzkk/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 20
+    writes  script 3  /  whole traced tree 1091
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-xlYzkk/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-xlYzkk/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-xlYzkk/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsbMtKoB
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-xlYzkk/observe/node_modules/@depot/cli
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-xlYzkk/observe/node_modules/@depot/cli/bin-depot
+        /home/runner/v2-xlYzkk/observe/node_modules/@depot/cli/bin/depot
+    userHome      1
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.9.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    1 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        .config/depot
+    EVENTS    4503 distinct from 10846 calls (10905 lines, 21 rejoined, 0 unparsed)
+    PROCS     27   lifecycle shells 15
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×21 exit×16 getsockopt×7 recvmsg×7 tgkill×7 socketpair×6 getcwd×4
+    wrote /home/runner/v2-xlYzkk/observe/events.ndjson.gz (31922 bytes)
+  EVENTLOG-FILE /home/runner/v2-xlYzkk/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10905,"parsed":10846,"unparsed":0,"unfinished":21,"rejoined":21,"unresolvedDirfd":3,"truncatedArg":0,"procs":27,"lifecyclePids":15,"distinctEvents":4503,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":4,"recvmsg":7,"exit":16,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"tgkill":7,"exit_group":4,"wait4":4},"out":"/home/runner/v2-xlYzkk/observe/events.ndjson.gz","gzipBytes":31922}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @depot/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"57687ee05bcc8e480c9ab41ccd83dfca0c15ab34914f98324a7515c9fe117d4a","specCount":2,"lockfiles":{"digest":"1edb1cbd792fc128097ffda743a4618c70020d690a1c85703a39b39b2052a2c9","files":[{"path":"nub.lock","sha256":"56d2abfbf31e1f80d97c4f1b10a9eb1af70661f1ab2fb9810e41a896ff4f1f03","bytes":3619}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:05.093Z","cacheHit":true,"clearancePath":"/home/runner/v2-xlYzkk/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 57687ee05bcc (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 43/13) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}   (observed, then verified)
+  EVICT     2 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @depot/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"57687ee05bcc8e480c9ab41ccd83dfca0c15ab34914f98324a7515c9fe117d4a","specCount":2,"lockfiles":{"digest":"1edb1cbd792fc128097ffda743a4618c70020d690a1c85703a39b39b2052a2c9","files":[{"path":"nub.lock","sha256":"56d2abfbf31e1f80d97c4f1b10a9eb1af70661f1ab2fb9810e41a896ff4f1f03","bytes":3619}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:04:05.093Z","cacheHit":true,"clearancePath":"/home/runner/v2-xlYzkk/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 2 exact package-version(s), tree 57687ee05bcc (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 43/13) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-write-userHome  (synthesized {"write":{"userHome":true}}; each named capability drops on its own)
