@@ -1,0 +1,79 @@
+### @confluentinc/kafka-javascript@1.10.0   (/home/runner/v2-cyHgtc)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"028456d9b6b0b651dfc41e05d3de67b7c4b92565099c5929035afbd86ae69f5f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:45:15.788Z","cacheHit":false,"clearancePath":"/home/runner/v2-cyHgtc/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 028456d9b6b0
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"08b9265d909b55e871e0076aee17ad656622a94af6550e1d8ca014ede589a6d9","specCount":26,"lockfiles":{"digest":"b983d4ca123a0a17853a08ab21f62d91be0a7bb8ebeb42ae52484e265992ff20","files":[{"path":"package-lock.json","sha256":"ea06bfaccb5803cb2dda4b0b59d81825c695ed480f2988d88a66884b2f8f2b02","bytes":10860}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:45:17.241Z","cacheHit":false,"clearancePath":"/home/runner/v2-cyHgtc/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 26 exact package-version(s), tree 08b9265d909b
+  OBSERVE   rc=0 files=1316 trace=12061 lines
+  CLOSURE   26 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":673,"filesTheScriptProduced":30,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-cyHgtc/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-cyHgtc/observe/capture.json
+  RAWLOG-BYTES raw=2636119 gz=77434
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-cyHgtc/jailhome","TMPDIR":"/tmp/nub-tmp-obs3oDTG7","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-cyHgtc/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 44  /  whole traced tree 1132
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-cyHgtc/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-cyHgtc/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-cyHgtc/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs3oDTG7
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript
+  == WRITES the script actually performed ==
+    ownPkg       44  (base profile already grants this — NOT billed)
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/11a9e3388a67e1ca5c31c1d8da49cb6d2714eb41.intermediate.d
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release/confluent-kafka-javascript.node.d
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release/obj.target
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release/obj.target/confluent-kafka-javascript
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src
+        /home/runner/v2-cyHgtc/observe/node_modules/@confluentinc/kafka-javascript/build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src/admin.o.d
+        … and 34 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        140.82.112.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4946 distinct from 12004 calls (12062 lines, 30 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×30 setsockopt×29 exit×20 getsockopt×13 recvmsg×11 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-cyHgtc/observe/events.ndjson.gz (34553 bytes)
+  EVENTLOG-FILE /home/runner/v2-cyHgtc/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12062,"parsed":12004,"unparsed":0,"unfinished":30,"rejoined":30,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4946,"unknownSyscall":{"getsockname":30,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":29,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-cyHgtc/observe/events.ndjson.gz","gzipBytes":34553}
+  EVICT     9 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @confluentinc/kafka-javascript
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"08b9265d909b55e871e0076aee17ad656622a94af6550e1d8ca014ede589a6d9","specCount":26,"lockfiles":{"digest":"96664b0350d32b18bf64530198d90742142171489126e216f0b5e5baf7e37edf","files":[{"path":"nub.lock","sha256":"c013c2a4e45d2d9c0c7637304c200691c57bd85d27d92a907c915ee759f6da8b","bytes":6535}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:45:17.241Z","cacheHit":true,"clearancePath":"/home/runner/v2-cyHgtc/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 26 exact package-version(s), tree 08b9265d909b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=672/672 missing=0 shortfall=none (tree 4227/1316) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     19 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @confluentinc/kafka-javascript
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"08b9265d909b55e871e0076aee17ad656622a94af6550e1d8ca014ede589a6d9","specCount":26,"lockfiles":{"digest":"96664b0350d32b18bf64530198d90742142171489126e216f0b5e5baf7e37edf","files":[{"path":"nub.lock","sha256":"c013c2a4e45d2d9c0c7637304c200691c57bd85d27d92a907c915ee759f6da8b","bytes":6535}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:45:17.241Z","cacheHit":true,"clearancePath":"/home/runner/v2-cyHgtc/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 26 exact package-version(s), tree 08b9265d909b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=650/672 missing=29 shortfall=f4d81f622507 (tree 4164/1316) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: build/Release/.deps/11a9e3388a67e1ca5c31c1d8da49cb6d2714eb41.intermediate.d, build/Release/.deps/Release/confluent-kafka-javascript.node.d, build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src/admin.o.d, build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src/binding.o.d, build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src/callbacks.o.d, build/Release/.deps/Release/obj.target/confluent-kafka-javascript/src/common.o.d (+23)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
