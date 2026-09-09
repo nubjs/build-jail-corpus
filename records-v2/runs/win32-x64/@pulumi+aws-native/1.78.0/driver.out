@@ -1,0 +1,88 @@
+### @pulumi/aws-native@1.78.0   (D:\jail\m-pulumiawsnative-mtur71lw)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"0748386ae3a537389225228022ccb4938dc888a9bbf0f72984a8c59bf85fe143","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:52:41.749Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 0748386ae3a5
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"d1d87846a0f74cf176300359ba8d1f6d85bf376b4382eca0de8b0257bf9f0d1c","specCount":209,"lockfiles":{"digest":"8daecc01b5f20c6b7ec9a41ad0318d656adf43e056f4ae7d1a0acc42868c5174","files":[{"path":"package-lock.json","sha256":"825150c67377a9f1815dbcba69f4336e4af6f3e7959903a6157e59285691438e","bytes":102450}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:53:14.247Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 209 exact package-version(s), tree d1d87846a0f7
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3436 exit=0 events=85389 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 14349 files  (D:\jail\m-pulumiawsnative-mtur71lw\observe\node_modules\@pulumi\aws-native)
+  ARM-FALSIFIABILITY {"manifestFiles":14349,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (14349) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 197 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-pulumiawsnative-mtur71lw\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-pulumiawsnative-mtur71lw\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-pulumiawsnative-mtur71lw\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-pulumiawsnative-mtur71lw\observe\node_modules\@pulumi\aws-native
+  == ATTRIBUTION == lifecycle pids: 3 (root 3436)
+    writes  script 13  /  whole traced tree 20
+    peers   script 3  /  whole traced tree 3
+  == WRITES ==
+    userHome     12
+    jailTmp       1
+  == READS ==
+    deps          6
+    outside       6
+    project       1
+    systemfs     50
+    userHome      6
+    jailTmp       1
+    kernelfs      1
+  == NETWORK ==
+    distinct peers: 3
+        13.225.61.23:443
+        140.82.114.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  110902633 B xml -> 1560051 B gz (71.1x)  sha256 25b1a1e0aab1e0a3…
+  HEADER    etw-header.json (5127 bytes)
+  DERIVED   5926 distinct from 25150 kept ops (85389 xml events, 13044 out of subtree)
+  PROCS     5   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (77187 bytes)
+  RAWLOG-CAPTURE D:\jail\m-pulumiawsnative-mtur71lw\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-pulumiawsnative-mtur71lw
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pulumiawsnative-mtur71lw\\npm-cache","TMP":"D:\\jail\\m-pulumiawsnative-mtur71lw\\tmp","TEMP":"D:\\jail\\m-pulumiawsnative-mtur71lw\\tmp","TMPDIR":"D:\\jail\\m-pulumiawsnative-mtur71lw\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumiawsnative-mtur71lw\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"14f968e7d3d15b5bb8227ef5bf713ae23911c6b9163d4cccc202a650ed5a603b","specCount":209,"lockfiles":{"digest":"d28a3558254c88c78c86fccd6036b0422cc8efae33abd8b121049d580ccce03d","files":[{"path":"nub.lock","sha256":"a2489246b35c6eb787ad3b8c82992aded9f15a9446681041f9030fd49a72490f","bytes":61564}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:54:37.052Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 209 exact package-version(s), tree 14f968e7d3d1
+  VERIFY[synth] rc=0 artifacts=14349/14349 missing=0 shortfall=none (tree 44874/25993) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+  => MINIMUM {"write":{"userHome":true},"network":true}   (observed, then verified)
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumiawsnative-mtur71lw\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"14f968e7d3d15b5bb8227ef5bf713ae23911c6b9163d4cccc202a650ed5a603b","specCount":209,"lockfiles":{"digest":"d28a3558254c88c78c86fccd6036b0422cc8efae33abd8b121049d580ccce03d","files":[{"path":"nub.lock","sha256":"a2489246b35c6eb787ad3b8c82992aded9f15a9446681041f9030fd49a72490f","bytes":61564}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:54:37.052Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 209 exact package-version(s), tree 14f968e7d3d1 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=14349/14349 missing=0 shortfall=none (tree 44874/25993) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true}}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true}} also verifies; 'no-network' was not needed
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumiawsnative-mtur71lw\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"14f968e7d3d15b5bb8227ef5bf713ae23911c6b9163d4cccc202a650ed5a603b","specCount":209,"lockfiles":{"digest":"d28a3558254c88c78c86fccd6036b0422cc8efae33abd8b121049d580ccce03d","files":[{"path":"nub.lock","sha256":"a2489246b35c6eb787ad3b8c82992aded9f15a9446681041f9030fd49a72490f","bytes":61564}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:54:37.052Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 209 exact package-version(s), tree 14f968e7d3d1 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=14349/14349 missing=0 shortfall=none (tree 44874/25993) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-userHome' was not needed
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-pulumiawsnative-mtur71lw\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"14f968e7d3d15b5bb8227ef5bf713ae23911c6b9163d4cccc202a650ed5a603b","specCount":209,"lockfiles":{"digest":"d28a3558254c88c78c86fccd6036b0422cc8efae33abd8b121049d580ccce03d","files":[{"path":"nub.lock","sha256":"a2489246b35c6eb787ad3b8c82992aded9f15a9446681041f9030fd49a72490f","bytes":61564}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:54:37.052Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pulumiawsnative-mtur71lw\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 209 exact package-version(s), tree 14f968e7d3d1 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=14349/14349 missing=0 shortfall=none (tree 44874/25993) OVERRIDDEN=2 REJECTED=0 grant={}
+  => JOINT-NARROW VERIFIED {} — all 2 capabilities drop TOGETHER, measured
