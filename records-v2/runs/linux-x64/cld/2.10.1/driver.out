@@ -1,0 +1,105 @@
+### cld@2.10.1   (/home/runner/v2-qhvQ6Q)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"460d7435f61ca43e3567ad8444bcde33e4d9294b955a35cea98a1945ac05e5b7","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:07:09.807Z","cacheHit":false,"clearancePath":"/home/runner/v2-qhvQ6Q/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 460d7435f61c
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"99f7c0be1629df875f4bbb179b018bde2085343701962ffeb78aa88e19c2ef7d","files":[{"path":"package-lock.json","sha256":"6824759de397b5fcd5ab102955540750fdec68ecddb2e805ce438ced4fa769c4","bytes":5744}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:07:12.125Z","cacheHit":false,"clearancePath":"/home/runner/v2-qhvQ6Q/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree ce648895514b
+  OBSERVE   rc=0 files=732 trace=170891 lines
+  CLOSURE   14 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":153,"filesTheScriptProduced":36,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-qhvQ6Q/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-qhvQ6Q/observe/capture.json
+  RAWLOG-BYTES raw=25020513 gz=715034
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-qhvQ6Q/jailhome","TMPDIR":"/tmp/nub-tmp-obsZbFh2u","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-qhvQ6Q/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 749
+    writes  script 6819  /  whole traced tree 7907
+    sockets script 4  /  whole traced tree 8
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-qhvQ6Q/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-qhvQ6Q/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-qhvQ6Q/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsZbFh2u
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-qhvQ6Q/observe/node_modules/cld
+  == WRITES the script actually performed ==
+    jailHome   3328  (base profile already grants this — NOT billed)
+        /home/runner/v2-qhvQ6Q/jailhome/.cache
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node/common.gypi
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node/config.gypi
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/allocation.h
+        /home/runner/v2-qhvQ6Q/jailhome/.cache/node-gyp/22.23.2/include/node/cppgc/common.h
+        … and 3318 more
+    jailTmp    3360  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/v8-locker.h
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/zconf.h
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/v8config.h
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/common.gypi
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/v8-object.h
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/v8-forward.h
+        /tmp/nub-tmp-obsZbFh2u/node-gyp-tmp-q6gXba/include/node/v8-profiler.h
+        … and 3350 more
+    ownPkg      130  (base profile already grants this — NOT billed)
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/config.gypi
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/Makefile
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/deps
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/deps/cld
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/deps/cld/cld-c.target.mk
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/cld.target.mk
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/deps/cld/binding.Makefile
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/binding.Makefile
+        /home/runner/v2-qhvQ6Q/observe/node_modules/cld/build/node_gyp_bins
+        … and 120 more
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 4   distinct peers: 3
+        127.0.0.53:53
+        104.16.0.34:443
+        104.16.213.131:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 3328
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    66435 distinct from 159234 calls (170892 lines, 10670 rejoined, 0 unparsed)
+    PROCS     756   lifecycle shells 744
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×822 exit_group×718 getcwd×557 setsockopt×70 getsockname×42 exit×34 getsockopt×27 socketpair×12
+    wrote /home/runner/v2-qhvQ6Q/observe/events.ndjson.gz (341108 bytes)
+  EVENTLOG-FILE /home/runner/v2-qhvQ6Q/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":170892,"parsed":159234,"unparsed":0,"unfinished":10670,"rejoined":10670,"unresolvedDirfd":3,"truncatedArg":0,"procs":756,"lifecyclePids":744,"distinctEvents":66435,"unknownSyscall":{"getsockname":42,"getsockopt":27,"getcwd":557,"recvmsg":9,"exit":34,"setsockopt":70,"sendmmsg":2,"socketpair":12,"shutdown":12,"exit_group":718,"wait4":822},"out":"/home/runner/v2-qhvQ6Q/observe/events.ndjson.gz","gzipBytes":341108}
+  EVICT     11 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cld
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:07:12.125Z","cacheHit":true,"clearancePath":"/home/runner/v2-qhvQ6Q/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=153/153 missing=0 shortfall=none (tree 2200/732) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     14 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cld
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"ce648895514b952487414e9fefdef6ec1b21d6c4c94c26b876d14dc05e389690","specCount":14,"lockfiles":{"digest":"9f76124bbc1d5efdb2b0079754fd4c916a15eac5ccfeee3a766035d15eedc823","files":[{"path":"nub.lock","sha256":"1a05bada3cd03b2ec6f237e80ad5348e53356bf636a5d902de34297b06ba00d4","bytes":3612}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T06:07:12.125Z","cacheHit":true,"clearancePath":"/home/runner/v2-qhvQ6Q/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 14 exact package-version(s), tree ce648895514b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=153/153 missing=0 shortfall=none (tree 2200/732) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
