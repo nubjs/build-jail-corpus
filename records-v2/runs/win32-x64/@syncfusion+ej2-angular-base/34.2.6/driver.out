@@ -1,0 +1,66 @@
+### @syncfusion/ej2-angular-base@34.2.6   (D:\jail\m-syncfusionej2angularbase-mttnbmaj)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"cbe9776706ec46cefb2d363c850a8f840e998ecca2b3a990b2653736eef1bef3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:30.469Z","cacheHit":false,"clearancePath":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree cbe9776706ec
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ad628648ff7a18f8e7a2002c12aad74f5a12b7216464165c61b5f3519b5fdb85","specCount":3,"lockfiles":{"digest":"d3b17d22201ba7eb839add02cca235c0cc4024d74dec5045e1bad197a8ef4375","files":[{"path":"package-lock.json","sha256":"7899bbca6f50d752efa844d0a19985b70615d41657da7dacb79993a58ea93820","bytes":1568}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:33.349Z","cacheHit":false,"clearancePath":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree ad628648ff7a
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=3932 exit=0 events=21650 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 99 files  (D:\jail\m-syncfusionej2angularbase-mttnbmaj\observe\node_modules\@syncfusion\ej2-angular-base)
+  ARM-FALSIFIABILITY {"manifestFiles":99,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (99) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 3 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-syncfusionej2angularbase-mttnbmaj\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-syncfusionej2angularbase-mttnbmaj\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-syncfusionej2angularbase-mttnbmaj\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-syncfusionej2angularbase-mttnbmaj\observe\node_modules\@syncfusion\ej2-angular-base
+  == ATTRIBUTION == lifecycle pids: 2 (root 3932)
+    writes  script 1  /  whole traced tree 8
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          1
+  == READS ==
+    deps          7
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  27633506 B xml -> 406264 B gz (68.0x)  sha256 38e4dc90ce809055…
+  HEADER    etw-header.json (5195 bytes)
+  DERIVED   5234 distinct from 6383 kept ops (21650 xml events, 1730 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66355 bytes)
+  RAWLOG-CAPTURE D:\jail\m-syncfusionej2angularbase-mttnbmaj\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-syncfusionej2angularbase-mttnbmaj
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\npm-cache","TMP":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\tmp","TEMP":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\tmp","TMPDIR":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-syncfusionej2angularbase-mttnbmaj\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ad628648ff7a18f8e7a2002c12aad74f5a12b7216464165c61b5f3519b5fdb85","specCount":3,"lockfiles":{"digest":"026716b94220da2ca9c8b5d29933c585eca2ed780efddf5c1f993cc38a8629d4","files":[{"path":"nub.lock","sha256":"8b3a5080c81f73fff477ab6075c9c27380c3487195446c24e419e136daee20f3","bytes":1006}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:33.349Z","cacheHit":true,"clearancePath":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree ad628648ff7a (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 6149/391) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-syncfusionej2angularbase-mttnbmaj\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"ad628648ff7a18f8e7a2002c12aad74f5a12b7216464165c61b5f3519b5fdb85","specCount":3,"lockfiles":{"digest":"026716b94220da2ca9c8b5d29933c585eca2ed780efddf5c1f993cc38a8629d4","files":[{"path":"nub.lock","sha256":"8b3a5080c81f73fff477ab6075c9c27380c3487195446c24e419e136daee20f3","bytes":1006}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:16:33.349Z","cacheHit":true,"clearancePath":"D:\\jail\\m-syncfusionej2angularbase-mttnbmaj\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 3 exact package-version(s), tree ad628648ff7a (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=99/99 missing=0 shortfall=none (tree 6149/391) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
