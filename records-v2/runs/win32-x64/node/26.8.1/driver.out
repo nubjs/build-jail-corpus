@@ -1,0 +1,84 @@
+### node@26.8.1   (D:\jail\m-node-mtuphkhy)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"dea124fa7fbaceb3482987c81b53def45c10e5b34189a5dd00ac8e991b0973d0","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:04:53.533Z","cacheHit":false,"clearancePath":"D:\\jail\\m-node-mtuphkhy\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree dea124fa7fba
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"9079bc4c9654fd4eba9c2859f5186c111f46453fc5c6cc44db0a662ef41e20b3","specCount":2,"lockfiles":{"digest":"5b9fb6fee3a9c207e70f8fb7dbdb2646ab3e1876c5d316ac98589c3c9488463f","files":[{"path":"package-lock.json","sha256":"621c37d23d1d9b8a9560297bf43f2ed27b0d21e2d3465ebcd6ec4394998fa87f","bytes":1002}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:04:54.950Z","cacheHit":false,"clearancePath":"D:\\jail\\m-node-mtuphkhy\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 9079bc4c9654
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2928 exit=0 events=76542 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 5 files  (D:\jail\m-node-mtuphkhy\observe\node_modules\node)
+  ARM-FALSIFIABILITY {"manifestFiles":5,"filesTheScriptProduced":3,"reasons":[]}
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-node-mtuphkhy\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-node-mtuphkhy\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-node-mtuphkhy\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-node-mtuphkhy\observe\node_modules\node
+  == ATTRIBUTION == lifecycle pids: 6 (root 2928)
+    writes  script 36  /  whole traced tree 47
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    outside      17
+        d:\jail\m-node-mtuphkhy\npm-cache\_logs\2026-09-09t23_04_58_228z-debug-0.log
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\tmp\935dc977
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\index-v5\4e\a0\99c5bd27265764cc85ebc1af72ba8048d070feb26d2ab99848338ee32cf5
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\tmp\80c8167a
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\content-v2\sha512\fb
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\content-v2\sha512\fb\83
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\content-v2\sha512\fb\83\868fe9a07757c917e3f3399abd249c98beda50679d2f94d34ab0a4e0f0e21dabbf1cc891ddcad92713df7937d2c92c4f247c85d498e3e95ff1de771f0d33
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\index-v5\5e
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\index-v5\5e\20
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\index-v5\5e\20\8de43aa2af2affea4f1fe95ffcc3c54c9eec796a3da56c387c28511a76dd
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\tmp\26b3446a
+        d:\jail\m-node-mtuphkhy\npm-cache\_cacache\content-v2\sha512\ce
+    deps         19
+  == READS ==
+    deps         17
+    outside     703
+    project       2
+    systemfs     33
+    jailTmp     551
+  == NETWORK ==
+    distinct peers: 1
+        104.16.0.34:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    !! 17 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  98941065 B xml -> 1546982 B gz (64.0x)  sha256 955ded98179e6068…
+  HEADER    etw-header.json (5032 bytes)
+  DERIVED   10973 distinct from 26058 kept ops (76542 xml events, 7310 out of subtree)
+  PROCS     8   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (130893 bytes)
+  RAWLOG-CAPTURE D:\jail\m-node-mtuphkhy\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-node-mtuphkhy
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-node-mtuphkhy\\npm-cache","TMP":"D:\\jail\\m-node-mtuphkhy\\tmp","TEMP":"D:\\jail\\m-node-mtuphkhy\\tmp","TMPDIR":"D:\\jail\\m-node-mtuphkhy\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-node-mtuphkhy\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9079bc4c9654fd4eba9c2859f5186c111f46453fc5c6cc44db0a662ef41e20b3","specCount":2,"lockfiles":{"digest":"106496abacc722ec5fb54fc504820b713e5a578218407de251bf24de7e486372","files":[{"path":"nub.lock","sha256":"1f356cc0ca52218ffe6392c395ce6948544cc45b4dfeaa4bc0968d949e1ba08a","bytes":642}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:04:54.950Z","cacheHit":true,"clearancePath":"D:\\jail\\m-node-mtuphkhy\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 9079bc4c9654 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 5680/24) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-node-mtuphkhy\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"9079bc4c9654fd4eba9c2859f5186c111f46453fc5c6cc44db0a662ef41e20b3","specCount":2,"lockfiles":{"digest":"106496abacc722ec5fb54fc504820b713e5a578218407de251bf24de7e486372","files":[{"path":"nub.lock","sha256":"1f356cc0ca52218ffe6392c395ce6948544cc45b4dfeaa4bc0968d949e1ba08a","bytes":642}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:04:54.950Z","cacheHit":true,"clearancePath":"D:\\jail\\m-node-mtuphkhy\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 2 exact package-version(s), tree 9079bc4c9654 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=3/5 missing=3 shortfall=de501d61655e (tree 5670/24) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/node, bin/node.exe, package.json (474B < 478B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-node-mtuphkhy\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"9079bc4c9654fd4eba9c2859f5186c111f46453fc5c6cc44db0a662ef41e20b3","specCount":2,"lockfiles":{"digest":"106496abacc722ec5fb54fc504820b713e5a578218407de251bf24de7e486372","files":[{"path":"nub.lock","sha256":"1f356cc0ca52218ffe6392c395ce6948544cc45b4dfeaa4bc0968d949e1ba08a","bytes":642}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:04:54.950Z","cacheHit":true,"clearancePath":"D:\\jail\\m-node-mtuphkhy\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 2 exact package-version(s), tree 9079bc4c9654 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 5680/24) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
