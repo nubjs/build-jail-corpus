@@ -1,0 +1,65 @@
+### electron@44.2.0   (/home/runner/v2-zhv78n)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"792b55face8a7f5d102e6a82a9c71c1d8f141d11b977bb1431891cd47eb2ed58","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:59:31.319Z","cacheHit":false,"clearancePath":"/home/runner/v2-zhv78n/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 792b55face8a
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"34eb57690c7aaeeeccacc16631c5b509b34476e28522ba5742d848fc99bbeda9","specCount":13,"lockfiles":{"digest":"76008e02c42d01e6bbbcf313d79d59366dcbecaa905253f972cca853c53802f9","files":[{"path":"package-lock.json","sha256":"13cac472eee30797228e82520070d09f5502c4b67efe86405814656dfc00b07f","bytes":5481}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:59:33.145Z","cacheHit":false,"clearancePath":"/home/runner/v2-zhv78n/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 13 exact package-version(s), tree 34eb57690c7a
+  OBSERVE   rc=0 files=482 trace=10676 lines
+  CLOSURE   13 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-zhv78n/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-zhv78n/observe/capture.json
+  RAWLOG-BYTES raw=2357526 gz=67381
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-zhv78n/jailhome","TMPDIR":"/tmp/nub-tmp-obsot3Qhi","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-zhv78n/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 0
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+    ⛔ NO LIFECYCLE SHELL FOUND — the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-zhv78n/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-zhv78n/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-zhv78n/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsot3Qhi
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-zhv78n/observe/node_modules/electron
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.1.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4337 distinct from 10577 calls (10677 lines, 87 rejoined, 0 unparsed)
+    PROCS     12   lifecycle shells 0
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×17 setsockopt×11 exit×10 recvmsg×7 getsockopt×4 getcwd×2 sendmmsg×1 exit_group×1
+    wrote /home/runner/v2-zhv78n/observe/events.ndjson.gz (30635 bytes)
+  EVENTLOG-FILE /home/runner/v2-zhv78n/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10677,"parsed":10577,"unparsed":0,"unfinished":87,"rejoined":87,"unresolvedDirfd":1,"truncatedArg":0,"procs":12,"lifecyclePids":0,"distinctEvents":4337,"unknownSyscall":{"getsockname":17,"getsockopt":4,"getcwd":2,"recvmsg":7,"exit":10,"setsockopt":11,"sendmmsg":1,"exit_group":1},"out":"/home/runner/v2-zhv78n/observe/events.ndjson.gz","gzipBytes":30635}
+  EVICT     3 store entries removed, 4 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for electron
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"34eb57690c7aaeeeccacc16631c5b509b34476e28522ba5742d848fc99bbeda9","specCount":13,"lockfiles":{"digest":"0d2f82cb76abc6c94c0ec51ba333226767ca47963597347f9807507b28c161b8","files":[{"path":"nub.lock","sha256":"c8f46e0fd9e86619bba8b82151d45ce576ad742f6a51516861cb3a2da6170471","bytes":3515}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:59:33.145Z","cacheHit":true,"clearancePath":"/home/runner/v2-zhv78n/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 13 exact package-version(s), tree 34eb57690c7a (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 977/482) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.

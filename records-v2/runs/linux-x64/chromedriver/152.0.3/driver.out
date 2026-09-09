@@ -1,0 +1,79 @@
+### chromedriver@152.0.3   (/home/runner/v2-lgR1ZB)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"fbf2fd218dd4df8d18c699fbce2e22733bc899bf9d0c7b937877554d2011f9fe","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:57:54.108Z","cacheHit":false,"clearancePath":"/home/runner/v2-lgR1ZB/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree fbf2fd218dd4
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"6de522813ed6447be9d46dc41cc0d136d39c3ef3094297501dba173296d95ede","files":[{"path":"package-lock.json","sha256":"bbedce4b2941a33bb089aa7dc2b6ba4e154f3aedd4ee7f45c152a5d287083877","bytes":28638}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:57:56.294Z","cacheHit":false,"clearancePath":"/home/runner/v2-lgR1ZB/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 63 exact package-version(s), tree 5c222fc43666
+  OBSERVE   rc=0 files=1044 trace=12156 lines
+  CLOSURE   59 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-lgR1ZB/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-lgR1ZB/observe/capture.json
+  RAWLOG-BYTES raw=2632729 gz=79324
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-lgR1ZB/jailhome","TMPDIR":"/tmp/nub-tmp-obs1NMyxO","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-lgR1ZB/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 10  /  whole traced tree 1098
+    sockets script 6  /  whole traced tree 12
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-lgR1ZB/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-lgR1ZB/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-lgR1ZB/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs1NMyxO
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-lgR1ZB/observe/node_modules/chromedriver
+  == WRITES the script actually performed ==
+    jailTmp       8  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/1788933477909.tmp
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/chromedriver-linux64.zip
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/chromedriver-linux64
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/chromedriver-linux64/LICENSE.chromedriver
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/chromedriver-linux64/THIRD_PARTY_NOTICES.chromedriver
+        /tmp/nub-tmp-obs1NMyxO/152.0.7977.75/chromedriver/chromedriver-linux64/chromedriver
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-lgR1ZB/observe/node_modules/chromedriver/lib/chromedriver
+        /home/runner/v2-lgR1ZB/observe/node_modules/chromedriver/lib/chromedriver/chromedriver
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.9.34:443
+        185.199.110.153:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    5114 distinct from 12063 calls (12157 lines, 66 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×45 setsockopt×41 exit×20 getsockopt×19 recvmsg×11 getcwd×6 shutdown×5 sendmmsg×3
+    wrote /home/runner/v2-lgR1ZB/observe/events.ndjson.gz (35418 bytes)
+  EVENTLOG-FILE /home/runner/v2-lgR1ZB/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12157,"parsed":12063,"unparsed":0,"unfinished":66,"rejoined":66,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":5114,"unknownSyscall":{"getsockname":45,"getsockopt":19,"getcwd":6,"recvmsg":11,"exit":20,"setsockopt":41,"sendmmsg":3,"socketpair":3,"shutdown":5,"exit_group":3,"wait4":3},"out":"/home/runner/v2-lgR1ZB/observe/events.ndjson.gz","gzipBytes":35418}
+  EVICT     18 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:57:56.294Z","cacheHit":true,"clearancePath":"/home/runner/v2-lgR1ZB/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 3410/1044) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     63 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for chromedriver
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"5c222fc43666831edf7d790ac702a3b6f38dead0f616fa90fd0ede330342290c","specCount":63,"lockfiles":{"digest":"04079d9b9a4d9b91fbc66989cecdad8faf1f7fb301c491783520d7d0df20c386","files":[{"path":"nub.lock","sha256":"57b246b605e68bcf17b967b4019f75ff21676485b2d60b5a8c4d4db742fd6f21","bytes":16853}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:57:56.294Z","cacheHit":true,"clearancePath":"/home/runner/v2-lgR1ZB/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 63 exact package-version(s), tree 5c222fc43666 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=6/7 missing=1 shortfall=431c10297c89 (tree 3408/1044) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: lib/chromedriver/chromedriver
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
