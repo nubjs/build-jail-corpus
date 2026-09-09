@@ -1,45 +1,50 @@
-### @salesforce/cli@2.146.3   (/home/nub/v2-HJUTpr)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=50833 trace=20336 lines
+### @salesforce/cli@2.146.3   (/home/runner/v2-PigLri)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"bb5da41501b0b39c3eeadccaf23378bf427dfe4176cc70c3ea2025a0ba9438f8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:48.715Z","cacheHit":false,"clearancePath":"/home/runner/v2-PigLri/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree bb5da41501b0
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"784fd579c3da14a4fae4218710ef75d9c4120398d1dd7a6833c95d0333f8e954","specCount":1399,"lockfiles":{"digest":"1de3ea5789b6d8278f31b8c600472250f3a0976216cffca55a85eca92aa62842","files":[{"path":"package-lock.json","sha256":"4b1b513e63813b4c1331e5e7fcf37b19182dd1d1d5055c84cd7f80081cf032cd","bytes":795214}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:44:11.212Z","cacheHit":false,"clearancePath":"/home/runner/v2-PigLri/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1399 exact package-version(s), tree 784fd579c3da
+  OBSERVE   rc=0 files=50833 trace=24527 lines
   CLOSURE   1 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":24,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (24) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-HJUTpr/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-HJUTpr/observe/capture.json
-  RAWLOG-BYTES raw=3749876 gz=135787
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-HJUTpr/jailhome","TMPDIR":"/tmp/nub-tmp-obs2Kdmlp","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-HJUTpr/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
-  == ATTRIBUTION == attributed pids: 37
-    writes  script 6  /  whole traced tree 1184
-    sockets script 4  /  whole traced tree 10
+  RAWLOG-FILE /home/runner/v2-PigLri/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-PigLri/observe/capture.json
+  RAWLOG-BYTES raw=5050298 gz=151553
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-PigLri/jailhome","TMPDIR":"/tmp/nub-tmp-obss7O4e1","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-PigLri/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 38
+    writes  script 6  /  whole traced tree 1094
+    sockets script 4  /  whole traced tree 8
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-HJUTpr/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-HJUTpr/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-HJUTpr/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obs2Kdmlp
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-HJUTpr/observe/node_modules/@salesforce/cli
+    project       /home/runner/v2-PigLri/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-PigLri/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-PigLri/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obss7O4e1
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-PigLri/observe/node_modules/@salesforce/cli
   == WRITES the script actually performed ==
     jailHome      5  (base profile already grants this — NOT billed)
-        /home/nub/v2-HJUTpr/jailhome/.sf
-        /home/nub/v2-HJUTpr/jailhome/.sf/sf-2026-08-07.log
-        /home/nub/v2-HJUTpr/jailhome/.cache
-        /home/nub/v2-HJUTpr/jailhome/.cache/sf
-        /home/nub/v2-HJUTpr/jailhome/.cache/sf/version
+        /home/runner/v2-PigLri/jailhome/.sf
+        /home/runner/v2-PigLri/jailhome/.sf/sf-2026-09-09.log
+        /home/runner/v2-PigLri/jailhome/.cache
+        /home/runner/v2-PigLri/jailhome/.cache/sf
+        /home/runner/v2-PigLri/jailhome/.cache/sf/version
     kernelfs      1
         /dev/null
   == NETWORK ==
     AF_INET sockets: 4   distinct peers: 2
         127.0.0.53:53
-        104.16.0.34:443
+        104.16.7.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -51,20 +56,24 @@
         .sf
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    10771 distinct from 17138 calls (20337 lines, 3151 rejoined, 0 unparsed)
-    PROCS     43   lifecycle shells 32
-    ⛔ 41 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: getsockname×51 setsockopt×40 exit×33 getsockopt×25 getcwd×12 recvmsg×8 socketpair×6 exit_group×6
-    wrote /home/nub/v2-HJUTpr/observe/events.ndjson.gz (72003 bytes)
-  EVENTLOG-FILE /home/nub/v2-HJUTpr/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":20337,"parsed":17138,"unparsed":0,"unfinished":3151,"rejoined":3151,"unresolvedDirfd":41,"truncatedArg":0,"procs":43,"lifecyclePids":32,"distinctEvents":10771,"unknownSyscall":{"getsockname":51,"getsockopt":25,"getcwd":12,"recvmsg":8,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":4,"exit":33,"exit_group":6,"wait4":6},"out":"/home/nub/v2-HJUTpr/observe/events.ndjson.gz","gzipBytes":72003}
-  EVICT     1 store entries removed, 0 spared as nub tooling
+    EVENTS    10603 distinct from 21745 calls (24528 lines, 2733 rejoined, 0 unparsed)
+    PROCS     45   lifecycle shells 33
+    ⛔ 45 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×50 setsockopt×40 exit×35 getsockopt×25 getcwd×13 recvmsg×9 socketpair×6 exit_group×6
+    wrote /home/runner/v2-PigLri/observe/events.ndjson.gz (70718 bytes)
+  EVENTLOG-FILE /home/runner/v2-PigLri/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":24528,"parsed":21745,"unparsed":0,"unfinished":2733,"rejoined":2733,"unresolvedDirfd":45,"truncatedArg":0,"procs":45,"lifecyclePids":33,"distinctEvents":10603,"unknownSyscall":{"getsockname":50,"getsockopt":25,"getcwd":13,"recvmsg":9,"exit":35,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":4,"exit_group":6,"wait4":6},"out":"/home/runner/v2-PigLri/observe/events.ndjson.gz","gzipBytes":70718}
+  EVICT     0 store entries removed, 0 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @salesforce/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ccad8c45e666ad1d9eb73f24babd13bee6971e209ea5072b569d1dfaded8b42c","specCount":740,"lockfiles":{"digest":"b4f0e00579e7302d17d606988191931ff4f9182128503db451d115bda2e7df16","files":[{"path":"nub.lock","sha256":"ef2c21be8dee7ab94e13c351858d6c57d41564a29c2b8b84dbd94b9875f7c3e1","bytes":178274}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:44:26.651Z","cacheHit":false,"clearancePath":"/home/runner/v2-PigLri/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 740 exact package-version(s), tree ccad8c45e666
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 122058/50833) OVERRIDDEN=2 REJECTED=0 grant={"network":true,"writePaths":[".cache/sf",".sf"]}
+  VERIFY[synth] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 124109/50833) OVERRIDDEN=3 REJECTED=0 grant={"network":true,"writePaths":[".cache/sf",".sf"]}
   => VERIFIED {"network":true,"writePaths":[".cache/sf",".sf"]}   (observed, then verified)
   EVICT     1 store entries removed, 0 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @salesforce/cli
-  VERIFY[drop-no-network] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 122058/50833) OVERRIDDEN=2 REJECTED=0 grant={"writePaths":[".cache/sf",".sf"]}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"ccad8c45e666ad1d9eb73f24babd13bee6971e209ea5072b569d1dfaded8b42c","specCount":740,"lockfiles":{"digest":"b4f0e00579e7302d17d606988191931ff4f9182128503db451d115bda2e7df16","files":[{"path":"nub.lock","sha256":"ef2c21be8dee7ab94e13c351858d6c57d41564a29c2b8b84dbd94b9875f7c3e1","bytes":178274}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:44:26.651Z","cacheHit":true,"clearancePath":"/home/runner/v2-PigLri/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 740 exact package-version(s), tree ccad8c45e666 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=24/24 missing=0 shortfall=none (tree 124109/50833) OVERRIDDEN=3 REJECTED=0 grant={"writePaths":[".cache/sf",".sf"]}
      ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {"writePaths":[".cache/sf",".sf"]} is sufficient
   => OVER-PREDICTED by: no-network  (synthesized {"network":true,"writePaths":[".cache/sf",".sf"]}; each named capability drops on its own)
