@@ -1,37 +1,42 @@
-### @aws-amplify/cli@2.0.0   (/home/nub/v2-cUqEyQ)
-  VENUE-OBSERVE-USER {"uid":1001,"user":"nub","umask":"0002","capBnd":"000001ffffffffff","noNewPrivs":"0"}
-  VENUE-NUB-BINARY {"path":"/home/nub/nub-catalog-override.bin","sha256":"0698559949ffbcf557b71e41c5c916995b23d063f1a68177c0ba7e7d6e4075dd","bytes":49587440,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
-  OBSERVE   rc=0 files=52390 trace=17241 lines
+### @aws-amplify/cli@2.0.0   (/home/runner/v2-mLEjAa)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"cdd513b52e0fed1d9e282d7648047636f145f4ae0a34f93a49300fcf19d3aee7","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:42:03.709Z","cacheHit":false,"clearancePath":"/home/runner/v2-mLEjAa/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree cdd513b52e0f
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"acf4129083c0997bd50b4eba81d25a9ddcbbeb8938b10570b64556e9422a45a0","specCount":1843,"lockfiles":{"digest":"ea213f35636f7002e4a79a57f81f3526986ce84ecbe8da063cf3e0ce6f33fe0a","files":[{"path":"package-lock.json","sha256":"26e95235a21b2716b8fe8dd56bbc865137573f29c3356343ce6479a7e3228a8f","bytes":936750}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:42:47.351Z","cacheHit":false,"clearancePath":"/home/runner/v2-mLEjAa/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1843 exact package-version(s), tree acf4129083c0
+  OBSERVE   rc=0 files=52452 trace=19581 lines
   CLOSURE   1169 packages evicted per arm
   ARM-FALSIFIABILITY {"manifestFiles":113,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
   ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
        gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (113) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
        The grant may still be correct; what is missing is a signal that could have gone
        red. Do not read this record's MINIMAL as a passing measurement.
-  RAWLOG-FILE /home/nub/v2-cUqEyQ/observe/trace.txt.gz
-  RAWLOG-CAPTURE /home/nub/v2-cUqEyQ/observe/capture.json
-  RAWLOG-BYTES raw=2915323 gz=109357
-  VENUE-INTERPRETER /home/nub/node
-  VENUE-OVERRIDES {"set":{"HOME":"/home/nub/v2-cUqEyQ/jailhome","TMPDIR":"/tmp/nub-tmp-obssQcMgw","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/nub/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/nub/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/nub/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/nub/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/nub/v2-cUqEyQ/nubcache"},"unset":[],"passedThrough":{"CI":null,"GITHUB_ACTIONS":null,"NODE_ENV":null}}
+  RAWLOG-FILE /home/runner/v2-mLEjAa/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-mLEjAa/observe/capture.json
+  RAWLOG-BYTES raw=3607980 gz=117465
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-mLEjAa/jailhome","TMPDIR":"/tmp/nub-tmp-obs8X4o3u","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-mLEjAa/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
   == ATTRIBUTION == attributed pids: 13
-    writes  script 0  /  whole traced tree 1178
-    sockets script 0  /  whole traced tree 4
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 6
   == ROOTS (from capture.json — R2: no ambient reads) ==
-    project       /home/nub/v2-cUqEyQ/observe
-    home          /home/nub
-    jailHome      /home/nub/v2-cUqEyQ/jailhome
-    globalStore   /home/nub/.cache/nub/pm/store   [declared, not keyed on]
-    projectStore  /home/nub/v2-cUqEyQ/observe/node_modules/.store   [declared, not keyed on]
-    interpreter   /home/nub/node   [declared, not keyed on]
-    toolsDir      /home/nub/.cache/nub/pm/tools   [declared, not keyed on]
-    temp          /tmp/nub-tmp-obssQcMgw
-    npmPrefix     /home/nub/.cache/nub/pm/tools/npm-prefix
-    ownPkg        /home/nub/v2-cUqEyQ/observe/node_modules/@aws-amplify/cli
+    project       /home/runner/v2-mLEjAa/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-mLEjAa/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-mLEjAa/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs8X4o3u
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-mLEjAa/observe/node_modules/@aws-amplify/cli
   == WRITES the script actually performed ==
   == NETWORK ==
     AF_INET sockets: 0   distinct peers: 2
         127.0.0.53:53
-        104.16.7.34:443
+        104.16.2.34:443
   == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
     distinct: 0
   == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
@@ -41,18 +46,20 @@
     none declared — the script wrote nothing into its private home — there is nothing to promote
   == writePaths FEASIBILITY (distinct writes outside project/deps) ==
     count: 0
-    EVENTS    9583 distinct from 13544 calls (17242 lines, 3676 rejoined, 0 unparsed)
-    PROCS     19   lifecycle shells 8
+    EVENTS    9304 distinct from 15644 calls (19582 lines, 3915 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
     ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
-    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×14 getsockopt×8 recvmsg×6 getcwd×4 socketpair×3 shutdown×3
-    wrote /home/nub/v2-cUqEyQ/observe/events.ndjson.gz (65008 bytes)
-  EVENTLOG-FILE /home/nub/v2-cUqEyQ/observe/events.ndjson.gz
-  EVENTLOG-STATS {"lines":17242,"parsed":13544,"unparsed":0,"unfinished":3676,"rejoined":3676,"unresolvedDirfd":3,"truncatedArg":0,"procs":19,"lifecyclePids":8,"distinctEvents":9583,"unknownSyscall":{"getcwd":4,"getsockname":21,"recvmsg":6,"setsockopt":23,"sendmmsg":1,"getsockopt":8,"socketpair":3,"shutdown":3,"exit":14,"exit_group":3,"wait4":3},"out":"/home/nub/v2-cUqEyQ/observe/events.ndjson.gz","gzipBytes":65008}
-  EVICT     1300 store entries removed, 11 spared as nub tooling
-  SE-PURGE  1 side-effects-cache entry for @aws-amplify/cli
+    unsubscribed/unmapped syscalls: getsockname×25 setsockopt×23 exit×15 getsockopt×11 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-mLEjAa/observe/events.ndjson.gz (63253 bytes)
+  EVENTLOG-FILE /home/runner/v2-mLEjAa/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":19582,"parsed":15644,"unparsed":0,"unfinished":3915,"rejoined":3915,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":9304,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-mLEjAa/observe/events.ndjson.gz","gzipBytes":63253}
+  EVICT     179 store entries removed, 11 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
   scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"dec12c0f1cb8f76cef04361cb3fef4deebbb6bc59b4085440a05cce77e5c590a","specCount":1877,"lockfiles":{"digest":"f51efea0cf1c3f9ae98b644e53ad3f0b25b950d9d39e0a7294b03ac0bbae62fb","files":[{"path":"nub.lock","sha256":"7deb95ed519aa26d14bb5b1d9a2133d1e2cf75c987e2ead9d7ca7cb5748c75eb","bytes":410886}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:04.800Z","cacheHit":false,"clearancePath":"/home/runner/v2-mLEjAa/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1877 exact package-version(s), tree dec12c0f1cb8
   VENUE-STORE-LAYOUT isolated
-  VERIFY[synth] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 254890/52390) OVERRIDDEN=1 REJECTED=0 grant={}
+  VERIFY[synth] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 255088/52452) OVERRIDDEN=2 REJECTED=0 grant={}
   DIAGNOSE  ZERO filesystem refusals under the failing grant.
      ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
        or a resource class strace's file+network filter does not carry.
@@ -60,14 +67,24 @@
   EVICT     1504 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
   scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  VERIFY[fb2126003217] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 254890/52390) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"dec12c0f1cb8f76cef04361cb3fef4deebbb6bc59b4085440a05cce77e5c590a","specCount":1877,"lockfiles":{"digest":"f51efea0cf1c3f9ae98b644e53ad3f0b25b950d9d39e0a7294b03ac0bbae62fb","files":[{"path":"nub.lock","sha256":"7deb95ed519aa26d14bb5b1d9a2133d1e2cf75c987e2ead9d7ca7cb5748c75eb","bytes":410886}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:04.800Z","cacheHit":true,"clearancePath":"/home/runner/v2-mLEjAa/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 1877 exact package-version(s), tree dec12c0f1cb8 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 255088/52452) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
   EVICT     1504 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
   scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  VERIFY[fb3938809772] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 254890/52390) OVERRIDDEN=1 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"dec12c0f1cb8f76cef04361cb3fef4deebbb6bc59b4085440a05cce77e5c590a","specCount":1877,"lockfiles":{"digest":"f51efea0cf1c3f9ae98b644e53ad3f0b25b950d9d39e0a7294b03ac0bbae62fb","files":[{"path":"nub.lock","sha256":"7deb95ed519aa26d14bb5b1d9a2133d1e2cf75c987e2ead9d7ca7cb5748c75eb","bytes":410886}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:04.800Z","cacheHit":true,"clearancePath":"/home/runner/v2-mLEjAa/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 1877 exact package-version(s), tree dec12c0f1cb8 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 255088/52452) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
   EVICT     1504 store entries removed, 11 spared as nub tooling
   SE-PURGE  0 side-effects-cache entries for @aws-amplify/cli
   scaffold: 9 dependency package(s) with lifecycle scripts granted a fixed wide grant
-  VERIFY[fb2742342390] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 254890/52390) OVERRIDDEN=1 REJECTED=0 grant={"write":"disk","network":true}
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"dec12c0f1cb8f76cef04361cb3fef4deebbb6bc59b4085440a05cce77e5c590a","specCount":1877,"lockfiles":{"digest":"f51efea0cf1c3f9ae98b644e53ad3f0b25b950d9d39e0a7294b03ac0bbae62fb","files":[{"path":"nub.lock","sha256":"7deb95ed519aa26d14bb5b1d9a2133d1e2cf75c987e2ead9d7ca7cb5748c75eb","bytes":410886}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:04.800Z","cacheHit":true,"clearancePath":"/home/runner/v2-mLEjAa/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 1877 exact package-version(s), tree dec12c0f1cb8 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=1 artifacts=113/113 missing=0 shortfall=none (tree 255088/52452) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
   NOT-GRANT-INDEPENDENT an arm exited non-zero
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-unjailed-resolved","status":"clean","digest":"dec12c0f1cb8f76cef04361cb3fef4deebbb6bc59b4085440a05cce77e5c590a","specCount":1877,"lockfiles":{"digest":"f51efea0cf1c3f9ae98b644e53ad3f0b25b950d9d39e0a7294b03ac0bbae62fb","files":[{"path":"nub.lock","sha256":"7deb95ed519aa26d14bb5b1d9a2133d1e2cf75c987e2ead9d7ca7cb5748c75eb","bytes":410886}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:43:04.800Z","cacheHit":true,"clearancePath":"/home/runner/v2-mLEjAa/security/nub-unjailed-resolved.json"}
+  SECURITY nub-unjailed-resolved clean: 1877 exact package-version(s), tree dec12c0f1cb8 (cached exact-tree clearance)
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-fallback-resolved","status":"clean","digest":"acf4129083c0997bd50b4eba81d25a9ddcbbeb8938b10570b64556e9422a45a0","specCount":1843,"lockfiles":{"digest":"cbb3b4da9c6aadfe91055e4e09ce1c16970d0c4f979b33da0acfdec91c274c70","files":[{"path":"package-lock.json","sha256":"cf822f13c374fc4ccbeee8eec8cc409d010d107efa6e07a766e002178de4fede","bytes":936760}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T03:42:47.351Z","cacheHit":true,"clearancePath":"/home/runner/v2-mLEjAa/security/npm-fallback-resolved.json"}
+  SECURITY npm-fallback-resolved clean: 1843 exact package-version(s), tree acf4129083c0 (cached exact-tree clearance)
   => BROKEN-WITHOUT-JAIL-TOO (neither nub nor npm installs this unjailed; nothing to measure)
