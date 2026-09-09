@@ -1,0 +1,61 @@
+### @vscode/vsce-sign@2.1.0   (D:\jail\m-vscodevscesign-mtuppo7g)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"30463e165277d4f07e34dc5059cf820ea073be5365306ac9111a03d746672159","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:11:11.685Z","cacheHit":false,"clearancePath":"D:\\jail\\m-vscodevscesign-mtuppo7g\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 30463e165277
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"487e05993bf8f41faf8a8f71c6ce7a57fa74cdbc87c8ddaa0aa19ca2d8ac9233","specCount":2,"lockfiles":{"digest":"7a6c15a18f0e62fc2c20b7950f5812631788f53329a584cfab1998b9327eef08","files":[{"path":"package-lock.json","sha256":"6147cb3d0afbe0bd5e947b3614c233bbb0a908bf3809c4a7155a18a5fbc6f1be","bytes":5229}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:11:13.608Z","cacheHit":false,"clearancePath":"D:\\jail\\m-vscodevscesign-mtuppo7g\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 487e05993bf8
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=5948 exit=0 events=295098 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-vscodevscesign-mtuppo7g\observe\node_modules\@vscode\vsce-sign)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-vscodevscesign-mtuppo7g\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-vscodevscesign-mtuppo7g\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-vscodevscesign-mtuppo7g\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-vscodevscesign-mtuppo7g\observe\node_modules\@vscode\vsce-sign
+  == ATTRIBUTION == lifecycle pids: 2 (root 5948)
+    writes  script 2  /  whole traced tree 9
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          2
+  == READS ==
+    deps          9
+    outside       6
+    project       1
+    systemfs     24
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  375116589 B xml -> 5366061 B gz (69.9x)  sha256 74d14ae41219e965…
+  HEADER    etw-header.json (5117 bytes)
+  DERIVED   5258 distinct from 6421 kept ops (295098 xml events, 99537 out of subtree)
+  PROCS     4   thread-reattributed 6
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (66460 bytes)
+  RAWLOG-CAPTURE D:\jail\m-vscodevscesign-mtuppo7g\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-vscodevscesign-mtuppo7g
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-vscodevscesign-mtuppo7g\\npm-cache","TMP":"D:\\jail\\m-vscodevscesign-mtuppo7g\\tmp","TEMP":"D:\\jail\\m-vscodevscesign-mtuppo7g\\tmp","TMPDIR":"D:\\jail\\m-vscodevscesign-mtuppo7g\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-vscodevscesign-mtuppo7g\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"487e05993bf8f41faf8a8f71c6ce7a57fa74cdbc87c8ddaa0aa19ca2d8ac9233","specCount":2,"lockfiles":{"digest":"e7880023241e8c2944eb87828fe89c85b436f12a72e255ffd98e04acff831d15","files":[{"path":"nub.lock","sha256":"cc44ba50300999108067cd13647c5329a0fde73839d21e2c6c2356908f6f0c43","bytes":3168}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:11:13.608Z","cacheHit":true,"clearancePath":"D:\\jail\\m-vscodevscesign-mtuppo7g\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 487e05993bf8 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 5688/16) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-vscodevscesign-mtuppo7g\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"487e05993bf8f41faf8a8f71c6ce7a57fa74cdbc87c8ddaa0aa19ca2d8ac9233","specCount":2,"lockfiles":{"digest":"e7880023241e8c2944eb87828fe89c85b436f12a72e255ffd98e04acff831d15","files":[{"path":"nub.lock","sha256":"cc44ba50300999108067cd13647c5329a0fde73839d21e2c6c2356908f6f0c43","bytes":3168}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:11:13.608Z","cacheHit":true,"clearancePath":"D:\\jail\\m-vscodevscesign-mtuppo7g\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 2 exact package-version(s), tree 487e05993bf8 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 5688/16) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
