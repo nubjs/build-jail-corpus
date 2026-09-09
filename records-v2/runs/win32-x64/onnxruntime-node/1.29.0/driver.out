@@ -1,0 +1,61 @@
+### onnxruntime-node@1.29.0   (D:\jail\m-onnxruntimenode-mtup9i5d)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6433ed58060809b8a30b015fbe8917f248afc95d0550be39bd16c4fc6a8ed6e4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:58:37.235Z","cacheHit":false,"clearancePath":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6433ed580608
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"41c188768dec753c4a8b50f378f9c47b4d07f4856f03ae70d55131a113bdb398","specCount":17,"lockfiles":{"digest":"2d3564ba4bf7b2d3735ca9819b411d74ad00d24bcc5f8749bcf69748c18ca34e","files":[{"path":"package-lock.json","sha256":"2a63890c116f96a34655de62cfb2a6ecd02e654f8a28507efad537c4cab5d80a","bytes":7858}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:58:41.834Z","cacheHit":false,"clearancePath":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 17 exact package-version(s), tree 41c188768dec
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=7968 exit=0 events=22644 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 43 files  (D:\jail\m-onnxruntimenode-mtup9i5d\observe\node_modules\onnxruntime-node)
+  ARM-FALSIFIABILITY {"manifestFiles":43,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (43) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 17 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-onnxruntimenode-mtup9i5d\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-onnxruntimenode-mtup9i5d\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-onnxruntimenode-mtup9i5d\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-onnxruntimenode-mtup9i5d\observe\node_modules\onnxruntime-node
+  == ATTRIBUTION == lifecycle pids: 2 (root 7968)
+    writes  script 0  /  whole traced tree 6
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps         80
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  28874457 B xml -> 418263 B gz (69.0x)  sha256 81c9cf1860225493…
+  HEADER    etw-header.json (5069 bytes)
+  DERIVED   5540 distinct from 6702 kept ops (22644 xml events, 1709 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (69191 bytes)
+  RAWLOG-CAPTURE D:\jail\m-onnxruntimenode-mtup9i5d\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-onnxruntimenode-mtup9i5d
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\npm-cache","TMP":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\tmp","TEMP":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\tmp","TMPDIR":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-onnxruntimenode-mtup9i5d\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"41c188768dec753c4a8b50f378f9c47b4d07f4856f03ae70d55131a113bdb398","specCount":17,"lockfiles":{"digest":"a854deef01250e6c5824e0f685d824f6226b1f54223633a93d6cc88bf4f7db4f","files":[{"path":"nub.lock","sha256":"4d80883d34e63ef54e7cb970c5213c71ce8608dd19d2753417b0d2d0503ace91","bytes":4289}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:58:41.834Z","cacheHit":true,"clearancePath":"D:\\jail\\m-onnxruntimenode-mtup9i5d\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 17 exact package-version(s), tree 41c188768dec (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=43/43 missing=0 shortfall=none (tree 6228/522) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
