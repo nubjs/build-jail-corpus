@@ -1,0 +1,64 @@
+### @percy/core@1.32.9   (/home/runner/v2-Z7Ux48)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b05f1f749181af172d14ccb9183e6908d3f06c76faf17ebec18e6df67152875b","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:48:36.689Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z7Ux48/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b05f1f749181
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"bca090f808e8c39383b1b780aee407613ec75458e31e7386be7dfe23a38b2cdd","specCount":249,"lockfiles":{"digest":"450867ebb20daeb336f4e5e4041d22636fa35b207109127424b0402b9cc6f68e","files":[{"path":"package-lock.json","sha256":"6877df500060123bb1115e7d761e9b9b7595098fc0fcca46f4c77f60ebfe8fc6","bytes":107299}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:48:45.875Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z7Ux48/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 249 exact package-version(s), tree bca090f808e8
+  OBSERVE   rc=0 files=9614 trace=11514 lines
+  CLOSURE   244 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":37,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (37) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-Z7Ux48/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Z7Ux48/observe/capture.json
+  RAWLOG-BYTES raw=2484641 gz=73533
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Z7Ux48/jailhome","TMPDIR":"/tmp/nub-tmp-obsy3F2B7","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Z7Ux48/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Z7Ux48/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Z7Ux48/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Z7Ux48/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsy3F2B7
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Z7Ux48/observe/node_modules/@percy/core
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.9.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4901 distinct from 11210 calls (11515 lines, 282 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×5 socketpair×3 shutdown×3
+    wrote /home/runner/v2-Z7Ux48/observe/events.ndjson.gz (34562 bytes)
+  EVENTLOG-FILE /home/runner/v2-Z7Ux48/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11515,"parsed":11210,"unparsed":0,"unfinished":282,"rejoined":282,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4901,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":5,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-Z7Ux48/observe/events.ndjson.gz","gzipBytes":34562}
+  EVICT     56 store entries removed, 10 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @percy/core
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"977973e9de945c5802f5406d31731e28c3091e308134295ff0af344945d25162","specCount":249,"lockfiles":{"digest":"123c3f80393657585c5c93496e97380a09c63df18a8b21d1c81b6f24fef17b5d","files":[{"path":"nub.lock","sha256":"7b919b681cfdefce8b1b5d7b659fa10561f3e9c453d91ce7a5a100d755369e14","bytes":63793}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T22:48:52.209Z","cacheHit":false,"clearancePath":"/home/runner/v2-Z7Ux48/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 249 exact package-version(s), tree 977973e9de94
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=37/37 missing=0 shortfall=none (tree 30579/9614) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
