@@ -1,0 +1,61 @@
+### electron-winstaller@5.4.4   (D:\jail\m-electronwinstaller-mtupdde4)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"47e7dace5ecd194c41c60417e8162804785aa2b445575f34bc1c07106f17f11e","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:01:37.745Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronwinstaller-mtupdde4\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 47e7dace5ecd
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"69b58bf2892f1209333085386184e03a7f51d3e5b248e2732244f9114284f8d0","specCount":33,"lockfiles":{"digest":"b6105ddcdbdf0d85f30e587407e28d7f3501af8906f7d36e477280e02b53f968","files":[{"path":"package-lock.json","sha256":"e80c533b23d60187e0ba883fc1df94257b87f26f5e6a8b0f1659f1c1b7222395","bytes":14045}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:01:41.342Z","cacheHit":false,"clearancePath":"D:\\jail\\m-electronwinstaller-mtupdde4\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 33 exact package-version(s), tree 69b58bf2892f
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=5228 exit=0 events=23403 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 54 files  (D:\jail\m-electronwinstaller-mtupdde4\observe\node_modules\electron-winstaller)
+  ARM-FALSIFIABILITY {"manifestFiles":54,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 29 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-electronwinstaller-mtupdde4\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-electronwinstaller-mtupdde4\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-electronwinstaller-mtupdde4\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-electronwinstaller-mtupdde4\observe\node_modules\electron-winstaller
+  == ATTRIBUTION == lifecycle pids: 2 (root 5228)
+    writes  script 2  /  whole traced tree 9
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          2
+  == READS ==
+    deps          7
+    outside       6
+    project       1
+    systemfs     24
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  29891420 B xml -> 433183 B gz (69.0x)  sha256 faacbc4ba85d42c0…
+  HEADER    etw-header.json (5092 bytes)
+  DERIVED   5295 distinct from 6451 kept ops (23403 xml events, 2379 out of subtree)
+  PROCS     4   thread-reattributed 3
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (67082 bytes)
+  RAWLOG-CAPTURE D:\jail\m-electronwinstaller-mtupdde4\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-electronwinstaller-mtupdde4
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-electronwinstaller-mtupdde4\\npm-cache","TMP":"D:\\jail\\m-electronwinstaller-mtupdde4\\tmp","TEMP":"D:\\jail\\m-electronwinstaller-mtupdde4\\tmp","TMPDIR":"D:\\jail\\m-electronwinstaller-mtupdde4\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-electronwinstaller-mtupdde4\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"69b58bf2892f1209333085386184e03a7f51d3e5b248e2732244f9114284f8d0","specCount":33,"lockfiles":{"digest":"4df831e0d4227c314af8baf6baba4b0e4667cffd4bbae88aea51c4e47e6df3fe","files":[{"path":"nub.lock","sha256":"b07c1c8cf4780422e9af30cf46e97f6a1e125bd3dbfda1b9590585f7e1659377","bytes":8572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:01:41.342Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronwinstaller-mtupdde4\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 33 exact package-version(s), tree 69b58bf2892f (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=54/54 missing=0 shortfall=none (tree 7266/1476) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-electronwinstaller-mtupdde4\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"69b58bf2892f1209333085386184e03a7f51d3e5b248e2732244f9114284f8d0","specCount":33,"lockfiles":{"digest":"4df831e0d4227c314af8baf6baba4b0e4667cffd4bbae88aea51c4e47e6df3fe","files":[{"path":"nub.lock","sha256":"b07c1c8cf4780422e9af30cf46e97f6a1e125bd3dbfda1b9590585f7e1659377","bytes":8572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:01:41.342Z","cacheHit":true,"clearancePath":"D:\\jail\\m-electronwinstaller-mtupdde4\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 33 exact package-version(s), tree 69b58bf2892f (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=54/54 missing=0 shortfall=none (tree 7266/1476) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
