@@ -1,0 +1,70 @@
+### applicationinsights-native-metrics@0.0.11   (D:\jail\m-applicationinsightsnativemetrics-mttnan8o)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8eac23a5faa0620073bb1a773b2a7786ca0748c811e0bd080ba81aab2803b45f","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:15:45.059Z","cacheHit":false,"clearancePath":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8eac23a5faa0
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c61c756aa77f9bde4f6478f6cef6bf6faf4d574962c5400299b6f16504218b79","specCount":58,"lockfiles":{"digest":"41d2ebd6176a5e1d25256786c6d6f3279c8c3496cb5ec2e28877e5eded5522e9","files":[{"path":"package-lock.json","sha256":"a2ae7f79686d34d4b095c98e7b9f78af6b0ccfd97a9c3f4c54ac58b23589ccd5","bytes":24366}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:15:47.860Z","cacheHit":false,"clearancePath":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 58 exact package-version(s), tree c61c756aa77f
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=4600 exit=0 events=28384 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 35 files  (D:\jail\m-applicationinsightsnativemetrics-mttnan8o\observe\node_modules\applicationinsights-native-metrics)
+  ARM-FALSIFIABILITY {"manifestFiles":35,"filesTheScriptProduced":18,"reasons":[]}
+  CLOSURE 56 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-applicationinsightsnativemetrics-mttnan8o\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-applicationinsightsnativemetrics-mttnan8o\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-applicationinsightsnativemetrics-mttnan8o\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-applicationinsightsnativemetrics-mttnan8o\observe\node_modules\applicationinsights-native-metrics
+  == ATTRIBUTION == lifecycle pids: 2 (root 4600)
+    writes  script 24  /  whole traced tree 31
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps         24
+  == READS ==
+    deps        221
+    outside       6
+    project       1
+    systemfs     31
+  == NETWORK ==
+    distinct peers: 2
+        140.82.113.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  36370628 B xml -> 530152 B gz (68.6x)  sha256 0bac1982ee204632…
+  HEADER    etw-header.json (5255 bytes)
+  DERIVED   6288 distinct from 9460 kept ops (28384 xml events, 1642 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (79377 bytes)
+  RAWLOG-CAPTURE D:\jail\m-applicationinsightsnativemetrics-mttnan8o\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-applicationinsightsnativemetrics-mttnan8o
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\npm-cache","TMP":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\tmp","TEMP":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\tmp","TMPDIR":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-applicationinsightsnativemetrics-mttnan8o\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c61c756aa77f9bde4f6478f6cef6bf6faf4d574962c5400299b6f16504218b79","specCount":58,"lockfiles":{"digest":"a4b81c5b0fafc0319eb438464a478490c616df4fcd555795449c73016f7f0700","files":[{"path":"nub.lock","sha256":"22f5e0e6e9a04d0f8d9e606256ca36dad1eaca361d9339bd1781daa972297483","bytes":14562}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:15:47.860Z","cacheHit":true,"clearancePath":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 58 exact package-version(s), tree c61c756aa77f (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=35/35 missing=0 shortfall=none (tree 6445/552) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-applicationinsightsnativemetrics-mttnan8o\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"c61c756aa77f9bde4f6478f6cef6bf6faf4d574962c5400299b6f16504218b79","specCount":58,"lockfiles":{"digest":"a4b81c5b0fafc0319eb438464a478490c616df4fcd555795449c73016f7f0700","files":[{"path":"nub.lock","sha256":"22f5e0e6e9a04d0f8d9e606256ca36dad1eaca361d9339bd1781daa972297483","bytes":14562}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:15:47.860Z","cacheHit":true,"clearancePath":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 58 exact package-version(s), tree c61c756aa77f (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=24/35 missing=17 shortfall=c88e515769e8 (tree 6435/552) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: build/Release/native_metrics.iobj, build/Release/native_metrics.ipdb, build/Release/native_metrics.node, build/Release/native_metrics.pdb, build/Release/obj/native_metrics/native_metrics.node.recipe, build/Release/obj/native_metrics/native_metrics.tlog/CL.command.1.tlog (4250B < 14928B) (+11)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-applicationinsightsnativemetrics-mttnan8o\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"c61c756aa77f9bde4f6478f6cef6bf6faf4d574962c5400299b6f16504218b79","specCount":58,"lockfiles":{"digest":"a4b81c5b0fafc0319eb438464a478490c616df4fcd555795449c73016f7f0700","files":[{"path":"nub.lock","sha256":"22f5e0e6e9a04d0f8d9e606256ca36dad1eaca361d9339bd1781daa972297483","bytes":14562}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:15:47.860Z","cacheHit":true,"clearancePath":"D:\\jail\\m-applicationinsightsnativemetrics-mttnan8o\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 58 exact package-version(s), tree c61c756aa77f (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=35/35 missing=0 shortfall=none (tree 6445/552) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed

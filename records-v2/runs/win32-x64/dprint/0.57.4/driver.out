@@ -1,0 +1,62 @@
+### dprint@0.57.4   (D:\jail\m-dprint-mttncepb)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4ac99e2cae5ccd2472a61854bbc548d06585542320872b7ba65b9c5ba6b7ddc4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:17:07.333Z","cacheHit":false,"clearancePath":"D:\\jail\\m-dprint-mttncepb\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4ac99e2cae5c
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7b59999bf928de4f157afc49d2b75fc5e6ee6394fd6e7c8ae4711603f7c0b54a","specCount":2,"lockfiles":{"digest":"dd60b2c5df40aea1f747f20854d2ab6d21bcf24bad33ae3b0fd9d428afb2a743","files":[{"path":"package-lock.json","sha256":"585b74b9e6e61df41d3a308b989575dcaea0ff4de30c4bde784e4aca405038ba","bytes":7649}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:17:10.449Z","cacheHit":false,"clearancePath":"D:\\jail\\m-dprint-mttncepb\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree 7b59999bf928
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6660 exit=0 events=21583 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-dprint-mttncepb\observe\node_modules\dprint)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-dprint-mttncepb\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-dprint-mttncepb\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-dprint-mttncepb\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-dprint-mttncepb\observe\node_modules\dprint
+  == ATTRIBUTION == lifecycle pids: 2 (root 6660)
+    writes  script 3  /  whole traced tree 12
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          3
+  == READS ==
+    deps          9
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  27507227 B xml -> 396702 B gz (69.3x)  sha256 25202f9f480ad606…
+  HEADER    etw-header.json (5040 bytes)
+  DERIVED   5279 distinct from 6448 kept ops (21583 xml events, 1605 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 3 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (66536 bytes)
+  RAWLOG-CAPTURE D:\jail\m-dprint-mttncepb\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-dprint-mttncepb
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-dprint-mttncepb\\npm-cache","TMP":"D:\\jail\\m-dprint-mttncepb\\tmp","TEMP":"D:\\jail\\m-dprint-mttncepb\\tmp","TMPDIR":"D:\\jail\\m-dprint-mttncepb\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-dprint-mttncepb\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7b59999bf928de4f157afc49d2b75fc5e6ee6394fd6e7c8ae4711603f7c0b54a","specCount":2,"lockfiles":{"digest":"17dd5a2fada796343865219c73d131967ad430c9e8a54b26e865e6285eae2b38","files":[{"path":"nub.lock","sha256":"6979df0a8eb0d89c709b4c5de9a4c958537f2a0c0ae9c1d91d4c2e7c3aadd725","bytes":4921}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:17:10.449Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mttncepb\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree 7b59999bf928 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5700/18) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-dprint-mttncepb\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"7b59999bf928de4f157afc49d2b75fc5e6ee6394fd6e7c8ae4711603f7c0b54a","specCount":2,"lockfiles":{"digest":"17dd5a2fada796343865219c73d131967ad430c9e8a54b26e865e6285eae2b38","files":[{"path":"nub.lock","sha256":"6979df0a8eb0d89c709b4c5de9a4c958537f2a0c0ae9c1d91d4c2e7c3aadd725","bytes":4921}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T05:17:10.449Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dprint-mttncepb\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 2 exact package-version(s), tree 7b59999bf928 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=8/8 missing=0 shortfall=none (tree 5700/18) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
