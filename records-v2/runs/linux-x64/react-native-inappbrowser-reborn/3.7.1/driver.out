@@ -1,0 +1,64 @@
+### react-native-inappbrowser-reborn@3.7.1   (/home/runner/v2-ljvoGt)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"99bd7acda2f02e795d56bff17126dd5bc2391346d93a9d31d621167557763851","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:27:40.342Z","cacheHit":false,"clearancePath":"/home/runner/v2-ljvoGt/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 99bd7acda2f0
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"26834705b9c359c2a9553b7b35b23d96e364cb12d77c507a2f6535e36fa899bf","specCount":218,"lockfiles":{"digest":"b1193b9765493bfe25b22c0caea8f7128b1d93e07f4959ef8bd61c3961d02fb8","files":[{"path":"package-lock.json","sha256":"9702fa42551193a4e868767bacdcfbff38ceedd716235f1c16f169be5979115c","bytes":103907}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:27:51.631Z","cacheHit":false,"clearancePath":"/home/runner/v2-ljvoGt/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 218 exact package-version(s), tree 26834705b9c3
+  OBSERVE   rc=0 files=10333 trace=11474 lines
+  CLOSURE   205 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":34,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (34) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `postinstall` ends in a status-swallowing construct (`opencollective-postinstall || true`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-ljvoGt/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-ljvoGt/observe/capture.json
+  RAWLOG-BYTES raw=2476475 gz=74196
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-ljvoGt/jailhome","TMPDIR":"/tmp/nub-tmp-obseT2iVK","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-ljvoGt/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-ljvoGt/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-ljvoGt/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-ljvoGt/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obseT2iVK
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-ljvoGt/observe/node_modules/react-native-inappbrowser-reborn
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.9.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4875 distinct from 11178 calls (11475 lines, 274 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×15 getsockopt×9 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-ljvoGt/observe/events.ndjson.gz (34473 bytes)
+  EVENTLOG-FILE /home/runner/v2-ljvoGt/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11475,"parsed":11178,"unparsed":0,"unfinished":274,"rejoined":274,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4875,"unknownSyscall":{"getsockname":22,"getsockopt":9,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-ljvoGt/observe/events.ndjson.gz","gzipBytes":34473}
+  EVICT     15 store entries removed, 8 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for react-native-inappbrowser-reborn
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"040577279b3d3496d5ac7e17033bde936d4f97b6b531ab9dc03a8ebe83666978","specCount":218,"lockfiles":{"digest":"7f741fea2b9e17c5ca0d6f70c9390333b995d86c0bc6dd2fe43d746c64660786","files":[{"path":"nub.lock","sha256":"68eb369baccde3ba5ef4f3991613eb094f13ec1d7da2e34a51ea0c2aa3826c65","bytes":60102}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:27:59.563Z","cacheHit":false,"clearancePath":"/home/runner/v2-ljvoGt/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 218 exact package-version(s), tree 040577279b3d
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=33/33 missing=0 shortfall=none (tree 40920/10333) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
