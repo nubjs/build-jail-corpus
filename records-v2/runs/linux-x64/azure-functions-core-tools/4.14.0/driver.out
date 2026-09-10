@@ -1,0 +1,79 @@
+### azure-functions-core-tools@4.14.0   (/home/runner/v2-klVYHI)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"45eefe971f05778886d71ebda505715fc56c1142c5ac916c9aaee119df8f536c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:26.037Z","cacheHit":false,"clearancePath":"/home/runner/v2-klVYHI/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 45eefe971f05
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"f680ab07764d8d01cfeb4229d4a3718c08e787e5db25e334161b79cf3cc936cc","specCount":30,"lockfiles":{"digest":"3d3e4f3f66fccbddc1aed4761dab7476af11cf98bc0f49c605eb776d06595d4e","files":[{"path":"package-lock.json","sha256":"80cebf930e61e2f80386164014a91da7a547003ee4f72507735677d87b0fe9a3","bytes":13972}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:27.647Z","cacheHit":false,"clearancePath":"/home/runner/v2-klVYHI/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 30 exact package-version(s), tree f680ab07764d
+  OBSERVE   rc=0 files=9621 trace=169891 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":8954,"filesTheScriptProduced":8947,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-klVYHI/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-klVYHI/observe/capture.json
+  RAWLOG-BYTES raw=27967897 gz=446679
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-klVYHI/jailhome","TMPDIR":"/tmp/nub-tmp-obs3AHIlk","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-klVYHI/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 10475  /  whole traced tree 11563
+    sockets script 3  /  whole traced tree 7
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-klVYHI/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-klVYHI/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-klVYHI/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs3AHIlk
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools
+  == WRITES the script actually performed ==
+    ownPkg    10475  (base profile already grants this — NOT billed)
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Functions.Cli.linux-x64.4.14.0.zip
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/AccentedCommandLineParser.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Autofac.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Core.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Data.Tables.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Identity.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Monitor.OpenTelemetry.Exporter.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Security.KeyVault.Secrets.dll
+        /home/runner/v2-klVYHI/observe/node_modules/azure-functions-core-tools/bin/Azure.Storage.Blobs.dll
+        … and 10465 more
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        150.171.109.147:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    26773 distinct from 169772 calls (169892 lines, 92 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×28 exit×20 getsockopt×19 recvmsg×9 getcwd×6 socketpair×3 shutdown×3
+    wrote /home/runner/v2-klVYHI/observe/events.ndjson.gz (185388 bytes)
+  EVENTLOG-FILE /home/runner/v2-klVYHI/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":169892,"parsed":169772,"unparsed":0,"unfinished":92,"rejoined":92,"unresolvedDirfd":1,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":26773,"unknownSyscall":{"getsockname":33,"getsockopt":19,"getcwd":6,"recvmsg":9,"exit":20,"setsockopt":28,"sendmmsg":2,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-klVYHI/observe/events.ndjson.gz","gzipBytes":185388}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for azure-functions-core-tools
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"465556f4fc20a5b3601a91afd3f39824a7cfec89a2f5fb8740d686c3935379d9","specCount":30,"lockfiles":{"digest":"a35643024e21aaa80cb02fa0011faf82948ad87e188c417663e096f77e958b4e","files":[{"path":"nub.lock","sha256":"df89987115670c2b657a4c7d7b959bfa3f7c15a094a3702c6f0c8289400cd4b1","bytes":7524}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:14:15.817Z","cacheHit":false,"clearancePath":"/home/runner/v2-klVYHI/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 30 exact package-version(s), tree 465556f4fc20
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=8954/8954 missing=0 shortfall=none (tree 28899/9621) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for azure-functions-core-tools
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"465556f4fc20a5b3601a91afd3f39824a7cfec89a2f5fb8740d686c3935379d9","specCount":30,"lockfiles":{"digest":"a35643024e21aaa80cb02fa0011faf82948ad87e188c417663e096f77e958b4e","files":[{"path":"nub.lock","sha256":"df89987115670c2b657a4c7d7b959bfa3f7c15a094a3702c6f0c8289400cd4b1","bytes":7524}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:14:15.817Z","cacheHit":true,"clearancePath":"/home/runner/v2-klVYHI/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 30 exact package-version(s), tree 465556f4fc20 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=7/8954 missing=8947 shortfall=fb6d43382dfc (tree 2059/9621) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: bin/AccentedCommandLineParser.dll, bin/Autofac.dll, bin/Azure.Core.dll, bin/Azure.Data.Tables.dll, bin/Azure.Identity.dll, bin/Azure.Monitor.OpenTelemetry.Exporter.dll (+8941)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
