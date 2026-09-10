@@ -1,0 +1,66 @@
+### git-commit-msg-linter@5.0.9   (/home/runner/v2-jzofdX)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"bd66a85341d4c6a2e258ce25021f5a683e2aabc8724e344bd69c1b10933b96da","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:25:13.657Z","cacheHit":false,"clearancePath":"/home/runner/v2-jzofdX/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree bd66a85341d4
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6cddd897611619003e3ab0cd712dee872bcf46fa15366899a4c2e7acc182b547","specCount":14,"lockfiles":{"digest":"273523e749ac85d34e3650295609222689da68f67c75a870508b8a5beff7bb0b","files":[{"path":"package-lock.json","sha256":"205702097a27064740182c4578091c85aff7e99812d9ebf6d2f855cd3da1cd72","bytes":5862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:25:17.241Z","cacheHit":false,"clearancePath":"/home/runner/v2-jzofdX/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree 6cddd8976116
+  OBSERVE   rc=0 files=590 trace=10991 lines
+  CLOSURE   12 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (10) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-jzofdX/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-jzofdX/observe/capture.json
+  RAWLOG-BYTES raw=2406635 gz=70738
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-jzofdX/jailhome","TMPDIR":"/tmp/nub-tmp-obsNkujuo","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-jzofdX/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 15
+    writes  script 1  /  whole traced tree 1089
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-jzofdX/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-jzofdX/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-jzofdX/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsNkujuo
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-jzofdX/observe/node_modules/git-commit-msg-linter
+  == WRITES the script actually performed ==
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.6.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4557 distinct from 10928 calls (10992 lines, 37 rejoined, 0 unparsed)
+    PROCS     22   lifecycle shells 10
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×27 getsockname×25 exit×15 getsockopt×11 getcwd×7 recvmsg×7 wait4×6 exit_group×5
+    wrote /home/runner/v2-jzofdX/observe/events.ndjson.gz (32202 bytes)
+  EVENTLOG-FILE /home/runner/v2-jzofdX/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10992,"parsed":10928,"unparsed":0,"unfinished":37,"rejoined":37,"unresolvedDirfd":3,"truncatedArg":0,"procs":22,"lifecyclePids":10,"distinctEvents":4557,"unknownSyscall":{"getsockname":25,"getsockopt":11,"getcwd":7,"recvmsg":7,"exit":15,"setsockopt":27,"sendmmsg":1,"socketpair":4,"shutdown":3,"exit_group":5,"wait4":6},"out":"/home/runner/v2-jzofdX/observe/events.ndjson.gz","gzipBytes":32202}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for git-commit-msg-linter
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"6cddd897611619003e3ab0cd712dee872bcf46fa15366899a4c2e7acc182b547","specCount":14,"lockfiles":{"digest":"3231ef3193f759e3b821bcf9a172c5d0af26e2dee97ad47e3d40ccdb2714d7c5","files":[{"path":"nub.lock","sha256":"cf69b41b8293a5d8b21d677986a632b7fa0bd15b794e46bff5bdd1a003c6f65e","bytes":3412}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:25:17.241Z","cacheHit":true,"clearancePath":"/home/runner/v2-jzofdX/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree 6cddd8976116 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 1758/590) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
