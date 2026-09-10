@@ -1,0 +1,78 @@
+### onnxruntime-node@1.29.0   (/home/runner/v2-GmVVkQ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6433ed58060809b8a30b015fbe8917f248afc95d0550be39bd16c4fc6a8ed6e4","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:14:40.525Z","cacheHit":false,"clearancePath":"/home/runner/v2-GmVVkQ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6433ed580608
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"41c188768dec753c4a8b50f378f9c47b4d07f4856f03ae70d55131a113bdb398","specCount":17,"lockfiles":{"digest":"2d3564ba4bf7b2d3735ca9819b411d74ad00d24bcc5f8749bcf69748c18ca34e","files":[{"path":"package-lock.json","sha256":"2a63890c116f96a34655de62cfb2a6ecd02e654f8a28507efad537c4cab5d80a","bytes":7858}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:14:44.204Z","cacheHit":false,"clearancePath":"/home/runner/v2-GmVVkQ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 17 exact package-version(s), tree 41c188768dec
+  OBSERVE   rc=0 files=522 trace=11589 lines
+  CLOSURE   17 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":46,"filesTheScriptProduced":3,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-GmVVkQ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-GmVVkQ/observe/capture.json
+  RAWLOG-BYTES raw=2534908 gz=75894
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-GmVVkQ/jailhome","TMPDIR":"/tmp/nub-tmp-obsF6ofVN","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-GmVVkQ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 9  /  whole traced tree 1097
+    sockets script 12  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-GmVVkQ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-GmVVkQ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-GmVVkQ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsF6ofVN
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-GmVVkQ/observe/node_modules/onnxruntime-node
+  == WRITES the script actually performed ==
+    jailTmp       6  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485/microsoft.ml.onnxruntime.gpu.linux.1.29.0.nupkg
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485/extracted
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485/extracted/libonnxruntime_providers_cuda.so
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485/extracted/libonnxruntime_providers_shared.so
+        /tmp/nub-tmp-obsF6ofVN/onnxruntime-node-pkgs_1789006485485/extracted/libonnxruntime_providers_tensorrt.so
+    ownPkg        3  (base profile already grants this — NOT billed)
+        /home/runner/v2-GmVVkQ/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_cuda.so
+        /home/runner/v2-GmVVkQ/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_shared.so
+        /home/runner/v2-GmVVkQ/observe/node_modules/onnxruntime-node/bin/napi-v6/linux/x64/libonnxruntime_providers_tensorrt.so
+  == NETWORK ==
+    AF_INET sockets: 12   distinct peers: 3
+        127.0.0.53:53
+        104.16.11.34:443
+        23.204.136.71:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4766 distinct from 11528 calls (11590 lines, 34 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×33 setsockopt×26 exit×20 getsockopt×14 recvmsg×13 shutdown×6 getcwd×4 sendmmsg×4
+    wrote /home/runner/v2-GmVVkQ/observe/events.ndjson.gz (33614 bytes)
+  EVENTLOG-FILE /home/runner/v2-GmVVkQ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11590,"parsed":11528,"unparsed":0,"unfinished":34,"rejoined":34,"unresolvedDirfd":4,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4766,"unknownSyscall":{"getsockname":33,"getsockopt":14,"getcwd":4,"recvmsg":13,"exit":20,"setsockopt":26,"sendmmsg":4,"socketpair":3,"shutdown":6,"exit_group":3,"wait4":3},"out":"/home/runner/v2-GmVVkQ/observe/events.ndjson.gz","gzipBytes":33614}
+  EVICT     7 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for onnxruntime-node
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"41c188768dec753c4a8b50f378f9c47b4d07f4856f03ae70d55131a113bdb398","specCount":17,"lockfiles":{"digest":"a854deef01250e6c5824e0f685d824f6226b1f54223633a93d6cc88bf4f7db4f","files":[{"path":"nub.lock","sha256":"4d80883d34e63ef54e7cb970c5213c71ce8608dd19d2753417b0d2d0503ace91","bytes":4289}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:14:44.204Z","cacheHit":true,"clearancePath":"/home/runner/v2-GmVVkQ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 17 exact package-version(s), tree 41c188768dec (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=46/46 missing=0 shortfall=none (tree 1587/522) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     16 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for onnxruntime-node
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"41c188768dec753c4a8b50f378f9c47b4d07f4856f03ae70d55131a113bdb398","specCount":17,"lockfiles":{"digest":"a854deef01250e6c5824e0f685d824f6226b1f54223633a93d6cc88bf4f7db4f","files":[{"path":"nub.lock","sha256":"4d80883d34e63ef54e7cb970c5213c71ce8608dd19d2753417b0d2d0503ace91","bytes":4289}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:14:44.204Z","cacheHit":true,"clearancePath":"/home/runner/v2-GmVVkQ/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 17 exact package-version(s), tree 41c188768dec (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=43/46 missing=3 shortfall=a109073c4cf5 (tree 1578/522) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: bin/napi-v6/linux/x64/libonnxruntime_providers_cuda.so, bin/napi-v6/linux/x64/libonnxruntime_providers_shared.so, bin/napi-v6/linux/x64/libonnxruntime_providers_tensorrt.so
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
