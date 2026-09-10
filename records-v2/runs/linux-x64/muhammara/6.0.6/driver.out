@@ -1,0 +1,69 @@
+### muhammara@6.0.6   (/home/runner/v2-pwf3lB)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"cd420178f59525b3fa509dd51862d78754e7d4b328387d427d6fd11c99c9e129","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:22:47.790Z","cacheHit":false,"clearancePath":"/home/runner/v2-pwf3lB/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree cd420178f595
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"f32e276c4f1a45a3c8e9c64efb4eab20dc7dd2a698ad13104574e908bb117fee","specCount":33,"lockfiles":{"digest":"a51a58b306237ac992138e1d32d72b3d9e6ae1a410619a035d2a8acf2bc6d96d","files":[{"path":"package-lock.json","sha256":"64169db50553710bdcdd09d56539f57fd908ee26cb349d5c86cc96e101a23edf","bytes":9899}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:22:49.994Z","cacheHit":false,"clearancePath":"/home/runner/v2-pwf3lB/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 33 exact package-version(s), tree f32e276c4f1a
+  OBSERVE   rc=0 files=1912 trace=11813 lines
+  CLOSURE   13 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1266,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-pwf3lB/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-pwf3lB/observe/capture.json
+  RAWLOG-BYTES raw=2598077 gz=76452
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-pwf3lB/jailhome","TMPDIR":"/tmp/nub-tmp-obseheCLR","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-pwf3lB/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 2  /  whole traced tree 1090
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-pwf3lB/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-pwf3lB/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-pwf3lB/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obseheCLR
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-pwf3lB/observe/node_modules/muhammara
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-pwf3lB/observe/node_modules/muhammara/binding
+        /home/runner/v2-pwf3lB/observe/node_modules/muhammara/binding/muhammara.node
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        140.82.113.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4849 distinct from 11748 calls (11814 lines, 38 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×29 exit×20 getsockopt×13 recvmsg×11 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-pwf3lB/observe/events.ndjson.gz (33888 bytes)
+  EVENTLOG-FILE /home/runner/v2-pwf3lB/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11814,"parsed":11748,"unparsed":0,"unfinished":38,"rejoined":38,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4849,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":29,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-pwf3lB/observe/events.ndjson.gz","gzipBytes":33888}
+  EVICT     7 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for muhammara
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f32e276c4f1a45a3c8e9c64efb4eab20dc7dd2a698ad13104574e908bb117fee","specCount":33,"lockfiles":{"digest":"0020e6af273ac4628b957e21f0526d3af4c0b2da7caf29e103981491f766a691","files":[{"path":"nub.lock","sha256":"354b604c12f4a4a85a681db91abda7341a6efefb27be06b8a01aaa2b741b534b","bytes":2980}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:22:49.994Z","cacheHit":true,"clearancePath":"/home/runner/v2-pwf3lB/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 33 exact package-version(s), tree f32e276c4f1a (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1266/1266 missing=0 shortfall=none (tree 5736/1912) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     13 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for muhammara
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"f32e276c4f1a45a3c8e9c64efb4eab20dc7dd2a698ad13104574e908bb117fee","specCount":33,"lockfiles":{"digest":"0020e6af273ac4628b957e21f0526d3af4c0b2da7caf29e103981491f766a691","files":[{"path":"nub.lock","sha256":"354b604c12f4a4a85a681db91abda7341a6efefb27be06b8a01aaa2b741b534b","bytes":2980}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:22:49.994Z","cacheHit":true,"clearancePath":"/home/runner/v2-pwf3lB/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 33 exact package-version(s), tree f32e276c4f1a (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=2039/1266 missing=0 shortfall=none (tree 8058/1912) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED: dropping 'no-network' STILL VERIFIES — {} is sufficient
+  => OVER-PREDICTED by: no-network  (synthesized {"network":true}; each named capability drops on its own)
