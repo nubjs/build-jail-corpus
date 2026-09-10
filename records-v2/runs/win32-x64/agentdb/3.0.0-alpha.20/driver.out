@@ -1,0 +1,63 @@
+### agentdb@3.0.0-alpha.20   (D:\jail\m-agentdb-mtuu2238)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c366aa9861650b3eebfc94fdc589da72bff1ba82b451c791b9317431b31ae712","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:12:48.048Z","cacheHit":false,"clearancePath":"D:\\jail\\m-agentdb-mtuu2238\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c366aa986165
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c68e62a9c640227af1f93ff651845dbaf56c3c730bc053384db7167248fce93e","specCount":323,"lockfiles":{"digest":"cd05d695629a558f3e4494a8f39a05318d72489c8f4301de5bae1ba72b0ef9bb","files":[{"path":"package-lock.json","sha256":"5ef52f671d59489e07280c331449dcfe3de01baead2b935e478e1305ddf7ca00","bytes":222495}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:13:21.115Z","cacheHit":false,"clearancePath":"D:\\jail\\m-agentdb-mtuu2238\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 323 exact package-version(s), tree c68e62a9c640
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1392 exit=0 events=23234 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 643 files  (D:\jail\m-agentdb-mtuu2238\observe\node_modules\agentdb)
+  ARM-FALSIFIABILITY {"manifestFiles":643,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (643) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `postinstall` ends in a status-swallowing construct (`node scripts/postinstall.cjs || true`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 312 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-agentdb-mtuu2238\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-agentdb-mtuu2238\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-agentdb-mtuu2238\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-agentdb-mtuu2238\observe\node_modules\agentdb
+  == ATTRIBUTION == lifecycle pids: 2 (root 1392)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps         21
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  29670194 B xml -> 430210 B gz (69.0x)  sha256 9d82cdbec676ec9b…
+  HEADER    etw-header.json (5012 bytes)
+  DERIVED   5946 distinct from 7120 kept ops (23234 xml events, 1642 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (75140 bytes)
+  RAWLOG-CAPTURE D:\jail\m-agentdb-mtuu2238\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-agentdb-mtuu2238
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-agentdb-mtuu2238\\npm-cache","TMP":"D:\\jail\\m-agentdb-mtuu2238\\tmp","TEMP":"D:\\jail\\m-agentdb-mtuu2238\\tmp","TMPDIR":"D:\\jail\\m-agentdb-mtuu2238\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 5 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-agentdb-mtuu2238\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"600e406a40ab2ba5581854805b028c1886beb28a41c7c5e4ac24f65d42e37a0f","specCount":323,"lockfiles":{"digest":"69bed88c9b2ad21673350db373f83e14ec73d5636835cdd18b200e61f8b72c70","files":[{"path":"nub.lock","sha256":"079eb684bf1889feb631c992ac76ec18a4059649c8fe7e086f58829fa8f317af","bytes":124089}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:14:02.043Z","cacheHit":false,"clearancePath":"D:\\jail\\m-agentdb-mtuu2238\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 323 exact package-version(s), tree 600e406a40ab
+  VERIFY[synth] rc=0 artifacts=643/643 missing=0 shortfall=none (tree 30775/29534) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
