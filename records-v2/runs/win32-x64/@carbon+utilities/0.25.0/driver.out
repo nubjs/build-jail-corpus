@@ -1,0 +1,60 @@
+### @carbon/utilities@0.25.0   (D:\jail\m-carbonutilities-mtusrtt1)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"254f1bcd67095ed1fd40685d2ce6ffddbf26eea336842610162e6c6ebf51ebd8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:36:50.957Z","cacheHit":false,"clearancePath":"D:\\jail\\m-carbonutilities-mtusrtt1\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 254f1bcd6709
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"5685f50551677e04d8c23b08cedf150af31ecc307c648302f6649b9430e430a3","specCount":8,"lockfiles":{"digest":"dfba5a9c0558f4b96acc31ff6fd651a7c155c73587a53b8cf22453fd97b912bf","files":[{"path":"package-lock.json","sha256":"c7b83872e4ad27bb16e01a93124b6d6d676ae90116a832bbd3124a8a2ce201cb","bytes":3155}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:36:53.119Z","cacheHit":false,"clearancePath":"D:\\jail\\m-carbonutilities-mtusrtt1\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 8 exact package-version(s), tree 5685f5055167
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=1092 exit=0 events=29015 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 38 files  (D:\jail\m-carbonutilities-mtusrtt1\observe\node_modules\@carbon\utilities)
+  ARM-FALSIFIABILITY {"manifestFiles":38,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (38) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 8 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-carbonutilities-mtusrtt1\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-carbonutilities-mtusrtt1\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-carbonutilities-mtusrtt1\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-carbonutilities-mtusrtt1\observe\node_modules\@carbon\utilities
+  == ATTRIBUTION == lifecycle pids: 2 (root 1092)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps          9
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  37025014 B xml -> 541828 B gz (68.3x)  sha256 ce800575dc2c3328…
+  HEADER    etw-header.json (5072 bytes)
+  DERIVED   5294 distinct from 6699 kept ops (29015 xml events, 4317 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (67272 bytes)
+  RAWLOG-CAPTURE D:\jail\m-carbonutilities-mtusrtt1\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-carbonutilities-mtusrtt1
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-carbonutilities-mtusrtt1\\npm-cache","TMP":"D:\\jail\\m-carbonutilities-mtusrtt1\\tmp","TEMP":"D:\\jail\\m-carbonutilities-mtusrtt1\\tmp","TMPDIR":"D:\\jail\\m-carbonutilities-mtusrtt1\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-carbonutilities-mtusrtt1\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"5685f50551677e04d8c23b08cedf150af31ecc307c648302f6649b9430e430a3","specCount":8,"lockfiles":{"digest":"a24072ed9ebfe678f64530ab252d810cf491e162f747a04bf522ce6441c08274","files":[{"path":"nub.lock","sha256":"d5f206c634749e74624761aba94eb97ad43b4466c6021cc4601db34baad5b739","bytes":1977}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:36:53.119Z","cacheHit":true,"clearancePath":"D:\\jail\\m-carbonutilities-mtusrtt1\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 8 exact package-version(s), tree 5685f5055167 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=38/38 missing=0 shortfall=none (tree 6337/620) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
