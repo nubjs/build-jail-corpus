@@ -1,0 +1,77 @@
+### @cubejs-backend/cubestore@1.7.36   (D:\jail\m-cubejsbackendcubestore-mtvh4z6q)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"b08a53d24a0a3c00374d3cfd79c64b2a69a142c50c30b6115bec72ef2feb8b2c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:58:55.299Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree b08a53d24a0a
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3b09c9f4f2efc642df97d0e6c5d31df63bfdfd22198ae0e19ade5658018dde4b","specCount":127,"lockfiles":{"digest":"ca5fb26b967e2be4face9c43da86aa81d55a74b87d630b7c64193e97129bcb45","files":[{"path":"package-lock.json","sha256":"abd16b616eccef21aa4abb6eecbfaf25ec7703d2ff892ec99668d33f142ae6df","bytes":52002}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:59:02.429Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 127 exact package-version(s), tree 3b09c9f4f2ef
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2976 exit=0 events=55633 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 33 files  (D:\jail\m-cubejsbackendcubestore-mtvh4z6q\observe\node_modules\@cubejs-backend\cubestore)
+  ARM-FALSIFIABILITY {"manifestFiles":33,"filesTheScriptProduced":4,"reasons":[]}
+  CLOSURE 125 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-cubejsbackendcubestore-mtvh4z6q\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-cubejsbackendcubestore-mtvh4z6q\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-cubejsbackendcubestore-mtvh4z6q\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-cubejsbackendcubestore-mtvh4z6q\observe\node_modules\@cubejs-backend\cubestore
+  == ATTRIBUTION == lifecycle pids: 4 (root 2976)
+    writes  script 8  /  whole traced tree 19
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          7
+    jailTmp       1
+  == READS ==
+    deps        366
+    outside       7
+    project       1
+    systemfs     31
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  72266598 B xml -> 942709 B gz (76.7x)  sha256 af803b2db4737d3d…
+  HEADER    etw-header.json (5181 bytes)
+  DERIVED   6983 distinct from 22782 kept ops (55633 xml events, 2073 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (86368 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cubejsbackendcubestore-mtvh4z6q\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-cubejsbackendcubestore-mtvh4z6q
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\npm-cache","TMP":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\tmp","TEMP":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\tmp","TMPDIR":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-cubejsbackendcubestore-mtvh4z6q\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"799a198d8810935592e7750f188939cd5de9345b4573f54e8f1ddf544fec3a0b","specCount":127,"lockfiles":{"digest":"0e7d51ba70b46bbfccb2b85b90682be72216da5b8beef3a09b4c08ed2fc96017","files":[{"path":"nub.lock","sha256":"b0b946582d6280dc01c0abfad234a600829251b225c9b51e60f2734bd0f08b89","bytes":31626}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:59:22.113Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 127 exact package-version(s), tree 799a198d8810
+  VERIFY[synth] rc=0 artifacts=33/33 missing=0 shortfall=none (tree 10233/3491) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-cubejsbackendcubestore-mtvh4z6q\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"799a198d8810935592e7750f188939cd5de9345b4573f54e8f1ddf544fec3a0b","specCount":127,"lockfiles":{"digest":"0e7d51ba70b46bbfccb2b85b90682be72216da5b8beef3a09b4c08ed2fc96017","files":[{"path":"nub.lock","sha256":"b0b946582d6280dc01c0abfad234a600829251b225c9b51e60f2734bd0f08b89","bytes":31626}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:59:22.113Z","cacheHit":true,"clearancePath":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 127 exact package-version(s), tree 799a198d8810 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=29/33 missing=4 shortfall=da8666f856e7 (tree 10230/3491) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: downloaded/latest/bin/cubestored.exe, downloaded/latest/bin/legacy.dll, downloaded/latest/bin/libcrypto-3-x64.dll, downloaded/latest/bin/libssl-3-x64.dll
+     'no-network' is NECESSARY — dropping it fails to verify
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-cubejsbackendcubestore-mtvh4z6q\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"799a198d8810935592e7750f188939cd5de9345b4573f54e8f1ddf544fec3a0b","specCount":127,"lockfiles":{"digest":"0e7d51ba70b46bbfccb2b85b90682be72216da5b8beef3a09b4c08ed2fc96017","files":[{"path":"nub.lock","sha256":"b0b946582d6280dc01c0abfad234a600829251b225c9b51e60f2734bd0f08b89","bytes":31626}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:59:22.113Z","cacheHit":true,"clearancePath":"D:\\jail\\m-cubejsbackendcubestore-mtvh4z6q\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 127 exact package-version(s), tree 799a198d8810 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=33/33 missing=0 shortfall=none (tree 10233/3491) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
