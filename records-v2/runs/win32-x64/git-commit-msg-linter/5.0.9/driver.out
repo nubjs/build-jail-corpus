@@ -1,0 +1,61 @@
+### git-commit-msg-linter@5.0.9   (D:\jail\m-gitcommitmsglinter-mtuugvhc)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"bd66a85341d4c6a2e258ce25021f5a683e2aabc8724e344bd69c1b10933b96da","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:24:19.157Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree bd66a85341d4
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"6cddd897611619003e3ab0cd712dee872bcf46fa15366899a4c2e7acc182b547","specCount":14,"lockfiles":{"digest":"273523e749ac85d34e3650295609222689da68f67c75a870508b8a5beff7bb0b","files":[{"path":"package-lock.json","sha256":"205702097a27064740182c4578091c85aff7e99812d9ebf6d2f855cd3da1cd72","bytes":5862}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:24:21.490Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree 6cddd8976116
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=8888 exit=0 events=22583 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-gitcommitmsglinter-mtuugvhc\observe\node_modules\git-commit-msg-linter)
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (10) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 12 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-gitcommitmsglinter-mtuugvhc\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-gitcommitmsglinter-mtuugvhc\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-gitcommitmsglinter-mtuugvhc\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-gitcommitmsglinter-mtuugvhc\observe\node_modules\git-commit-msg-linter
+  == ATTRIBUTION == lifecycle pids: 4 (root 8888)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps         26
+    outside       6
+    project       1
+    systemfs     43
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  28805251 B xml -> 420659 B gz (68.5x)  sha256 93ee3dc85a0a0897…
+  HEADER    etw-header.json (5142 bytes)
+  DERIVED   5508 distinct from 6723 kept ops (22583 xml events, 1691 out of subtree)
+  PROCS     6   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (69775 bytes)
+  RAWLOG-CAPTURE D:\jail\m-gitcommitmsglinter-mtuugvhc\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-gitcommitmsglinter-mtuugvhc
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\npm-cache","TMP":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\tmp","TEMP":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\tmp","TMPDIR":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-gitcommitmsglinter-mtuugvhc\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"6cddd897611619003e3ab0cd712dee872bcf46fa15366899a4c2e7acc182b547","specCount":14,"lockfiles":{"digest":"3231ef3193f759e3b821bcf9a172c5d0af26e2dee97ad47e3d40ccdb2714d7c5","files":[{"path":"nub.lock","sha256":"cf69b41b8293a5d8b21d677986a632b7fa0bd15b794e46bff5bdd1a003c6f65e","bytes":3412}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:24:21.490Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gitcommitmsglinter-mtuugvhc\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree 6cddd8976116 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 6299/591) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
