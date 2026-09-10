@@ -1,0 +1,63 @@
+### @nativescript/core@9.1.1   (/home/runner/v2-g49BLc)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f06f00dde85ceb20649cec64bc3438263142f814e0d3094498652e931d65f12c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:13.805Z","cacheHit":false,"clearancePath":"/home/runner/v2-g49BLc/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f06f00dde85c
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"863ba4fa50ed60b4fa3cea6d05eb7c7af3e8df53fe1977151d6a47d39a8d5b3e","specCount":15,"lockfiles":{"digest":"cc26d17925701c989c5d284cf9ff191bc7578a981cebd58ac095f5e4f5929ce0","files":[{"path":"package-lock.json","sha256":"2a1e17e5f537d3ac72f5aebfc33ab1a02c3dbe5837bc455408eb49684ee7bf3c","bytes":7998}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:16.112Z","cacheHit":false,"clearancePath":"/home/runner/v2-g49BLc/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 15 exact package-version(s), tree 863ba4fa50ed
+  OBSERVE   rc=0 files=1812 trace=10804 lines
+  CLOSURE   15 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":1360,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (1360) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-g49BLc/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-g49BLc/observe/capture.json
+  RAWLOG-BYTES raw=2380321 gz=69182
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-g49BLc/jailhome","TMPDIR":"/tmp/nub-tmp-obsJGlGd0","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-g49BLc/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-g49BLc/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-g49BLc/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-g49BLc/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsJGlGd0
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-g49BLc/observe/node_modules/@nativescript/core
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.7.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4427 distinct from 10751 calls (10805 lines, 31 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×21 exit×15 getsockopt×7 recvmsg×7 getcwd×6 socketpair×3 shutdown×3
+    wrote /home/runner/v2-g49BLc/observe/events.ndjson.gz (31394 bytes)
+  EVENTLOG-FILE /home/runner/v2-g49BLc/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10805,"parsed":10751,"unparsed":0,"unfinished":31,"rejoined":31,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4427,"unknownSyscall":{"getsockname":21,"getsockopt":7,"getcwd":6,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-g49BLc/observe/events.ndjson.gz","gzipBytes":31394}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @nativescript/core
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"863ba4fa50ed60b4fa3cea6d05eb7c7af3e8df53fe1977151d6a47d39a8d5b3e","specCount":15,"lockfiles":{"digest":"c268bcf49fd1799dea62f866f39eb51a3107a0aa5d5d972eb7e72646c7841bfd","files":[{"path":"nub.lock","sha256":"3cfa0f70e4bc088b73d8222a01b0271c358a2c3835322cf5f5abf66445dac3ae","bytes":4976}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:16.112Z","cacheHit":true,"clearancePath":"/home/runner/v2-g49BLc/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 15 exact package-version(s), tree 863ba4fa50ed (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=1360/1360 missing=0 shortfall=none (tree 5494/1812) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
