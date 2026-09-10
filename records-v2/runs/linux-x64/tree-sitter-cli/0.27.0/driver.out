@@ -1,0 +1,69 @@
+### tree-sitter-cli@0.27.0   (/home/runner/v2-6LQlvJ)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"7db2627a50e05c2361311d303373e4ed0dda377493da2cb5160a6101039418ce","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:32.268Z","cacheHit":false,"clearancePath":"/home/runner/v2-6LQlvJ/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 7db2627a50e0
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7db2627a50e05c2361311d303373e4ed0dda377493da2cb5160a6101039418ce","specCount":1,"lockfiles":{"digest":"1af412c9f616d62b8c21af1a4fd55a1fb9c21c9714a70c7bb135687bba66c4d2","files":[{"path":"package-lock.json","sha256":"79bc5759f3921c66564940d2b945259ef87e5e827e2c21dec0fbb026891cfbf2","bytes":684}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:32.268Z","cacheHit":true,"clearancePath":"/home/runner/v2-6LQlvJ/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 7db2627a50e0 (cached exact-tree clearance)
+  OBSERVE   rc=0 files=11 trace=10808 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":7,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-6LQlvJ/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-6LQlvJ/observe/capture.json
+  RAWLOG-BYTES raw=2381225 gz=70314
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-6LQlvJ/jailhome","TMPDIR":"/tmp/nub-tmp-obs6X41Xq","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-6LQlvJ/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 1  /  whole traced tree 1089
+    sockets script 5  /  whole traced tree 11
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-6LQlvJ/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-6LQlvJ/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-6LQlvJ/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs6X41Xq
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-6LQlvJ/observe/node_modules/tree-sitter-cli
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-6LQlvJ/observe/node_modules/tree-sitter-cli/tree-sitter
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4395 distinct from 10760 calls (10809 lines, 21 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×31 setsockopt×25 exit×20 getsockopt×13 recvmsg×11 shutdown×5 getcwd×4 sendmmsg×3
+    wrote /home/runner/v2-6LQlvJ/observe/events.ndjson.gz (31135 bytes)
+  EVENTLOG-FILE /home/runner/v2-6LQlvJ/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10809,"parsed":10760,"unparsed":0,"unfinished":21,"rejoined":21,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4395,"unknownSyscall":{"getsockname":31,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":25,"sendmmsg":3,"socketpair":3,"shutdown":5,"exit_group":3,"wait4":3},"out":"/home/runner/v2-6LQlvJ/observe/events.ndjson.gz","gzipBytes":31135}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for tree-sitter-cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"7db2627a50e05c2361311d303373e4ed0dda377493da2cb5160a6101039418ce","specCount":1,"lockfiles":{"digest":"46ac4400331bdfc92b9354665eb957ae27f8b9b44987e7a7087bd6a639fa3263","files":[{"path":"nub.lock","sha256":"9ca14d2c1c7c7fe85ad5a22dfaceec1f59ba0fc50ac7a217d63aae817c38ca40","bytes":456}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:32.268Z","cacheHit":true,"clearancePath":"/home/runner/v2-6LQlvJ/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 7db2627a50e0 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=7/7 missing=0 shortfall=none (tree 31/11) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for tree-sitter-cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"7db2627a50e05c2361311d303373e4ed0dda377493da2cb5160a6101039418ce","specCount":1,"lockfiles":{"digest":"46ac4400331bdfc92b9354665eb957ae27f8b9b44987e7a7087bd6a639fa3263","files":[{"path":"nub.lock","sha256":"9ca14d2c1c7c7fe85ad5a22dfaceec1f59ba0fc50ac7a217d63aae817c38ca40","bytes":456}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:12:32.268Z","cacheHit":true,"clearancePath":"/home/runner/v2-6LQlvJ/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 1 exact package-version(s), tree 7db2627a50e0 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=7/7 missing=1 shortfall=00a62fd77943 (tree 32/11) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: tree-sitter (0B < 28508608B)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
