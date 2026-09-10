@@ -1,0 +1,87 @@
+### purescript@0.15.16   (D:\jail\m-purescript-mtuux5u2)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3d835f904d36e3c5f5a58d1e5ebca4d994d7dd220402631bfde8ad9a16583606","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:36:59.156Z","cacheHit":false,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3d835f904d36
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"4fe9266a8f9bedb83a55cabe7ac2c58c5648415849de0803bc4bca431c536eed","files":[{"path":"package-lock.json","sha256":"a04b37a075b35fdbb393f1e05382b97be23fa40e5073490c01c90c7610cab81a","bytes":70806}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":false,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=4556 exit=0 events=75072 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 5 files  (D:\jail\m-purescript-mtuux5u2\observe\node_modules\purescript)
+  ARM-FALSIFIABILITY {"manifestFiles":5,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 140 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-purescript-mtuux5u2\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-purescript-mtuux5u2\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-purescript-mtuux5u2\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-purescript-mtuux5u2\observe\node_modules\purescript
+  == ATTRIBUTION == lifecycle pids: 5 (root 4556)
+    writes  script 16  /  whole traced tree 26
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          1
+    jailTmp       1
+    userHome     14
+  == READS ==
+    deps        584
+    outside       7
+    project       1
+    systemfs     54
+    jailTmp       1
+    userHome      6
+  == NETWORK ==
+    distinct peers: 2
+        140.82.116.4:443
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+  RAW       etw-raw.xml.gz  97056769 B xml -> 1546893 B gz (62.7x)  sha256 5cd06d471b56dc02…
+  HEADER    etw-header.json (5082 bytes)
+  DERIVED   8151 distinct from 21716 kept ops (75072 xml events, 10609 out of subtree)
+  PROCS     7   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (101029 bytes)
+  RAWLOG-CAPTURE D:\jail\m-purescript-mtuux5u2\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-purescript-mtuux5u2
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-purescript-mtuux5u2\\npm-cache","TMP":"D:\\jail\\m-purescript-mtuux5u2\\tmp","TEMP":"D:\\jail\\m-purescript-mtuux5u2\\tmp","TMPDIR":"D:\\jail\\m-purescript-mtuux5u2\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-purescript-mtuux5u2\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"7e0097ec2ce1f66c8eec72a0930d578976124337418addead8be0d20ff3bf132","files":[{"path":"nub.lock","sha256":"445322c386c318a5b9178e5d70e699a7c002a298e256e23da79352ce8f724a3d","bytes":39572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":true,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 7674/1440) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"userHome":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-purescript-mtuux5u2\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"7e0097ec2ce1f66c8eec72a0930d578976124337418addead8be0d20ff3bf132","files":[{"path":"nub.lock","sha256":"445322c386c318a5b9178e5d70e699a7c002a298e256e23da79352ce8f724a3d","bytes":39572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":true,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=4/5 missing=1 shortfall=50cd8f99f8e6 (tree 7674/1440) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+     missing artifacts: purs.bin
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-purescript-mtuux5u2\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"7e0097ec2ce1f66c8eec72a0930d578976124337418addead8be0d20ff3bf132","files":[{"path":"nub.lock","sha256":"445322c386c318a5b9178e5d70e699a7c002a298e256e23da79352ce8f724a3d","bytes":39572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":true,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 7674/1440) OVERRIDDEN=2 REJECTED=0 grant={"write":{"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"userHome":true},"network":true} also verifies; 'no-write-deps' was not needed
+  STORE   isolated virtual store at D:\jail\m-purescript-mtuux5u2\verify-nar-no-write-userHome\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"7e0097ec2ce1f66c8eec72a0930d578976124337418addead8be0d20ff3bf132","files":[{"path":"nub.lock","sha256":"445322c386c318a5b9178e5d70e699a7c002a298e256e23da79352ce8f724a3d","bytes":39572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":true,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1 (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 7674/1440) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"write":{"deps":true},"network":true} also verifies; 'no-write-userHome' was not needed
+  STORE   isolated virtual store at D:\jail\m-purescript-mtuux5u2\verify-joint-narrow\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"a6532eb8d8c12754c637a48a59c5730fad1c0c49299dda198c33777016df4770","specCount":158,"lockfiles":{"digest":"7e0097ec2ce1f66c8eec72a0930d578976124337418addead8be0d20ff3bf132","files":[{"path":"nub.lock","sha256":"445322c386c318a5b9178e5d70e699a7c002a298e256e23da79352ce8f724a3d","bytes":39572}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:37:04.775Z","cacheHit":true,"clearancePath":"D:\\jail\\m-purescript-mtuux5u2\\security\\nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 158 exact package-version(s), tree a6532eb8d8c1 (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 7674/1440) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => JOINT-NARROW VERIFIED {"network":true} — all 2 capabilities drop TOGETHER, measured
