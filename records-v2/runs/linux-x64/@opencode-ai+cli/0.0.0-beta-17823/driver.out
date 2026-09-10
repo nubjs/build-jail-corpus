@@ -1,0 +1,105 @@
+### @opencode-ai/cli@0.0.0-beta-17823   (/home/runner/v2-HsySmg)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ab6830f8a5cf4eb51b654faf80a86bd9fb22f2ca8dbd00ea673ea132e819b7a8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:06:57.646Z","cacheHit":false,"clearancePath":"/home/runner/v2-HsySmg/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ab6830f8a5cf
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"430efa1305f33ddd956aa3587a998bfc0696bcc19ded6b0c8058f93a433659e0","specCount":5,"lockfiles":{"digest":"8143c6682fea086873d3c2f20c3935e40de6885528649986a9dce221061bcc62","files":[{"path":"package-lock.json","sha256":"90ea6677cfa809be5920b9a6226e982cbe9af591fc5ceaa4ad63c0056c23dbcc","bytes":7171}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:07:04.813Z","cacheHit":false,"clearancePath":"/home/runner/v2-HsySmg/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 5 exact package-version(s), tree 430efa1305f3
+  OBSERVE   rc=0 files=15 trace=10954 lines
+  CLOSURE   5 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":3,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-HsySmg/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-HsySmg/observe/capture.json
+  RAWLOG-BYTES raw=2392222 gz=70440
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-HsySmg/jailhome","TMPDIR":"/tmp/nub-tmp-obsSK9r4d","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-HsySmg/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 26
+    writes  script 17  /  whole traced tree 1105
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-HsySmg/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-HsySmg/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-HsySmg/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsSK9r4d
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-HsySmg/observe/node_modules/@opencode-ai/cli
+  == WRITES the script actually performed ==
+    ownPkg        1  (base profile already grants this — NOT billed)
+        /home/runner/v2-HsySmg/observe/node_modules/@opencode-ai/cli/bin/opencode2.exe
+    kernelfs      1
+        /dev/null
+    jailTmp       3  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsSK9r4d/.b2b1dae8ee9e4e9b-0.so
+        /tmp/nub-tmp-obsSK9r4d/.bun-1001-aa62161cdda97318.so
+        /tmp/nub-tmp-obsSK9r4d/opencode
+    jailHome     11  (base profile already grants this — NOT billed)
+        /home/runner/v2-HsySmg/jailhome/.local
+        /home/runner/v2-HsySmg/jailhome/.local/share
+        /home/runner/v2-HsySmg/jailhome/.local/share/opencode
+        /home/runner/v2-HsySmg/jailhome/.local/share/opencode/log
+        /home/runner/v2-HsySmg/jailhome/.local/share/opencode/log/opencode.log
+        /home/runner/v2-HsySmg/jailhome/.cache
+        /home/runner/v2-HsySmg/jailhome/.cache/opencode
+        /home/runner/v2-HsySmg/jailhome/.cache/opencode/bin
+        /home/runner/v2-HsySmg/jailhome/.local/state
+        /home/runner/v2-HsySmg/jailhome/.local/state/opencode
+        … and 1 more
+    userHome      1
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.6.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 1
+        openat /sys/kernel/debug/tracing/trace_marker
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true},"writePaths":[".cache/opencode",".local/share/opencode"]}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 11
+        .cache/opencode
+        .local/share/opencode
+    1 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 1
+        .config/opencode
+    EVENTS    4531 distinct from 10882 calls (10955 lines, 35 rejoined, 0 unparsed)
+    PROCS     33   lifecycle shells 21
+    ⛔ 4 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×35 getsockname×20 exit×15 getsockopt×7 recvmsg×7 getcwd×6 socketpair×6 exit_group×5
+    wrote /home/runner/v2-HsySmg/observe/events.ndjson.gz (32349 bytes)
+  EVENTLOG-FILE /home/runner/v2-HsySmg/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10955,"parsed":10882,"unparsed":0,"unfinished":35,"rejoined":35,"unresolvedDirfd":4,"truncatedArg":0,"procs":33,"lifecyclePids":21,"distinctEvents":4531,"unknownSyscall":{"getsockname":20,"getsockopt":7,"getcwd":6,"recvmsg":7,"exit":15,"setsockopt":35,"sendmmsg":1,"socketpair":6,"shutdown":4,"exit_group":5,"wait4":5},"out":"/home/runner/v2-HsySmg/observe/events.ndjson.gz","gzipBytes":32349}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @opencode-ai/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"430efa1305f33ddd956aa3587a998bfc0696bcc19ded6b0c8058f93a433659e0","specCount":5,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:07:04.813Z","cacheHit":true,"clearancePath":"/home/runner/v2-HsySmg/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 5 exact package-version(s), tree 430efa1305f3 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 67/15) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true},"writePaths":[".cache/opencode",".local/share/opencode"]}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @opencode-ai/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"430efa1305f33ddd956aa3587a998bfc0696bcc19ded6b0c8058f93a433659e0","specCount":5,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:07:04.813Z","cacheHit":true,"clearancePath":"/home/runner/v2-HsySmg/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 5 exact package-version(s), tree 430efa1305f3 (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 67/15) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @opencode-ai/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb3938809772-resolved","status":"clean","digest":"430efa1305f33ddd956aa3587a998bfc0696bcc19ded6b0c8058f93a433659e0","specCount":5,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:07:04.813Z","cacheHit":true,"clearancePath":"/home/runner/v2-HsySmg/security/nub-fb3938809772-resolved.json"}
+  SECURITY nub-fb3938809772-resolved clean: 5 exact package-version(s), tree 430efa1305f3 (cached exact-tree clearance)
+  VERIFY[fb3938809772] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 67/15) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  EVICT     5 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @opencode-ai/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2742342390-resolved","status":"clean","digest":"430efa1305f33ddd956aa3587a998bfc0696bcc19ded6b0c8058f93a433659e0","specCount":5,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:07:04.813Z","cacheHit":true,"clearancePath":"/home/runner/v2-HsySmg/security/nub-fb2742342390-resolved.json"}
+  SECURITY nub-fb2742342390-resolved clean: 5 exact package-version(s), tree 430efa1305f3 (cached exact-tree clearance)
+  VERIFY[fb2742342390] rc=0 artifacts=3/3 missing=0 shortfall=none (tree 67/15) OVERRIDDEN=3 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"write":{"userHome":true},"writePaths":[".cache/opencode",".local/share/opencode"]} and {"write":"disk","network":true} is worth reading
+  !! top rung is write:"disk" — no droppable terms, so no descent
