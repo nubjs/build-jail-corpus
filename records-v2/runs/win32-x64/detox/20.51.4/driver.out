@@ -1,0 +1,68 @@
+### detox@20.51.4   (D:\jail\m-detox-mtuyuvps)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"c5386e200bcd504fbbf36adccc538056b102d8998e67861d858384a0e57b917c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T03:27:11.128Z","cacheHit":false,"clearancePath":"D:\\jail\\m-detox-mtuyuvps\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree c5386e200bcd
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"33250b83c5d88b3c8709b047fcdcedb1bbaafebc8fb72f1e6b69ba79a574a9d3","specCount":192,"lockfiles":{"digest":"025d36e46cf1f016025011fd3bbb0765d6e15eaa8bf3b7a95c3525fe121af40f","files":[{"path":"package-lock.json","sha256":"326ddfe36c1a8abea79d94f696b55e469df8a0ccd1e982766ca472261b4fa25b","bytes":81557}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T03:27:21.803Z","cacheHit":false,"clearancePath":"D:\\jail\\m-detox-mtuyuvps\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 192 exact package-version(s), tree 33250b83c5d8
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1036 exit=0 events=31759 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 606 files  (D:\jail\m-detox-mtuyuvps\observe\node_modules\detox)
+  ARM-FALSIFIABILITY {"manifestFiles":609,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (609) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 182 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-detox-mtuyuvps\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-detox-mtuyuvps\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-detox-mtuyuvps\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-detox-mtuyuvps\observe\node_modules\detox
+  == ATTRIBUTION == lifecycle pids: 2 (root 1036)
+    writes  script 1  /  whole traced tree 12
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          1
+  == READS ==
+    deps          8
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+  RAW       etw-raw.xml.gz  40561613 B xml -> 624113 B gz (65.0x)  sha256 1d74a8ecabdb26db…
+  HEADER    etw-header.json (4989 bytes)
+  DERIVED   5528 distinct from 6696 kept ops (31759 xml events, 5490 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (70342 bytes)
+  RAWLOG-CAPTURE D:\jail\m-detox-mtuyuvps\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-detox-mtuyuvps
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-detox-mtuyuvps\\npm-cache","TMP":"D:\\jail\\m-detox-mtuyuvps\\tmp","TEMP":"D:\\jail\\m-detox-mtuyuvps\\tmp","TMPDIR":"D:\\jail\\m-detox-mtuyuvps\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-detox-mtuyuvps\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"f92db0589c1e455bede6aa21c3a85d0ead7f35dbfe44bb27e87087f03bf72c65","specCount":194,"lockfiles":{"digest":"4a199e81fdf537156bda15756dfa1852e9e00e35a498e9548018b188049dfb85","files":[{"path":"nub.lock","sha256":"bc93f1409d429fea605d29e1ebe3331be1632e8775b8f607ea4aaef2f96329e4","bytes":48417}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T03:27:41.416Z","cacheHit":false,"clearancePath":"D:\\jail\\m-detox-mtuyuvps\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 194 exact package-version(s), tree f92db0589c1e
+  VERIFY[synth] rc=0 artifacts=606/606 missing=0 shortfall=none (tree 13081/5260) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+  => MINIMUM {"write":{"deps":true}}   (observed, then verified)
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-detox-mtuyuvps\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"f92db0589c1e455bede6aa21c3a85d0ead7f35dbfe44bb27e87087f03bf72c65","specCount":194,"lockfiles":{"digest":"4a199e81fdf537156bda15756dfa1852e9e00e35a498e9548018b188049dfb85","files":[{"path":"nub.lock","sha256":"bc93f1409d429fea605d29e1ebe3331be1632e8775b8f607ea4aaef2f96329e4","bytes":48417}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T03:27:41.416Z","cacheHit":true,"clearancePath":"D:\\jail\\m-detox-mtuyuvps\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 194 exact package-version(s), tree f92db0589c1e (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=606/606 missing=0 shortfall=none (tree 13081/5260) OVERRIDDEN=2 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-deps' was not needed
