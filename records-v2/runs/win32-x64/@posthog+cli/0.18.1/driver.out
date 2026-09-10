@@ -1,0 +1,106 @@
+### @posthog/cli@0.18.1   (D:\jail\m-posthogcli-mtvf6fik)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"6833ecb8a9bdb23c6764447530f95eb42f01b19350e8829a538a34e1ea2ca233","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:03.859Z","cacheHit":false,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 6833ecb8a9bd
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"ac86375ab1dd04dd95091918d3f75a7d4b3f631bf08cbf176ac6f6839849d199","specCount":3,"lockfiles":{"digest":"dd29475c815c001dde48c79b34c7da2d0bcfb2f2a87001dffa0b36c36de0bf3b","files":[{"path":"package-lock.json","sha256":"722536c35b5d7d57e1a155503df01df3840b90bebd5a1f8e8fa07bc331ff5858","bytes":1706}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:05.598Z","cacheHit":false,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree ac86375ab1dd
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1992 exit=0 events=79395 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 12 files  (D:\jail\m-posthogcli-mtvf6fik\observe\node_modules\@posthog\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":12,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (12) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-posthogcli-mtvf6fik\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-posthogcli-mtvf6fik\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-posthogcli-mtvf6fik\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-posthogcli-mtvf6fik\observe\node_modules\@posthog\cli
+  == ATTRIBUTION == lifecycle pids: 3 (root 1992)
+    writes  script 62  /  whole traced tree 73
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          8
+    jailTmp       4
+    systemfs     46
+        c:\windows\system32\windowspowershell\v1.0\powershell_ise.exe:wofcompresseddata
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
+    userHome      3
+    kernelfs      1
+  == READS ==
+    deps         21
+    outside     236
+    project       1
+    systemfs    585
+    userHome     45
+    jailTmp       4
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true},"network":true}
+    NOTE 4 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 46 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  101367854 B xml -> 1445456 B gz (70.1x)  sha256 7983e9642b11f2b6…
+  HEADER    etw-header.json (5084 bytes)
+  DERIVED   10809 distinct from 27070 kept ops (79395 xml events, 3654 out of subtree)
+  PROCS     5   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 7 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (150687 bytes)
+  RAWLOG-CAPTURE D:\jail\m-posthogcli-mtvf6fik\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-posthogcli-mtvf6fik
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-posthogcli-mtvf6fik\\npm-cache","TMP":"D:\\jail\\m-posthogcli-mtvf6fik\\tmp","TEMP":"D:\\jail\\m-posthogcli-mtvf6fik\\tmp","TMPDIR":"D:\\jail\\m-posthogcli-mtvf6fik\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-posthogcli-mtvf6fik\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c651e63b744df4a03d79720d2f96a2204f508e5da94f19aaae530d3f4dba284f","specCount":2,"lockfiles":{"digest":"a4b7151eaf3e73f257866499cb868233215a4bbb3a9656736c853a8931eacf28","files":[{"path":"nub.lock","sha256":"c6bed1c485db16ec1d316b72a264d020960dc2a1624dfa67cb9f18c976489169","bytes":703}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:19.663Z","cacheHit":false,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree c651e63b744d
+  VERIFY[synth] rc=0 artifacts=13/12 missing=2 shortfall=1bcb811695fe (tree 5693/92) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     missing artifacts: .npmignore, lib/.npmignore
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-posthogcli-mtvf6fik\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"c651e63b744df4a03d79720d2f96a2204f508e5da94f19aaae530d3f4dba284f","specCount":2,"lockfiles":{"digest":"a4b7151eaf3e73f257866499cb868233215a4bbb3a9656736c853a8931eacf28","files":[{"path":"nub.lock","sha256":"c6bed1c485db16ec1d316b72a264d020960dc2a1624dfa67cb9f18c976489169","bytes":703}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:19.663Z","cacheHit":true,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 2 exact package-version(s), tree c651e63b744d (cached exact-tree clearance)
+  VERIFY[fb0] rc=0 artifacts=13/12 missing=2 shortfall=1bcb811695fe (tree 5693/92) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     missing artifacts: .npmignore, lib/.npmignore
+  STORE   isolated virtual store at D:\jail\m-posthogcli-mtvf6fik\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"c651e63b744df4a03d79720d2f96a2204f508e5da94f19aaae530d3f4dba284f","specCount":2,"lockfiles":{"digest":"a4b7151eaf3e73f257866499cb868233215a4bbb3a9656736c853a8931eacf28","files":[{"path":"nub.lock","sha256":"c6bed1c485db16ec1d316b72a264d020960dc2a1624dfa67cb9f18c976489169","bytes":703}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:19.663Z","cacheHit":true,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 2 exact package-version(s), tree c651e63b744d (cached exact-tree clearance)
+  VERIFY[fb1] rc=0 artifacts=13/12 missing=2 shortfall=1bcb811695fe (tree 5693/92) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     missing artifacts: .npmignore, lib/.npmignore
+  STORE   isolated virtual store at D:\jail\m-posthogcli-mtvf6fik\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"c651e63b744df4a03d79720d2f96a2204f508e5da94f19aaae530d3f4dba284f","specCount":2,"lockfiles":{"digest":"a4b7151eaf3e73f257866499cb868233215a4bbb3a9656736c853a8931eacf28","files":[{"path":"nub.lock","sha256":"c6bed1c485db16ec1d316b72a264d020960dc2a1624dfa67cb9f18c976489169","bytes":703}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:04:19.663Z","cacheHit":true,"clearancePath":"D:\\jail\\m-posthogcli-mtvf6fik\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 2 exact package-version(s), tree c651e63b744d (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=13/12 missing=2 shortfall=1bcb811695fe (tree 5699/92) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+     missing artifacts: .npmignore, lib/.npmignore
+  => ARTIFACT-GATE-SUSPECT {"write":{"deps":true,"userHome":true},"network":true}   (every arm rc=0 and the SAME 2-artifact shortfall at
+     every grant up to write:"disk" -- invariant under widening, so it is not a capability gap)
+     -> The grant is the SYNTHESIZED one and is UNVERIFIED -- minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
