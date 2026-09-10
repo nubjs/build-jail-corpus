@@ -1,0 +1,79 @@
+### @go-task/cli@3.53.1   (D:\jail\m-gotaskcli-mtuujb4i)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e15c22c296d0dec9bd196bf69ef641209f43b0d0a538ec8e2153aa8975bf5ebd","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:12.885Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e15c22c296d0
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"b720dcee7df36fbb3035cc48086214953486a066c40cf8f0fcaabd64c821ea92","specCount":48,"lockfiles":{"digest":"9efb0aae94b90209a52056c36e24ffb8d910f6e60b499999d3f96f2b4a5994c4","files":[{"path":"package-lock.json","sha256":"b5f8a9250142d62525cc507c307e8881aa12ff1956bf1425937781502749a290","bytes":19416}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:15.679Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 48 exact package-version(s), tree b720dcee7df3
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=2456 exit=0 events=28311 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 8 files  (D:\jail\m-gotaskcli-mtuujb4i\observe\node_modules\@go-task\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":8,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 48 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-gotaskcli-mtuujb4i\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-gotaskcli-mtuujb4i\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-gotaskcli-mtuujb4i\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-gotaskcli-mtuujb4i\observe\node_modules\@go-task\cli
+  == ATTRIBUTION == lifecycle pids: 2 (root 2456)
+    writes  script 4  /  whole traced tree 15
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          4
+  == READS ==
+    deps        103
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 2
+        140.82.114.4:443
+        185.199.108.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  36242852 B xml -> 527535 B gz (68.7x)  sha256 64523a988178a6fe…
+  HEADER    etw-header.json (5073 bytes)
+  DERIVED   6379 distinct from 9261 kept ops (28311 xml events, 2019 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (79208 bytes)
+  RAWLOG-CAPTURE D:\jail\m-gotaskcli-mtuujb4i\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-gotaskcli-mtuujb4i
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-gotaskcli-mtuujb4i\\npm-cache","TMP":"D:\\jail\\m-gotaskcli-mtuujb4i\\tmp","TEMP":"D:\\jail\\m-gotaskcli-mtuujb4i\\tmp","TMPDIR":"D:\\jail\\m-gotaskcli-mtuujb4i\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-gotaskcli-mtuujb4i\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"b720dcee7df36fbb3035cc48086214953486a066c40cf8f0fcaabd64c821ea92","specCount":48,"lockfiles":{"digest":"9fbd77f01f379779170d44cf63010842d5c0842f2dc063ed1c08665a61f2b525","files":[{"path":"nub.lock","sha256":"0badef7e71c02b0ed201a46360329380f116256fc7bf8d6f06c04697d6af87b7","bytes":12278}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:15.679Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 48 exact package-version(s), tree b720dcee7df3 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=8/8 missing=1 shortfall=01db91262954 (tree 6666/999) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+     missing artifacts: archive-fkpXxJ/task_windows_amd64.zip
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-gotaskcli-mtuujb4i\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"b720dcee7df36fbb3035cc48086214953486a066c40cf8f0fcaabd64c821ea92","specCount":48,"lockfiles":{"digest":"9fbd77f01f379779170d44cf63010842d5c0842f2dc063ed1c08665a61f2b525","files":[{"path":"nub.lock","sha256":"0badef7e71c02b0ed201a46360329380f116256fc7bf8d6f06c04697d6af87b7","bytes":12278}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:15.679Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 48 exact package-version(s), tree b720dcee7df3 (cached exact-tree clearance)
+  VERIFY[fb0] rc=0 artifacts=8/8 missing=1 shortfall=01db91262954 (tree 6666/999) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     missing artifacts: archive-fkpXxJ/task_windows_amd64.zip
+  STORE   isolated virtual store at D:\jail\m-gotaskcli-mtuujb4i\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"b720dcee7df36fbb3035cc48086214953486a066c40cf8f0fcaabd64c821ea92","specCount":48,"lockfiles":{"digest":"9fbd77f01f379779170d44cf63010842d5c0842f2dc063ed1c08665a61f2b525","files":[{"path":"nub.lock","sha256":"0badef7e71c02b0ed201a46360329380f116256fc7bf8d6f06c04697d6af87b7","bytes":12278}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:15.679Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 48 exact package-version(s), tree b720dcee7df3 (cached exact-tree clearance)
+  VERIFY[fb1] rc=0 artifacts=8/8 missing=1 shortfall=01db91262954 (tree 6666/999) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     missing artifacts: archive-fkpXxJ/task_windows_amd64.zip
+  STORE   isolated virtual store at D:\jail\m-gotaskcli-mtuujb4i\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"b720dcee7df36fbb3035cc48086214953486a066c40cf8f0fcaabd64c821ea92","specCount":48,"lockfiles":{"digest":"9fbd77f01f379779170d44cf63010842d5c0842f2dc063ed1c08665a61f2b525","files":[{"path":"nub.lock","sha256":"0badef7e71c02b0ed201a46360329380f116256fc7bf8d6f06c04697d6af87b7","bytes":12278}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:26:15.679Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gotaskcli-mtuujb4i\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 48 exact package-version(s), tree b720dcee7df3 (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=8/8 missing=1 shortfall=01db91262954 (tree 6666/999) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+     missing artifacts: archive-fkpXxJ/task_windows_amd64.zip
+  => ARTIFACT-GATE-SUSPECT {"write":{"deps":true},"network":true}   (every arm rc=0 and the SAME 1-artifact shortfall at
+     every grant up to write:"disk" -- invariant under widening, so it is not a capability gap)
+     -> The grant is the SYNTHESIZED one and is UNVERIFIED -- minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
