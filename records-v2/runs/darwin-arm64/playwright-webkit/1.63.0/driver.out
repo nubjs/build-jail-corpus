@@ -1,0 +1,160 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"d5b33938cf8888ff91451e25ce1b122ab7ccd6215e6ae3d79751c3a0b269eafc","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:44:36.917Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-AyxtzD/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree d5b33938cf88
+### playwright-webkit@1.63.0   (/Users/runner/v2m-AyxtzD)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"fa660b3cfb2d38186cd347800ec0d4d6325acceb36bac3a127cc2fa6ee6a46f1","specCount":2,"lockfiles":{"digest":"35dfe76002e49f815ffa9343e1e4840ab58d7a1c69b0076c8cd833f6504b97eb","files":[{"path":"package-lock.json","sha256":"658ecbced5ee5ee6553b0bf2af588d3f352aafe2f24af23760de8327e2149ced","bytes":1187}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:44:41.904Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-AyxtzD/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree fa660b3cfb2d
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-AyxtzD/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-AyxtzD/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "playwright-webkit" > "/Users/runner/v2m-AyxtzD/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-AyxtzD/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-AyxtzD/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-AyxtzD/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund playwright-webkit
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002b0c000) in action #1 at DIF offset 20
+     dtrace: 3162 dynamic variable drops with non-empty dirty list
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=133 (pre=131) trace=130958 lines
+  CLOSURE   2 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-AyxtzD/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-AyxtzD/Observe/capture.json
+  RAWLOG-BYTES raw=17320507 gz=375862
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-AyxtzD/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":9,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (9) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  EVENTLOG-FILE /Users/runner/v2m-AyxtzD/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":130959,"parsed":130939,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":33,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":18378,"enoent":4656,"refusals":0,"byErrno":{"ENXIO":4,"ENOENT":4656,"EEXIST":13717,"ENOTEMPTY":1},"procs":7,"lifecyclePids":2,"distinctEvents":12917,"emitted":12917,"calls":130380,"bytes":2831319,"gzipBytes":91674,"out":"/Users/runner/v2m-AyxtzD/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=23882 dropped-events=1
+    NOTE 22 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 4 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=9315 read  unproven .
+         pid=9315 read  unproven .
+         pid=9315 read  unproven .
+         pid=9317 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600002b0c000
+  == ATTRIBUTION == lifecycle pids: 2
+    writes  script 6940  /  whole traced subtree 8030
+    sockets script 0  /  whole traced subtree 1
+  == ROOTS (from /Users/runner/v2m-AyxtzD/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-AyxtzD/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-AyxtzD/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-AyxtzD/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-AyxtzD/Observe/node_modules/playwright-webkit
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    userHome   6937
+    jailTmp       2  (base profile already grants this — NOT billed)
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW/playwright-download-KpZIAf
+        /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsvWtzmW/playwright-download-KpZIAf/playwright-download-webkit-mac15-arm64-2359.zip
+  == READS the script performed, by scope ==
+    outside       9
+    systemfs     14
+    userHome      5
+    ownPkg        2
+    deps          5
+    jailTmp       2
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /bin/sh
+        outside: /usr/bin/sw_vers
+        outside: /usr/bin
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    6937 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6937
+        .cache/nub/pm/tools/ms-playwright/__dirlock
+        .cache/nub/pm/tools/ms-playwright/.links
+        .cache/nub/pm/tools/ms-playwright/.links/ca0b465a7065ab55ea39df1153fa80afecb43663
+        .cache/nub/pm/tools/ms-playwright/webkit-2359
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/libwebrtc.dylib
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/PrivateHeaders
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Resources
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/_CodeSignature
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/_CodeSignature/CodeResources
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/Editor.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/MarkupExclusionRule.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/StyleOutlineOffset.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/EditableLinkBehavior.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/SWServerDelegate.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/ApplePayShippingContactUpdate.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/CSSCounterStyleDescriptors.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/WebGPUXRBinding.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/MediaPlayerPrivateMediaStreamAVFObjC.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/DeferrableTask.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/VideoColorSpaceInit.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/FEFlood.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/Editing.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/StaticRange.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/CSSPrimitiveValue.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/FidoHidPacket.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/DataDetectorHighlight.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/Autocapitalize.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/HTMLTextAreaElement.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/VideoFrameMetadata.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/GradientColorStop.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/SVGList.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/JSDOMConvertEnumeration.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/DocumentWriter.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/ResourceTimingInformation.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/RTCIceCandidateType.h
+        .cache/nub/pm/tools/ms-playwright/webkit-2359/WebCore.framework/Versions/A/PrivateHeaders/HTMLFrameSetElement.h
+        … and 6897 more
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 163 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"fa660b3cfb2d38186cd347800ec0d4d6325acceb36bac3a127cc2fa6ee6a46f1","specCount":2,"lockfiles":{"digest":"ed32483e040ab7fce9bd0313d655a548b9722ecdf4eb35ac3c6768db6be1bfab","files":[{"path":"nub.lock","sha256":"725ffe0ca848c47fcf0b9ee971d299aefbd4381103eb09913b53036b303348be","bytes":730}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:44:41.904Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-AyxtzD/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree fa660b3cfb2d (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 381/133) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}
+  EVICT[nar-no-write-userHome] 2 store entries removed, 0 spared as nub tooling, 165 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"fa660b3cfb2d38186cd347800ec0d4d6325acceb36bac3a127cc2fa6ee6a46f1","specCount":2,"lockfiles":{"digest":"ed32483e040ab7fce9bd0313d655a548b9722ecdf4eb35ac3c6768db6be1bfab","files":[{"path":"nub.lock","sha256":"725ffe0ca848c47fcf0b9ee971d299aefbd4381103eb09913b53036b303348be","bytes":730}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:44:41.904Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-AyxtzD/security/nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 2 exact package-version(s), tree fa660b3cfb2d (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=9/9 missing=0 shortfall=none (tree 381/133) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
+### DONE playwright-webkit@1.63.0  synthesized={"write":{"userHome":true}} verified=1
