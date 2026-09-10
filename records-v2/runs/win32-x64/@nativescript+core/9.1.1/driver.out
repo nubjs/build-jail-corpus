@@ -1,0 +1,60 @@
+### @nativescript/core@9.1.1   (D:\jail\m-nativescriptcore-mtuunowu)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f06f00dde85ceb20649cec64bc3438263142f814e0d3094498652e931d65f12c","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:29:37.267Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nativescriptcore-mtuunowu\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f06f00dde85c
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"863ba4fa50ed60b4fa3cea6d05eb7c7af3e8df53fe1977151d6a47d39a8d5b3e","specCount":15,"lockfiles":{"digest":"cc26d17925701c989c5d284cf9ff191bc7578a981cebd58ac095f5e4f5929ce0","files":[{"path":"package-lock.json","sha256":"2a1e17e5f537d3ac72f5aebfc33ab1a02c3dbe5837bc455408eb49684ee7bf3c","bytes":7998}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:29:41.090Z","cacheHit":false,"clearancePath":"D:\\jail\\m-nativescriptcore-mtuunowu\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 15 exact package-version(s), tree 863ba4fa50ed
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=7028 exit=0 events=22860 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 1359 files  (D:\jail\m-nativescriptcore-mtuunowu\observe\node_modules\@nativescript\core)
+  ARM-FALSIFIABILITY {"manifestFiles":1360,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (1360) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 15 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-nativescriptcore-mtuunowu\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-nativescriptcore-mtuunowu\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-nativescriptcore-mtuunowu\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-nativescriptcore-mtuunowu\observe\node_modules\@nativescript\core
+  == ATTRIBUTION == lifecycle pids: 2 (root 7028)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps          8
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  29177413 B xml -> 421784 B gz (69.2x)  sha256 9aba37ba5229150c…
+  HEADER    etw-header.json (5124 bytes)
+  DERIVED   5252 distinct from 6409 kept ops (22860 xml events, 2164 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (66181 bytes)
+  RAWLOG-CAPTURE D:\jail\m-nativescriptcore-mtuunowu\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-nativescriptcore-mtuunowu
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-nativescriptcore-mtuunowu\\npm-cache","TMP":"D:\\jail\\m-nativescriptcore-mtuunowu\\tmp","TEMP":"D:\\jail\\m-nativescriptcore-mtuunowu\\tmp","TMPDIR":"D:\\jail\\m-nativescriptcore-mtuunowu\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-nativescriptcore-mtuunowu\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"863ba4fa50ed60b4fa3cea6d05eb7c7af3e8df53fe1977151d6a47d39a8d5b3e","specCount":15,"lockfiles":{"digest":"c268bcf49fd1799dea62f866f39eb51a3107a0aa5d5d972eb7e72646c7841bfd","files":[{"path":"nub.lock","sha256":"3cfa0f70e4bc088b73d8222a01b0271c358a2c3835322cf5f5abf66445dac3ae","bytes":4976}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:29:41.090Z","cacheHit":true,"clearancePath":"D:\\jail\\m-nativescriptcore-mtuunowu\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 15 exact package-version(s), tree 863ba4fa50ed (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=1359/1359 missing=0 shortfall=none (tree 8893/1811) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
