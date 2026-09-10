@@ -1,0 +1,64 @@
+### prisma-zod-generator@3.3.1   (/home/runner/v2-XOcEsx)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"04bf7b9b80bf752b339f3bfd3d6313a64e5bbbcc494321a11dd941ec0651472d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:10:37.316Z","cacheHit":false,"clearancePath":"/home/runner/v2-XOcEsx/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 04bf7b9b80bf
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"7a6008d640a7caec93363ec73469603a9f9247fe871d678cd212dddebd019b7a","specCount":147,"lockfiles":{"digest":"f5e1af098593d5ebcacc5ad141dcb43214a231dbc3e20d5ade02194f02fe678f","files":[{"path":"package-lock.json","sha256":"5e8ca681623fa6f1a7ec861232f3616c542c6bb96bf53b304c6d2576d986f150","bytes":65347}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:10:46.995Z","cacheHit":false,"clearancePath":"/home/runner/v2-XOcEsx/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 147 exact package-version(s), tree 7a6008d640a7
+  OBSERVE   rc=0 files=7466 trace=11233 lines
+  CLOSURE   145 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":248,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (248) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-XOcEsx/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-XOcEsx/observe/capture.json
+  RAWLOG-BYTES raw=2435932 gz=71134
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-XOcEsx/jailhome","TMPDIR":"/tmp/nub-tmp-obsymUDYb","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-XOcEsx/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 4
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-XOcEsx/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-XOcEsx/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-XOcEsx/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsymUDYb
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-XOcEsx/observe/node_modules/prisma-zod-generator
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.4.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4685 distinct from 10982 calls (11234 lines, 229 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×23 getsockname×22 exit×15 getsockopt×9 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-XOcEsx/observe/events.ndjson.gz (33196 bytes)
+  EVENTLOG-FILE /home/runner/v2-XOcEsx/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11234,"parsed":10982,"unparsed":0,"unfinished":229,"rejoined":229,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4685,"unknownSyscall":{"getsockname":22,"getsockopt":9,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-XOcEsx/observe/events.ndjson.gz","gzipBytes":33196}
+  EVICT     22 store entries removed, 1 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for prisma-zod-generator
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"ea2a70020c24213524595c8ca65a4261e4eb4b7ac71bba2442bcf1bfdbef9eeb","specCount":147,"lockfiles":{"digest":"df9530c511603ee5b1b36e10505a1fa5c4ee82d3c194f6ac2b5c265a9898e00c","files":[{"path":"nub.lock","sha256":"b95d09f1e0df42b1273721874c5d5794d4bc44967d4aa986f90bf10e8b7e9110","bytes":37249}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:10:55.254Z","cacheHit":false,"clearancePath":"/home/runner/v2-XOcEsx/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 147 exact package-version(s), tree ea2a70020c24
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=248/248 missing=0 shortfall=none (tree 24377/7466) OVERRIDDEN=2 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
