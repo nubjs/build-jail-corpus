@@ -1,0 +1,72 @@
+### gatsby@5.16.1   (D:\jail\m-gatsby-mtus3uin)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ced39f6a111093ce494ed54b3dda7412e9cbaeb6ae7575cbefe4915f4b85f138","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:18:12.180Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gatsby-mtus3uin\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ced39f6a1110
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c188d094d6c65ae14ac6200bc4929d61c484f4f904495c8c26c47b6cce86386c","specCount":1255,"lockfiles":{"digest":"d51e74043ee5db96b23920b41152bb2a7d759429b375c47f4af1f11a1b496d30","files":[{"path":"package-lock.json","sha256":"6a2e841001629a1a38dccbb57de6c5ff0bc0be1b835b0c56b55bc380c9bf8020","bytes":689485}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:19:30.769Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gatsby-mtus3uin\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1255 exact package-version(s), tree c188d094d6c6
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=6444 exit=0 events=30909 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 1363 files  (D:\jail\m-gatsby-mtus3uin\observe\node_modules\gatsby)
+  ARM-FALSIFIABILITY {"manifestFiles":1363,"filesTheScriptProduced":2,"reasons":[]}
+  CLOSURE 1116 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-gatsby-mtus3uin\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-gatsby-mtus3uin\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-gatsby-mtus3uin\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-gatsby-mtus3uin\observe\node_modules\gatsby
+  == ATTRIBUTION == lifecycle pids: 2 (root 6444)
+    writes  script 2  /  whole traced tree 13
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    deps          2
+  == READS ==
+    deps        146
+    outside       6
+    project       1
+    systemfs     28
+  == NETWORK ==
+    distinct peers: 2
+        185.199.110.133:443
+        104.18.1.22:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+  RAW       etw-raw.xml.gz  39662270 B xml -> 632751 B gz (62.7x)  sha256 20d0a5a6a293d60e…
+  HEADER    etw-header.json (5042 bytes)
+  DERIVED   7743 distinct from 9045 kept ops (30909 xml events, 3027 out of subtree)
+  PROCS     4   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (97955 bytes)
+  RAWLOG-CAPTURE D:\jail\m-gatsby-mtus3uin\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-gatsby-mtus3uin
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-gatsby-mtus3uin\\npm-cache","TMP":"D:\\jail\\m-gatsby-mtus3uin\\tmp","TEMP":"D:\\jail\\m-gatsby-mtus3uin\\tmp","TMPDIR":"D:\\jail\\m-gatsby-mtus3uin\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 8 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-gatsby-mtus3uin\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"cc54135650e00868a8e04c4b461d750d5185b36a196410d838d377f1cf7779b0","specCount":1259,"lockfiles":{"digest":"4f99a9b1912312d56ca86f11488a6c83c88ce3e6c346ea874ffbcf943003cc32","files":[{"path":"nub.lock","sha256":"2da5646aa83b110e025fc8ac65981247b3d7ef811742a781e060c15cb6c804e7","bytes":420540}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:21:06.117Z","cacheHit":false,"clearancePath":"D:\\jail\\m-gatsby-mtus3uin\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1259 exact package-version(s), tree cc54135650e0
+  VERIFY[synth] rc=0 artifacts=1363/1363 missing=0 shortfall=none (tree 85457/59529) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  scaffold: 8 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-gatsby-mtus3uin\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"cc54135650e00868a8e04c4b461d750d5185b36a196410d838d377f1cf7779b0","specCount":1259,"lockfiles":{"digest":"4f99a9b1912312d56ca86f11488a6c83c88ce3e6c346ea874ffbcf943003cc32","files":[{"path":"nub.lock","sha256":"2da5646aa83b110e025fc8ac65981247b3d7ef811742a781e060c15cb6c804e7","bytes":420540}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:21:06.117Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gatsby-mtus3uin\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 1259 exact package-version(s), tree cc54135650e0 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=0 artifacts=1361/1363 missing=2 shortfall=22291cd17ee5 (tree 85455/59529) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: latest-adapters.js, latest-apis.json
+     'no-network' is NECESSARY — dropping it fails to verify
+  scaffold: 8 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-gatsby-mtus3uin\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"cc54135650e00868a8e04c4b461d750d5185b36a196410d838d377f1cf7779b0","specCount":1259,"lockfiles":{"digest":"4f99a9b1912312d56ca86f11488a6c83c88ce3e6c346ea874ffbcf943003cc32","files":[{"path":"nub.lock","sha256":"2da5646aa83b110e025fc8ac65981247b3d7ef811742a781e060c15cb6c804e7","bytes":420540}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:21:06.117Z","cacheHit":true,"clearancePath":"D:\\jail\\m-gatsby-mtus3uin\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 1259 exact package-version(s), tree cc54135650e0 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=1363/1363 missing=0 shortfall=none (tree 85457/59529) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
