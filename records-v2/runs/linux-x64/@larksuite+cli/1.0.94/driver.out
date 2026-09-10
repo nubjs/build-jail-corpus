@@ -1,0 +1,80 @@
+### @larksuite/cli@1.0.94   (/home/runner/v2-x73VCS)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"df08bce206fee04dcc1c1543efc99d304fc518c2d091451a9726edc245ee0dac","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:15:19.992Z","cacheHit":false,"clearancePath":"/home/runner/v2-x73VCS/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree df08bce206fe
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"2ee0b248af8db985e697d4426ab1ea33c753b70942498b4329a442953020a3f7","specCount":7,"lockfiles":{"digest":"99c04bec30b4acd18ce5fd0c60f5c0cad62914e92214c36c7d9189ec1c40bcae","files":[{"path":"package-lock.json","sha256":"cb49fe9d37b888ec4dbcdecf9da10354cea56cf9e8d7d130491b58fcacb5f3fc","bytes":3242}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:15:22.163Z","cacheHit":false,"clearancePath":"/home/runner/v2-x73VCS/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 7 exact package-version(s), tree 2ee0b248af8d
+  OBSERVE   rc=0 files=48 trace=13525 lines
+  CLOSURE   7 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":10,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-x73VCS/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-x73VCS/observe/capture.json
+  RAWLOG-BYTES raw=2656588 gz=132748
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-x73VCS/jailhome","TMPDIR":"/tmp/nub-tmp-obsSaVW9v","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-x73VCS/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 9  /  whole traced tree 1097
+    sockets script 6  /  whole traced tree 12
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-x73VCS/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-x73VCS/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-x73VCS/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsSaVW9v
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-x73VCS/observe/node_modules/@larksuite/cli
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-x73VCS/observe/node_modules/@larksuite/cli/bin
+        /home/runner/v2-x73VCS/observe/node_modules/@larksuite/cli/bin/lark-cli
+    jailTmp       6  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL/lark-cli-1.0.94-linux-amd64.tar.gz
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL/CHANGELOG.md
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL/LICENSE
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL/README.md
+        /tmp/nub-tmp-obsSaVW9v/lark-cli-OQNiOL/lark-cli
+    kernelfs      1
+        /dev/null
+  == NETWORK ==
+    AF_INET sockets: 6   distinct peers: 3
+        127.0.0.53:53
+        104.16.1.34:443
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4629 distinct from 13476 calls (13526 lines, 19 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×38 setsockopt×37 exit×17 getsockopt×11 recvmsg×9 getpeername×6 exit_group×6 wait4×6
+    wrote /home/runner/v2-x73VCS/observe/events.ndjson.gz (32940 bytes)
+  EVENTLOG-FILE /home/runner/v2-x73VCS/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":13526,"parsed":13476,"unparsed":0,"unfinished":19,"rejoined":19,"unresolvedDirfd":3,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4629,"unknownSyscall":{"getsockname":38,"getsockopt":11,"getcwd":4,"recvmsg":9,"exit":17,"setsockopt":37,"sendmmsg":3,"socketpair":4,"shutdown":3,"getpeername":6,"exit_group":6,"wait4":6},"out":"/home/runner/v2-x73VCS/observe/events.ndjson.gz","gzipBytes":32940}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @larksuite/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"2ee0b248af8db985e697d4426ab1ea33c753b70942498b4329a442953020a3f7","specCount":7,"lockfiles":{"digest":"9fa2972fcf19935e712feb54e7321bf7a19a974568dec19e18e10ecdf4f79dd9","files":[{"path":"nub.lock","sha256":"11a79636e9496df65321070438660a77d7532de3424ed2777f93f3dbed545215","bytes":2018}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:15:22.163Z","cacheHit":true,"clearancePath":"/home/runner/v2-x73VCS/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 7 exact package-version(s), tree 2ee0b248af8d (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 157/48) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     7 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @larksuite/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"2ee0b248af8db985e697d4426ab1ea33c753b70942498b4329a442953020a3f7","specCount":7,"lockfiles":{"digest":"9fa2972fcf19935e712feb54e7321bf7a19a974568dec19e18e10ecdf4f79dd9","files":[{"path":"nub.lock","sha256":"11a79636e9496df65321070438660a77d7532de3424ed2777f93f3dbed545215","bytes":2018}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:15:22.163Z","cacheHit":true,"clearancePath":"/home/runner/v2-x73VCS/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 7 exact package-version(s), tree 2ee0b248af8d (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=9/10 missing=1 shortfall=7dcec4234634 (tree 154/48) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: bin/lark-cli
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
