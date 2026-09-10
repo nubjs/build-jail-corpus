@@ -1,0 +1,78 @@
+### @pdftron/pdfnet-node@12.1.0   (D:\jail\m-pdftronpdfnetnode-mtuubw7c)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"f200141cdef84a7a256fdba7c06393ff4f140168feeb49f8641ff2f4fe9a7d2d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:20:26.887Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree f200141cdef8
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"82a492bba945727ceaf895283230d3a904b8ae1aad5a653d6ddbdefb7e8d0c11","specCount":38,"lockfiles":{"digest":"5b875f52d22f02d433e0a1c861e8512c16fcc6b28005ef55dcb9163c1409b574","files":[{"path":"package-lock.json","sha256":"f385f828bce7f3bb131d5bdd2e97097c2eb5ca5e35d71a55df89a331019920b4","bytes":16624}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:20:29.853Z","cacheHit":false,"clearancePath":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 38 exact package-version(s), tree 82a492bba945
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=6916 exit=0 events=60429 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 10 files  (D:\jail\m-pdftronpdfnetnode-mtuubw7c\observe\node_modules\@pdftron\pdfnet-node)
+  ARM-FALSIFIABILITY {"manifestFiles":11,"filesTheScriptProduced":6,"reasons":[]}
+  CLOSURE 38 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-pdftronpdfnetnode-mtuubw7c\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-pdftronpdfnetnode-mtuubw7c\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-pdftronpdfnetnode-mtuubw7c\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-pdftronpdfnetnode-mtuubw7c\observe\node_modules\@pdftron\pdfnet-node
+  == ATTRIBUTION == lifecycle pids: 8 (root 6916)
+    writes  script 39  /  whole traced tree 46
+    peers   script 1  /  whole traced tree 1
+  == WRITES ==
+    outside       4
+        d:\jail\m-pdftronpdfnetnode-mtuubw7c\npm-cache\_logs\2026-09-10t01_20_33_028z-debug-0.log
+        d:\jail\m-pdftronpdfnetnode-mtuubw7c\npm-cache\_prebuilds
+        d:\jail\m-pdftronpdfnetnode-mtuubw7c\npm-cache\_prebuilds\ae772f-pdfnet-addon-v12.1.0-node-v127-win32-x64.tar.gz.1632-7b55e920b7f24.tmp
+        d:\jail\m-pdftronpdfnetnode-mtuubw7c\npm-cache\_prebuilds\ae772f-pdfnet-addon-v12.1.0-node-v127-win32-x64.tar.gz
+    deps         17
+    jailTmp      18
+  == READS ==
+    deps        153
+    outside     696
+    project       2
+    systemfs     42
+    jailTmp     548
+  == NETWORK ==
+    distinct peers: 1
+        65.8.54.4:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 18 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 4 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  77941316 B xml -> 1133900 B gz (68.7x)  sha256 f60fc94140ef5aae…
+  HEADER    etw-header.json (5142 bytes)
+  DERIVED   11763 distinct from 23116 kept ops (60429 xml events, 2376 out of subtree)
+  PROCS     10   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (141133 bytes)
+  RAWLOG-CAPTURE D:\jail\m-pdftronpdfnetnode-mtuubw7c\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-pdftronpdfnetnode-mtuubw7c
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\npm-cache","TMP":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\tmp","TEMP":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\tmp","TMPDIR":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-pdftronpdfnetnode-mtuubw7c\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"82a492bba945727ceaf895283230d3a904b8ae1aad5a653d6ddbdefb7e8d0c11","specCount":38,"lockfiles":{"digest":"206cf5b62b57aec81fbc354ca0010e1d8cdcd4c4700b1edc5a9fa8409ed623b5","files":[{"path":"nub.lock","sha256":"a3f802b88f45c890b21b49dd56c55e5f3ae1cf4f63dd9398e1ca94c65cb5a9b4","bytes":8648}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:20:29.853Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 38 exact package-version(s), tree 82a492bba945 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 6629/866) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-pdftronpdfnetnode-mtuubw7c\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"82a492bba945727ceaf895283230d3a904b8ae1aad5a653d6ddbdefb7e8d0c11","specCount":38,"lockfiles":{"digest":"206cf5b62b57aec81fbc354ca0010e1d8cdcd4c4700b1edc5a9fa8409ed623b5","files":[{"path":"nub.lock","sha256":"a3f802b88f45c890b21b49dd56c55e5f3ae1cf4f63dd9398e1ca94c65cb5a9b4","bytes":8648}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:20:29.853Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 38 exact package-version(s), tree 82a492bba945 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=4/10 missing=6 shortfall=d0b7b02768a0 (tree 6624/866) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: lib/addon.node, lib/pdfnet.js, lib/pdfnet.res, lib/PDFNetC.dll, lib/PDFNetC.lib, lib/types.d.ts
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-pdftronpdfnetnode-mtuubw7c\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"82a492bba945727ceaf895283230d3a904b8ae1aad5a653d6ddbdefb7e8d0c11","specCount":38,"lockfiles":{"digest":"206cf5b62b57aec81fbc354ca0010e1d8cdcd4c4700b1edc5a9fa8409ed623b5","files":[{"path":"nub.lock","sha256":"a3f802b88f45c890b21b49dd56c55e5f3ae1cf4f63dd9398e1ca94c65cb5a9b4","bytes":8648}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:20:29.853Z","cacheHit":true,"clearancePath":"D:\\jail\\m-pdftronpdfnetnode-mtuubw7c\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 38 exact package-version(s), tree 82a492bba945 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=10/10 missing=0 shortfall=none (tree 6629/866) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
