@@ -1,0 +1,81 @@
+### dugite@3.2.3   (/home/runner/v2-n2Pvb9)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"20d916dd6358d2553fd1521efd2b52798952c48db4ff90aeac6de7dfa6056f5a","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:27.233Z","cacheHit":false,"clearancePath":"/home/runner/v2-n2Pvb9/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 20d916dd6358
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"10384a1a93b86f747ee24587290a145c5d27509f6572b88f2ca1afa9e4d2798d","files":[{"path":"package-lock.json","sha256":"59cfe131a0c7563d61cdeb85963f30cbaba7a88d3689ff29197ab6cd13afc5dc","bytes":6293}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:30.367Z","cacheHit":false,"clearancePath":"/home/runner/v2-n2Pvb9/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree 807eed0f7155
+  OBSERVE   rc=0 files=323 trace=11395 lines
+  CLOSURE   14 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":304,"filesTheScriptProduced":268,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-n2Pvb9/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-n2Pvb9/observe/capture.json
+  RAWLOG-BYTES raw=2464715 gz=75244
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-n2Pvb9/jailhome","TMPDIR":"/tmp/nub-tmp-obs0IOO31","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-n2Pvb9/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 18
+    writes  script 334  /  whole traced tree 1422
+    sockets script 5  /  whole traced tree 9
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-n2Pvb9/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-n2Pvb9/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-n2Pvb9/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obs0IOO31
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-n2Pvb9/observe/node_modules/dugite
+  == WRITES the script actually performed ==
+    jailTmp       1  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obs0IOO31/dugite-native-v2.53.0-4098283-ubuntu-x64.tar.gz
+    ownPkg      333  (base profile already grants this — NOT billed)
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/ssl
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/ssl/cacert.pem
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/bin
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/bin/scalar
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/bin/git
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/etc
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/etc/gitconfig
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/libexec
+        /home/runner/v2-n2Pvb9/observe/node_modules/dugite/git/libexec/git-core
+        … and 323 more
+  == NETWORK ==
+    AF_INET sockets: 5   distinct peers: 3
+        127.0.0.53:53
+        104.16.3.34:443
+        140.82.114.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4845 distinct from 11294 calls (11396 lines, 74 rejoined, 0 unparsed)
+    PROCS     25   lifecycle shells 13
+    ⛔ 1 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: setsockopt×45 getsockname×30 exit×20 getsockopt×13 recvmsg×11 getcwd×4 sendmmsg×3 socketpair×3
+    wrote /home/runner/v2-n2Pvb9/observe/events.ndjson.gz (34456 bytes)
+  EVENTLOG-FILE /home/runner/v2-n2Pvb9/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11396,"parsed":11294,"unparsed":0,"unfinished":74,"rejoined":74,"unresolvedDirfd":1,"truncatedArg":0,"procs":25,"lifecyclePids":13,"distinctEvents":4845,"unknownSyscall":{"getsockname":30,"getsockopt":13,"getcwd":4,"recvmsg":11,"exit":20,"setsockopt":45,"sendmmsg":3,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-n2Pvb9/observe/events.ndjson.gz","gzipBytes":34456}
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dugite
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"9493eae107b4ab2de7d42da1ed42411d895a692e6b0b1f0f84d5f288ef4049cd","files":[{"path":"nub.lock","sha256":"62eb9531125840c44ac43d1e01ad0f665ba29ae5f055d1c7805b917a765cdb6c","bytes":4654}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:30.367Z","cacheHit":true,"clearancePath":"/home/runner/v2-n2Pvb9/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree 807eed0f7155 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=304/304 missing=0 shortfall=none (tree 1496/323) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     14 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for dugite
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"9493eae107b4ab2de7d42da1ed42411d895a692e6b0b1f0f84d5f288ef4049cd","files":[{"path":"nub.lock","sha256":"62eb9531125840c44ac43d1e01ad0f665ba29ae5f055d1c7805b917a765cdb6c","bytes":4654}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:29:30.367Z","cacheHit":true,"clearancePath":"/home/runner/v2-n2Pvb9/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 14 exact package-version(s), tree 807eed0f7155 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=36/304 missing=268 shortfall=aa31f66b80ae (tree 693/323) OVERRIDDEN=2 REJECTED=0 grant={}
+       missing: git/bin/git, git/bin/scalar, git/etc/gitconfig, git/libexec/git-core/NOTICE, git/libexec/git-core/git, git/libexec/git-core/git-add (+262)
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
