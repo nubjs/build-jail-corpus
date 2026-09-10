@@ -1,0 +1,85 @@
+### svf-lib@1.0.2693   (/home/runner/v2-oQJFGU)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:34:35.462Z","cacheHit":false,"clearancePath":"/home/runner/v2-oQJFGU/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3e7468e2355b
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"66ae35ab5ddc4c22e0e4e7b725270aee05461d54e869685d48c32fb463e2054b","files":[{"path":"package-lock.json","sha256":"1449aad49ca3034d375e8b920d1775197939e7afb39e7a31230664e860e2cfa2","bytes":547}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:34:35.462Z","cacheHit":true,"clearancePath":"/home/runner/v2-oQJFGU/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  OBSERVE   rc=0 files=4340 trace=24125 lines
+  CLOSURE   3 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":517,"filesTheScriptProduced":4,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-oQJFGU/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-oQJFGU/observe/capture.json
+  RAWLOG-BYTES raw=3763606 gz=185975
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-oQJFGU/jailhome","TMPDIR":"/tmp/nub-tmp-obsXMyNqN","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-oQJFGU/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 45
+    writes  script 4076  /  whole traced tree 5164
+    sockets script 12  /  whole traced tree 16
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-oQJFGU/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-oQJFGU/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-oQJFGU/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsXMyNqN
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-oQJFGU/observe/node_modules/svf-lib
+  == WRITES the script actually performed ==
+    ownPkg        4  (base profile already grants this — NOT billed)
+        /home/runner/v2-oQJFGU/observe/node_modules/svf-lib/SVF-linux-x86_64/lib/libSvfLLVM.so.3
+        /home/runner/v2-oQJFGU/observe/node_modules/svf-lib/SVF-linux-x86_64/lib/libSvfLLVM.so
+        /home/runner/v2-oQJFGU/observe/node_modules/svf-lib/SVF-linux-x86_64/lib/libSvfCore.so.3
+        /home/runner/v2-oQJFGU/observe/node_modules/svf-lib/SVF-linux-x86_64/lib/libSvfCore.so
+    deps       4068
+    jailHome      1  (base profile already grants this — NOT billed)
+        /home/runner/v2-oQJFGU/jailhome/.wget-hsts
+    kernelfs      3
+        /dev/null
+        /proc/version_signature/nested-z3-4.15.4-x86_64-ubuntu-22.04
+        /proc/version_signature/z3-4.15.4-x86_64-ubuntu-22.04.zip
+  == NETWORK ==
+    AF_INET sockets: 12   distinct peers: 3
+        127.0.0.53:53
+        104.16.5.34:443
+        140.82.113.3:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 3 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 1
+    none declared — every write was a FILE at the top of the private home, or landed in a directory the TOOLCHAIN owns (see `writePathsDeny`) — an entry names a directory belonging to the PACKAGE, so there is nothing to name
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    10483 distinct from 23903 calls (24126 lines, 134 rejoined, 0 unparsed)
+    PROCS     52   lifecycle shells 40
+    ⛔ 27 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×72 exit_group×39 getsockname×37 setsockopt×37 exit×12 recvmsg×11 getsockopt×6 getpeername×6
+    wrote /home/runner/v2-oQJFGU/observe/events.ndjson.gz (74225 bytes)
+  EVENTLOG-FILE /home/runner/v2-oQJFGU/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":24126,"parsed":23903,"unparsed":0,"unfinished":134,"rejoined":134,"unresolvedDirfd":27,"truncatedArg":0,"procs":52,"lifecyclePids":40,"distinctEvents":10483,"unknownSyscall":{"getsockname":37,"getsockopt":6,"getcwd":3,"recvmsg":11,"exit":12,"setsockopt":37,"sendmmsg":5,"socketpair":3,"shutdown":3,"exit_group":39,"wait4":72,"getpeername":6},"out":"/home/runner/v2-oQJFGU/observe/events.ndjson.gz","gzipBytes":74225}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for svf-lib
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:34:35.462Z","cacheHit":true,"clearancePath":"/home/runner/v2-oQJFGU/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=517/517 missing=0 shortfall=none (tree 5580/4340) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => VERIFIED {"write":{"deps":true},"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for svf-lib
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:34:35.462Z","cacheHit":true,"clearancePath":"/home/runner/v2-oQJFGU/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=517/517 missing=0 shortfall=none (tree 1560/4340) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for svf-lib
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:34:35.462Z","cacheHit":true,"clearancePath":"/home/runner/v2-oQJFGU/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 artifacts=517/517 missing=0 shortfall=none (tree 5580/4340) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"network":true} is sufficient
+  => OVER-PREDICTED by: no-write-deps  (synthesized {"write":{"deps":true},"network":true}; each named capability drops on its own)
