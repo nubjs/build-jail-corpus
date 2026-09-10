@@ -1,0 +1,63 @@
+### @coze/cli@0.3.11   (/home/runner/v2-Cu9KUb)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1de7180245f6293267e0d2380e2dbbce85280a7ea809c76ddfce81e2f0e000c0","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:09:24.168Z","cacheHit":false,"clearancePath":"/home/runner/v2-Cu9KUb/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1de7180245f6
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8826bbcf902110888ccd46659bd5bb424c240bbaa38414066152fa884b7372cb","specCount":168,"lockfiles":{"digest":"6aea68e5112865c6b8ce44f21a6833bb24d9c357546e45e45393f40644dc64d8","files":[{"path":"package-lock.json","sha256":"53206de40a8aab3aad54a9902aca247ddc86dbe127a18f42da295439d81da116","bytes":74046}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:09:30.528Z","cacheHit":false,"clearancePath":"/home/runner/v2-Cu9KUb/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 168 exact package-version(s), tree 8826bbcf9021
+  OBSERVE   rc=0 files=5752 trace=11234 lines
+  CLOSURE   162 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":45,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (45) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-Cu9KUb/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-Cu9KUb/observe/capture.json
+  RAWLOG-BYTES raw=2445643 gz=71774
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-Cu9KUb/jailhome","TMPDIR":"/tmp/nub-tmp-obsJk6WuI","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-Cu9KUb/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 13
+    writes  script 0  /  whole traced tree 1088
+    sockets script 0  /  whole traced tree 6
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-Cu9KUb/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-Cu9KUb/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-Cu9KUb/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsJk6WuI
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-Cu9KUb/observe/node_modules/@coze/cli
+  == WRITES the script actually performed ==
+  == NETWORK ==
+    AF_INET sockets: 0   distinct peers: 2
+        127.0.0.53:53
+        104.16.2.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4744 distinct from 11046 calls (11235 lines, 166 rejoined, 0 unparsed)
+    PROCS     20   lifecycle shells 8
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×23 setsockopt×23 exit×15 getsockopt×9 recvmsg×7 getcwd×4 socketpair×3 shutdown×3
+    wrote /home/runner/v2-Cu9KUb/observe/events.ndjson.gz (33580 bytes)
+  EVENTLOG-FILE /home/runner/v2-Cu9KUb/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":11235,"parsed":11046,"unparsed":0,"unfinished":166,"rejoined":166,"unresolvedDirfd":3,"truncatedArg":0,"procs":20,"lifecyclePids":8,"distinctEvents":4744,"unknownSyscall":{"getsockname":23,"getsockopt":9,"getcwd":4,"recvmsg":7,"exit":15,"setsockopt":23,"sendmmsg":1,"socketpair":3,"shutdown":3,"exit_group":3,"wait4":3},"out":"/home/runner/v2-Cu9KUb/observe/events.ndjson.gz","gzipBytes":33580}
+  EVICT     34 store entries removed, 7 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for @coze/cli
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"894a15d622cd70efe82d29a2028201be10d83a60a59d570c8de2b86937696eca","specCount":168,"lockfiles":{"digest":"78c9df6ba4a02ff64ff9512ac45efaf3f536f9fe9fc9bd8916acdd94b56ea0b1","files":[{"path":"nub.lock","sha256":"8633f17b9d5642fb7a875408b7e60c775a5f4624016d1107c738786fbca7984a","bytes":42716}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T11:09:36.782Z","cacheHit":false,"clearancePath":"/home/runner/v2-Cu9KUb/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 168 exact package-version(s), tree 894a15d622cd
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 17905/5752) OVERRIDDEN=3 REJECTED=0 grant={}
+  => VERIFIED {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
