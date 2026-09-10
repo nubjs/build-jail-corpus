@@ -1,0 +1,58 @@
+### appium-chromedriver@9.0.18   (D:\jail\m-appiumchromedriver-mtvahpvj)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"bd7f4bf3b2735add80c4e6dadbe748c7a719588bb46054d0b4d3ec0045830a97","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T08:52:52.440Z","cacheHit":false,"clearancePath":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree bd7f4bf3b273
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"96ce0429a4cafa2cfc0983581a54ed3d8ad885e758b786fdef43d6740e5b5e4a","specCount":216,"lockfiles":{"digest":"73e7a63bfa01ee6532375009eeac3ae7de1e8bbfe82cb98e2c8d8723a53eae8a","files":[{"path":"package-lock.json","sha256":"4970adb28cb6c90a33baa40256f1c1d1971e03dc37eec44f16651ac52ae0d3ec","bytes":113053}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T08:53:02.545Z","cacheHit":false,"clearancePath":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 216 exact package-version(s), tree 96ce0429a4ca
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=948 exit=0 events=21269 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 70 files  (D:\jail\m-appiumchromedriver-mtvahpvj\observe\node_modules\appium-chromedriver)
+  ARM-FALSIFIABILITY {"manifestFiles":70,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (70) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 199 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-appiumchromedriver-mtvahpvj\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-appiumchromedriver-mtvahpvj\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-appiumchromedriver-mtvahpvj\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-appiumchromedriver-mtvahpvj\observe\node_modules\appium-chromedriver
+  == ATTRIBUTION == lifecycle pids: 0 (root 948)
+    writes  script 0  /  whole traced tree 7
+    peers   script 0  /  whole traced tree 0
+    !! NO LIFECYCLE SHELL FOUND -- the subtree filter matched nothing, so the grant
+       below is EMPTY BY DEFAULT rather than by measurement. Treat it as UNKNOWN.
+  == WRITES ==
+  == READS ==
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  27171954 B xml -> 393177 B gz (69.1x)  sha256 42ae44699d08acb5…
+  HEADER    etw-header.json (5135 bytes)
+  DERIVED   5340 distinct from 6393 kept ops (21269 xml events, 1603 out of subtree)
+  PROCS     2   thread-reattributed 0
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (67193 bytes)
+  RAWLOG-CAPTURE D:\jail\m-appiumchromedriver-mtvahpvj\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-appiumchromedriver-mtvahpvj
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\npm-cache","TMP":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\tmp","TEMP":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\tmp","TMPDIR":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-appiumchromedriver-mtvahpvj\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9f1bcb7ada8af3248c9bce6730e970636f08342f22d4ceb0207ed34808f52835","specCount":212,"lockfiles":{"digest":"12aaf29794eb32ef854b6d44b7ea72d6ccc5f956df25da232cf4f19bc39c6423","files":[{"path":"nub.lock","sha256":"b784632c6d85731c36b65251d1ab371eb9cd6aef3baaa3e2c768d6f7b7f90367","bytes":64893}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T08:53:17.034Z","cacheHit":false,"clearancePath":"D:\\jail\\m-appiumchromedriver-mtvahpvj\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 212 exact package-version(s), tree 9f1bcb7ada8a
+  VERIFY[synth] rc=0 artifacts=70/70 missing=0 shortfall=none (tree 5742/4034) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
