@@ -1,0 +1,61 @@
+### @azure/mcp@3.0.0-beta.42   (D:\jail\m-azuremcp-mtutlugk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"e1a21defbed344d43177acc4c967bc407d6ef25e25a61ebca807aafa18b74d5d","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:00:11.589Z","cacheHit":false,"clearancePath":"D:\\jail\\m-azuremcp-mtutlugk\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree e1a21defbed3
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"c14b1804c99bac306a3c0f335b20bc199d999ecac6c1f882a401b45f5c712add","specCount":2,"lockfiles":{"digest":"f7f096ca7afa0e996cb762e9834efb65d152f7ad7103bf3ebfc69cc46b05ffd4","files":[{"path":"package-lock.json","sha256":"cc8b66befd384487f33f60c3cdb9dad8b1498cc6bcf29d84f7da589bcc4e0ca1","bytes":4481}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:00:16.694Z","cacheHit":false,"clearancePath":"D:\\jail\\m-azuremcp-mtutlugk\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 2 exact package-version(s), tree c14b1804c99b
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=1148 exit=0 events=28377 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 5 files  (D:\jail\m-azuremcp-mtutlugk\observe\node_modules\@azure\mcp)
+  ARM-FALSIFIABILITY {"manifestFiles":5,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (5) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 2 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-azuremcp-mtutlugk\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-azuremcp-mtutlugk\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-azuremcp-mtutlugk\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-azuremcp-mtutlugk\observe\node_modules\@azure\mcp
+  == ATTRIBUTION == lifecycle pids: 2 (root 1148)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps          7
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  36143764 B xml -> 548072 B gz (65.9x)  sha256 0cdc85e268b3318d…
+  HEADER    etw-header.json (5022 bytes)
+  DERIVED   5266 distinct from 6435 kept ops (28377 xml events, 4181 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 2 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (66888 bytes)
+  RAWLOG-CAPTURE D:\jail\m-azuremcp-mtutlugk\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-azuremcp-mtutlugk
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-azuremcp-mtutlugk\\npm-cache","TMP":"D:\\jail\\m-azuremcp-mtutlugk\\tmp","TEMP":"D:\\jail\\m-azuremcp-mtutlugk\\tmp","TMPDIR":"D:\\jail\\m-azuremcp-mtutlugk\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-azuremcp-mtutlugk\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"c14b1804c99bac306a3c0f335b20bc199d999ecac6c1f882a401b45f5c712add","specCount":2,"lockfiles":{"digest":"79cb23138f4e08af0b294dc66ca233188842833d17ebcc37b770c8d12ed0422e","files":[{"path":"nub.lock","sha256":"32df7cf31a8c687e00248dc5e6c054395b07f1871d817deae643c43468efb478","bytes":2683}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:00:16.694Z","cacheHit":true,"clearancePath":"D:\\jail\\m-azuremcp-mtutlugk\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 2 exact package-version(s), tree c14b1804c99b (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=5/5 missing=0 shortfall=none (tree 5952/83) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
