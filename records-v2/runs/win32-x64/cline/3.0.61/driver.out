@@ -1,0 +1,63 @@
+### cline@3.0.61   (D:\jail\m-cline-mtuu8wjk)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"eb0302bfb30ed7ec39cf69790d832819e210863b326d0fcab4cdefa00759f297","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:18:07.304Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cline-mtuu8wjk\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree eb0302bfb30e
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"01b91f050dd5fae0ccd7e9cf8a8b89d2e090159015baabbcbd07875508c7c2c9","specCount":310,"lockfiles":{"digest":"88e749dd0cbb4e0b71e657a6fa852740b10a99311bb8920fa7c4b083c286109f","files":[{"path":"package-lock.json","sha256":"cd919c13073353825bdf30d4d640f22291ff4a3aacb1448d981e5bc6707b5c33","bytes":161323}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:18:34.342Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cline-mtuu8wjk\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 310 exact package-version(s), tree 01b91f050dd5
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=6780 exit=0 events=56592 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 6 files  (D:\jail\m-cline-mtuu8wjk\observe\node_modules\cline)
+  ARM-FALSIFIABILITY {"manifestFiles":6,"filesTheScriptProduced":0,"reasons":["gate-vacuous","rc-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (6) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       rc-vacuous: `postinstall` ends in a status-swallowing construct (`node ./postinstall.mjs || true`), so its exit code is 0 whether the work succeeded or failed
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 284 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-cline-mtuu8wjk\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-cline-mtuu8wjk\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-cline-mtuu8wjk\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-cline-mtuu8wjk\observe\node_modules\cline
+  == ATTRIBUTION == lifecycle pids: 2 (root 6780)
+    writes  script 0  /  whole traced tree 11
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps          4
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  72409775 B xml -> 1073129 B gz (67.5x)  sha256 ef72700589e01431…
+  HEADER    etw-header.json (5035 bytes)
+  DERIVED   6332 distinct from 7510 kept ops (56592 xml events, 16094 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (78357 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cline-mtuu8wjk\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-cline-mtuu8wjk
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cline-mtuu8wjk\\npm-cache","TMP":"D:\\jail\\m-cline-mtuu8wjk\\tmp","TEMP":"D:\\jail\\m-cline-mtuu8wjk\\tmp","TMPDIR":"D:\\jail\\m-cline-mtuu8wjk\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  scaffold: 1 dependency package(s) with lifecycle scripts granted a fixed wide grant
+  STORE   isolated virtual store at D:\jail\m-cline-mtuu8wjk\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"9e814b6e9c174638e609d7afeb7a48d397f9efdd742ec26b259d4f041d983d2d","specCount":310,"lockfiles":{"digest":"072d0e81328acfe984179000e453c3089ccfa682db2cf753dfc6b8629289cf0b","files":[{"path":"nub.lock","sha256":"e2cb32829e79615571a3e9e943e2fca47281bc9c245e71465eff88ea39102d89","bytes":101224}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:19:24.375Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cline-mtuu8wjk\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 310 exact package-version(s), tree 9e814b6e9c17
+  VERIFY[synth] rc=0 artifacts=6/6 missing=0 shortfall=none (tree 32457/27800) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
