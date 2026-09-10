@@ -1,0 +1,70 @@
+### cloudflared@0.7.3   (/home/runner/v2-wFzJzF)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"8ead0a34c0d2bd24f8e307eefd873206ec9d120a772b850b0ba44d3bde8ae7b3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:00:52.031Z","cacheHit":false,"clearancePath":"/home/runner/v2-wFzJzF/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 8ead0a34c0d2
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8ead0a34c0d2bd24f8e307eefd873206ec9d120a772b850b0ba44d3bde8ae7b3","specCount":1,"lockfiles":{"digest":"d7020febce89bff94d0eb701ab2e26cdef090e4df02cf002cfe031e905db31cd","files":[{"path":"package-lock.json","sha256":"63ee598cab9d21cbc33cbe0a2f0d561807aa1d1c9a1173a56b4e8bc5046cb1c8","bytes":622}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:00:52.031Z","cacheHit":true,"clearancePath":"/home/runner/v2-wFzJzF/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 8ead0a34c0d2 (cached exact-tree clearance)
+  OBSERVE   rc=0 files=21 trace=10983 lines
+  CLOSURE   1 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":17,"filesTheScriptProduced":1,"reasons":[]}
+  RAWLOG-FILE /home/runner/v2-wFzJzF/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-wFzJzF/observe/capture.json
+  RAWLOG-BYTES raw=2411759 gz=71557
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-wFzJzF/jailhome","TMPDIR":"/tmp/nub-tmp-obsdlXacr","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-wFzJzF/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 25
+    writes  script 2  /  whole traced tree 1090
+    sockets script 7  /  whole traced tree 13
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-wFzJzF/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-wFzJzF/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-wFzJzF/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsdlXacr
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-wFzJzF/observe/node_modules/cloudflared
+  == WRITES the script actually performed ==
+    ownPkg        2  (base profile already grants this — NOT billed)
+        /home/runner/v2-wFzJzF/observe/node_modules/cloudflared/bin
+        /home/runner/v2-wFzJzF/observe/node_modules/cloudflared/bin/cloudflared
+  == NETWORK ==
+    AF_INET sockets: 7   distinct peers: 3
+        127.0.0.53:53
+        104.16.2.34:443
+        140.82.114.4:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"network":true}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    4456 distinct from 10920 calls (10984 lines, 28 rejoined, 0 unparsed)
+    PROCS     32   lifecycle shells 20
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: getsockname×35 setsockopt×30 exit×25 getsockopt×17 recvmsg×13 getcwd×6 wait4×5 sendmmsg×4
+    wrote /home/runner/v2-wFzJzF/observe/events.ndjson.gz (31529 bytes)
+  EVENTLOG-FILE /home/runner/v2-wFzJzF/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":10984,"parsed":10920,"unparsed":0,"unfinished":28,"rejoined":28,"unresolvedDirfd":3,"truncatedArg":0,"procs":32,"lifecyclePids":20,"distinctEvents":4456,"unknownSyscall":{"getsockname":35,"getsockopt":17,"getcwd":6,"recvmsg":13,"exit":25,"setsockopt":30,"sendmmsg":4,"socketpair":3,"shutdown":3,"exit_group":4,"wait4":5},"out":"/home/runner/v2-wFzJzF/observe/events.ndjson.gz","gzipBytes":31529}
+  EVICT     0 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cloudflared
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"8ead0a34c0d2bd24f8e307eefd873206ec9d120a772b850b0ba44d3bde8ae7b3","specCount":1,"lockfiles":{"digest":"0a2ee0ef5006ca0e5e3494c0d232ecb78e760577492720367c5792da0e7a9dc7","files":[{"path":"nub.lock","sha256":"6562d04a355a19ca8fe7e400947cf9ccab959a2d0630d88fbd00deab4bb98869","bytes":408}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:00:52.031Z","cacheHit":true,"clearancePath":"/home/runner/v2-wFzJzF/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 8ead0a34c0d2 (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=17/17 missing=0 shortfall=none (tree 61/21) OVERRIDDEN=3 REJECTED=0 grant={"network":true}
+  => VERIFIED {"network":true}   (observed, then verified)
+  EVICT     1 store entries removed, 0 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for cloudflared
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"8ead0a34c0d2bd24f8e307eefd873206ec9d120a772b850b0ba44d3bde8ae7b3","specCount":1,"lockfiles":{"digest":"0a2ee0ef5006ca0e5e3494c0d232ecb78e760577492720367c5792da0e7a9dc7","files":[{"path":"nub.lock","sha256":"6562d04a355a19ca8fe7e400947cf9ccab959a2d0630d88fbd00deab4bb98869","bytes":408}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:00:52.031Z","cacheHit":true,"clearancePath":"/home/runner/v2-wFzJzF/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 1 exact package-version(s), tree 8ead0a34c0d2 (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=0 artifacts=16/17 missing=1 shortfall=ea84a8546e0c (tree 58/21) OVERRIDDEN=3 REJECTED=0 grant={}
+       missing: bin/cloudflared
+     'no-network' is NECESSARY — dropping it fails to verify
+  => MINIMAL — every capability in {"network":true} is independently necessary
