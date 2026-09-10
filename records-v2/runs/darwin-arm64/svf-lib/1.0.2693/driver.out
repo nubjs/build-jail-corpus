@@ -1,0 +1,249 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:05:45.654Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-OYOOKu/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3e7468e2355b
+### svf-lib@1.0.2693   (/Users/runner/v2m-OYOOKu)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"66ae35ab5ddc4c22e0e4e7b725270aee05461d54e869685d48c32fb463e2054b","files":[{"path":"package-lock.json","sha256":"1449aad49ca3034d375e8b920d1775197939e7afb39e7a31230664e860e2cfa2","bytes":547}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:05:45.654Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-OYOOKu/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-OYOOKu/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-OYOOKu/jailhome"   "TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsN2yMtW"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "svf-lib" > "/Users/runner/v2m-OYOOKu/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-OYOOKu/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-OYOOKu/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-OYOOKu/jailhome TMPDIR=/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsN2yMtW NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund svf-lib
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003249170) in action #1 at DIF offset 20
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x60000041c0c0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000004103c0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000410390) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000039ec120) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d98750) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d98750) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d95d70) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d8e010) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d95c50) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000adc060) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003450360) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001d08160) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x6000010f0360) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000e1c360) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000260240) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000310360) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001d08220) in action #5 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003b08000) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002efc000) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002ef0060) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600002ef0000) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000ad0660) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000adc060) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600000f7c8a0) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x1356080a0) in action #6 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d97120) in action #4 at DIF offset 88
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600003d80d20) in action #4 at DIF offset 88
+  OBSERVE   rc=0 dtrace_rc=0 files=26567 (pre=519) trace=526221 lines
+  CLOSURE   3 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-OYOOKu/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-OYOOKu/Observe/capture.json
+  RAWLOG-BYTES raw=71088185 gz=2925669
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-OYOOKu/jailhome","TMPDIR":"/private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsN2yMtW","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":517,"filesTheScriptProduced":4,"reasons":[]}
+  EVENTLOG-FILE /Users/runner/v2m-OYOOKu/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":526222,"parsed":525943,"unparsed":116,"live":true,"tracerErrors":69,"tracerErrorTotal":69,"unresolvedDirfd":10970,"unresolvedFd":8661,"pairedTwoPath":1735,"danglingPair":0,"failed":102525,"enoent":97150,"refusals":360,"byErrno":{"ENXIO":47,"ENOENT":97150,"EINVAL":309,"ENOTDIR":1816,"ENOTEMPTY":57,"EEXIST":2783,"ENAMETOOLONG":3,"EACCES":360},"procs":589,"lifecyclePids":8,"distinctEvents":219927,"emitted":219927,"calls":523403,"bytes":37733172,"gzipBytes":1277930,"out":"/Users/runner/v2m-OYOOKu/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=172842 dropped-events=69
+    NOTE 10318 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 21 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=18268 read  unproven .
+         pid=18272 read  unproven .
+         pid=18272 read  unproven .
+         pid=18272 read  unproven .
+         pid=18272 read  unproven pkgconfig
+         pid=18272 read  unproven .
+         pid=18272 read  unproven ..
+         pid=18272 read  unproven cmake
+         pid=18272 read  unproven .
+         pid=18272 read  unproven SVF
+         … and 11 more
+    CWD-RESOLVED 1 relative path(s) placed against the package dir
+       and CONFIRMED by an artifact present after the run — not assumed.
+    ⛔ THE TRACER DROPPED 69 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             4 x  epid=128 action=4 fault=1 addr=0x10320adc6
+             3 x  epid=128 action=6 fault=1 addr=0x60000291c2d0
+             3 x  epid=128 action=6 fault=1 addr=0x6000029100a0
+             2 x  epid=128 action=4 fault=1 addr=0x600003d98750
+             2 x  epid=128 action=4 fault=1 addr=0x600000adc060
+             2 x  epid=128 action=4 fault=1 addr=0x10260edc6
+             2 x  epid=128 action=6 fault=1 addr=0x600002910370
+             1 x  epid=128 action=1 fault=1 addr=0x600003249170
+             1 x  epid=128 action=6 fault=1 addr=0x60000041c0c0
+             1 x  epid=128 action=6 fault=1 addr=0x6000004103c0
+  == ATTRIBUTION == lifecycle pids: 8
+    writes  script 5010  /  whole traced subtree 6106
+    sockets script 10  /  whole traced subtree 15
+  == ROOTS (from /Users/runner/v2m-OYOOKu/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-OYOOKu/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-OYOOKu/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-OYOOKu/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/bl/vzjcvbz95c3dk19cb0fw46180000gn/T/nub-tmp-obsN2yMtW
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      5
+        /dev/dtracehelper
+        /dev/null
+        /dev/ptmx
+        /dev/ttys000
+        /dev/tty
+    ownPkg       28  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/lib/libSvfLLVM.3.dylib
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/lib/libSvfLLVM.dylib
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/lib/libSvfCore.3.dylib
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/lib/libSvfCore.dylib
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/llvm2svf.XXXXXX
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/llvm2svf
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/ae.XXXXXX
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/ae
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/saber.XXXXXX
+        /Users/runner/v2m-OYOOKu/Observe/node_modules/svf-lib/SVF-osx/bin/saber
+        … and 18 more
+    outside    2477
+        /opt/homebrew/var/homebrew/locks/update
+        /opt/homebrew/.git/config.lock
+        /opt/homebrew/.git/config
+        /opt/homebrew/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/FETCH_HEAD
+        /opt/homebrew/Library/Taps/aws/homebrew-tap/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/azure/homebrew-bicep/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/aws/homebrew-tap/.git/objects/maintenance.lock
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/e3
+        … and 2467 more
+    jailHome   2461  (base profile already grants this — NOT billed)
+        /Users/runner/v2m-OYOOKu/jailhome/Library
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/api
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/api/internal
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/api/internal/packages.arm64_sequoia.jws.json
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/bootsnap
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/bootsnap/594bde2688ae0e214ed8caf8e08e59e27961a21e8acf43669c33525caa3fbce2
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/bootsnap/594bde2688ae0e214ed8caf8e08e59e27961a21e8acf43669c33525caa3fbce2/bootsnap
+        /Users/runner/v2m-OYOOKu/jailhome/Library/Caches/Homebrew/bootsnap/594bde2688ae0e214ed8caf8e08e59e27961a21e8acf43669c33525caa3fbce2/bootsnap/gem-directories
+        … and 2451 more
+    deps         39
+  == READS the script performed, by scope ==
+    outside   14385
+    systemfs    662
+    ownPkg       16
+    project       2
+    userHome      1
+    jailHome    747
+    deps          6
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /usr/bin/uname
+        outside: /usr/bin
+        outside: /usr/bin/find
+        outside: /usr/bin/basename
+        outside: /bin/ln
+        outside: /opt/homebrew/bin/brew
+        outside: /usr/bin/env
+  == NETWORK ==
+    AF_INET connects: 10   distinct peers: 5
+        172.182.252.133:443
+        185.199.109.153:443
+        20.29.134.18:443
+        185.199.108.154:443
+        185.199.111.133:443
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]}
+    ⛔ 2477 writes OUTSIDE project/home — no scope covers these; inspect before granting
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 2461
+        Library/Caches/Homebrew
+        Library/Logs/Homebrew
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 2477
+        /opt/homebrew/var/homebrew/locks/update
+        /opt/homebrew/.git/config.lock
+        /opt/homebrew/.git/config
+        /opt/homebrew/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/FETCH_HEAD
+        /opt/homebrew/Library/Taps/aws/homebrew-tap/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/azure/homebrew-bicep/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/TMP_FETCH_FAILURES
+        /opt/homebrew/Library/Taps/aws/homebrew-tap/.git/objects/maintenance.lock
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/e3
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/e3/tmp_obj_kmUFTd
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/e3/011c637099bfd1139123d3b79fcc000aef096e
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/77
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/77/tmp_obj_oRSXhh
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/77/34644c237e5ab438de1270be3859ebb810c3c0
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/a2
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/a2/tmp_obj_IzLCU8
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/a2/94630071a41a35326bb589c7b6416c03d04627
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/84
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/84/tmp_obj_ZjJYqV
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/84/ec23ea3392ba382fff9d32aa557a60706b8e2f
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/08
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/08/tmp_obj_ddQloD
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/08/5a232ea1b3185993724151639a0e977143df7d
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/ad
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/ad/tmp_obj_AwSoRF
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/ad/e31490059518d982df850769314e9f70c2704f
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f1
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f1/tmp_obj_h66pcg
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f1/a3b37c0640ddaa94df73de74861f196cff19f1
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/c0
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/c0/tmp_obj_86ZXIQ
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/c0/2681b5a33a97e5de1a209758144655b6f0898e
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/4d
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/4d/tmp_obj_bKPwqv
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/4d/34360e77c049e7f993bb795565d4d79692d0f9
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f5
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f5/tmp_obj_YO3XgB
+        /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git/objects/f5/af2e394489acb87c66a1af8d21c369603a3c52
+        /opt/homebrew/Library/Taps/azure/homebrew-bicep/.git/refs/remotes/origin/main.lock
+        … and 2437 more
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 163 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:05:45.654Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-OYOOKu/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=517/517 missing=0 shortfall=none (tree 27601/26567) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]}
+  => VERIFIED {"write":{"deps":true},"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]}
+  EVICT[nar-no-network] 1 store entries removed, 0 spared as nub tooling, 164 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:05:45.654Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-OYOOKu/security/nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=517/517 missing=0 shortfall=none (tree 1560/26567) OVERRIDDEN=3 REJECTED=0 grant={"write":{"deps":true},"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]}
+     narrowing 'no-network' fails ⇒ that capability IS necessary
+  EVICT[nar-no-write-deps] 1 store entries removed, 0 spared as nub tooling, 164 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"3e7468e2355b6df9bece522acf73024523c9dd771217342c065b1768efdab9b8","specCount":1,"lockfiles":{"digest":"24633d819690e17e0bccebf7da48fa427131747b3002da80952c70c1f0310b30","files":[{"path":"nub.lock","sha256":"052fb43097fb9488871fe8287a3be72329856dfe64340804d00a3403ba68894d","bytes":391}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:05:45.654Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-OYOOKu/security/nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 1 exact package-version(s), tree 3e7468e2355b (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=517/517 missing=0 shortfall=none (tree 27601/26567) OVERRIDDEN=3 REJECTED=0 grant={"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]} also verifies; 'no-write-deps' was not needed
+### DONE svf-lib@1.0.2693  synthesized={"write":{"deps":true},"network":true,"writePaths":["Library/Caches/Homebrew","Library/Logs/Homebrew"]} verified=1
