@@ -1,0 +1,114 @@
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a67a4107dba7029bbccd7d4dba964389baf189b567c3e547a3cb6c7e8c7a5aec","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:49:43.485Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-Y99KPr/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a67a4107dba7
+### @sap/hana-client@2.29.27   (/Users/runner/v2m-Y99KPr)   nub=/tmp/nub/target/release/nub
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"f923f9d246b7061a3e88675efb7b4fdcda741d02368002ce6e7f7044b01e7bbe","bytes":93818888,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+  --- fbt preflight (advisory; never fails the run) ---
+     csrutil: System Integrity Protection status: disabled.
+     fbt probes visible: 93591
+     fbt enable attempt: dtrace: description 'fbt:::entry ' matched 50364 probes CPU     ID                    FUNCTION:NAME 
+     cwd builtin value:  
+     fbt chdir symbols:  
+     fbt fires on spawn-with-cwd: dtrace: invalid probe specifier fbt::chdir*:entry /progenyof($target)/ { @[probefunc] = count(); }: probe description fbt::chdir*:entry does not match any probes 
+  --- end fbt preflight ---
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"8b683638349b517c3f54526657b3e08a4b89232997e1414463fc48a77987bccc","files":[{"path":"package-lock.json","sha256":"a07b24dfdb25eed1889338c19d9865eb09c776efce5d59a67e9ac95062eb2fc7","bytes":1269}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:49:50.631Z","cacheHit":false,"clearancePath":"/Users/runner/v2m-Y99KPr/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 3771537a604d
+  VENUE-CI-CHILD clean (no CI-detection variable reaches the traced script)
+  --- wrapper (run.sh) ---
+     cd "/Users/runner/v2m-Y99KPr/Observe"
+     sudo -u "runner" -H env "PATH=$PATH"   "HOME=/Users/runner/v2m-Y99KPr/jailhome"   "TMPDIR=/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/nub-tmp-obsVXPQD1"   "NODE_COMPAT=1"   "PYTHONDONTWRITEBYTECODE=1"   "PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright"   "ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache"   "electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache"   "npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix"   "/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm" rebuild --no-audit --no-fund "@sap/hana-client" > "/Users/runner/v2m-Y99KPr/Observe/npm.log" 2>&1
+     echo $? > "/Users/runner/v2m-Y99KPr/Observe/rc"
+  --- dtrace stderr + wrapper trace ---
+     + cd /Users/runner/v2m-Y99KPr/Observe
+     + sudo -u runner -H env PATH=/Users/runner/hostedtoolcache/node/22.23.2/arm64/bin:/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools HOME=/Users/runner/v2m-Y99KPr/jailhome TMPDIR=/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/nub-tmp-obsVXPQD1 NODE_COMPAT=1 PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=/Users/runner/.cache/nub/pm/tools/ms-playwright ELECTRON_CACHE=/Users/runner/.cache/nub/pm/tools/electron-cache electron_config_cache=/Users/runner/.cache/nub/pm/tools/electron-cache npm_config_prefix=/Users/runner/.cache/nub/pm/tools/npm-prefix /Users/runner/hostedtoolcache/node/22.23.2/arm64/bin/npm rebuild --no-audit --no-fund @sap/hana-client
+     dtrace: error on enabled probe ID 128 (ID 286: syscall::execve:entry): invalid address (0x600001a94000) in action #1 at DIF offset 20
+     + echo 0
+  OBSERVE   rc=0 dtrace_rc=0 files=50 (pre=48) trace=12086 lines
+  CLOSURE   1 packages evicted per arm   store=/Users/runner/.cache/nub/pm/store
+  RAWLOG-FILE /Users/runner/v2m-Y99KPr/Observe/trace.txt.gz
+  RAWLOG-CAPTURE /Users/runner/v2m-Y99KPr/Observe/capture.json
+  RAWLOG-BYTES raw=2091053 gz=65588
+  VENUE-INTERPRETER /Users/runner/hostedtoolcache/node/22.23.2/arm64
+  VENUE-OVERRIDES {"set":{"PATH":"inherited-and-forwarded","HOME":"/Users/runner/v2m-Y99KPr/jailhome","TMPDIR":"/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/nub-tmp-obsVXPQD1","NODE_COMPAT":"1","PYTHONDONTWRITEBYTECODE":"1","PLAYWRIGHT_BROWSERS_PATH":"/Users/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/Users/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/Users/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/Users/runner/.cache/nub/pm/tools/npm-prefix"},"unset":["(sudo env_reset discards the caller environment; every var above is re-set after it)","CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  VENUE-OBSERVE-USER runner uid=501 (R7: ordinary non-root user, asserted)
+  ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (23) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  EVENTLOG-FILE /Users/runner/v2m-Y99KPr/Observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":12087,"parsed":12069,"unparsed":0,"live":true,"tracerErrors":1,"tracerErrorTotal":1,"unresolvedDirfd":21,"unresolvedFd":0,"pairedTwoPath":541,"danglingPair":0,"failed":4660,"enoent":4657,"refusals":0,"byErrno":{"ENXIO":3,"ENOENT":4657},"procs":5,"lifecyclePids":1,"distinctEvents":5397,"emitted":5397,"calls":11516,"bytes":1108237,"gzipBytes":37174,"out":"/Users/runner/v2m-Y99KPr/Observe/events.ndjson"}
+  == TRACER == live=true decodable-events=3162 dropped-events=1
+    NOTE 14 relative path(s) under a non-AT_FDCWD dirfd were not
+       scope-assigned: resolving them against the cwd would invent a path.
+    ⛔ CWD-UNOBSERVED 2 relative path(s) (0 write(s)) came from a lifecycle
+       process whose own cwd was never observed
+       macOS spawns with posix_spawn addchdir_np, which changes directory in-kernel and
+       emits no chdir syscall, so the inherited cwd cannot be trusted. These are NOT
+       scope-assigned; the grant below is WIDENED instead so it covers wherever they landed.
+         pid=15251 read  unproven .
+         pid=15251 read  unproven .
+    ⛔ THE TRACER DROPPED 1 EVENT(S). A dropped event is a path never
+       seen, so the grant below can only be too NARROW — the direction that breaks installs.
+       Treat it as a FLOOR, not a measurement, until the adapter fault is fixed:
+             1 x  epid=128 action=1 fault=1 addr=0x600001a94000
+  == ATTRIBUTION == lifecycle pids: 1
+    writes  script 7  /  whole traced subtree 1097
+    sockets script 0  /  whole traced subtree 1
+  == ROOTS (from /Users/runner/v2m-Y99KPr/Observe/capture.json; the classifier reads no other source) ==
+    project       /Users/runner/v2m-Y99KPr/Observe
+    home          /Users/runner
+    jailHome      /Users/runner/v2m-Y99KPr/jailhome
+    globalStore   /Users/runner/.cache/nub/pm/store
+    projectStore  /Users/runner/v2m-Y99KPr/Observe/node_modules/.store
+    interpreter   /Users/runner/hostedtoolcache/node/22.23.2/arm64
+    toolsDir      /Users/runner/.cache/nub/pm/tools
+    temp          /private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/nub-tmp-obsVXPQD1
+    npmPrefix     /Users/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /Users/runner/v2m-Y99KPr/Observe/node_modules/@sap/hana-client
+    cwd           (null — this platform has no such root)
+  == WRITES the script actually performed ==
+    systemfs      1
+        /dev/dtracehelper
+    userHome      6
+  == READS the script performed, by scope ==
+    outside       6
+    systemfs      8
+    userHome      4
+    ownPkg       12
+        outside: /
+        outside: /bin/bash
+        outside: /bin
+        outside: /etc/localtime
+        outside: /var/db/timezone/zoneinfo/posixrules
+        outside: /var/db/timezone/zoneinfo/UTC
+  == NETWORK ==
+    AF_INET connects: 0   distinct peers: 0
+  == REFUSALS (errno EPERM/EACCES/EROFS only; ENOENT is a miss, not a denial) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"userHome":true}}
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+    6 write(s) landed in the REAL home by absolute path, so promotion cannot reach them — nub moves OUT of the private home, and nothing of theirs is in it. Only `write:{userHome}` covers these; emitting `writePaths` instead would be an UNDER-GRANT.
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 6
+        .hdb
+        .hdb/sjc22-bt149-f27312fb-d807-41b0-8df8-dd6e2c5597ef-3A49F527E9E0.local
+        .hdb/sjc22-bt149-f27312fb-d807-41b0-8df8-dd6e2c5597ef-3A49F527E9E0.local/SQLDBC.loc
+        .hdb/sjc22-bt149-f27312fb-d807-41b0-8df8-dd6e2c5597ef-3A49F527E9E0.local/SQLDBC.shm
+        .hdb/sjc22-bt149-f27312fb-d807-41b0-8df8-dd6e2c5597ef-3A49F527E9E0.local/SSFS_HDB.LOC
+        .hdb/sjc22-bt149-f27312fb-d807-41b0-8df8-dd6e2c5597ef-3A49F527E9E0.local/SSFS_HDB.DAT
+  EVICT[synth] 0 store entries removed, 0 spared as nub tooling, 163 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:49:50.631Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-Y99KPr/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=0 artifacts=23/23 missing=0 shortfall=none (tree 134/50) OVERRIDDEN=3 REJECTED=0 grant={"write":{"userHome":true}}
+  => VERIFIED {"write":{"userHome":true}}
+  EVICT[nar-no-write-userHome] 1 store entries removed, 0 spared as nub tooling, 166 in store
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-userHome-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:49:50.631Z","cacheHit":true,"clearancePath":"/Users/runner/v2m-Y99KPr/security/nub-nar-no-write-userHome-resolved.json"}
+  SECURITY nub-nar-no-write-userHome-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VERIFY[nar-no-write-userHome] rc=0 artifacts=23/23 missing=0 shortfall=none (tree 134/50) OVERRIDDEN=3 REJECTED=0 grant={}
+     ⛔ OVER-PREDICTED — the strictly narrower {} also verifies; 'no-write-userHome' was not needed
+### DONE @sap/hana-client@2.29.27  synthesized={"write":{"userHome":true}} verified=1
