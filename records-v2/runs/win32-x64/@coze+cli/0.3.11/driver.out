@@ -1,0 +1,62 @@
+### @coze/cli@0.3.11   (D:\jail\m-cozecli-mtvh7o18)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"1de7180245f6293267e0d2380e2dbbce85280a7ea809c76ddfce81e2f0e000c0","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T12:01:00.799Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cozecli-mtvh7o18\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 1de7180245f6
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"8826bbcf902110888ccd46659bd5bb424c240bbaa38414066152fa884b7372cb","specCount":168,"lockfiles":{"digest":"6aea68e5112865c6b8ce44f21a6833bb24d9c357546e45e45393f40644dc64d8","files":[{"path":"package-lock.json","sha256":"53206de40a8aab3aad54a9902aca247ddc86dbe127a18f42da295439d81da116","bytes":74046}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T12:01:11.379Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cozecli-mtvh7o18\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 168 exact package-version(s), tree 8826bbcf9021
+  CAPTURE user=runnervmvmocb\runneradmin elevated=True rootPid=6916 exit=0 events=21091 lost=0
+  VENUE-OBSERVE-USER runnervmvmocb\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 45 files  (D:\jail\m-cozecli-mtvh7o18\observe\node_modules\@coze\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":45,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (45) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 162 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmvmocb, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-cozecli-mtvh7o18\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-cozecli-mtvh7o18\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-cozecli-mtvh7o18\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-cozecli-mtvh7o18\observe\node_modules\@coze\cli
+  == ATTRIBUTION == lifecycle pids: 2 (root 6916)
+    writes  script 0  /  whole traced tree 9
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+  == READS ==
+    deps          6
+    outside       6
+    project       1
+    systemfs     23
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+  RAW       etw-raw.xml.gz  26974356 B xml -> 388689 B gz (69.4x)  sha256 924f63d49fdc9091…
+  HEADER    etw-header.json (5053 bytes)
+  DERIVED   5484 distinct from 6650 kept ops (21091 xml events, 1732 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 7 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmvmocb)]
+  wrote events.ndjson.gz (69681 bytes)
+  RAWLOG-CAPTURE D:\jail\m-cozecli-mtvh7o18\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-cozecli-mtvh7o18
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-cozecli-mtvh7o18\\npm-cache","TMP":"D:\\jail\\m-cozecli-mtvh7o18\\tmp","TEMP":"D:\\jail\\m-cozecli-mtvh7o18\\tmp","TMPDIR":"D:\\jail\\m-cozecli-mtvh7o18\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-cozecli-mtvh7o18\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"894a15d622cd70efe82d29a2028201be10d83a60a59d570c8de2b86937696eca","specCount":168,"lockfiles":{"digest":"78c9df6ba4a02ff64ff9512ac45efaf3f536f9fe9fc9bd8916acdd94b56ea0b1","files":[{"path":"nub.lock","sha256":"8633f17b9d5642fb7a875408b7e60c775a5f4624016d1107c738786fbca7984a","bytes":42716}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T12:01:29.876Z","cacheHit":false,"clearancePath":"D:\\jail\\m-cozecli-mtvh7o18\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 168 exact package-version(s), tree 894a15d622cd
+  VERIFY[synth] rc=0 artifacts=45/45 missing=0 shortfall=none (tree 12752/5787) OVERRIDDEN=2 REJECTED=0 grant={}
+  => MINIMUM {}   (observed, then verified)
+  DESCEND   grant is already empty — nothing to narrow; MINIMAL by construction.
