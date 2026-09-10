@@ -1,0 +1,86 @@
+### @sap/hana-client@2.29.27   (D:\jail\m-saphanaclient-mtuxptj1)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"a67a4107dba7029bbccd7d4dba964389baf189b567c3e547a3cb6c7e8c7a5aec","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:15.446Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree a67a4107dba7
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"8b683638349b517c3f54526657b3e08a4b89232997e1414463fc48a77987bccc","files":[{"path":"package-lock.json","sha256":"a07b24dfdb25eed1889338c19d9865eb09c776efce5d59a67e9ac95062eb2fc7","bytes":1269}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:18.198Z","cacheHit":false,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 3771537a604d
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1648 exit=0 events=24174 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 22 files  (D:\jail\m-saphanaclient-mtuxptj1\observe\node_modules\@sap\hana-client)
+  ARM-FALSIFIABILITY {"manifestFiles":23,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (23) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-saphanaclient-mtuxptj1\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-saphanaclient-mtuxptj1\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-saphanaclient-mtuxptj1\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-saphanaclient-mtuxptj1\observe\node_modules\@sap\hana-client
+  == ATTRIBUTION == lifecycle pids: 2 (root 1648)
+    writes  script 9  /  whole traced tree 16
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    systemfs      7
+        c:\programdata\.hdb
+        c:\programdata\.hdb\runnervmeef0v
+        c:\programdata\.hdb\runnervmeef0v\s-1-5-21-1456194669-2875347699-3862154473-500
+        c:\programdata\.hdb\runnervmeef0v\s-1-5-21-1456194669-2875347699-3862154473-500\sqldbc.loc
+        c:\programdata\.hdb\runnervmeef0v\s-1-5-21-1456194669-2875347699-3862154473-500\sqldbc.shm
+        c:\programdata\.hdb\runnervmeef0v\s-1-5-21-1456194669-2875347699-3862154473-500\ssfs_hdb.loc
+        c:\programdata\.hdb\runnervmeef0v\s-1-5-21-1456194669-2875347699-3862154473-500\ssfs_hdb.dat
+    kernelfs      2
+  == READS ==
+    deps         15
+    outside       6
+    project       1
+    systemfs     33
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {}
+    !! 7 writes into system dirs -- an unprivileged user would be refused these
+    NOTE 2 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  30892521 B xml -> 460162 B gz (67.1x)  sha256 165ec9d312ce84c2…
+  HEADER    etw-header.json (5060 bytes)
+  DERIVED   5328 distinct from 6554 kept ops (24174 xml events, 2642 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 1 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (67682 bytes)
+  RAWLOG-CAPTURE D:\jail\m-saphanaclient-mtuxptj1\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-saphanaclient-mtuxptj1
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-saphanaclient-mtuxptj1\\npm-cache","TMP":"D:\\jail\\m-saphanaclient-mtuxptj1\\tmp","TEMP":"D:\\jail\\m-saphanaclient-mtuxptj1\\tmp","TMPDIR":"D:\\jail\\m-saphanaclient-mtuxptj1\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtuxptj1\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:18.198Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtuxptj1\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:18.198Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtuxptj1\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:18.198Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=22/22 missing=0 shortfall=none (tree 5722/45) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-saphanaclient-mtuxptj1\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"3771537a604d9a684d21651438b6c2965e78a5885e4a0a786a5cd9c0b7001220","specCount":3,"lockfiles":{"digest":"1e341116fb125d59cbb71a53e6839bb968532b712408a009843c98481461f0a1","files":[{"path":"nub.lock","sha256":"44e9cfa7dd0e3f022504279f549e6cb1711d1630fa07df0222b7c1c19b6889a3","bytes":1004}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T02:55:18.198Z","cacheHit":true,"clearancePath":"D:\\jail\\m-saphanaclient-mtuxptj1\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 3 exact package-version(s), tree 3771537a604d (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=22/22 missing=0 shortfall=none (tree 5721/45) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
