@@ -1,0 +1,84 @@
+### agent-browser@0.37.1   (D:\jail\m-agentbrowser-mturme9a)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":false,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 4ecf93d8f1ab
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":"7dccd7e5345b08e434e9434c8caf2c48324446dfd1fc01c24e6c822440468b03","files":[{"path":"package-lock.json","sha256":"8157cf769a8090fa24c8a1681ad842e6ebd700bef2aeda8f73ee6c9db14e84d6","bytes":727}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":true,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 1 exact package-version(s), tree 4ecf93d8f1ab (cached exact-tree clearance)
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=8484 exit=0 events=29240 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 49 files  (D:\jail\m-agentbrowser-mturme9a\observe\node_modules\agent-browser)
+  ARM-FALSIFIABILITY {"manifestFiles":51,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 1 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-agentbrowser-mturme9a\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-agentbrowser-mturme9a\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-agentbrowser-mturme9a\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-agentbrowser-mturme9a\observe\node_modules\agent-browser
+  == ATTRIBUTION == lifecycle pids: 6 (root 8484)
+    writes  script 4  /  whole traced tree 15
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    deps          1
+    outside       1
+        d:\jail\m-agentbrowser-mturme9a\npm-cache\_logs\2026-09-10t00_04_43_942z-debug-0.log
+    jailTmp       2
+  == READS ==
+    deps          5
+    outside     121
+    project       2
+    systemfs     32
+    jailTmp      73
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true}}
+    NOTE 2 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 1 writes OUTSIDE project/home -- no scope covers these; inspect before granting
+  RAW       etw-raw.xml.gz  37398860 B xml -> 565206 B gz (66.2x)  sha256 8167dad861d4aaf2…
+  HEADER    etw-header.json (5091 bytes)
+  DERIVED   6496 distinct from 8251 kept ops (29240 xml events, 3102 out of subtree)
+  PROCS     8   thread-reattributed 0
+  ⛔ 1 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (82247 bytes)
+  RAWLOG-CAPTURE D:\jail\m-agentbrowser-mturme9a\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-agentbrowser-mturme9a
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-agentbrowser-mturme9a\\npm-cache","TMP":"D:\\jail\\m-agentbrowser-mturme9a\\tmp","TEMP":"D:\\jail\\m-agentbrowser-mturme9a\\tmp","TMPDIR":"D:\\jail\\m-agentbrowser-mturme9a\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-agentbrowser-mturme9a\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":"9acb54bd15724becd96219ff203097f636f55bad2560dcdf2265ff80889ff4fe","files":[{"path":"nub.lock","sha256":"0fdd6deab863b49df7262d7e36b13a7ed30d102279c0cb637c3b24e002769c18","bytes":468}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":true,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 1 exact package-version(s), tree 4ecf93d8f1ab (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=48/49 missing=1 shortfall=8e2d4cd6aec2 (tree 7688/56) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: bin/.install-method
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-agentbrowser-mturme9a\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":"9acb54bd15724becd96219ff203097f636f55bad2560dcdf2265ff80889ff4fe","files":[{"path":"nub.lock","sha256":"0fdd6deab863b49df7262d7e36b13a7ed30d102279c0cb637c3b24e002769c18","bytes":468}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":true,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 1 exact package-version(s), tree 4ecf93d8f1ab (cached exact-tree clearance)
+  VERIFY[fb0] rc=0 artifacts=48/49 missing=1 shortfall=8e2d4cd6aec2 (tree 7688/56) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+     missing artifacts: bin/.install-method
+  STORE   isolated virtual store at D:\jail\m-agentbrowser-mturme9a\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":"9acb54bd15724becd96219ff203097f636f55bad2560dcdf2265ff80889ff4fe","files":[{"path":"nub.lock","sha256":"0fdd6deab863b49df7262d7e36b13a7ed30d102279c0cb637c3b24e002769c18","bytes":468}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":true,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 1 exact package-version(s), tree 4ecf93d8f1ab (cached exact-tree clearance)
+  VERIFY[fb1] rc=0 artifacts=48/49 missing=1 shortfall=8e2d4cd6aec2 (tree 7688/56) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+     missing artifacts: bin/.install-method
+  STORE   isolated virtual store at D:\jail\m-agentbrowser-mturme9a\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"4ecf93d8f1ab3d6f42aa3e780cb064c1f7bf481de2b049f6390ef9d808d43fd3","specCount":1,"lockfiles":{"digest":"9acb54bd15724becd96219ff203097f636f55bad2560dcdf2265ff80889ff4fe","files":[{"path":"nub.lock","sha256":"0fdd6deab863b49df7262d7e36b13a7ed30d102279c0cb637c3b24e002769c18","bytes":468}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:04:38.070Z","cacheHit":true,"clearancePath":"D:\\jail\\m-agentbrowser-mturme9a\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 1 exact package-version(s), tree 4ecf93d8f1ab (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=48/49 missing=1 shortfall=8e2d4cd6aec2 (tree 7688/56) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+     missing artifacts: bin/.install-method
+  => ARTIFACT-GATE-SUSPECT {"write":{"deps":true}}   (every arm rc=0 and the SAME 1-artifact shortfall at
+     every grant up to write:"disk" -- invariant under widening, so it is not a capability gap)
+     -> The grant is the SYNTHESIZED one and is UNVERIFIED -- minimality was never descended.
+        Triage the shortfall against the arm's toolchain, not against the jail.
