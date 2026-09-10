@@ -1,0 +1,76 @@
+### dugite@3.2.3   (D:\jail\m-dugite-mtuurlpt)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"20d916dd6358d2553fd1521efd2b52798952c48db4ff90aeac6de7dfa6056f5a","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:32:39.715Z","cacheHit":false,"clearancePath":"D:\\jail\\m-dugite-mtuurlpt\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 20d916dd6358
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"10384a1a93b86f747ee24587290a145c5d27509f6572b88f2ca1afa9e4d2798d","files":[{"path":"package-lock.json","sha256":"59cfe131a0c7563d61cdeb85963f30cbaba7a88d3689ff29197ab6cd13afc5dc","bytes":6293}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:32:42.236Z","cacheHit":false,"clearancePath":"D:\\jail\\m-dugite-mtuurlpt\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 14 exact package-version(s), tree 807eed0f7155
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=2964 exit=0 events=65959 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 416 files  (D:\jail\m-dugite-mtuurlpt\observe\node_modules\dugite)
+  ARM-FALSIFIABILITY {"manifestFiles":420,"filesTheScriptProduced":384,"reasons":[]}
+  CLOSURE 14 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-dugite-mtuurlpt\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-dugite-mtuurlpt\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-dugite-mtuurlpt\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-dugite-mtuurlpt\observe\node_modules\dugite
+  == ATTRIBUTION == lifecycle pids: 2 (root 2964)
+    writes  script 461  /  whole traced tree 467
+    peers   script 2  /  whole traced tree 2
+  == WRITES ==
+    jailTmp       1
+    deps        459
+    kernelfs      1
+  == READS ==
+    deps         29
+    outside       6
+    project       1
+    systemfs     28
+    jailTmp       1
+  == NETWORK ==
+    distinct peers: 2
+        140.82.113.4:443
+        185.199.109.133:443
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    NOTE 1 kernel/metadata writes -- not a write-grant question (rule 3)
+  RAW       etw-raw.xml.gz  85207651 B xml -> 1334233 B gz (63.9x)  sha256 8c5ef8270c57920d…
+  HEADER    etw-header.json (5046 bytes)
+  DERIVED   6934 distinct from 20299 kept ops (65959 xml events, 7901 out of subtree)
+  PROCS     4   thread-reattributed 0
+  ⛔ 19 operations with NO OperationEnd — kept, status marked unknown
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (93716 bytes)
+  RAWLOG-CAPTURE D:\jail\m-dugite-mtuurlpt\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-dugite-mtuurlpt
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-dugite-mtuurlpt\\npm-cache","TMP":"D:\\jail\\m-dugite-mtuurlpt\\tmp","TEMP":"D:\\jail\\m-dugite-mtuurlpt\\tmp","TMPDIR":"D:\\jail\\m-dugite-mtuurlpt\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-dugite-mtuurlpt\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"9493eae107b4ab2de7d42da1ed42411d895a692e6b0b1f0f84d5f288ef4049cd","files":[{"path":"nub.lock","sha256":"62eb9531125840c44ac43d1e01ad0f665ba29ae5f055d1c7805b917a765cdb6c","bytes":4654}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:32:42.236Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dugite-mtuurlpt\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 14 exact package-version(s), tree 807eed0f7155 (cached exact-tree clearance)
+  VERIFY[synth] rc=0 artifacts=416/416 missing=0 shortfall=none (tree 6321/577) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  => MINIMUM {"write":{"deps":true},"network":true}   (observed, then verified)
+  STORE   isolated virtual store at D:\jail\m-dugite-mtuurlpt\verify-nar-no-network\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-network-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"9493eae107b4ab2de7d42da1ed42411d895a692e6b0b1f0f84d5f288ef4049cd","files":[{"path":"nub.lock","sha256":"62eb9531125840c44ac43d1e01ad0f665ba29ae5f055d1c7805b917a765cdb6c","bytes":4654}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:32:42.236Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dugite-mtuurlpt\\security\\nub-nar-no-network-resolved.json"}
+  SECURITY nub-nar-no-network-resolved clean: 14 exact package-version(s), tree 807eed0f7155 (cached exact-tree clearance)
+  VERIFY[nar-no-network] rc=1 artifacts=36/416 missing=380 shortfall=bc3b410fb566 (tree 5942/577) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true}}
+     missing artifacts: git/cmd/git-receive-pack.exe, git/cmd/git-upload-pack.exe, git/cmd/git.exe, git/cmd/scalar.exe, git/etc/bash.bashrc, git/etc/fstab (+374)
+     'no-network' is NECESSARY — dropping it fails to verify
+  STORE   isolated virtual store at D:\jail\m-dugite-mtuurlpt\verify-nar-no-write-deps\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-nar-no-write-deps-resolved","status":"clean","digest":"807eed0f7155311441e529c8ffbd36db42cb92d8d06e7df13b492829f919f613","specCount":14,"lockfiles":{"digest":"9493eae107b4ab2de7d42da1ed42411d895a692e6b0b1f0f84d5f288ef4049cd","files":[{"path":"nub.lock","sha256":"62eb9531125840c44ac43d1e01ad0f665ba29ae5f055d1c7805b917a765cdb6c","bytes":4654}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T01:32:42.236Z","cacheHit":true,"clearancePath":"D:\\jail\\m-dugite-mtuurlpt\\security\\nub-nar-no-write-deps-resolved.json"}
+  SECURITY nub-nar-no-write-deps-resolved clean: 14 exact package-version(s), tree 807eed0f7155 (cached exact-tree clearance)
+  VERIFY[nar-no-write-deps] rc=0 artifacts=416/416 missing=0 shortfall=none (tree 6321/577) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+     ⛔ OVER-PREDICTED — the strictly narrower {"network":true} also verifies; 'no-write-deps' was not needed
