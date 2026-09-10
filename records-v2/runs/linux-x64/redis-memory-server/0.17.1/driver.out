@@ -1,0 +1,121 @@
+### redis-memory-server@0.17.1   (/home/runner/v2-CQUEsy)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"3070b89e47c619b4e1a80c4c18c57d679d56e6db0e138a58a2d0f63278cd488a","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:25.520Z","cacheHit":false,"clearancePath":"/home/runner/v2-CQUEsy/security/direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree 3070b89e47c6
+  VENUE-OBSERVE-USER {"uid":1001,"user":"runner","umask":"0022","capBnd":"000001ffffffffff","noNewPrivs":"0"}
+  VENUE-NUB-BINARY {"path":"/tmp/nub/target/release/nub","sha256":"2a18683f50f7afeb02a521cd3cae175dc2f91780d461c5f012065241f5a1447b","bytes":207643464,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"048aebfcda29ccfbcd27c647cd9de45367dbc6488a2c89b8834e575b2eb6b21d","files":[{"path":"package-lock.json","sha256":"46e907f8d8029e4bafddf6db7535f825bc27694944bc2b289008abb78e0a207c","bytes":29898}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":false,"clearancePath":"/home/runner/v2-CQUEsy/security/npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 64 exact package-version(s), tree dae3c05451aa
+  OBSERVE   rc=0 files=1129 trace=2726941 lines
+  CLOSURE   59 packages evicted per arm
+  ARM-FALSIFIABILITY {"manifestFiles":42,"filesTheScriptProduced":0,"reasons":["gate-vacuous"]}
+  ⛔ ARMS-UNFALSIFIABLE — a green arm for this package carries no evidence:
+       gate-vacuous: the script changed no file the artifact gate keys on — every file in the manifest (42) was already present at its final size before the script ran, so the gate passes in every arm including a completely broken one
+       The grant may still be correct; what is missing is a signal that could have gone
+       red. Do not read this record's MINIMAL as a passing measurement.
+  RAWLOG-FILE /home/runner/v2-CQUEsy/observe/trace.txt.gz
+  RAWLOG-CAPTURE /home/runner/v2-CQUEsy/observe/capture.json
+  RAWLOG-BYTES raw=302609772 gz=8989543
+  VENUE-INTERPRETER /opt/hostedtoolcache/node/22.23.2/x64
+  VENUE-OVERRIDES {"set":{"HOME":"/home/runner/v2-CQUEsy/jailhome","TMPDIR":"/tmp/nub-tmp-obsScvtwD","NODE_COMPAT":"1","PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/nub/pm/tools/ms-playwright","ELECTRON_CACHE":"/home/runner/.cache/nub/pm/tools/electron-cache","electron_config_cache":"/home/runner/.cache/nub/pm/tools/electron-cache","npm_config_prefix":"/home/runner/.cache/nub/pm/tools/npm-prefix","PYTHONDONTWRITEBYTECODE":"1","NUB_CACHE_DIR":"/home/runner/v2-CQUEsy/nubcache"},"unset":["CI","GITHUB_ACTIONS"],"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  == ATTRIBUTION == attributed pids: 6726
+    writes  script 11414  /  whole traced tree 12502
+    sockets script 3  /  whole traced tree 7
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       /home/runner/v2-CQUEsy/observe
+    home          /home/runner
+    jailHome      /home/runner/v2-CQUEsy/jailhome
+    globalStore   /home/runner/.cache/nub/pm/store   [declared, not keyed on]
+    projectStore  /home/runner/v2-CQUEsy/observe/node_modules/.store   [declared, not keyed on]
+    interpreter   /opt/hostedtoolcache/node/22.23.2/x64   [declared, not keyed on]
+    toolsDir      /home/runner/.cache/nub/pm/tools   [declared, not keyed on]
+    temp          /tmp/nub-tmp-obsScvtwD
+    npmPrefix     /home/runner/.cache/nub/pm/tools/npm-prefix
+    ownPkg        /home/runner/v2-CQUEsy/observe/node_modules/redis-memory-server
+  == WRITES the script actually performed ==
+    deps       9414
+    kernelfs      1
+        /dev/null
+    jailTmp    1999  (base profile already grants this — NOT billed)
+        /tmp/nub-tmp-obsScvtwD/cchQ6Tmt.s
+        /tmp/nub-tmp-obsScvtwD/cc793VSr.s
+        /tmp/nub-tmp-obsScvtwD/cc0LrZfA.s
+        /tmp/nub-tmp-obsScvtwD/ccu6KPKd.s
+        /tmp/nub-tmp-obsScvtwD/ccrmm8iM.s
+        /tmp/nub-tmp-obsScvtwD/ccyw0S4V.s
+        /tmp/nub-tmp-obsScvtwD/ccnaY13H.s
+        /tmp/nub-tmp-obsScvtwD/ccNq20Xw.s
+        /tmp/nub-tmp-obsScvtwD/ccdtRrKF.s
+        /tmp/nub-tmp-obsScvtwD/cc2hB70P.s
+        … and 1989 more
+  == NETWORK ==
+    AF_INET sockets: 3   distinct peers: 3
+        127.0.0.53:53
+        104.16.4.34:443
+        104.18.27.34:443
+  == REFUSALS (only `= -1 EACCES/EPERM/EROFS`) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true},"network":true}
+    NOTE 1 kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant
+  == writePaths (DERIVED — promotion out of the package's PRIVATE home) ==
+    private-home writes observed: 0
+    none declared — the script wrote nothing into its private home — there is nothing to promote
+  == writePaths FEASIBILITY (distinct writes outside project/deps) ==
+    count: 0
+    EVENTS    1085461 distinct from 2668479 calls (2726942 lines, 46326 rejoined, 0 unparsed)
+    PROCS     6733   lifecycle shells 6721
+    ⛔ 3 paths with an UNRESOLVED dirfd — kept, marked, never guessed
+    unsubscribed/unmapped syscalls: wait4×9717 exit_group×6711 getcwd×3177 setsockopt×40 getsockname×33 exit×20 getsockopt×18 recvmsg×9
+    wrote /home/runner/v2-CQUEsy/observe/events.ndjson.gz (3938651 bytes)
+  EVENTLOG-FILE /home/runner/v2-CQUEsy/observe/events.ndjson.gz
+  EVENTLOG-STATS {"lines":2726942,"parsed":2668479,"unparsed":0,"unfinished":46326,"rejoined":46326,"unresolvedDirfd":3,"truncatedArg":0,"procs":6733,"lifecyclePids":6721,"distinctEvents":1085461,"unknownSyscall":{"getsockname":33,"getsockopt":18,"getcwd":3177,"recvmsg":9,"exit":20,"setsockopt":40,"sendmmsg":2,"socketpair":6,"shutdown":5,"exit_group":6711,"wait4":9717,"getpeername":2},"out":"/home/runner/v2-CQUEsy/observe/events.ndjson.gz","gzipBytes":3938651}
+  EVICT     20 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VENUE-STORE-LAYOUT isolated
+  VERIFY[synth] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true},"network":true}
+  DIAGNOSE  ZERO filesystem refusals under the failing grant.
+     ⇒ the missing capability is NOT a path this tracer covers — look at the network axis,
+       or a resource class strace's file+network filter does not carry.
+  synthesized grant did not verify — falling back to a bounded ladder
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2126003217-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-fb2126003217-resolved.json"}
+  SECURITY nub-fb2126003217-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[fb2126003217] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  => MINIMUM {"write":{"deps":true,"project":true,"userHome":true},"network":true}   (ladder fallback; synthesized grant was insufficient)
+  ⛔ OBSERVE UNDER-PREDICTED — the gap between {"write":{"deps":true},"network":true} and {"write":{"deps":true,"project":true,"userHome":true},"network":true} is worth reading
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-network-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-drop-no-network-resolved.json"}
+  SECURITY nub-drop-no-network-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[drop-no-network] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 3319/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true}}
+     'no-network' is NECESSARY — dropping it fails to verify
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-deps-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-drop-no-write-deps-resolved.json"}
+  SECURITY nub-drop-no-write-deps-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[drop-no-write-deps] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"project":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-deps' STILL VERIFIES — {"write":{"project":true,"userHome":true},"network":true} is sufficient
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-project-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-drop-no-write-project-resolved.json"}
+  SECURITY nub-drop-no-write-project-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[drop-no-write-project] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-project' STILL VERIFIES — {"write":{"deps":true,"userHome":true},"network":true} is sufficient
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-drop-no-write-userHome-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-drop-no-write-userHome-resolved.json"}
+  SECURITY nub-drop-no-write-userHome-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[drop-no-write-userHome] rc=0 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true},"network":true}
+     ⛔ OVER-PREDICTED: dropping 'no-write-userHome' STILL VERIFIES — {"write":{"deps":true,"project":true},"network":true} is sufficient
+  => OVER-PREDICTED by: no-write-deps no-write-project no-write-userHome  (ladder-rung {"write":{"deps":true,"project":true,"userHome":true},"network":true}; each named capability drops on its own)
+  EVICT     59 store entries removed, 9 spared as nub tooling
+  SE-PURGE  0 side-effects-cache entries for redis-memory-server
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-joint-narrow-resolved","status":"clean","digest":"dae3c05451aac3e9d9b5929b364d7a5f3ca62ea634f6736359bd5ba63a30b923","specCount":64,"lockfiles":{"digest":"d3296a0f83249b3bcbf43260e3ec017f867265ba3ad631b589e7006ee8533516","files":[{"path":"nub.lock","sha256":"7b614c6ccd550f0524a86cf8ecc2db5607a16c9903f5cede20d823f69ab9d72a","bytes":16082}]},"maliciousAdvisories":[],"screenedAt":"2026-09-09T23:48:28.849Z","cacheHit":true,"clearancePath":"/home/runner/v2-CQUEsy/security/nub-joint-narrow-resolved.json"}
+  SECURITY nub-joint-narrow-resolved clean: 64 exact package-version(s), tree dae3c05451aa (cached exact-tree clearance)
+  VERIFY[joint-narrow] rc=1 artifacts=42/42 missing=0 shortfall=none (tree 3318/1129) OVERRIDDEN=2 REJECTED=0 grant={"network":true}
+  => JOINT-NARROW FAILED {"network":true} — each capability drops alone but not together;
+     the record keeps the wider ladder-rung grant, which is the honest answer
