@@ -1,0 +1,93 @@
+### @opencode-ai/cli@0.0.0-beta-17823   (D:\jail\m-opencodeaicli-mtut77f6)
+  CI-ENV scrubbed: CI GITHUB_ACTIONS
+OSV-SCREEN {"schemaVersion":1,"kind":"direct","status":"clean","digest":"ab6830f8a5cf4eb51b654faf80a86bd9fb22f2ca8dbd00ea673ea132e819b7a8","specCount":1,"lockfiles":{"digest":null,"files":[]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:48.446Z","cacheHit":false,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\direct.json"}
+  SECURITY direct clean: 1 exact package-version(s), tree ab6830f8a5cf
+OSV-SCREEN {"schemaVersion":1,"kind":"npm-observe-resolved","status":"clean","digest":"3537e07464709f42c01001895fdc3fbd1a76ea0632a9054e10e9a6101e6d6f5e","specCount":3,"lockfiles":{"digest":"8143c6682fea086873d3c2f20c3935e40de6885528649986a9dce221061bcc62","files":[{"path":"package-lock.json","sha256":"90ea6677cfa809be5920b9a6226e982cbe9af591fc5ceaa4ad63c0056c23dbcc","bytes":7171}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:54.478Z","cacheHit":false,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\npm-observe-resolved.json"}
+  SECURITY npm-observe-resolved clean: 3 exact package-version(s), tree 3537e0746470
+  CAPTURE user=runnervmeef0v\runneradmin elevated=True rootPid=1508 exit=0 events=47087 lost=0
+  VENUE-OBSERVE-USER runnervmeef0v\runneradmin elevated=true privDropped={"SeBackupPrivilege":"removed","SeRestorePrivilege":"removed","SeTakeOwnershipPrivilege":"removed"}
+  OBSERVE artifacts: 3 files  (D:\jail\m-opencodeaicli-mtut77f6\observe\node_modules\@opencode-ai\cli)
+  ARM-FALSIFIABILITY {"manifestFiles":3,"filesTheScriptProduced":1,"reasons":[]}
+  CLOSURE 3 packages evicted per arm
+  8.3 MAP 0 components resolved on runnervmeef0v, folded into capture.json
+  == ROOTS (from capture.json — R2: no ambient reads) ==
+    project       D:\jail\m-opencodeaicli-mtut77f6\observe   [keyed on]
+    home          C:\Users\runneradmin   [keyed on]
+    jailHome      (null — declared inapplicable)
+    globalStore   C:\Users\runneradmin\AppData\Local\nub\pm\store
+    projectStore  D:\jail\m-opencodeaicli-mtut77f6\observe\node_modules\.store
+    interpreter   C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+    toolsDir      C:\Users\runneradmin\AppData\Local\nub\pm\tools
+    temp          D:\jail\m-opencodeaicli-mtut77f6\tmp   [keyed on]
+    npmPrefix     (null — declared inapplicable)
+    ownPkg        D:\jail\m-opencodeaicli-mtut77f6\observe\node_modules\@opencode-ai\cli
+  == ATTRIBUTION == lifecycle pids: 8 (root 1508)
+    writes  script 64  /  whole traced tree 73
+    peers   script 0  /  whole traced tree 0
+  == WRITES ==
+    systemfs     34
+        c:\windows\microsoft.net\framework64\v2.0.50727\mscorwks.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.powershell.consolehost\v4.0_3.0.0.0__31bf3856ad364e35\microsoft.powershell.consolehost.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.xml\v4.0_4.0.0.0__b77a5c561934e089\system.xml.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.configuration.install\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.configuration.install.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.numerics\v4.0_4.0.0.0__b77a5c561934e089\system.numerics.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.security\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.security.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\microsoft.management.infrastructure\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.runtime.serialization\v4.0_4.0.0.0__b77a5c561934e089\system.runtime.serialization.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_64\microsoft.management.infrastructure.native\v4.0_1.0.0.0__31bf3856ad364e35\microsoft.management.infrastructure.native.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.management\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.management.dll:wofcompresseddata
+        c:\windows\microsoft.net\assembly\gac_msil\system.directoryservices\v4.0_4.0.0.0__b03f5f7f11d50a3a\system.directoryservices.dll:wofcompresseddata
+    jailTmp      14
+    userHome     14
+    deps          2
+  == READS ==
+    deps         10
+    outside     234
+    project       1
+    systemfs    515
+    userHome     12
+    jailTmp      15
+  == NETWORK ==
+    distinct peers: 0
+  == REFUSALS (adapter-classified) ==
+    distinct: 0
+  == SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==
+    {"write":{"deps":true,"userHome":true}}
+    NOTE 14 writes into the DECLARED private temp -- the base profile grants
+         that directory unconditionally (preset.rs `$tmp`=rw), so they widen nothing.
+    !! 34 writes into system dirs -- an unprivileged user would be refused these
+  RAW       etw-raw.xml.gz  60013655 B xml -> 875221 B gz (68.6x)  sha256 d2ec690b561e0fbd…
+  HEADER    etw-header.json (5072 bytes)
+  DERIVED   10306 distinct from 15042 kept ops (47087 xml events, 2891 out of subtree)
+  PROCS     10   thread-reattributed 0
+  ⛔ 6 operations with NO OperationEnd — kept, status marked unknown
+  ⛔ 4 handle ops whose path no table could supply
+  8.3       0 expanded, 0 kept short, 0 not covered  [map: recorded 8.3 map (0 components, resolved on runnervmeef0v)]
+  wrote events.ndjson.gz (132615 bytes)
+  RAWLOG-CAPTURE D:\jail\m-opencodeaicli-mtut77f6\cap\capture.json
+  VENUE-NUB-BINARY {"path":"C:/Users/RUNNER~1/AppData/Local/Temp/nub/target/release/nub.exe","sha256":"f186817a44be332fee712b4936a071a0b5f9cde18a1d2fdc3a791729d4bf1005","bytes":68717056,"features":{"buildJailCatalogOverride":true,"pythonDontWriteBytecodeEnv":true}}
+  VENUE-INTERPRETER C:\hostedtoolcache\windows\node\22.23.2\x64\node.exe
+  VENUE-JAIL-ROOT D:\jail\m-opencodeaicli-mtut77f6
+  VENUE-OVERRIDES {"set":{"npm_config_cache":"D:\\jail\\m-opencodeaicli-mtut77f6\\npm-cache","TMP":"D:\\jail\\m-opencodeaicli-mtut77f6\\tmp","TEMP":"D:\\jail\\m-opencodeaicli-mtut77f6\\tmp","TMPDIR":"D:\\jail\\m-opencodeaicli-mtut77f6\\tmp"},"unset":["CI","GITHUB_ACTIONS"],"notRedirected":{"USERPROFILE":"C:\\Users\\runneradmin","why":"the jail leaves HOME/USERPROFILE alone — `build_jail.rs` sandbox_homes() reads the ambient value and `compiler/defaults.rs` BASELINE_ENV_EXACT passes it through — so there is no private jail home to reproduce and redirecting one would measure an environment no confined script sees"},"passedThrough":{"CI":"true","GITHUB_ACTIONS":"true","NODE_ENV":null}}
+  STORE   isolated virtual store at D:\jail\m-opencodeaicli-mtut77f6\verify-synth\.cache
+  VENUE-STORE-LAYOUT isolated
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-synth-resolved","status":"clean","digest":"3537e07464709f42c01001895fdc3fbd1a76ea0632a9054e10e9a6101e6d6f5e","specCount":3,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:54.478Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\nub-synth-resolved.json"}
+  SECURITY nub-synth-resolved clean: 3 exact package-version(s), tree 3537e0746470 (cached exact-tree clearance)
+  VERIFY[synth] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 5696/14) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"userHome":true}}
+  synthesized grant did not verify -- falling back to a bounded ladder
+  STORE   isolated virtual store at D:\jail\m-opencodeaicli-mtut77f6\verify-fb0\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb0-resolved","status":"clean","digest":"3537e07464709f42c01001895fdc3fbd1a76ea0632a9054e10e9a6101e6d6f5e","specCount":3,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:54.478Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\nub-fb0-resolved.json"}
+  SECURITY nub-fb0-resolved clean: 3 exact package-version(s), tree 3537e0746470 (cached exact-tree clearance)
+  VERIFY[fb0] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 5696/14) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"network":true}
+  STORE   isolated virtual store at D:\jail\m-opencodeaicli-mtut77f6\verify-fb1\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb1-resolved","status":"clean","digest":"3537e07464709f42c01001895fdc3fbd1a76ea0632a9054e10e9a6101e6d6f5e","specCount":3,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:54.478Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\nub-fb1-resolved.json"}
+  SECURITY nub-fb1-resolved clean: 3 exact package-version(s), tree 3537e0746470 (cached exact-tree clearance)
+  VERIFY[fb1] rc=1 artifacts=3/3 missing=0 shortfall=none (tree 5696/14) OVERRIDDEN=2 REJECTED=0 grant={"write":{"deps":true,"project":true,"userHome":true},"read":"disk","network":true}
+  STORE   isolated virtual store at D:\jail\m-opencodeaicli-mtut77f6\verify-fb2\.cache
+OSV-SCREEN {"schemaVersion":1,"kind":"nub-fb2-resolved","status":"clean","digest":"3537e07464709f42c01001895fdc3fbd1a76ea0632a9054e10e9a6101e6d6f5e","specCount":3,"lockfiles":{"digest":"eb15f4a83ce812af4d9d49fb69560b54294cc80eb1afb20d49c7ba95cb86a15e","files":[{"path":"nub.lock","sha256":"9447d60bcce31ea1deb12a50f853d93193b1a7dc3600f473f557f4efed31f2ce","bytes":4700}]},"maliciousAdvisories":[],"screenedAt":"2026-09-10T00:48:54.478Z","cacheHit":true,"clearancePath":"D:\\jail\\m-opencodeaicli-mtut77f6\\security\\nub-fb2-resolved.json"}
+  SECURITY nub-fb2-resolved clean: 3 exact package-version(s), tree 3537e0746470 (cached exact-tree clearance)
+  VERIFY[fb2] rc=0 artifacts=3/3 missing=0 shortfall=none (tree 5696/14) OVERRIDDEN=2 REJECTED=0 grant={"write":"disk","network":true}
+  => MINIMUM {"write":"disk","network":true}   (ladder fallback; synthesized grant was insufficient)
+  !! OBSERVE UNDER-PREDICTED -- the gap between {"write":{"deps":true,"userHome":true}} and this is what the trace missed
+  !! last rung is write:"disk" = NO CONFINEMENT on Windows; a token problem and a path problem look identical here
