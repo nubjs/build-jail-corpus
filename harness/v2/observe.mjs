@@ -424,7 +424,11 @@ const wp = deriveWritePaths(privateHomeRels, { version: pkgVersion });
 if (wp.paths.length) g.writePaths = wp.paths;
 
 console.log('== SYNTHESIZED GRANT (verify this in the real unprivileged jail) ==');
-console.log('  ' + JSON.stringify(g));
+// An empty object is a real grant only when a lifecycle shell actually ran. Otherwise it is the
+// classifier's default value, and feeding it to the verifier turns a no-work package into a false
+// MINIMUM: every arm can pass without exercising the jail. Keep the same non-JSON sentinel as the
+// macOS decoder so the driver can stop before it treats the absence of work as enforcement evidence.
+console.log('  ' + (lifecycle.size === 0 ? 'UNKNOWN-ATTRIBUTION-FAILED' : JSON.stringify(g)));
 if (w.outside) console.log(`  ⛔ ${w.outside.length} writes OUTSIDE project/home — no scope covers these; inspect before granting`);
 if (w.kernelfs) console.log(`  NOTE ${w.kernelfs.length} kernel-fs touches (/proc,/sys,/dev) — a READ floor question, not a write grant`);
 
