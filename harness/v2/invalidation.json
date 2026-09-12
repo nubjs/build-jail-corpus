@@ -1,7 +1,15 @@
 {
   "schemaVersion": 1,
-  "currentEpoch": 3,
+  "currentEpoch": 4,
   "transitions": [
+    {
+      "fromEpoch": 3,
+      "toEpoch": 4,
+      "invalidate": {
+        "all": true
+      },
+      "reason": "Candidate-pinned zero-setup sandbox recalibration retains failed preflight arm logs before any record exists. Remeasure the complete catalog rather than credit historical instrumentation."
+    },
     {
       "fromEpoch": null,
       "toEpoch": 3,

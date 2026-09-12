@@ -248,6 +248,10 @@ jobs:
       #
       # The rebuild this costs is paid ONCE PER SHA and amortises across the hundreds of packages a
       # sweep measures at that SHA.
+      - name: Checking calibration evidence collection
+        shell: bash
+        run: node --test harness/v2/collect-preflight.test.mjs harness/v2/instrument.test.mjs
+
       - name: Resolve the nub commit under test
         shell: bash
         run: |
@@ -509,6 +513,18 @@ jobs:
           # was removed: its whole-tree walk (~20s) is likewise discarded by that reset, so it was
           # pure per-run waste — the self-heal it provided is delegated to `--reclaim-stale`.
           node harness/claim-slice.mjs --queue queue-v2.ndjson --complete /tmp/verdicts.ndjson --run "${{ github.run_id }}"
+
+      - name: Collecting calibration failures
+        if: always() && env.DRAINED != '1'
+        shell: bash
+        run: node harness/v2/collect-preflight.mjs /tmp/measure.log preflight-evidence
+
+      - name: Preserving calibration evidence
+        if: always() && env.DRAINED != '1'
+        uses: actions/upload-artifact@v7
+        with:
+          name: preflight-${{ env.OS_NAME }}-${{ github.run_id }}
+          path: preflight-evidence/
 
       # ⛔ `if: always()` IS THE WHOLE POINT: this must run precisely when a later step FAILS. A slice
       # costs runner-hours and the commit that publishes it is the last step, so any earlier failure
