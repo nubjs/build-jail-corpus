@@ -829,10 +829,24 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
+    # The diagnostic flag is opt-in.  An empty assignment still makes Rust's `var_os` see the
+    # variable, so do not pass the spelling at all in ordinary corpus arms.
+    local -a dump_env=()
+    [ -n "${NUB_JAIL_DUMP_POLICY:-}" ] && dump_env=("NUB_JAIL_DUMP_POLICY=$NUB_JAIL_DUMP_POLICY")
     sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
-      NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c "cd '$v' && '$NUB' install > '$v/i.log' 2>&1; \
-      '$NUB' approve-builds --all > '$v/a.log' 2>&1"
+      NUB_BUILD_JAIL_CATALOG="$v/cat.json" "${dump_env[@]}" \
+      /bin/bash "$HERE/macos-verify.sh" "$v" "$NUB"
     local rc=$?
+  fi
+  if [ "$rc" -ne 0 ] && { [ "$label" = at-catalog ] || [ "$label" = at-grant ]; }; then
+    # Preserve a direct command failure. A catalog miss is not established until this excludes a
+    # compiler/runtime failure and an artifact-gate mismatch. The same retention enables a bounded
+    # at-grant diagnostic without changing normal measurement or ladder behavior.
+    echo "  kept for inspection: $v"
+    echo "    VERIFY-EXIT: $rc"
+    tail -n 200 "$v/i.log" 2>/dev/null | sed 's/^/    VERIFY-INSTALL: /'
+    tail -n 200 "$v/a.log" 2>/dev/null | sed 's/^/    VERIFY-APPROVE: /'
+    cat "$v/verify-status" 2>/dev/null | sed 's/^/    VERIFY-STATUS: /'
   fi
   # The replay signature: `materialized` with no install line. Reported, not fatal — a package with
   # no lifecycle script legitimately shows neither.

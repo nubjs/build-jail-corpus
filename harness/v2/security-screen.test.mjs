@@ -54,8 +54,7 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
   inOrder(drivers.macos, [
     "'$NUB' install --ignore-scripts > '$v/security-resolve.log'",
     'security_screen_tree "$v" "nub-$label-resolved"',
-    '"$NUB" install > "$v/i.log"',
-    "'$NUB' approve-builds --all > '$v/a.log'",
+    '/bin/bash "$HERE/macos-verify.sh" "$v" "$NUB"',
   ], 'macos verify');
   inOrder(drivers.windows, [
     "run(NUB, ['install', '--ignore-scripts']",
@@ -75,6 +74,25 @@ test('POSIX pre-lifecycle resolver failures retain their isolated arm and bounde
     assert.ok(retained >= 0 && exit >= retained && tail >= exit,
       `${platform}: resolver failure drops its diagnostic arm or exit status`);
   }
+});
+
+test('POSIX failed direct arms retain bounded lifecycle command logs', () => {
+  for (const [platform, source] of Object.entries({ linux: drivers.linux, macos: drivers.macos })) {
+    const guard = platform === 'macos'
+      ? /\[ "\$rc" -ne 0 \] && \{ \[ "\$label" = at-catalog \] \|\| \[ "\$label" = at-grant \]; \}/
+      : /\[ "\$rc" -ne 0 \] && \[ "\$label" = at-catalog \]/;
+    assert.match(source, guard, `${platform}: direct failure does not select its diagnostic arm`);
+    const failure = source.indexOf('VERIFY-EXIT: $rc');
+    const install = source.indexOf('tail -n 200 "$v/i.log"', failure);
+    const approve = source.indexOf('tail -n 200 "$v/a.log"', install);
+    assert.ok(failure >= 0 && install > failure && approve > install,
+      `${platform}: direct failure drops the bounded install/approve logs`);
+  }
+});
+
+test('macOS forwards an opt-in policy dump without enabling it for ordinary arms', () => {
+  assert.match(drivers.macos, /\[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \] && dump_env=/);
+  assert.ok(drivers.macos.includes('"${dump_env[@]}" \\\n      /bin/bash "$HERE/macos-verify.sh"'));
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
