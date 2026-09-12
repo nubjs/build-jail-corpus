@@ -9,6 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {
   TOOLCHAIN_GENERATED,
@@ -19,6 +20,30 @@ import {
 } from './artifact-excusal.mjs';
 
 const HERE = import.meta.dirname;
+const WINDOWS_DRIVER = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
+
+// Execute the driver's real manifest/comparison bodies without importing the
+// driver (which starts a Windows workload at module evaluation). The injected
+// collaborators are its existing imports; no package manager or lifecycle
+// script is run by this test.
+const windowsManifestFunctions = (source = WINDOWS_DRIVER) => {
+  const start = source.indexOf('const pkgDir =');
+  const end = source.indexOf('// Do not generalize this into a postinstall executable scanner.', start);
+  assert.ok(start >= 0 && end > start, 'could not locate the Windows manifest functions under test');
+  const body = source.slice(start, end);
+  return new Function('fs', 'path', 'isLog', 'isPackagingMetadata', 'excusesSizeDifference',
+    `${body}\nreturn { pkgDir, pkgManifest, missingArtifacts };`)(
+    fs, path, (p) => /\.log$|cat\.json$|nub\.jsonc$|package-lock\.json$/.test(p),
+    isPackagingMetadata, excusesSizeDifference);
+};
+
+const windowsTree = (root, files) => {
+  for (const [rel, contents] of Object.entries(files)) {
+    const file = path.join(root, 'node_modules', 'fixture-pkg', rel);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, contents);
+  }
+};
 
 test('a regenerated toolchain file may shrink; an EMPTY one may not', () => {
   // The envelope is the safety property. Both halves asserted together, because dropping the second
@@ -45,11 +70,40 @@ test('packaging metadata is shared and `.npmrc` remains visible', () => {
   assert.ok(PACKAGING_METADATA.has('.npmignore'));
 });
 
-test('the Windows package manifest applies the shared metadata rule', () => {
-  const windows = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
-  const manifest = /const pkgManifest = \(base, pkg, ver\) => \{([\s\S]*?)\n\};\n\n\/\/ Returns the artifacts/.exec(windows)?.[1] ?? '';
-  assert.match(manifest, /if \(isPackagingMetadata\(e\.name\)\) continue;/,
-    'the comparison manifest, rather than only a diagnostic walk, must skip packaging metadata');
+test('the real Windows manifest ignores nested packaging metadata but not `.npmrc` or build output', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'win-manifest-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const observed = path.join(root, 'observed');
+  const arm = path.join(root, 'arm');
+  windowsTree(observed, {
+    'index.js': 'source',
+    'deps/cpu_features/.npmignore': 'generated',
+    '.npmrc': '//registry:_authToken=token',
+    'build/Release/fixture.node': 'REAL-OUTPUT',
+  });
+  windowsTree(arm, { 'index.js': 'source' });
+
+  const compare = (functions) => functions.missingArtifacts(
+    functions.pkgManifest(observed, 'fixture-pkg', '1.0.0'),
+    functions.pkgManifest(arm, 'fixture-pkg', '1.0.0'),
+  );
+  const actual = windowsManifestFunctions();
+  assert.deepEqual(compare(actual).sort(), ['.npmrc', 'build/Release/fixture.node'],
+    'the executed driver must ignore nested .npmignore but retain credentials and real output');
+
+  const withoutMetadataFilter = windowsManifestFunctions(WINDOWS_DRIVER.replace(
+    'if (isPackagingMetadata(e.name)) continue;',
+    '// withheld metadata filter',
+  ));
+  assert.ok(compare(withoutMetadataFilter).includes('deps/cpu_features/.npmignore'),
+    'CONTROL: the pre-fix manifest must report the nested packaging file');
+
+  windowsTree(arm, { '.npmrc': '//registry:_authToken=token', 'build/Release/fixture.node': '' });
+  const guarded = compare(actual);
+  assert.ok(!guarded.includes('deps/cpu_features/.npmignore'), 'metadata remains excluded after arm changes');
+  assert.ok(!guarded.includes('.npmrc'), 'present credential metadata is not a false failure');
+  assert.ok(guarded.includes('build/Release/fixture.node (0B < 11B)'),
+    'an empty real build output must remain a failure');
 });
 
 test('Windows object and tracking files may shrink but must remain nonempty', () => {
