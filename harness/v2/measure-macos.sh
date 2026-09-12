@@ -864,6 +864,14 @@ JW
     fi
     STORE_LAYOUT_REPORTED=1
   fi
+  # DIRECT falsification invokes this driver once per grant. Its fresh cache is therefore an
+  # alternative to the ladder's targeted shared-store eviction, but ONLY when the resolved
+  # `.store` links actually land below this invocation's cache. `NUB_CACHE_DIR` alone is a request,
+  # not evidence; the helper deliberately prints STORE shared/unavailable instead of this marker
+  # when a link escapes or there are no links to inspect.
+  if [ -n "$AT_GRANT" ] || [ -n "$AT_CATALOG" ]; then
+    node "$HERE/arm-store-isolation.mjs" "$v" "$cache" "$label"
+  fi
   local gate grc
   gate=$(node "$HERE/artifact-gate.mjs" --obs "$OBS" --arm "$v" --pkg "$PKG" --ver "$VER" 2>&1); grc=$?
   echo "  VERIFY[$label] rc=$rc $(printf '%s' "$gate" | head -1) (tree $files/$OBS_FILES) OVERRIDDEN=$ovr REJECTED=$rej grant=$grant"

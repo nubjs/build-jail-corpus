@@ -1174,6 +1174,14 @@ verify () {
       echo "  VENUE-STORE-LAYOUT hoisted"; STORE_LAYOUT_REPORTED=1
     fi
   fi
+  # DIRECT falsification invokes this driver once per grant. Its fresh cache is therefore an
+  # alternative to the ladder's targeted shared-store eviction, but ONLY when the resolved
+  # `.store` links actually land below this invocation's cache. `NUB_CACHE_DIR` alone is a request,
+  # not evidence; the helper deliberately prints STORE shared/unavailable instead of this marker
+  # when a link escapes or there are no links to inspect.
+  if [ -n "$AT_GRANT" ] || [ -n "$AT_CATALOG" ]; then
+    node "$HERE/arm-store-isolation.mjs" "$v" "$NUB_CACHE_DIR" "$label"
+  fi
   # ⛔⛔ `files >= OBS_FILES` IS NOT A SUCCESS GATE AND MUST NOT BE READ AS ONE. `find -L` follows the
   # isolated layout's symlinks into the machine-global store, so the number is dominated by the
   # dependency closure and is nearly insensitive to whether THIS package's script produced anything.
