@@ -9,6 +9,7 @@ export const MAX_COPY_BYTES = MAX_TOTAL_BYTES - MAX_REPORT_BYTES;
 export const MAX_MANIFEST_ENTRIES = 2048;
 export const MAX_MANIFEST_DEPTH = 32;
 export const MAX_BUILD_METADATA_ENTRIES = 128;
+export const MAX_TRAVERSAL_ENTRIES = 8192;
 const LOG_FILES = ['fetch.log', 'security-resolve.log', 'i.log', 'a.log'];
 const BUILD_NAMES = new Set(['config.gypi', 'buildcheck.gypi']);
 const BUILD_EXTENSIONS = new Set(['.vcxproj', '.props', '.targets', '.sln']);
@@ -33,6 +34,7 @@ const fullManifest = (root) => {
   const entries = [];
   const seen = new Set();
   const traversal = { maxEntries: MAX_MANIFEST_ENTRIES, maxDepth: MAX_MANIFEST_DEPTH,
+    maxVisited: MAX_TRAVERSAL_ENTRIES, visited: 0,
     entryCap: false, depthCap: false, outsidePackage: 0, unreadable: 0, cycles: 0 };
   const walk = (dir, depth) => {
     if (depth > MAX_MANIFEST_DEPTH) { traversal.depthCap = true; return; }
@@ -42,6 +44,7 @@ const fullManifest = (root) => {
     seen.add(real);
     let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { traversal.unreadable += 1; return; }
     for (const child of children) {
+      if (++traversal.visited > MAX_TRAVERSAL_ENTRIES) { traversal.entryCap = true; return; }
       if (entries.length >= MAX_MANIFEST_ENTRIES) { traversal.entryCap = true; return; }
       if (child.name === 'node_modules') continue;
       const file = path.join(dir, child.name);
@@ -60,6 +63,7 @@ const buildCandidates = (packageRoot) => {
   const out = ['buildcheck.gypi'];
   const seen = new Set();
   const traversal = { maxEntries: MAX_BUILD_METADATA_ENTRIES, maxDepth: MAX_MANIFEST_DEPTH,
+    maxVisited: MAX_TRAVERSAL_ENTRIES, visited: 0,
     entryCap: false, depthCap: false, outsidePackage: 0, unreadable: 0, cycles: 0 };
   const walk = (dir, depth) => {
     if (depth > MAX_MANIFEST_DEPTH) { traversal.depthCap = true; return; }
@@ -69,6 +73,7 @@ const buildCandidates = (packageRoot) => {
     seen.add(real);
     let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { traversal.unreadable += 1; return; }
     for (const child of children) {
+      if (++traversal.visited > MAX_TRAVERSAL_ENTRIES) { traversal.entryCap = true; return; }
       if (out.length >= MAX_BUILD_METADATA_ENTRIES) { traversal.entryCap = true; return; }
       const file = path.join(dir, child.name);
       let stat; try { stat = fs.statSync(file); } catch { traversal.unreadable += 1; continue; }
@@ -145,7 +150,9 @@ export const createWindowsArmEvidence = ({ destination, fixtureRoot, pkg, ver })
       encoded = Buffer.from(`${JSON.stringify(report, null, 2)}\n`);
     }
     if (encoded.length > MAX_REPORT_BYTES) throw new Error(`diagnostic manifest exceeds ${MAX_REPORT_BYTES} bytes after truncation`);
+    if (total + encoded.length > MAX_TOTAL_BYTES) throw new Error(`diagnostic bundle exceeds ${MAX_TOTAL_BYTES} bytes including manifests`);
     fs.writeFileSync(path.join(armDir, 'manifest.json'), encoded);
+    total += encoded.length;
     return report;
   };
   return { dir: out, capture };
