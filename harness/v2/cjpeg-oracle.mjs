@@ -5,6 +5,7 @@ import path from 'node:path';
 export const CJPEG_PATH = 'node_modules/mozjpeg/vendor/cjpeg.exe';
 export const MAX_CJPEG_BYTES = 64 * 1024 * 1024;
 export const MAX_CJPEG_OUTPUT_BYTES = 8 * 1024;
+const GVS_PACKAGE_PREFIX = 'mozjpeg@6.0.1-';
 
 export const boundedText = (value, limit = MAX_CJPEG_OUTPUT_BYTES) => {
   const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value ?? '');
@@ -65,4 +66,23 @@ export const inspectCjpeg = (base) => {
   } finally {
     if (fd !== undefined) fs.closeSync(fd);
   }
+};
+
+// The warm falsification case deliberately shares Nub's global virtual store between its right and
+// wrong-warm arms. Inspect only the one fixed package entry, rather than walking or retaining the
+// cache: that tells us whether `cjpeg.exe` predated the narrow arm without turning the cache into a
+// CI artifact. Multiple matching entries are not silently chosen; a provenance conclusion needs a
+// unique target and must fail closed when the store layout is ambiguous.
+export const inspectCjpegGvs = (cacheHome) => {
+  const store = path.join(cacheHome, 'nub', 'pm', 'store', 'v1');
+  let entries;
+  try { entries = fs.readdirSync(store, { withFileTypes: true }); }
+  catch { return { status: 'missing', store }; }
+  const candidates = entries
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith(GVS_PACKAGE_PREFIX))
+    .map((entry) => ({ entry: entry.name, artifact: inspectCjpeg(path.join(store, entry.name)) }));
+  if (candidates.length !== 1) {
+    return { status: candidates.length ? 'ambiguous' : 'missing', store, candidates };
+  }
+  return { status: candidates[0].artifact.status, store, ...candidates[0] };
 };

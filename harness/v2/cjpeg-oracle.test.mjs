@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { boundedText, CJPEG_PATH, MAX_CJPEG_BYTES, inspectCjpeg } from './cjpeg-oracle.mjs';
+import { boundedText, CJPEG_PATH, MAX_CJPEG_BYTES, inspectCjpeg, inspectCjpegGvs } from './cjpeg-oracle.mjs';
 
 const fixture = (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cjpeg-oracle-'));
@@ -28,6 +28,34 @@ test('allows a package-directory GVS link but hashes only the bounded final regu
     bytes: Buffer.byteLength('known-cjpeg-bytes'),
     sha256: crypto.createHash('sha256').update('known-cjpeg-bytes').digest('hex'),
   });
+});
+
+test('records exactly one bounded mozjpeg artifact from the global virtual store', (t) => {
+  const root = fixture(t);
+  const cacheHome = path.join(root, 'cache');
+  const entry = 'mozjpeg@6.0.1-f3e7f2d03ee1c19f';
+  const artifact = path.join(cacheHome, 'nub', 'pm', 'store', 'v1', entry, CJPEG_PATH);
+  fs.mkdirSync(path.dirname(artifact), { recursive: true });
+  fs.writeFileSync(artifact, 'global-store-cjpeg');
+  const result = inspectCjpegGvs(cacheHome);
+  assert.equal(result.status, 'present');
+  assert.equal(result.entry, entry);
+  assert.equal(result.store, path.join(cacheHome, 'nub', 'pm', 'store', 'v1'));
+  assert.equal(result.artifact.realpath, fs.realpathSync(artifact));
+  assert.equal(result.artifact.sha256, crypto.createHash('sha256').update('global-store-cjpeg').digest('hex'));
+});
+
+test('does not select a GVS artifact when multiple mozjpeg package entries exist', (t) => {
+  const root = fixture(t);
+  const cacheHome = path.join(root, 'cache');
+  for (const suffix of ['aaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbb']) {
+    const artifact = path.join(cacheHome, 'nub', 'pm', 'store', 'v1', `mozjpeg@6.0.1-${suffix}`, CJPEG_PATH);
+    fs.mkdirSync(path.dirname(artifact), { recursive: true });
+    fs.writeFileSync(artifact, suffix);
+  }
+  const result = inspectCjpegGvs(cacheHome);
+  assert.equal(result.status, 'ambiguous');
+  assert.equal(result.candidates.length, 2);
 });
 
 test('captures executable output to an explicit byte limit', () => {

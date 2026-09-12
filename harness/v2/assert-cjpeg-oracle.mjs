@@ -15,3 +15,13 @@ for (const arm of arms) {
     throw new Error(`expected one cjpeg oracle record for ${arm.label}`);
   }
 }
+const provenance = report.results?.[0]?.cjpegGvsProvenance;
+const phases = ['before-right', 'after-right-before-wrong-warm', 'after-wrong-warm'];
+if (!Array.isArray(provenance) || provenance.map((record) => record.phase).join(',') !== phases.join(',')) {
+  throw new Error(`expected GVS provenance phases ${phases.join(',')}`);
+}
+for (const record of provenance) {
+  if (!record.artifact || typeof record.artifact.status !== 'string' || typeof record.artifact.store !== 'string') {
+    throw new Error(`invalid GVS provenance record for ${record.phase}`);
+  }
+}

@@ -196,6 +196,14 @@ if (CJPEG_ORACLE && (PKG !== 'mozjpeg' || VER !== '6.0.1')) {
   console.error('--cjpeg-oracle is restricted to the mozjpeg@6.0.1 falsification fixture');
   process.exit(2);
 }
+// Sharing is legitimate for every direct falsification control, whose caller owns the paired warm
+// state. Candidate-record measurements never use `--at-grant`; reject a shared store on that path
+// so an unjailed control's materialised package cannot be credited as cold grant sufficiency. The
+// shared cache itself is not deleted: it remains the subject of the direct warm-state probes.
+if (CACHE_HOME && !AT_GRANT) {
+  console.error('--cache-home is restricted to direct --at-grant warm-state probes');
+  process.exit(2);
+}
 // ⛔ PER-ARM ISOLATION COSTS DISK, WHICH THE WALL-CLOCK COST MEASUREMENT DID NOT COVER. Each arm now
 // materialises its own virtual store, and they accumulate: MEASURED on the corpus VM, free space went
 // 62 GB -> 38 GB over one session of driver work. A sweep that discovers this at package 60 has

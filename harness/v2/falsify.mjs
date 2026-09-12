@@ -91,6 +91,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { driverInvocation } from './driver-invocation.mjs';
+import { inspectCjpegGvs } from './cjpeg-oracle.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -710,9 +711,26 @@ for (const kase of selected) {
     ? path.join(process.env.TEMP || 'C:\\Windows\\Temp',
       `falsify-warm-${kase.name.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`)
     : '';
+  // This remains observation, not a verdict change: `wrong-warm` continues to fail as a false
+  // sufficient grant until a later, reviewed classifier has enough evidence to say otherwise.
+  // The three snapshots make the one distinction the final artifact manifest cannot: an executable
+  // which existed before the narrow arm versus one which that arm created or obtained elsewhere.
+  const cjpegGvsProvenance = [];
+  const probeCjpegGvs = (phase) => {
+    if (!CJPEG_ORACLE || !sharedCache || kase.pkg !== 'mozjpeg' || kase.version !== '6.0.1') return;
+    const artifact = inspectCjpegGvs(sharedCache);
+    const record = { phase, artifact };
+    cjpegGvsProvenance.push(record);
+    console.log(`   CJPEG-GVS phase=${phase} artifact=${artifact.status}`
+      + `${artifact.entry ? ` entry=${artifact.entry}` : ''}`
+      + `${artifact.artifact?.realpath ? ` realpath=${artifact.artifact.realpath}` : ''}`
+      + `${artifact.artifact?.sha256 ? ` sha256=${artifact.artifact.sha256}` : ''}`);
+  };
+  probeCjpegGvs('before-right');
   const right = runArm(kase, kase.sufficient, 'right', sharedCache);
   arms.push(right);
   const control = absorb('right', judgeRight(kase, right));
+  probeCjpegGvs('after-right-before-wrong-warm');
 
   // The warm arm is only meaningful once the control has actually populated the caches it is meant
   // to probe, so a failed control skips it rather than reporting a second unattributable result.
@@ -720,6 +738,7 @@ for (const kase of selected) {
     const warm = runArm(kase, kase.insufficient, 'wrong-warm', sharedCache);
     arms.push(warm);
     absorb('wrong-warm', judgeWrong(kase, warm));
+    probeCjpegGvs('after-wrong-warm');
   }
 
   for (const a of arms) {
@@ -780,6 +799,7 @@ for (const kase of selected) {
     verdict,
     failures: fails,
     inconclusive: inconclusives,
+    cjpegGvsProvenance,
     arms: arms.map(({ out, ...rest }) => ({ ...rest, detectors: detectorsThatFired(rest) })),
   });
 }

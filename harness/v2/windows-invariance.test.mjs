@@ -26,7 +26,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { parseDriverLog } from './record.mjs';
 
 const HERE = import.meta.dirname;
@@ -74,6 +74,35 @@ test('cjpeg provenance probe is explicit and fixture-scoped', () => {
     'the Windows mozjpeg arm must receive the explicit executable probe flag');
   assert.match(FALSIFY, /const cjpegOracle = \[\.\.\.out\.matchAll/,
     'falsify must retain the bounded diagnostic output instead of discarding driver stdout');
+  assert.match(FALSIFY, /probeCjpegGvs\('before-right'\)/,
+    'the shared GVS must be captured before the sufficient control runs');
+  assert.match(FALSIFY, /probeCjpegGvs\('after-right-before-wrong-warm'\)/,
+    'the shared GVS must be captured between the sufficient and warm arms');
+  assert.match(FALSIFY, /probeCjpegGvs\('after-wrong-warm'\)/,
+    'the shared GVS must be captured after the narrow warm arm');
+  assert.match(DRIVER, /CACHE_HOME && !AT_GRANT/,
+    'record-producing Windows measurements must reject an explicitly shared virtual store');
+});
+
+test('cache-home is rejected for a record path but accepted for any direct warm probe', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'win-cache-home-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const cache = path.join(root, 'shared-cache');
+  const base = [process.execPath, path.join(HERE, 'measure-windows.mjs'), 'ordinary-package', '1.0.0',
+    '--cache-home', cache, '--root', root];
+
+  const record = spawnSync(base[0], base.slice(1), { encoding: 'utf8' });
+  assert.equal(record.status, 2, `expected cache-home rejection, got: ${record.stdout}${record.stderr}`);
+  assert.match(`${record.stdout}${record.stderr}`, /restricted to direct --at-grant/);
+
+  // Make the next early validation deterministic. Reaching this poison check, rather than the
+  // cache-home rejection above, proves all direct probes retain their legitimate shared-cache mode
+  // without starting npm, Nub, or a Windows lifecycle install on this host.
+  fs.writeFileSync(path.join(root, 'nub.jsonc'), '{}');
+  const direct = spawnSync(base[0], [...base.slice(1), '--at-grant', '{}'], { encoding: 'utf8' });
+  assert.equal(direct.status, 1, `direct cache-home should pass the flag guard: ${direct.stdout}${direct.stderr}`);
+  assert.match(`${direct.stdout}${direct.stderr}`, /FATAL stray nub\.jsonc/);
+  assert.doesNotMatch(`${direct.stdout}${direct.stderr}`, /restricted to direct --at-grant/);
 });
 
 // A four-arm ledger whose digest is INVARIANT across every rung — the shape that earns the verdict.
