@@ -36,7 +36,7 @@ jobs:
 
       - name: Check the bounded oracle harness
         shell: bash
-        run: node --test harness/v2/cjpeg-oracle.test.mjs harness/v2/assert-cjpeg-oracle.test.mjs harness/v2/collect-preflight.test.mjs harness/v2/windows-invariance.test.mjs
+        run: node --test harness/v2/cjpeg-oracle.test.mjs harness/v2/assert-cjpeg-oracle.test.mjs harness/v2/collect-preflight.test.mjs harness/v2/windows-invariance.test.mjs harness/v2/warm-reuse.test.mjs
 
       - name: Resolve and build the nub binary under test
         shell: bash
@@ -81,12 +81,12 @@ jobs:
         shell: bash
         run: |
           set +e
-          node harness/v2/falsify.mjs --nub "$NUB_BIN" --case network-gate --cjpeg-oracle --keep-roots --json /tmp/falsify-mozjpeg.json 2>&1 | tee /tmp/falsify-mozjpeg.log
+          node harness/v2/falsify.mjs --nub "$NUB_BIN" --case network-gate --keep-roots --json /tmp/falsify-mozjpeg.json 2>&1 | tee /tmp/falsify-mozjpeg.log
           RC=${PIPESTATUS[0]}
           echo "FALSIFY_EXIT=$RC" >> "$GITHUB_ENV"
           echo "falsify exit=$RC (0=control passed; 1=P0 reproduced; 2=inconclusive)"
           test -f /tmp/falsify-mozjpeg.json || exit 1
-          node harness/v2/assert-cjpeg-oracle.mjs /tmp/falsify-mozjpeg.json
+          node harness/v2/assert-cjpeg-oracle.mjs /tmp/falsify-mozjpeg.json || exit "$?"
           # This is a diagnostic, not a green gate: preserve its actual falsification verdict.
           exit "$RC"
 
