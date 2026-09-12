@@ -1,0 +1,291 @@
+name: Catalog-boundary artifact-only records
+
+on:
+  push:
+    branches: [probe/catalog-boundary-artifacts]
+  workflow_dispatch:
+    inputs:
+      chunk:
+        description: Manifest chunk index (1..90)
+        required: true
+        type: string
+      platform:
+        description: Operating system to measure
+        required: true
+        type: choice
+        options: [linux, macos, windows]
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.2'
+      - id: plan
+        name: Validate the bounded run plan
+        shell: bash
+        env:
+          CHUNK: ${{ inputs.chunk }}
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          args=(--matrix --manifest inputs/catalog-campaign-inputs.json --plan inputs/catalog-campaign-run.json)
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            args+=(--chunk "$CHUNK" --platform "$PLATFORM")
+          fi
+          matrix=$(node harness/v2/catalog-campaign-input.mjs "${args[@]}")
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+  records:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 300
+    defaults:
+      run:
+        shell: bash
+    env:
+      NUB_REF: 9d349f7c300a41fd9401d3d3c2e706b2d75c5fff
+      NUB_CORPUS_ON_RECORD: ''
+      MANIFEST: inputs/catalog-campaign-inputs.json
+      CHUNK: ${{ matrix.chunk }}
+      PLATFORM: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.2'
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+      - name: Materialize and screen one bounded worklist
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          node harness/v2/catalog-campaign-input.mjs \
+            --manifest "$MANIFEST" --chunk "$CHUNK" --platform "$PLATFORM" \
+            --out reports/worklist.txt --screen --cache-dir reports/osv-cache \
+            > reports/worklist-selection.json
+          cp "$MANIFEST" reports/catalog-campaign-inputs.json
+          sha256sum "$MANIFEST" > reports/catalog-campaign-inputs.sha256
+          cp inputs/catalog-campaign-run.json reports/catalog-campaign-run.json
+      - name: Record the source and runner before any gate
+        run: |
+          set -euo pipefail
+          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > reports/environment.txt
+          node harness/v2/instrument.mjs --json > reports/instrument.json
+      - name: Activate the Windows tracer compiler
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: ./harness/v2/activate-msvc.ps1
+      - name: Check the complete measurement instrument
+        run: |
+          set -euo pipefail
+          node harness/run-tests.mjs 2>&1 | tee reports/harness-tests.log
+      - name: Check Linux observation support
+        if: matrix.platform == 'linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq strace
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+      - name: Check macOS observation support
+        if: matrix.platform == 'macos'
+        run: |
+          set -euo pipefail
+          csrutil status
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1 | tee /tmp/dtrace-control.txt
+          grep -q hello /tmp/dtrace-control.txt
+      # The worklist is screened before this tool preparation or any dependency install.  This runs
+      # even on an exact cache hit because node-gyp is part of the runner evidence, not the bundle.
+      - name: Prepare the node-gyp toolchain on every run
+        run: npm install --global node-gyp@12.4.0 --no-audit --no-fund
+      - name: Resolve the exact runtime bundle identity
+        run: |
+          set -euo pipefail
+          RUNTIME_BUNDLE=/tmp/catalog-boundary-runtime
+          RUNTIME_BUNDLE_CACHE_PATH="$RUNTIME_BUNDLE"
+          if [ "$RUNNER_OS" = Windows ]; then RUNTIME_BUNDLE_CACHE_PATH="$(cygpath -w "$RUNTIME_BUNDLE")"; fi
+          BUNDLE_PLATFORM=$(node -p 'process.platform')
+          BUNDLE_ARCH=$(node -p 'process.arch')
+          RUNTIME_NODE_VERSION=$(node --version)
+          RUNTIME_RUSTC_SHA256=$(rustc -Vv | sha256sum | cut -d' ' -f1)
+          # The actual checked-in recipe and its verifier define the cached bytes.  Hashing them,
+          # rather than a duplicated prose summary, makes every recipe edit a fresh exact key.
+          RUNTIME_RECIPE_SHA256=$(cat .github/workflows/catalog-boundary-artifact-records.yml harness/v2/runtime-bundle.mjs | sha256sum | cut -d' ' -f1)
+          RUNTIME_CACHE_KEY=$(node harness/v2/runtime-bundle.mjs --cache-key \
+            --candidate-sha "$NUB_REF" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256")
+          {
+            echo "NUB_GIT_SHA=$NUB_REF"
+            echo "RUNTIME_BUNDLE=$RUNTIME_BUNDLE"
+            echo "RUNTIME_BUNDLE_CACHE_PATH=$RUNTIME_BUNDLE_CACHE_PATH"
+            echo "BUNDLE_PLATFORM=$BUNDLE_PLATFORM"
+            echo "BUNDLE_ARCH=$BUNDLE_ARCH"
+            echo "RUNTIME_RECIPE_SHA256=$RUNTIME_RECIPE_SHA256"
+            echo "RUNTIME_NODE_VERSION=$RUNTIME_NODE_VERSION"
+            echo "RUNTIME_RUSTC_SHA256=$RUNTIME_RUSTC_SHA256"
+            echo "RUNTIME_CACHE_KEY=$RUNTIME_CACHE_KEY"
+          } >> "$GITHUB_ENV"
+      # Exact identity only: never add restore-keys.  A different commit, target, or recipe is not
+      # evidence for this campaign and must pay its own build once, rather than reuse stale bytes.
+      - name: Restore the exact runtime bundle
+        id: runtimebundle
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.RUNTIME_BUNDLE_CACHE_PATH }}
+          key: ${{ env.RUNTIME_CACHE_KEY }}
+      - name: Verify a restored runtime bundle
+        if: steps.runtimebundle.outputs.cache-matched-key != ''
+        run: |
+          set -euo pipefail
+          node harness/v2/runtime-bundle.mjs --verify --root "$RUNTIME_BUNDLE" \
+            --candidate-sha "$NUB_GIT_SHA" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256" \
+            | tee reports/runtime-bundle.json
+      - name: Build the exact full Nub runtime bundle when cache misses
+        if: steps.runtimebundle.outputs.cache-matched-key == ''
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/nubsrc "$RUNTIME_BUNDLE"
+          git init /tmp/nubsrc
+          git -C /tmp/nubsrc remote add origin https://github.com/nubjs/nub.git
+          git -C /tmp/nubsrc fetch --depth=1 origin "$NUB_GIT_SHA"
+          git -C /tmp/nubsrc checkout --detach FETCH_HEAD
+          SHA=$(git -C /tmp/nubsrc rev-parse HEAD)
+          test "$SHA" = "$NUB_GIT_SHA"
+          (
+            cd /tmp/nubsrc
+            npm install --no-audit --no-fund --loglevel=error
+            (cd crates/nub-native && cargo build --profile fast)
+            mkdir -p runtime/addons
+            case "$RUNNER_OS" in
+              Linux) cp target/fast/libnub_native.so runtime/addons/nub-native.node ;;
+              macOS) cp target/fast/libnub_native.dylib runtime/addons/nub-native.node ;;
+              Windows)
+                cp target/fast/nub_native.dll runtime/addons/nub-native.node
+                echo '07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075  vendor/busybox-w32/busybox64.exe' | sha256sum -c -
+                cp vendor/busybox-w32/busybox64.exe target/fast/busybox.exe ;;
+            esac
+            # The fast binary walks to this complete sidecar at runtime.  Stage the same exact
+            # vendored JS packages as the release workflow, without inheriting source-root links.
+            mapfile -t RUNTIME_DEP_SPECS < <(node "$GITHUB_WORKSPACE/harness/v2/runtime-bundle.mjs" \
+              --runtime-dependency-specs --source-root "$PWD")
+            [ "${#RUNTIME_DEP_SPECS[@]}" -eq 5 ] || { echo 'incomplete runtime dependency specs' >&2; exit 1; }
+            rm -rf runtime/node_modules
+            mkdir -p runtime/node_modules
+            (
+              cd runtime
+              npm init -y > /dev/null 2>&1
+              npm install --no-save "${RUNTIME_DEP_SPECS[@]}"
+              rm -f node_modules/.package-lock.json package.json package-lock.json
+            )
+            node "$GITHUB_WORKSPACE/harness/v2/runtime-bundle.mjs" --verify-runtime-dependencies \
+              --source-root "$PWD" --runtime-root "$PWD/runtime"
+            if find runtime -type l -print -quit | grep -q .; then
+              echo 'runtime staging contains a symlink' >&2
+              exit 1
+            fi
+            cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          ) 2>&1 | tee reports/runtime-build.log
+          mkdir -p "$RUNTIME_BUNDLE"
+          cp "/tmp/nubsrc/target/fast/nub${{ matrix.platform == 'windows' && '.exe' || '' }}" "$RUNTIME_BUNDLE/nub${{ matrix.platform == 'windows' && '.exe' || '' }}"
+          cp -R /tmp/nubsrc/runtime "$RUNTIME_BUNDLE/runtime"
+          if [ "$BUNDLE_PLATFORM" = win32 ]; then cp /tmp/nubsrc/target/fast/busybox.exe "$RUNTIME_BUNDLE/busybox.exe"; fi
+          node harness/v2/runtime-bundle.mjs --write --root "$RUNTIME_BUNDLE" \
+            --candidate-sha "$NUB_GIT_SHA" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256" \
+            | tee reports/runtime-bundle.json
+      - name: Verify the runtime bundle before measurement
+        run: |
+          set -euo pipefail
+          node harness/v2/runtime-bundle.mjs --verify --root "$RUNTIME_BUNDLE" \
+            --candidate-sha "$NUB_GIT_SHA" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256" \
+            | tee reports/runtime-bundle-verified.json
+          NUB_BIN="$RUNTIME_BUNDLE/nub"
+          [ "$BUNDLE_PLATFORM" = win32 ] && NUB_BIN="$NUB_BIN.exe"
+          chmod +x "$NUB_BIN" 2>/dev/null || true
+          "$NUB_BIN" --version
+          echo "NUB_BIN=$NUB_BIN" >> "$GITHUB_ENV"
+      - name: Smoke the source-free runtime sidecar
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/nubsrc
+          SMOKE="$RUNNER_TEMP/catalog-runtime-smoke"
+          rm -rf "$SMOKE"; mkdir -p "$SMOKE"
+          printf 'name: nub\nport: 5432\n' > "$SMOKE/input.yaml"
+          printf 'import value from "./input.yaml"; console.log(value.name + ":" + value.port);\n' > "$SMOKE/smoke.ts"
+          (cd "$SMOKE" && "$NUB_BIN" smoke.ts) | tee reports/runtime-sidecar-smoke.log
+          grep -qx 'nub:5432' reports/runtime-sidecar-smoke.log
+      - name: Save the newly built exact runtime bundle
+        if: steps.runtimebundle.outputs.cache-matched-key == ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.RUNTIME_BUNDLE_CACHE_PATH }}
+          key: ${{ env.RUNTIME_CACHE_KEY }}
+      - name: Bind source and binary evidence
+        run: |
+          set -euo pipefail
+          node --input-type=module - "$NUB_BIN" "$RUNTIME_BUNDLE/runtime/addons/nub-native.node" "$RUNTIME_BUNDLE/busybox.exe" <<'JS'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          const hash = (p) => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          const instrument = JSON.parse(fs.readFileSync('reports/instrument.json', 'utf8'));
+          const expected = { platform: `${process.platform}-${process.arch}`, nubGitSha: process.env.NUB_GIT_SHA,
+            corpusGitSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+            harnessSha256: instrument.harnessSha256, nubSha256: hash(process.argv[2]),
+            addonSha256: hash(process.argv[3]),
+            busyboxSha256: process.platform === 'win32' ? hash(process.argv[4]) : null,
+            runtimeBundleSha256: hash(`${process.env.RUNTIME_BUNDLE}/runtime-bundle.json`),
+            runtimeRecipeSha256: process.env.RUNTIME_RECIPE_SHA256,
+            catalogSha256: hash('catalog-v2.json'), worklistSha256: hash('reports/worklist.txt'),
+            manifestSha256: hash(process.env.MANIFEST), runPlanSha256: hash('inputs/catalog-campaign-run.json'),
+            workflowSha256: hash('.github/workflows/catalog-boundary-artifact-records.yml') };
+          fs.writeFileSync('reports/expected.json', JSON.stringify(expected, null, 2));
+          JS
+      - name: Measure the screened worklist with falsification enabled
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- harness
+          unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST
+          if [ "$PLATFORM" = windows ]; then
+            mkdir -p /d/jail-record-probe
+            export NUB_V2_DRIVER_ARGS='["--root","D:\\jail-record-probe"]'
+          fi
+          node harness/v2/run-batch-v2.mjs --file reports/worklist.txt --nub "$NUB_BIN" --runs "$GITHUB_WORKSPACE/reports/records" --force 2>&1 | tee reports/measure.log
+      - name: Require complete exact-candidate measurements
+        if: always()
+        run: node harness/v2/assert-probe-records.mjs --file reports/worklist.txt --runs reports/records --expected reports/expected.json --out reports/record-summary.json
+      - name: Preserve failed falsification arms
+        if: always()
+        run: node harness/v2/collect-preflight.mjs reports/measure.log reports/preflight-evidence
+      - name: Retain evidence without publishing records
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: catalog-boundary-${{ matrix.platform }}-chunk-${{ matrix.chunk }}
+          path: reports
+          retention-days: 14
