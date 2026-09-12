@@ -85,7 +85,16 @@ jobs:
           test ! -e "$HOME/.cache/nub/pm/store" || { echo 'refusing warmed global store' >&2; exit 1; }
           printf '{"name":"confluent-unconfined-control","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$PKG" "$VER" > "$CONTROL/package.json"
           printf '{"install":{"buildJail":false}}\n' > "$CONTROL/nub.jsonc"
-          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1
+          if NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1; then
+            :
+          else
+            resolve_rc=$?
+            mkdir -p reports/control
+            cp "$CONTROL"/{package.json,nub.jsonc,resolve.log} reports/control/
+            printf '%s\n' "$resolve_rc" > reports/control/resolve.exit
+            tail -n 200 "$CONTROL/resolve.log" >&2
+            exit "$resolve_rc"
+          fi
           node harness/osv-screen.mjs --tree "$CONTROL" --kind confluent-unconfined-resolved \
             --cache-dir reports/osv-cache --out reports/security/unconfined-resolved.json
           TARGET="$CONTROL/node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp"

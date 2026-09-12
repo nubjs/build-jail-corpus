@@ -13,6 +13,8 @@ const drivers = {
   macos: fs.readFileSync(path.join(here, 'measure-macos.sh'), 'utf8'),
   windows: fs.readFileSync(path.join(here, 'measure-windows.mjs'), 'utf8'),
 };
+const confluentDiagnostic = fs.readFileSync(
+  path.join(here, '..', '..', '.github', 'workflows', 'confluent-macos-diagnostic.yml'), 'utf8');
 
 const inOrder = (source, needles, label) => {
   let at = -1;
@@ -94,6 +96,16 @@ test('POSIX failed direct arms retain bounded lifecycle command logs', () => {
 test('macOS forwards an opt-in policy dump without enabling it for ordinary arms', () => {
   assert.match(drivers.macos, /\[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \] && dump_env=/);
   assert.match(drivers.macos, /"\$\{dump_env\[@\]\}" sh -c/);
+});
+
+test('the Confluent control retains its resolver failure before stopping the direct arm', () => {
+  inOrder(confluentDiagnostic, [
+    'NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1',
+    'cp "$CONTROL"/{package.json,nub.jsonc,resolve.log} reports/control/',
+    "printf '%s\\n' \"$resolve_rc\" > reports/control/resolve.exit",
+    'tail -n 200 "$CONTROL/resolve.log" >&2',
+    'exit "$resolve_rc"',
+  ], 'Confluent unconfined control failure retention');
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
