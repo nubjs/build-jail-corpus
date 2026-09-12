@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url';
 import { assertCampaignInvocation, hashFile, verifyCampaignContext } from './campaign-provenance.mjs';
 import { driverInvocation } from './driver-invocation.mjs';
 
-const DIRECT_BANNER = /^\s*──\s*DIRECT:/m;
+const DIRECT_BANNER = /^\s*(?:──|--)\s*DIRECT:/m;
 const SUFFICIENT = /^\s*=>\s+SUFFICIENT\b/m;
 const INSUFFICIENT = /^\s*=>\s+INSUFFICIENT\b/m;
 const VOID = /^\s*=>\s+(?:⛔\s+)?VOID\b/m;
@@ -81,7 +81,6 @@ function commandText(command, args, result) {
 
 export function replayCatalog(options, deps = {}) {
   const platform = options.platform ?? process.platform;
-  if (platform === 'win32') throw new Error('DIRECT catalog replay is unsupported on win32 until its driver prints the DIRECT banner');
   const worklist = path.resolve(options.worklist);
   const catalog = path.resolve(options.catalog);
   const out = path.resolve(options.out);
@@ -108,7 +107,10 @@ export function replayCatalog(options, deps = {}) {
   for (const spec of specs) {
     const cell = outputCell(out, platform, spec);
     fs.mkdirSync(cell, { recursive: true });
-    const args = [...driver.pre, driver.file, spec.pkg, spec.version, options.nub, '--at-catalog', catalog];
+    const args = [...driver.pre, driver.file, spec.pkg, spec.version,
+      ...(platform === 'win32' ? ['--nub', options.nub] : [options.nub]),
+      '--at-catalog', catalog];
+    if (platform === 'win32' && options.driverRoot) args.push('--root', options.driverRoot);
     let result;
     let postError;
     try {
@@ -136,7 +138,7 @@ export function replayCatalog(options, deps = {}) {
 }
 
 function cli(argv) {
-  const names = new Set(['--nub', '--nub-git-sha', '--catalog', '--worklist', '--context', '--out', '--timeout']);
+  const names = new Set(['--nub', '--nub-git-sha', '--catalog', '--worklist', '--context', '--out', '--timeout', '--driver-root']);
   const option = (name) => argv.includes(name) ? argv[argv.indexOf(name) + 1] : null;
   const unknown = argv.filter((arg, index) => arg.startsWith('--') && !names.has(arg) && !(index && names.has(argv[index - 1])));
   if (unknown.length) throw new Error(`unknown flag(s): ${unknown.join(', ')}`);
@@ -147,12 +149,17 @@ function cli(argv) {
   if (Object.values(options).some((value) => value === null || value === '' || Number.isNaN(value)) || !contextFile) {
     throw new Error('usage: catalog-replay.mjs --nub FILE --nub-git-sha SHA --catalog FILE --worklist FILE --context FILE --out DIR [--timeout MS]');
   }
+  if (!Number.isInteger(options.timeout) || options.timeout <= 0) throw new Error('--timeout requires positive milliseconds');
+  options.driverRoot = option('--driver-root');
   options.context = JSON.parse(fs.readFileSync(contextFile, 'utf8'));
   const summary = replayCatalog(options);
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
   if (!summary.ok) process.exitCode = 1;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+const invokedPath = process.argv[1] && (() => {
+  try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); }
+})();
+if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
   try { cli(process.argv.slice(2)); } catch (error) { console.error(`CATALOG-REPLAY-ERROR ${error.message}`); process.exitCode = 2; }
 }
