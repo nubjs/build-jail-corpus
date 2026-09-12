@@ -1,0 +1,125 @@
+name: Zero sandbox artifact-only records
+
+on:
+  push:
+    branches: [probe/zero-sandbox-records]
+
+permissions:
+  contents: read
+
+jobs:
+  records:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 300
+    defaults:
+      run:
+        shell: bash
+    env:
+      NUB_REF: eff8e8d3929f83f21ddb75b7993e8d2614978791
+      # There is no publisher, queue claim, self-dispatch, or write-capable checkout in this lane.
+      NUB_CORPUS_ON_RECORD: ''
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            harness
+            inputs
+            .github
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.2'
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+      - name: Activate the Windows tracer compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./harness/v2/activate-msvc.ps1
+      - name: Check the complete measurement instrument
+        run: node harness/run-tests.mjs
+      - name: Check Linux observation support
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq strace
+          strace -f -o /tmp/strace-control.txt /bin/true
+          grep -q execve /tmp/strace-control.txt
+      - name: Check macOS observation support
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          csrutil status
+          sudo dtrace -n 'BEGIN { trace("hello"); exit(0); }' 2>&1 | tee /tmp/dtrace-control.txt
+          grep -q hello /tmp/dtrace-control.txt
+      - name: Build the exact full Nub runtime
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          git init /tmp/nubsrc
+          git -C /tmp/nubsrc remote add origin https://github.com/nubjs/nub.git
+          git -C /tmp/nubsrc fetch --depth=1 origin "$NUB_REF"
+          git -C /tmp/nubsrc checkout --detach FETCH_HEAD
+          SHA=$(git -C /tmp/nubsrc rev-parse HEAD)
+          test "$SHA" = "$NUB_REF"
+          echo "NUB_GIT_SHA=$SHA" >> "$GITHUB_ENV"
+          (
+            cd /tmp/nubsrc
+            npm install --no-audit --no-fund --loglevel=error
+            npm install --global node-gyp@12.4.0 --no-audit --no-fund
+            (cd crates/nub-native && cargo build --profile fast)
+            mkdir -p runtime/addons
+            case "$RUNNER_OS" in
+              Linux) cp target/fast/libnub_native.so runtime/addons/nub-native.node ;;
+              macOS) cp target/fast/libnub_native.dylib runtime/addons/nub-native.node ;;
+              Windows)
+                cp target/fast/nub_native.dll runtime/addons/nub-native.node
+                echo '07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075  vendor/busybox-w32/busybox64.exe' | sha256sum -c -
+                cp vendor/busybox-w32/busybox64.exe target/fast/busybox.exe ;;
+            esac
+            cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          )
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub${{ runner.os == 'Windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
+          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > reports/environment.txt
+          node harness/v2/instrument.mjs --json > reports/instrument.json
+      - name: Bind source and binary evidence
+        run: |
+          set -euo pipefail
+          node --input-type=module - "$NUB_BIN" /tmp/nubsrc/runtime/addons/nub-native.node /tmp/nubsrc/target/fast/busybox.exe <<'JS'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          const hash = (p) => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          const instrument = JSON.parse(fs.readFileSync('reports/instrument.json', 'utf8'));
+          const expected = { platform: `${process.platform}-${process.arch}`, nubGitSha: process.env.NUB_GIT_SHA,
+            corpusGitSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+            harnessSha256: instrument.harnessSha256, nubSha256: hash(process.argv[2]),
+            addonSha256: hash(process.argv[3]),
+            busyboxSha256: process.platform === 'win32' ? hash(process.argv[4]) : null,
+            catalogSha256: hash('catalog-v2.json'), worklistSha256: hash('inputs/zero-sandbox-records.txt'),
+            workflowSha256: hash('.github/workflows/zero-sandbox-records.yml') };
+          fs.writeFileSync('reports/expected.json', JSON.stringify(expected, null, 2));
+          JS
+      - name: Measure fresh records with falsification enabled
+        run: |
+          set -euo pipefail
+          chmod +x harness/v2/*.sh
+          unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST
+          if [ "$RUNNER_OS" = Windows ]; then
+            mkdir -p /d/jail-record-probe
+            export NUB_V2_DRIVER_ARGS='["--root","D:\\jail-record-probe"]'
+          fi
+          node harness/v2/run-batch-v2.mjs --file inputs/zero-sandbox-records.txt --nub "$NUB_BIN" --runs "$GITHUB_WORKSPACE/reports/records" --force 2>&1 | tee reports/measure.log
+      - name: Require complete exact-candidate measurements
+        if: always()
+        run: node harness/v2/assert-probe-records.mjs --file inputs/zero-sandbox-records.txt --runs reports/records --expected reports/expected.json --out reports/record-summary.json
+      - name: Retain evidence without publishing records
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: zero-sandbox-records-${{ matrix.os }}
+          path: reports
+          retention-days: 14
