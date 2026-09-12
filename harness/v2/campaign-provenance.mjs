@@ -73,6 +73,9 @@ function cli(argv) {
   if (argv.includes('--verify')) { verifyCampaignContext(JSON.parse(fs.readFileSync(option('--context'), 'utf8'))); return; }
   throw new Error('choose --create, --verify, --sha256, or --sha256-stdin');
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+const invokedPath = process.argv[1] && (() => {
+  try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); }
+})();
+if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
   try { cli(process.argv.slice(2)); } catch (error) { console.error(`CAMPAIGN-PROVENANCE-ERROR ${error.message}`); process.exitCode = 2; }
 }
