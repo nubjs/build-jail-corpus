@@ -19,6 +19,11 @@ test('CLI executes from a temporary path containing URL-special characters', (t)
   const result = spawnSync(process.execPath, [path.join(root, 'catalog-replay.mjs')], { encoding: 'utf8' });
   assert.equal(result.status, 2, result.stderr);
   assert.match(result.stderr, /CATALOG-REPLAY-ERROR usage:/);
+  const catalog = path.join(root, 'catalog.json');
+  fs.writeFileSync(catalog, '{}');
+  const hash = spawnSync(process.execPath, [path.join(root, 'campaign-provenance.mjs'), '--sha256', '--file', catalog], { encoding: 'utf8' });
+  assert.equal(hash.status, 0, hash.stderr);
+  assert.equal(hash.stdout.trim(), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a');
 });
 
 test('direct classification requires both the banner and SUFFICIENT terminal', () => {
