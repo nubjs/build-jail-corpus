@@ -150,8 +150,11 @@ function cli(argv) {
   console.log(JSON.stringify(operation(root, identity)));
 }
 
+// Do not use `realpathSync.native` here: Windows returns a `\\?\\`-prefixed path whose file URL
+// differs from Node's import URL, silently skipping the CLI. The portable form also resolves macOS
+// `/tmp` to Node's `/private/tmp` import path; `pathToFileURL` retains literal `#` and spaces.
 const invokedPath = process.argv[1] && (() => {
-  try { return fs.realpathSync.native(process.argv[1]); } catch { return process.argv[1]; }
+  try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); }
 })();
 if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
   try { cli(process.argv.slice(2)); } catch (error) { console.error(`RUNTIME-BUNDLE-ERROR ${error.message}`); process.exitCode = 2; }
