@@ -1099,6 +1099,14 @@ verify () {
     fi
     [ "$irc" -eq 0 ] && [ "$arc" -eq 0 ] )
   local rc=$?
+  if [ "$rc" -ne 0 ] && [ "$label" = at-catalog ]; then
+    # A direct-catalog failure can be a grant miss, a native build failure, or an artifact-gate
+    # mismatch. Keep the exact command exits and bounded logs before the temporary arm vanishes.
+    echo "  kept for inspection: $v"
+    echo "    VERIFY-EXIT: $rc"
+    tail -n 200 "$v/i.log" 2>/dev/null | sed 's/^/    VERIFY-INSTALL: /'
+    tail -n 200 "$v/a.log" 2>/dev/null | sed 's/^/    VERIFY-APPROVE: /'
+  fi
   # ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
   # a real one by rc and by every other precondition. A genuine first touch runs the lifecycle
   # script; a replay materializes from cache and never spawns it.

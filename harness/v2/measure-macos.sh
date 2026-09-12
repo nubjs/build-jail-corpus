@@ -834,6 +834,14 @@ JW
       '$NUB' approve-builds --all > '$v/a.log' 2>&1"
     local rc=$?
   fi
+  if [ "$rc" -ne 0 ] && [ "$label" = at-catalog ]; then
+    # Preserve the exact direct-catalog command failure. A catalog miss is not established until
+    # this excludes a compiler/runtime failure and an artifact-gate mismatch.
+    echo "  kept for inspection: $v"
+    echo "    VERIFY-EXIT: $rc"
+    tail -n 200 "$v/i.log" 2>/dev/null | sed 's/^/    VERIFY-INSTALL: /'
+    tail -n 200 "$v/a.log" 2>/dev/null | sed 's/^/    VERIFY-APPROVE: /'
+  fi
   # The replay signature: `materialized` with no install line. Reported, not fatal — a package with
   # no lifecycle script legitimately shows neither.
   if grep -qE '^\s*materialized ' "$v/i.log" 2>/dev/null && ! grep -qE 'installed [0-9]+ package' "$v/i.log" 2>/dev/null; then
