@@ -19,7 +19,7 @@ jobs:
       run:
         shell: bash
     env:
-      NUB_REF: 5d962cf6748d0dc1b18f940cccbf9a7e4078c8a7
+      NUB_REF: 1097a91c5ef7062a5da14554fdf672775855b149
       # There is no publisher, queue claim, self-dispatch, or write-capable checkout in this lane.
       NUB_CORPUS_ON_RECORD: ''
     steps:
@@ -112,7 +112,7 @@ jobs:
       - name: Measure fresh records with falsification enabled
         run: |
           set -euo pipefail
-          chmod +x harness/v2/*.sh
+          git diff --exit-code -- harness
           unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST
           if [ "$RUNNER_OS" = Windows ]; then
             mkdir -p /d/jail-record-probe
