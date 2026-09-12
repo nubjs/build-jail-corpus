@@ -186,11 +186,12 @@ fs.mkdirSync(ROOT, { recursive: true });
 // thing it tests. That arm is safe from the defect above for a different reason: it inherits a
 // WHOLE store, never a partially-evicted one.
 const CACHE_HOME = flag('--cache-home', '');
-// An explicit, mozjpeg-only diagnostic for the falsification control.  It is never enabled by a
-// corpus run: executing a package artifact after install is outside the lifecycle jail, so a caller
-// must deliberately select this bounded disposable-runner probe.  `cjpeg -version` is the package's
-// advertised no-input smoke invocation; its exit status distinguishes an existing file from a
-// usable executable without supplying an image or a filesystem target.
+// A mozjpeg-only diagnostic for the falsification control. Candidate-record measurements never
+// enable it; the one case descriptor in `falsify.mjs` activates it during ordinary Windows
+// preflight because that case's warm-cache interpretation depends on this bounded executable probe.
+// `cjpeg -version` is the package's advertised no-input smoke invocation; its exit status
+// distinguishes an existing file from a usable executable without supplying an image or a
+// filesystem target.
 const CJPEG_ORACLE = argv.includes('--cjpeg-oracle');
 if (CJPEG_ORACLE && (PKG !== 'mozjpeg' || VER !== '6.0.1')) {
   console.error('--cjpeg-oracle is restricted to the mozjpeg@6.0.1 falsification fixture');

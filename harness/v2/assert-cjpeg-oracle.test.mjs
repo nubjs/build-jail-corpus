@@ -18,17 +18,26 @@ function report(t, arms, cjpegGvsProvenance = [
   return output;
 }
 
+const oracleRecord = () => ({
+  label: 'at-grant',
+  artifact: { status: 'missing' },
+  execution: null,
+});
+
 test('accepts exactly the three retained oracle arms', (t) => {
-  const output = report(t, ['wrong-cold', 'right', 'wrong-warm'].map((label) => ({ label, cjpegOracle: [{}] })));
+  const output = report(t, ['wrong-cold', 'right', 'wrong-warm']
+    .map((label) => ({ label, cjpegOracle: [{}], cjpegOracleRecord: oracleRecord() })));
   execFileSync(process.execPath, [script, output]);
 });
 
 test('rejects a missing oracle result instead of treating artifact presence as a control', (t) => {
-  const output = report(t, ['wrong-cold', 'right', 'wrong-warm'].map((label) => ({ label, cjpegOracle: [] })));
-  assert.throws(() => execFileSync(process.execPath, [script, output]), /expected one cjpeg oracle record/);
+  const output = report(t, ['wrong-cold', 'right', 'wrong-warm']
+    .map((label) => ({ label, cjpegOracle: [], cjpegOracleRecord: oracleRecord() })));
+  assert.throws(() => execFileSync(process.execPath, [script, output]), /expected one structured cjpeg oracle record/);
 });
 
 test('rejects a missing GVS phase instead of silently losing warm-state provenance', (t) => {
-  const output = report(t, ['wrong-cold', 'right', 'wrong-warm'].map((label) => ({ label, cjpegOracle: [{}] })), []);
+  const output = report(t, ['wrong-cold', 'right', 'wrong-warm']
+    .map((label) => ({ label, cjpegOracle: [{}], cjpegOracleRecord: oracleRecord() })), []);
   assert.throws(() => execFileSync(process.execPath, [script, output]), /expected GVS provenance phases/);
 });

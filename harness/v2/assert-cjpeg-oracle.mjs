@@ -11,8 +11,8 @@ if (labels.join(',') !== expected.join(',')) {
   throw new Error(`expected ${expected.join(',')}; got ${labels.join(',') || '<none>'}`);
 }
 for (const arm of arms) {
-  if (!Array.isArray(arm.cjpegOracle) || arm.cjpegOracle.length !== 1) {
-    throw new Error(`expected one cjpeg oracle record for ${arm.label}`);
+  if (!Array.isArray(arm.cjpegOracle) || arm.cjpegOracle.length !== 1 || !arm.cjpegOracleRecord) {
+    throw new Error(`expected one structured cjpeg oracle record for ${arm.label}`);
   }
 }
 const provenance = report.results?.[0]?.cjpegGvsProvenance;
