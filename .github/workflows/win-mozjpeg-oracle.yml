@@ -93,17 +93,18 @@ jobs:
       - name: Collect bounded oracle evidence
         if: always()
         shell: bash
-        run: node harness/v2/collect-preflight.mjs /tmp/falsify-mozjpeg.log /tmp/preflight-evidence
+        run: |
+          mkdir -p reports
+          for file in falsify-mozjpeg.json oracle-environment.txt oracle-binaries.sha256; do
+            if [ -f "/tmp/$file" ]; then cp "/tmp/$file" reports/; fi
+          done
+          node harness/v2/collect-preflight.mjs /tmp/falsify-mozjpeg.log "$GITHUB_WORKSPACE/reports/preflight-evidence"
 
       - name: Preserve bounded oracle evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: win-mozjpeg-oracle-${{ github.run_id }}
-          path: |
-            /tmp/falsify-mozjpeg.json
-            /tmp/preflight-evidence
-            /tmp/oracle-environment.txt
-            /tmp/oracle-binaries.sha256
+          path: reports
           if-no-files-found: warn
           retention-days: 14
