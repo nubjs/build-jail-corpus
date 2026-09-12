@@ -1,0 +1,175 @@
+# Artifact-only three-OS acceptance of the corpus's current catalog. This never measures,
+# collates, promotes, claims, or changes corpus data: it only proves existing grants against
+# real installs and retains enough provenance to re-run the exact comparison.
+name: Zero sandbox catalog sanity
+
+on:
+  push:
+    branches: [probe/zero-sandbox-catalog-sanity]
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: exact nubjs/nub candidate to test
+        required: true
+        default: '1e57f55befb7908e27744b1f1b69326715198f4a'
+      baseline_sha:
+        description: exact matched nubjs/nub baseline to retain beside the candidate
+        required: true
+        default: '66d094771559a86642db4eef4a325b6c46f21ebe'
+
+permissions:
+  contents: read
+
+jobs:
+  sanity:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    # Two serialized subjects each permit 77 minutes for packages.mjs's fourteen cold arms plus
+    # two five-minute denial fixtures; this leaves ~26 minutes for source-pair builds and setup.
+    timeout-minutes: 210
+    defaults:
+      run:
+        shell: bash
+    env:
+      CANDIDATE_REF: ${{ inputs.candidate_sha || '1e57f55befb7908e27744b1f1b69326715198f4a' }}
+      BASELINE_REF: ${{ inputs.baseline_sha || '66d094771559a86642db4eef4a325b6c46f21ebe' }}
+      CORPUS_REF: ${{ github.sha }}
+      NODE_VERSION: '22.23.2'
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.2'
+
+      - name: Check the manifest instrument
+        run: node --test harness/v2/catalog-sanity-manifest.test.mjs harness/v2/catalog-sanity-subject.test.mjs
+
+      - name: Resolve the two public Nub subjects
+        run: |
+          set -euo pipefail
+          resolve_subject() {
+            local ref="$1" dir="$2"
+            git init "$dir" >&2
+            git -C "$dir" remote add origin https://github.com/nubjs/nub.git >&2
+            git -C "$dir" fetch --depth=1 origin "$ref" >&2
+            git -C "$dir" checkout --detach FETCH_HEAD >&2
+            git -C "$dir" rev-parse HEAD
+          }
+          CANDIDATE_SHA="$(resolve_subject "$CANDIDATE_REF" /tmp/nub-candidate)"
+          BASELINE_SHA="$(resolve_subject "$BASELINE_REF" /tmp/nub-baseline)"
+          printf '%s\n' "$CANDIDATE_SHA" | grep -Eq '^[a-f0-9]{40}$'
+          printf '%s\n' "$BASELINE_SHA" | grep -Eq '^[a-f0-9]{40}$'
+          printf '%s\n' "$CORPUS_REF" | grep -Eq '^[a-f0-9]{40}$'
+          echo "CANDIDATE_SHA=$CANDIDATE_SHA" >> "$GITHUB_ENV"
+          echo "BASELINE_SHA=$BASELINE_SHA" >> "$GITHUB_ENV"
+
+      - name: Resolve native shared-target cache path
+        run: |
+          set -euo pipefail
+          P=/tmp/nub-catalog-sanity-target
+          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
+          echo "NUB_TARGET_CACHE_PATH=$P" >> "$GITHUB_ENV"
+
+      - name: Restore exact shared build target
+        id: target
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.NUB_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v1-${{ runner.os }}-${{ env.CANDIDATE_SHA }}-${{ env.BASELINE_SHA }}
+
+      - name: Build matching full subjects
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR=/tmp/nub-catalog-sanity-target
+          REPORTS="$GITHUB_WORKSPACE/reports"
+          mkdir -p "$REPORTS"
+          build_subject() {
+            local source="$1" output="$2"
+            (
+              cd "$source"
+              npm install --no-audit --no-fund --loglevel=error
+              (cd crates/nub-native && cargo build --profile fast)
+              mkdir -p runtime/addons "$output"
+              case "$RUNNER_OS" in
+                Windows)
+                  cp "$CARGO_TARGET_DIR/fast/nub_native.dll" runtime/addons/nub-native.node
+                  echo '07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075  vendor/busybox-w32/busybox64.exe' | sha256sum -c -
+                  cp vendor/busybox-w32/busybox64.exe "$output/busybox.exe" ;;
+                Linux) cp "$CARGO_TARGET_DIR/fast/libnub_native.so" runtime/addons/nub-native.node ;;
+                macOS) cp "$CARGO_TARGET_DIR/fast/libnub_native.dylib" runtime/addons/nub-native.node ;;
+              esac
+              cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+              cp "$CARGO_TARGET_DIR/fast/nub${{ runner.os == 'Windows' && '.exe' || '' }}" "$output/nub${{ runner.os == 'Windows' && '.exe' || '' }}"
+              cp runtime/addons/nub-native.node "$output/nub-native.node"
+            )
+          }
+          build_subject /tmp/nub-candidate /tmp/subjects/candidate
+          build_subject /tmp/nub-baseline /tmp/subjects/baseline
+          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > "$REPORTS/environment.txt"
+          node harness/v2/instrument.mjs --json > "$REPORTS/instrument.json"
+
+      - name: Save exact shared build target
+        if: always() && steps.target.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.NUB_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v1-${{ runner.os }}-${{ env.CANDIDATE_SHA }}-${{ env.BASELINE_SHA }}
+
+      - name: Run independent current-catalog subjects
+        run: |
+          set +e
+          CATALOG="$GITHUB_WORKSPACE/catalog-v2.json"
+          printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/catalog-bad.json
+          FIXTURES=/tmp/nub-candidate/tests/build-jail-corpus
+          node harness/v2/catalog-sanity-subject.mjs --subject candidate --bin "/tmp/subjects/candidate/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/candidate
+          candidate_rc=$?
+          node harness/v2/catalog-sanity-subject.mjs --subject baseline --bin "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/baseline
+          baseline_rc=$?
+          printf '%s\n' "$candidate_rc" > reports/candidate.exit
+          printf '%s\n' "$baseline_rc" > reports/baseline.exit
+          # The baseline is retained comparison evidence. Candidate acceptance is never inferred
+          # from a baseline pass/failure; it requires its own real installs and denied controls.
+          exit "$candidate_rc"
+
+      - name: Write immutable provenance manifest
+        if: always()
+        run: |
+          set -euo pipefail
+          busybox=()
+          if [ "$RUNNER_OS" = Windows ]; then
+            busybox=(--candidate-busybox /tmp/subjects/candidate/busybox.exe --baseline-busybox /tmp/subjects/baseline/busybox.exe)
+          fi
+          node harness/v2/catalog-sanity-manifest.mjs \
+            --out reports/manifest.json \
+            --corpus-sha "$CORPUS_REF" \
+            --candidate-source-sha "${CANDIDATE_SHA:-unresolved}" \
+            --baseline-source-sha "${BASELINE_SHA:-unresolved}" \
+            --catalog catalog-v2.json \
+            --candidate-bin "/tmp/subjects/candidate/nub${{ runner.os == 'Windows' && '.exe' || '' }}" \
+            --candidate-addon /tmp/subjects/candidate/nub-native.node \
+            --baseline-bin "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}" \
+            --baseline-addon /tmp/subjects/baseline/nub-native.node \
+            --packages /tmp/nub-candidate/tests/build-jail-corpus/packages.mjs \
+            --network /tmp/nub-candidate/tests/build-jail-corpus/network.mjs \
+            --relocated-store /tmp/nub-candidate/tests/build-jail-corpus/relocated-store.mjs \
+            --instrument harness/v2/instrument.mjs \
+            --instrument-output reports/instrument.json \
+            --workflow .github/workflows/zero-sandbox-catalog-sanity.yml \
+            --manifest-helper harness/v2/catalog-sanity-manifest.mjs \
+            --subject-helper harness/v2/catalog-sanity-subject.mjs \
+            --budget-helper harness/v2/catalog-sanity-budget.mjs \
+            --environment reports/environment.txt \
+            "${busybox[@]}"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: zero-sandbox-catalog-sanity-${{ matrix.os }}
+          path: reports
+          retention-days: 14
