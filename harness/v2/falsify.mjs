@@ -92,6 +92,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { driverInvocation } from './driver-invocation.mjs';
 import { inspectCjpegGvs } from './cjpeg-oracle.mjs';
+import { classifyWarmReuse, requiresCjpegOracle } from './warm-reuse.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -118,9 +119,9 @@ const JSON_OUT = opt('--json', '');
 // Drops the `wrong-warm` arm. Halves the cost and gives up the one check that no amount of eviction
 // discipline can replace, so it is for an inner loop and never for a pre-sweep gate.
 const QUICK = argv.includes('--quick');
-// The normal oracle asks only whether a narrowed grant was rejected.  This opt-in diagnostic adds
-// the mozjpeg fixture's executable smoke check to each Windows arm, so an artifact count can be
-// separated from a usable `cjpeg.exe` without changing the normal pre-sweep gate.
+// `--cjpeg-oracle` retains the explicit diagnostic CLI for direct investigation. The production
+// Windows preflight instead declares the known mozjpeg oracle on its case descriptor below, so a
+// batch cannot accidentally omit the functional/provenance check that decides this warm arm.
 const CJPEG_ORACLE = argv.includes('--cjpeg-oracle');
 // Every arm's `$ROOT` is deleted once its case passes; see the sweep at the foot of the case loop.
 const KEEP_ROOTS = argv.includes('--keep-roots');
@@ -264,6 +265,7 @@ const CASES = [
     platform: 'win32',
     pkg: 'mozjpeg',
     version: '6.0.1',
+    oracle: 'cjpeg',
     sufficient: { write: { project: true, userHome: true }, network: true },
     insufficient: { write: { project: true, userHome: true } },
     removed: 'network',
@@ -365,7 +367,7 @@ const runArm = (kase, grant, label, cacheHome) => {
   const args = process.platform === 'win32'
     ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant),
       ...(cacheHome ? ['--cache-home', cacheHome] : []),
-      ...(CJPEG_ORACLE && kase.pkg === 'mozjpeg' && kase.version === '6.0.1' ? ['--cjpeg-oracle'] : [])]
+      ...(requiresCjpegOracle(kase, CJPEG_ORACLE) ? ['--cjpeg-oracle'] : [])]
     : [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
   const r = spawnSync(DRIVER_CMD, args, opts);
   const out = (r.stdout ?? '') + (r.stderr ?? '');
@@ -391,6 +393,14 @@ const runArm = (kase, grant, label, cacheHome) => {
   // script provably NOT executed. That makes it a real NEGATIVE CONTROL for `ranEvidence` — see the
   // `evidenceIsSound` note below.
   const fetchLog = root ? slurp(root, 'observe', 'fetch.log') : '';
+  // The summary line is human-readable only. The fail-closed classifier consumes this bounded
+  // structured record, not a path/hash scraped from stdout.
+  let cjpegOracleRecord = null;
+  if (root && requiresCjpegOracle(kase, CJPEG_ORACLE)) {
+    try {
+      cjpegOracleRecord = JSON.parse(fs.readFileSync(path.join(root, 'verify-at-grant', 'cjpeg-oracle.json'), 'utf8'));
+    } catch { /* classified as INCONCLUSIVE by the case oracle */ }
+  }
 
   const verify = out.match(
     // ⛔ `shortfall=` IS OPTIONAL BECAUSE ONLY THE POSIX DRIVERS EMIT IT. `measure-windows.mjs`
@@ -408,6 +418,7 @@ const runArm = (kase, grant, label, cacheHome) => {
     label,
     grant,
     cjpegOracle,
+    cjpegOracleRecord,
     driverRc: rc,
     timedOut: r.error?.code === 'ETIMEDOUT',
     durationMs: Date.now() - t0,
@@ -458,6 +469,7 @@ const runArm = (kase, grant, label, cacheHome) => {
     // the script ran would be trusting a predicate that cannot distinguish the two cases. So it is
     // neither: it is printed, and `scriptRan` below answers the question directly instead.
     replaySuspected: /REPLAY SUSPECTED/.test(out),
+    sideEffectsRestored: /side-effects-cache: restored/.test(armLogs),
     // Per-term, not just the conjunction: when a refusal check fails, which HALF failed is the whole
     // diagnosis — a missing errno means the operation was skipped, a missing subject means something
     // unrelated failed instead.
@@ -711,13 +723,11 @@ for (const kase of selected) {
     ? path.join(process.env.TEMP || 'C:\\Windows\\Temp',
       `falsify-warm-${kase.name.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`)
     : '';
-  // This remains observation, not a verdict change: `wrong-warm` continues to fail as a false
-  // sufficient grant until a later, reviewed classifier has enough evidence to say otherwise.
-  // The three snapshots make the one distinction the final artifact manifest cannot: an executable
-  // which existed before the narrow arm versus one which that arm created or obtained elsewhere.
+  // These snapshots and the per-arm `cjpeg-oracle.json` distinguish a payload that predates the
+  // narrow arm from one it created. They are mandatory for the case that declares this oracle.
   const cjpegGvsProvenance = [];
   const probeCjpegGvs = (phase) => {
-    if (!CJPEG_ORACLE || !sharedCache || kase.pkg !== 'mozjpeg' || kase.version !== '6.0.1') return;
+    if (!requiresCjpegOracle(kase, CJPEG_ORACLE) || !sharedCache) return;
     const artifact = inspectCjpegGvs(sharedCache);
     const record = { phase, artifact };
     cjpegGvsProvenance.push(record);
@@ -737,8 +747,13 @@ for (const kase of selected) {
   if (!QUICK && !control.fail.length && !control.inconclusive.length) {
     const warm = runArm(kase, kase.insufficient, 'wrong-warm', sharedCache);
     arms.push(warm);
-    absorb('wrong-warm', judgeWrong(kase, warm));
     probeCjpegGvs('after-wrong-warm');
+    const warmReuse = classifyWarmReuse({ kase, cold, right, warm, provenance: cjpegGvsProvenance });
+    warm.warmCacheOutcome = warmReuse.kind;
+    warm.warmCacheMessage = warmReuse.message;
+    if (warmReuse.kind === 'not-applicable') absorb('wrong-warm', judgeWrong(kase, warm));
+    else if (warmReuse.kind === 'fail') fails.push(`[wrong-warm] ⛔⛔ P0: ${warmReuse.message}`);
+    else if (warmReuse.kind === 'inconclusive') inconclusives.push(`[wrong-warm] ${warmReuse.message}`);
   }
 
   for (const a of arms) {
@@ -753,6 +768,7 @@ for (const kase of selected) {
         + `default-trust packages, and ranEvidence=${a.scriptRan ? 'seen' : '—'} answers it directly`);
     }
     for (const line of a.cjpegOracle) console.log(`   CJPEG-ORACLE ${line}`);
+    if (a.warmCacheOutcome) console.log(`   WARM-CACHE ${a.warmCacheOutcome}: ${a.warmCacheMessage}`);
   }
 
   // ⛔ EACH ARM IS A SEPARATE `measure.sh` RUN, SO EACH BUILDS ITS OWN OBSERVE REFERENCE — AND IF
