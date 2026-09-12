@@ -5,13 +5,16 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { materializePinnedGitBlob } from './pinned-git-blob.mjs';
 
-const git = (repo, args) => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trim();
+const cleanGitEnvironment = { ...process.env, GIT_CONFIG_GLOBAL: os.devNull, GIT_CONFIG_NOSYSTEM: '1' };
+const git = (repo, args) => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', env: cleanGitEnvironment }).trim();
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
 
-test('materializes exact blob bytes despite a CRLF-converted checkout and rejects a wrong ref', () => {
+function convertedCheckout(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pinned-git-blob-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const source = path.join(root, 'source');
   const checkout = path.join(root, 'checkout');
   fs.mkdirSync(source);
@@ -24,13 +27,20 @@ test('materializes exact blob bytes despite a CRLF-converted checkout and reject
   git(source, ['commit', '-qm', 'initial catalog']);
   const commit = git(source, ['rev-parse', 'HEAD']);
 
-  execFileSync('git', ['clone', '-q', source, checkout]);
+  execFileSync('git', ['clone', '-q', source, checkout], { env: cleanGitEnvironment });
+  git(checkout, ['config', 'user.email', 'test@example.com']);
+  git(checkout, ['config', 'user.name', 'Test']);
   git(checkout, ['config', 'core.autocrlf', 'true']);
   git(checkout, ['rm', '-q', '--cached', 'catalog-v2.json']);
   git(checkout, ['reset', '-q', '--hard', 'HEAD']);
   const checkoutBytes = fs.readFileSync(path.join(checkout, 'catalog-v2.json'));
   assert.notDeepEqual(checkoutBytes, canonical);
   assert.ok(checkoutBytes.includes(Buffer.from('\r\n')));
+  return { root, checkout, canonical, commit };
+}
+
+test('materializes exact blob bytes despite a CRLF-converted checkout and rejects a wrong ref', (t) => {
+  const { root, checkout, canonical, commit } = convertedCheckout(t);
 
   const out = path.join(root, 'reports', 'candidate-catalog-v2.json');
   assert.deepEqual(materializePinnedGitBlob({ repo: checkout, ref: 'HEAD', commit, file: 'catalog-v2.json', sha256: hash(canonical), out }), {
@@ -48,4 +58,18 @@ test('materializes exact blob bytes despite a CRLF-converted checkout and reject
   const withheld = path.join(root, 'reports', 'withheld.json');
   assert.throws(() => materializePinnedGitBlob({ repo: checkout, ref: 'HEAD', commit, file: 'catalog-v2.json', sha256: hash(canonical), out: withheld }), /does not match pinned commit/);
   assert.equal(fs.existsSync(withheld), false);
+});
+
+test('CLI materializes the canonical blob through a path that requires file-URL escaping', (t) => {
+  const { root, checkout, canonical, commit } = convertedCheckout(t);
+  const toolDir = path.join(root, 'tool # directory');
+  fs.mkdirSync(toolDir);
+  const cli = path.join(toolDir, 'pinned-git-blob.mjs');
+  fs.copyFileSync(fileURLToPath(new URL('./pinned-git-blob.mjs', import.meta.url)), cli);
+  const out = path.join(root, 'reports', 'candidate-catalog-v2.json');
+  const stdout = execFileSync(process.execPath, [
+    cli, '--repo', checkout, '--ref', 'HEAD', '--commit', commit, '--path', 'catalog-v2.json', '--sha256', hash(canonical), '--out', out,
+  ], { encoding: 'utf8', env: cleanGitEnvironment });
+  assert.deepEqual(JSON.parse(stdout), { commit, path: 'catalog-v2.json', sha256: hash(canonical), bytes: canonical.length });
+  assert.deepEqual(fs.readFileSync(out), canonical);
 });
