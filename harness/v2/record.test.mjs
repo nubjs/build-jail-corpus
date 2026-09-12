@@ -438,8 +438,9 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   assert.equal(rec.grantSource, 'descended', 'AND the record says which value it is');
   assert.match(rec.grantSourceReason, /verified in the real jail/, 'AND why');
   assert.deepEqual(rec.descendedGrant, { network: true });
-  assert.equal(rec.harnessEpoch, 3);
-  assert.match(rec.provenance.harnessSha256, /^[0-9a-f]{64}$/);
+  const instrument = computeHarnessIdentity();
+  assert.equal(rec.harnessEpoch, instrument.harnessEpoch);
+  assert.equal(rec.provenance.harnessSha256, instrument.harnessSha256);
   assert.equal(rec.provenance.runtime.node.version, process.version);
   assert.match(rec.provenance.runtime.node.sha256, /^[0-9a-f]{64}$/);
 });
