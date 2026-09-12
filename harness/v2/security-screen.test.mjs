@@ -54,7 +54,7 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
   inOrder(drivers.macos, [
     "'$NUB' install --ignore-scripts > '$v/security-resolve.log'",
     'security_screen_tree "$v" "nub-$label-resolved"',
-    '/bin/bash "$HERE/macos-verify.sh" "$v" "$NUB"',
+    'run_macos_verify "$v" "$cache"',
   ], 'macos verify');
   inOrder(drivers.windows, [
     "run(NUB, ['install', '--ignore-scripts']",
@@ -91,8 +91,13 @@ test('POSIX failed direct arms retain bounded lifecycle command logs', () => {
 });
 
 test('macOS forwards an opt-in policy dump without enabling it for ordinary arms', () => {
-  assert.match(drivers.macos, /\[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \] && dump_env=/);
-  assert.ok(drivers.macos.includes('"${dump_env[@]}" \\\n      /bin/bash "$HERE/macos-verify.sh"'));
+  const helper = drivers.macos.match(/^run_macos_verify \(\) \{([\s\S]*?)^\}/m)?.[1] ?? '';
+  assert.match(helper, /if \[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \]; then/);
+  assert.match(helper, /"NUB_JAIL_DUMP_POLICY=\$NUB_JAIL_DUMP_POLICY"/);
+  assert.match(helper, /\/bin\/bash "\$HERE\/macos-verify\.sh" "\$verify_dir" "\$NUB"/);
+  const ordinaryArm = helper.split(/\n  else\n/)[1] ?? '';
+  assert.doesNotMatch(ordinaryArm, /NUB_JAIL_DUMP_POLICY/,
+    'ordinary verifier arms must omit the variable rather than pass an empty assignment');
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {

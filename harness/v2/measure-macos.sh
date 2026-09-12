@@ -688,6 +688,21 @@ if [ -z "$NUB" ] || [ ! -x "$NUB" ]; then
 fi
 
 # ── 3. VERIFY — the real, UNPRIVILEGED jail. Runs as the invoking user, never root. ────────────
+run_macos_verify () {
+  local verify_dir="$1" verify_cache="$2"
+  # macOS ships Bash 3.2. Under `set -u`, expanding an empty array aborts before `env` starts, so
+  # omit the optional assignment structurally instead of expanding an empty argument list.
+  if [ -n "${NUB_JAIL_DUMP_POLICY:-}" ]; then
+    sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$verify_cache" \
+      NUB_BUILD_JAIL_CATALOG="$verify_dir/cat.json" "NUB_JAIL_DUMP_POLICY=$NUB_JAIL_DUMP_POLICY" \
+      /bin/bash "$HERE/macos-verify.sh" "$verify_dir" "$NUB"
+  else
+    sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$verify_cache" \
+      NUB_BUILD_JAIL_CATALOG="$verify_dir/cat.json" \
+      /bin/bash "$HERE/macos-verify.sh" "$verify_dir" "$NUB"
+  fi
+}
+
 verify () {
   local grant="$1" label="$2" tracer="${3:-}"
   local v="$ROOT/verify-$label"; mkdir -p "$v"; chown -R "$RUNUSER" "$v" 2>/dev/null
@@ -829,13 +844,9 @@ JW
     # of its own confinement primitives, so an arm left at uid 0 would pass for a reason that has
     # nothing to do with the grant.
     chown -R "$RUNUSER" "$v" 2>/dev/null
-    # The diagnostic flag is opt-in.  An empty assignment still makes Rust's `var_os` see the
+    # The diagnostic flag is opt-in. An empty assignment still makes Rust's `var_os` see the
     # variable, so do not pass the spelling at all in ordinary corpus arms.
-    local -a dump_env=()
-    [ -n "${NUB_JAIL_DUMP_POLICY:-}" ] && dump_env=("NUB_JAIL_DUMP_POLICY=$NUB_JAIL_DUMP_POLICY")
-    sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
-      NUB_BUILD_JAIL_CATALOG="$v/cat.json" "${dump_env[@]}" \
-      /bin/bash "$HERE/macos-verify.sh" "$v" "$NUB"
+    run_macos_verify "$v" "$cache"
     local rc=$?
   fi
   if [ "$rc" -ne 0 ] && { [ "$label" = at-catalog ] || [ "$label" = at-grant ]; }; then
