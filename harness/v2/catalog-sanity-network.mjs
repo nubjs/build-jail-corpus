@@ -7,10 +7,12 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const name = 'compresion';
+const version = '1.7.11';
 
 export function effectiveNetwork(entry, platform) {
-  const base = entry.default?.network === true;
-  const overlay = entry[platform];
+  const grant = entry.default ?? {};
+  const base = grant.network === true;
+  const overlay = grant[platform];
   return Object.hasOwn(overlay ?? {}, 'network') ? overlay.network === true : base;
 }
 
@@ -20,12 +22,17 @@ function platform() {
   return 'linux';
 }
 
+export function assertFixedDeniedControl(entry, currentPlatform) {
+  assert.ok(entry?.default, `current catalog lacks ${name}.default`);
+  assert.deepEqual(entry.versions ?? {}, {}, `${name} must remain a fixed-default denial control`);
+  assert.equal(effectiveNetwork(entry, currentPlatform), false, `${name} must deny network on ${currentPlatform}`);
+}
+
 function assertDeniedCurrentGrant() {
   const catalogPath = process.env.NUB_BUILD_JAIL_CATALOG;
   assert.ok(catalogPath, 'catalog sanity requires NUB_BUILD_JAIL_CATALOG');
   const entry = JSON.parse(readFileSync(catalogPath, 'utf8')).packages?.[name];
-  assert.ok(entry?.default, `current catalog lacks ${name}.default`);
-  assert.equal(effectiveNetwork(entry, platform()), false, `${name} must deny network on ${platform()}`);
+  assertFixedDeniedControl(entry, platform());
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -38,7 +45,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const project = join(home, 'p');
     const pkg = join(home, 'package');
     for (const path of [project, pkg]) mkdirSync(path, { recursive: true });
-    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name, version: '1.7.11', scripts: { install: 'node install.cjs' } }));
+    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name, version, scripts: { install: 'node install.cjs' } }));
     writeFileSync(join(pkg, 'install.cjs'), `
       const child = require('child_process').spawn(process.execPath, ['probe.cjs'], {env:{},stdio:'pipe'});
       child.stdout.resume(); child.stderr.resume();
