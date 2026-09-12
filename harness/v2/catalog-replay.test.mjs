@@ -100,7 +100,8 @@ test('Windows uses its flag-based binary/root arguments and requires a direct te
   });
   assert.equal(summary.ok, true);
   assert.deepEqual(calls, [['node', ['/windows-driver.mjs', 'a', '1.0.0',
-    '--nub', nub, '--at-catalog', catalog, '--root', 'D:/replay']]]);
+    '--nub', nub, '--at-catalog', catalog, '--root', 'D:/replay',
+    '--evidence-dir', path.join(root, 'out', 'win32', 'a@1.0.0', 'diagnostics')]]]);
   assert.equal(classifyDirect({ status: 3 }, '-- DIRECT:\n=> TIMED-OUT\n').status, 'infrastructure-error');
 });
 

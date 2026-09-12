@@ -5,6 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import fs from 'node:fs';
+import vm from 'node:vm';
 import { driverInvocation, driverArgv } from './driver-invocation.mjs';
 
 test('darwin runs under `sudo -E`, and BOTH terms are asserted by name', () => {
@@ -56,5 +58,29 @@ test('the driver path is ABSOLUTE — a caller in another cwd still finds it', (
   // control exposed it.
   for (const p of ['linux', 'darwin', 'win32']) {
     assert.ok(path.isAbsolute(driverInvocation(p).file), `${p} driver path must be absolute`);
+  }
+});
+
+test('the batch invocation retains Windows diagnostics in the record cell only', () => {
+  const source = fs.readFileSync(path.join(import.meta.dirname, 'run-batch-v2.mjs'), 'utf8');
+  const start = source.indexOf('  const { cmd, pre, file } = driverInvocation();');
+  const end = source.indexOf('  const ms = Date.now() - t0;', start);
+  assert.ok(start >= 0 && end > start, 'execute the actual batch invocation');
+  const invocation = source.slice(start, end);
+  for (const platform of ['win32', 'linux', 'darwin']) {
+    const calls = [];
+    const dir = path.join('records with spaces', `${platform}-x64`, 'cpu-features', '0.0.10');
+    vm.runInNewContext(invocation, {
+      driverInvocation: () => ({ cmd: 'driver', pre: ['fixed'], file: '/driver' }),
+      path, process: { platform }, NUB: '/runtime/nub', dir,
+      pkg: 'cpu-features', version: '0.0.10', DRIVER_ARGS: ['--root', '/fixture root'],
+      BUDGET_MS: 1000, sh: (...args) => { calls.push(args); return { status: 0 }; },
+    });
+    assert.equal(calls.length, 1);
+    const args = Array.from(calls[0][1]);
+    assert.deepEqual(args, ['fixed', '/driver', 'cpu-features', '0.0.10',
+      ...(platform === 'win32' ? ['--nub', '/runtime/nub', '--evidence-dir', path.join(dir, 'diagnostics')] : ['/runtime/nub']),
+      '--root', '/fixture root']);
+    assert.equal(calls[0][2], 1000);
   }
 });

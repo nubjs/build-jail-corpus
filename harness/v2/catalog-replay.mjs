@@ -111,6 +111,7 @@ export function replayCatalog(options, deps = {}) {
       ...(platform === 'win32' ? ['--nub', options.nub] : [options.nub]),
       '--at-catalog', catalog];
     if (platform === 'win32' && options.driverRoot) args.push('--root', options.driverRoot);
+    if (platform === 'win32') args.push('--evidence-dir', path.join(cell, 'diagnostics'));
     let result;
     let postError;
     try {

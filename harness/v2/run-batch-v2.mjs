@@ -257,7 +257,9 @@ for (const spec of specs) {
   // the POSIX drivers take it positionally.
   const { cmd, pre, file } = driverInvocation();
   const nubArgs = NUB ? (process.platform === 'win32' ? ['--nub', NUB] : [NUB]) : [];
-  r = sh(cmd, [...pre, file, pkg, version, ...nubArgs, ...DRIVER_ARGS], BUDGET_MS);
+  const evidenceArgs = process.platform === 'win32'
+    ? ['--evidence-dir', path.join(dir, 'diagnostics')] : [];
+  r = sh(cmd, [...pre, file, pkg, version, ...nubArgs, ...evidenceArgs, ...DRIVER_ARGS], BUDGET_MS);
   const ms = Date.now() - t0;
   slowestMs = Math.max(slowestMs, ms);
 
