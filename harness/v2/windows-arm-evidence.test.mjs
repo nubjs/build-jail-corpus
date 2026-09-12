@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { createWindowsArmEvidence } from './windows-arm-evidence.mjs';
+import { createWindowsArmEvidence, MAX_FILE_BYTES } from './windows-arm-evidence.mjs';
 
 const put = (root, relative, body) => {
   const file = path.join(root, relative);
@@ -20,15 +20,16 @@ test('retains full manifests and bounded fixed diagnostics for a successful arm'
   put(pkg, '.npmignore', 'metadata');
   put(pkg, 'build/config.gypi', 'config');
   put(pkg, 'build/project.vcxproj', '<Project/>');
+  put(pkg, 'build/large.props', Buffer.alloc(MAX_FILE_BYTES + 1));
   put(pkg, 'build/ignored.obj', 'object');
   put(arm, 'i.log', 'installed');
   put(arm, 'a.log', 'approved');
   const evidence = createWindowsArmEvidence({ destination: path.join(root, 'report'), fixtureRoot: root, pkg: 'fixture', ver: '1.0.0' });
   const result = evidence.capture({ label: 'verify-synth', armRoot: arm });
   assert.equal(result.package.status, 'present');
-  assert.deepEqual(result.package.manifest.map((entry) => entry.path), ['.npmignore', 'build/config.gypi', 'build/ignored.obj', 'build/project.vcxproj', 'index.js']);
+  assert.deepEqual(result.package.manifest.map((entry) => entry.path), ['.npmignore', 'build/config.gypi', 'build/ignored.obj', 'build/large.props', 'build/project.vcxproj', 'index.js']);
   assert.deepEqual(result.logs.map((entry) => [entry.path, entry.status]), [['fetch.log', 'missing'], ['security-resolve.log', 'missing'], ['i.log', 'copied'], ['a.log', 'copied']]);
-  assert.deepEqual(result.package.build.map((entry) => [entry.path, entry.status]), [['build/config.gypi', 'copied'], ['build/project.vcxproj', 'copied'], ['buildcheck.gypi', 'missing']]);
+  assert.deepEqual(result.package.build.map((entry) => [entry.path, entry.status]), [['build/config.gypi', 'copied'], ['build/large.props', 'too-large'], ['build/project.vcxproj', 'copied'], ['buildcheck.gypi', 'missing']]);
   assert.equal(fs.readFileSync(path.join(evidence.dir, 'verify-synth', 'i.log'), 'utf8'), 'installed');
 });
 
