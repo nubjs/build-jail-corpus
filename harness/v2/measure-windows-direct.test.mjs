@@ -26,6 +26,9 @@ test('Windows refuses mutually exclusive direct policy flags before a workload',
 
 test('Windows refuses missing and empty whole-catalog inputs before a workload', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'win-atcat-'));
+  const omitted = run('--at-catalog');
+  assert.equal(omitted.rc, 2, omitted.out);
+  assert.match(omitted.out, /--at-catalog needs a non-empty catalog FILE/);
   for (const catalog of [path.join(dir, 'missing.json'), path.join(dir, 'empty.json')]) {
     if (catalog.endsWith('empty.json')) fs.writeFileSync(catalog, '');
     const r = run('--at-catalog', catalog);

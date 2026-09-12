@@ -129,8 +129,9 @@ if (AT_GRANT && !/^\{[\s\S]*\}$/.test(AT_GRANT.trim())) {
 if (AT_GRANT && AT_CATALOG) {
   console.error('--at-grant and --at-catalog ask two different questions; pass exactly one'); process.exit(2);
 }
-if (AT_CATALOG) {
+if (argv.includes('--at-catalog')) {
   try {
+    if (!AT_CATALOG) throw new Error('missing catalog path');
     const stat = fs.statSync(AT_CATALOG);
     if (!stat.isFile() || stat.size === 0) throw new Error('not a non-empty file');
     AT_CATALOG = path.resolve(AT_CATALOG);

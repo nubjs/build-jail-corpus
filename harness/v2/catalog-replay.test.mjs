@@ -2,12 +2,24 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { createCampaignContext } from './campaign-provenance.mjs';
 import { cellName, classifyDirect, parseExactSpec, readWorklist, replayCatalog } from './catalog-replay.mjs';
 import { writeBundleManifest } from './runtime-bundle.mjs';
 
 const direct = '── DIRECT: does esbuild@0.24.0 install under the catalog?\n=> SUFFICIENT (installed, artifacts matched OBSERVE)\n';
+
+test('CLI executes from a temporary path containing URL-special characters', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-replay # cli-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const file of ['catalog-replay.mjs', 'campaign-provenance.mjs', 'runtime-bundle.mjs', 'driver-invocation.mjs']) {
+    fs.copyFileSync(path.join(import.meta.dirname, file), path.join(root, file));
+  }
+  const result = spawnSync(process.execPath, [path.join(root, 'catalog-replay.mjs')], { encoding: 'utf8' });
+  assert.equal(result.status, 2, result.stderr);
+  assert.match(result.stderr, /CATALOG-REPLAY-ERROR usage:/);
+});
 
 test('direct classification requires both the banner and SUFFICIENT terminal', () => {
   assert.equal(classifyDirect({ status: 0 }, direct).status, 'sufficient');
@@ -68,8 +80,23 @@ test('replay binds the exact context before and after every run, retains cells, 
   assert.ok(fs.existsSync(path.join(root, 'out', 'summary.json')));
 });
 
-test('win32 is refused before it can claim a direct replay', () => {
-  assert.throws(() => replayCatalog({ platform: 'win32' }), /unsupported on win32/);
+test('Windows uses its flag-based binary/root arguments and requires a direct terminal', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-replay-windows-'));
+  const worklist = path.join(root, 'worklist.txt'), catalog = path.join(root, 'catalog.json'), nub = path.join(root, 'nub.exe');
+  fs.writeFileSync(worklist, 'a@1.0.0\n'); fs.writeFileSync(catalog, '{}'); fs.writeFileSync(nub, 'nub');
+  const calls = [];
+  const summary = replayCatalog({ nub, nubGitSha: 'a'.repeat(40), catalog, worklist,
+    context: { verification: { files: { catalog, worklist } } }, out: path.join(root, 'out'),
+    platform: 'win32', driverRoot: 'D:/replay' }, {
+    verifyCampaignContext() {}, assertCampaignInvocation() {}, hashFile() { return 'hash'; },
+    driverInvocation() { return { cmd: 'node', pre: [], file: '/windows-driver.mjs' }; },
+    spawnSync(command, args) { calls.push([command, args]); return { status: 0,
+      stdout: '-- DIRECT: fixture\n=> SUFFICIENT catalog\n', stderr: '' }; },
+  });
+  assert.equal(summary.ok, true);
+  assert.deepEqual(calls, [['node', ['/windows-driver.mjs', 'a', '1.0.0',
+    '--nub', nub, '--at-catalog', catalog, '--root', 'D:/replay']]]);
+  assert.equal(classifyDirect({ status: 3 }, '-- DIRECT:\n=> TIMED-OUT\n').status, 'infrastructure-error');
 });
 
 test('subprocess errors stay infrastructure failures with their detail in the cell log', () => {
