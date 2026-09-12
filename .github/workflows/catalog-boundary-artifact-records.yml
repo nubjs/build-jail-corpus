@@ -241,6 +241,24 @@ jobs:
           printf 'import value from "./input.yaml"; console.log(value.name + ":" + value.port);\n' > "$SMOKE/smoke.ts"
           (cd "$SMOKE" && "$NUB_BIN" smoke.ts) | tee reports/runtime-sidecar-smoke.log
           grep -qx 'nub:5432' reports/runtime-sidecar-smoke.log
+      # This is an input to the current-v2-grants replay, not a runtime sidecar file: it must be
+      # materialized on cache hits too, after the source-free bundle smoke has ruled out fallback.
+      - name: Materialize the pinned current-v2 catalog input
+        run: |
+          set -euo pipefail
+          PIN_LINE=$(node -e 'const fs = require("node:fs"); const pin = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).pins?.candidate; if (!pin || typeof pin.commit !== "string" || typeof pin.catalogPath !== "string" || !/^[0-9a-f]{64}$/i.test(pin.catalogSha256 ?? "")) throw new Error("candidate catalog pin is incomplete"); process.stdout.write([pin.commit, pin.catalogPath, pin.catalogSha256].join(" "));' "$MANIFEST")
+          read -r PIN_COMMIT PIN_PATH PIN_SHA256 <<< "$PIN_LINE"
+          test "$PIN_COMMIT" = "$NUB_REF"
+          case "$PIN_PATH" in /*|*'..'*) echo 'unsafe candidate catalog path' >&2; exit 1 ;; esac
+          rm -rf /tmp/nub-catalog-input
+          git init -q /tmp/nub-catalog-input
+          git -C /tmp/nub-catalog-input remote add origin https://github.com/nubjs/nub.git
+          git -C /tmp/nub-catalog-input fetch --depth=1 origin "$NUB_REF"
+          git -C /tmp/nub-catalog-input checkout -q --detach FETCH_HEAD
+          test "$(git -C /tmp/nub-catalog-input rev-parse HEAD)" = "$PIN_COMMIT"
+          cp "/tmp/nub-catalog-input/$PIN_PATH" reports/candidate-catalog-v2.json
+          test "$(node harness/v2/campaign-provenance.mjs --sha256 --file reports/candidate-catalog-v2.json)" = "$PIN_SHA256"
+          rm -rf /tmp/nub-catalog-input
       - name: Save the newly built exact runtime bundle
         if: steps.runtimebundle.outputs.cache-matched-key == ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -254,6 +272,10 @@ jobs:
           node harness/v2/campaign-provenance.mjs --create --out reports/campaign-context.json \
             --runtime-bundle "$RUNTIME_BUNDLE" --runtime-recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
             --catalog catalog-v2.json --worklist reports/worklist.txt --manifest "$MANIFEST" \
+            --run-plan inputs/catalog-campaign-run.json --workflow .github/workflows/catalog-boundary-artifact-records.yml
+          node harness/v2/campaign-provenance.mjs --create --out reports/candidate-catalog-context.json \
+            --runtime-bundle "$RUNTIME_BUNDLE" --runtime-recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --catalog reports/candidate-catalog-v2.json --worklist reports/worklist.txt --manifest "$MANIFEST" \
             --run-plan inputs/catalog-campaign-run.json --workflow .github/workflows/catalog-boundary-artifact-records.yml
           node --input-type=module - "$NUB_BIN" <<'JS'
           import fs from 'node:fs';
@@ -289,6 +311,17 @@ jobs:
           )
           if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'D:/jail-record-probe'); fi
           node harness/v2/catalog-replay.mjs "${args[@]}" 2>&1 | tee reports/catalog-replay.log
+      - name: Replay the pinned current-v2 catalog grants directly
+        if: ${{ always() && !cancelled() && steps.campaigncontext.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          args=(
+            --nub "$NUB_BIN" --nub-git-sha "$NUB_GIT_SHA" \
+            --catalog reports/candidate-catalog-v2.json --worklist reports/worklist.txt \
+            --context reports/candidate-catalog-context.json --out reports/candidate-307-replay
+          )
+          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'D:/jail-record-probe'); fi
+          node harness/v2/catalog-replay.mjs "${args[@]}" 2>&1 | tee reports/candidate-307-replay.log
       - name: Require complete exact-candidate measurements
         if: always()
         run: node harness/v2/assert-probe-records.mjs --file reports/worklist.txt --runs reports/records --expected reports/expected.json --out reports/record-summary.json
