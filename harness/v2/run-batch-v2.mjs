@@ -24,7 +24,7 @@ import { computeHarnessIdentity, loadInstrumentConfig, loadInvalidationPolicy } 
 import { recordValidity } from './record-validity.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 import { fetchPackageStanding } from './package-standing.mjs';
-import { verifyCampaignContext } from './campaign-provenance.mjs';
+import { assertCampaignInvocation, verifyCampaignContext } from './campaign-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -77,7 +77,8 @@ let CAMPAIGN = null;
 if (process.env.NUB_V2_CAMPAIGN_CONTEXT) {
   try {
     CAMPAIGN = JSON.parse(fs.readFileSync(process.env.NUB_V2_CAMPAIGN_CONTEXT, 'utf8'));
-    RUNTIME.campaign = verifyCampaignContext(CAMPAIGN);
+    RUNTIME.campaign = assertCampaignInvocation(CAMPAIGN, { nubSha256: NUB_BINARY?.sha256,
+      nubGitSha: NUB_SHA, platform: PLATFORM, worklist: opt('--file') });
   } catch (error) {
     console.error(`campaign context: REFUSED ${error.message}`);
     process.exit(2);

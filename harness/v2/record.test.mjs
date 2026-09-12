@@ -18,6 +18,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDriverLog, firstObject, hydrateResolvedTrees } from './record.mjs';
 import { computeHarnessIdentity, loadInstrumentConfig, REPO_ROOT } from './instrument.mjs';
+import { collectRuntimeProvenance } from './runtime-provenance.mjs';
 
 const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const load = (f) => fs.readFileSync(path.join(FIX, f), 'utf8');
@@ -427,8 +428,11 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   ].join('\n'));
   // `--out` is a ROOT; the CLI appends <platform>/<pkg>/<version>/results.json under it.
   const outRoot = path.join(dir, 'out');
+  const campaign = { schemaVersion: 1, kind: 'catalog-boundary-artifact', runtimeBundleSha256: 'a'.repeat(64), addonSha256: 'b'.repeat(64), busyboxSha256: null, runtimeRecipeSha256: 'c'.repeat(64), catalogSha256: 'd'.repeat(64), worklistSha256: 'e'.repeat(64), manifestSha256: 'f'.repeat(64), runPlanSha256: '1'.repeat(64), workflowSha256: '2'.repeat(64) };
+  const runtime = collectRuntimeProvenance(); runtime.campaign = campaign;
   execFileSync(process.execPath, [path.join(HARNESS, 'record.mjs'),
-    '--log', log, '--pkg', 'p', '--version', '1.0.0', '--out', outRoot, '--rc', '0'], { encoding: 'utf8' });
+    '--log', log, '--pkg', 'p', '--version', '1.0.0', '--out', outRoot, '--rc', '0',
+    '--runtime-json', JSON.stringify(runtime)], { encoding: 'utf8' });
   const found = fs.globSync
     ? fs.globSync(path.join(outRoot, '**', 'results.json'))
     : [path.join(outRoot, process.platform === 'darwin' ? `darwin-${process.arch}` : '', 'p', '1.0.0', 'results.json')];
@@ -443,6 +447,7 @@ test('the CLI writes grantSource, grantSourceReason and descendedGrant into the 
   assert.equal(rec.provenance.harnessSha256, instrument.harnessSha256);
   assert.equal(rec.provenance.runtime.node.version, process.version);
   assert.match(rec.provenance.runtime.node.sha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(rec.provenance.runtime.campaign, campaign, 'the runtime snapshot carries campaign context into the record');
 });
 
 test('a production recorder refuses to write without dated latest and demand metadata', () => {

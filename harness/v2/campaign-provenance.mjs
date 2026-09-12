@@ -23,6 +23,7 @@ export function createCampaignContext({ bundleRoot, runtimeRecipeSha256, catalog
   const manifestFile = path.join(bundleRoot, 'runtime-bundle.json');
   const bundle = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
   verifyBundle(bundleRoot, bundle.identity);
+  if (runtimeRecipeSha256 !== bundle.identity.recipeSha256) throw new Error('campaign runtime recipe does not match bundle identity');
   const platform = bundle.identity.platform;
   const addon = path.join(bundleRoot, 'runtime', 'addons', 'nub-native.node');
   const busybox = platform === 'win32' ? path.join(bundleRoot, 'busybox.exe') : null;
@@ -43,6 +44,19 @@ export function verifyCampaignContext(context) {
   const actual = createCampaignContext({ bundleRoot: context.verification.bundleRoot,
     runtimeRecipeSha256: context.campaign.runtimeRecipeSha256, ...files }).campaign;
   if (JSON.stringify(actual) !== JSON.stringify(context.campaign)) throw new Error('campaign input or sidecar digest changed');
+  return context.campaign;
+}
+
+export function assertCampaignInvocation(context, { nubSha256, nubGitSha, platform, worklist }) {
+  verifyCampaignContext(context);
+  const identity = context.verification.identity;
+  const binary = identity.platform === 'win32' ? 'nub.exe' : 'nub';
+  const bundle = JSON.parse(fs.readFileSync(path.join(context.verification.bundleRoot, 'runtime-bundle.json'), 'utf8'));
+  if (!nubSha256 || bundle.files?.[binary]?.sha256 !== nubSha256) throw new Error('invoked Nub binary does not match campaign bundle');
+  if (nubGitSha?.toLowerCase() !== identity.candidateSha || platform !== `${identity.platform}-${identity.arch}`) {
+    throw new Error('invoked Nub source or platform does not match campaign bundle');
+  }
+  if (hashFile(worklist) !== context.campaign.worklistSha256) throw new Error('invoked worklist does not match campaign context');
   return context.campaign;
 }
 
