@@ -40,6 +40,7 @@
 //   exit 3 = OBSERVE itself produced nothing for this package, so there is nothing to gate on.
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 // The digest is defined once, beside the predicate that compares digests across arms. Importing that
 // module does NOT run its CLI: its main-module guard resolves the invoked script's path to a URL and
 // compares it against its own, and under this import that path is THIS file.
@@ -149,6 +150,38 @@ if (!obs || obs.size === 0) {
 const got = manifest(ARM);
 const missing = [];
 if (!got) missing.push('<package absent>');
+// `esbuild` deliberately ships a small JavaScript command wrapper at `bin/esbuild`; its postinstall
+// normally replaces that path with the platform binary from its optional dependency. Under Nub's
+// isolated linker the wrapper can remain while `@esbuild/<platform>/bin/esbuild` is linked and the
+// public command still resolves and runs the native binary. Comparing only the wrapper byte count
+// then calls that working installation a denied download (9,248 B versus ~10 MB in the npm tree).
+//
+// Do not generalize this to arbitrary package executables. This is a named, version-checked contract
+// for esbuild's published wrapper: execute its public `--version` command with no binary-path
+// override. A stale wrapper, absent platform package, failed native exec, timeout, or a different
+// version remains a gate failure. The emitted line makes this exceptional equivalence reviewable in
+// the driver log instead of silently excusing a short file.
+const functionalEsbuildWrapper = () => {
+  if (PKG !== 'esbuild' || !got) return false;
+  const wrapper = path.join(got.root, 'bin', 'esbuild');
+  if (!fs.existsSync(wrapper)) return false;
+  const env = { ...process.env };
+  delete env.ESBUILD_BINARY_PATH;
+  const r = spawnSync(process.execPath, [wrapper, '--version'], {
+    cwd: got.root,
+    encoding: 'utf8',
+    timeout: 10_000,
+    env,
+  });
+  const version = `${r.stdout ?? ''}`.trim();
+  if (r.status === 0 && version === VER) {
+    console.log(`ESBUILD-WRAPPER verified version=${version}`);
+    return true;
+  }
+  console.log(`ESBUILD-WRAPPER failed status=${r.status ?? 'signal'} version=${JSON.stringify(version)}`);
+  return false;
+};
+const esbuildWrapperWorks = functionalEsbuildWrapper();
 // ⛔ A TOOLCHAIN-INVOCATION RECORD IS NOT BUILD OUTPUT, AND COMPARING ITS SIZE ACROSS TWO PACKAGE
 // MANAGERS ASKS A QUESTION THE ARTIFACT CANNOT ANSWER (PORTABILITY R4).
 //
@@ -235,6 +268,7 @@ for (const [f, size] of got ? obs : []) {
   // difference can change a file's CONTENTS; it can never fail to write the file at all.
   if (!got.has(f)) { missing.push(f); continue; }
   const armSize = got.get(f);
+  if (f === 'bin/esbuild' && armSize < size && esbuildWrapperWorks) continue;
   // ⛔ ONLY THE "shorter than the reference but NON-EMPTY" COMPARISON IS DROPPED. A zero-byte file
   // against a non-empty reference falls through to the check below and still fails — that is the
   // download-blocked/truncated shape the gate exists to catch, and no generator difference and no

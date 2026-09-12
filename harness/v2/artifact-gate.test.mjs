@@ -24,10 +24,10 @@ const PKG = 'fixture-pkg';
 const VER = '1.0.0';
 
 /** Build an `<root>/node_modules/<pkg>` tree from a {relpath: contents} map. */
-const tree = (label, files) => {
+const tree = (label, files, pkg = PKG) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), `agate-${label}-`));
   for (const [rel, body] of Object.entries(files)) {
-    const p = path.join(root, 'node_modules', PKG, rel);
+    const p = path.join(root, 'node_modules', pkg, rel);
     fs.mkdirSync(path.dirname(p), { recursive: true });
     fs.writeFileSync(p, body);
   }
@@ -35,9 +35,9 @@ const tree = (label, files) => {
 };
 
 /** Run the gate. Returns {code, out} — never throws, so a failing gate is data rather than an error. */
-const gate = (obs, arm) => {
+const gate = (obs, arm, pkg = PKG, ver = VER) => {
   try {
-    const out = execFileSync(process.execPath, [GATE, '--obs', obs, '--arm', arm, '--pkg', PKG, '--ver', VER], {
+    const out = execFileSync(process.execPath, [GATE, '--obs', obs, '--arm', arm, '--pkg', pkg, '--ver', ver], {
       encoding: 'utf8',
     });
     return { code: 0, out };
@@ -45,6 +45,32 @@ const gate = (obs, arm) => {
     return { code: e.status, out: `${e.stdout ?? ''}${e.stderr ?? ''}` };
   }
 };
+
+test('esbuild wrapper is accepted only when it functionally reaches its native optional dependency', () => {
+  const pkg = 'esbuild'; const ver = '0.24.0';
+  const wrapper = `const fs=require('fs'),path=require('path');\n`
+    + `const native=path.join(__dirname,'..','..','@esbuild','test-platform','bin','esbuild');\n`
+    + `if (!fs.existsSync(native)) process.exit(1);\nconsole.log('${ver}');\n`;
+  const observed = tree('esbuild-obs', { 'bin/esbuild': 'NATIVE'.repeat(4096) }, pkg);
+  const functional = tree('esbuild-functional', { 'bin/esbuild': wrapper }, pkg);
+  const native = path.join(functional, 'node_modules', '@esbuild', 'test-platform', 'bin', 'esbuild');
+  fs.mkdirSync(path.dirname(native), { recursive: true }); fs.writeFileSync(native, 'native');
+  const pass = gate(observed, functional, pkg, ver);
+  assert.equal(pass.code, 0, `a working wrapper must satisfy the public command contract:\n${pass.out}`);
+  assert.match(pass.out, /ESBUILD-WRAPPER verified version=0\.24\.0/);
+
+  const absentNative = tree('esbuild-no-native', { 'bin/esbuild': wrapper }, pkg);
+  const fail = gate(observed, absentNative, pkg, ver);
+  assert.equal(fail.code, 1, `a wrapper that cannot reach a native binary must still fail:\n${fail.out}`);
+  assert.match(fail.out, /ESBUILD-WRAPPER failed/);
+
+  const wrongVersion = tree('esbuild-wrong-version', { 'bin/esbuild': wrapper.replace(ver, '0.24.1') }, pkg);
+  const wrongNative = path.join(wrongVersion, 'node_modules', '@esbuild', 'test-platform', 'bin', 'esbuild');
+  fs.mkdirSync(path.dirname(wrongNative), { recursive: true }); fs.writeFileSync(wrongNative, 'native');
+  const mismatch = gate(observed, wrongVersion, pkg, ver);
+  assert.equal(mismatch.code, 1, `a wrapper for another esbuild version must still fail:\n${mismatch.out}`);
+  assert.match(mismatch.out, /ESBUILD-WRAPPER failed/);
+});
 
 test('an identical tree passes — the positive control, without which every other case is vacuous', () => {
   const files = { 'index.js': 'x', 'bin/tool': 'BINARY' };

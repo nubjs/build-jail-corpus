@@ -545,6 +545,7 @@ const applyGrantSourceRule = (out, lines) => {
     unparsedNames.push(name);
   }
   const jointVerified = lines.some((l) => /JOINT-NARROW\s+VERIFIED/.test(l));
+  const jointAttempted = lines.some((l) => /JOINT-NARROW\s+(?:VERIFIED|FAILED|INCONCLUSIVE)/.test(l));
   out.descendedGrant = descended;
 
   let source, reason;
@@ -582,7 +583,9 @@ const applyGrantSourceRule = (out, lines) => {
   } else {
     source = 'synthesized';
     reason = `${n} capabilities each drop on their own, but the descent is leave-one-out and the `
-      + 'JOINT drop was never run — narrowing to it would be an inference, not a measurement';
+      + (jointAttempted
+        ? 'JOINT drop was run and did not verify — narrowing to it would under-grant'
+        : 'JOINT drop was never run — narrowing to it would be an inference, not a measurement');
   }
   out.grantSource = source;
   out.grantSourceReason = reason;
