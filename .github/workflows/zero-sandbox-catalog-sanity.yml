@@ -69,30 +69,44 @@ jobs:
           echo "CANDIDATE_SHA=$CANDIDATE_SHA" >> "$GITHUB_ENV"
           echo "BASELINE_SHA=$BASELINE_SHA" >> "$GITHUB_ENV"
 
-      - name: Resolve native shared-target cache path
+      - name: Resolve native subject-target cache paths
         run: |
           set -euo pipefail
-          P=/tmp/nub-catalog-sanity-target
-          if command -v cygpath >/dev/null 2>&1; then P="$(cygpath -w "$P")"; fi
-          echo "NUB_TARGET_CACHE_PATH=$P" >> "$GITHUB_ENV"
+          candidate=/tmp/nub-catalog-sanity-target/candidate
+          baseline=/tmp/nub-catalog-sanity-target/baseline
+          if command -v cygpath >/dev/null 2>&1; then
+            candidate="$(cygpath -w "$candidate")"
+            baseline="$(cygpath -w "$baseline")"
+          fi
+          echo "CANDIDATE_TARGET_CACHE_PATH=$candidate" >> "$GITHUB_ENV"
+          echo "BASELINE_TARGET_CACHE_PATH=$baseline" >> "$GITHUB_ENV"
 
-      - name: Restore exact shared build target
-        id: target
+      - name: Restore candidate build target
+        id: candidate-target
         uses: actions/cache/restore@v6
         with:
-          path: ${{ env.NUB_TARGET_CACHE_PATH }}
-          key: zero-sandbox-catalog-sanity-v1-${{ runner.os }}-${{ env.CANDIDATE_SHA }}-${{ env.BASELINE_SHA }}
+          path: ${{ env.CANDIDATE_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v2-${{ runner.os }}-candidate-${{ env.CANDIDATE_SHA }}
+
+      - name: Restore baseline build target
+        id: baseline-target
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.BASELINE_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v2-${{ runner.os }}-baseline-${{ env.BASELINE_SHA }}
 
       - name: Build matching full subjects
         run: |
           set -euo pipefail
-          export CARGO_TARGET_DIR=/tmp/nub-catalog-sanity-target
           REPORTS="$GITHUB_WORKSPACE/reports"
           mkdir -p "$REPORTS"
+          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > "$REPORTS/environment.txt"
+          node harness/v2/instrument.mjs --json > "$REPORTS/instrument.json"
           build_subject() {
-            local source="$1" output="$2"
+            local source="$1" output="$2" target="$3"
             (
               cd "$source"
+              export CARGO_TARGET_DIR="$target"
               npm install --no-audit --no-fund --loglevel=error
               (cd crates/nub-native && cargo build --profile fast)
               mkdir -p runtime/addons "$output"
@@ -109,17 +123,22 @@ jobs:
               cp runtime/addons/nub-native.node "$output/nub-native.node"
             )
           }
-          build_subject /tmp/nub-candidate /tmp/subjects/candidate
-          build_subject /tmp/nub-baseline /tmp/subjects/baseline
-          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > "$REPORTS/environment.txt"
-          node harness/v2/instrument.mjs --json > "$REPORTS/instrument.json"
+          build_subject /tmp/nub-candidate /tmp/subjects/candidate /tmp/nub-catalog-sanity-target/candidate 2>&1 | tee "$REPORTS/candidate-build.log"
+          build_subject /tmp/nub-baseline /tmp/subjects/baseline /tmp/nub-catalog-sanity-target/baseline 2>&1 | tee "$REPORTS/baseline-build.log"
 
-      - name: Save exact shared build target
-        if: always() && steps.target.outputs.cache-matched-key == ''
+      - name: Save candidate build target
+        if: success() && steps.candidate-target.outputs.cache-matched-key == ''
         uses: actions/cache/save@v6
         with:
-          path: ${{ env.NUB_TARGET_CACHE_PATH }}
-          key: zero-sandbox-catalog-sanity-v1-${{ runner.os }}-${{ env.CANDIDATE_SHA }}-${{ env.BASELINE_SHA }}
+          path: ${{ env.CANDIDATE_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v2-${{ runner.os }}-candidate-${{ env.CANDIDATE_SHA }}
+
+      - name: Save baseline build target
+        if: success() && steps.baseline-target.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.BASELINE_TARGET_CACHE_PATH }}
+          key: zero-sandbox-catalog-sanity-v2-${{ runner.os }}-baseline-${{ env.BASELINE_SHA }}
 
       - name: Run independent current-catalog subjects
         run: |
@@ -155,6 +174,8 @@ jobs:
             --candidate-addon /tmp/subjects/candidate/nub-native.node \
             --baseline-bin "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}" \
             --baseline-addon /tmp/subjects/baseline/nub-native.node \
+            --candidate-build-log reports/candidate-build.log \
+            --baseline-build-log reports/baseline-build.log \
             --packages /tmp/nub-candidate/tests/build-jail-corpus/packages.mjs \
             --network /tmp/nub-candidate/tests/build-jail-corpus/network.mjs \
             --relocated-store /tmp/nub-candidate/tests/build-jail-corpus/relocated-store.mjs \

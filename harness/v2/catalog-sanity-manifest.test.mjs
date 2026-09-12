@@ -26,3 +26,25 @@ test('records hashes for the exact catalog, subjects, and fixture instruments', 
   assert.match(manifest.files.network.sha256, /^[a-f0-9]{64}$/);
   assert.match(manifest.files.environment.sha256, /^[a-f0-9]{64}$/);
 });
+
+test('writes provenance when a subject build failed before producing its artifacts', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-sanity-manifest-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const required = ['catalog', 'packages', 'network', 'relocated-store', 'instrument', 'instrument-output', 'workflow', 'manifest-helper', 'subject-helper', 'budget-helper', 'environment'];
+  const args = required.flatMap((name) => {
+    const file = path.join(root, name);
+    fs.writeFileSync(file, name);
+    return [`--${name}`, file];
+  });
+  const out = path.join(root, 'reports', 'manifest.json');
+  const sha = '0123456789abcdef0123456789abcdef01234567';
+  execFileSync(process.execPath, [script, '--out', out, '--corpus-sha', sha, '--candidate-source-sha', sha, '--baseline-source-sha', sha, ...args,
+    '--candidate-bin', path.join(root, 'missing-candidate-nub'), '--candidate-addon', path.join(root, 'missing-candidate-addon'),
+    '--baseline-bin', path.join(root, 'missing-baseline-nub'), '--baseline-addon', path.join(root, 'missing-baseline-addon'),
+    '--candidate-build-log', path.join(root, 'missing-candidate-build.log'), '--baseline-build-log', path.join(root, 'missing-baseline-build.log')]);
+  const manifest = JSON.parse(fs.readFileSync(out, 'utf8'));
+  assert.equal(manifest.files['candidate-bin'].state, 'missing');
+  assert.equal(manifest.files['baseline-addon'].state, 'missing');
+  assert.equal(manifest.files['candidate-build-log'].state, 'missing');
+  assert.match(manifest.files.catalog.sha256, /^[a-f0-9]{64}$/);
+});

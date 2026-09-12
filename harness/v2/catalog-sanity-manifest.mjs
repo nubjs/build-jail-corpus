@@ -12,7 +12,7 @@ for (let index = 0; index < argv.length; index += 2) {
 if (!values.out) throw new Error('missing --out');
 
 const digest = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const requiredFiles = ['catalog', 'candidate-bin', 'candidate-addon', 'baseline-bin', 'baseline-addon', 'packages', 'network', 'relocated-store', 'instrument', 'instrument-output', 'workflow', 'manifest-helper', 'subject-helper', 'budget-helper', 'environment'];
+const requiredFiles = ['catalog', 'packages', 'network', 'relocated-store', 'instrument', 'instrument-output', 'workflow', 'manifest-helper', 'subject-helper', 'budget-helper', 'environment'];
 for (const key of requiredFiles) {
   if (!values[key]) throw new Error(`missing --${key}`);
   if (!fs.statSync(values[key]).isFile()) throw new Error(`--${key} is not a file: ${values[key]}`);
@@ -21,8 +21,14 @@ for (const key of requiredFiles) {
 const files = Object.fromEntries(requiredFiles.map((key) => [key, {
   path: values[key], sha256: digest(values[key]), bytes: fs.statSync(values[key]).size,
 }]));
-for (const key of ['candidate-busybox', 'baseline-busybox']) {
-  if (values[key]) files[key] = { path: values[key], sha256: digest(values[key]), bytes: fs.statSync(values[key]).size };
+for (const key of ['candidate-bin', 'candidate-addon', 'baseline-bin', 'baseline-addon', 'candidate-busybox', 'baseline-busybox', 'candidate-build-log', 'baseline-build-log']) {
+  if (!values[key]) continue;
+  if (!fs.existsSync(values[key])) {
+    files[key] = { path: values[key], state: 'missing' };
+    continue;
+  }
+  if (!fs.statSync(values[key]).isFile()) throw new Error(`--${key} is not a file: ${values[key]}`);
+  files[key] = { path: values[key], sha256: digest(values[key]), bytes: fs.statSync(values[key]).size };
 }
 
 const manifest = {
