@@ -53,11 +53,7 @@ test('preflight records only cjpeg metadata when a failed arm resolves through a
   fs.mkdirSync(outside, { recursive: true });
   fs.writeFileSync(exe, 'known-cjpeg-bytes');
   const linked = path.join(arm, 'verify-at-grant', 'node_modules', 'mozjpeg');
-  if (process.platform === 'win32') {
-    fs.cpSync(path.dirname(outside), linked, { recursive: true });
-  } else {
-    fs.symlinkSync(path.dirname(outside), linked, 'dir');
-  }
+  fs.symlinkSync(path.dirname(outside), linked, process.platform === 'win32' ? 'junction' : 'dir');
   fs.writeFileSync(log, `kept for inspection: ${arm}\n`);
   const result = spawnSync(process.execPath, [path.join(import.meta.dirname, 'collect-preflight.mjs'), log, destination], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);

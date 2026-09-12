@@ -20,8 +20,7 @@ test('allows a package-directory GVS link but hashes only the bounded final regu
   fs.mkdirSync(path.dirname(artifact), { recursive: true });
   fs.mkdirSync(path.join(base, 'node_modules'), { recursive: true });
   fs.writeFileSync(artifact, 'known-cjpeg-bytes');
-  if (process.platform === 'win32') fs.cpSync(gvs, path.join(base, 'node_modules', 'mozjpeg'), { recursive: true });
-  else fs.symlinkSync(gvs, path.join(base, 'node_modules', 'mozjpeg'), 'dir');
+  fs.symlinkSync(gvs, path.join(base, 'node_modules', 'mozjpeg'), process.platform === 'win32' ? 'junction' : 'dir');
   assert.deepEqual(inspectCjpeg(base), {
     path: CJPEG_PATH,
     status: 'present',
@@ -67,7 +66,6 @@ test('refuses a final cjpeg symlink even when its target is a regular file', (t)
 });
 
 test('refuses a vendor-directory link whose final executable escapes the resolved package root', (t) => {
-  if (process.platform === 'win32') return t.skip('directory symlink creation needs an unavailable privilege on some Windows hosts');
   const root = fixture(t);
   const base = path.join(root, 'arm');
   const vendor = path.join(base, 'node_modules', 'mozjpeg', 'vendor');
@@ -75,6 +73,6 @@ test('refuses a vendor-directory link whose final executable escapes the resolve
   fs.mkdirSync(path.dirname(vendor), { recursive: true });
   fs.mkdirSync(outside, { recursive: true });
   fs.writeFileSync(path.join(outside, 'cjpeg.exe'), 'outside');
-  fs.symlinkSync(outside, vendor, 'dir');
+  fs.symlinkSync(outside, vendor, process.platform === 'win32' ? 'junction' : 'dir');
   assert.equal(inspectCjpeg(base).status, 'outside-package');
 });

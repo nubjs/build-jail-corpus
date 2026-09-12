@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const CJPEG_PATH = path.join('node_modules', 'mozjpeg', 'vendor', 'cjpeg.exe');
+export const CJPEG_PATH = 'node_modules/mozjpeg/vendor/cjpeg.exe';
 export const MAX_CJPEG_BYTES = 64 * 1024 * 1024;
 export const MAX_CJPEG_OUTPUT_BYTES = 8 * 1024;
 
