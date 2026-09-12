@@ -140,40 +140,18 @@ jobs:
           path: ${{ env.BASELINE_TARGET_CACHE_PATH }}
           key: zero-sandbox-catalog-sanity-v2-${{ runner.os }}-baseline-${{ env.BASELINE_SHA }}
 
-      - name: Screen the worklist and resolved trees
+      - name: Screen the exact worklist
         run: |
           set -euo pipefail
-          # This reuses the corpus's fail-closed OSV guard. The direct worklist screen runs before
-          # any package fetch. Every candidate and baseline resolution then uses --ignore-scripts,
-          # and its exact installed tree is screened before packages.mjs can execute a lifecycle.
           mkdir -p reports/security
-          specs=(
-            'esbuild@0.24.0'
-            'better-sqlite3@11.8.1'
-            'bcrypt@5.1.1'
-            'sharp@0.33.5'
-            '@swc/core@1.15.46'
-            'cpu-features@0.0.10'
-            'better-sqlite3@11.8.1'
-          )
-          direct=()
-          for spec in "${specs[@]}"; do direct+=(--spec "$spec"); done
-          node harness/osv-screen.mjs --kind catalog-sanity-worklist --cache-dir reports/security/clearances --out reports/security/worklist.json "${direct[@]}"
-          screen_subject() {
-            local subject="$1" bin="$2" spec package version key project index
-            for index in "${!specs[@]}"; do
-              spec="${specs[$index]}"
-              package="${spec%@*}"
-              version="${spec##*@}"
-              key="${index}-$(printf '%s-%s' "$package" "$version" | tr '/@' '__')"
-              project="$(mktemp -d "${RUNNER_TEMP:-/tmp}/catalog-sanity-${subject}-${key}-XXXXXX")"
-              node -e 'const fs=require("node:fs"),path=require("node:path"),[project,name,version]=process.argv.slice(1);fs.writeFileSync(path.join(project,"package.json"),JSON.stringify({name:"catalog-sanity-screen",private:true,dependencies:{[name]:version}}));fs.writeFileSync(path.join(project,"nub.jsonc"),JSON.stringify({install:{buildJail:false}}))' "$project" "$package" "$version"
-              NUB_BUILD_JAIL_CATALOG="$GITHUB_WORKSPACE/catalog-v2.json" "$bin" install --ignore-scripts > "reports/security/${subject}-${key}-resolve.log" 2>&1
-              node harness/osv-screen.mjs --tree "$project" --kind "catalog-sanity-${subject}-resolved-${key}" --cache-dir reports/security/clearances --out "reports/security/${subject}-${key}.json"
-            done
-          }
-          screen_subject candidate "/tmp/subjects/candidate/nub${{ runner.os == 'Windows' && '.exe' || '' }}"
-          screen_subject baseline "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}"
+          node harness/osv-screen.mjs --kind catalog-sanity-worklist --cache-dir reports/security/clearances --out reports/security/worklist.json \
+            --spec 'esbuild@0.24.0' \
+            --spec 'better-sqlite3@11.8.1' \
+            --spec 'bcrypt@5.1.1' \
+            --spec 'sharp@0.33.5' \
+            --spec '@swc/core@1.15.46' \
+            --spec 'cpu-features@0.0.10' \
+            --spec 'better-sqlite3@11.8.1'
 
       - name: Run independent current-catalog subjects
         run: |
@@ -193,10 +171,12 @@ jobs:
           CATALOG="$GITHUB_WORKSPACE/catalog-v2.json"
           printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/catalog-bad.json
           FIXTURES=/tmp/nub-candidate/tests/build-jail-corpus
-          node harness/v2/catalog-sanity-subject.mjs --subject candidate --bin "/tmp/subjects/candidate/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/candidate
-          candidate_rc=$?
-          node harness/v2/catalog-sanity-subject.mjs --subject baseline --bin "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/baseline
+          CORPUS_OSV_SCREEN="$GITHUB_WORKSPACE/harness/osv-screen.mjs" node harness/v2/catalog-sanity-subject.mjs --subject baseline --bin "/tmp/subjects/baseline/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/baseline
           baseline_rc=$?
+          # The older baseline must acquire Windows registry state before the candidate. Candidate
+          # first polluted its persistent schema and made baseline package failures non-comparable.
+          CORPUS_OSV_SCREEN="$GITHUB_WORKSPACE/harness/osv-screen.mjs" node harness/v2/catalog-sanity-subject.mjs --subject candidate --bin "/tmp/subjects/candidate/nub${{ runner.os == 'Windows' && '.exe' || '' }}" --catalog "$CATALOG" --bad-catalog /tmp/catalog-bad.json --fixtures "$FIXTURES" --report reports/candidate
+          candidate_rc=$?
           printf '%s\n' "$candidate_rc" > reports/candidate.exit
           printf '%s\n' "$baseline_rc" > reports/baseline.exit
           if [ "$RUNNER_OS" = Windows ]; then
