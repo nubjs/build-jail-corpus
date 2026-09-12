@@ -34,12 +34,20 @@ jobs:
         with:
           node-version: '22.23.2'
       - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+      - name: Record the source and runner before any gate
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > reports/environment.txt
+          node harness/v2/instrument.mjs --json > reports/instrument.json
       - name: Activate the Windows tracer compiler
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./harness/v2/activate-msvc.ps1
       - name: Check the complete measurement instrument
-        run: node harness/run-tests.mjs
+        run: |
+          set -euo pipefail
+          node harness/run-tests.mjs 2>&1 | tee reports/harness-tests.log
       - name: Check Linux observation support
         if: runner.os == 'Linux'
         run: |
@@ -81,10 +89,8 @@ jobs:
                 cp vendor/busybox-w32/busybox64.exe target/fast/busybox.exe ;;
             esac
             cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
-          )
+          ) 2>&1 | tee reports/runtime-build.log
           echo "NUB_BIN=/tmp/nubsrc/target/fast/nub${{ runner.os == 'Windows' && '.exe' || '' }}" >> "$GITHUB_ENV"
-          { git rev-parse HEAD; node --version; npm --version; rustc -Vv; uname -a; } > reports/environment.txt
-          node harness/v2/instrument.mjs --json > reports/instrument.json
       - name: Bind source and binary evidence
         run: |
           set -euo pipefail
