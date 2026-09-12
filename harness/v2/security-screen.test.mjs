@@ -77,16 +77,23 @@ test('POSIX pre-lifecycle resolver failures retain their isolated arm and bounde
   }
 });
 
-test('POSIX failed direct catalog arms retain bounded lifecycle command logs', () => {
+test('POSIX failed direct arms retain bounded lifecycle command logs', () => {
   for (const [platform, source] of Object.entries({ linux: drivers.linux, macos: drivers.macos })) {
-    assert.match(source, /\[ "\$rc" -ne 0 \] && \[ "\$label" = at-catalog \]/,
-      `${platform}: direct catalog failure does not select its diagnostic arm`);
+    const guard = platform === 'macos'
+      ? /\[ "\$rc" -ne 0 \] && \{ \[ "\$label" = at-catalog \] \|\| \[ "\$label" = at-grant \]; \}/
+      : /\[ "\$rc" -ne 0 \] && \[ "\$label" = at-catalog \]/;
+    assert.match(source, guard, `${platform}: direct failure does not select its diagnostic arm`);
     const failure = source.indexOf('VERIFY-EXIT: $rc');
     const install = source.indexOf('tail -n 200 "$v/i.log"', failure);
     const approve = source.indexOf('tail -n 200 "$v/a.log"', install);
     assert.ok(failure >= 0 && install > failure && approve > install,
-      `${platform}: direct catalog failure drops the bounded install/approve logs`);
+      `${platform}: direct failure drops the bounded install/approve logs`);
   }
+});
+
+test('macOS forwards an opt-in policy dump without enabling it for ordinary arms', () => {
+  assert.match(drivers.macos, /\[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \] && dump_env=/);
+  assert.match(drivers.macos, /"\$\{dump_env\[@\]\}" sh -c/);
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {

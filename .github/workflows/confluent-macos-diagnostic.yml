@@ -1,0 +1,144 @@
+name: Confluent macOS direct diagnostic
+
+on:
+  push:
+    branches: [probe/confluent-macos-diagnostic]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: macos-14
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: bash
+    env:
+      NUB_REF: 9d349f7c300a41fd9401d3d3c2e706b2d75c5fff
+      PKG: '@confluentinc/kafka-javascript'
+      VER: 1.10.1
+      GRANT: '{"read":"disk","network":true}'
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            harness
+            .github
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.2'
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+      - name: Screen the exact package before any install
+        run: |
+          set -euo pipefail
+          mkdir -p reports/security
+          node harness/osv-screen.mjs --spec "$PKG@$VER" --kind confluent-direct \
+            --cache-dir reports/osv-cache --out reports/security/direct.json
+      - name: Resolve the immutable runtime-bundle key
+        run: |
+          set -euo pipefail
+          RUNTIME_BUNDLE=/tmp/catalog-boundary-runtime
+          BUNDLE_PLATFORM=$(node -p 'process.platform')
+          BUNDLE_ARCH=$(node -p 'process.arch')
+          RUNTIME_NODE_VERSION=$(node --version)
+          RUNTIME_RUSTC_SHA256=$(rustc -Vv | node harness/v2/campaign-provenance.mjs --sha256-stdin)
+          RUNTIME_RECIPE_SHA256=$(cat .github/workflows/catalog-boundary-artifact-records.yml harness/v2/runtime-bundle.mjs | node harness/v2/campaign-provenance.mjs --sha256-stdin)
+          RUNTIME_CACHE_KEY=$(node harness/v2/runtime-bundle.mjs --cache-key \
+            --candidate-sha "$NUB_REF" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256")
+          {
+            echo "RUNTIME_BUNDLE=$RUNTIME_BUNDLE"
+            echo "BUNDLE_PLATFORM=$BUNDLE_PLATFORM"
+            echo "BUNDLE_ARCH=$BUNDLE_ARCH"
+            echo "RUNTIME_NODE_VERSION=$RUNTIME_NODE_VERSION"
+            echo "RUNTIME_RUSTC_SHA256=$RUNTIME_RUSTC_SHA256"
+            echo "RUNTIME_RECIPE_SHA256=$RUNTIME_RECIPE_SHA256"
+            echo "RUNTIME_CACHE_KEY=$RUNTIME_CACHE_KEY"
+          } >> "$GITHUB_ENV"
+      - name: Restore only the exact existing runtime bundle
+        id: runtimebundle
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: /tmp/catalog-boundary-runtime
+          key: ${{ env.RUNTIME_CACHE_KEY }}
+      - name: Refuse an absent or mismatched runtime bundle
+        run: |
+          set -euo pipefail
+          test -n '${{ steps.runtimebundle.outputs.cache-matched-key }}'
+          node harness/v2/runtime-bundle.mjs --verify --root "$RUNTIME_BUNDLE" \
+            --candidate-sha "$NUB_REF" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
+            --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256" \
+            | tee reports/runtime-bundle.json
+          NUB_BIN="$RUNTIME_BUNDLE/nub"
+          test -x "$NUB_BIN"
+          echo "NUB_BIN=$NUB_BIN" >> "$GITHUB_ENV"
+      - name: Run the same-Nub unconfined materialization control
+        run: |
+          set -euo pipefail
+          CONTROL=$(mktemp -d "$HOME/confluent-unconfined-XXXXXX")
+          echo "CONTROL=$CONTROL" >> "$GITHUB_ENV"
+          test ! -e "$HOME/.cache/nub/pm/store" || { echo 'refusing warmed global store' >&2; exit 1; }
+          printf '{"name":"confluent-unconfined-control","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$PKG" "$VER" > "$CONTROL/package.json"
+          printf '{"install":{"buildJail":false}}\n' > "$CONTROL/nub.jsonc"
+          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1
+          node harness/osv-screen.mjs --tree "$CONTROL" --kind confluent-unconfined-resolved \
+            --cache-dir reports/osv-cache --out reports/security/unconfined-resolved.json
+          TARGET="$CONTROL/node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp"
+          node --input-type=module - "$TARGET" "$CONTROL/pre-launch-target.json" <<'JS'
+          import crypto from 'node:crypto';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const [target, out] = process.argv.slice(2);
+          const detail = { target, exists: fs.existsSync(target) };
+          try { detail.lstat = fs.lstatSync(target).isSymbolicLink() ? 'symlink' : 'non-symlink'; } catch (error) { detail.lstatError = error.code; }
+          try { detail.realpath = fs.realpathSync(target); detail.sha256 = crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'); } catch (error) { detail.readError = error.code; }
+          fs.writeFileSync(out, `${JSON.stringify(detail, null, 2)}\n`);
+          if (!detail.exists || detail.readError) process.exitCode = 1;
+          JS
+          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install > "$CONTROL/install.log" 2>&1
+          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" approve-builds --all > "$CONTROL/approve.log" 2>&1
+          grep -Eq 'ran .*install|running .*install' "$CONTROL/install.log" "$CONTROL/approve.log"
+      - name: Run one full-read direct jail arm
+        id: direct
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sudo -E env NUB_JAIL_DUMP_POLICY=1 harness/v2/measure-macos.sh "$PKG" "$VER" "$NUB_BIN" --at-grant "$GRANT" \
+            2>&1 | tee reports/direct.log
+          rc=${PIPESTATUS[0]}
+          echo "$rc" > reports/direct.exit
+          exit "$rc"
+      - name: Retain the direct arm and policy evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          ARM=$(sed -n 's/^  kept for inspection: //p' reports/direct.log | tail -1)
+          test -n "$ARM" && test -d "$ARM"
+          mkdir -p reports/direct-arm
+          cp "$ARM"/{package.json,nub.jsonc,.npmrc,cat.json,nub.lock,security-resolve.log,i.log,a.log} reports/direct-arm/ 2>/dev/null || true
+          TARGET="$ARM/node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp"
+          node --input-type=module - "$TARGET" reports/direct-arm/post-launch-target.json <<'JS'
+          import crypto from 'node:crypto';
+          import fs from 'node:fs';
+          const [target, out] = process.argv.slice(2);
+          const detail = { target, exists: fs.existsSync(target) };
+          try { detail.lstat = fs.lstatSync(target).isSymbolicLink() ? 'symlink' : 'non-symlink'; } catch (error) { detail.lstatError = error.code; }
+          try { detail.realpath = fs.realpathSync(target); detail.sha256 = crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'); } catch (error) { detail.readError = error.code; }
+          fs.writeFileSync(out, `${JSON.stringify(detail, null, 2)}\n`);
+          JS
+          grep -q 'JAILDUMP fs default=' reports/direct-arm/a.log
+          grep -q 'Allow Read \*\*' reports/direct-arm/a.log
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: confluent-macos-direct-diagnostic
+          path: reports
+          retention-days: 14
+      - name: Preserve the direct-arm verdict
+        if: always()
+        run: exit "$(cat reports/direct.exit)"
