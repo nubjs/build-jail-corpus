@@ -57,7 +57,7 @@ jobs:
       run:
         shell: bash
     env:
-      NUB_REF: 756c87deefdc1a926774a1fa0c391a5b486801ff
+      NUB_REF: 820c6b639b42f96dfc27c68b4158522bd57d9b47
       NUB_CORPUS_ON_RECORD: ''
       NUB_JAIL_DUMP_POLICY: '1'
       MANIFEST: inputs/final-fresh-seven-inputs.json
@@ -177,6 +177,11 @@ jobs:
           test "$SHA" = "$NUB_GIT_SHA"
           (
             cd /tmp/nubsrc
+            if [ "$RUNNER_OS" = Windows ]; then
+              (cd vendor/aube && cargo test -p aube --lib global_virtual_store_lifecycle_uses_logical_bin_path -- --nocapture) \
+                2>&1 | tee "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
+              grep -q 'test result: ok. 1 passed' "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
+            fi
             npm install --no-audit --no-fund --loglevel=error
             (cd crates/nub-native && cargo build --profile fast)
             mkdir -p runtime/addons
@@ -210,11 +215,6 @@ jobs:
               exit 1
             fi
             cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
-            if [ "$RUNNER_OS" = Windows ]; then
-              (cd vendor/aube && cargo test -p aube --lib global_virtual_store_lifecycle_uses_logical_bin_path -- --nocapture) \
-                2>&1 | tee "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
-              grep -q 'test result: ok. 1 passed' "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
-            fi
           ) 2>&1 | tee reports/runtime-build.log
           mkdir -p "$RUNTIME_BUNDLE"
           cp "/tmp/nubsrc/target/fast/nub${{ matrix.platform == 'windows' && '.exe' || '' }}" "$RUNTIME_BUNDLE/nub${{ matrix.platform == 'windows' && '.exe' || '' }}"

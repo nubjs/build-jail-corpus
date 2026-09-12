@@ -63,7 +63,7 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.equal(campaign.chunks.length, 90);
   assert.ok(campaign.chunks.every((chunk, index) => chunk.index === index + 1 && chunk.specs.length <= 5));
   assert.equal(finalSeven.schemaVersion, 2);
-  assert.equal(finalSeven.pins.candidate.commit, '756c87deefdc1a926774a1fa0c391a5b486801ff');
+  assert.equal(finalSeven.pins.candidate.commit, '820c6b639b42f96dfc27c68b4158522bd57d9b47');
   assert.equal(finalSeven.pins.candidate.catalogSha256, 'dcb770937e85347f67230cb830d7206445ba160b14cc4315eef16baf922803e4');
   assert.deepEqual(finalSeven.chunks.map((chunk) => chunk.specs), [
     ['esbuild@0.24.0', 'better-sqlite3@11.8.1', 'bcrypt@5.1.1', 'sharp@0.33.5', '@swc/core@1.15.46'],
@@ -84,11 +84,12 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /NUB_CORPUS_ON_RECORD: ''/);
   assert.match(workflow, /NUB_JAIL_DUMP_POLICY: '1'/);
-  assert.match(workflow, /NUB_REF: 756c87deefdc1a926774a1fa0c391a5b486801ff/);
+  assert.match(workflow, /NUB_REF: 820c6b639b42f96dfc27c68b4158522bd57d9b47/);
   assert.match(workflow, /node --test reports\/native-fixtures\/packages.test.mjs/);
   assert.match(workflow, /for package in cpu-features better-sqlite3/);
   assert.match(workflow, /\(cd vendor\/aube && cargo test -p aube --lib global_virtual_store_lifecycle_uses_logical_bin_path -- --nocapture\)/);
   assert.match(workflow, /grep -q 'test result: ok\. 1 passed'/);
+  assert.ok(workflow.indexOf('cargo test -p aube --lib') < workflow.indexOf('cargo build -p nub-cli'));
   assert.match(workflow, /cp reports\/logical-bin-path-test\.log "\$RUNTIME_BUNDLE\/runtime\/test-evidence\/logical-bin-path-test\.log"/);
   assert.match(workflow, /cp "\$RUNTIME_BUNDLE\/runtime\/test-evidence\/logical-bin-path-test\.log" reports\/logical-bin-path-test\.log/);
   assert.ok(workflow.indexOf('cp reports/logical-bin-path-test.log') < workflow.indexOf('runtime-bundle.mjs --write'));
