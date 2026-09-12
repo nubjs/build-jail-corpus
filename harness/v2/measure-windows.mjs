@@ -8,7 +8,7 @@
 // invoked as `powershell.exe -File`.
 //
 //   usage: node measure-windows.mjs <pkg> <version> [--nub C:\nub.exe] [--root C:\jail]
-//          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}'
+//          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}' [--cjpeg-oracle]
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -39,6 +39,7 @@ import { neverSpawned } from './never-spawned.mjs';
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
 import { overrideProbeSaysHonoured } from './override-probe.mjs';
+import { boundedText, inspectCjpeg } from './cjpeg-oracle.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -185,6 +186,16 @@ fs.mkdirSync(ROOT, { recursive: true });
 // thing it tests. That arm is safe from the defect above for a different reason: it inherits a
 // WHOLE store, never a partially-evicted one.
 const CACHE_HOME = flag('--cache-home', '');
+// An explicit, mozjpeg-only diagnostic for the falsification control.  It is never enabled by a
+// corpus run: executing a package artifact after install is outside the lifecycle jail, so a caller
+// must deliberately select this bounded disposable-runner probe.  `cjpeg -version` is the package's
+// advertised no-input smoke invocation; its exit status distinguishes an existing file from a
+// usable executable without supplying an image or a filesystem target.
+const CJPEG_ORACLE = argv.includes('--cjpeg-oracle');
+if (CJPEG_ORACLE && (PKG !== 'mozjpeg' || VER !== '6.0.1')) {
+  console.error('--cjpeg-oracle is restricted to the mozjpeg@6.0.1 falsification fixture');
+  process.exit(2);
+}
 // ⛔ PER-ARM ISOLATION COSTS DISK, WHICH THE WALL-CLOCK COST MEASUREMENT DID NOT COVER. Each arm now
 // materialises its own virtual store, and they accumulate: MEASURED on the corpus VM, free space went
 // 62 GB -> 38 GB over one session of driver work. A sweep that discovers this at package 60 has
@@ -347,6 +358,35 @@ const missingArtifacts = (obs, got) => {
     if (armSize < size) out.push(`${f} (${armSize}B < ${size}B)`);
   }
   return out;
+};
+
+// Do not generalize this into a postinstall executable scanner.  The object is to identify the one
+// artifact whose presence masks the Windows gate control, not to execute package contents from a
+// corpus row. The capture is a structured, bounded JSON record retained with failed preflight
+// evidence; `falsify.mjs` prints its summary line, while the full version/error text stays inspectable.
+const probeCjpeg = (base, label) => {
+  if (!CJPEG_ORACLE) return;
+  const artifact = inspectCjpeg(base);
+  const record = { label, artifact };
+  if (artifact.status === 'present') {
+    const executable = path.join(base, artifact.path);
+    const run = spawnSync(executable, ['-version'], {
+      encoding: 'utf8', maxBuffer: 64 * 1024, timeout: 15_000, windowsHide: true,
+    });
+    record.execution = {
+      status: run.status,
+      error: run.error?.code ?? null,
+      signal: run.signal,
+      stdout: boundedText(run.stdout),
+      stderr: boundedText(run.stderr),
+    };
+  }
+  fs.writeFileSync(path.join(base, 'cjpeg-oracle.json'), `${JSON.stringify(record, null, 2)}\n`);
+  const execution = record.execution;
+  console.log(`  CJPEG-ORACLE label=${label} artifact=${artifact.status}`
+    + `${execution ? ` status=${execution.status ?? 'null'} error=${execution.error ?? '-'} signal=${execution.signal ?? '-'}` : ''}`
+    + `${artifact.realpath ? ` realpath=${artifact.realpath}` : ''}`
+    + `${artifact.sha256 ? ` sha256=${artifact.sha256}` : ''}`);
 };
 
 console.log(`### ${PKG}@${VER}   (${ROOT})`);
@@ -1309,6 +1349,7 @@ const verify = (grant, label) => {
   const shortfall = shortfallDigest(missing);
   console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} shortfall=${shortfall} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
   if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
+  probeCjpeg(v, label);
   // ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
   // block there for what it decides. Only the arms that actually WIDEN the grant are recorded, and
   // `at-grant` is excluded because DIRECT mode never reaches the ladder. (There is no `diag` arm on

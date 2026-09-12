@@ -30,10 +30,44 @@ test('preflight evidence retains only bounded arm logs, even before a record exi
   };
   run(log, destination);
   assert.equal(fs.readFileSync(path.join(destination, '0', 'verify-at-grant', 'i.log'), 'utf8'), 'real install refusal');
-  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(destination, 'manifest.json'), 'utf8')), [
-    { root: arm, files: ['verify-at-grant/i.log'] },
-  ]);
+  const evidence = JSON.parse(fs.readFileSync(path.join(destination, 'manifest.json'), 'utf8'));
+  assert.deepEqual(evidence, [{
+    root: arm,
+    files: ['verify-at-grant/i.log'],
+    cjpeg: { path: 'node_modules/mozjpeg/vendor/cjpeg.exe', status: 'missing' },
+  }]);
   assert.deepEqual(fs.readdirSync(path.join(destination, '0', 'verify-at-grant')), ['i.log']);
   run(path.join(root, 'missing.log'), path.join(root, 'missing-evidence'));
   assert.deepEqual(fs.readdirSync(path.join(root, 'missing-evidence')), []);
+});
+
+test('preflight records only cjpeg metadata when a failed arm resolves through a GVS package link', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-cjpeg-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const arm = path.join(root, 'arm');
+  const outside = path.join(root, 'shared-store', 'mozjpeg', 'vendor');
+  const exe = path.join(outside, 'cjpeg.exe');
+  const log = path.join(root, 'measure.log');
+  const destination = path.join(root, 'evidence');
+  fs.mkdirSync(path.dirname(path.join(arm, 'verify-at-grant', 'node_modules', 'mozjpeg')), { recursive: true });
+  fs.mkdirSync(outside, { recursive: true });
+  fs.writeFileSync(exe, 'known-cjpeg-bytes');
+  const linked = path.join(arm, 'verify-at-grant', 'node_modules', 'mozjpeg');
+  if (process.platform === 'win32') {
+    fs.cpSync(path.dirname(outside), linked, { recursive: true });
+  } else {
+    fs.symlinkSync(path.dirname(outside), linked, 'dir');
+  }
+  fs.writeFileSync(log, `kept for inspection: ${arm}\n`);
+  const result = spawnSync(process.execPath, [path.join(import.meta.dirname, 'collect-preflight.mjs'), log, destination], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const { cjpeg } = JSON.parse(fs.readFileSync(path.join(destination, 'manifest.json'), 'utf8'))[0];
+  assert.deepEqual(cjpeg, {
+    path: 'node_modules/mozjpeg/vendor/cjpeg.exe',
+    status: 'present',
+    realpath: fs.realpathSync(exe),
+    bytes: Buffer.byteLength('known-cjpeg-bytes'),
+    sha256: 'd5edb9cedc7eb9a0be5b01022815f617215b70f8b64394533ca10cdb3dea6197',
+  });
+  assert.equal(fs.existsSync(path.join(destination, '0', 'verify-at-grant', 'node_modules')), false);
 });

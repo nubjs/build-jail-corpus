@@ -117,6 +117,10 @@ const JSON_OUT = opt('--json', '');
 // Drops the `wrong-warm` arm. Halves the cost and gives up the one check that no amount of eviction
 // discipline can replace, so it is for an inner loop and never for a pre-sweep gate.
 const QUICK = argv.includes('--quick');
+// The normal oracle asks only whether a narrowed grant was rejected.  This opt-in diagnostic adds
+// the mozjpeg fixture's executable smoke check to each Windows arm, so an artifact count can be
+// separated from a usable `cjpeg.exe` without changing the normal pre-sweep gate.
+const CJPEG_ORACLE = argv.includes('--cjpeg-oracle');
 // Every arm's `$ROOT` is deleted once its case passes; see the sweep at the foot of the case loop.
 const KEEP_ROOTS = argv.includes('--keep-roots');
 const BUDGET_MS = Number(opt('--budget', '900')) * 1000;
@@ -359,12 +363,17 @@ const runArm = (kase, grant, label, cacheHome) => {
   const opts = { encoding: 'utf8', maxBuffer: 1 << 28, timeout: BUDGET_MS };
   const args = process.platform === 'win32'
     ? [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, '--nub', NUB, '--at-grant', JSON.stringify(grant),
-      ...(cacheHome ? ['--cache-home', cacheHome] : [])]
+      ...(cacheHome ? ['--cache-home', cacheHome] : []),
+      ...(CJPEG_ORACLE && kase.pkg === 'mozjpeg' && kase.version === '6.0.1' ? ['--cjpeg-oracle'] : [])]
     : [...DRIVER_PRE, DRIVER, kase.pkg, kase.version, NUB, '--at-grant', JSON.stringify(grant)];
   const r = spawnSync(DRIVER_CMD, args, opts);
   const out = (r.stdout ?? '') + (r.stderr ?? '');
   const rc = r.status ?? (r.error ? -1 : 1);
   const grab = (re, i = 1) => { const m = out.match(re); return m ? m[i] : null; };
+  // `runArm` normally reduces a driver's output to the stable verdict contract.  This is the one
+  // explicit diagnostic exception: preserve the bounded cjpeg smoke records so `--json` and the
+  // console keep the right/warm executable result rather than only the artifact count.
+  const cjpegOracle = [...out.matchAll(/^\s*CJPEG-ORACLE\s+(.+)$/gm)].map((m) => m[1]);
 
   // ⛔ THE HEADER IS NOT ANCHORED TO END-OF-LINE, BECAUSE THE DRIVERS DISAGREE ON WHAT FOLLOWS THE
   // ROOT. `measure.sh` ends the line at the closing paren; `measure-macos.sh` appends ` nub=<path>`.
@@ -397,6 +406,7 @@ const runArm = (kase, grant, label, cacheHome) => {
   return {
     label,
     grant,
+    cjpegOracle,
     driverRc: rc,
     timedOut: r.error?.code === 'ETIMEDOUT',
     durationMs: Date.now() - t0,
@@ -723,6 +733,7 @@ for (const kase of selected) {
       console.log(`   ·  [${a.label}] driver printed REPLAY SUSPECTED; its predicate only matches `
         + `default-trust packages, and ranEvidence=${a.scriptRan ? 'seen' : '—'} answers it directly`);
     }
+    for (const line of a.cjpegOracle) console.log(`   CJPEG-ORACLE ${line}`);
   }
 
   // ⛔ EACH ARM IS A SEPARATE `measure.sh` RUN, SO EACH BUILDS ITS OWN OBSERVE REFERENCE — AND IF

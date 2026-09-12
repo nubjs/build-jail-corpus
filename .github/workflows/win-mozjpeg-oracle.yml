@@ -1,0 +1,95 @@
+# One bounded diagnostic for the Windows falsification P0. This is deliberately not the corpus
+# runner: it installs exactly the fixed mozjpeg fixture, creates no record, publishes no queue edit,
+# and retains only logs plus the bounded `cjpeg-oracle.json` metadata.
+name: win-mozjpeg-oracle
+
+on:
+  workflow_dispatch:
+    inputs:
+      nub_ref:
+        description: verified nubjs/nub commit or ref to build with the catalog-override feature
+        required: true
+        default: '750f165dc712378f33aa2de449465e5b09b01fe4'
+
+permissions:
+  contents: read
+
+jobs:
+  oracle:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      NUB_REF: ${{ inputs.nub_ref }}
+      # The falsification pair is about the real global-virtual-store layout. Do not let CI choose
+      # project-local `.store`, which would make the warm-state question disappear.
+      npm_config_enable_global_virtual_store: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: '22' }
+
+      - name: Check the bounded oracle harness
+        shell: bash
+        run: node --test harness/v2/cjpeg-oracle.test.mjs harness/v2/collect-preflight.test.mjs harness/v2/windows-invariance.test.mjs
+
+      - name: Resolve and build the nub binary under test
+        shell: bash
+        run: |
+          set -eu
+          # `ls-remote <url> <sha>` matches ref names, not an arbitrary reachable object, so it
+          # silently returns nothing for the explicit commit this probe is meant to pin. Fetch the
+          # input itself and name the resulting object instead; branch/ref and full SHA both work.
+          git init /tmp/nubsrc
+          cd /tmp/nubsrc
+          git remote add origin https://github.com/nubjs/nub.git
+          git fetch --depth=1 origin "$NUB_REF"
+          SHA=$(git rev-parse FETCH_HEAD)
+          git checkout --detach FETCH_HEAD
+          echo "NUB_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "measuring nub $NUB_REF @ $SHA"
+          cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
+
+      - name: Prove the override feature engages
+        shell: bash
+        run: |
+          set -eu
+          printf '{"packages":{"__oracle_probe__":{"default":{"network":true}}}}' > /tmp/cat-good.json
+          OUT=$(NUB_BUILD_JAIL_CATALOG=/tmp/cat-good.json "$NUB_BIN" --version 2>&1)
+          printf '%s\n' "$OUT"
+          case "$OUT" in *OVERRIDDEN*) ;; *) echo 'catalog override did not engage' >&2; exit 1 ;; esac
+
+      - name: Run only the mozjpeg warm-state oracle
+        shell: bash
+        run: |
+          set +e
+          node harness/v2/falsify.mjs --nub "$NUB_BIN" --case network-gate --cjpeg-oracle --keep-roots --json /tmp/falsify-mozjpeg.json
+          RC=$?
+          echo "FALSIFY_EXIT=$RC" >> "$GITHUB_ENV"
+          echo "falsify exit=$RC (0=control passed; 1=P0 reproduced; 2=inconclusive)"
+          test -f /tmp/falsify-mozjpeg.json || exit 1
+          node -e '
+            const fs = require("fs");
+            const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            const arms = r.results?.[0]?.arms ?? [];
+            const labels = arms.map((a) => a.label).join(",");
+            if (labels !== "wrong-cold,right,wrong-warm") throw new Error(`expected three oracle arms, got ${labels}`);
+            for (const a of arms) if (!Array.isArray(a.cjpegOracle) || a.cjpegOracle.length !== 1) {
+              throw new Error(`missing cjpeg oracle line for ${a.label}`);
+            }
+          ' /tmp/falsify-mozjpeg.json
+          # This is a diagnostic, not a green gate: preserve its actual falsification verdict.
+          exit "$RC"
+
+      - name: Preserve bounded oracle evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: win-mozjpeg-oracle-${{ github.run_id }}
+          path: |
+            /tmp/falsify-mozjpeg.json
+            C:/jail/**/i.log
+            C:/jail/**/a.log
+            C:/jail/**/cjpeg-oracle.json
+          if-no-files-found: warn
+          retention-days: 14

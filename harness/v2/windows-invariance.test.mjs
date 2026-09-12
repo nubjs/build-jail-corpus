@@ -31,6 +31,7 @@ import { parseDriverLog } from './record.mjs';
 
 const HERE = import.meta.dirname;
 const DRIVER = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
+const FALSIFY = fs.readFileSync(path.join(HERE, 'falsify.mjs'), 'utf8');
 
 // The driver's post-VERIFY tail: the ladder and the grant-independence stage. Anchored on the section
 // banner rather than a line number so an edit above it cannot silently shift the slice.
@@ -58,6 +59,21 @@ test('INSTRUMENT: both regions were located and hold the code under test', () =>
   }
   assert.ok(APPEND.includes('ARM_LEDGER.push('),
     'the ledger-append block was not extracted, so every case using it is vacuous');
+});
+
+test('cjpeg provenance probe is explicit and fixture-scoped', () => {
+  assert.match(DRIVER, /const CJPEG_ORACLE = argv\.includes\('--cjpeg-oracle'\)/,
+    'the executable probe must never become a default corpus action');
+  assert.match(DRIVER, /PKG !== 'mozjpeg' \|\| VER !== '6\.0\.1'/,
+    'the executable probe must remain restricted to the fixed falsification fixture');
+  assert.match(DRIVER, /spawnSync\(executable, \['-version'\]/,
+    'the oracle must exercise cjpeg rather than treating its presence as functionality');
+  assert.match(FALSIFY, /const CJPEG_ORACLE = argv\.includes\('--cjpeg-oracle'\)/,
+    'falsify must require an explicit request before forwarding the executable probe');
+  assert.match(FALSIFY, /\? \['--cjpeg-oracle'\] : \[\]/,
+    'the Windows mozjpeg arm must receive the explicit executable probe flag');
+  assert.match(FALSIFY, /const cjpegOracle = \[\.\.\.out\.matchAll/,
+    'falsify must retain the bounded diagnostic output instead of discarding driver stdout');
 });
 
 // A four-arm ledger whose digest is INVARIANT across every rung — the shape that earns the verdict.
