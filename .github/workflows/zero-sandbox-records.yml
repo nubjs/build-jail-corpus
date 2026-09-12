@@ -2,7 +2,7 @@ name: Zero sandbox artifact-only records
 
 on:
   push:
-    branches: [probe/zero-sandbox-records]
+    branches: [probe/zero-sandbox-records, probe/posix-corpus-calibration]
 
 permissions:
   contents: read
@@ -122,6 +122,9 @@ jobs:
       - name: Require complete exact-candidate measurements
         if: always()
         run: node harness/v2/assert-probe-records.mjs --file inputs/zero-sandbox-records.txt --runs reports/records --expected reports/expected.json --out reports/record-summary.json
+      - name: Preserve failed falsification arms
+        if: always()
+        run: node harness/v2/collect-preflight.mjs reports/measure.log reports/preflight-evidence
       - name: Retain evidence without publishing records
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
