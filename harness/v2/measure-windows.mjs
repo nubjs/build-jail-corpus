@@ -9,6 +9,7 @@
 //
 //   usage: node measure-windows.mjs <pkg> <version> [--nub C:\nub.exe] [--root C:\jail]
 //          node measure-windows.mjs <pkg> <version> --at-grant '{"network":true}' [--cjpeg-oracle]
+//          node measure-windows.mjs <pkg> <version> --at-catalog C:\\catalog.json
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -115,13 +116,27 @@ if (!PKG || !VER) { console.error('usage: measure-windows.mjs <pkg> <version> [-
 // (`OBSERVE-ONLY`, which `collate.mjs` keeps out of the catalog).
 const OBSERVE_ONLY = argv.includes('--observe-only');
 
-// DIRECT mode, the POSIX driver's `--at-grant`: one arm at the caller's grant, no synthesis and no
-// ladder. Its verdict vocabulary is deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers
-// "does this ONE grant suffice", where MINIMUM answers "what is the least that does", and reporting
-// a wider-than-expected MINIMUM as an under-grant is exactly the conflation the split prevents.
+// DIRECT mode mirrors the POSIX drivers' `--at-grant` and `--at-catalog`: one arm at either one
+// caller grant or one caller whole catalog, no synthesis and no ladder. Its verdict vocabulary is
+// deliberately NOT the ladder's — SUFFICIENT/INSUFFICIENT answers "does this stated policy suffice",
+// where MINIMUM answers "what is the least that does", and reporting a wider-than-expected MINIMUM
+// as an under-grant is exactly the conflation the split prevents.
 const AT_GRANT = flag('--at-grant', '');
+let AT_CATALOG = flag('--at-catalog', '');
 if (AT_GRANT && !/^\{[\s\S]*\}$/.test(AT_GRANT.trim())) {
   console.error(`⛔ --at-grant needs a JSON object, got: ${AT_GRANT}`); process.exit(2);
+}
+if (AT_GRANT && AT_CATALOG) {
+  console.error('--at-grant and --at-catalog ask two different questions; pass exactly one'); process.exit(2);
+}
+if (AT_CATALOG) {
+  try {
+    const stat = fs.statSync(AT_CATALOG);
+    if (!stat.isFile() || stat.size === 0) throw new Error('not a non-empty file');
+    AT_CATALOG = path.resolve(AT_CATALOG);
+  } catch {
+    console.error(`⛔ --at-catalog needs a non-empty catalog FILE, got: ${AT_CATALOG}`); process.exit(2);
+  }
 }
 
 const NUB = flag('--nub', 'C:\\nub-ci.exe');
@@ -201,8 +216,8 @@ if (CJPEG_ORACLE && (PKG !== 'mozjpeg' || VER !== '6.0.1')) {
 // state. Candidate-record measurements never use `--at-grant`; reject a shared store on that path
 // so an unjailed control's materialised package cannot be credited as cold grant sufficiency. The
 // shared cache itself is not deleted: it remains the subject of the direct warm-state probes.
-if (CACHE_HOME && !AT_GRANT) {
-  console.error('--cache-home is restricted to direct --at-grant warm-state probes');
+if (CACHE_HOME && !AT_GRANT && !AT_CATALOG) {
+  console.error('--cache-home is restricted to direct --at-grant/--at-catalog warm-state probes');
   process.exit(2);
 }
 // ⛔ PER-ARM ISOLATION COSTS DISK, WHICH THE WALL-CLOCK COST MEASUREMENT DID NOT COVER. Each arm now
@@ -1135,7 +1150,7 @@ const ARM_LEDGER = [];
 
 let armSeq = 0;
 let storeLayoutReported = false;
-const verify = (grant, label) => {
+const verify = (grant, label, wholeCatalog = '') => {
   const v = path.join(ROOT, `verify-${label}`);
   fs.mkdirSync(v, { recursive: true });
   // ⛔ A UNIQUE PACKAGE NAME PER ARM. nub memoises a lifecycle script's outcome keyed on package
@@ -1189,8 +1204,17 @@ const verify = (grant, label) => {
   // ⛔ SHARED WITH THE OTHER TWO DRIVERS — see `dep-scaffold.mjs`. This driver carried the
   // target-only construction while `measure.sh` had already been fixed, so the dependency-grant
   // confound stayed live here.
-  const { catalog, scaffolded } = buildCatalog(PKG, grant, OBS);
-  fs.writeFileSync(cat, JSON.stringify(catalog));
+  let scaffolded = 0;
+  if (wholeCatalog) {
+    // Copy rather than reconstruct: the subject of --at-catalog is the caller's entire policy,
+    // including entries and version bands unrelated to this package. Adding scaffolds or reducing
+    // it to the resolved target grant would answer a different question.
+    fs.copyFileSync(wholeCatalog, cat);
+  } else {
+    const built = buildCatalog(PKG, grant, OBS);
+    fs.writeFileSync(cat, JSON.stringify(built.catalog));
+    scaffolded = built.scaffolded;
+  }
   if (scaffolded) console.log(`  scaffold: ${scaffolded} dependency package(s) with lifecycle scripts granted a fixed wide grant`);
 
   // ⛔ A UNIQUE ROOT PACKAGE NAME IS NOT ENOUGH, AND NEITHER IS DROPPING THE SIDE-EFFECTS MEMO.
@@ -1356,7 +1380,8 @@ const verify = (grant, label) => {
   // reported as an invariant one. Printed as well as recorded so a corpus log is auditable against
   // the ledger, and in the position `falsify.mjs`'s `VERIFY[at-grant]` regex already allows for it.
   const shortfall = shortfallDigest(missing);
-  console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} shortfall=${shortfall} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} grant=${JSON.stringify(grant)}`);
+  const policy = wholeCatalog ? `catalog=${wholeCatalog}` : `grant=${JSON.stringify(grant)}`;
+  console.log(`  VERIFY[${label}] rc=${rc} artifacts=${got ? got.size : 'ABSENT'}/${OBS_PKG.size} missing=${missing.length} shortfall=${shortfall} (tree ${files}/${OBS_FILES}) OVERRIDDEN=${ovr} REJECTED=${rej} ${policy}`);
   if (missing.length) console.log(`     missing artifacts: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? ` (+${missing.length - 6})` : ''}`);
   probeCjpeg(v, label);
   // ── Ledger for the grant-INDEPENDENCE test at the foot of the ladder. See the ARTIFACT-GATE-SUSPECT
@@ -1399,18 +1424,20 @@ const verify = (grant, label) => {
 // OBSERVE still had to run, and must: the artifact gate needs its file manifest as the reference
 // for "did this arm produce what an unjailed install produces". Only OBSERVE's synthesized GRANT is
 // bypassed here, which is the point — nothing the tracer missed can enter this verdict.
-if (AT_GRANT) {
-  const g = JSON.parse(AT_GRANT);
-  console.log(`  -- DIRECT: does ${PKG}@${VER} install under EXACTLY ${JSON.stringify(g)} ?`);
-  const r = verify(g, 'at-grant');
+if (AT_GRANT || AT_CATALOG) {
+  const g = AT_GRANT ? JSON.parse(AT_GRANT) : {};
+  const label = AT_CATALOG ? 'at-catalog' : 'at-grant';
+  const subject = AT_CATALOG ? `(catalog ${AT_CATALOG})` : JSON.stringify(g);
+  console.log(`  -- DIRECT: does ${PKG}@${VER} install under EXACTLY ${subject} ?`);
+  const r = verify(g, label, AT_CATALOG);
   if (r.void) {
     console.log('  => VOID -- the override did not engage; NOTHING was measured.');
     console.log('     Not a result. Do NOT record it, and do NOT read it as insufficient.');
     process.exit(3);
   }
   if (r.timedOut) { console.log(`  => TIMED-OUT (${r.stage}); no verdict -- a hang says nothing about the grant`); process.exit(3); }
-  if (r.ok) { console.log(`  => SUFFICIENT ${JSON.stringify(g)}   (installed, artifacts matched OBSERVE)`); process.exit(0); }
-  console.log(`  => INSUFFICIENT ${JSON.stringify(g)}   (the package needs MORE than this grant)`);
+  if (r.ok) { console.log(`  => SUFFICIENT ${subject}   (installed, artifacts matched OBSERVE)`); process.exit(0); }
+  console.log(`  => INSUFFICIENT ${subject}   (the package needs MORE than this policy)`);
   process.exit(1);
 }
 
