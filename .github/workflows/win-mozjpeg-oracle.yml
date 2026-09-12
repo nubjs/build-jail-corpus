@@ -4,6 +4,10 @@
 name: win-mozjpeg-oracle
 
 on:
+  # `workflow_dispatch` cannot run an unmerged workflow by filename. This isolated branch trigger
+  # makes the first post-review push its only launch path, without touching the corpus lane.
+  push:
+    branches: [probe/zero-sandbox-14867463]
   workflow_dispatch:
     inputs:
       nub_ref:
@@ -19,18 +23,18 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     env:
-      NUB_REF: ${{ inputs.nub_ref }}
+      NUB_REF: ${{ inputs.nub_ref || '750f165dc712378f33aa2de449465e5b09b01fe4' }}
       # The falsification pair is about the real global-virtual-store layout. Do not let CI choose
       # project-local `.store`, which would make the warm-state question disappear.
       npm_config_enable_global_virtual_store: 'true'
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with: { node-version: '22' }
 
       - name: Check the bounded oracle harness
         shell: bash
-        run: node --test harness/v2/cjpeg-oracle.test.mjs harness/v2/collect-preflight.test.mjs harness/v2/windows-invariance.test.mjs
+        run: node --test harness/v2/cjpeg-oracle.test.mjs harness/v2/assert-cjpeg-oracle.test.mjs harness/v2/collect-preflight.test.mjs harness/v2/windows-invariance.test.mjs
 
       - name: Resolve and build the nub binary under test
         shell: bash
@@ -47,7 +51,18 @@ jobs:
           git checkout --detach FETCH_HEAD
           echo "NUB_SHA=$SHA" >> "$GITHUB_ENV"
           echo "measuring nub $NUB_REF @ $SHA"
+          # Match the build-jail framework artifact: the lifecycle runtime needs the native addon,
+          # its root JS dependencies, and the production BusyBox sidecar—not cargo's bare binary.
+          npm install --no-audit --no-fund --loglevel=error
+          npm install --global node-gyp@12.4.0 --no-audit --no-fund
+          (cd crates/nub-native && cargo build --profile fast)
+          mkdir -p runtime/addons
+          cp target/fast/nub_native.dll runtime/addons/nub-native.node
+          echo '07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075  vendor/busybox-w32/busybox64.exe' | sha256sum -c -
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+          ./target/fast/nub.exe install --frozen-lockfile --node-linker hoisted
+          node -e "require.resolve('@oxc-project/runtime/helpers/usingCtx')"
+          cp vendor/busybox-w32/busybox64.exe target/fast/busybox.exe
           echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
 
       - name: Prove the override feature engages
@@ -63,33 +78,27 @@ jobs:
         shell: bash
         run: |
           set +e
-          node harness/v2/falsify.mjs --nub "$NUB_BIN" --case network-gate --cjpeg-oracle --keep-roots --json /tmp/falsify-mozjpeg.json
-          RC=$?
+          node harness/v2/falsify.mjs --nub "$NUB_BIN" --case network-gate --cjpeg-oracle --keep-roots --json /tmp/falsify-mozjpeg.json 2>&1 | tee /tmp/falsify-mozjpeg.log
+          RC=${PIPESTATUS[0]}
           echo "FALSIFY_EXIT=$RC" >> "$GITHUB_ENV"
           echo "falsify exit=$RC (0=control passed; 1=P0 reproduced; 2=inconclusive)"
           test -f /tmp/falsify-mozjpeg.json || exit 1
-          node -e '
-            const fs = require("fs");
-            const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-            const arms = r.results?.[0]?.arms ?? [];
-            const labels = arms.map((a) => a.label).join(",");
-            if (labels !== "wrong-cold,right,wrong-warm") throw new Error(`expected three oracle arms, got ${labels}`);
-            for (const a of arms) if (!Array.isArray(a.cjpegOracle) || a.cjpegOracle.length !== 1) {
-              throw new Error(`missing cjpeg oracle line for ${a.label}`);
-            }
-          ' /tmp/falsify-mozjpeg.json
+          node harness/v2/assert-cjpeg-oracle.mjs /tmp/falsify-mozjpeg.json
           # This is a diagnostic, not a green gate: preserve its actual falsification verdict.
           exit "$RC"
 
+      - name: Collect bounded oracle evidence
+        if: always()
+        shell: bash
+        run: node harness/v2/collect-preflight.mjs /tmp/falsify-mozjpeg.log /tmp/preflight-evidence
+
       - name: Preserve bounded oracle evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: win-mozjpeg-oracle-${{ github.run_id }}
           path: |
             /tmp/falsify-mozjpeg.json
-            C:/jail/**/i.log
-            C:/jail/**/a.log
-            C:/jail/**/cjpeg-oracle.json
+            /tmp/preflight-evidence
           if-no-files-found: warn
           retention-days: 14
