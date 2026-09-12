@@ -37,6 +37,12 @@ test('Windows refuses missing and empty whole-catalog inputs before a workload',
   }
 });
 
+test('Windows refuses an empty diagnostics destination before a workload', () => {
+  const r = run('--evidence-dir', '');
+  assert.equal(r.rc, 2, r.out);
+  assert.match(r.out, /--evidence-dir requires a non-empty directory/);
+});
+
 test('a valid whole catalog is copied verbatim into the direct arm, never rebuilt as a target grant', () => {
   const preflight = SOURCE.slice(SOURCE.indexOf('const AT_GRANT'), SOURCE.indexOf('const NUB'));
   assert.match(preflight, /let AT_CATALOG = flag\('--at-catalog', ''\)/);

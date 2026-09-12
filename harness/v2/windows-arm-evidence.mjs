@@ -4,6 +4,11 @@ import path from 'node:path';
 
 export const MAX_FILE_BYTES = 256 * 1024;
 export const MAX_TOTAL_BYTES = 2 * 1024 * 1024;
+export const MAX_REPORT_BYTES = 512 * 1024;
+export const MAX_COPY_BYTES = MAX_TOTAL_BYTES - MAX_REPORT_BYTES;
+export const MAX_MANIFEST_ENTRIES = 2048;
+export const MAX_MANIFEST_DEPTH = 32;
+export const MAX_BUILD_METADATA_ENTRIES = 128;
 const LOG_FILES = ['fetch.log', 'security-resolve.log', 'i.log', 'a.log'];
 const BUILD_NAMES = new Set(['config.gypi', 'buildcheck.gypi']);
 const BUILD_EXTENSIONS = new Set(['.vcxproj', '.props', '.targets', '.sln']);
@@ -27,38 +32,56 @@ const locatePackage = (base, pkg, ver) => {
 const fullManifest = (root) => {
   const entries = [];
   const seen = new Set();
-  const walk = (dir) => {
+  const traversal = { maxEntries: MAX_MANIFEST_ENTRIES, maxDepth: MAX_MANIFEST_DEPTH,
+    entryCap: false, depthCap: false, outsidePackage: 0, unreadable: 0, cycles: 0 };
+  const walk = (dir, depth) => {
+    if (depth > MAX_MANIFEST_DEPTH) { traversal.depthCap = true; return; }
     let real; try { real = fs.realpathSync(dir); } catch { return; }
-    if (seen.has(real)) return;
+    if (!inside(root, real)) { traversal.outsidePackage += 1; return; }
+    if (seen.has(real)) { traversal.cycles += 1; return; }
     seen.add(real);
-    let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { traversal.unreadable += 1; return; }
     for (const child of children) {
+      if (entries.length >= MAX_MANIFEST_ENTRIES) { traversal.entryCap = true; return; }
       if (child.name === 'node_modules') continue;
       const file = path.join(dir, child.name);
-      let stat; try { stat = fs.statSync(file); } catch { continue; }
-      if (stat.isDirectory()) walk(file);
+      let stat; try { stat = fs.statSync(file); } catch { traversal.unreadable += 1; continue; }
+      let childReal; try { childReal = fs.realpathSync(file); } catch { traversal.unreadable += 1; continue; }
+      if (!inside(root, childReal)) { traversal.outsidePackage += 1; continue; }
+      if (stat.isDirectory()) walk(file, depth + 1);
       else if (stat.isFile()) entries.push({ path: path.relative(root, file).split(path.sep).join('/'), bytes: stat.size });
     }
   };
-  walk(root);
-  return entries.sort((a, b) => a.path.localeCompare(b.path));
+  walk(root, 0);
+  return { entries: entries.sort((a, b) => a.path.localeCompare(b.path)), traversal };
 };
 
 const buildCandidates = (packageRoot) => {
   const out = ['buildcheck.gypi'];
-  const build = path.join(packageRoot, 'build');
-  const walk = (dir) => {
-    let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  const seen = new Set();
+  const traversal = { maxEntries: MAX_BUILD_METADATA_ENTRIES, maxDepth: MAX_MANIFEST_DEPTH,
+    entryCap: false, depthCap: false, outsidePackage: 0, unreadable: 0, cycles: 0 };
+  const walk = (dir, depth) => {
+    if (depth > MAX_MANIFEST_DEPTH) { traversal.depthCap = true; return; }
+    let real; try { real = fs.realpathSync(dir); } catch { traversal.unreadable += 1; return; }
+    if (!inside(packageRoot, real)) { traversal.outsidePackage += 1; return; }
+    if (seen.has(real)) { traversal.cycles += 1; return; }
+    seen.add(real);
+    let children; try { children = fs.readdirSync(dir, { withFileTypes: true }); } catch { traversal.unreadable += 1; return; }
     for (const child of children) {
+      if (out.length >= MAX_BUILD_METADATA_ENTRIES) { traversal.entryCap = true; return; }
       const file = path.join(dir, child.name);
-      if (child.isDirectory()) walk(file);
+      let stat; try { stat = fs.statSync(file); } catch { traversal.unreadable += 1; continue; }
+      let childReal; try { childReal = fs.realpathSync(file); } catch { traversal.unreadable += 1; continue; }
+      if (!inside(packageRoot, childReal)) { traversal.outsidePackage += 1; continue; }
+      if (stat.isDirectory()) walk(file, depth + 1);
       else if (BUILD_NAMES.has(child.name) || BUILD_EXTENSIONS.has(path.extname(child.name))) {
         out.push(path.relative(packageRoot, file).split(path.sep).join('/'));
       }
     }
   };
-  walk(build);
-  return [...new Set(out)].sort();
+  walk(path.join(packageRoot, 'build'), 0);
+  return { paths: [...new Set(out)].sort(), traversal };
 };
 
 export const createWindowsArmEvidence = ({ destination, fixtureRoot, pkg, ver }) => {
@@ -77,7 +100,7 @@ export const createWindowsArmEvidence = ({ destination, fixtureRoot, pkg, ver })
     try { real = fs.realpathSync(source); } catch { records.push({ ...record, status: 'unreadable' }); return; }
     if (!inside(sourceRoot, real)) { records.push({ ...record, status: 'outside-root' }); return; }
     if (link.size > MAX_FILE_BYTES) { records.push({ ...record, status: 'too-large', bytes: link.size }); return; }
-    if (total + link.size > MAX_TOTAL_BYTES) { records.push({ ...record, status: 'bundle-cap', bytes: link.size }); return; }
+    if (total + link.size > MAX_COPY_BYTES) { records.push({ ...record, status: 'bundle-cap', bytes: link.size }); return; }
     try {
       const contents = fs.readFileSync(source);
       const target = path.join(destinationRoot, relative);
@@ -97,7 +120,7 @@ export const createWindowsArmEvidence = ({ destination, fixtureRoot, pkg, ver })
     const logs = [];
     for (const file of LOG_FILES) copy(arm, file, armDir, logs);
     const packagePath = locatePackage(arm, pkg, ver);
-    const packageRecord = { status: 'missing', manifest: [], build: [] };
+    const packageRecord = { status: 'missing', manifest: [], manifestTraversal: null, build: [], buildTraversal: null };
     if (packagePath) {
       let packageReal;
       try { packageReal = fs.realpathSync(packagePath); } catch { packageReal = null; }
@@ -105,13 +128,24 @@ export const createWindowsArmEvidence = ({ destination, fixtureRoot, pkg, ver })
       else if (!inside(root, packageReal)) packageRecord.status = 'outside-fixture-root';
       else {
         packageRecord.status = 'present';
-        packageRecord.manifest = fullManifest(packageReal);
-        for (const file of buildCandidates(packageReal)) copy(packageReal, file, armDir, packageRecord.build);
+        const manifest = fullManifest(packageReal);
+        packageRecord.manifest = manifest.entries;
+        packageRecord.manifestTraversal = manifest.traversal;
+        const build = buildCandidates(packageReal);
+        packageRecord.buildTraversal = build.traversal;
+        for (const file of build.paths) copy(packageReal, file, armDir, packageRecord.build);
       }
     }
     const report = { schemaVersion: 1, label, package: packageRecord, logs, totalCopiedBytes: total,
-      limits: { maxFileBytes: MAX_FILE_BYTES, maxBundleBytes: MAX_TOTAL_BYTES } };
-    fs.writeFileSync(path.join(armDir, 'manifest.json'), `${JSON.stringify(report, null, 2)}\n`);
+      limits: { maxFileBytes: MAX_FILE_BYTES, maxCopiedBytes: MAX_COPY_BYTES, maxBundleBytes: MAX_TOTAL_BYTES, maxReportBytes: MAX_REPORT_BYTES } };
+    let encoded = Buffer.from(`${JSON.stringify(report, null, 2)}\n`);
+    while (encoded.length > MAX_REPORT_BYTES && packageRecord.manifest.length) {
+      packageRecord.manifest.pop();
+      packageRecord.manifestTraversal.reportCap = true;
+      encoded = Buffer.from(`${JSON.stringify(report, null, 2)}\n`);
+    }
+    if (encoded.length > MAX_REPORT_BYTES) throw new Error(`diagnostic manifest exceeds ${MAX_REPORT_BYTES} bytes after truncation`);
+    fs.writeFileSync(path.join(armDir, 'manifest.json'), encoded);
     return report;
   };
   return { dir: out, capture };

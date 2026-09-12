@@ -152,6 +152,9 @@ const HOME = process.env.USERPROFILE;
 // placed there cannot test a filesystem-denial claim at all.
 const BASE = flag('--root', 'C:\\jail');
 const EVIDENCE_DIR = flag('--evidence-dir', '');
+if (argv.includes('--evidence-dir') && !EVIDENCE_DIR) {
+  console.error('--evidence-dir requires a non-empty directory'); process.exit(2);
+}
 
 // A verify arm that never returns is a real, MEASURED outcome here, not a hypothetical: a jailed
 // `nub install` was seen burning a core for 13+ minutes with no output. Bare spawnSync has no
