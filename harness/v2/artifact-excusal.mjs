@@ -38,6 +38,21 @@ export const TOOLCHAIN_GENERATED = [
   /(^|\/)package-lock\.json$/,
 ];
 
+// Files that ship in the published tarball but that no lifecycle script writes.
+// This stays beside the size-excusal rules because every artifact comparator must
+// apply both decisions to the same manifest universe. `.npmrc` is deliberately
+// absent: it is credential-bearing and therefore remains observable to the gate.
+export const PACKAGING_METADATA = new Set([
+  '.npmignore',
+  '.gitignore',
+  '.gitattributes',
+  '.editorconfig',
+  '.DS_Store',
+]);
+
+/** Is this directory entry packaging metadata rather than a lifecycle artifact? */
+export const isPackagingMetadata = (name) => PACKAGING_METADATA.has(name);
+
 /** Is this path one the toolchain regenerates? Path-shape only; says nothing about size. */
 export const isToolchainGenerated = (f) => TOOLCHAIN_GENERATED.some((r) => r.test(f));
 

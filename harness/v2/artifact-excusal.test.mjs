@@ -10,7 +10,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { TOOLCHAIN_GENERATED, isToolchainGenerated, excusesSizeDifference } from './artifact-excusal.mjs';
+import {
+  TOOLCHAIN_GENERATED,
+  PACKAGING_METADATA,
+  isToolchainGenerated,
+  isPackagingMetadata,
+  excusesSizeDifference,
+} from './artifact-excusal.mjs';
 
 const HERE = import.meta.dirname;
 
@@ -29,6 +35,21 @@ test('the shrinkwrap case that motivated the fix is matched at a NESTED path', (
   assert.equal(isToolchainGenerated('codegens/csharp-restsharp/npm-shrinkwrap.json'), true);
   assert.equal(isToolchainGenerated('npm-shrinkwrap.json'), true);
   assert.equal(isToolchainGenerated('docs/not-a-shrinkwrap.json'), false);
+});
+
+test('packaging metadata is shared and `.npmrc` remains visible', () => {
+  assert.equal(isPackagingMetadata('.npmignore'), true);
+  assert.equal(isPackagingMetadata('.gitignore'), true);
+  assert.equal(isPackagingMetadata('.npmrc'), false,
+    'credential-bearing npm configuration must remain in the manifest');
+  assert.ok(PACKAGING_METADATA.has('.npmignore'));
+});
+
+test('the Windows package manifest applies the shared metadata rule', () => {
+  const windows = fs.readFileSync(path.join(HERE, 'measure-windows.mjs'), 'utf8');
+  const manifest = /const pkgManifest = \(base, pkg, ver\) => \{([\s\S]*?)\n\};\n\n\/\/ Returns the artifacts/.exec(windows)?.[1] ?? '';
+  assert.match(manifest, /if \(isPackagingMetadata\(e\.name\)\) continue;/,
+    'the comparison manifest, rather than only a diagnostic walk, must skip packaging metadata');
 });
 
 test('Windows object and tracking files may shrink but must remain nonempty', () => {
@@ -66,6 +87,10 @@ test('⭑⭑ EVERY driver that decides shortfall uses the shared module — none
     const code = src.split('\n').filter((l) => !/^\s*(\/\/|#)/.test(l)).join('\n');
     assert.doesNotMatch(code, /const\s+TOOLCHAIN_GENERATED\s*=/,
       `${d} declares its own excusal list — that is the exact drift this module exists to prevent`);
+    assert.doesNotMatch(code, /const\s+PACKAGING_METADATA\s*=/,
+      `${d} declares its own packaging-metadata list — that would let manifests drift`);
+    assert.match(code, /isPackagingMetadata/,
+      `${d} must apply the shared packaging-metadata decision to its manifest`);
   }
 });
 

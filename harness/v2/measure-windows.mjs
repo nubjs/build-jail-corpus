@@ -34,7 +34,7 @@ import { spawnSync } from 'node:child_process';
 // then fails naming a defect that does not exist. Measured twice while writing this comment.
 import { shortfallDigest } from './shortfall-invariance.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
-import { excusesSizeDifference } from './artifact-excusal.mjs';
+import { excusesSizeDifference, isPackagingMetadata } from './artifact-excusal.mjs';
 import { neverSpawned } from './never-spawned.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
@@ -344,6 +344,10 @@ const pkgManifest = (base, pkg, ver) => {
     if (seen.has(rp)) return; seen.add(rp);
     let ents; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
     for (const e of ents) {
+      // A published packaging marker is not output from the lifecycle script. Npm's
+      // flat extraction and Nub's store materialisation need not retain the same
+      // marker files, so count neither; `.npmrc` stays out of the shared exclusion.
+      if (isPackagingMetadata(e.name)) continue;
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
       // ⛔ A NESTED `node_modules` IS SOMEONE ELSE'S ARTIFACTS AND MUST NOT ENTER THIS MANIFEST.

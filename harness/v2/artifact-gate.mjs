@@ -45,7 +45,7 @@ import { spawnSync } from 'node:child_process';
 // module does NOT run its CLI: its main-module guard resolves the invoked script's path to a URL and
 // compares it against its own, and under this import that path is THIS file.
 import { shortfallDigest } from './shortfall-invariance.mjs';
-import { excusesSizeDifference } from './artifact-excusal.mjs';
+import { excusesSizeDifference, isPackagingMetadata } from './artifact-excusal.mjs';
 
 const args = process.argv.slice(2);
 const val = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
@@ -56,16 +56,6 @@ if (!OBS || !ARM || !PKG || !VER) {
 }
 
 const isLog = (p) => /\.log$|cat\.json$|nub\.jsonc$|package-lock\.json$/.test(p);
-
-// Files that ship inside the published tarball and that NO lifecycle script writes. See the long
-// note at the walk for why excluding them is sound and why `.npmrc` is deliberately absent.
-const PACKAGING_METADATA = new Set([
-  '.npmignore',
-  '.gitignore',
-  '.gitattributes',
-  '.editorconfig',
-  '.DS_Store',
-]);
 
 // Where the measured package lives, in either layout. `<base>/node_modules/<pkg>` covers npm's flat
 // OBSERVE tree AND nub's global-virtual-store layout, where that entry is a SYMLINK into
@@ -124,7 +114,7 @@ const manifest = (base) => {
       // reasons about explicitly, so it must stay visible to the manifest even though it is also
       // packaging-adjacent — excluding it would blind the gate to exactly the file class this
       // project exists to protect.
-      if (PACKAGING_METADATA.has(e.name)) continue;
+      if (isPackagingMetadata(e.name)) continue;
       const p = path.join(d, e.name);
       if (isLog(p)) continue;
       let st; try { st = fs.statSync(p); } catch { continue; }
