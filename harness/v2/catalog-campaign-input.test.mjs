@@ -70,6 +70,11 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
     ['cpu-features@0.0.10', 'mozjpeg@6.0.1'],
   ]);
   assert.deepEqual(selectRun(finalSeven, finalPlan).include.map(({ chunk, platform }) => [chunk, platform]), [
+    [1, 'windows'], [2, 'windows'],
+  ]);
+  // The checked-in diagnostic pass is Windows-only; the complete acceptance matrix remains supported.
+  assert.deepEqual(selectRun(finalSeven, { chunks: [1, 2], platforms: ['linux', 'macos', 'windows'] })
+    .include.map(({ chunk, platform }) => [chunk, platform]), [
     [1, 'linux'], [2, 'linux'], [1, 'macos'], [2, 'macos'], [1, 'windows'], [2, 'windows'],
   ]);
   const workflow = fs.readFileSync(path.join(rootDir, '.github', 'workflows', 'catalog-boundary-artifact-records.yml'), 'utf8');
