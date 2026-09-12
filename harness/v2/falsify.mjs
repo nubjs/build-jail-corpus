@@ -757,9 +757,10 @@ for (const kase of selected) {
   }
 
   for (const a of arms) {
+    const store = a.storeIsolated ? 'isolated' : a.storeShared ? 'shared' : 'unknown';
     console.log(`   ${a.label.padEnd(11)} ${String(a.verdict).padEnd(13)} `
       + `installRc=${a.installRc} artifacts=${a.artifacts}/${a.reference} missing=${a.missing} `
-      + `evicted=${a.evicted} refusal=${a.refusalSeen ? 'seen' : '—'} ranEvidence=${a.scriptRan ? 'seen' : '—'} `
+      + `evicted=${a.evicted} store=${store} refusal=${a.refusalSeen ? 'seen' : '—'} ranEvidence=${a.scriptRan ? 'seen' : '—'} `
       + `detectors=${detectorsThatFired(a).join('+') || 'none'} [${Math.round(a.durationMs / 1000)}s]`);
     // Printed, never failed — see the note beside `replaySuspected`. Kept visible because a trusted
     // package that suddenly starts tripping it WOULD mean something.
