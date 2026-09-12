@@ -11,7 +11,7 @@ on:
       candidate_sha:
         description: exact nubjs/nub candidate to test
         required: true
-        default: '1e57f55befb7908e27744b1f1b69326715198f4a'
+        default: 'eff8e8d3929f83f21ddb75b7993e8d2614978791'
       baseline_sha:
         description: exact matched nubjs/nub baseline to retain beside the candidate
         required: true
@@ -34,7 +34,7 @@ jobs:
       run:
         shell: bash
     env:
-      CANDIDATE_REF: ${{ inputs.candidate_sha || '1e57f55befb7908e27744b1f1b69326715198f4a' }}
+      CANDIDATE_REF: ${{ inputs.candidate_sha || 'eff8e8d3929f83f21ddb75b7993e8d2614978791' }}
       BASELINE_REF: ${{ inputs.baseline_sha || '66d094771559a86642db4eef4a325b6c46f21ebe' }}
       CORPUS_REF: ${{ github.sha }}
       NODE_VERSION: '22.23.2'
