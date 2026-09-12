@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   oracle:
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 45
     env:
       NUB_REF: ${{ inputs.nub_ref || '750f165dc712378f33aa2de449465e5b09b01fe4' }}
@@ -29,6 +29,8 @@ jobs:
       npm_config_enable_global_virtual_store: 'true'
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with: { node-version: '22' }
 
@@ -51,6 +53,7 @@ jobs:
           git checkout --detach FETCH_HEAD
           echo "NUB_SHA=$SHA" >> "$GITHUB_ENV"
           echo "measuring nub $NUB_REF @ $SHA"
+          { echo "nub=$SHA"; git -C "$GITHUB_WORKSPACE" rev-parse HEAD; rustc -Vv; node --version; uname -a; } > /tmp/oracle-environment.txt
           # Match the build-jail framework artifact: the lifecycle runtime needs the native addon,
           # its root JS dependencies, and the production BusyBox sidecar—not cargo's bare binary.
           npm install --no-audit --no-fund --loglevel=error
@@ -60,9 +63,9 @@ jobs:
           cp target/fast/nub_native.dll runtime/addons/nub-native.node
           echo '07bb1e5b095b00d68a695481f9240879f33c5724b40aa2308f999d54ed78f075  vendor/busybox-w32/busybox64.exe' | sha256sum -c -
           cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
-          ./target/fast/nub.exe install --frozen-lockfile --node-linker hoisted
           node -e "require.resolve('@oxc-project/runtime/helpers/usingCtx')"
           cp vendor/busybox-w32/busybox64.exe target/fast/busybox.exe
+          sha256sum target/fast/nub.exe runtime/addons/nub-native.node target/fast/busybox.exe > /tmp/oracle-binaries.sha256
           echo "NUB_BIN=/tmp/nubsrc/target/fast/nub.exe" >> "$GITHUB_ENV"
 
       - name: Prove the override feature engages
@@ -100,5 +103,7 @@ jobs:
           path: |
             /tmp/falsify-mozjpeg.json
             /tmp/preflight-evidence
+            /tmp/oracle-environment.txt
+            /tmp/oracle-binaries.sha256
           if-no-files-found: warn
           retention-days: 14
