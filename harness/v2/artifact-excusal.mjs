@@ -32,6 +32,8 @@ export const TOOLCHAIN_GENERATED = [
   /(^|\/)build\/.*\.d$/,
   /(^|\/)build\/gyp-mac-tool$/,
   /(^|\/)build\/.*\.o$/,
+  /(^|\/)build\/.*\.obj$/,
+  /(^|\/)build\/.*\.tlog$/,
   /(^|\/)npm-shrinkwrap\.json$/,
   /(^|\/)package-lock\.json$/,
 ];

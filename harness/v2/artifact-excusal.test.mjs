@@ -31,6 +31,20 @@ test('the shrinkwrap case that motivated the fix is matched at a NESTED path', (
   assert.equal(isToolchainGenerated('docs/not-a-shrinkwrap.json'), false);
 });
 
+test('Windows object and tracking files may shrink but must remain nonempty', () => {
+  for (const file of [
+    'build/deps/cpu_features/Release/obj/cpu_features/deps/cpu_features/src/filesystem.obj',
+    'build/deps/cpu_features/Release/obj/cpu_features/cpu_features.tlog/CL.read.1.tlog',
+  ]) {
+    assert.equal(excusesSizeDifference(file, 100), true, file);
+    assert.equal(excusesSizeDifference(file, 0), false, file);
+  }
+  for (const file of ['vendor/payload.obj', 'vendor/payload.tlog',
+    'build/Release/cpufeatures.node', 'build/Release/tool.exe', 'build/Release/tool.dll']) {
+    assert.equal(excusesSizeDifference(file, 100), false, file);
+  }
+});
+
 test('the node-gyp output family is present — the part Windows was missing entirely', () => {
   // Named explicitly so a future trim of the list fails here rather than in the corpus.
   for (const f of ['build/config.gypi', 'build/Makefile', 'build/nothing.target.mk',

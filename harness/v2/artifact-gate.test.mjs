@@ -53,6 +53,23 @@ test('an identical tree passes — the positive control, without which every oth
   assert.match(r.out, /missing=0/);
 });
 
+for (const file of ['build/Release/obj/feature.obj', 'build/Release/feature.tlog/CL.read.1.tlog']) {
+  test(`Windows intermediate ${file} permits size variation, not absent or empty output`, (t) => {
+    const roots = [];
+    t.after(() => { for (const root of roots) fs.rmSync(root, { recursive: true, force: true }); });
+    const fixture = (files) => {
+      const root = tree('msvc', { 'build/Release/feature.node': 'ADDON', ...files });
+      roots.push(root);
+      return root;
+    };
+    const observed = fixture({ [file]: 'PATH-DEPENDENT-INTERMEDIATE' });
+    assert.equal(gate(observed, fixture({ [file]: 'shorter' })).code, 0);
+    assert.equal(gate(observed, fixture({ [file]: '' })).code, 1);
+    assert.equal(gate(observed, fixture({})).code, 1);
+    assert.equal(gate(observed, fixture({ [file]: 'shorter', 'build/Release/feature.node': '' })).code, 1);
+  });
+}
+
 test('a genuinely missing artifact FAILS — the gate can still gate', () => {
   const r = gate(
     tree('obs-miss', { 'index.js': 'x', 'bin/tool': 'BINARY' }),
