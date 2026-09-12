@@ -70,8 +70,10 @@ test('POSIX pre-lifecycle resolver failures retain their isolated arm and bounde
     const failure = source.indexOf('=> HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts');
     assert.ok(failure >= 0, `${platform}: missing resolver failure`);
     const retained = source.lastIndexOf('kept for inspection: $v', failure);
+    const exit = source.lastIndexOf('SECURITY-RESOLVE-EXIT: $resolve_rc', failure);
     const tail = source.lastIndexOf('tail -n 200 "$v/security-resolve.log"', failure);
-    assert.ok(retained >= 0 && tail >= retained, `${platform}: resolver failure drops its diagnostic arm`);
+    assert.ok(retained >= 0 && exit >= retained && tail >= exit,
+      `${platform}: resolver failure drops its diagnostic arm or exit status`);
   }
 });
 

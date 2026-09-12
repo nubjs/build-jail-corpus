@@ -1076,10 +1076,12 @@ verify () {
     RUST_LOG=debug NUB_BUILD_JAIL_CATALOG="$v/cat.json" \
       "$NUB" install --ignore-scripts > "$v/security-resolve.log" 2>&1
   ) || {
+    local resolve_rc=$?
     # The resolver failed before a lifecycle boundary.  Keep the exact isolated arm so the
     # artifact collector can retain the pinned config and stderr rather than collapsing it to a
     # generic HARNESS-ERROR.  Bound the live log too: package-manager errors are untrusted output.
     echo "  kept for inspection: $v"
+    echo "    SECURITY-RESOLVE-EXIT: $resolve_rc"
     tail -n 200 "$v/security-resolve.log" 2>/dev/null | sed 's/^/    SECURITY-RESOLVE: /'
     echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
     exit 1
