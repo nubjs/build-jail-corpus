@@ -4,11 +4,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+// `record.mjs` normalizes every driver spelling of a verified grant to MINIMUM.
+// `verifiedBy` preserves whether VERIFY accepted the synthesized grant or a ladder repair.
+const VERIFIED_BY = new Set(['synth', 'ladder']);
+
 export function checkRecord(record, expected) {
   const errors = [];
   if (record.pkg !== expected.pkg || record.version !== expected.version) errors.push('package');
   if (record.harnessVersion !== 2 || record.driverRc !== 0) errors.push('driver');
-  if (record.verdict !== 'SUFFICIENT' || !record.verifiedBy) errors.push('verification');
+  if (record.verdict !== 'MINIMUM' || !VERIFIED_BY.has(record.verifiedBy)
+    || !record.grant || typeof record.grant !== 'object' || Array.isArray(record.grant)) {
+    errors.push('verification');
+  }
   for (const key of ['platform', 'nubGitSha', 'corpusGitSha', 'harnessSha256']) {
     if (!expected[key] || record.provenance?.[key] !== expected[key]) errors.push(key);
   }

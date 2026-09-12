@@ -8,8 +8,12 @@ import { fileURLToPath } from 'node:url';
 import { checkRecord } from './assert-probe-records.mjs';
 
 const expected = { pkg: 'fixture', version: '1.0.0', platform: 'win32-x64', nubGitSha: 'n', corpusGitSha: 'c', harnessSha256: 'h', nubSha256: 'b' };
-const good = () => ({ pkg: 'fixture', version: '1.0.0', harnessVersion: 2, driverRc: 0, verdict: 'SUFFICIENT', verifiedBy: 'synth', provenance: { ...expected, nubBinary: { sha256: 'b' } } });
+const good = () => ({ pkg: 'fixture', version: '1.0.0', harnessVersion: 2, driverRc: 0, verdict: 'MINIMUM', verifiedBy: 'synth', grant: {}, provenance: { ...expected, nubBinary: { sha256: 'b' } } });
 test('accepts a fully attributed verified record', () => assert.deepEqual(checkRecord(good(), expected), []));
+test('accepts a verified ladder repair', () => {
+  const record = good(); record.verifiedBy = 'ladder';
+  assert.deepEqual(checkRecord(record, expected), []);
+});
 test('rejects missing or mismatched source and instrument provenance', () => {
   for (const key of ['platform', 'nubGitSha', 'corpusGitSha', 'harnessSha256']) {
     for (const value of [null, 'other']) {
@@ -25,7 +29,12 @@ test('rejects a changed or missing runtime binary', () => {
   assert.ok(checkRecord(record, expected).includes('nubSha256'));
 });
 test('does not accept unverified, failed, refused, or mismatched records', () => {
-  for (const patch of [{ pkg: 'other' }, { version: '2' }, { driverRc: 124 }, { verifiedBy: null }, { verdict: 'VOID' }, { verdict: 'REFUSED-MALICIOUS' }, { harnessVersion: 1 }]) {
+  for (const patch of [
+    { pkg: 'other' }, { version: '2' }, { driverRc: 124 },
+    { verifiedBy: null }, { verifiedBy: 'unknown' }, { grant: null }, { grant: [] },
+    { verdict: 'SUFFICIENT' }, { verdict: 'VOID' }, { verdict: 'NO-STATE-PASSED' },
+    { verdict: 'REFUSED-MALICIOUS' }, { harnessVersion: 1 },
+  ]) {
     assert.ok(checkRecord({ ...good(), ...patch }, expected).length);
   }
 });
