@@ -82,16 +82,22 @@ jobs:
           set -euo pipefail
           CONTROL=$(mktemp -d "$HOME/confluent-unconfined-XXXXXX")
           echo "CONTROL=$CONTROL" >> "$GITHUB_ENV"
+          retain_control() {
+            control_rc=$?
+            trap - EXIT
+            mkdir -p reports/control
+            cp "$CONTROL"/{package.json,nub.jsonc,resolve.log,install.log,approve.log,pre-launch-target.json} reports/control/ 2>/dev/null || true
+            printf '%s\n' "$control_rc" > reports/control/exit
+            exit "$control_rc"
+          }
+          trap retain_control EXIT
           test ! -e "$HOME/.cache/nub/pm/store" || { echo 'refusing warmed global store' >&2; exit 1; }
           printf '{"name":"confluent-unconfined-control","version":"1.0.0","dependencies":{"%s":"%s"}}\n' "$PKG" "$VER" > "$CONTROL/package.json"
           printf '{"install":{"buildJail":false}}\n' > "$CONTROL/nub.jsonc"
-          if NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1; then
+          if ( cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1 ); then
             :
           else
             resolve_rc=$?
-            mkdir -p reports/control
-            cp "$CONTROL"/{package.json,nub.jsonc,resolve.log} reports/control/
-            printf '%s\n' "$resolve_rc" > reports/control/resolve.exit
             tail -n 200 "$CONTROL/resolve.log" >&2
             exit "$resolve_rc"
           fi
@@ -109,8 +115,8 @@ jobs:
           fs.writeFileSync(out, `${JSON.stringify(detail, null, 2)}\n`);
           if (!detail.exists || detail.readError) process.exitCode = 1;
           JS
-          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install > "$CONTROL/install.log" 2>&1
-          NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" approve-builds --all > "$CONTROL/approve.log" 2>&1
+          ( cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install > "$CONTROL/install.log" 2>&1 )
+          ( cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" approve-builds --all > "$CONTROL/approve.log" 2>&1 )
           grep -Eq 'ran .*install|running .*install' "$CONTROL/install.log" "$CONTROL/approve.log"
       - name: Run one full-read direct jail arm
         id: direct
@@ -129,7 +135,7 @@ jobs:
           ARM=$(sed -n 's/^  kept for inspection: //p' reports/direct.log | tail -1)
           test -n "$ARM" && test -d "$ARM"
           mkdir -p reports/direct-arm
-          cp "$ARM"/{package.json,nub.jsonc,.npmrc,cat.json,nub.lock,security-resolve.log,i.log,a.log} reports/direct-arm/ 2>/dev/null || true
+          cp "$ARM"/{package.json,nub.jsonc,.npmrc,cat.json,nub.lock,security-resolve.log,i.log,a.log,verify-status} reports/direct-arm/ 2>/dev/null || true
           TARGET="$ARM/node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp"
           node --input-type=module - "$TARGET" reports/direct-arm/post-launch-target.json <<'JS'
           import crypto from 'node:crypto';

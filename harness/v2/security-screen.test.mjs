@@ -56,8 +56,7 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
   inOrder(drivers.macos, [
     "'$NUB' install --ignore-scripts > '$v/security-resolve.log'",
     'security_screen_tree "$v" "nub-$label-resolved"',
-    '"$NUB" install > "$v/i.log"',
-    "'$NUB' approve-builds --all > '$v/a.log'",
+    '/bin/bash "$HERE/macos-verify.sh" "$v" "$NUB"',
   ], 'macos verify');
   inOrder(drivers.windows, [
     "run(NUB, ['install', '--ignore-scripts']",
@@ -95,17 +94,19 @@ test('POSIX failed direct arms retain bounded lifecycle command logs', () => {
 
 test('macOS forwards an opt-in policy dump without enabling it for ordinary arms', () => {
   assert.match(drivers.macos, /\[ -n "\$\{NUB_JAIL_DUMP_POLICY:-\}" \] && dump_env=/);
-  assert.match(drivers.macos, /"\$\{dump_env\[@\]\}" sh -c/);
+  assert.match(drivers.macos, /"\$\{dump_env\[@\]\}" \\\n+      \/bin\/bash "\$HERE\/macos-verify\.sh"/);
 });
 
-test('the Confluent control retains its resolver failure before stopping the direct arm', () => {
+test('the Confluent control retains every preflight boundary before stopping the direct arm', () => {
   inOrder(confluentDiagnostic, [
-    'NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1',
-    'cp "$CONTROL"/{package.json,nub.jsonc,resolve.log} reports/control/',
-    "printf '%s\\n' \"$resolve_rc\" > reports/control/resolve.exit",
+    'trap retain_control EXIT',
+    'cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install --ignore-scripts > "$CONTROL/resolve.log" 2>&1',
     'tail -n 200 "$CONTROL/resolve.log" >&2',
     'exit "$resolve_rc"',
   ], 'Confluent unconfined control failure retention');
+  assert.match(confluentDiagnostic,
+    /cp "\$CONTROL"\/\{package\.json,nub\.jsonc,resolve\.log,install\.log,approve\.log,pre-launch-target\.json\} reports\/control\//);
+  assert.match(confluentDiagnostic, /printf '%s\\n' "\$control_rc" > reports\/control\/exit/);
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
