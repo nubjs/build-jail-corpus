@@ -169,6 +169,11 @@ test('a stream with no lifecycle shell reports UNKNOWN rather than an empty gran
     encoding: 'utf8',
   });
   assert.match(out, /NO LIFECYCLE SHELL FOUND/);
+  assert.equal(out.split('SYNTHESIZED GRANT')[1].split('\n')[1].trim(), 'UNKNOWN-ATTRIBUTION-FAILED',
+    'a no-work trace must not be converted into the verifier\'s real empty-grant input');
+  const driver = fs.readFileSync(path.join(HERE, 'measure.sh'), 'utf8');
+  assert.match(driver, /if \[ "\$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" \]; then/,
+    'the Linux driver must stop before a no-work sentinel reaches a verification arm');
 });
 
 // ── The decoding losses, each measured against `probes/syscall-coverage.c` on 2026-08-06 ─────────

@@ -644,6 +644,14 @@ node "$HERE/observe.mjs" "$OBS/trace.txt" --capture "$CAPTURE" > "$ROOT/observed
 sed 's/^/  /' "$ROOT/observed.txt"
 GRANT=$(grep -A1 'SYNTHESIZED GRANT' "$ROOT/observed.txt" | tail -1 | sed 's/^ *//')
 [ -n "$GRANT" ] || { echo "  SYNTHESIZE FAILED"; exit 1; }
+# An empty grant is a real answer only after a lifecycle shell was observed. `observe.mjs` emits
+# this non-JSON token when it found none; do not route it through the verifier, whose successful
+# install would prove only that npm had no work to give the jail.
+if [ "$GRANT" = "UNKNOWN-ATTRIBUTION-FAILED" ]; then
+  echo "  => UNKNOWN (attribution failed — the lifecycle shell was never identified, so there is no"
+  echo "     measurement here. This is NOT a package that needs nothing.)"
+  exit 0
+fi
 
 # ── 2b. THE DERIVED EVENT LOG ──────────────────────────────────────────────────────────────────
 #
