@@ -359,6 +359,20 @@ test('two dropped capabilities DO narrow once a JOINT-NARROW arm verifies them t
   assert.deepEqual(r.grant, {});
 });
 
+test('a failed JOINT-NARROW is recorded as attempted and insufficient, not never run', () => {
+  const r = drv([
+    '  ARM-FALSIFIABILITY {"reasons":[]}',
+    '  => VERIFIED {"write":{"project":true},"network":true}',
+    "     ⛔ OVER-PREDICTED — the strictly narrower x also verifies; 'no-network' was not needed",
+    "     ⛔ OVER-PREDICTED — the strictly narrower y also verifies; 'no-write-project' was not needed",
+    '  => JOINT-NARROW FAILED {} — each capability drops alone but not together;',
+  ]);
+  assert.equal(r.grantSource, 'synthesized');
+  assert.deepEqual(r.grant, { write: { project: true }, network: true });
+  assert.match(r.grantSourceReason, /was run and did not verify/);
+  assert.doesNotMatch(r.grantSourceReason, /never run/);
+});
+
 test('an unfalsifiable package never narrows, however many arms passed', () => {
   // A passing narrow arm for a package whose arms could not have failed is not evidence.
   const r = drv([
