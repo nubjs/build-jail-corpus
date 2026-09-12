@@ -105,8 +105,10 @@ test('the Confluent control retains every preflight boundary before stopping the
     'exit "$resolve_rc"',
   ], 'Confluent unconfined control failure retention');
   assert.match(confluentDiagnostic,
-    /cp "\$CONTROL"\/\{package\.json,nub\.jsonc,resolve\.log,install\.log,approve\.log,pre-launch-target\.json\} reports\/control\//);
+    /cp "\$CONTROL"\/\{package\.json,nub\.jsonc,nub\.lock,resolve\.log,install\.log,approve\.log,pre-launch-target\.json\} reports\/control\//);
   assert.match(confluentDiagnostic, /printf '%s\\n' "\$control_rc" > reports\/control\/exit/);
+  assert.match(confluentDiagnostic,
+    /find -L "\$CONTROL\/node_modules" -path '\*\/@mapbox\/node-pre-gyp\/bin\/node-pre-gyp' -type f -print -quit/);
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
