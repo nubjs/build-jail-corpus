@@ -802,6 +802,10 @@ verify () {
   sudo -u "$RUNUSER" -H env "PATH=$PATH" NUB_CACHE_DIR="$cache" \
     NUB_BUILD_JAIL_CATALOG="$v/cat.json" sh -c \
     "cd '$v' && '$NUB' install --ignore-scripts > '$v/security-resolve.log' 2>&1" || {
+      # Preserve this pre-lifecycle resolver arm and a bounded stderr tail for artifact diagnosis.
+      # The full log stays in the isolated arm and is copied by collect-preflight.mjs.
+      echo "  kept for inspection: $v"
+      tail -n 200 "$v/security-resolve.log" 2>/dev/null | sed 's/^/    SECURITY-RESOLVE: /'
       echo "  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts; no lifecycle script ran"
       exit 1
     }

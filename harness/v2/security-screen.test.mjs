@@ -65,6 +65,16 @@ test('every verify arm resolves without scripts, screens that Nub tree, then run
   ], 'windows verify');
 });
 
+test('POSIX pre-lifecycle resolver failures retain their isolated arm and bounded stderr', () => {
+  for (const [platform, source] of Object.entries({ linux: drivers.linux, macos: drivers.macos })) {
+    const failure = source.indexOf('=> HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts');
+    assert.ok(failure >= 0, `${platform}: missing resolver failure`);
+    const retained = source.lastIndexOf('kept for inspection: $v', failure);
+    const tail = source.lastIndexOf('tail -n 200 "$v/security-resolve.log"', failure);
+    assert.ok(retained >= 0 && tail >= retained, `${platform}: resolver failure drops its diagnostic arm`);
+  }
+});
+
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
   assert.doesNotMatch(drivers.windows.slice(0, drivers.windows.indexOf('const verify =')),
     /VENUE-STORE-LAYOUT hoisted/);
