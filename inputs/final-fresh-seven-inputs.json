@@ -3,7 +3,7 @@
   "purpose": "final source-bound remeasurement of the existing fresh seven-cell queue; frozen exact versions, not a registry breadth selection",
   "pins": {
     "candidate": {
-      "commit": "1daa98c23343cd50563823cdf3a2dc3230343b3e",
+      "commit": "756c87deefdc1a926774a1fa0c391a5b486801ff",
       "catalogPath": "crates/nub-sandbox/data/build-jail-catalog-v2.json",
       "catalogSha256": "dcb770937e85347f67230cb830d7206445ba160b14cc4315eef16baf922803e4"
     },
@@ -14,7 +14,7 @@
       "priorWorklistSha256": "87d58581cf5bdb55fbd1dc6b5102aa9333f834d80ec6de5e0bb32223c771dfa1"
     }
   },
-  "selectionRule": "replay the existing seven exact fresh-measurement cells against the approved current candidate; do not substitute registry versions or expand catalog breadth",
+  "selectionRule": "chunks 1 and 2 cover the existing seven exact fresh-measurement cells; chunk 3 is the two-cell native diagnostic subset, not complete acceptance; do not substitute registry versions or expand catalog breadth",
   "summary": {
     "uniqueSpecs": 7,
     "platformMeasurements": 21,
@@ -38,6 +38,10 @@
     {
       "index": 2,
       "specs": ["cpu-features@0.0.10", "mozjpeg@6.0.1"]
+    },
+    {
+      "index": 3,
+      "specs": ["better-sqlite3@11.8.1", "cpu-features@0.0.10"]
     }
   ]
 }

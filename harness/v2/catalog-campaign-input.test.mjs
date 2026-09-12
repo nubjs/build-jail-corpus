@@ -63,14 +63,15 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.equal(campaign.chunks.length, 90);
   assert.ok(campaign.chunks.every((chunk, index) => chunk.index === index + 1 && chunk.specs.length <= 5));
   assert.equal(finalSeven.schemaVersion, 2);
-  assert.equal(finalSeven.pins.candidate.commit, '1daa98c23343cd50563823cdf3a2dc3230343b3e');
+  assert.equal(finalSeven.pins.candidate.commit, '756c87deefdc1a926774a1fa0c391a5b486801ff');
   assert.equal(finalSeven.pins.candidate.catalogSha256, 'dcb770937e85347f67230cb830d7206445ba160b14cc4315eef16baf922803e4');
   assert.deepEqual(finalSeven.chunks.map((chunk) => chunk.specs), [
     ['esbuild@0.24.0', 'better-sqlite3@11.8.1', 'bcrypt@5.1.1', 'sharp@0.33.5', '@swc/core@1.15.46'],
     ['cpu-features@0.0.10', 'mozjpeg@6.0.1'],
+    ['better-sqlite3@11.8.1', 'cpu-features@0.0.10'],
   ]);
   assert.deepEqual(selectRun(finalSeven, finalPlan).include.map(({ chunk, platform }) => [chunk, platform]), [
-    [1, 'windows'], [2, 'windows'],
+    [3, 'windows'],
   ]);
   // The checked-in diagnostic pass is Windows-only; the complete acceptance matrix remains supported.
   assert.deepEqual(selectRun(finalSeven, { chunks: [1, 2], platforms: ['linux', 'macos', 'windows'] })
@@ -82,6 +83,19 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.match(workflow, /contents: read/);
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /NUB_CORPUS_ON_RECORD: ''/);
+  assert.match(workflow, /NUB_JAIL_DUMP_POLICY: '1'/);
+  assert.match(workflow, /NUB_REF: 756c87deefdc1a926774a1fa0c391a5b486801ff/);
+  assert.match(workflow, /node --test reports\/native-fixtures\/packages.test.mjs/);
+  assert.match(workflow, /for package in cpu-features better-sqlite3/);
+  assert.match(workflow, /\(cd vendor\/aube && cargo test -p aube --lib global_virtual_store_lifecycle_uses_logical_bin_path -- --nocapture\)/);
+  assert.match(workflow, /grep -q 'test result: ok\. 1 passed'/);
+  assert.match(workflow, /cp reports\/logical-bin-path-test\.log "\$RUNTIME_BUNDLE\/runtime\/test-evidence\/logical-bin-path-test\.log"/);
+  assert.match(workflow, /cp "\$RUNTIME_BUNDLE\/runtime\/test-evidence\/logical-bin-path-test\.log" reports\/logical-bin-path-test\.log/);
+  assert.ok(workflow.indexOf('cp reports/logical-bin-path-test.log') < workflow.indexOf('runtime-bundle.mjs --write'));
+  assert.ok(workflow.indexOf('runtime-bundle-verified.json') < workflow.indexOf('cp "$RUNTIME_BUNDLE/runtime/test-evidence/'));
+  assert.match(workflow, /git -C \/tmp\/nub-catalog-input show "\$PIN_COMMIT:tests\/build-jail-corpus\/\$file" > "reports\/native-fixtures\/\$file"/);
+  assert.ok(workflow.indexOf('Save the newly built exact runtime bundle') < workflow.indexOf('Verify native build configuration and exports'));
+  assert.match(workflow, /export CORPUS_OSV_SCREEN="\$GITHUB_WORKSPACE\/harness\/osv-screen.mjs"/);
   assert.match(workflow, /unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST/);
   assert.doesNotMatch(workflow, /publish-record-v2|claim-slice|queue-v2|self-dispatch/);
   assert.match(workflow, /actions\/cache\/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9/);
@@ -104,7 +118,6 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.match(workflow, /always\(\) && !cancelled\(\) && steps\.campaigncontext\.outcome == 'success'/);
   assert.match(workflow, /inputs\/final-fresh-seven-inputs\.json/);
   assert.match(workflow, /inputs\/final-fresh-seven-run\.json/);
-  assert.match(workflow, /NUB_REF: 1daa98c23343cd50563823cdf3a2dc3230343b3e/);
   assert.match(workflow, /NUB_V2_DRIVER_ARGS='\["--root","C:\\\\p\\\\jail-record-probe"\]'/);
   assert.match(workflow, /args\+=\(--driver-root 'C:\/p\/jail-record-probe'\)/);
   assert.match(workflow, /RUNTIME_CACHE_KEY=\$\(node harness\/v2\/runtime-bundle\.mjs --cache-key/);

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       chunk:
-        description: Final fresh-seven input chunk index (1..2)
+        description: Fresh-seven chunk (1..2), or native diagnostic subset (3)
         required: true
         type: string
       platform:
@@ -57,8 +57,9 @@ jobs:
       run:
         shell: bash
     env:
-      NUB_REF: 1daa98c23343cd50563823cdf3a2dc3230343b3e
+      NUB_REF: 756c87deefdc1a926774a1fa0c391a5b486801ff
       NUB_CORPUS_ON_RECORD: ''
+      NUB_JAIL_DUMP_POLICY: '1'
       MANIFEST: inputs/final-fresh-seven-inputs.json
       RUN_PLAN: inputs/final-fresh-seven-run.json
       CHUNK: ${{ matrix.chunk }}
@@ -209,11 +210,20 @@ jobs:
               exit 1
             fi
             cargo build -p nub-cli --profile fast --features nub-cli/build-jail-catalog-override
+            if [ "$RUNNER_OS" = Windows ]; then
+              (cd vendor/aube && cargo test -p aube --lib global_virtual_store_lifecycle_uses_logical_bin_path -- --nocapture) \
+                2>&1 | tee "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
+              grep -q 'test result: ok. 1 passed' "$GITHUB_WORKSPACE/reports/logical-bin-path-test.log"
+            fi
           ) 2>&1 | tee reports/runtime-build.log
           mkdir -p "$RUNTIME_BUNDLE"
           cp "/tmp/nubsrc/target/fast/nub${{ matrix.platform == 'windows' && '.exe' || '' }}" "$RUNTIME_BUNDLE/nub${{ matrix.platform == 'windows' && '.exe' || '' }}"
           cp -R /tmp/nubsrc/runtime "$RUNTIME_BUNDLE/runtime"
-          if [ "$BUNDLE_PLATFORM" = win32 ]; then cp /tmp/nubsrc/target/fast/busybox.exe "$RUNTIME_BUNDLE/busybox.exe"; fi
+          if [ "$BUNDLE_PLATFORM" = win32 ]; then
+            cp /tmp/nubsrc/target/fast/busybox.exe "$RUNTIME_BUNDLE/busybox.exe"
+            mkdir -p "$RUNTIME_BUNDLE/runtime/test-evidence"
+            cp reports/logical-bin-path-test.log "$RUNTIME_BUNDLE/runtime/test-evidence/logical-bin-path-test.log"
+          fi
           node harness/v2/runtime-bundle.mjs --write --root "$RUNTIME_BUNDLE" \
             --candidate-sha "$NUB_GIT_SHA" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
             --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
@@ -227,6 +237,10 @@ jobs:
             --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
             --node-version "$RUNTIME_NODE_VERSION" --rustc-sha256 "$RUNTIME_RUSTC_SHA256" \
             | tee reports/runtime-bundle-verified.json
+          if [ "$BUNDLE_PLATFORM" = win32 ]; then
+            cp "$RUNTIME_BUNDLE/runtime/test-evidence/logical-bin-path-test.log" reports/logical-bin-path-test.log
+            grep -q 'test result: ok. 1 passed' reports/logical-bin-path-test.log
+          fi
           NUB_BIN="$RUNTIME_BUNDLE/nub"
           [ "$BUNDLE_PLATFORM" = win32 ] && NUB_BIN="$NUB_BIN.exe"
           chmod +x "$NUB_BIN" 2>/dev/null || true
@@ -263,6 +277,11 @@ jobs:
             --repo /tmp/nub-catalog-input --ref HEAD --commit "$PIN_COMMIT" --path "$PIN_PATH" \
             --sha256 "$PIN_SHA256" --out reports/candidate-catalog-v2.json
           test "$(node harness/v2/campaign-provenance.mjs --sha256 --file reports/candidate-catalog-v2.json)" = "$PIN_SHA256"
+          mkdir -p reports/native-fixtures
+          for file in packages.mjs packages.test.mjs; do
+            git -C /tmp/nub-catalog-input show "$PIN_COMMIT:tests/build-jail-corpus/$file" > "reports/native-fixtures/$file"
+          done
+          sha256sum reports/native-fixtures/* > reports/native-fixtures.sha256
           rm -rf /tmp/nub-catalog-input
       - name: Save the newly built exact runtime bundle
         if: steps.runtimebundle.outputs.cache-matched-key == ''
@@ -270,6 +289,22 @@ jobs:
         with:
           path: ${{ env.RUNTIME_BUNDLE_CACHE_PATH }}
           key: ${{ env.RUNTIME_CACHE_KEY }}
+      - name: Verify native build configuration and exports
+        if: matrix.chunk == 2 || matrix.chunk == 3
+        run: |
+          set -euo pipefail
+          node --test reports/native-fixtures/packages.test.mjs | tee reports/native-fixture-tests.log
+          export NUB_BUILD_JAIL_CATALOG="$GITHUB_WORKSPACE/reports/candidate-catalog-v2.json"
+          export CORPUS_OSV_SCREEN="$GITHUB_WORKSPACE/harness/osv-screen.mjs"
+          if [ "$PLATFORM" = windows ]; then
+            mkdir -p /c/p/native-config-probe
+            export CORPUS_TEMP_ROOT='C:/p/native-config-probe'
+          fi
+          for package in cpu-features better-sqlite3; do
+            CORPUS_CASE="$package" CORPUS_REPORT="$GITHUB_WORKSPACE/reports/native-$package" \
+              node reports/native-fixtures/packages.mjs | tee "reports/native-$package.log"
+          done
+          unset NUB_BUILD_JAIL_CATALOG CORPUS_OSV_SCREEN CORPUS_TEMP_ROOT
       - id: campaigncontext
         name: Bind source, bundle, and campaign inputs
         run: |
