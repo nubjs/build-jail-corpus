@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { FIXTURE_TIMEOUT_MS, OVERRIDE_TIMEOUT_MS } from './catalog-sanity-budget.mjs';
 
 const values = {};
@@ -43,6 +44,7 @@ const markerIn = (file, marker) => {
   } finally { fs.closeSync(fd); }
 };
 const binArgs = values['bin-arg'] ? [values['bin-arg']] : [];
+const harnessDir = path.dirname(fileURLToPath(import.meta.url));
 
 // The established corpus control is marker-based: an invalid catalog prints REJECTED and falls
 // back to compiled-in grants, so its exit status is evidence to retain—not a condition to invent.
@@ -56,7 +58,7 @@ if (!override.pass) {
 } else {
   const fixtureSpecs = [
     ['packages', path.join(values.fixtures, 'packages.mjs'), { CORPUS_REPORT: path.join(values.report, 'packages') }, FIXTURE_TIMEOUT_MS.packages],
-    ['network', path.join(values.fixtures, 'network.mjs'), {}, FIXTURE_TIMEOUT_MS.network],
+    ['network', path.join(harnessDir, 'catalog-sanity-network.mjs'), {}, FIXTURE_TIMEOUT_MS.network],
     ['relocated-store', path.join(values.fixtures, 'relocated-store.mjs'), {}, FIXTURE_TIMEOUT_MS['relocated-store']],
   ];
   const fixtures = fixtureSpecs.map(([name, fixture, extra, timeout]) => {

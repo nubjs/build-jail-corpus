@@ -48,7 +48,7 @@ jobs:
           node-version: '22.23.2'
 
       - name: Check the manifest instrument
-        run: node --test harness/v2/catalog-sanity-manifest.test.mjs harness/v2/catalog-sanity-subject.test.mjs
+        run: node --test harness/v2/catalog-sanity-manifest.test.mjs harness/v2/catalog-sanity-subject.test.mjs harness/v2/catalog-sanity-network.test.mjs
 
       - name: Resolve the two public Nub subjects
         run: |
@@ -180,7 +180,7 @@ jobs:
             --candidate-build-log reports/candidate-build.log \
             --baseline-build-log reports/baseline-build.log \
             --packages /tmp/nub-candidate/tests/build-jail-corpus/packages.mjs \
-            --network /tmp/nub-candidate/tests/build-jail-corpus/network.mjs \
+            --network harness/v2/catalog-sanity-network.mjs \
             --relocated-store /tmp/nub-candidate/tests/build-jail-corpus/relocated-store.mjs \
             --instrument harness/v2/instrument.mjs \
             --instrument-output reports/instrument.json \
