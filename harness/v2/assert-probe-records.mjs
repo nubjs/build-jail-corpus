@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { validateCampaignSnapshot } from './campaign-provenance.mjs';
 
 // `record.mjs` normalizes every driver spelling of a verified grant to MINIMUM.
 // `verifiedBy` preserves whether VERIFY accepted the synthesized grant or a ladder repair.
@@ -20,6 +21,10 @@ export function checkRecord(record, expected) {
     if (!expected[key] || record.provenance?.[key] !== expected[key]) errors.push(key);
   }
   if (!expected.nubSha256 || record.provenance?.nubBinary?.sha256 !== expected.nubSha256) errors.push('nubSha256');
+  if (expected.campaign) {
+    try { validateCampaignSnapshot(expected.campaign); } catch { errors.push('campaignExpected'); }
+    if (JSON.stringify(record.provenance?.runtime?.campaign) !== JSON.stringify(expected.campaign)) errors.push('campaign');
+  }
   return errors;
 }
 

@@ -83,7 +83,7 @@ jobs:
             --out reports/worklist.txt --screen --cache-dir reports/osv-cache \
             > reports/worklist-selection.json
           cp "$MANIFEST" reports/catalog-campaign-inputs.json
-          sha256sum "$MANIFEST" > reports/catalog-campaign-inputs.sha256
+          printf '%s  %s\n' "$(node harness/v2/campaign-provenance.mjs --sha256 --file "$MANIFEST")" "$MANIFEST" > reports/catalog-campaign-inputs.sha256
           cp inputs/catalog-campaign-run.json reports/catalog-campaign-run.json
       - name: Record the source and runner before any gate
         run: |
@@ -126,10 +126,10 @@ jobs:
           BUNDLE_PLATFORM=$(node -p 'process.platform')
           BUNDLE_ARCH=$(node -p 'process.arch')
           RUNTIME_NODE_VERSION=$(node --version)
-          RUNTIME_RUSTC_SHA256=$(rustc -Vv | sha256sum | cut -d' ' -f1)
+          RUNTIME_RUSTC_SHA256=$(rustc -Vv | node harness/v2/campaign-provenance.mjs --sha256-stdin)
           # The actual checked-in recipe and its verifier define the cached bytes.  Hashing them,
           # rather than a duplicated prose summary, makes every recipe edit a fresh exact key.
-          RUNTIME_RECIPE_SHA256=$(cat .github/workflows/catalog-boundary-artifact-records.yml harness/v2/runtime-bundle.mjs | sha256sum | cut -d' ' -f1)
+          RUNTIME_RECIPE_SHA256=$(cat .github/workflows/catalog-boundary-artifact-records.yml harness/v2/runtime-bundle.mjs | node harness/v2/campaign-provenance.mjs --sha256-stdin)
           RUNTIME_CACHE_KEY=$(node harness/v2/runtime-bundle.mjs --cache-key \
             --candidate-sha "$NUB_REF" --platform "$BUNDLE_PLATFORM" --arch "$BUNDLE_ARCH" \
             --profile fast --features nub-cli/build-jail-catalog-override --recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
@@ -247,25 +247,23 @@ jobs:
         with:
           path: ${{ env.RUNTIME_BUNDLE_CACHE_PATH }}
           key: ${{ env.RUNTIME_CACHE_KEY }}
-      - name: Bind source and binary evidence
+      - name: Bind source, bundle, and campaign inputs
         run: |
           set -euo pipefail
-          node --input-type=module - "$NUB_BIN" "$RUNTIME_BUNDLE/runtime/addons/nub-native.node" "$RUNTIME_BUNDLE/busybox.exe" <<'JS'
+          node harness/v2/campaign-provenance.mjs --create --out reports/campaign-context.json \
+            --runtime-bundle "$RUNTIME_BUNDLE" --runtime-recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
+            --catalog catalog-v2.json --worklist reports/worklist.txt --manifest "$MANIFEST" \
+            --run-plan inputs/catalog-campaign-run.json --workflow .github/workflows/catalog-boundary-artifact-records.yml
+          node --input-type=module - "$NUB_BIN" <<'JS'
           import fs from 'node:fs';
           import crypto from 'node:crypto';
           import { execFileSync } from 'node:child_process';
           const hash = (p) => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
           const instrument = JSON.parse(fs.readFileSync('reports/instrument.json', 'utf8'));
+          const campaign = JSON.parse(fs.readFileSync('reports/campaign-context.json', 'utf8')).campaign;
           const expected = { platform: `${process.platform}-${process.arch}`, nubGitSha: process.env.NUB_GIT_SHA,
             corpusGitSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-            harnessSha256: instrument.harnessSha256, nubSha256: hash(process.argv[2]),
-            addonSha256: hash(process.argv[3]),
-            busyboxSha256: process.platform === 'win32' ? hash(process.argv[4]) : null,
-            runtimeBundleSha256: hash(`${process.env.RUNTIME_BUNDLE}/runtime-bundle.json`),
-            runtimeRecipeSha256: process.env.RUNTIME_RECIPE_SHA256,
-            catalogSha256: hash('catalog-v2.json'), worklistSha256: hash('reports/worklist.txt'),
-            manifestSha256: hash(process.env.MANIFEST), runPlanSha256: hash('inputs/catalog-campaign-run.json'),
-            workflowSha256: hash('.github/workflows/catalog-boundary-artifact-records.yml') };
+            harnessSha256: instrument.harnessSha256, nubSha256: hash(process.argv[2]), campaign };
           fs.writeFileSync('reports/expected.json', JSON.stringify(expected, null, 2));
           JS
       - name: Measure the screened worklist with falsification enabled
@@ -273,6 +271,7 @@ jobs:
           set -euo pipefail
           git diff --exit-code -- harness
           unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST
+          export NUB_V2_CAMPAIGN_CONTEXT="$GITHUB_WORKSPACE/reports/campaign-context.json"
           if [ "$PLATFORM" = windows ]; then
             mkdir -p /d/jail-record-probe
             export NUB_V2_DRIVER_ARGS='["--root","D:\\jail-record-probe"]'

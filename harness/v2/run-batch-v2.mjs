@@ -24,6 +24,7 @@ import { computeHarnessIdentity, loadInstrumentConfig, loadInvalidationPolicy } 
 import { recordValidity } from './record-validity.mjs';
 import { collectRuntimeProvenance, fileIdentity } from './runtime-provenance.mjs';
 import { fetchPackageStanding } from './package-standing.mjs';
+import { verifyCampaignContext } from './campaign-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -72,6 +73,16 @@ const INSTRUMENT = computeHarnessIdentity();
 const INVALIDATION = loadInvalidationPolicy();
 const RUNTIME = collectRuntimeProvenance();
 const NUB_BINARY = fileIdentity(NUB);
+let CAMPAIGN = null;
+if (process.env.NUB_V2_CAMPAIGN_CONTEXT) {
+  try {
+    CAMPAIGN = JSON.parse(fs.readFileSync(process.env.NUB_V2_CAMPAIGN_CONTEXT, 'utf8'));
+    RUNTIME.campaign = verifyCampaignContext(CAMPAIGN);
+  } catch (error) {
+    console.error(`campaign context: REFUSED ${error.message}`);
+    process.exit(2);
+  }
+}
 if (INVALIDATION.currentEpoch !== INSTRUMENT.harnessEpoch) {
   console.error(`instrument policy epoch ${INVALIDATION.currentEpoch} does not match current epoch `
     + `${INSTRUMENT.harnessEpoch}; refusing to measure`);
@@ -253,6 +264,12 @@ for (const spec of specs) {
   // A deadline kill leaves `status === null`; `record.mjs` reads rc 124 as the timeout convention
   // that `portable-timeout.sh` and GNU `timeout` both use, so the two lanes agree on the spelling.
   const rc = r.error?.code === 'ETIMEDOUT' || (r.status === null && r.signal) ? 124 : (r.status ?? 1);
+  if (CAMPAIGN) {
+    try { verifyCampaignContext(CAMPAIGN); } catch (error) {
+      console.error(`campaign context: REFUSED after ${spec}: ${error.message}`);
+      process.exit(2);
+    }
+  }
   fs.mkdirSync(dir, { recursive: true });
   const tmpLog = path.join(dir, '.driver.out');
   fs.writeFileSync(tmpLog, log);
@@ -282,6 +299,13 @@ for (const spec of specs) {
     // commit and the artifact. Killing a measuring run over a rejected push trades the thing being
     // protected for the protection.
     spawnSync(ON_RECORD, [dir], { stdio: 'inherit' });
+  }
+}
+
+if (CAMPAIGN) {
+  try { verifyCampaignContext(CAMPAIGN); } catch (error) {
+    console.error(`campaign context: REFUSED after batch: ${error.message}`);
+    process.exit(2);
   }
 }
 
