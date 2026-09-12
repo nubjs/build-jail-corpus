@@ -36,6 +36,7 @@ import { shortfallDigest } from './shortfall-invariance.mjs';
 import { buildCatalog } from './dep-scaffold.mjs';
 import { excusesSizeDifference, isPackagingMetadata } from './artifact-excusal.mjs';
 import { neverSpawned } from './never-spawned.mjs';
+import { createWindowsArmEvidence } from './windows-arm-evidence.mjs';
 // Same one-definition-three-consumers reason: the override probe's predicate is shared with the two
 // shell drivers rather than restated here. `override-probe.mjs` is data and pure functions with no
 // CLI, so importing it runs nothing.
@@ -150,6 +151,7 @@ const HOME = process.env.USERPROFILE;
 // ⛔ NOT UNDER %TEMP%. That path is inside the jail's own private-temp redirect, so a fixture
 // placed there cannot test a filesystem-denial claim at all.
 const BASE = flag('--root', 'C:\\jail');
+const EVIDENCE_DIR = flag('--evidence-dir', '');
 
 // A verify arm that never returns is a real, MEASURED outcome here, not a hypothetical: a jailed
 // `nub install` was seen burning a core for 13+ minutes with no output. Bare spawnSync has no
@@ -159,6 +161,24 @@ const BASE = flag('--root', 'C:\\jail');
 const ARM_TIMEOUT_MS = Number(flag('--arm-timeout', '600000'));
 const ROOT = path.join(BASE, `m-${PKG.replace(/[^a-z0-9]/gi, '')}-${Date.now().toString(36)}`);
 fs.mkdirSync(ROOT, { recursive: true });
+let ARM_EVIDENCE = null;
+if (EVIDENCE_DIR) {
+  try {
+    ARM_EVIDENCE = createWindowsArmEvidence({ destination: EVIDENCE_DIR, fixtureRoot: ROOT, pkg: PKG, ver: VER });
+    console.log(`  WINDOWS-ARM-EVIDENCE ${ARM_EVIDENCE.dir}`);
+  } catch (error) {
+    console.log(`  WINDOWS-ARM-EVIDENCE-ERROR create ${error?.message ?? String(error)}`);
+  }
+}
+const captureArmEvidence = (label, armRoot) => {
+  if (!ARM_EVIDENCE) return;
+  try {
+    const report = ARM_EVIDENCE.capture({ label, armRoot });
+    console.log(`  WINDOWS-ARM-EVIDENCE-CAPTURE ${label} package=${report.package.status}`);
+  } catch (error) {
+    console.log(`  WINDOWS-ARM-EVIDENCE-ERROR ${label} ${error?.message ?? String(error)}`);
+  }
+};
 
 // ⛔⛔ EACH ARM GETS ITS OWN VIRTUAL STORE; THE CAS STAYS SHARED. This replaced the per-arm
 // `evictClosure()` sweep, and the reason is a defect that sweep produced rather than a tidy-up.
@@ -701,6 +721,7 @@ if (meta.exitCode !== 0) {
 const isLog = (p) => /\.(log|xml|etl|txt)$|meta\.json$|cat\.json$/i.test(p);
 const OBS_FILES = countFiles(OBS, isLog);
 const OBS_PKG = pkgManifest(OBS, PKG, VER);
+captureArmEvidence('observe', OBS);
 if (!OBS_PKG || OBS_PKG.size === 0) {
   // The unjailed reference produced no artifacts for the package we are measuring. Nothing
   // downstream can be gated against that, and falling back to the whole-tree count would
@@ -1290,10 +1311,12 @@ const verify = (grant, label, wholeCatalog = '') => {
   fs.writeFileSync(path.join(v, 'security-resolve.log'),
     (safeResolve.stdout ?? '') + (safeResolve.stderr ?? ''));
   if (timedOut(safeResolve)) {
+    captureArmEvidence(`verify-${label}`, v);
     console.log(`  => TIMED-OUT in safe Nub resolution after ${ARM_TIMEOUT_MS} ms -- no lifecycle script ran`);
     process.exit(3);
   }
   if (safeResolve.status !== 0) {
+    captureArmEvidence(`verify-${label}`, v);
     console.log(`  => HARNESS-ERROR: Nub could not materialize the tree with --ignore-scripts (rc=${safeResolve.status}); no lifecycle script ran`);
     process.exit(1);
   }
@@ -1316,12 +1339,14 @@ const verify = (grant, label, wholeCatalog = '') => {
   // spawnSync's timeout kills the DIRECT child only; a jailed grandchild can survive it. Report the
   // stage so the leak is visible rather than showing up later as a mystery CPU hog.
   if (timedOut(i)) {
+    captureArmEvidence(`verify-${label}`, v);
     console.log(`  VERIFY[${label}] TIMED-OUT in \`install\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
     return { ok: false, void: false, timedOut: true, stage: 'install', files: countFiles(v, isLog), rc: null };
   }
   const a = run(NUB, ['approve-builds', '--all'], { cwd: v, env, timeout: ARM_TIMEOUT_MS });
   fs.writeFileSync(path.join(v, 'a.log'), (a.stdout ?? '') + (a.stderr ?? ''));
   if (timedOut(a)) {
+    captureArmEvidence(`verify-${label}`, v);
     console.log(`  VERIFY[${label}] TIMED-OUT in \`approve-builds\` after ${ARM_TIMEOUT_MS} ms -- no verdict; check for surviving children`);
     return { ok: false, void: false, timedOut: true, stage: 'approve-builds', files: countFiles(v, isLog), rc: null };
   }
@@ -1333,6 +1358,7 @@ const verify = (grant, label, wholeCatalog = '') => {
   const rej = (logs.match(/REJECTED/g) ?? []).length;
   const files = countFiles(v, isLog);
   const got = pkgManifest(v, PKG, VER);
+  captureArmEvidence(`verify-${label}`, v);
   const missing = missingArtifacts(OBS_PKG, got);
   const rc = i.status === 0 ? (a.status ?? 0) : i.status;
   // ⛔ THE ARM MUST PROVE THE SCRIPT ACTUALLY RAN, because a replayed arm is indistinguishable from
