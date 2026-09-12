@@ -257,7 +257,11 @@ jobs:
           git -C /tmp/nub-catalog-input fetch --depth=1 origin "$NUB_REF"
           git -C /tmp/nub-catalog-input checkout -q --detach FETCH_HEAD
           test "$(git -C /tmp/nub-catalog-input rev-parse HEAD)" = "$PIN_COMMIT"
-          cp "/tmp/nub-catalog-input/$PIN_PATH" reports/candidate-catalog-v2.json
+          # `cp` would inherit a CRLF-converted checkout on Windows. Extract the pinned blob from
+          # Git instead, then prove both the checked-out ref and canonical blob digest before use.
+          node harness/v2/pinned-git-blob.mjs \
+            --repo /tmp/nub-catalog-input --ref HEAD --commit "$PIN_COMMIT" --path "$PIN_PATH" \
+            --sha256 "$PIN_SHA256" --out reports/candidate-catalog-v2.json
           test "$(node harness/v2/campaign-provenance.mjs --sha256 --file reports/candidate-catalog-v2.json)" = "$PIN_SHA256"
           rm -rf /tmp/nub-catalog-input
       - name: Save the newly built exact runtime bundle

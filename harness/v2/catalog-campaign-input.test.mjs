@@ -90,6 +90,9 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.match(workflow, /Materialize the pinned current-v2 catalog input/);
   assert.match(workflow, /pins\?\.candidate/);
   assert.match(workflow, /test "\$PIN_COMMIT" = "\$NUB_REF"/);
+  assert.match(workflow, /pinned-git-blob\.mjs/);
+  assert.match(workflow, /--repo \/tmp\/nub-catalog-input --ref HEAD --commit "\$PIN_COMMIT" --path "\$PIN_PATH"/);
+  assert.doesNotMatch(workflow, /cp "\/tmp\/nub-catalog-input\/\$PIN_PATH" reports\/candidate-catalog-v2\.json/);
   assert.match(workflow, /reports\/candidate-catalog-v2\.json/);
   assert.match(workflow, /--context reports\/candidate-catalog-context\.json --out reports\/candidate-307-replay/);
   assert.match(workflow, /id: campaigncontext/);
