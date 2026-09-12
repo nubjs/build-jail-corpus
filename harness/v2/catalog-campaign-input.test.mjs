@@ -56,10 +56,22 @@ test('worklist OSV screen recognizes a known MAL positive without executing any 
 test('checked-in campaign manifest and artifact workflow stay bounded and publisher-free', () => {
   const rootDir = path.resolve(import.meta.dirname, '..', '..');
   const campaign = JSON.parse(fs.readFileSync(path.join(rootDir, 'inputs', 'catalog-campaign-inputs.json'), 'utf8'));
+  const finalSeven = JSON.parse(fs.readFileSync(path.join(rootDir, 'inputs', 'final-fresh-seven-inputs.json'), 'utf8'));
+  const finalPlan = JSON.parse(fs.readFileSync(path.join(rootDir, 'inputs', 'final-fresh-seven-run.json'), 'utf8'));
   assert.equal(campaign.schemaVersion, 2);
   assert.equal(campaign.summary.uniqueSpecs, 447);
   assert.equal(campaign.chunks.length, 90);
   assert.ok(campaign.chunks.every((chunk, index) => chunk.index === index + 1 && chunk.specs.length <= 5));
+  assert.equal(finalSeven.schemaVersion, 2);
+  assert.equal(finalSeven.pins.candidate.commit, '1daa98c23343cd50563823cdf3a2dc3230343b3e');
+  assert.equal(finalSeven.pins.candidate.catalogSha256, 'dcb770937e85347f67230cb830d7206445ba160b14cc4315eef16baf922803e4');
+  assert.deepEqual(finalSeven.chunks.map((chunk) => chunk.specs), [
+    ['esbuild@0.24.0', 'better-sqlite3@11.8.1', 'bcrypt@5.1.1', 'sharp@0.33.5', '@swc/core@1.15.46'],
+    ['cpu-features@0.0.10', 'mozjpeg@6.0.1'],
+  ]);
+  assert.deepEqual(selectRun(finalSeven, finalPlan).include.map(({ chunk, platform }) => [chunk, platform]), [
+    [1, 'linux'], [2, 'linux'], [1, 'macos'], [2, 'macos'], [1, 'windows'], [2, 'windows'],
+  ]);
   const workflow = fs.readFileSync(path.join(rootDir, '.github', 'workflows', 'catalog-boundary-artifact-records.yml'), 'utf8');
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /contents: read/);
@@ -82,7 +94,11 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.match(workflow, /--context reports\/candidate-catalog-context\.json --out reports\/candidate-307-replay/);
   assert.match(workflow, /id: campaigncontext/);
   assert.match(workflow, /always\(\) && !cancelled\(\) && steps\.campaigncontext\.outcome == 'success'/);
-  assert.match(workflow, /args\+=\(--driver-root 'D:\/jail-record-probe'\)/);
+  assert.match(workflow, /inputs\/final-fresh-seven-inputs\.json/);
+  assert.match(workflow, /inputs\/final-fresh-seven-run\.json/);
+  assert.match(workflow, /NUB_REF: 1daa98c23343cd50563823cdf3a2dc3230343b3e/);
+  assert.match(workflow, /NUB_V2_DRIVER_ARGS='\["--root","C:\\\\p\\\\jail-record-probe"\]'/);
+  assert.match(workflow, /args\+=\(--driver-root 'C:\/p\/jail-record-probe'\)/);
   assert.match(workflow, /RUNTIME_CACHE_KEY=\$\(node harness\/v2\/runtime-bundle\.mjs --cache-key/);
   assert.match(workflow, /Smoke the source-free runtime sidecar/);
   assert.ok(workflow.indexOf('Materialize and screen one bounded worklist') < workflow.indexOf('Build the exact full Nub runtime'));

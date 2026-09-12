@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "purpose": "final source-bound remeasurement of the existing fresh seven-cell queue; frozen exact versions, not a registry breadth selection",
+  "pins": {
+    "candidate": {
+      "commit": "1daa98c23343cd50563823cdf3a2dc3230343b3e",
+      "catalogPath": "crates/nub-sandbox/data/build-jail-catalog-v2.json",
+      "catalogSha256": "dcb770937e85347f67230cb830d7206445ba160b14cc4315eef16baf922803e4"
+    },
+    "externalCatalogSha256": "3499bc20eaa37126a4ea8b8ac10c2102675077bc3cd5ad3de9ebbf481beeefef",
+    "sourceSnapshot": {
+      "corpusCommit": "3296ecf8373a0facd3b509540ef4d0267d71dce7",
+      "priorFreshRun": "34683746714",
+      "priorWorklistSha256": "87d58581cf5bdb55fbd1dc6b5102aa9333f834d80ec6de5e0bb32223c771dfa1"
+    }
+  },
+  "selectionRule": "replay the existing seven exact fresh-measurement cells against the approved current candidate; do not substitute registry versions or expand catalog breadth",
+  "summary": {
+    "uniqueSpecs": 7,
+    "platformMeasurements": 21,
+    "chunksPerOs": 2,
+    "workflowJobs": 6
+  },
+  "cells": [
+    { "package": "esbuild", "catalogCell": "<0.28.2", "spec": "esbuild@0.24.0", "selection": "frozen existing fresh cell" },
+    { "package": "better-sqlite3", "catalogCell": "<11.8.2", "spec": "better-sqlite3@11.8.1", "selection": "frozen existing fresh cell" },
+    { "package": "bcrypt", "catalogCell": "<6.0.0", "spec": "bcrypt@5.1.1", "selection": "frozen existing fresh cell" },
+    { "package": "sharp", "catalogCell": "<0.35.3", "spec": "sharp@0.33.5", "selection": "frozen existing fresh cell" },
+    { "package": "@swc/core", "catalogCell": "absent", "spec": "@swc/core@1.15.46", "selection": "frozen existing fresh cell" },
+    { "package": "cpu-features", "catalogCell": "default", "spec": "cpu-features@0.0.10", "selection": "frozen existing fresh cell" },
+    { "package": "mozjpeg", "catalogCell": "<8.0.0", "spec": "mozjpeg@6.0.1", "selection": "frozen existing fresh cell" }
+  ],
+  "chunks": [
+    {
+      "index": 1,
+      "specs": ["esbuild@0.24.0", "better-sqlite3@11.8.1", "bcrypt@5.1.1", "sharp@0.33.5", "@swc/core@1.15.46"]
+    },
+    {
+      "index": 2,
+      "specs": ["cpu-features@0.0.10", "mozjpeg@6.0.1"]
+    }
+  ]
+}

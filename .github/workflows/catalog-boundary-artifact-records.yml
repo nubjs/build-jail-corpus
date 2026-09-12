@@ -2,11 +2,11 @@ name: Catalog-boundary artifact-only records
 
 on:
   push:
-    branches: [probe/catalog-boundary-artifacts]
+    branches: [probe/final-fresh-seven-artifacts]
   workflow_dispatch:
     inputs:
       chunk:
-        description: Manifest chunk index (1..90)
+        description: Final fresh-seven input chunk index (1..2)
         required: true
         type: string
       platform:
@@ -39,7 +39,7 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
-          args=(--matrix --manifest inputs/catalog-campaign-inputs.json --plan inputs/catalog-campaign-run.json)
+          args=(--matrix --manifest inputs/final-fresh-seven-inputs.json --plan inputs/final-fresh-seven-run.json)
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
             args+=(--chunk "$CHUNK" --platform "$PLATFORM")
           fi
@@ -57,9 +57,10 @@ jobs:
       run:
         shell: bash
     env:
-      NUB_REF: 9d349f7c300a41fd9401d3d3c2e706b2d75c5fff
+      NUB_REF: 1daa98c23343cd50563823cdf3a2dc3230343b3e
       NUB_CORPUS_ON_RECORD: ''
-      MANIFEST: inputs/catalog-campaign-inputs.json
+      MANIFEST: inputs/final-fresh-seven-inputs.json
+      RUN_PLAN: inputs/final-fresh-seven-run.json
       CHUNK: ${{ matrix.chunk }}
       PLATFORM: ${{ matrix.platform }}
     steps:
@@ -84,7 +85,7 @@ jobs:
             > reports/worklist-selection.json
           cp "$MANIFEST" reports/catalog-campaign-inputs.json
           printf '%s  %s\n' "$(node harness/v2/campaign-provenance.mjs --sha256 --file "$MANIFEST")" "$MANIFEST" > reports/catalog-campaign-inputs.sha256
-          cp inputs/catalog-campaign-run.json reports/catalog-campaign-run.json
+          cp "$RUN_PLAN" reports/final-fresh-seven-run.json
       - name: Record the source and runner before any gate
         run: |
           set -euo pipefail
@@ -272,11 +273,11 @@ jobs:
           node harness/v2/campaign-provenance.mjs --create --out reports/campaign-context.json \
             --runtime-bundle "$RUNTIME_BUNDLE" --runtime-recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
             --catalog catalog-v2.json --worklist reports/worklist.txt --manifest "$MANIFEST" \
-            --run-plan inputs/catalog-campaign-run.json --workflow .github/workflows/catalog-boundary-artifact-records.yml
+            --run-plan "$RUN_PLAN" --workflow .github/workflows/catalog-boundary-artifact-records.yml
           node harness/v2/campaign-provenance.mjs --create --out reports/candidate-catalog-context.json \
             --runtime-bundle "$RUNTIME_BUNDLE" --runtime-recipe-sha256 "$RUNTIME_RECIPE_SHA256" \
             --catalog reports/candidate-catalog-v2.json --worklist reports/worklist.txt --manifest "$MANIFEST" \
-            --run-plan inputs/catalog-campaign-run.json --workflow .github/workflows/catalog-boundary-artifact-records.yml
+            --run-plan "$RUN_PLAN" --workflow .github/workflows/catalog-boundary-artifact-records.yml
           node --input-type=module - "$NUB_BIN" <<'JS'
           import fs from 'node:fs';
           import crypto from 'node:crypto';
@@ -296,8 +297,8 @@ jobs:
           unset NUB_CORPUS_ON_RECORD NUB_CORPUS_REPO NUB_CORPUS_BRANCH NUB_CORPUS_MANIFEST
           export NUB_V2_CAMPAIGN_CONTEXT="$GITHUB_WORKSPACE/reports/campaign-context.json"
           if [ "$PLATFORM" = windows ]; then
-            mkdir -p /d/jail-record-probe
-            export NUB_V2_DRIVER_ARGS='["--root","D:\\jail-record-probe"]'
+            mkdir -p /c/p/jail-record-probe
+            export NUB_V2_DRIVER_ARGS='["--root","C:\\p\\jail-record-probe"]'
           fi
           node harness/v2/run-batch-v2.mjs --file reports/worklist.txt --nub "$NUB_BIN" --runs "$GITHUB_WORKSPACE/reports/records" --force 2>&1 | tee reports/measure.log
       - name: Replay the bound external catalog directly
@@ -309,7 +310,7 @@ jobs:
             --catalog catalog-v2.json --worklist reports/worklist.txt \
             --context reports/campaign-context.json --out reports/catalog-replay
           )
-          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'D:/jail-record-probe'); fi
+          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'C:/p/jail-record-probe'); fi
           node harness/v2/catalog-replay.mjs "${args[@]}" 2>&1 | tee reports/catalog-replay.log
       - name: Replay the pinned current-v2 catalog grants directly
         if: ${{ always() && !cancelled() && steps.campaigncontext.outcome == 'success' }}
@@ -320,7 +321,7 @@ jobs:
             --catalog reports/candidate-catalog-v2.json --worklist reports/worklist.txt \
             --context reports/candidate-catalog-context.json --out reports/candidate-307-replay
           )
-          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'D:/jail-record-probe'); fi
+          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'C:/p/jail-record-probe'); fi
           node harness/v2/catalog-replay.mjs "${args[@]}" 2>&1 | tee reports/candidate-307-replay.log
       - name: Require complete exact-candidate measurements
         if: always()
@@ -332,6 +333,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: catalog-boundary-${{ matrix.platform }}-chunk-${{ matrix.chunk }}
+          name: final-fresh-seven-${{ matrix.platform }}-chunk-${{ matrix.chunk }}
           path: reports
           retention-days: 14
