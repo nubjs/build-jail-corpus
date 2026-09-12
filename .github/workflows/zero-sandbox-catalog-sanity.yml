@@ -11,7 +11,7 @@ on:
       candidate_sha:
         description: exact nubjs/nub candidate to test
         required: true
-        default: 'eff8e8d3929f83f21ddb75b7993e8d2614978791'
+        default: '5f2475750469ea54a3458b7b164c926f1214ffd6'
       baseline_sha:
         description: exact matched nubjs/nub baseline to retain beside the candidate
         required: true
@@ -34,7 +34,7 @@ jobs:
       run:
         shell: bash
     env:
-      CANDIDATE_REF: ${{ inputs.candidate_sha || 'eff8e8d3929f83f21ddb75b7993e8d2614978791' }}
+      CANDIDATE_REF: ${{ inputs.candidate_sha || '5f2475750469ea54a3458b7b164c926f1214ffd6' }}
       BASELINE_REF: ${{ inputs.baseline_sha || '66d094771559a86642db4eef4a325b6c46f21ebe' }}
       CORPUS_REF: ${{ github.sha }}
       NODE_VERSION: '22.23.2'
@@ -143,6 +143,18 @@ jobs:
       - name: Run independent current-catalog subjects
         run: |
           set +e
+          # The fixture asserts this location and records the requested and actual roots.  The
+          # short Windows path prevents the prior CPU control's C1083 failure from being misread
+          # as jail evidence.
+          if [ "$RUNNER_OS" = Windows ]; then
+            export CORPUS_TEMP_ROOT='C:/p'
+            # Match the native source-build gate's known-good control interpreter. The fixture
+            # applies it only to its unconfined source-build arm.
+            export CORPUS_CONTROL_PYTHON='C:/hostedtoolcache/windows/Python/3.12.10/x64/python.exe'
+            test -f "$CORPUS_CONTROL_PYTHON"
+          else
+            unset CORPUS_TEMP_ROOT CORPUS_CONTROL_PYTHON
+          fi
           CATALOG="$GITHUB_WORKSPACE/catalog-v2.json"
           printf '{"packages":{"x":{"default":{"read":"disk","write":"disk"}}}}' > /tmp/catalog-bad.json
           FIXTURES=/tmp/nub-candidate/tests/build-jail-corpus
@@ -152,6 +164,11 @@ jobs:
           baseline_rc=$?
           printf '%s\n' "$candidate_rc" > reports/candidate.exit
           printf '%s\n' "$baseline_rc" > reports/baseline.exit
+          if [ "$RUNNER_OS" = Windows ]; then
+            node -e 'const assert=require("node:assert/strict"),{readFileSync}=require("node:fs"),{dirname,resolve}=require("node:path"),expected=resolve(process.env.CORPUS_TEMP_ROOT),reports=["candidate","baseline"].map(subject=>{const report=JSON.parse(readFileSync("reports/"+subject+"/packages/provenance.json","utf8"));assert.equal(report.requestedTempRoot,expected,subject+" requested root");assert.equal(dirname(report.fixtureRoot),expected,subject+" actual root");return report});assert.notEqual(reports[0].fixtureRoot,reports[1].fixtureRoot,"subjects use separate fixture roots")'
+            root_rc=$?
+            if [ "$root_rc" -ne 0 ]; then exit "$root_rc"; fi
+          fi
           # The baseline is retained comparison evidence. Candidate acceptance is never inferred
           # from a baseline pass/failure; it requires its own real installs and denied controls.
           exit "$candidate_rc"
