@@ -5,8 +5,12 @@
 
 import { CJPEG_PATH } from './cjpeg-oracle.mjs';
 
-export const requiresCjpegOracle = (kase, diagnostic = false) => diagnostic
-  || kase.oracle === 'cjpeg';
+const isCjpegFixture = (kase) => kase?.pkg === 'mozjpeg' && kase.version === '6.0.1';
+
+// Keep the direct diagnostic switch as narrow as its original driver contract. The descriptor
+// makes it mandatory for the known case; it does not turn arbitrary Windows cases into cjpeg runs.
+export const requiresCjpegOracle = (kase, diagnostic = false) => isCjpegFixture(kase)
+  && (diagnostic || kase.oracle === 'cjpeg');
 
 const malformed = (message) => ({ kind: 'inconclusive', message });
 const failure = (message) => ({ kind: 'fail', message });
@@ -22,11 +26,8 @@ const artifactShape = (artifact) => artifact && artifact.status === 'present'
   && typeof artifact.sha256 === 'string' && /^[a-f0-9]{64}$/.test(artifact.sha256);
 const sameArtifact = (a, b) => a.path === b.path && a.realpath === b.realpath
   && a.bytes === b.bytes && a.sha256 === b.sha256;
-const underStore = (artifact, store) => {
-  const normalizedArtifact = normalize(artifact.realpath);
-  const normalizedStore = normalize(store).replace(/\/$/, '');
-  return normalizedArtifact.startsWith(`${normalizedStore}/`);
-};
+const isGvsTarget = (snapshot) => normalize(snapshot.artifact.realpath)
+  === normalize(`${snapshot.store}\\${snapshot.entry}\\${CJPEG_PATH}`);
 
 const oracleRecord = (arm) => {
   const record = arm?.cjpegOracleRecord;
@@ -56,6 +57,10 @@ export const classifyWarmReuse = ({ kase, cold, right, warm, provenance }) => {
   if (booleanControls.some((key) => typeof warm[key] !== 'boolean')) {
     return malformed('the warm arm is missing structured control evidence');
   }
+  const numericControls = ['driverRc', 'overridden', 'rejected'];
+  if (numericControls.some((key) => !Number.isInteger(warm[key])) || typeof warm.timedOut !== 'boolean') {
+    return malformed('the warm arm is missing structured driver or override evidence');
+  }
   if (!warm.storeShared || !warm.scriptRan || !warm.evidenceIsSound) {
     return failure('the sufficient warm arm did not prove a shared, executed lifecycle control');
   }
@@ -65,22 +70,35 @@ export const classifyWarmReuse = ({ kase, cold, right, warm, provenance }) => {
   if (warm.sideEffectsRestored) {
     return failure('the sufficient warm arm restored a side-effects-cache result rather than exercising the store control');
   }
+  if (warm.driverRc !== 0 || warm.timedOut || warm.overridden < 1 || warm.rejected !== 0) {
+    return failure('the sufficient warm arm did not prove an effective, successful requested override');
+  }
   if (!Array.isArray(provenance) || provenance.length !== phases.length
     || provenance.map((entry) => entry?.phase).join(',') !== phases.join(',')) {
     return malformed('the three GVS provenance snapshots are missing or malformed');
   }
   const [before, afterRight, afterWarm] = provenance.map((entry) => entry.artifact);
-  if (!before || before.status !== 'missing' || typeof before.store !== 'string') {
+  if (!before || typeof before.store !== 'string' || before.store.length === 0) {
+    return malformed('the before-right GVS provenance is missing or malformed');
+  }
+  if (before.status !== 'missing') {
     return failure('the shared GVS already contained the cjpeg payload before the sufficient control');
   }
   if (!afterRight || !afterWarm || typeof afterRight.store !== 'string' || afterRight.store.length === 0
-    || afterRight.store !== afterWarm.store || typeof afterRight.entry !== 'string' || afterRight.entry.length === 0
-    || afterRight.entry !== afterWarm.entry
+    || typeof afterWarm.store !== 'string' || afterWarm.store.length === 0
+    || typeof afterRight.entry !== 'string' || afterRight.entry.length === 0
+    || typeof afterWarm.entry !== 'string' || afterWarm.entry.length === 0
     || !artifactShape(afterRight.artifact) || !artifactShape(afterWarm.artifact)) {
     return malformed('the post-control GVS provenance is incomplete or malformed');
   }
-  if (!underStore(afterRight.artifact, afterRight.store) || !underStore(afterWarm.artifact, afterWarm.store)) {
-    return failure('the cjpeg provenance escaped the shared GVS');
+  if (before.store !== afterRight.store || afterRight.store !== afterWarm.store) {
+    return failure('the GVS store changed across the paired warm-state control');
+  }
+  if (afterRight.entry !== afterWarm.entry) {
+    return failure('the GVS entry changed during the narrowed warm arm');
+  }
+  if (!isGvsTarget(afterRight) || !isGvsTarget(afterWarm)) {
+    return failure('the cjpeg provenance is not the exact shared GVS entry artifact');
   }
   if (!sameArtifact(afterRight.artifact, afterWarm.artifact)) {
     return failure('the cjpeg payload changed during the narrowed warm arm');
