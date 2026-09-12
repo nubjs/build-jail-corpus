@@ -65,6 +65,22 @@ test('runtime staging resolves exact source-root packages before entering the em
   const cli = spawnSync(process.execPath, [fileURLToPath(new URL('./runtime-bundle.mjs', import.meta.url)), '--runtime-dependency-specs', '--source-root', source], { encoding: 'utf8' });
   assert.equal(cli.status, 0);
   assert.deepEqual(cli.stdout.trim().split('\n'), expected);
+  if (process.platform !== 'win32') {
+    const workspace = fileURLToPath(new URL('../../', import.meta.url));
+    const workflow = fs.readFileSync(path.join(workspace, '.github/workflows/catalog-boundary-artifact-records.yml'), 'utf8');
+    const start = workflow.indexOf('            RUNTIME_DEP_SPECS_TEXT=');
+    const end = workflow.indexOf('            rm -rf runtime/node_modules', start);
+    assert.ok(start >= 0 && end > start, 'the actual workflow staging block must be exercised');
+    const script = `set -euo pipefail\n${workflow.slice(start, end)}\nprintf '%s\\n' "\${RUNTIME_DEP_SPECS[@]}"`;
+    const env = { ...process.env, GITHUB_WORKSPACE: workspace,
+      PATH: `${path.dirname(process.execPath)}${path.delimiter}${process.env.PATH}` };
+    const shell = spawnSync('/bin/bash', ['-c', script], { cwd: source, env, encoding: 'utf8' });
+    assert.equal(shell.status, 0, shell.stderr);
+    assert.deepEqual(shell.stdout.trim().split('\n'), expected);
+    const absent = fs.mkdtempSync(path.join(os.tmpdir(), 'runtime-source-absent-'));
+    const failure = spawnSync('/bin/bash', ['-c', script], { cwd: absent, env, encoding: 'utf8' });
+    assert.notEqual(failure.status, 0, 'failed dependency resolution must stop before npm arguments are built');
+  }
   assert.doesNotThrow(() => verifyRuntimeDependencies(source, staged));
   fs.writeFileSync(path.join(staged, 'node_modules', 'jsbi', 'package.json'), JSON.stringify({ name: 'jsbi', version: '4.3.3' }));
   assert.throws(() => verifyRuntimeDependencies(source, staged), /jsbi differs/);

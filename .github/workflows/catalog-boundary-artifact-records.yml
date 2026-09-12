@@ -188,8 +188,10 @@ jobs:
             esac
             # The fast binary walks to this complete sidecar at runtime.  Stage the same exact
             # vendored JS packages as the release workflow, without inheriting source-root links.
-            mapfile -t RUNTIME_DEP_SPECS < <(node "$GITHUB_WORKSPACE/harness/v2/runtime-bundle.mjs" \
+            RUNTIME_DEP_SPECS_TEXT=$(node "$GITHUB_WORKSPACE/harness/v2/runtime-bundle.mjs" \
               --runtime-dependency-specs --source-root "$PWD")
+            RUNTIME_DEP_SPECS=()
+            while IFS= read -r spec; do RUNTIME_DEP_SPECS+=("$spec"); done <<< "$RUNTIME_DEP_SPECS_TEXT"
             [ "${#RUNTIME_DEP_SPECS[@]}" -eq 5 ] || { echo 'incomplete runtime dependency specs' >&2; exit 1; }
             rm -rf runtime/node_modules
             mkdir -p runtime/node_modules
