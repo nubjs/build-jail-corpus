@@ -118,15 +118,18 @@ jobs:
           JS
           ( cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" install > "$CONTROL/install.log" 2>&1 )
           ( cd "$CONTROL" && NUB_CACHE_DIR="$CONTROL/nubcache" "$NUB_BIN" approve-builds --all > "$CONTROL/approve.log" 2>&1 )
-          grep -Eq 'ran .*install|running .*install' "$CONTROL/install.log" "$CONTROL/approve.log"
+          grep -F 'build scripts are running without the build sandbox' "$CONTROL/approve.log"
+          grep -F '[info] ok' "$CONTROL/approve.log"
       - name: Run one full-read direct jail arm
         id: direct
         continue-on-error: true
         run: |
           set -o pipefail
+          set +e
           sudo -E env NUB_JAIL_DUMP_POLICY=1 harness/v2/measure-macos.sh "$PKG" "$VER" "$NUB_BIN" --at-grant "$GRANT" \
             2>&1 | tee reports/direct.log
           rc=${PIPESTATUS[0]}
+          set -e
           echo "$rc" > reports/direct.exit
           exit "$rc"
       - name: Retain the direct arm and policy evidence

@@ -109,6 +109,38 @@ test('the Confluent control retains every preflight boundary before stopping the
   assert.match(confluentDiagnostic, /printf '%s\\n' "\$control_rc" > reports\/control\/exit/);
   assert.match(confluentDiagnostic,
     /find -L "\$CONTROL\/node_modules" -path '\*\/@mapbox\/node-pre-gyp\/bin\/node-pre-gyp' -type f -print -quit/);
+  assert.match(confluentDiagnostic,
+    /grep -F 'build scripts are running without the build sandbox' "\$CONTROL\/approve\.log"/);
+  assert.match(confluentDiagnostic, /grep -F '\[info\] ok' "\$CONTROL\/approve\.log"/);
+});
+
+test('the direct workflow writes its producer exit before restoring errexit', () => {
+  inOrder(confluentDiagnostic, [
+    'set -o pipefail',
+    'set +e',
+    'NUB_JAIL_DUMP_POLICY=1 harness/v2/measure-macos.sh',
+    'rc=${PIPESTATUS[0]}',
+    'set -e',
+    'echo "$rc" > reports/direct.exit',
+  ], 'Confluent direct exit retention');
+});
+
+shellTest('the direct pipeline preserves a failed producer exit under bash errexit', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'direct-pipeline-'));
+  const status = path.join(dir, 'direct.exit');
+  try {
+    const result = spawnSync('bash', ['-c', `set -e -o pipefail
+set +e
+(exit 23) | cat >/dev/null
+rc=\${PIPESTATUS[0]}
+set -e
+printf '%s\\n' "\$rc" > ${JSON.stringify(status)}
+exit "\$rc"`], { encoding: 'utf8' });
+    assert.equal(result.status, 23);
+    assert.equal(fs.readFileSync(status, 'utf8'), '23\n');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('Windows records the Nub arm layout after safe resolution, not npm OBSERVE as hoisted', () => {
