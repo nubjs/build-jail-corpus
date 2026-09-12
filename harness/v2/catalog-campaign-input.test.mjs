@@ -72,8 +72,16 @@ test('checked-in campaign manifest and artifact workflow stay bounded and publis
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /RUNTIME_BUNDLE_CACHE_PATH="\$\(cygpath -w/);
   assert.match(workflow, /runtime-bundle\.mjs --verify/);
+  assert.match(workflow, /catalog-replay\.mjs/);
+  assert.match(workflow, /--catalog catalog-v2\.json --worklist reports\/worklist\.txt/);
+  assert.match(workflow, /--context reports\/campaign-context\.json --out reports\/catalog-replay/);
+  assert.match(workflow, /id: campaigncontext/);
+  assert.match(workflow, /always\(\) && !cancelled\(\) && steps\.campaigncontext\.outcome == 'success'/);
+  assert.match(workflow, /args\+=\(--driver-root 'D:\/jail-record-probe'\)/);
   assert.match(workflow, /RUNTIME_CACHE_KEY=\$\(node harness\/v2\/runtime-bundle\.mjs --cache-key/);
   assert.match(workflow, /Smoke the source-free runtime sidecar/);
   assert.ok(workflow.indexOf('Materialize and screen one bounded worklist') < workflow.indexOf('Build the exact full Nub runtime'));
   assert.ok(workflow.indexOf('Materialize and screen one bounded worklist') < workflow.indexOf('Measure the screened worklist'));
+  assert.ok(workflow.indexOf('Measure the screened worklist') < workflow.indexOf('Replay the bound external catalog directly'));
+  assert.ok(workflow.indexOf('Replay the bound external catalog directly') < workflow.indexOf('Require complete exact-candidate measurements'));
 });

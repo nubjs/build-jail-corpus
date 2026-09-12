@@ -247,7 +247,8 @@ jobs:
         with:
           path: ${{ env.RUNTIME_BUNDLE_CACHE_PATH }}
           key: ${{ env.RUNTIME_CACHE_KEY }}
-      - name: Bind source, bundle, and campaign inputs
+      - id: campaigncontext
+        name: Bind source, bundle, and campaign inputs
         run: |
           set -euo pipefail
           node harness/v2/campaign-provenance.mjs --create --out reports/campaign-context.json \
@@ -277,6 +278,17 @@ jobs:
             export NUB_V2_DRIVER_ARGS='["--root","D:\\jail-record-probe"]'
           fi
           node harness/v2/run-batch-v2.mjs --file reports/worklist.txt --nub "$NUB_BIN" --runs "$GITHUB_WORKSPACE/reports/records" --force 2>&1 | tee reports/measure.log
+      - name: Replay the bound external catalog directly
+        if: ${{ always() && !cancelled() && steps.campaigncontext.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          args=(
+            --nub "$NUB_BIN" --nub-git-sha "$NUB_GIT_SHA" \
+            --catalog catalog-v2.json --worklist reports/worklist.txt \
+            --context reports/campaign-context.json --out reports/catalog-replay
+          )
+          if [ "$PLATFORM" = windows ]; then args+=(--driver-root 'D:/jail-record-probe'); fi
+          node harness/v2/catalog-replay.mjs "${args[@]}" 2>&1 | tee reports/catalog-replay.log
       - name: Require complete exact-candidate measurements
         if: always()
         run: node harness/v2/assert-probe-records.mjs --file reports/worklist.txt --runs reports/records --expected reports/expected.json --out reports/record-summary.json
